@@ -21,6 +21,7 @@ Danach ist die Seite online. Alles Weitere ist Phase 2.
 - LLM-Fenster („Rotkehlchen antwortet“) – Worker liegt vorbereitet in `worker/`, ist nicht eingebunden
 - Formular-Endpunkt statt `mailto:` – erst, wenn `mailto:` im Alltag stört
 - Weitere Animationen, Mehrsprachigkeit, Analytics
+- Eigene Artikel (Blog): Markdown → Seiten im Papier-Design; GitHub Pages trägt das ohne Umzug
 
 ## Was Claude vorbereitet hat
 
