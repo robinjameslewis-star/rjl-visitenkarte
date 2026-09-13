@@ -20,6 +20,24 @@ sich auf → Ast federt → Name und Formular erscheinen. Danach atmet der Vogel
 Klick auf die Szene lässt ihn noch einmal anfliegen. Bei `prefers-reduced-motion` steht
 alles sofort.
 
+## Termine (Kalender)
+
+Die Seite zeigt freigegebene Zeiten aus `termine.json` (Monatsansicht, Kupferpunkt = frei).
+Eine gewählte Zeit wandert in die Anfrage; die Art (FaceTime, Telefon, vor Ort) wählt der Gast.
+Gebucht wird nichts automatisch: Die Anfrage kommt als Mail, Robin bestätigt mit einer
+Kalendereinladung – bei FaceTime mit seinem FaceTime-Link (einmal in FaceTime „Link erstellen“,
+der Link bleibt gültig; Gäste ohne Apple-Gerät öffnen ihn im Browser).
+
+Freigeben – zwei Wege:
+
+1. **Apple Kalender:** Kalender „Frei“ anlegen, dort Zeitblöcke eintragen (z. B. Do 14–15 Uhr),
+   dann `tools/frei-export.sh` ausführen. Das Skript liest den Kalender „Frei“ (nächste 90 Tage,
+   30-Minuten-Raster) und schreibt `termine.json`. Danach committen/hochladen. Beim ersten Lauf
+   fragt macOS nach Kalenderzugriff für das Terminal.
+2. **Von Hand:** `termine.json` bearbeiten: `{"datum": "2026-09-18", "zeiten": ["14:00", "14:30"]}`.
+
+Vergangene Tage blendet die Seite selbst aus.
+
 ## Formular
 
 Ohne Konfiguration öffnet „Nachricht senden“ das Mailprogramm mit vorausgefüllter Mail
