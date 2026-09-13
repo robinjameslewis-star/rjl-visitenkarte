@@ -8,7 +8,12 @@ Kontaktformular. Gestaltung nach dem persönlichen Designsystem 3.1
 
 ## Dateien
 
-- `index.html` – komplette Seite (HTML, CSS, JS), keine Abhängigkeiten außer Google Fonts
+- `index.html` – Seite und Gestaltung; Kontaktformular und Cal.com-Einbettung
+- `language.js` – deutsche und englische Texte, Sprachauswahl und Sprachparameter in der URL
+- `site.js` – Formularmeldungen und Cal.com-Einbettung in der gewählten Sprache
+- `bird-flight.js` – Flugbahn, Bildwechsel und Landung, ohne Animationsbibliothek
+- `assets/flugpose-*.webp` – vier verlustfreie Flugposen
+- `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation
 - `assets/vogel.png` – Vogel-Ebene (freigestellt, Beine enden an der Astkante)
 - `assets/ast.png` – Ast-Ebene (Füße entfernt, Lücken rekonstruiert), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
@@ -16,17 +21,51 @@ Kontaktformular. Gestaltung nach dem persönlichen Designsystem 3.1
 
 ## Animation
 
-Ablauf: Ast wird gezeichnet (clip-path) → Vogel fliegt von links oben ein, kippt in den
-Landeanflug, kurzes Flattern (scaleY), setzt leicht unter dem Landepunkt auf und richtet
-sich auf → Ast federt → Name und Formular erscheinen. Danach atmet der Vogel minimal.
-Klick auf die Szene lässt ihn noch einmal anfliegen. Bei `prefers-reduced-motion` steht
-alles sofort.
+Vier Flugposen wechseln zwischen Aufschlag, Gleitflug, Abschlag und Landeanflug.
+Der Anflug folgt einer kontinuierlichen Kurve von rechts oben nach unten zur Sitzposition, mit
+kurzen Schlagphasen, einer ruhigen Gleitphase und weichem Abbremsen. Beim Aufsetzen
+federn Vogel und Ast gemeinsam aus. Für die CD-konforme Ansicht bleibt der Vogel mit Blick nach
+links ausgerichtet; beim Aufsetzen faltet er nur die Flügel ein, ohne Drehung.
+Danach steht die Illustration ruhig, auch bei reduzierter Bewegung.
+
+`bird-flight.js` steuert die Bewegung mit einer einzigen requestAnimationFrame-Schleife.
+Die Posen sind am Auge auf die Sitzillustration ausgerichtet; kurze Überblendungen
+mildern den Bildwechsel. Alle Bilder werden vor dem Start dekodiert. Bei Bildfehlern,
+langsamer Verbindung, verborgenem Tab oder Größenwechsel bleibt/erscheint die Sitzpose.
+Klick, Enter oder Leertaste auf die Szene wiederholt den Flug ohne Warteschlange.
+Bei `prefers-reduced-motion` bleibt die Sitzpose statisch; Flugbilder werden beim
+initialen Laden dieser Einstellung nicht angefordert. Inhalte bleiben sofort benutzbar.
+
+Die vier Dateien `assets/flugpose-1-aufschlag.webp` bis `assets/flugpose-4-landeanflug.webp`
+sind Website-Kopien der Entwürfe aus `Second Brain/90_Meta/Design/Entwuerfe/` (13_Flugpose_*.png).
+Die vier Dateien sind WebP mit Qualität 86 (visuell verlustfrei), zusammen rund 430 KB; die verlustfreien Originale liegen als PNG im Vault.
+Die Darstellung nutzt `mix-blend-mode: multiply`, damit Weiß mit dem Papier verschmilzt;
+die Originaldateien werden weder freigestellt noch pixelweise bearbeitet.
+Die Illustration ist eine Bildfolge aus vier gezeichneten Haltungen, keine anatomische
+3D-Simulation. Geringe Zeichnungsunterschiede bleiben bei stark vergrößerter Ansicht sichtbar.
+
+Einbau ausdrücklich von Robin am 13.09.2026 beauftragt (nach dem ursprünglichen Go-live-Plan).
+
+## Sprache und Ansprache
+
+Die Auswahl „Deutsch / English“ steht oben rechts. Deutsch ist der Standard;
+`?lang=en` öffnet die englische Fassung direkt. Die Sprache wird nur in der URL geführt,
+ohne Cookies oder lokalen Speicher. Ein Wechsel übersetzt die Seitentexte, Formulartitel,
+Statusmeldungen, Bild-Bedienhinweise, Meta-Beschreibung und den Datenschutzhinweis.
+Formulareingaben bleiben erhalten; die Animation wird nicht neu gestartet.
+
+Texte (Robin, 14.09.2026): schlicht — „Termin vereinbaren“ / „Arrange an appointment“, ohne Du/Sie.
+Der Einleitungssatz nennt Orte (auch ein Ort nach Wunsch des Gastes) und dass jede
+Buchung erst ein Vorschlag ist, den Robin persönlich bestätigt.
+
+Für Englisch wird der zweite Ereignistyp (`…-en`) geladen; die Texte im Kalender selbst
+stammen von Cal.com. Beide Buchungslinks laden (geprüft 14.09.2026).
 
 ## Termine (Cal.com)
 
 Terminbuchung läuft über Cal.com (kostenloser Einzelplan: 1 Person, unbegrenzte Termine und
 Kalender, Apple Calendar wird unterstützt). Die Seite bettet den Buchungskalender ein und
-färbt ihn in die CI; ohne geladenes Skript bleibt ein Link „Termin wählen“.
+färbt ihn in die CI; ohne geladenes Skript bleibt ein Link „Termin finden“ / „Find a time“.
 
 Einrichtung (einmalig, ca. 30 Minuten):
 
@@ -42,10 +81,19 @@ Einrichtung (einmalig, ca. 30 Minuten):
    Kalender-App hinzufügen (Systemeinstellungen → Internetaccounts → Google → Kalender).
 5. Verfügbarkeit: Einstellungen → Verfügbarkeit → Wochenplan (das ist die Freigabe), dazu
    „Datumsüberschreibungen“ für einzelne Tage. Pufferzeiten und Mindestvorlauf setzen.
-6. Ereignistyp anlegen, z. B. `gespraech`, 30 Minuten. Orte zur Auswahl: **Google Meet**
-   (Link entsteht je Buchung automatisch, Gäste brauchen kein Konto, jeder Browser),
-   „Telefon (Gast ruft an)“ und „Vor Ort“ mit der Adresse.
-7. In `index.html` den Link eintragen: `data-cal-link="BENUTZERNAME/gespraech"`.
+6. Ereignistypen (Deutsch `robin-james-lewis`, Englisch `robin-james-lewis-en`), jeweils:
+   - **Erweitert → „Bestätigung erforderlich“** einschalten. Damit ist jede Buchung ein
+     Vorschlag: Der Gast erhält „Buchung eingereicht, wartet auf Bestätigung“, Robin bestätigt
+     oder lehnt per Mail oder in Cal.com ab; erst dann gibt es Kalendereintrag und Meet-Link.
+     Optional: nur bei kurzfristigen Buchungen (unter X Stunden Vorlauf) bestätigen lassen.
+   - **Dauer:** „Mehrere Dauern zulassen“ (z. B. 15, 30, 60 Minuten) – der Gast wählt.
+   - **Orte, mehrere zur Auswahl:** Google Meet (Link je Buchung), „Telefon (Gast wird
+     angerufen)“ bzw. „Organisator ruft an“, „Persönlich – Adresse des Organisators“ (Balingen)
+     und **„Persönlich – Adresse des Teilnehmers“**: der Gast trägt seinen Ortsvorschlag ein.
+   - Name und Beschreibung des Ereignistyps schlicht: „Termin“ / „Appointment“; in der
+     Beschreibung ein Satz, dass der Termin nach Bestätigung gilt.
+7. In `index.html` stehen die Links in `data-booking-link` (Deutsch) und `data-booking-link-en` (Englisch).
+   Nicht `data-cal-link` verwenden – das Attribut öffnet durch Cal.coms Skript ein dunkles Popup.
 8. Cal.com → Einstellungen → Allgemein: Sprache Deutsch, Zeitzone Europe/Berlin, Wochenstart Montag;
    Erscheinungsbild: Hell. Die Seite färbt den eingebetteten Kalender selbst in die CI-Farben.
 
@@ -83,3 +131,9 @@ Aus `Second Brain/90_Meta/Design/Vorlagen/Assets/rotkehlchen_freigestellt.png` a
 getrennt: Schnitt bei Zeile 583, Fußzonen (x 410–492 und 536–626) im Ast aus den
 Nachbarabschnitten rekonstruiert. Landeposition: Vogel 20 px (3,43 % seiner Höhe) tiefer
 als die Rohebene, damit die Beinenden hinter dem Ast liegen.
+
+## Prüfung der Animationssteuerung
+
+`node tests/bird-flight.test.cjs` prüft die vier Posen und das Ende der Animation,
+schnelle Wiederholung, reduzierte Bewegung, Bildladefehler, Tabwechsel und Größenänderung.
+Die visuelle Abnahme erfolgt zusätzlich im Browser auf breitem und schmalem Bildschirm.
