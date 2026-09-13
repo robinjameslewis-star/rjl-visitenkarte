@@ -4,6 +4,8 @@ Eine Seite: das handgezeichnete Rotkehlchen fliegt an und landet auf dem Ast, da
 Kontaktformular. Gestaltung nach dem persönlichen Designsystem 3.1
 (`Second Brain/90_Meta/Design/Designsystem.md`).
 
+**Veröffentlichung zuerst:** siehe `GO-LIVE.md`. Der Ordner `worker/` (LLM-Proxy) ist Phase 2 und nicht eingebunden.
+
 ## Dateien
 
 - `index.html` – komplette Seite (HTML, CSS, JS), keine Abhängigkeiten außer Google Fonts

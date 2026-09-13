@@ -1,0 +1,30 @@
+# Cloudflare Worker: LLM-Proxy für die Visitenkarte.
+# Deploy:  cd worker && npx wrangler login && npx wrangler deploy
+# Der Schlüssel liegt nie im Seitencode. Anbieter per PROVIDER umschalten.
+name = "rjl-rotkehlchen"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[ai]
+binding = "AI"                       # Workers AI (Free-Kontingent, Start)
+
+[vars]
+PROVIDER = "workers-ai"              # "workers-ai" | "anthropic" | "openai"
+MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+# Anthropic:  PROVIDER = "anthropic", MODEL = "claude-sonnet-5",  Secret: npx wrangler secret put ANTHROPIC_API_KEY
+# OpenAI:     PROVIDER = "openai",    MODEL = "gpt-4.1-mini",     Secret: npx wrangler secret put OPENAI_API_KEY
+ALLOWED_ORIGINS = "https://robinjameslewis.de,https://www.robinjameslewis.de,http://localhost:8788"
+MAX_PER_IP_PER_HOUR = "20"           # weiche Grenze je Besucher (pro Worker-Instanz)
+MAX_PER_DAY = "400"                  # harte Tagesgrenze (braucht KV, sonst nur die IP-Grenze)
+MAX_INPUT_CHARS = "600"
+MAX_TURNS = "8"
+
+# Optional für die Tagesgrenze:  npx wrangler kv namespace create USAGE  → id hier eintragen
+# [[kv_namespaces]]
+# binding = "USAGE"
+# id = "…"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true
