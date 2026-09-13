@@ -40,6 +40,13 @@ Einrichtung (einmalig, ca. 20 Minuten):
    gültig und ist auch aus dem Browser erreichbar), „Telefon (Gast ruft an)“ und
    „Vor Ort“ mit der Adresse.
 5. In `index.html` den Link eintragen: `data-cal-link="BENUTZERNAME/gespraech"`.
+6. Cal.com → Einstellungen → Allgemein: Sprache Deutsch, Zeitzone Europe/Berlin, Wochenstart Montag;
+   Erscheinungsbild: Hell. Die Seite färbt den eingebetteten Kalender selbst in die CI-Farben.
+
+Anzeige: Ab ca. 900 px Breite stehen Ereignisdetails, Monat und Uhrzeiten nebeneinander; auf dem
+Handy untereinander. Der eingebettete Bereich hat eine Mindesthöhe von 640 px, bis Cal.com seine
+Höhe meldet. In der Claude-Vorschau (Artefakt) ist das Cal.com-Skript aus Sicherheitsgründen
+blockiert; dort erscheint nur der Link „Termin wählen“ – auf der echten Seite der Kalender.
 
 Cal.com sendet Bestätigungen und Erinnerungen selbst und trägt den Termin in den Apple
 Kalender ein. Die frühere Eigenlösung (eigener Kalender aus `termine.json` mit
