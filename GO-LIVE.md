@@ -13,7 +13,7 @@ Fertige Punkte hier abhaken.
 | 4 | Buchungslinks in `index.html` (`data-booking-link`, `-en`) | Robin oder Claude | 1 min | ☑ 13.09. |
 | 5 | **Domain** – Start ohne eigene Domain unter der GitHub-Adresse; eigene Domain später (Settings → Pages → Custom domain, CNAME beim Anbieter) | Robin | 10 min | ☑ vorerst |
 | 6 | **Hosting: GitHub Pages** – Repository `robinjameslewis-star/rjl-visitenkarte`, Pages von `main`, HTTPS | Robin + Claude | 15 min | ☑ 14.09. |
-| 7 | **Abnahme** auf iPhone (Safari), Mac (Safari, Chrome): Animation, Kalender inkl. Testbuchung, Nachricht öffnet Mailprogramm, Sprachwechsel, Impressum-Klappe | Robin | 10 min | ☐ |
+| 7 | **Abnahme** auf iPhone (Safari), Mac (Safari, Chrome): Animation, Kalender inkl. Testbuchung, Nachricht öffnet Mailprogramm, Sprachwechsel, Impressum-Klappe | Robin | 10 min | ☑ 14.09. (Mac: Testbuchung, Testmail mit Signatur) |
 
 Danach ist die Seite online. Alles Weitere ist Phase 2.
 
