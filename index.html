@@ -46,11 +46,14 @@
   .scene img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
   .perch { position: absolute; inset: 0; }
   .branch { position: absolute; left: 0; top: 76.48%; width: 100%; }          /* ast.png beginnt bei Zeile 543 von 710 */
-  .bird-move { position: absolute; left: 0; top: 0; width: 100%; transform: translateY(3.43%); will-change: transform; }
-  .bird-tilt { transform-origin: 46% 62%; }
-  .bird-flap { transform-origin: 50% 58%; }
+  .shadow { position: absolute; left: 36%; top: 83%; width: 22%; height: 3.2%; border-radius: 50%; background: #3a2a1e; opacity: .14; filter: blur(6px); transform: scaleX(1); }
+  .bird-move { position: absolute; left: 0; top: 0; width: 100%; will-change: transform; }
+  .bird-tilt { transform-origin: 46% 60%; }
+  .bird-flap { transform-origin: 52% 56%; }
+  .bird-settle { transform-origin: 50% 100%; }
   .bird-breathe { transform-origin: 50% 100%; }
 
+  /* ---------- Formular ---------- */
   /* ---------- Formular ---------- */
   .contact { max-width: 560px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
   .contact h1 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
@@ -115,27 +118,53 @@
   footer a { color: inherit; }
 
   /* ---------- Animation (nur mit .play; Ruhezustand = Endzustand) ---------- */
-  .play .branch img { animation: draw 1.6s cubic-bezier(.4,0,.2,1) .3s both; }
-  .play .bird-move  { animation: fly 2.7s cubic-bezier(.25,.6,.25,1) 1.5s both; }
-  .play .bird-tilt  { animation: tilt 2.7s cubic-bezier(.25,.6,.25,1) 1.5s both; }
-  .play .bird-flap  { animation: flap .17s ease-in-out 1.5s 12 alternate; }
-  .play .perch      { animation: dip .85s cubic-bezier(.3,.9,.3,1) 4.15s both; }
-  .play .bird-breathe { animation: breathe 3.6s ease-in-out 5.2s infinite alternate; }
-  .play .name       { animation: rise 1s ease-out 4.7s both; }
-  .play .contact, .play footer { animation: rise 1s ease-out 5.3s both; }
+  .play .branch img  { animation: draw 1.5s cubic-bezier(.4,0,.2,1) .3s both; }
+  .play .shadow      { animation: shadowin 3.4s linear 1.4s both; }
+  .play .bird-move   { animation: fly 3.4s linear 1.4s both; }
+  .play .bird-tilt   { animation: tilt 3.4s linear 1.4s both; }
+  .play .bird-flap   { animation: flap 3.4s linear 1.4s both; }
+  .play .bird-settle { animation: settle .55s cubic-bezier(.3,.9,.3,1) 4.8s both; }
+  .play .perch       { animation: dip .9s cubic-bezier(.3,.9,.3,1) 4.75s both; }
+  .play .bird-breathe{ animation: breathe 3.6s ease-in-out 5.6s infinite alternate; }
+  .play .name        { animation: rise 1s ease-out 5.2s both; }
+  .play .contact, .play footer { animation: rise 1s ease-out 5.8s both; }
 
-  @keyframes draw   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+  /* Bogenflug: schneller Anflug, Wellen (Flattern/Gleiten), Abfangen über dem Ast, Aufsetzen */
   @keyframes fly {
-    0%   { transform: translate(-70vw, -42vh) scale(.5); opacity: 0; filter: blur(2px); }
-    10%  { opacity: 1; }
-    35%  { filter: blur(0); }
-    72%  { transform: translate(-7vw, -3vh) scale(.97); }
-    90%  { transform: translate(1.1%, 4.6%) scale(1); }
-    100% { transform: translate(0, 3.43%) scale(1); opacity: 1; filter: blur(0); }
+    0%   { transform: translate(-82vw, -60vh) scale(.40); opacity: 0; filter: blur(2.5px); animation-timing-function: ease-out; }
+    5%   { opacity: 1; }
+    16%  { transform: translate(-62vw, -44vh) scale(.52); filter: blur(1.6px); animation-timing-function: ease-in-out; }
+    28%  { transform: translate(-49vw, -39vh) scale(.62); filter: blur(.8px); animation-timing-function: ease-in-out; }
+    40%  { transform: translate(-37vw, -28vh) scale(.72); filter: blur(0); animation-timing-function: ease-in-out; }
+    52%  { transform: translate(-26vw, -23vh) scale(.81); animation-timing-function: ease-in-out; }
+    64%  { transform: translate(-16vw, -13vh) scale(.90); animation-timing-function: ease-in-out; }
+    76%  { transform: translate(-7.5vw, -5vh) scale(.97); animation-timing-function: ease-out; }
+    87%  { transform: translate(-1.8vw, 1.4vh) scale(1); animation-timing-function: ease-in-out; }
+    94%  { transform: translate(-0.4%, -2.2%) scale(1); animation-timing-function: ease-in; }
+    100% { transform: translate(0, 0) scale(1); opacity: 1; filter: blur(0); }
   }
-  @keyframes tilt   { 0% { transform: rotate(-16deg); } 60% { transform: rotate(-6deg); } 88% { transform: rotate(6deg); } 100% { transform: rotate(0); } }
-  @keyframes flap   { from { transform: scaleY(1); } to { transform: scaleY(.955); } }
-  @keyframes dip    { 0% { transform: translateY(0); } 32% { transform: translateY(1%); } 66% { transform: translateY(-.3%); } 100% { transform: translateY(0); } }
+  /* Körperneigung: nach unten im Anflug, aufgerichtet zum Abfangen, dann waagerecht */
+  @keyframes tilt {
+    0%   { transform: rotate(-20deg); animation-timing-function: ease-in-out; }
+    40%  { transform: rotate(-13deg); animation-timing-function: ease-in-out; }
+    76%  { transform: rotate(-5deg);  animation-timing-function: ease-in-out; }
+    88%  { transform: rotate(10deg);  animation-timing-function: ease-in-out; }
+    95%  { transform: rotate(3deg);   animation-timing-function: ease-out; }
+    100% { transform: rotate(0); }
+  }
+  /* Flügelschläge als leichtes Pulsieren: Schlagphasen am Anfang und beim Abfangen, Gleiten dazwischen */
+  @keyframes flap {
+    0%,2.5%,5%,7.5%,10%,12.5%,15%,17.5%,20%,22.5%,25%,27.5%,30%,32.5%,35%  { transform: scaleY(1) rotate(0); }
+    1.25%,3.75%,6.25%,8.75%,11.25%,13.75%,16.25%,18.75%,21.25%,23.75%,26.25%,28.75%,31.25%,33.75% { transform: scaleY(.958) rotate(-1.2deg); }
+    36%,78% { transform: scaleY(1) rotate(0); }
+    80%,84%,88%,92% { transform: scaleY(.95) rotate(1.5deg); }
+    82%,86%,90%,94%,100% { transform: scaleY(1) rotate(0); }
+  }
+  @keyframes shadowin { 0%,80% { opacity: 0; transform: scaleX(.6); } 100% { opacity: .14; transform: scaleX(1); } }
+  @keyframes settle { 0% { transform: translateY(0); } 40% { transform: translateY(-1.6%) scaleY(1.01); } 100% { transform: none; } }
+  @keyframes dip    { 0% { transform: translateY(0); } 30% { transform: translateY(1.1%); } 62% { transform: translateY(-.35%); } 100% { transform: translateY(0); } }
   @keyframes breathe{ from { transform: scaleY(1); } to { transform: scaleY(1.012); } }
   @keyframes rise   { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -157,10 +186,11 @@
     <h1 class="name">Robin James Lewis<small>Balingen</small></h1>
     <div class="scene" id="scene" title="Noch einmal anfliegen lassen">
       <div class="perch">
-        <div class="bird-move"><div class="bird-tilt"><div class="bird-flap"><div class="bird-breathe">
-          <img src="assets/vogel.png" alt="Ein handgezeichnetes Rotkehlchen" width="1153" height="583">
-        </div></div></div></div>
         <div class="branch"><img src="assets/ast.png" alt="" width="1153" height="167"></div>
+        <div class="shadow" aria-hidden="true"></div>
+        <div class="bird-move"><div class="bird-tilt"><div class="bird-flap"><div class="bird-settle"><div class="bird-breathe">
+          <img src="assets/vogel.png" alt="Ein handgezeichnetes Rotkehlchen" width="1153" height="637">
+        </div></div></div></div></div>
       </div>
     </div>
   </section>
