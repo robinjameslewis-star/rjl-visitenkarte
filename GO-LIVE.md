@@ -6,8 +6,8 @@ Fertige Punkte hier abhaken.
 | # | Schritt | Wer | Dauer | Erledigt |
 |---|---|---|---|---|
 | 1 | **Cal.com-Konto** anlegen (Free), Benutzername merken | Robin | 5 min | ☐ |
-| 2 | **Apple Kalender verbinden** (app-spezifisches Passwort von appleid.apple.com), Konfliktkalender und Zielkalender wählen | Robin | 10 min | ☐ |
-| 3 | **Verfügbarkeit** (Wochenplan + Datumsausnahmen) und **Ereignistyp** `gespraech`, 30 min, Orte: FaceTime-Link (in FaceTime „Link erstellen“), Telefon, vor Ort; Sprache Deutsch, Wochenstart Montag | Robin | 15 min | ☐ |
+| 2 | **Google-Kalender verbinden** und als Zielkalender setzen, App „Google Meet“ installieren; **Apple Kalender verbinden** (app-spezifisches Passwort) nur zur Konfliktprüfung; Google-Konto in der Kalender-App des Macs/iPhones hinzufügen | Robin | 15 min | ☐ |
+| 3 | **Verfügbarkeit** (Wochenplan + Datumsausnahmen) und **Ereignistyp** `gespraech`, 30 min, Orte: Google Meet, Telefon, vor Ort; Sprache Deutsch, Wochenstart Montag | Robin | 15 min | ☐ |
 | 4 | `data-cal-link="BENUTZERNAME/gespraech"` in `index.html` eintragen | Robin oder Claude | 1 min | ☐ |
 | 5 | **Domain** entscheiden (z. B. robinjameslewis.de) und registrieren – oder ohne Domain unter der Hosting-Adresse starten | Robin | 10 min | ☐ |
 | 6 | **Hosting: GitHub Pages** (entschieden 13.09.2026). Robin führt einmal `gh auth login` im Terminal aus; Claude legt dann das Repository an, pusht und aktiviert Pages | Robin + Claude | 15 min | ☐ |

@@ -28,30 +28,39 @@ Terminbuchung läuft über Cal.com (kostenloser Einzelplan: 1 Person, unbegrenzt
 Kalender, Apple Calendar wird unterstützt). Die Seite bettet den Buchungskalender ein und
 färbt ihn in die CI; ohne geladenes Skript bleibt ein Link „Termin wählen“.
 
-Einrichtung (einmalig, ca. 20 Minuten):
+Einrichtung (einmalig, ca. 30 Minuten):
 
 1. Konto auf cal.com anlegen (Free). Benutzername merken.
-2. Apple Kalender verbinden: Einstellungen → Kalender → Apple Calendar. Cal.com braucht
-   ein **app-spezifisches Passwort** (appleid.apple.com → Anmeldung und Sicherheit →
-   App-spezifische Passwörter). Dann festlegen, welche Kalender auf Konflikte geprüft werden
-   und in welchen Kalender Buchungen geschrieben werden.
-3. Verfügbarkeit: Einstellungen → Verfügbarkeit → Wochenplan (das ist die Freigabe), dazu
+2. **Google-Kalender verbinden** (Einstellungen → Kalender → Google Calendar, mit dem Google-Konto
+   anmelden). Diesen Kalender als **Zielkalender** setzen – dorthin schreibt Cal.com die Buchungen,
+   und nur so kann es Google-Meet-Links erzeugen. Dann die App **Google Meet** installieren
+   (Apps → Konferenzen).
+3. **Apple Kalender verbinden** (Einstellungen → Kalender → Apple Calendar) mit einem
+   **app-spezifischen Passwort** (appleid.apple.com → Anmeldung und Sicherheit →
+   App-spezifische Passwörter). Diese Kalender nur zur **Konfliktprüfung** anhaken.
+4. Damit gebuchte Termine auf iPhone und Mac erscheinen: das Google-Konto einmal in der
+   Kalender-App hinzufügen (Systemeinstellungen → Internetaccounts → Google → Kalender).
+5. Verfügbarkeit: Einstellungen → Verfügbarkeit → Wochenplan (das ist die Freigabe), dazu
    „Datumsüberschreibungen“ für einzelne Tage. Pufferzeiten und Mindestvorlauf setzen.
-4. Ereignistyp anlegen, z. B. `gespraech`, 30 Minuten. Ort: mehrere zur Auswahl –
-   „Link“ mit dem FaceTime-Link (FaceTime-App → „Link erstellen“ → kopieren; der Link bleibt
-   gültig und ist auch aus dem Browser erreichbar), „Telefon (Gast ruft an)“ und
-   „Vor Ort“ mit der Adresse.
-5. In `index.html` den Link eintragen: `data-cal-link="BENUTZERNAME/gespraech"`.
-6. Cal.com → Einstellungen → Allgemein: Sprache Deutsch, Zeitzone Europe/Berlin, Wochenstart Montag;
+6. Ereignistyp anlegen, z. B. `gespraech`, 30 Minuten. Orte zur Auswahl: **Google Meet**
+   (Link entsteht je Buchung automatisch, Gäste brauchen kein Konto, jeder Browser),
+   „Telefon (Gast ruft an)“ und „Vor Ort“ mit der Adresse.
+7. In `index.html` den Link eintragen: `data-cal-link="BENUTZERNAME/gespraech"`.
+8. Cal.com → Einstellungen → Allgemein: Sprache Deutsch, Zeitzone Europe/Berlin, Wochenstart Montag;
    Erscheinungsbild: Hell. Die Seite färbt den eingebetteten Kalender selbst in die CI-Farben.
+
+Warum nicht FaceTime: Ein FaceTime-Link ist dauerhaft; wer ihn hat, kann jederzeit anklopfen
+(Entscheidung Robin, 13.09.2026). Google Meet erzeugt je Termin einen eigenen Link. Cal Video
+(Cal.coms eigener Dienst) wäre die Alternative ohne Google-Konto – ebenfalls ein Link je Termin,
+Gästen aber weniger vertraut.
 
 Anzeige: Ab ca. 900 px Breite stehen Ereignisdetails, Monat und Uhrzeiten nebeneinander; auf dem
 Handy untereinander. Der eingebettete Bereich hat eine Mindesthöhe von 640 px, bis Cal.com seine
 Höhe meldet. In der Claude-Vorschau (Artefakt) ist das Cal.com-Skript aus Sicherheitsgründen
 blockiert; dort erscheint nur der Link „Termin wählen“ – auf der echten Seite der Kalender.
 
-Cal.com sendet Bestätigungen und Erinnerungen selbst und trägt den Termin in den Apple
-Kalender ein. Die frühere Eigenlösung (eigener Kalender aus `termine.json` mit
+Cal.com sendet Bestätigungen und Erinnerungen selbst und trägt den Termin in den Google-
+Kalender ein, der auf allen Geräten erscheint. Die frühere Eigenlösung (eigener Kalender aus `termine.json` mit
 Apple-Kalender-Export) liegt in der Git-Historie (Commit `1da32ec`).
 
 ## Formular
