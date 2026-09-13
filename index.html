@@ -79,36 +79,16 @@
   .status { font-size: 13px; color: var(--ink-soft); min-height: 1.4em; }
   .status.ok { color: var(--green); }
 
-  /* ---------- Kalender ---------- */
-  .cal { margin: 0 0 30px; }
-  .cal-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
-  .cal-head h3 { font: 400 20px/1.2 var(--serif); color: var(--green); margin: 0; }
-  .cal-nav button { border: 0; padding: 4px 8px; font-size: 16px; letter-spacing: 0; color: var(--ink-soft); background: transparent; }
-  .cal-nav button:hover { color: var(--green); background: transparent; }
-  .cal-nav button:disabled { color: var(--line); cursor: default; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .cal-grid .wd { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-muted); text-align: center; padding: 4px 0 8px; font-family: var(--serif); }
-  .day { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-         font: 400 14px/1 var(--sans); font-variant-numeric: tabular-nums; color: var(--ink-muted); border: 0; background: transparent; padding: 0; border-radius: 0; letter-spacing: 0; text-transform: none; }
-  .day.free { color: var(--ink); cursor: pointer; }
-  .day.free::after { content: ""; position: absolute; left: 50%; bottom: 14%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--copper); }
-  .day.free:hover, .day.free:focus-visible { color: var(--green); background: transparent; outline: none; }
-  .day.free:focus-visible { box-shadow: inset 0 0 0 1px var(--green); }
-  .day.sel { color: var(--paper); background: var(--green); }
-  .day.sel::after { background: var(--paper); }
-  .day.today { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--copper); }
-  .slots { margin-top: 14px; min-height: 30px; }
-  .slots .hint { font-size: 13px; color: var(--ink-soft); }
-  .slots .date { font-family: var(--serif); color: var(--green); font-size: 16px; margin-bottom: 8px; }
-  .slot { border: 1px solid var(--line); color: var(--ink); padding: 8px 12px; margin: 0 8px 8px 0; font: 400 13px/1 var(--sans); letter-spacing: .04em; text-transform: none; }
-  .slot:hover { border-color: var(--green); background: transparent; color: var(--green); }
-  .slot.sel { background: var(--green); border-color: var(--green); color: var(--paper); }
-  .chosen { font-size: 14px; color: var(--ink); margin: 6px 0 0; }
-  .chosen b { font-weight: 500; }
-  .kind { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 22px; }
-  .kind label { font-size: 14px; color: var(--ink); display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
-  .kind input { accent-color: var(--green); margin: 0; }
-
+  /* ---------- Terminbuchung (Cal.com) ---------- */
+  .booking { margin: 0 0 34px; }
+  .cal-embed { width: 100%; min-height: 0; }
+  .cal-embed:empty { display: none; }
+  .cal-fallback { margin: 0; font-size: 15px; }
+  .cal-fallback a { color: var(--green); text-decoration: none; border-bottom: 1px solid var(--green); padding-bottom: 1px; }
+  .cal-fallback a:hover { color: var(--copper); border-color: var(--copper); }
+  .cal-fallback .hint { color: var(--ink-soft); font-size: 14px; }
+  .booking.loaded .cal-fallback { display: none; }
+  h3.sub { font: 400 18px/1.3 var(--serif); color: var(--green); margin: 0 0 16px; }
   footer { max-width: 560px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); }
   footer details summary { cursor: pointer; list-style: none; display: inline; }
   footer details summary::-webkit-details-marker { display: none; }
@@ -197,27 +177,18 @@
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin oder Nachricht</h2>
-    <p class="lead">Markierte Tage sind freigegeben. Wählen Sie eine Zeit – oder schreiben Sie einfach.</p>
+    <p class="lead">Ein Gespräch, 30 Minuten – per FaceTime, Telefon oder in Balingen. Oder schreiben Sie einfach.</p>
 
-    <div class="cal" id="cal" aria-label="Freie Termine">
-      <div class="cal-head">
-        <h3 id="cal-title">–</h3>
-        <div class="cal-nav">
-          <button type="button" id="prev" aria-label="Vorheriger Monat">‹</button>
-          <button type="button" id="next" aria-label="Nächster Monat">›</button>
-        </div>
-      </div>
-      <div class="cal-grid" id="grid" role="grid"></div>
-      <div class="slots" id="slots"><span class="hint">Noch kein Tag gewählt.</span></div>
+    <!-- Terminbuchung über Cal.com (kostenloser Einzelplan). Nach der Registrierung hier den eigenen Link eintragen:
+         data-cal-link="BENUTZERNAME/EVENT" (z. B. robinjameslewis/gespraech). Freigabe der Zeiten erfolgt in Cal.com
+         (Verfügbarkeit + Datumsausnahmen), Konfliktprüfung gegen den verbundenen Apple Kalender. -->
+    <div class="booking" id="booking" data-cal-link="robinjameslewis/gespraech">
+      <div class="cal-embed" id="cal-embed"></div>
+      <p class="cal-fallback" id="cal-fallback"><a id="cal-link" href="https://cal.com/robinjameslewis/gespraech" target="_blank" rel="noopener">Termin wählen</a><span class="hint"> – öffnet die Terminübersicht.</span></p>
     </div>
 
+    <h3 class="sub">Oder eine Nachricht</h3>
     <form id="form" novalidate data-endpoint="">
-      <input type="hidden" name="termin" id="termin" value="">
-      <div class="kind" id="kind" role="radiogroup" aria-label="Art des Termins">
-        <label><input type="radio" name="art" value="FaceTime" checked> FaceTime</label>
-        <label><input type="radio" name="art" value="Telefon"> Telefon</label>
-        <label><input type="radio" name="art" value="Vor Ort in Balingen"> Vor Ort in Balingen</label>
-      </div>
       <label class="field"><span>Name</span><input name="name" type="text" autocomplete="name" required></label>
       <label class="field"><span>E-Mail</span><input name="email" type="email" autocomplete="email" required></label>
       <label class="field"><span>Nachricht</span><textarea name="message" required></textarea></label>
@@ -234,20 +205,11 @@
   <details>
     <summary>Impressum · Datenschutz</summary>
     <p>Robin James Lewis · Höchststraße 32 · 72336 Balingen · <a href="mailto:robinjameslewis@googlemail.com">robinjameslewis@googlemail.com</a><br>
-    Private Seite. Das Formular – auch eine Terminanfrage – übergibt Ihre Angaben an Ihr Mailprogramm; auf dieser Seite werden keine Daten gespeichert, keine Cookies gesetzt und keine Besucher gezählt. Schriften werden von Google Fonts geladen.</p>
+    Private Seite. Das Nachrichtenformular übergibt Ihre Angaben an Ihr Mailprogramm; diese Seite speichert nichts, setzt keine Cookies und zählt keine Besucher. Die Terminbuchung stellt Cal.com bereit (Cal.com, Inc.); dort gelten deren Datenschutzbestimmungen. Schriften werden von Google Fonts geladen.</p>
   </details>
 </footer>
 
 
-<script type="application/json" id="termine-inline">
-{"dauerMin": 30, "zeitzone": "Europe/Berlin", "frei": [
-  {"datum": "2026-09-16", "zeiten": ["10:00", "10:30", "16:00"]},
-  {"datum": "2026-09-18", "zeiten": ["14:00", "14:30", "15:00"]},
-  {"datum": "2026-09-23", "zeiten": ["09:00", "09:30"]},
-  {"datum": "2026-09-30", "zeiten": ["17:00", "17:30", "18:00"]},
-  {"datum": "2026-10-07", "zeiten": ["11:00", "11:30"]}
-]}
-</script>
 <script>
   (function () {
     var root = document.documentElement;
@@ -263,46 +225,18 @@
     });
 
 
-    // ---------- Kalender: freigegebene Termine aus termine.json (Fallback: inline) ----------
-    var DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
-    var MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-    var grid = document.getElementById('grid'), title = document.getElementById('cal-title'), slotsEl = document.getElementById('slots');
-    var prevB = document.getElementById('prev'), nextB = document.getElementById('next'), terminInput = document.getElementById('termin');
-    var data = null, view = null, selDay = null, selTime = null;
-    function pad(n){ return (n<10?'0':'')+n; }
-    function key(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
-    function fmtDate(iso){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); return ['So','Mo','Di','Mi','Do','Fr','Sa'][d.getDay()]+', '+d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.getFullYear(); }
-    function freeMap(){ var m={}; var today=key(new Date()); (data.frei||[]).forEach(function(e){ if(e.datum>=today && e.zeiten && e.zeiten.length) m[e.datum]=e.zeiten; }); return m; }
-    function monthsWithSlots(){ var m=freeMap(); var set={}; Object.keys(m).forEach(function(k){ set[k.slice(0,7)]=1; }); return Object.keys(set).sort(); }
-    function render(){
-      var m = freeMap(); var y=view.getFullYear(), mo=view.getMonth();
-      title.textContent = MONTHS[mo]+' '+y;
-      var html = DAYS.map(function(d){ return '<div class="wd">'+d+'</div>'; }).join('');
-      var first = new Date(y,mo,1); var lead = (first.getDay()+6)%7; var n = new Date(y,mo+1,0).getDate(); var today=key(new Date());
-      for (var i=0;i<lead;i++) html += '<div></div>';
-      for (var d=1; d<=n; d++){ var k=y+'-'+pad(mo+1)+'-'+pad(d); var free=!!m[k];
-        html += '<button type="button" class="day'+(free?' free':'')+(k===selDay?' sel':'')+(k===today?' today':'')+'" data-k="'+k+'"'+(free?'':' disabled aria-disabled="true"')+' aria-label="'+fmtDate(k)+(free?', frei':'')+'">'+d+'</button>'; }
-      grid.innerHTML = html;
-      var ms = monthsWithSlots(), cur = y+'-'+pad(mo+1);
-      prevB.disabled = !ms.some(function(x){ return x<cur; }); nextB.disabled = !ms.some(function(x){ return x>cur; });
-    }
-    function renderSlots(){
-      var m = freeMap();
-      if (!selDay || !m[selDay]) { slotsEl.innerHTML = '<span class="hint">Noch kein Tag gewählt.</span>'; return; }
-      var html = '<div class="date">'+fmtDate(selDay)+'</div>';
-      m[selDay].forEach(function(t){ html += '<button type="button" class="slot'+(t===selTime?' sel':'')+'" data-t="'+t+'">'+t+' Uhr</button>'; });
-      html += '<p class="chosen">'+(selTime ? 'Gewählt: <b>'+fmtDate(selDay)+', '+selTime+' Uhr</b> · '+(data.dauerMin||30)+' Minuten' : 'Zeit wählen.')+'</p>';
-      slotsEl.innerHTML = html;
-      terminInput.value = selTime ? (fmtDate(selDay)+', '+selTime+' Uhr') : '';
-    }
-    grid.addEventListener('click', function(e){ var b=e.target.closest('.day.free'); if(!b) return; selDay=b.getAttribute('data-k'); selTime=null; render(); renderSlots(); });
-    slotsEl.addEventListener('click', function(e){ var b=e.target.closest('.slot'); if(!b) return; selTime=b.getAttribute('data-t'); renderSlots(); });
-    prevB.addEventListener('click', function(){ view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); });
-    nextB.addEventListener('click', function(){ view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); });
-    function start(d){ data=d; var ms=monthsWithSlots(); var now=new Date(); var cur=now.getFullYear()+'-'+pad(now.getMonth()+1);
-      var firstM = ms.filter(function(x){ return x>=cur; })[0] || cur; view = new Date(+firstM.slice(0,4), +firstM.slice(5,7)-1, 1); render(); renderSlots(); }
-    var inline = JSON.parse(document.getElementById('termine-inline').textContent);
-    fetch('termine.json', {cache:'no-store'}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(start).catch(function(){ start(inline); });
+    // ---------- Terminbuchung: Cal.com inline einbetten; ohne Skript bleibt der Link sichtbar ----------
+    var booking = document.getElementById('booking'), calLink = booking.getAttribute('data-cal-link');
+    document.getElementById('cal-link').href = 'https://cal.com/' + calLink;
+    (function (C, A, L) { var p = function (a, ar) { a.q.push(ar); }; var d = C.document; C.Cal = C.Cal || function () { var cal = C.Cal, ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; var s = d.createElement('script'); s.src = A; s.async = true; s.onerror = function(){ booking.classList.remove('loaded'); }; d.head.appendChild(s); cal.loaded = true; } if (ar[0] === L) { var api = function () { p(api, arguments); }; var namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
+    Cal('init', 'gespraech', { origin: 'https://app.cal.com' });
+    Cal.ns.gespraech('inline', { elementOrSelector: '#cal-embed', calLink: calLink, layout: 'month_view', config: { theme: 'light' } });
+    Cal.ns.gespraech('ui', { theme: 'light', hideEventTypeDetails: false, layout: 'month_view',
+      cssVarsPerTheme: { light: { 'cal-brand': '#0B3D2E', 'cal-brand-emphasis': '#17664A', 'cal-brand-text': '#F3EFE5',
+        'cal-bg': '#F3EFE5', 'cal-bg-emphasis': '#EBE6DA', 'cal-bg-subtle': '#F4F2EE', 'cal-bg-muted': '#F4F2EE',
+        'cal-text': '#1F1F1F', 'cal-text-emphasis': '#0B3D2E', 'cal-text-subtle': '#5C5C5C', 'cal-text-muted': '#9A9A9A',
+        'cal-border': '#D6D9D6', 'cal-border-emphasis': '#B8724F', 'cal-border-subtle': '#E4E1DA', 'cal-border-booker': '#D6D9D6' } } });
+    Cal.ns.gespraech('on', { action: 'linkReady', callback: function () { booking.classList.add('loaded'); } });
 
     // Formular: ohne Endpunkt öffnet sich das Mailprogramm; mit data-endpoint (z. B. Formspree) wird gesendet.
     var form = document.getElementById('form'), status = document.getElementById('status');
@@ -318,14 +252,13 @@
       if (endpoint) {
         status.className = 'status'; status.textContent = 'Wird gesendet …';
         fetch(endpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, message: msg, termin: (f.get('termin')||''), art: (f.get('art')||'') }) })
+          body: JSON.stringify({ name: name, email: email, message: msg }) })
           .then(function (r) { if (!r.ok) throw new Error(); status.className = 'status ok'; status.textContent = 'Danke. Ihre Nachricht ist angekommen.'; form.reset(); })
           .catch(function () { status.className = 'status'; status.textContent = 'Das hat nicht geklappt. Bitte direkt an robinjameslewis@googlemail.com schreiben.'; });
         return;
       }
-      var termin = (f.get('termin') || '').trim(), art = f.get('art') || '';
-      var subject = (termin ? 'Terminanfrage ' + termin : 'Nachricht') + ' – ' + name;
-      var body = (termin ? 'Terminwunsch: ' + termin + ' (' + art + ')\n\n' : '') + msg + '\n\n— ' + name + '\n' + email;
+      var subject = 'Nachricht von ' + name;
+      var body = msg + '\n\n— ' + name + '\n' + email;
       window.location.href = 'mailto:robinjameslewis@googlemail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
       status.className = 'status ok'; status.textContent = 'Ihr Mailprogramm öffnet sich mit der Nachricht.';
     });

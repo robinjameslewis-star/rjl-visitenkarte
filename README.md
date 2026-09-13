@@ -20,23 +20,30 @@ sich auf → Ast federt → Name und Formular erscheinen. Danach atmet der Vogel
 Klick auf die Szene lässt ihn noch einmal anfliegen. Bei `prefers-reduced-motion` steht
 alles sofort.
 
-## Termine (Kalender)
+## Termine (Cal.com)
 
-Die Seite zeigt freigegebene Zeiten aus `termine.json` (Monatsansicht, Kupferpunkt = frei).
-Eine gewählte Zeit wandert in die Anfrage; die Art (FaceTime, Telefon, vor Ort) wählt der Gast.
-Gebucht wird nichts automatisch: Die Anfrage kommt als Mail, Robin bestätigt mit einer
-Kalendereinladung – bei FaceTime mit seinem FaceTime-Link (einmal in FaceTime „Link erstellen“,
-der Link bleibt gültig; Gäste ohne Apple-Gerät öffnen ihn im Browser).
+Terminbuchung läuft über Cal.com (kostenloser Einzelplan: 1 Person, unbegrenzte Termine und
+Kalender, Apple Calendar wird unterstützt). Die Seite bettet den Buchungskalender ein und
+färbt ihn in die CI; ohne geladenes Skript bleibt ein Link „Termin wählen“.
 
-Freigeben – zwei Wege:
+Einrichtung (einmalig, ca. 20 Minuten):
 
-1. **Apple Kalender:** Kalender „Frei“ anlegen, dort Zeitblöcke eintragen (z. B. Do 14–15 Uhr),
-   dann `tools/frei-export.sh` ausführen. Das Skript liest den Kalender „Frei“ (nächste 90 Tage,
-   30-Minuten-Raster) und schreibt `termine.json`. Danach committen/hochladen. Beim ersten Lauf
-   fragt macOS nach Kalenderzugriff für das Terminal.
-2. **Von Hand:** `termine.json` bearbeiten: `{"datum": "2026-09-18", "zeiten": ["14:00", "14:30"]}`.
+1. Konto auf cal.com anlegen (Free). Benutzername merken.
+2. Apple Kalender verbinden: Einstellungen → Kalender → Apple Calendar. Cal.com braucht
+   ein **app-spezifisches Passwort** (appleid.apple.com → Anmeldung und Sicherheit →
+   App-spezifische Passwörter). Dann festlegen, welche Kalender auf Konflikte geprüft werden
+   und in welchen Kalender Buchungen geschrieben werden.
+3. Verfügbarkeit: Einstellungen → Verfügbarkeit → Wochenplan (das ist die Freigabe), dazu
+   „Datumsüberschreibungen“ für einzelne Tage. Pufferzeiten und Mindestvorlauf setzen.
+4. Ereignistyp anlegen, z. B. `gespraech`, 30 Minuten. Ort: mehrere zur Auswahl –
+   „Link“ mit dem FaceTime-Link (FaceTime-App → „Link erstellen“ → kopieren; der Link bleibt
+   gültig und ist auch aus dem Browser erreichbar), „Telefon (Gast ruft an)“ und
+   „Vor Ort“ mit der Adresse.
+5. In `index.html` den Link eintragen: `data-cal-link="BENUTZERNAME/gespraech"`.
 
-Vergangene Tage blendet die Seite selbst aus.
+Cal.com sendet Bestätigungen und Erinnerungen selbst und trägt den Termin in den Apple
+Kalender ein. Die frühere Eigenlösung (eigener Kalender aus `termine.json` mit
+Apple-Kalender-Export) liegt in der Git-Historie (Commit `1da32ec`).
 
 ## Formular
 
