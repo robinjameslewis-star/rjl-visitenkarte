@@ -1,19 +1,28 @@
 # Go-live – nur das, was zum Veröffentlichen nötig ist
 
-Stand 13.09.2026. Reihenfolge einhalten; nichts Neues bauen, bevor Punkt 7 erledigt ist.
+**Online seit 14.09.2026:** https://robinjameslewis-star.github.io/rjl-visitenkarte/
+
+Stand 14.09.2026. Reihenfolge einhalten; nichts Neues bauen, bevor Punkt 7 erledigt ist.
 Fertige Punkte hier abhaken.
 
 | # | Schritt | Wer | Dauer | Erledigt |
 |---|---|---|---|---|
-| 1 | **Cal.com-Konto** anlegen (Free), Benutzername merken | Robin | 5 min | ☐ |
-| 2 | **Google-Kalender verbinden** und als Zielkalender setzen, App „Google Meet“ installieren; **Apple Kalender verbinden** (app-spezifisches Passwort) nur zur Konfliktprüfung; Google-Konto in der Kalender-App des Macs/iPhones hinzufügen | Robin | 15 min | ☐ |
-| 3 | **Verfügbarkeit** (Wochenplan + Datumsausnahmen) und **Ereignistyp** `gespraech`, 30 min, Orte: Google Meet, Telefon, vor Ort; Sprache Deutsch, Wochenstart Montag | Robin | 15 min | ☐ |
-| 4 | `data-cal-link="BENUTZERNAME/gespraech"` in `index.html` eintragen | Robin oder Claude | 1 min | ☐ |
-| 5 | **Domain** entscheiden (z. B. robinjameslewis.de) und registrieren – oder ohne Domain unter der Hosting-Adresse starten | Robin | 10 min | ☐ |
-| 6 | **Hosting: GitHub Pages** (entschieden 13.09.2026). Robin führt einmal `gh auth login` im Terminal aus; Claude legt dann das Repository an, pusht und aktiviert Pages | Robin + Claude | 15 min | ☐ |
-| 7 | **Abnahme** auf iPhone (Safari), Mac (Safari, Chrome): Animation, Kalender lädt, Nachricht öffnet Mailprogramm, Impressum-Klappe | Robin | 10 min | ☐ |
+| 1 | **Cal.com-Konto** anlegen (Free), Benutzername merken | Robin | 5 min | ☑ 13.09. |
+| 2 | **Google-Kalender verbinden** und als Zielkalender setzen, App „Google Meet“ installieren; **Apple Kalender verbinden** (app-spezifisches Passwort) nur zur Konfliktprüfung; Google-Konto in der Kalender-App des Macs/iPhones hinzufügen | Robin | 15 min | ☑ 13.09. |
+| 3 | **Verfügbarkeit** und **Ereignistyp** „Terminvorschlag“ (Bestätigung erforderlich, 30 Min/1 h/2 Std, vier Orte) | Robin | 15 min | ☑ 13.09. |
+| 4 | Buchungslinks in `index.html` (`data-booking-link`, `-en`) | Robin oder Claude | 1 min | ☑ 13.09. |
+| 5 | **Domain** – Start ohne eigene Domain unter der GitHub-Adresse; eigene Domain später (Settings → Pages → Custom domain, CNAME beim Anbieter) | Robin | 10 min | ☑ vorerst |
+| 6 | **Hosting: GitHub Pages** – Repository `robinjameslewis-star/rjl-visitenkarte`, Pages von `main`, HTTPS | Robin + Claude | 15 min | ☑ 14.09. |
+| 7 | **Abnahme** auf iPhone (Safari), Mac (Safari, Chrome): Animation, Kalender inkl. Testbuchung, Nachricht öffnet Mailprogramm, Sprachwechsel, Impressum-Klappe | Robin | 10 min | ☐ |
 
 Danach ist die Seite online. Alles Weitere ist Phase 2.
+
+## Veröffentlichen von Änderungen
+
+    cd ~/Developer/rjl-visitenkarte && git add -A && git commit -m "…" && git push
+
+GitHub Pages baut in ein bis zwei Minuten neu. Bei Skriptänderungen den `?v=`-Parameter in
+`index.html` hochzählen, sonst sehen wiederkehrende Besucher alte Skripte.
 
 ## Wenn Robin zurückkommt (Übergabe)
 
