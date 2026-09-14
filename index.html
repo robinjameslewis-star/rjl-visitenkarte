@@ -4,14 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Robin James Lewis</title>
-<meta name="description" content="Robin James Lewis – Termin vereinbaren.">
+<meta name="description" content="Robin James Lewis – Seite wird gerade überarbeitet.">
+<meta name="robots" content="noindex">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
 <style>
+  @font-face {
+    font-family: "EB Garamond"; font-style: normal; font-weight: 400; font-display: swap;
+    src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2");
+  }
   :root {
     --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A;
     --line: #D6D9D6; --paper: #F3EFE5;
@@ -26,10 +28,9 @@
     font: 400 16px/1.5 var(--sans);
     -webkit-font-smoothing: antialiased;
   }
-
   main { overflow: clip; }
 
-  /* ---------- Bühne ---------- */
+  /* ---------- Bühne (ruhend, ohne Animation) ---------- */
   .stage {
     max-width: 1120px; margin: 0 auto;
     padding: clamp(105px, 17vh, 175px) 6vw 0;
@@ -39,63 +40,20 @@
   .name {
     font-family: var(--serif); text-transform: uppercase; letter-spacing: .28em; color: var(--green);
     font-size: clamp(15px, 2.1vw, 24px); line-height: 1.5; font-weight: 400;
-    padding-bottom: 9%; /* auf Höhe des Vogelkörpers */
-    margin: 0;
+    padding-bottom: 9%; margin: 0;
   }
+  .scene { position: relative; display: block; width: 100%; aspect-ratio: 1153 / 710; margin: 0; }
+  .scene img { display: block; user-select: none; -webkit-user-drag: none; }
+  .bird { position: absolute; left: 0; top: 0; width: 100%; height: auto; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
+  .branch { position: absolute; left: 0; top: 76.48%; width: 100%; height: auto; }
 
-  /* Registered to the sitting bird's eye at (400, 100), in a 1153 × 710 scene. */
-  .scene {
-    position: relative; display: block; width: 100%; aspect-ratio: 1153 / 710;
-    margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer;
-    color: inherit; text-transform: none; letter-spacing: normal; line-height: normal;
-    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-  }
-  .scene:hover, .scene:active { background: transparent; color: inherit; }
-  .scene:focus-visible { outline: 1px solid var(--copper); outline-offset: 10px; border-radius: 6px; }
-  .scene img { display: block; user-select: none; -webkit-user-drag: none; pointer-events: none; }
-  .branch { position: absolute; left: 0; top: 76.48%; width: 100%; z-index: 2; transform-origin: 50% 35%; pointer-events: none; }
-  .branch img { width: 100%; height: auto; }
-  .bird-move { position: absolute; inset: 0; transform-origin: 47% 42%; pointer-events: none; mix-blend-mode: multiply; }
-  .bird-tilt { position: absolute; inset: 0; transform-origin: 47% 42%; }
-  .bird-frame { position: absolute; max-width: none; height: auto; opacity: 0; transition: opacity 24ms linear; }
-  .bird-rest { left: 0; top: 0; width: 100%; opacity: 1; clip-path: inset(0 0 2.5% 0); }
-  .bird-flight { width: 133.2177%; }
-  .bird-up { left: -14.7441%; top: -40.8451%; }
-  .bird-glide { left: -15.4380%; top: -38.7324%; }
-  .bird-down { left: -16.9124%; top: -30.7042%; }
-  .bird-landing { left: -16.5655%; top: -39.1549%; }
-  .is-flying .bird-move, .is-settling .bird-move { will-change: transform; }
-  @media (prefers-reduced-motion: reduce) {
-    .scene *, .scene *::before { animation: none !important; transition: none !important; }
-    .scene .bird-move, .scene .branch { transform: none !important; }
-    .scene .bird-move, .scene .bird-rest { opacity: 1 !important; }
-    .scene .bird-flight { display: none; }
-  }
+  /* ---------- Hinweis ---------- */
+  .notice { max-width: 980px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .notice h2 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+  .notice p { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
+  .notice p:last-child { margin-bottom: 0; }
+  .notice .en { font-style: italic; }
 
-
-  /* ---------- Terminbereich ---------- */
-  .contact { max-width: 980px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
-  .contact > h2, .contact > .lead { max-width: 560px; }
-  .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
-
-  .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
-  .language-nav[hidden] { display: none; }
-  .language-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; border: 0; background: transparent; text-decoration: none; text-transform: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
-  .language-nav a:hover { color: var(--green); }
-  .language-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
-  .language-nav a[aria-current="page"] { color: var(--green); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--copper); }
-  .language-nav span { color: var(--line); }
-
-  /* ---------- Terminbuchung (Cal.com) ---------- */
-  .booking { max-width: 680px; margin: 0 0 40px; }
-  .cal-embed { width: 100%; min-height: 0; }
-  .cal-embed iframe { display: block; max-width: 100%; border: 0; }
-  .cal-embed:empty { display: none; }
-  .cal-fallback { margin: 0; font-size: 15px; }
-  .cal-fallback a { color: var(--ink); text-decoration: none; border-bottom: 1px solid #D97932; padding-bottom: 1px; }
-  .cal-fallback a:hover { border-bottom-width: 2px; }
-  .cal-fallback .hint { color: var(--ink-soft); font-size: 14px; }
-  .booking.loaded .cal-fallback { display: none; }
   footer { max-width: 560px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); }
   footer details summary { cursor: pointer; list-style: none; display: inline; }
   footer details summary::-webkit-details-marker { display: none; }
@@ -108,58 +66,35 @@
     .stage { grid-template-columns: 1fr; row-gap: 12px; padding-top: clamp(105px, 17vh, 145px); }
     .name { padding-bottom: 0; order: 2; text-align: center; }
     .scene { order: 1; }
-    .contact { margin-top: 32px; }
+    .notice { margin-top: 32px; }
   }
 </style>
 </head>
 <body>
 
-<nav class="language-nav" aria-label="Sprache">
-  <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
-  <span aria-hidden="true">/</span>
-  <a href="?lang=en" data-language="en" lang="en" hreflang="en">English</a>
-</nav>
-
 <main>
   <section class="stage" aria-label="Robin James Lewis">
     <h1 class="name">Robin James Lewis</h1>
-    <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen">
-      <span class="bird-move" aria-hidden="true"><span class="bird-tilt">
-        <img class="bird-frame bird-rest" data-pose="rest" src="assets/vogel.png" alt="" width="1153" height="637" fetchpriority="high">
-        <img class="bird-frame bird-flight bird-up" data-pose="up" data-src="assets/flugpose-1-aufschlag.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="assets/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="assets/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="assets/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
-      </span></span>
-      <span class="branch" aria-hidden="true"><img src="assets/ast.png" alt="" width="1153" height="167"></span>
-    </button>
+    <div class="scene" aria-hidden="true">
+      <img class="bird" src="assets/vogel.png" alt="" width="1153" height="637" fetchpriority="high">
+      <img class="branch" src="assets/ast.png" alt="" width="1153" height="167">
+    </div>
   </section>
 
-  <section class="contact" aria-labelledby="kontakt">
-    <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
-
-    <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
-         Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
-    <div class="booking" id="booking" data-booking-link="robin-james-lewis-ebbpnk/robin-james-lewis" data-booking-link-en="robin-james-lewis-ebbpnk/robin-james-lewis-en">
-      <div class="cal-embed" id="cal-embed"></div>
-      <p class="cal-fallback" id="cal-fallback"><a id="cal-link" data-i18n="book" href="https://cal.com/robin-james-lewis-ebbpnk/robin-james-lewis" target="_blank" rel="noopener">Termin vorschlagen</a><span class="hint" data-i18n="bookHint"> – öffnet den Kalender in einem neuen Tab.</span></p>
-    </div>
-
+  <section class="notice" aria-labelledby="hinweis">
+    <h2 id="hinweis">Kurz nicht erreichbar</h2>
+    <p>Diese Seite wird gerade überarbeitet und ist in Kürze wieder da.</p>
+    <p class="en" lang="en">This page is being revised and will be back shortly.</p>
   </section>
 </main>
 
 <footer>
   <details>
-    <summary data-i18n="legalTitle">Impressum · Datenschutz</summary>
+    <summary>Impressum · Datenschutz</summary>
     <p>Robin James Lewis · Höchststraße 32 · 72336 Balingen · <a href="mailto:robinjameslewis@googlemail.com">robinjameslewis@googlemail.com</a><br>
-    <span data-i18n="privacy">Private Seite. Sie speichert nichts, setzt keine Cookies und zählt keine Besucher. Die Terminbuchung stellt Cal.com bereit (Cal.com, Inc.); Videogespräche finden über Google Meet statt; dort gelten die jeweiligen Datenschutzbestimmungen. Schriften werden von Google Fonts geladen.</span></p>
+    Private Seite. Sie speichert nichts, setzt keine Cookies, lädt keine fremden Dienste und zählt keine Besucher.</p>
   </details>
 </footer>
 
-
-<script src="bird-flight.js?v=20260914" defer></script>
-<script src="language.js?v=20260914d" defer></script>
-<script src="site.js?v=20260914d" defer></script>
 </body>
 </html>
