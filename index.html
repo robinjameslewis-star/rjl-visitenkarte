@@ -80,9 +80,10 @@
 
   .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
   .language-nav[hidden] { display: none; }
-  .language-nav button { min-height: 44px; padding: 8px 3px; border: 0; text-transform: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
-  .language-nav button:hover { background: transparent; color: var(--green); }
-  .language-nav button[aria-pressed="true"] { color: var(--green); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--copper); }
+  .language-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; border: 0; background: transparent; text-decoration: none; text-transform: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
+  .language-nav a:hover { color: var(--green); }
+  .language-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+  .language-nav a[aria-current="page"] { color: var(--green); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--copper); }
   .language-nav span { color: var(--line); }
 
   /* ---------- Terminbuchung (Cal.com) ---------- */
@@ -113,10 +114,10 @@
 </head>
 <body>
 
-<nav class="language-nav" aria-label="Sprache" hidden>
-  <button type="button" data-language="de" lang="de" aria-pressed="true">Deutsch</button>
+<nav class="language-nav" aria-label="Sprache">
+  <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
   <span aria-hidden="true">/</span>
-  <button type="button" data-language="en" lang="en" aria-pressed="false">English</button>
+  <a href="?lang=en" data-language="en" lang="en" hreflang="en">English</a>
 </nav>
 
 <main>
@@ -136,7 +137,7 @@
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich. Für alles andere: die E-Mail-Adresse im Impressum.</p>
+    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
@@ -158,7 +159,7 @@
 
 
 <script src="bird-flight.js?v=20260914" defer></script>
-<script src="language.js?v=20260914c" defer></script>
-<script src="site.js?v=20260914c" defer></script>
+<script src="language.js?v=20260914d" defer></script>
+<script src="site.js?v=20260914d" defer></script>
 </body>
 </html>
