@@ -2,17 +2,17 @@
 
 Online: https://robinjameslewis-star.github.io/rjl-visitenkarte/ (GitHub Pages, Branch `main`)
 
-Eine Seite: das handgezeichnete Rotkehlchen fliegt an und landet auf dem Ast, darunter ein
-Kontaktformular. Gestaltung nach dem persönlichen Designsystem 3.1
+Eine Seite: das handgezeichnete Rotkehlchen fliegt an und landet auf dem Ast, darunter die
+Terminbuchung. Gestaltung nach dem persönlichen Designsystem 3.1
 (`Second Brain/90_Meta/Design/Designsystem.md`).
 
 **Veröffentlichung zuerst:** siehe `GO-LIVE.md`. Der Ordner `worker/` (LLM-Proxy) ist Phase 2 und nicht eingebunden.
 
 ## Dateien
 
-- `index.html` – Seite und Gestaltung; Kontaktformular und Cal.com-Einbettung
+- `index.html` – Seite und Gestaltung; Cal.com-Einbettung
 - `language.js` – deutsche und englische Texte, Sprachauswahl und Sprachparameter in der URL
-- `site.js` – Formularmeldungen und Cal.com-Einbettung in der gewählten Sprache
+- `site.js` – Cal.com-Einbettung in der gewählten Sprache
 - `bird-flight.js` – Flugbahn, Bildwechsel und Landung, ohne Animationsbibliothek
 - `assets/flugpose-*.webp` – vier verlustfreie Flugposen
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation
@@ -52,9 +52,8 @@ Einbau ausdrücklich von Robin am 13.09.2026 beauftragt (nach dem ursprüngliche
 
 Die Auswahl „Deutsch / English“ steht oben rechts. Deutsch ist der Standard;
 `?lang=en` öffnet die englische Fassung direkt. Die Sprache wird nur in der URL geführt,
-ohne Cookies oder lokalen Speicher. Ein Wechsel übersetzt die Seitentexte, Formulartitel,
-Statusmeldungen, Bild-Bedienhinweise, Meta-Beschreibung und den Datenschutzhinweis.
-Formulareingaben bleiben erhalten; die Animation wird nicht neu gestartet.
+ohne Cookies oder lokalen Speicher. Ein Wechsel übersetzt die Seitentexte, Bild-Bedienhinweise,
+Meta-Beschreibung und den Datenschutzhinweis; die Animation wird nicht neu gestartet.
 
 Texte (Robin, 14.09.2026): schlicht — „Termin vereinbaren“ / „Arrange an appointment“, ohne Du/Sie.
 Der Einleitungssatz nennt Orte (auch ein Ort nach Wunsch des Gastes) und dass jede
@@ -113,14 +112,12 @@ Cal.com sendet Bestätigungen und Erinnerungen selbst und trägt den Termin in d
 Kalender ein, der auf allen Geräten erscheint. Die frühere Eigenlösung (eigener Kalender aus `termine.json` mit
 Apple-Kalender-Export) liegt in der Git-Historie (Commit `1da32ec`).
 
-## Formular
+## Kontakt ohne Formular
 
-Ohne Konfiguration öffnet „Nachricht senden“ das Mailprogramm mit vorausgefüllter Mail
-(`mailto:`). Für echten Versand ohne Mailprogramm einen Formular-Endpunkt eintragen:
-
-    <form id="form" data-endpoint="https://formspree.io/f/DEINE-ID">
-
-Der Endpunkt bekommt `{name, email, message}` als JSON. Honigtopf-Feld `company` ist enthalten.
+Das Kontaktformular wurde am 14.09.2026 entfernt (Robin): `mailto:` öffnete auf vielen Rechnern
+kein Mailprogramm, ein Formulardienst hätte einen Fremdanbieter bedeutet. Kontakt läuft über die
+Terminbuchung oder die E-Mail-Adresse im Impressum. Die Formularfassung liegt in der
+Git-Historie (Commit `dc3e9d4`).
 
 ## Veröffentlichen
 

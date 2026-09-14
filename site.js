@@ -1,12 +1,6 @@
 
   (function () {
     var language = window.SiteLanguage;
-    function setStatus(key, ok) {
-      var status = document.getElementById('status');
-      status.dataset.message = key;
-      status.className = ok ? 'status ok' : 'status';
-      status.textContent = language.t(key);
-    }
     // ---------- Terminbuchung: Cal.com inline einbetten; ohne Skript bleibt der Link sichtbar ----------
     var booking = document.getElementById('booking'), calLink = booking.getAttribute('data-booking-link');
     function currentCalLink() {
@@ -43,30 +37,4 @@
         'cal-border': '#DFD5C5', 'cal-border-emphasis': '#D97932', 'cal-border-subtle': '#E8DFD1', 'cal-border-booker': '#DFD5C5' } } });
     Cal.ns['robin-james-lewis']('on', { action: 'linkReady', callback: function () { booking.classList.add('loaded'); } });
 
-    // Formular: ohne Endpunkt öffnet sich das Mailprogramm; mit data-endpoint (z. B. Formspree) wird gesendet.
-    var form = document.getElementById('form'), status = document.getElementById('status');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var f = new FormData(form);
-      if (f.get('company')) return; // Honigtopf
-      var name = (f.get('name') || '').trim(), email = (f.get('email') || '').trim(), msg = (f.get('message') || '').trim();
-      var phone = (f.get('phone') || '').trim();
-      if (!name || !email || !msg || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        setStatus('invalid'); return;
-      }
-      var endpoint = form.getAttribute('data-endpoint');
-      if (endpoint) {
-        setStatus('sending');
-        fetch(endpoint, { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, phone: phone, message: msg }) })
-          .then(function (r) { if (!r.ok) throw new Error(); setStatus('success', true); form.reset(); })
-          .catch(function () { setStatus('error'); });
-        return;
-      }
-      var subject = language.t('subject') + name;
-      var body = msg + '\n\n— ' + name + '\n' + email;
-      if (phone) body += '\n' + language.t('phoneBody') + ': ' + phone;
-      window.location.href = 'mailto:robinjameslewis@googlemail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-      setStatus('mailOpened', true);
-    });
   })();

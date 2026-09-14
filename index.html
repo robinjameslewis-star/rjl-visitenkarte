@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Robin James Lewis</title>
-<meta name="description" content="Robin James Lewis – Termin vereinbaren oder Nachricht schreiben.">
+<meta name="description" content="Robin James Lewis – Termin vereinbaren.">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -42,7 +42,6 @@
     padding-bottom: 9%; /* auf Höhe des Vogelkörpers */
     margin: 0;
   }
-  .name small { display: block; font-family: var(--sans); text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--ink-muted); margin-top: 10px; }
 
   /* Registered to the sitting bird's eye at (400, 100), in a 1153 × 710 scene. */
   .scene {
@@ -74,32 +73,10 @@
   }
 
 
-  /* ---------- Formular ---------- */
-  /* ---------- Formular ---------- */
+  /* ---------- Terminbereich ---------- */
   .contact { max-width: 980px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
-  .contact > h2, .contact > .lead, .contact form, .contact h3.sub { max-width: 560px; }
-  .contact h1 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+  .contact > h2, .contact > .lead { max-width: 560px; }
   .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
-  .field { display: block; margin: 0 0 22px; }
-  .field span { display: block; font-family: var(--serif); text-transform: uppercase; letter-spacing: .2em; font-size: 11px; color: var(--ink-soft); margin-bottom: 6px; }
-  .field input, .field textarea {
-    width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; border-radius: 0;
-    font: 400 17px/1.4 var(--sans); color: var(--ink); padding: 6px 0 8px; outline: none; transition: border-color .2s, box-shadow .2s;
-  }
-  .field textarea { min-height: 96px; resize: vertical; }
-  .field input:focus, .field textarea:focus { border-bottom-color: var(--green); box-shadow: 0 1px 0 0 var(--green); }
-  .field input::placeholder, .field textarea::placeholder { color: var(--ink-muted); }
-  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  .row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
-  button {
-    font: 400 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--green);
-    background: transparent; border: 1px solid var(--green); padding: 13px 22px 12px; cursor: pointer; border-radius: 0;
-    transition: background .2s, color .2s;
-  }
-  button:hover { background: var(--green); color: var(--paper); }
-  button:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
-  .status { font-size: 13px; color: var(--ink-soft); min-height: 1.4em; }
-  .status.ok { color: var(--green); }
 
   .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
   .language-nav[hidden] { display: none; }
@@ -118,7 +95,6 @@
   .cal-fallback a:hover { border-bottom-width: 2px; }
   .cal-fallback .hint { color: var(--ink-soft); font-size: 14px; }
   .booking.loaded .cal-fallback { display: none; }
-  h3.sub { font: 400 18px/1.3 var(--serif); color: var(--green); margin: 0 0 16px; }
   footer { max-width: 560px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); }
   footer details summary { cursor: pointer; list-style: none; display: inline; }
   footer details summary::-webkit-details-marker { display: none; }
@@ -145,7 +121,7 @@
 
 <main>
   <section class="stage" aria-label="Robin James Lewis">
-    <h1 class="name">Robin James Lewis<small>Balingen</small></h1>
+    <h1 class="name">Robin James Lewis</h1>
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen">
       <span class="bird-move" aria-hidden="true"><span class="bird-tilt">
         <img class="bird-frame bird-rest" data-pose="rest" src="assets/vogel.png" alt="" width="1153" height="637" fetchpriority="high">
@@ -160,7 +136,7 @@
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
+    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich. Für alles andere: die E-Mail-Adresse im Impressum.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
@@ -169,18 +145,6 @@
       <p class="cal-fallback" id="cal-fallback"><a id="cal-link" data-i18n="book" href="https://cal.com/robin-james-lewis-ebbpnk/robin-james-lewis" target="_blank" rel="noopener">Termin vorschlagen</a><span class="hint" data-i18n="bookHint"> – öffnet den Kalender in einem neuen Tab.</span></p>
     </div>
 
-    <h3 class="sub" data-i18n="messageTitle">Oder eine Nachricht</h3>
-    <form id="form" novalidate data-endpoint="">
-      <label class="field"><span data-i18n="name">Name</span><input name="name" type="text" autocomplete="name" required></label>
-      <label class="field"><span data-i18n="email">E-Mail</span><input name="email" type="email" autocomplete="email" required></label>
-      <label class="field"><span data-i18n="phone">Telefonnummer (optional)</span><input name="phone" type="tel" autocomplete="tel"></label>
-      <label class="field"><span data-i18n="message">Nachricht</span><textarea name="message" required></textarea></label>
-      <label class="hp" aria-hidden="true"><span data-i18n="company">Firma</span><input name="company" type="text" tabindex="-1" autocomplete="off"></label>
-      <div class="row">
-        <button type="submit" data-i18n="send">Nachricht senden</button>
-        <div class="status" id="status" aria-live="polite"></div>
-      </div>
-    </form>
   </section>
 </main>
 
@@ -188,13 +152,13 @@
   <details>
     <summary data-i18n="legalTitle">Impressum · Datenschutz</summary>
     <p>Robin James Lewis · Höchststraße 32 · 72336 Balingen · <a href="mailto:robinjameslewis@googlemail.com">robinjameslewis@googlemail.com</a><br>
-    <span data-i18n="privacy">Private Seite. Das Nachrichtenformular öffnet das Mailprogramm mit den eingetragenen Angaben; diese Seite speichert nichts, setzt keine Cookies und zählt keine Besucher. Die Terminbuchung stellt Cal.com bereit (Cal.com, Inc.); Videogespräche finden über Google Meet statt; dort gelten die jeweiligen Datenschutzbestimmungen. Schriften werden von Google Fonts geladen.</span></p>
+    <span data-i18n="privacy">Private Seite. Sie speichert nichts, setzt keine Cookies und zählt keine Besucher. Die Terminbuchung stellt Cal.com bereit (Cal.com, Inc.); Videogespräche finden über Google Meet statt; dort gelten die jeweiligen Datenschutzbestimmungen. Schriften werden von Google Fonts geladen.</span></p>
   </details>
 </footer>
 
 
 <script src="bird-flight.js?v=20260914" defer></script>
-<script src="language.js?v=20260914b" defer></script>
-<script src="site.js?v=20260914b" defer></script>
+<script src="language.js?v=20260914c" defer></script>
+<script src="site.js?v=20260914c" defer></script>
 </body>
 </html>

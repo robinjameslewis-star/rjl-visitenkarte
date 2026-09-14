@@ -39,7 +39,7 @@ Robin arbeitet in ChatGPT an den Flugposen und richtet Cal.com ein. Für die For
 
 - Flugposen (Robin erzeugt sie in ChatGPT; Einbau danach)
 - LLM-Fenster („Rotkehlchen antwortet“) – Worker liegt vorbereitet in `worker/`, ist nicht eingebunden
-- Formular-Endpunkt statt `mailto:` – erst, wenn `mailto:` im Alltag stört
+- ~~Formular-Endpunkt~~ – Formular am 14.09.2026 entfernt; Kontakt über Termin oder E-Mail im Impressum
 - Weitere Animationen, Mehrsprachigkeit, Analytics
 - Eigene Artikel (Blog): Markdown → Seiten im Papier-Design; GitHub Pages trägt das ohne Umzug
 
