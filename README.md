@@ -17,7 +17,7 @@ Terminbuchung (Cal.com, erst nach Einwilligung geladen). Gestaltung nach dem per
 - `assets/fonts/eb-garamond-latin.woff2` – EB Garamond lokal (variable Schrift, Latin), Lizenz `OFL.txt` daneben
 - `bird-flight.js` – Flugbahn, Bildwechsel und Landung, ohne Animationsbibliothek
 - `assets/flugpose-*.webp` – vier verlustfreie Flugposen
-- `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation
+- `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation; `tests/im-browser.html` führt sie ohne Node im Browser aus
 - `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
 - `assets/vogel.png` – Vogel-Ebene (freigestellt, Beine enden an der Astkante)
 - `assets/ast.png` – Ast-Ebene (Füße entfernt, Lücken rekonstruiert), liegt vor dem Vogel
@@ -37,7 +37,8 @@ Danach steht die Illustration ruhig, auch bei reduzierter Bewegung.
 Die Posen sind am Auge auf die Sitzillustration ausgerichtet; kurze Überblendungen
 mildern den Bildwechsel. Alle Bilder werden vor dem Start dekodiert. Bei Bildfehlern,
 langsamer Verbindung, verborgenem Tab oder Größenwechsel bleibt/erscheint die Sitzpose.
-Klick, Enter oder Leertaste auf die Szene wiederholt den Flug ohne Warteschlange.
+Klick, Enter oder Leertaste auf die Szene lädt die Seite neu (Robin, 14.09.2026); der Anflug
+beginnt damit von vorn, Sprache (URL) und Einwilligung (localStorage) bleiben erhalten.
 Bei `prefers-reduced-motion` bleibt die Sitzpose statisch; Flugbilder werden beim
 initialen Laden dieser Einstellung nicht angefordert. Inhalte bleiben sofort benutzbar.
 
@@ -186,7 +187,9 @@ als die Rohebene, damit die Beinenden hinter dem Ast liegen.
 
 ## Prüfung der Animationssteuerung
 
-`node tests/bird-flight.test.cjs` prüft die vier Posen und das Ende der Animation,
-schnelle Wiederholung, reduzierte Bewegung, Bildladefehler, Tabwechsel und Größenänderung.
+`node tests/bird-flight.test.cjs` prüft die vier Posen und das Ende der Animation, Klick =
+Neuladen, reduzierte Bewegung, Bildladefehler, Tabwechsel und Größenänderung. Ohne Node:
+`tests/im-browser.html` über den lokalen Server öffnen (z. B. `python3 -m http.server 8788`
+im Projektordner → http://localhost:8788/tests/im-browser.html); dort laufen dieselben Tests.
 `python3 tests/consent_test.py <Adresse>` prüft die Einwilligung (siehe oben).
 Die visuelle Abnahme erfolgt zusätzlich im Browser auf breitem und schmalem Bildschirm.

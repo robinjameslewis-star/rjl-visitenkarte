@@ -112,7 +112,9 @@
     tick(startTime);
   }
 
-  scene.addEventListener('click', play);
+  // Ein Klick auf den Vogel lädt die Seite neu (Robin, 14.09.2026): der Anflug beginnt von vorn,
+  // Sprache (URL) und Einwilligung (localStorage) bleiben erhalten.
+  scene.addEventListener('click', () => location.reload());
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) finish();
   });

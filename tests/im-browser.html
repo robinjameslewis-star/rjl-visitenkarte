@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Tests im Browser – bird-flight</title>
+<!-- Führt tests/bird-flight.test.cjs ohne Node aus (Chrome/Safari). Über einen lokalen Server öffnen,
+     z. B. python3 -m http.server 8788 im Projektordner → http://localhost:8788/tests/im-browser.html
+     Nachgebildet werden nur die genutzten Node-Module: node:test, node:assert/strict, node:fs, node:vm, node:path. -->
+<style>
+  body { font: 14px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1F1F1F; background: #F3EFE5; margin: 0; padding: 32px; }
+  h1 { font: 400 22px/1.3 "EB Garamond", Garamond, Baskerville, Georgia, serif; color: #0B3D2E; margin: 0 0 16px; }
+  li { margin: 4px 0; } .ok::before { content: "✓ "; color: #0B3D2E; } .fail::before { content: "✗ "; color: #B8724F; }
+  pre { white-space: pre-wrap; color: #5C5C5C; font-size: 12px; }
+  #summary { margin-top: 16px; font-weight: 500; }
+</style>
+</head>
+<body>
+<h1>bird-flight.test.cjs im Browser</h1>
+<ul id="list"></ul>
+<div id="summary">läuft …</div>
+<script>
+(async () => {
+  const list = document.getElementById('list'), summary = document.getElementById('summary');
+  const [source, testSource] = await Promise.all([
+    fetch('../bird-flight.js?ts=' + Date.now()).then(r => r.text()),
+    fetch('bird-flight.test.cjs?ts=' + Date.now()).then(r => r.text())
+  ]);
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const fail = (msg, actual, expected) => { throw new Error(msg + ' – erhalten: ' + JSON.stringify(actual) + ', erwartet: ' + JSON.stringify(expected)); };
+  const assert = {
+    equal: (a, b, m) => { if (!Object.is(a, b)) fail(m || 'equal', a, b); },
+    notEqual: (a, b, m) => { if (Object.is(a, b)) fail(m || 'notEqual', a, b); },
+    ok: (v, m) => { if (!v) fail(m || 'ok', v, true); },
+    deepEqual: (a, b, m) => { if (!same(a, b)) fail(m || 'deepEqual', a, b); }
+  };
+  const tests = [];
+  const modules = {
+    'node:test': { test: (name, fn) => tests.push({ name, fn }) },
+    'node:assert/strict': assert,
+    'node:fs': { readFileSync: () => source },
+    'node:path': { join: (...p) => p.join('/') },
+    'node:vm': { runInNewContext: (code, context) => {
+      // Freie Variablen des Skripts werden als Parameter gebunden – entspricht dem Kontextobjekt in Node.
+      const keys = Object.keys(context);
+      new Function(...keys, code)(...keys.map(k => context[k]));
+    } }
+  };
+  const require = name => { if (!(name in modules)) throw new Error('Modul fehlt im Browser-Läufer: ' + name); return modules[name]; };
+  const process = { argv: [] };
+  const setImmediate = fn => setTimeout(fn, 0);
+  new Function('require', 'process', 'setImmediate', '__dirname', testSource)(require, process, setImmediate, '');
+  let passed = 0;
+  for (const t of tests) {
+    const li = document.createElement('li'); li.textContent = t.name; list.appendChild(li);
+    try { await t.fn(); li.className = 'ok'; passed++; }
+    catch (err) { li.className = 'fail'; const pre = document.createElement('pre'); pre.textContent = err.stack || String(err); li.appendChild(pre); }
+  }
+  summary.textContent = `${passed} von ${tests.length} Tests bestanden`;
+  window.__testResult = { passed, total: tests.length, names: tests.map(t => t.name) };
+})();
+</script>
+</body>
+</html>
