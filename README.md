@@ -1,21 +1,24 @@
 # Robin James Lewis – Visitenkarte
 
-Online: https://robinjameslewis-star.github.io/rjl-visitenkarte/ (GitHub Pages, Branch `main`)
+Online: https://robinjameslewis-star.github.io/rjl-visitenkarte/ (GitHub Pages, Branch `main`;
+der Branch `wartung` enthält eine Wartungsseite ohne Fremddienste, siehe `GO-LIVE.md`)
 
 Eine Seite: das handgezeichnete Rotkehlchen fliegt an und landet auf dem Ast, darunter die
-Terminbuchung. Gestaltung nach dem persönlichen Designsystem 3.1
+Terminbuchung (Cal.com, erst nach Einwilligung geladen). Gestaltung nach dem persönlichen Designsystem 3.1
 (`Second Brain/90_Meta/Design/Designsystem.md`).
 
 **Veröffentlichung zuerst:** siehe `GO-LIVE.md`. Der Ordner `worker/` (LLM-Proxy) ist Phase 2 und nicht eingebunden.
 
 ## Dateien
 
-- `index.html` – Seite und Gestaltung; Cal.com-Einbettung
-- `language.js` – deutsche und englische Texte, Sprachauswahl und Sprachparameter in der URL
-- `site.js` – Cal.com-Einbettung in der gewählten Sprache
+- `index.html` – Seite und Gestaltung; Einwilligungsbanner, Impressum und Datenschutzhinweise
+- `language.js` – deutsche und englische Texte (Seite, Banner, Datenschutz), Sprachparameter in der URL
+- `site.js` – Einwilligung (Speichern, Widerruf, Ablauf) und Cal.com-Einbettung in der gewählten Sprache
+- `assets/fonts/eb-garamond-latin.woff2` – EB Garamond lokal (variable Schrift, Latin), Lizenz `OFL.txt` daneben
 - `bird-flight.js` – Flugbahn, Bildwechsel und Landung, ohne Animationsbibliothek
 - `assets/flugpose-*.webp` – vier verlustfreie Flugposen
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation
+- `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
 - `assets/vogel.png` – Vogel-Ebene (freigestellt, Beine enden an der Astkante)
 - `assets/ast.png` – Ast-Ebene (Füße entfernt, Lücken rekonstruiert), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
@@ -48,12 +51,55 @@ Die Illustration ist eine Bildfolge aus vier gezeichneten Haltungen, keine anato
 
 Einbau ausdrücklich von Robin am 13.09.2026 beauftragt (nach dem ursprünglichen Go-live-Plan).
 
+## Einwilligung (Cookie-Banner)
+
+Cal.com setzt Cookies und überträgt IP-Adresse und Browserdaten, auch in die USA. Deshalb wird
+der Kalender erst nach Zustimmung geladen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO).
+Entscheidung Robin, 14.09.2026: Banner mit Einwilligung statt Zwei-Klick-Lösung, weil nach und
+nach weitere Inhalte auf die Seite kommen.
+
+So verhält sich die Seite:
+
+- **Erster Besuch:** Banner am unteren Rand mit „Terminbuchung erlauben“ und „Ohne Terminbuchung
+  fortfahren“ (gleichwertig gestaltet) sowie Link zu Impressum & Datenschutz. Bis zur Entscheidung
+  geht **keine Anfrage** an cal.com; im Kalenderbereich steht ein Hinweis und der externe Link zum
+  Buchungskalender (öffnet cal.com erst beim Klick).
+- **Erlauben:** Cal.com-Skript und Iframe werden eingefügt, der Hinweis verschwindet.
+- **Ablehnen:** Banner schließt, Hinweis und externer Link bleiben.
+- **Widerruf:** Fußzeile → „Datenschutzeinstellungen“ öffnet das Banner erneut (mit „Schließen“
+  und Escape). Wird bei laufendem Kalender abgelehnt, lädt die Seite neu, damit Skript und Iframe
+  des Anbieters vollständig verschwinden. Cookies, die Cal.com bereits gesetzt hat, kann die Seite
+  nicht löschen; das steht so im Datenschutztext.
+- **Speicherung:** nur `localStorage` unter `rjl-calendar-consent` mit Entscheidung, Zeitpunkt,
+  Ablauf (180 Tage) und Textversion – keine Kennung, kein Cookie. Abgelaufene, fremde oder defekte
+  Werte gelten als „nicht entschieden“. Die Entscheidung gilt für beide Sprachen und wird zwischen
+  offenen Tabs übernommen.
+- **Textänderung:** Ändert sich der Einwilligungstext, in `site.js` die `version` hochzählen
+  (z. B. `2026-09-14.2`) – dann entscheiden alle Besucher neu. Bei Skriptänderungen zusätzlich den
+  `?v=`-Parameter in `index.html` hochzählen.
+- **Ohne JavaScript:** kein Banner, kein Kalender, nur der externe Link.
+
+Der Datenschutztext (Impressum-Klappe) nennt GitHub Pages (Hosting), Cal.com (nach Freigabe),
+Google Kalender/Meet (Terminverwaltung), Speicherdauer, Betroffenenrechte und die
+Aufsichtsbehörde Baden-Württemberg. Keine Rechtsberatung; bei Zweifeln prüfen lassen.
+
+Prüfung: `python3 tests/consent_test.py http://localhost:8788/` (Chrome und `pip install
+websockets` nötig) startet ein frisches Headless-Chrome und prüft alle Pfade inklusive
+Netzwerkmitschnitt; am 14.09.2026 lokal und gegen die Live-Adresse bestanden.
+
+## Schriften
+
+EB Garamond liegt lokal unter `assets/fonts/` (variable Schrift, Gewichte 400–500, Latin mit
+Umlauten und ß, 44 KB, SIL Open Font License – `OFL.txt` muss beiliegen). Google Fonts wird
+nicht mehr geladen; damit geht vor der Einwilligung keine Anfrage an Google. Die Schrift
+`Helvetica Neue`/Arial kommt vom System.
+
 ## Sprache und Ansprache
 
 Die Auswahl „Deutsch / English“ steht oben rechts. Deutsch ist der Standard;
 `?lang=en` öffnet die englische Fassung direkt. Die Sprache wird nur in der URL geführt,
 ohne Cookies oder lokalen Speicher. Ein Wechsel übersetzt die Seitentexte, Bild-Bedienhinweise,
-Meta-Beschreibung und den Datenschutzhinweis; die Animation wird nicht neu gestartet.
+Meta-Beschreibung, Banner und Datenschutzhinweise; die Animation wird nicht neu gestartet.
 
 Texte (Robin, 14.09.2026): schlicht — „Termin vereinbaren“ / „Arrange an appointment“, ohne Du/Sie.
 Der Einleitungssatz nennt Orte (auch ein Ort nach Wunsch des Gastes) und dass jede
@@ -65,8 +111,9 @@ stammen von Cal.com. Beide Buchungslinks laden (geprüft 14.09.2026).
 ## Termine (Cal.com)
 
 Terminbuchung läuft über Cal.com (kostenloser Einzelplan: 1 Person, unbegrenzte Termine und
-Kalender, Apple Calendar wird unterstützt). Die Seite bettet den Buchungskalender ein und
-färbt ihn in die CI; ohne geladenes Skript bleibt ein Link „Termin finden“ / „Find a time“.
+Kalender, Apple Calendar wird unterstützt). Die Seite bettet den Buchungskalender nach
+Einwilligung ein und färbt ihn in die CI; ohne Zustimmung oder ohne Skript bleibt der Link
+„Termin vorschlagen“ / „Suggest a time“ zum Kalender bei cal.com.
 
 Einrichtung (einmalig, ca. 30 Minuten):
 
@@ -103,10 +150,8 @@ Warum nicht FaceTime: Ein FaceTime-Link ist dauerhaft; wer ihn hat, kann jederze
 (Cal.coms eigener Dienst) wäre die Alternative ohne Google-Konto – ebenfalls ein Link je Termin,
 Gästen aber weniger vertraut.
 
-Anzeige: Ab ca. 900 px Breite stehen Ereignisdetails, Monat und Uhrzeiten nebeneinander; auf dem
-Handy untereinander. Der eingebettete Bereich hat eine Mindesthöhe von 640 px, bis Cal.com seine
-Höhe meldet. In der Claude-Vorschau (Artefakt) ist das Cal.com-Skript aus Sicherheitsgründen
-blockiert; dort erscheint nur der Link „Termin wählen“ – auf der echten Seite der Kalender.
+Anzeige: Ab ca. 900 px Breite stehen Monat und Uhrzeiten nebeneinander; auf dem Handy
+untereinander. Die Höhe des eingebetteten Bereichs meldet Cal.com selbst.
 
 Cal.com sendet Bestätigungen und Erinnerungen selbst und trägt den Termin in den Google-
 Kalender ein, der auf allen Geräten erscheint. Die frühere Eigenlösung (eigener Kalender aus `termine.json` mit
@@ -123,6 +168,7 @@ Git-Historie (Commit `dc3e9d4`).
 
 Statisch – jeder Host geht: GitHub Pages (Repository → Settings → Pages → Branch `main`),
 Netlify Drop (Ordner ziehen) oder ein beliebiger Webspace. Eigene Domain per CNAME.
+Wartungsseite ein- und ausschalten: siehe `GO-LIVE.md`.
 
 ## Herkunft der Ebenen
 
@@ -135,4 +181,5 @@ als die Rohebene, damit die Beinenden hinter dem Ast liegen.
 
 `node tests/bird-flight.test.cjs` prüft die vier Posen und das Ende der Animation,
 schnelle Wiederholung, reduzierte Bewegung, Bildladefehler, Tabwechsel und Größenänderung.
+`python3 tests/consent_test.py <Adresse>` prüft die Einwilligung (siehe oben).
 Die visuelle Abnahme erfolgt zusätzlich im Browser auf breitem und schmalem Bildschirm.

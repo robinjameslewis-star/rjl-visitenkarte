@@ -1,6 +1,8 @@
 # Go-live – nur das, was zum Veröffentlichen nötig ist
 
 **Online seit 14.09.2026:** https://robinjameslewis-star.github.io/rjl-visitenkarte/
+Am 14.09.2026 kurz auf die Wartungsseite (Branch `wartung`) geschaltet, bis Einwilligung und
+lokale Schriften fertig waren; seitdem wieder `main`.
 
 Stand 14.09.2026. Reihenfolge einhalten; nichts Neues bauen, bevor Punkt 7 erledigt ist.
 Fertige Punkte hier abhaken.
@@ -14,6 +16,7 @@ Fertige Punkte hier abhaken.
 | 5 | **Domain** – Start ohne eigene Domain unter der GitHub-Adresse; eigene Domain später (Settings → Pages → Custom domain, CNAME beim Anbieter) | Robin | 10 min | ☑ vorerst |
 | 6 | **Hosting: GitHub Pages** – Repository `robinjameslewis-star/rjl-visitenkarte`, Pages von `main`, HTTPS | Robin + Claude | 15 min | ☑ 14.09. |
 | 7 | **Abnahme** auf iPhone (Safari), Mac (Safari, Chrome): Animation, Kalender inkl. Testbuchung, Nachricht öffnet Mailprogramm, Sprachwechsel, Impressum-Klappe | Robin | 10 min | ☑ 14.09. (Mac: Testbuchung, Testmail mit Signatur) |
+| 8 | **Einwilligung** für Cal.com (Banner, Widerruf, Datenschutztext DE/EN) und **Schriften lokal** statt Google Fonts; Prüfung mit `tests/consent_test.py` lokal und live | Robin (ChatGPT) + Claude | – | ☑ 14.09. |
 
 Danach ist die Seite online. Alles Weitere ist Phase 2.
 
@@ -22,7 +25,22 @@ Danach ist die Seite online. Alles Weitere ist Phase 2.
     cd ~/Developer/rjl-visitenkarte && git add -A && git commit -m "…" && git push
 
 GitHub Pages baut in ein bis zwei Minuten neu. Bei Skriptänderungen den `?v=`-Parameter in
-`index.html` hochzählen, sonst sehen wiederkehrende Besucher alte Skripte.
+`index.html` hochzählen, sonst sehen wiederkehrende Besucher alte Skripte. Ändert sich der
+Einwilligungstext, zusätzlich `version` in `site.js` hochzählen (alle entscheiden neu).
+
+## Wartungsseite ein- und ausschalten
+
+Der Branch `wartung` zeigt nur Name, Vogel und Impressum – ohne Skripte, ohne Cal.com, ohne
+Google Fonts. `assets/` bleibt erreichbar, damit das Signaturbild in E-Mails weiter erscheint.
+Pages nicht abschalten (dann fehlt das Signaturbild in allen Mails), sondern die Quelle umstellen:
+
+    # offline (Wartungsseite)
+    gh api -X PUT repos/robinjameslewis-star/rjl-visitenkarte/pages -f 'source[branch]=wartung' -f 'source[path]=/'
+
+    # wieder online (main)
+    gh api -X PUT repos/robinjameslewis-star/rjl-visitenkarte/pages -f 'source[branch]=main' -f 'source[path]=/'
+
+Danach baut Pages in ein bis zwei Minuten; falls nicht: `gh api -X POST repos/robinjameslewis-star/rjl-visitenkarte/pages/builds`.
 
 ## Wenn Robin zurückkommt (Übergabe)
 
@@ -40,7 +58,7 @@ Robin arbeitet in ChatGPT an den Flugposen und richtet Cal.com ein. Für die For
 - Flugposen (Robin erzeugt sie in ChatGPT; Einbau danach)
 - LLM-Fenster („Rotkehlchen antwortet“) – Worker liegt vorbereitet in `worker/`, ist nicht eingebunden
 - ~~Formular-Endpunkt~~ – Formular am 14.09.2026 entfernt; Kontakt über Termin oder E-Mail im Impressum
-- Weitere Animationen, Mehrsprachigkeit, Analytics
+- Weitere Animationen, Analytics (Mehrsprachigkeit und Einwilligung sind inzwischen drin)
 - Eigene Artikel (Blog): Markdown → Seiten im Papier-Design; GitHub Pages trägt das ohne Umzug
 
 ## Was Claude vorbereitet hat

@@ -8,10 +8,24 @@
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
 <style>
+  @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+  [hidden] { display: none !important; }
+  body { padding-bottom: var(--consent-height, 0px); }
+  .consent-banner { position: fixed; inset: auto 0 0; z-index: 10; max-height: 65dvh; overflow-y: auto; background: #F3EFE5 url("assets/papier.jpg") repeat; background-size: 512px; border-top: 1px solid #D97932; padding: 18px max(6vw, calc((100vw - 980px) / 2)) max(18px, env(safe-area-inset-bottom)); color: #1F1F1F; }
+  .consent-banner h2 { margin: 0 0 5px; font: 400 23px/1.25 var(--serif); }
+  .consent-banner p { max-width: 76ch; margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+  .consent-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .consent-button { min-height: 44px; border: 1px solid #D97932; border-radius: 3px; padding: 9px 14px; background: transparent; color: #1F1F1F; font: inherit; font-size: 14px; cursor: pointer; }
+  .consent-button:hover { background: #EDE5D8; }
+  .consent-link { border: 0; border-bottom: 1px solid #D97932; padding: 8px 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
+  .consent-button:focus-visible, .consent-link:focus-visible { outline: 2px solid #1F1F1F; outline-offset: 3px; }
+  .booking-notice { color: var(--ink-soft); font-size: 14px; margin: 0 0 12px; }
+  footer details[open] { color: var(--ink-soft); }
+  footer .privacy-copy p { margin-top: 16px; }
+  #privacy { scroll-margin-top: 24px; }
+  @media (max-width: 480px) { .consent-actions .consent-button { width: 100%; } }
+
   :root {
     --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A;
     --line: #D6D9D6; --paper: #F3EFE5;
@@ -142,6 +156,7 @@
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
     <div class="booking" id="booking" data-booking-link="robin-james-lewis-ebbpnk/robin-james-lewis" data-booking-link-en="robin-james-lewis-ebbpnk/robin-james-lewis-en">
+      <p class="booking-notice" id="booking-notice" data-i18n="bookingNotice" hidden>Der eingebettete Kalender ist ausgeschaltet. Die Terminbuchung bleibt über den externen Link erreichbar.</p>
       <div class="cal-embed" id="cal-embed"></div>
       <p class="cal-fallback" id="cal-fallback"><a id="cal-link" data-i18n="book" href="https://cal.com/robin-james-lewis-ebbpnk/robin-james-lewis" target="_blank" rel="noopener">Termin vorschlagen</a><span class="hint" data-i18n="bookHint"> – öffnet den Kalender in einem neuen Tab.</span></p>
     </div>
@@ -150,16 +165,38 @@
 </main>
 
 <footer>
-  <details>
+  <details id="privacy">
     <summary data-i18n="legalTitle">Impressum · Datenschutz</summary>
-    <p>Robin James Lewis · Höchststraße 32 · 72336 Balingen · <a href="mailto:robinjameslewis@googlemail.com">robinjameslewis@googlemail.com</a><br>
-    <span data-i18n="privacy">Private Seite. Sie speichert nichts, setzt keine Cookies und zählt keine Besucher. Die Terminbuchung stellt Cal.com bereit (Cal.com, Inc.); Videogespräche finden über Google Meet statt; dort gelten die jeweiligen Datenschutzbestimmungen. Schriften werden von Google Fonts geladen.</span></p>
+    <p>Robin James Lewis · Höchststraße 32 · 72336 Balingen · <a href="mailto:robinjameslewis@googlemail.com">robinjameslewis@googlemail.com</a></p>
+    <div class="privacy-copy">
+      <p data-i18n="privacyIntro">Verantwortlich für diese Website ist Robin James Lewis; Anschrift und E-Mail-Adresse stehen oben. Die Website verwendet keine eigene Besuchermessung und keine Werbetracker. Schriften und Bilder werden zusammen mit der Website bereitgestellt.</p>
+      <p data-i18n="privacyHosting">GitHub Pages stellt die Website bereit. Dabei verarbeitet GitHub, Inc. technische Zugriffsdaten, insbesondere die IP-Adresse, zur Auslieferung und Absicherung der Seite. Grundlage ist Art. 6 Abs. 1 lit. f DSGVO: das Interesse an einem zuverlässigen und sicheren Betrieb. Eine Verarbeitung in den USA ist möglich. Einzelheiten zu Empfängern, Speicherdauer und Übermittlungsgrundlagen beschreibt GitHub.</p>
+      <p><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" data-i18n="githubPrivacy">Datenschutz bei GitHub</a></p>
+      <p data-i18n="privacyChoice">Die freiwillige Freigabe des eingebetteten Kalenders beruht auf § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a DSGVO. Ohne Zustimmung wird Cal.com hier nicht geladen. Die Auswahl mit Zeitpunkt, Ablaufdatum und Textversion wird für 180 Tage lokal im Browser gespeichert, ohne persönliche Kennung (§ 25 Abs. 2 Nr. 2 TDDDG; Art. 6 Abs. 1 lit. c DSGVO zum Nachweis der Entscheidung). Der Widerruf ist jederzeit über „Datenschutzeinstellungen“ möglich und gilt für die Zukunft. Bereits übermittelte Daten werden dadurch nicht gelöscht. Externe Links öffnen den jeweiligen Dienst erst beim Aufruf.</p>
+      <p data-i18n="privacyCal">Nach Freigabe verarbeitet Cal.com, Inc. IP-Adresse und Browserdaten, bei einer Buchung zusätzlich Kontakt- und Termindaten. Sicherheitscookies wie __cf_bm schützen vor Missbrauch. Cal.com verarbeitet Buchungsdaten im Auftrag und auch in den USA; laut Anbieter gelten dafür Standardvertragsklauseln oder ein Angemessenheitsmechanismus. Termine werden im verbundenen Google-Kalender verwaltet; bei Videoterminen kommt Google Meet hinzu.</p>
+      <p><a href="https://cal.com/privacy" data-i18n="calPrivacy">Datenschutz bei Cal.com</a> · <a href="https://policies.google.com/privacy" data-i18n="googlePrivacy">Datenschutz bei Google</a></p>
+      <p data-i18n="privacyRetention">Kontakt- und Termindaten dienen der Bearbeitung der Anfrage und der Organisation des Gesprächs (Art. 6 Abs. 1 lit. f DSGVO; bei vertragsbezogenen Anfragen lit. b). Sie werden so lange aufbewahrt, wie dies für diesen Zweck oder gesetzliche Pflichten erforderlich ist. Die Speicherdauer technischer Daten bei den Anbietern richtet sich nach deren verlinkten Angaben.</p>
+      <p data-i18n="privacyRights">Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.</p>
+      <p><a href="https://www.baden-wuerttemberg.datenschutz.de/" data-i18n="privacyAuthority">Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg</a></p>
+    </div>
   </details>
+  <button class="consent-link" id="consent-settings" type="button" aria-controls="consent-banner" aria-expanded="false" data-i18n="consentSettings" hidden>Datenschutzeinstellungen</button>
 </footer>
+
+<section class="consent-banner" id="consent-banner" aria-labelledby="consent-title" hidden>
+  <h2 id="consent-title" tabindex="-1" data-i18n="consentTitle">Ein Kalender, eine Entscheidung</h2>
+  <p data-i18n="consentText">Für die eingebettete Terminbuchung lädt Cal.com nach Zustimmung externe Inhalte und verwendet Cookies, unter anderem zum Schutz vor Missbrauch. Dabei werden IP-Adresse und Browserdaten auch in den USA verarbeitet. Die Auswahl gilt für 180 Tage und lässt sich jederzeit in den Datenschutzeinstellungen ändern.</p>
+  <div class="consent-actions">
+    <button class="consent-button" id="consent-allow" type="button" data-i18n="consentAllow">Terminbuchung erlauben</button>
+    <button class="consent-button" id="consent-deny" type="button" data-i18n="consentDeny">Ohne Terminbuchung fortfahren</button>
+    <a class="consent-link" href="#privacy" id="consent-privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a>
+    <button class="consent-link" id="consent-close" type="button" data-i18n="consentClose" hidden>Schließen</button>
+  </div>
+</section>
 
 
 <script src="bird-flight.js?v=20260914" defer></script>
-<script src="language.js?v=20260914d" defer></script>
-<script src="site.js?v=20260914d" defer></script>
+<script src="language.js?v=20260914-consent1" defer></script>
+<script src="site.js?v=20260914-consent1" defer></script>
 </body>
 </html>
