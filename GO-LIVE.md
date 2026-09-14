@@ -59,7 +59,7 @@ Robin arbeitet in ChatGPT an den Flugposen und richtet Cal.com ein. Für die For
 - LLM-Fenster („Rotkehlchen antwortet“) – Worker liegt vorbereitet in `worker/`, ist nicht eingebunden
 - ~~Formular-Endpunkt~~ – Formular am 14.09.2026 entfernt; Kontakt über Termin oder E-Mail im Impressum
 - Weitere Animationen, Analytics (Mehrsprachigkeit und Einwilligung sind inzwischen drin)
-- Eigene Artikel (Blog): Markdown → Seiten im Papier-Design; GitHub Pages trägt das ohne Umzug
+- Eigene Artikel (Blog): Markdown → Seiten im Papier-Design; GitHub Pages trägt das ohne Umzug – **vorher ladungsfähige Anschrift ins Impressum** (§ 18 Abs. 2 MStV); derzeit steht dort bewusst nur der Ort
 
 ## Was Claude vorbereitet hat
 
