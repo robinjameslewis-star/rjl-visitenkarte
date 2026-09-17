@@ -1,28 +1,33 @@
-# Cloudflare Worker: LLM-Proxy für die Visitenkarte.
+# Cloudflare Worker: Goch, das Rotkehlchen von Robin – LLM-Proxy und Draht zu Robin.
 # Deploy:  cd worker && npx wrangler login && npx wrangler deploy
 # Der Schlüssel liegt nie im Seitencode. Anbieter per PROVIDER umschalten.
-name = "rjl-rotkehlchen"
+name = "rjl-goch"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
 
 [ai]
 binding = "AI"                       # Workers AI (Free-Kontingent, Start)
 
-[vars]
-PROVIDER = "workers-ai"              # "workers-ai" | "anthropic" | "openai"
-MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-# Anthropic:  PROVIDER = "anthropic", MODEL = "claude-sonnet-5",  Secret: npx wrangler secret put ANTHROPIC_API_KEY
-# OpenAI:     PROVIDER = "openai",    MODEL = "gpt-4.1-mini",     Secret: npx wrangler secret put OPENAI_API_KEY
-ALLOWED_ORIGINS = "https://robinjameslewis.de,https://www.robinjameslewis.de,http://localhost:8788"
-MAX_PER_IP_PER_HOUR = "20"           # weiche Grenze je Besucher (pro Worker-Instanz)
-MAX_PER_DAY = "400"                  # harte Tagesgrenze (braucht KV, sonst nur die IP-Grenze)
-MAX_INPUT_CHARS = "600"
-MAX_TURNS = "8"
+compatibility_flags = ["nodejs_compat"]
 
-# Optional für die Tagesgrenze:  npx wrangler kv namespace create USAGE  → id hier eintragen
-# [[kv_namespaces]]
-# binding = "USAGE"
-# id = "…"
+[vars]
+PROVIDER = "anthropic"               # "anthropic" (Claude, Secret ANTHROPIC_API_KEY) | "workers-ai" (Cloudflare, kostenlos, 10.000 Neuronen/Tag)
+MODEL = "claude-opus-5"              # Robin, 17.09.2026: Opus 5 mit Prompt-Caching. Cloudflare: "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+# Secret setzen: npx wrangler secret put ANTHROPIC_API_KEY
+ALLOWED_ORIGINS = "https://robinjameslewis-star.github.io,http://localhost:8788"  # bei eigener Domain ergänzen
+MAX_PER_IP_PER_HOUR = "12"           # weiche Grenze je Besucher (pro Worker-Instanz)
+MAX_PER_DAY = "60"                   # harte Tagesgrenze über KV (Zähler USAGE) – Kostenbremse, Robin 17.09.2026
+MAX_INPUT_CHARS = "600"
+MAX_TURNS = "8"                      # Fragen je Gespräch ans Modell; danach nur noch der Draht (ohne Modell)
+MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
+# Der Draht: Versand über Resend. Secret: npx wrangler secret put RESEND_API_KEY
+MAIL_TO = "robinjameslewis@googlemail.com"
+MAIL_FROM = "Goch <onboarding@resend.dev>"  # mit eigener Domain: verifizierte Absenderadresse
+
+# Tageszähler für MAX_PER_DAY (angelegt 17.09.2026 mit: npx wrangler kv namespace create USAGE)
+[[kv_namespaces]]
+binding = "USAGE"
+id = "46e7ba80286c4ed1b701bb0c2fd3af30"
 
 [[rules]]
 type = "Text"

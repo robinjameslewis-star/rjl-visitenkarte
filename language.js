@@ -28,6 +28,22 @@
       description: 'Robin James Lewis – Termin vereinbaren.',
       language: 'Sprache', replay: 'Rotkehlchen noch einmal anfliegen lassen', replayTitle: 'Noch einmal anfliegen lassen',
       reloadTitle: 'Seite neu laden',
+      // Goch, das Rotkehlchen von Robin (17.09.2026)
+      gochOpen: 'Mit Goch sprechen, dem Rotkehlchen von Robin', gochOpenTitle: 'Mit Goch sprechen',
+      gochName: 'Goch', gochRole: 'das Rotkehlchen von Robin', gochClose: 'Gespräch schließen',
+      gochGreeting: 'Ich bin Goch, das Rotkehlchen von Robin. Frag mich etwas über ihn – oder richte ihm etwas aus.',
+      gochQ1: 'Woran arbeitet Robin gerade?', gochQ2: 'Wer ist Robin?', gochQ3: 'Ich möchte Robin etwas ausrichten.',
+      gochLabel: 'Deine Nachricht an Goch', gochPlaceholder: 'Schreib Goch …', gochSend: 'Senden',
+      gochConsentText: 'Goch antwortet mit einem Sprachmodell. Was du hier schreibst, geht an einen Cloudflare-Server und an das Modell, auch in die USA. Gespeichert wird nichts; die Entscheidung gilt 180 Tage. Einverstanden?',
+      gochAllow: 'Gespräch erlauben', gochDeny: 'Lieber nicht',
+      gochDeniedNote: 'Verstanden – dann bleibe ich still. Robin erreichst du per E-Mail: robinjameslewis@googlemail.com',
+      gochWithdraw: 'Einwilligung widerrufen', gochReconsider: 'Entscheidung ändern',
+      gochWithdrawn: 'Einwilligung zurückgenommen. Beim nächsten Wort frage ich neu.',
+      gochError: 'Gerade antworte ich nicht. Robin erreichst du per E-Mail:',
+      gochCalendar: 'Termin vorschlagen',
+      gochNote: 'Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.',
+      privacyGoch: 'Gespräch mit Goch: Das Gespräch mit dem Rotkehlchen ist freiwillig und beginnt erst nach Zustimmung (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO); die Auswahl wird wie beim Kalender für 180 Tage lokal im Browser gespeichert und ist im Gespräch jederzeit widerrufbar. Eingegebene Texte und die IP-Adresse werden an einen Cloudflare Worker (Cloudflare, Inc.) übertragen und von dort an das Sprachmodell Claude von Anthropic, PBC (USA) weitergegeben, das die Antwort erzeugt; Anthropic verwendet API-Eingaben laut seinen Bedingungen nicht zum Training. Der Worker speichert keine Gespräche, nur einen Tageszähler ohne Personenbezug. Eine Nachricht an Robin wird erst nach ausdrücklicher Bestätigung mit Name und E-Mail-Adresse über den Versanddienst Resend (Resend, Inc., USA) per E-Mail zugestellt – zusammen mit dem Gesprächsverlauf dieser Sitzung, damit Robin den Zusammenhang kennt – und wie Kontaktdaten behandelt. Antworten des Sprachmodells sind automatisch erzeugt und keine verbindliche Auskunft.',
+      cloudflarePrivacy: 'Datenschutz bei Cloudflare', anthropicPrivacy: 'Datenschutz bei Anthropic', resendPrivacy: 'Datenschutz bei Resend',
     },
     en: {
       consentTitle: "A calendar, a choice",
@@ -56,6 +72,22 @@
       description: 'Robin James Lewis — arrange an appointment.',
       language: 'Language', replay: 'Let the robin fly in again', replayTitle: 'Watch the robin fly in again',
       reloadTitle: 'Reload the page',
+      // Goch, Robin's robin (17.09.2026)
+      gochOpen: "Talk to Goch, Robin's robin", gochOpenTitle: 'Talk to Goch',
+      gochName: 'Goch', gochRole: "Robin's robin", gochClose: 'Close the conversation',
+      gochGreeting: "I'm Goch, Robin's robin – robin goch is Welsh for robin. Ask me about him, or leave him a message.",
+      gochQ1: 'What is Robin working on?', gochQ2: 'Who is Robin?', gochQ3: "I'd like to leave Robin a message.",
+      gochLabel: 'Your message to Goch', gochPlaceholder: 'Write to Goch …', gochSend: 'Send',
+      gochConsentText: 'Goch answers with a language model. What you write here goes to a Cloudflare server and to the model, including in the United States. Nothing is stored; the choice lasts 180 days. Agreed?',
+      gochAllow: 'Allow the conversation', gochDeny: 'Rather not',
+      gochDeniedNote: "Understood – I'll stay quiet. You can reach Robin by email: robinjameslewis@googlemail.com",
+      gochWithdraw: 'Withdraw permission', gochReconsider: 'Change decision',
+      gochWithdrawn: "Permission withdrawn. I'll ask again before the next word.",
+      gochError: "I can't answer right now. You can reach Robin by email:",
+      gochCalendar: 'Suggest a time',
+      gochNote: 'Goch answers automatically from a text Robin has approved; nothing is stored. No tax or legal advice.',
+      privacyGoch: "Conversation with Goch: talking to the robin is voluntary and starts only after permission (section 25(1) TDDDG, Article 6(1)(a) GDPR); as with the calendar, the choice is stored locally in the browser for 180 days and can be withdrawn at any time within the conversation. Entered text and the IP address are sent to a Cloudflare Worker (Cloudflare, Inc.) and from there to the Claude language model of Anthropic, PBC (USA), which generates the answer; under its terms, Anthropic does not use API inputs for training. The Worker stores no conversations, only a daily counter without personal reference. A message for Robin is delivered by email only after explicit confirmation with name and email address, via the delivery service Resend (Resend, Inc., USA) – together with the conversation of this session so that Robin has the context – and is treated like contact details. Answers from the language model are generated automatically and are not binding information.",
+      cloudflarePrivacy: 'Cloudflare privacy policy', anthropicPrivacy: 'Anthropic privacy policy', resendPrivacy: 'Resend privacy policy',
     }
   };
   const fromURL = () => new URL(location.href).searchParams.get('lang') === 'en' ? 'en' : 'de';
@@ -70,14 +102,21 @@
     document.querySelectorAll('[data-i18n]').forEach(element => {
       element.textContent = t(element.dataset.i18n);
     });
+    document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+      element.setAttribute('aria-label', t(element.dataset.i18nAria));
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+      element.placeholder = t(element.dataset.i18nPlaceholder);
+    });
     document.querySelector('.language-nav').setAttribute('aria-label', t('language'));
     document.querySelectorAll('[data-language]').forEach(link => {
       if (link.dataset.language === language) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
     });
     const scene = document.getElementById('scene');
-    scene.setAttribute('aria-label', t('replay'));
-    scene.title = t('replayTitle');
+    const chat = scene.dataset.chat === 'on'; // goch.js: Klick öffnet das Gespräch statt des Anflugs
+    scene.setAttribute('aria-label', t(chat ? 'gochOpen' : 'replay'));
+    scene.title = t(chat ? 'gochOpenTitle' : 'replayTitle');
     const nameLink = document.getElementById('name-link');
     nameLink.title = t('reloadTitle');
     nameLink.href = '?lang=' + language; // ohne Skript führt der Link auf ./
@@ -90,7 +129,7 @@
     if (changed) window.dispatchEvent(new CustomEvent('site-languagechange', { detail: { language } }));
   }
 
-  window.SiteLanguage = { t, get current() { return language; } };
+  window.SiteLanguage = { t, get current() { return language; }, refresh: () => apply(language) };
   window.addEventListener('popstate', () => apply(fromURL()));
   apply(language);
   document.querySelector('.language-nav').hidden = false;

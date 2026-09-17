@@ -7,7 +7,9 @@ Eine Seite: das handgezeichnete Rotkehlchen fliegt an und landet auf dem Ast, da
 Terminbuchung (Cal.com, erst nach Einwilligung geladen). Gestaltung nach dem persönlichen Designsystem 3.1
 (`Second Brain/90_Meta/Design/Designsystem.md`).
 
-**Veröffentlichung zuerst:** siehe `GO-LIVE.md`. Der Ordner `worker/` (LLM-Proxy) ist Phase 2 und nicht eingebunden.
+**Veröffentlichung zuerst:** siehe `GO-LIVE.md`. Der Ordner `worker/` enthält Goch, das Rotkehlchen
+von Robin (LLM-Proxy und Draht zu Robin); die Sprechblase auf der Seite ist eingebaut, aber erst
+aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `worker/README.md`.
 
 ## Dateien
 
@@ -19,6 +21,9 @@ Terminbuchung (Cal.com, erst nach Einwilligung geladen). Gestaltung nach dem per
 - `assets/flugpose-*.webp` – vier verlustfreie Flugposen
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation; `tests/im-browser.html` führt sie ohne Node im Browser aus
 - `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
+- `goch.js` – Goch: Sprechblase am Ast (Einwilligung, Gespräch, Nachricht an Robin)
+- `worker/profile.md`, `worker/aktuell.md` – was Goch weiß (von Robin freigegeben, öffentlich); `worker/src/index.js` der Cloudflare Worker
+- `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
 - `assets/ast.webp` – Ast-Ebene (verlustfreies WebP mit Transparenz, 48 KB), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
@@ -208,3 +213,29 @@ Tabwechsel und Größenänderung. Ohne Node:
 im Projektordner → http://localhost:8788/tests/im-browser.html); dort laufen dieselben Tests.
 `python3 tests/consent_test.py <Adresse>` prüft die Einwilligung (siehe oben).
 Die visuelle Abnahme erfolgt zusätzlich im Browser auf breitem und schmalem Bildschirm.
+
+## Goch, das Rotkehlchen von Robin (Stand 17.09.2026)
+
+Klick auf den Vogel öffnet eine Sprechblase am Ast: Gruß, drei Einstiegsfragen, Textfeld. Goch
+spricht für Robin aus `worker/profile.md` und `worker/aktuell.md` – sonst weiß er nichts und sagt
+das. Er duzt; wer Englisch schreibt, bekommt Englisch. Vor dem ersten Wort fragt die Sprechblase um
+Einwilligung (eigene Stufe `rjl-goch-consent`, 180 Tage, Widerruf in der Sprechblase); vorher geht
+keine Anfrage an den Endpunkt. Wer Robin etwas ausrichten will, nennt Name und E-Mail, Goch fasst
+zusammen, und erst nach ausdrücklichem Ja sendet der Worker per Resend eine E-Mail an Robin.
+Was Robin gerade macht, erzählt Goch aus `aktuell.md` (alle vier bis sechs Wochen erneuern); einen
+sichtbaren Absatz dazu gibt es auf der Seite bewusst nicht (Robin, 17.09.2026).
+
+**Schalter:** `data-chat-endpoint` am `<body>`, gesetzt auf `https://rjl-goch.rjl.workers.dev/chat`
+(live seit 17.09.2026). Leer: kein Gespräch, Klick auf den Vogel wiederholt den Anflug. Zum
+Testen: lokal `?goch=http://localhost:8787/chat` oder `?goch=off` (nur auf localhost wirksam), auf
+der veröffentlichten Seite `localStorage.setItem('rjl-goch-endpoint', 'https://…/chat')` in der
+Browserkonsole – so sieht nur der eigene Browser den Vogel sprechen.
+
+**Datenschutz:** Absatz „Gespräch mit Goch“ im Impressum (Cloudflare, Sprachmodell, Resend, keine
+Speicherung außer Tageszähler). Beim Wechsel des Modellanbieters (Workers AI → Anthropic/OpenAI)
+den Absatz anpassen.
+
+**Prüfen:** `python3 tests/goch_fake_worker.py 8787`, dazu `python3 -m http.server 8788`, dann
+`python3 tests/goch_test.py http://localhost:8788/ http://localhost:8787` (13 Gruppen, u. a. keine
+Anfrage vor Einwilligung, Nachricht kommt an, Serverfehler, Escape, Englisch, Handy). Die
+Flug-Tests (`tests/im-browser.html`) und `tests/consent_test.py` bleiben unverändert gültig.

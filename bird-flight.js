@@ -112,7 +112,9 @@
     tick(startTime);
   }
 
-  scene.addEventListener('click', play);
+  // Mit Goch (goch.js setzt data-chat="on") öffnet der Klick das Gespräch, nicht den Anflug;
+  // der Flug wiederholt sich dann beim Neuladen über den Namen.
+  scene.addEventListener('click', () => { if (scene.dataset.chat !== 'on') play(); });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) finish();
   });

@@ -99,6 +99,52 @@
   }
 
 
+  /* ---------- Goch: Sprechblase am Ast ---------- */
+  .perch { position: relative; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .scene[data-chat="on"] { cursor: pointer; }
+  .stage { position: relative; }
+  .goch { /* Lage setzt goch.js: links über dem Namen, im freien Himmel neben dem Vogel; Schnabel zeigt zum Vogel */
+    position: absolute; left: 6vw; bottom: 30%; z-index: 6; width: min(400px, 88vw); max-height: min(72vh, 560px);
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 14px 16px 12px; border: 1px solid var(--line); border-radius: 4px;
+    background: var(--paper) url("assets/papier.jpg") repeat; background-size: 512px;
+    box-shadow: 0 10px 30px rgba(31, 31, 31, .10); font-size: 15px; line-height: 1.45; text-align: left;
+  }
+  .goch::after { /* Schnabel der Sprechblase, zeigt zum Vogel */
+    content: ""; position: absolute; right: -9px; bottom: 28px; width: 16px; height: 16px;
+    background: inherit; border: 1px solid var(--line); border-width: 1px 1px 0 0; transform: rotate(45deg);
+  }
+  .goch-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .goch-title { margin: 0; font: 400 20px/1.2 var(--serif); color: var(--green); letter-spacing: .02em; }
+  .goch-title small { font-size: 13px; color: var(--ink-soft); font-family: var(--sans); letter-spacing: 0; }
+  .goch-close { border: 0; background: transparent; color: var(--ink-soft); font: 400 22px/1 var(--serif); cursor: pointer; padding: 2px 6px; margin: -4px -8px 0 0; }
+  .goch-close:hover { color: var(--ink); }
+  .goch-close:focus-visible, .goch-starter:focus-visible, .goch-send:focus-visible, #goch-input:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
+  .goch-log { overflow-y: auto; min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
+  .goch-bubble { margin: 0; max-width: 92%; padding: 8px 11px; border-radius: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .goch-goch { align-self: flex-start; background: rgba(255, 255, 255, .55); border: 1px solid var(--line); }
+  .goch-you { align-self: flex-end; background: rgba(11, 61, 46, .07); color: var(--ink); }
+  .goch-thinking { color: var(--ink-muted); letter-spacing: .2em; }
+  .goch-action { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--copper); padding-bottom: 1px; white-space: nowrap; }
+  .goch-consent p { margin: 0 0 10px; font-size: 14px; }
+  .goch-starters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .goch-starter { border: 1px solid var(--copper); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
+  .goch-starter:hover { background: #EDE5D8; }
+  .goch-form { display: flex; gap: 8px; align-items: flex-end; }
+  #goch-input { flex: 1 1 auto; min-height: 44px; resize: none; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255, 255, 255, .55); color: var(--ink); font: inherit; font-size: 15px; }
+  .goch-send { min-height: 44px; border: 1px solid var(--copper); border-radius: 3px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; padding: 9px 14px; cursor: pointer; }
+  .goch-send:hover { background: #EDE5D8; }
+  .goch-send:disabled, #goch-input:disabled { opacity: .55; cursor: default; }
+  .goch-note { margin: 0; font-size: 12px; color: var(--ink-muted); line-height: 1.5; }
+  .goch-note a { color: inherit; }
+  .goch-note .goch-withdraw { font-size: 12px; padding: 0; color: inherit; margin-left: 4px; }
+  @media (max-width: 720px) {
+    .goch { position: fixed; inset: auto 0 0; width: auto; max-height: 78dvh; border-radius: 10px 10px 0 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 20; }
+    .goch::after { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .goch-log { scroll-behavior: auto; } }
+
   /* ---------- Terminbereich ---------- */
   .contact { max-width: 980px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
   .contact > h2, .contact > .lead { max-width: 560px; }
@@ -133,12 +179,12 @@
   @media (max-width: 720px) {
     .stage { grid-template-columns: 1fr; row-gap: 12px; padding-top: clamp(105px, 17vh, 145px); }
     .name { padding-bottom: 0; order: 2; text-align: center; }
-    .scene { order: 1; }
+    .perch { order: 1; }
     .contact { margin-top: 32px; }
   }
 </style>
 </head>
-<body>
+<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-version="20260918">
 
 <nav class="language-nav" aria-label="Sprache">
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
@@ -149,7 +195,8 @@
 <main>
   <section class="stage" aria-label="Robin James Lewis">
     <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">Robin James Lewis</a></h1>
-    <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen">
+    <div class="perch">
+    <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
       <span class="bird-move" aria-hidden="true"><span class="bird-tilt">
         <img class="bird-frame bird-rest" data-pose="rest" src="assets/vogel.webp" alt="" width="1153" height="637" fetchpriority="high">
         <img class="bird-frame bird-flight bird-up" data-pose="up" data-src="assets/flugpose-1-aufschlag.webp" alt="" width="1536" height="1024" decoding="async">
@@ -159,7 +206,36 @@
       </span></span>
       <span class="branch" aria-hidden="true"><img src="assets/ast.webp" alt="" width="1153" height="167" fetchpriority="high"></span>
     </button>
+
+    <!-- Goch, das Rotkehlchen von Robin: Sprechblase am Ast (goch.js). Aktiv, solange data-chat-endpoint am <body> gesetzt ist. -->
+    <section class="goch" id="goch" role="dialog" aria-labelledby="goch-title" hidden>
+      <div class="goch-head">
+        <h2 class="goch-title" id="goch-title"><span data-i18n="gochName">Goch</span> <small data-i18n="gochRole">das Rotkehlchen von Robin</small></h2>
+        <button class="goch-close" id="goch-close" type="button" aria-label="Gespräch schließen" data-i18n-aria="gochClose">×</button>
+      </div>
+      <div class="goch-log" id="goch-log" role="log" aria-live="polite"></div>
+      <div class="goch-consent" id="goch-consent" hidden>
+        <p data-i18n="gochConsentText">Goch antwortet mit einem Sprachmodell. Was du hier schreibst, geht an einen Cloudflare-Server und an das Modell, auch in die USA. Gespeichert wird nichts; die Entscheidung gilt 180 Tage. Einverstanden?</p>
+        <div class="consent-actions">
+          <button class="consent-button" id="goch-allow" type="button" data-i18n="gochAllow">Gespräch erlauben</button>
+          <button class="consent-link" id="goch-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
+        </div>
+      </div>
+      <div class="goch-starters" id="goch-starters">
+        <button class="goch-starter" type="button" data-i18n="gochQ1">Woran arbeitet Robin gerade?</button>
+        <button class="goch-starter" type="button" data-i18n="gochQ2">Wer ist Robin?</button>
+        <button class="goch-starter" type="button" data-i18n="gochQ3">Ich möchte Robin etwas ausrichten.</button>
+      </div>
+      <form class="goch-form" id="goch-form">
+        <label class="visually-hidden" for="goch-input" data-i18n="gochLabel">Deine Nachricht an Goch</label>
+        <textarea id="goch-input" rows="2" maxlength="600" placeholder="Schreib Goch …" data-i18n-placeholder="gochPlaceholder" autocomplete="off"></textarea>
+        <button class="goch-send" id="goch-send" type="submit" data-i18n="gochSend">Senden</button>
+      </form>
+      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button></p>
+    </section>
+    </div>
   </section>
+
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
@@ -187,6 +263,8 @@
       <p data-i18n="privacyChoice">Die freiwillige Freigabe des eingebetteten Kalenders beruht auf § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a DSGVO. Ohne Zustimmung wird Cal.com hier nicht geladen. Die Auswahl mit Zeitpunkt, Ablaufdatum und Textversion wird für 180 Tage lokal im Browser gespeichert, ohne persönliche Kennung (§ 25 Abs. 2 Nr. 2 TDDDG; Art. 6 Abs. 1 lit. c DSGVO zum Nachweis der Entscheidung). Der Widerruf ist jederzeit über „Datenschutzeinstellungen“ möglich und gilt für die Zukunft. Bereits übermittelte Daten werden dadurch nicht gelöscht. Externe Links öffnen den jeweiligen Dienst erst beim Aufruf.</p>
       <p data-i18n="privacyCal">Nach Freigabe verarbeitet Cal.com, Inc. IP-Adresse und Browserdaten, bei einer Buchung zusätzlich Kontakt- und Termindaten. Sicherheitscookies wie __cf_bm schützen vor Missbrauch. Cal.com verarbeitet Buchungsdaten im Auftrag und auch in den USA; laut Anbieter gelten dafür Standardvertragsklauseln oder ein Angemessenheitsmechanismus. Termine werden im verbundenen Google-Kalender verwaltet; bei Videoterminen kommt Google Meet hinzu.</p>
       <p><a href="https://cal.com/privacy" data-i18n="calPrivacy">Datenschutz bei Cal.com</a> · <a href="https://policies.google.com/privacy" data-i18n="googlePrivacy">Datenschutz bei Google</a></p>
+      <p data-i18n="privacyGoch">Gespräch mit Goch: Das Gespräch mit dem Rotkehlchen ist freiwillig und beginnt erst nach Zustimmung (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO); die Auswahl wird wie beim Kalender für 180 Tage lokal im Browser gespeichert und ist im Gespräch jederzeit widerrufbar. Eingegebene Texte und die IP-Adresse werden an einen Cloudflare Worker (Cloudflare, Inc.) übertragen und von dort an das Sprachmodell Claude von Anthropic, PBC (USA) weitergegeben, das die Antwort erzeugt; Anthropic verwendet API-Eingaben laut seinen Bedingungen nicht zum Training. Der Worker speichert keine Gespräche, nur einen Tageszähler ohne Personenbezug. Eine Nachricht an Robin wird erst nach ausdrücklicher Bestätigung mit Name und E-Mail-Adresse über den Versanddienst Resend (Resend, Inc., USA) per E-Mail zugestellt – zusammen mit dem Gesprächsverlauf dieser Sitzung, damit Robin den Zusammenhang kennt – und wie Kontaktdaten behandelt. Antworten des Sprachmodells sind automatisch erzeugt und keine verbindliche Auskunft.</p>
+      <p><a href="https://www.cloudflare.com/privacypolicy/" data-i18n="cloudflarePrivacy">Datenschutz bei Cloudflare</a> · <a href="https://www.anthropic.com/privacy" data-i18n="anthropicPrivacy">Datenschutz bei Anthropic</a> · <a href="https://resend.com/legal/privacy-policy" data-i18n="resendPrivacy">Datenschutz bei Resend</a></p>
       <p data-i18n="privacyRetention">Kontakt- und Termindaten dienen der Bearbeitung der Anfrage und der Organisation des Gesprächs (Art. 6 Abs. 1 lit. f DSGVO; bei vertragsbezogenen Anfragen lit. b). Sie werden so lange aufbewahrt, wie dies für diesen Zweck oder gesetzliche Pflichten erforderlich ist. Die Speicherdauer technischer Daten bei den Anbietern richtet sich nach deren verlinkten Angaben.</p>
       <p data-i18n="privacyRights">Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.</p>
       <p><a href="https://www.baden-wuerttemberg.datenschutz.de/" data-i18n="privacyAuthority">Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg</a></p>
@@ -207,8 +285,9 @@
 </section>
 
 
-<script src="bird-flight.js?v=20260917" defer onerror="document.documentElement.classList.remove('js')"></script>
-<script src="language.js?v=20260917" defer></script>
-<script src="site.js?v=20260917" defer></script>
+<script src="bird-flight.js?v=20260918" defer onerror="document.documentElement.classList.remove('js')"></script>
+<script src="language.js?v=20260918" defer></script>
+<script src="site.js?v=20260918" defer></script>
+<script src="goch.js?v=20260918" defer></script>
 </body>
 </html>

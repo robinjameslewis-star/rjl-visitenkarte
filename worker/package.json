@@ -1,0 +1,17 @@
+{
+  "name": "rjl-goch",
+  "private": true,
+  "type": "module",
+  "description": "Goch, das Rotkehlchen von Robin – Cloudflare Worker (LLM-Proxy und Draht zu Robin)",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

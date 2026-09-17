@@ -208,7 +208,7 @@ async def main():
             bh = await ev("document.getElementById('consent-banner').getBoundingClientRect().height")
             check(bh <= 844 * 0.65 + 1, f"Banner höchstens 65 % der Höhe ({bh:.0f}px)")
             check(await ev("(()=>{const b=document.getElementById('consent-banner');return b.scrollHeight<=b.clientHeight+1})()"), "Banner-Inhalt passt ohne Innen-Scrollen")
-            btn = await ev("Array.from(document.querySelectorAll('.consent-button')).map(b=>b.getBoundingClientRect().height)")
+            btn = await ev("Array.from(document.querySelectorAll('#consent-banner .consent-button')).map(b=>b.getBoundingClientRect().height)")
             check(all(h >= 44 for h in btn), f"Knöpfe mind. 44 px hoch ({btn})")
             check(await ev("document.documentElement.scrollWidth <= innerWidth"), "kein horizontales Scrollen")
             await shot("10_handy_de")
