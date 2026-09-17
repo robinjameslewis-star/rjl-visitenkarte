@@ -19,8 +19,8 @@ Terminbuchung (Cal.com, erst nach Einwilligung geladen). Gestaltung nach dem per
 - `assets/flugpose-*.webp` – vier verlustfreie Flugposen
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation; `tests/im-browser.html` führt sie ohne Node im Browser aus
 - `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
-- `assets/vogel.png` – Vogel-Ebene (freigestellt, Beine enden an der Astkante)
-- `assets/ast.png` – Ast-Ebene (Füße entfernt, Lücken rekonstruiert), liegt vor dem Vogel
+- `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
+- `assets/ast.webp` – Ast-Ebene (verlustfreies WebP mit Transparenz, 48 KB), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
 - `assets/favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`
 
@@ -37,8 +37,20 @@ Danach steht die Illustration ruhig, auch bei reduzierter Bewegung.
 Die Posen sind am Auge auf die Sitzillustration ausgerichtet; kurze Überblendungen
 mildern den Bildwechsel. Alle Bilder werden vor dem Start dekodiert. Bei Bildfehlern,
 langsamer Verbindung, verborgenem Tab oder Größenwechsel bleibt/erscheint die Sitzpose.
-Klick, Enter oder Leertaste auf die Szene lädt die Seite neu (Robin, 14.09.2026); der Anflug
-beginnt damit von vorn, Sprache (URL) und Einwilligung (localStorage) bleiben erhalten.
+Klick, Enter oder Leertaste auf die Szene wiederholt den Flug ohne Warteschlange. Ein Klick auf
+den **Namen** lädt die Seite neu (Robin, 17.09.2026; zuvor kurz auf dem Vogel); Sprache (URL) und
+Einwilligung (localStorage) bleiben dabei erhalten.
+
+**Ankunft (17.09.2026):** Bis der Anflug beginnt, bleibt der Ast leer. Vorher saß der Vogel bei
+kaltem Cache erst auf dem Ast, bis die Flugbilder geladen und dekodiert waren, und flog dann erst
+an. Umsetzung: ein Inline-Skript im `<head>` setzt die Klasse `js`, die CSS-Regel `.js .bird-rest`
+blendet die Sitzpose aus, `bird-flight.js` startet im Zustand `arriving` und blendet per
+Inline-Stil ein – beim Flugstart, bei reduzierter Bewegung, Bildfehler, Zeitüberschreitung oder
+verborgenem Tab. Lädt `bird-flight.js` nicht, entfernt `onerror` die Klasse; ohne Skript sitzt der
+Vogel von Anfang an. Die Flugbilder werden per `<link rel=preload>` vorgeladen (nur ohne
+`prefers-reduced-motion`); die Sitzpose ist WebP statt PNG (66 statt 830 KB), der Ast
+verlustfreies WebP (48 statt 193 KB). Geprüft mit gedrosseltem Netz (1,5 Mbit/s): Ast leer →
+Anflug nach 3,9 s → Landung; die Sitzpose war vorher nie sichtbar.
 Bei `prefers-reduced-motion` bleibt die Sitzpose statisch; Flugbilder werden beim
 initialen Laden dieser Einstellung nicht angefordert. Inhalte bleiben sofort benutzbar.
 
@@ -46,7 +58,9 @@ Die vier Dateien `assets/flugpose-1-aufschlag.webp` bis `assets/flugpose-4-lande
 sind Website-Kopien der Entwürfe aus `Second Brain/90_Meta/Design/Entwuerfe/` (13_Flugpose_*.png).
 Die vier Dateien sind WebP mit Qualität 86 (visuell verlustfrei), zusammen rund 430 KB; die verlustfreien Originale liegen als PNG im Vault.
 Die Darstellung nutzt `mix-blend-mode: multiply`, damit Weiß mit dem Papier verschmilzt;
-die Originaldateien werden weder freigestellt noch pixelweise bearbeitet.
+die Originaldateien werden weder freigestellt noch pixelweise bearbeitet. Deshalb kann auch die
+Sitzpose auf Weiß statt transparent liegen (`vogel.webp`); das freigestellte PNG liegt in der
+Git-Historie (bis Commit `8d5d812`) und im Vault.
 Die Illustration ist eine Bildfolge aus vier gezeichneten Haltungen, keine anatomische
 3D-Simulation. Geringe Zeichnungsunterschiede bleiben bei stark vergrößerter Ansicht sichtbar.
 
@@ -181,14 +195,15 @@ Wartungsseite ein- und ausschalten: siehe `GO-LIVE.md`.
 ## Herkunft der Ebenen
 
 Aus `Second Brain/90_Meta/Design/Vorlagen/Assets/rotkehlchen_freigestellt.png` am 13.09.2026
-getrennt: Schnitt bei Zeile 583, Fußzonen (x 410–492 und 536–626) im Ast aus den
+getrennt (seit 17.09.2026 als WebP ausgeliefert, Geometrie unverändert): Schnitt bei Zeile 583, Fußzonen (x 410–492 und 536–626) im Ast aus den
 Nachbarabschnitten rekonstruiert. Landeposition: Vogel 20 px (3,43 % seiner Höhe) tiefer
 als die Rohebene, damit die Beinenden hinter dem Ast liegen.
 
 ## Prüfung der Animationssteuerung
 
-`node tests/bird-flight.test.cjs` prüft die vier Posen und das Ende der Animation, Klick =
-Neuladen, reduzierte Bewegung, Bildladefehler, Tabwechsel und Größenänderung. Ohne Node:
+`node tests/bird-flight.test.cjs` prüft leeren Ast bis zum Flugstart, Hintergrund-Tab, die vier
+Posen und das Ende der Animation, Wiederholung per Klick, reduzierte Bewegung, Bildladefehler,
+Tabwechsel und Größenänderung. Ohne Node:
 `tests/im-browser.html` über den lokalen Server öffnen (z. B. `python3 -m http.server 8788`
 im Projektordner → http://localhost:8788/tests/im-browser.html); dort laufen dieselben Tests.
 `python3 tests/consent_test.py <Adresse>` prüft die Einwilligung (siehe oben).

@@ -102,7 +102,7 @@
   }
 
   function play() {
-    if (!ready || motion.matches || document.hidden) return;
+    if (!ready || motion.matches || document.hidden) { finish(); return; }
     finish();
     bounds = scene.getBoundingClientRect();
     if (!bounds.width || bounds.bottom < 0 || bounds.top > innerHeight) return;
@@ -112,9 +112,7 @@
     tick(startTime);
   }
 
-  // Ein Klick auf den Vogel lädt die Seite neu (Robin, 14.09.2026): der Anflug beginnt von vorn,
-  // Sprache (URL) und Einwilligung (localStorage) bleiben erhalten.
-  scene.addEventListener('click', () => location.reload());
+  scene.addEventListener('click', play);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) finish();
   });
@@ -150,6 +148,11 @@
     }
   }
 
-  finish();
+  // Bis der Anflug beginnt, bleibt der Ast leer (Robin, 17.09.2026). Vorher saß der Vogel bei
+  // kaltem Cache erst auf dem Ast, bis die Flugbilder geladen waren, und flog dann erst an.
+  // Ohne Flug (reduzierte Bewegung, Bildfehler, Zeitüberschreitung, verborgener Tab) zeigt
+  // finish() die Sitzpose.
+  if (motion.matches) finish();
+  else { pose('arriving', true); scene.dataset.state = 'arriving'; }
   prepare();
 })();

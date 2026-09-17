@@ -27,6 +27,12 @@
   window.addEventListener('site-languagechange', localizeCalendar);
   new MutationObserver(localizeCalendar).observe(document.getElementById('cal-embed'), { childList: true, subtree: true });
 
+  // ---------- Name: ein Klick lädt die Seite neu (Robin, 17.09.2026); Sprache und Einwilligung bleiben ----------
+  document.getElementById('name-link').addEventListener('click', function (event) {
+    event.preventDefault();
+    location.reload();
+  });
+
   // ---------- Einwilligung: Cal.com wird erst nach Zustimmung geladen ----------
   // Gespeichert wird nur die Entscheidung mit Zeitpunkt, Ablauf und Textversion, lokal im Browser.
   var storeKey = 'rjl-calendar-consent';

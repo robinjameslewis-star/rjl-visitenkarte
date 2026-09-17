@@ -27,6 +27,7 @@
       legalTitle: 'Impressum · Datenschutz',
       description: 'Robin James Lewis – Termin vereinbaren.',
       language: 'Sprache', replay: 'Rotkehlchen noch einmal anfliegen lassen', replayTitle: 'Noch einmal anfliegen lassen',
+      reloadTitle: 'Seite neu laden',
     },
     en: {
       consentTitle: "A calendar, a choice",
@@ -54,6 +55,7 @@
       legalTitle: 'Legal notice · Privacy',
       description: 'Robin James Lewis — arrange an appointment.',
       language: 'Language', replay: 'Let the robin fly in again', replayTitle: 'Watch the robin fly in again',
+      reloadTitle: 'Reload the page',
     }
   };
   const fromURL = () => new URL(location.href).searchParams.get('lang') === 'en' ? 'en' : 'de';
@@ -76,6 +78,9 @@
     const scene = document.getElementById('scene');
     scene.setAttribute('aria-label', t('replay'));
     scene.title = t('replayTitle');
+    const nameLink = document.getElementById('name-link');
+    nameLink.title = t('reloadTitle');
+    nameLink.href = '?lang=' + language; // ohne Skript führt der Link auf ./
     document.querySelector('meta[name="description"]').content = t('description');
     if (updateURL && changed) {
       const url = new URL(location.href);
