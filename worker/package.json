@@ -5,7 +5,8 @@
   "description": "Goch, das Rotkehlchen von Robin – Cloudflare Worker (LLM-Proxy und Draht zu Robin)",
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev"
+    "dev": "wrangler dev",
+    "fragen": "sh fragen.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",

@@ -88,3 +88,10 @@ zusätzlich an Resend und per E-Mail an Robin. Workers AI trainiert nicht auf Ei
 Anthropic/OpenAI gelten deren API-Bedingungen (kein Training per Standard-API). Keine
 Speicherung im Worker außer dem Tageszähler. Die Seite fragt vor dem ersten Wort um
 Einwilligung; der Datenschutztext im Impressum beschreibt die Beteiligten.
+
+## Durchsicht (monatlich)
+
+`sh fragen.sh` (im Ordner `worker/`) listet die Fragen, die Goch in den letzten 30 Tagen nicht
+beantworten konnte – ohne Personenbezug, mit Häufigkeit. Zusammen mit `profile.md` und
+`aktuell.md` ist das die Grundlage der Durchsicht: Robin entscheidet, was ein Satz im Profil
+wird; das Profil bleibt bei rund 9.000 Token (neuer Satz verdrängt einen schwächeren).

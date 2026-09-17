@@ -141,6 +141,9 @@ export default {
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
     const out = parse(text);
     if (body.debug === true) { out.raw = String(text).slice(0, 2000); out.usage = lastUsage; }
+    // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
+    // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
+    if (env.USAGE && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
 
     // Der Draht: Nachricht an Robin. Das Protokoll gehört dem Worker, nicht dem Modell:
     // Felder notfalls aus dem Verlauf ergänzen, die Zusammenfassung selbst schreiben, und senden
@@ -154,6 +157,22 @@ export default {
     return json(out, 200, cors);
   },
 };
+
+const UNKNOWN = /das weiß ich nicht|weiß ich (leider )?nicht|kann dir nur robin sagen|i don't know that|only robin can tell|i don't know/i;
+
+// Frage ohne Personenbezug zählen: E-Mail-Adressen und lange Zahlen entfernt, auf 160 Zeichen gekürzt,
+// Schlüssel aus der normalisierten Frage; Eintrag verfällt nach 30 Tagen ohne Wiederholung.
+async function rememberUnanswered(env, question, lang) {
+  const clean = String(question).replace(EMAIL_ANY, "[e-mail]").replace(/\+?\d[\d\s\/-]{6,}\d/g, "[nummer]").replace(/\s+/g, " ").trim().slice(0, 160);
+  if (clean.length < 3) return;
+  const key = "unanswered:" + clean.toLowerCase().replace(/[^\p{L}\p{N} ]+/gu, "").trim().slice(0, 120);
+  let entry = null;
+  try { entry = JSON.parse(await env.USAGE.get(key)); } catch {}
+  const today = new Date().toISOString().slice(0, 10);
+  entry = entry && typeof entry === "object" ? entry : { q: clean, lang, n: 0, first: today };
+  entry.n += 1; entry.last = today;
+  await env.USAGE.put(key, JSON.stringify(entry), { expirationTtl: 30 * 86400 });
+}
 
 // Einmalige Benachrichtigung an Robin über Resend; der Merker in KV verhindert Wiederholungen.
 async function notifyOnce(env, kind, subject, text) {
