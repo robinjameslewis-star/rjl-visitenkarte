@@ -172,6 +172,15 @@ async def main():
             await say("Wie ist die E-Mail?")
             check(await ev("(document.querySelector('.goch-log').lastChild.querySelector('a.goch-action') || {}).href || ''") == 'mailto:robinjameslewis@googlemail.com', "Kontaktverweis als mailto")
 
+            print("5b. Link aus Robins Liste")
+            await say("Welche Musik mag Robin?")
+            a = await ev("(() => { const a = document.querySelector('.goch-log').lastChild.querySelector('a.goch-action'); return a ? {href: a.href, text: a.textContent, target: a.target, rel: a.rel} : null; })()")
+            check(a and a['href'] == 'https://www.youtube.com/watch?v=test' and a['text'] == 'Testlied bei YouTube' and a['target'] == '_blank' and 'noopener' in a['rel'], f"Lied als Link in neuem Tab ({a})")
+            await say("Und welche Musik noch?")
+            check(await ev("document.querySelector('.goch-log').lastChild.querySelector('a.goch-action') === null"), "derselbe Link kommt im Gespräch nicht zweimal")
+            last = json.load(urllib.request.urlopen(FAKE + '/_last'))
+            check(last['messages'][-2]['content'].endswith('(Link: Testlied bei YouTube)'), "Verlauf merkt sich den Link für den Worker")
+
             print("6. Der Draht: Nachricht an Robin")
             before = json.load(urllib.request.urlopen(FAKE + '/_sent'))
             await say("Ich möchte Robin etwas ausrichten")
@@ -191,7 +200,7 @@ async def main():
             check(b[-1].startswith('Gerade antworte ich nicht') and 'robinjameslewis@googlemail.com' in b[-1], f"Fehlertext mit E-Mail ({b[-1][:60]})")
             check(await ev("!document.getElementById('goch-input').disabled"), "Eingabe wieder frei")
             hist = await ev("document.querySelectorAll('.goch-you').length")
-            check(hist == 7, f"gescheiterte Frage bleibt im Verlauf sichtbar ({hist})")
+            check(hist == 9, f"gescheiterte Frage bleibt im Verlauf sichtbar ({hist})")
 
             print("8. Escape schließt, Fokus zurück zum Vogel")
             await ev("document.getElementById('goch-input').focus()")

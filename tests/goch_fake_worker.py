@@ -3,17 +3,18 @@ Worker, aber mit festen Texten. Nachrichten an Robin werden nicht versendet, son
 
 Aufruf:  python3 tests/goch_fake_worker.py [Port, Standard 8787]
 Seite:   http://localhost:8788/?goch=http://localhost:8787/chat
-Prüfen:  GET /_sent liefert die „versendeten“ Nachrichten als JSON."""
+Prüfen:  GET /_sent liefert die „versendeten“ Nachrichten als JSON, GET /_last die letzte Anfrage."""
 import json, sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
 SENT = []
+LAST = {}  # zuletzt empfangener Anfragekörper, für Tests des Verlaufs
 
 REPLIES = {
     'de': {
         'work': "Robin lernt gerade für die Abschlussprüfung zum Steuerfachangestellten, schriftlich Ende November. Daneben bekommt diese Seite eine Landschaft, und er baut kleine Werkzeuge für seinen Mac.",
-        'who': "Robin James Lewis lebt in Balingen am Fuß der Schwäbischen Alb, mit walisischen Wurzeln. Er wird Steuerfachangestellter und arbeitet daran, Verwaltung mit Software leichter zu machen. Sein Leitsatz: Wer Frieden stiftet zwischen Mensch und Mensch, der trägt Gottes Art.",
+        'who': "Robin James Lewis lebt in Balingen am Fuß der Schwäbischen Alb, mit walisischen Wurzeln. Er wird Steuerfachangestellter und arbeitet daran, Verwaltung mit Software leichter zu machen. Sein Leitsatz: Glücklich sind die Friedensstifter, sie sind Kinder Gottes.",
         'message': "Gern. Was soll ich Robin ausrichten – und wie heißt du, und unter welcher E-Mail-Adresse kann er dir antworten?",
         'confirm': "Ich richte Robin aus: {text} Von: {name}, {email}. Soll ich das so senden?",
         'sent': "Ausgerichtet. Robin antwortet dir persönlich per E-Mail an {email}.",
@@ -21,6 +22,7 @@ REPLIES = {
         'askmsg': "Gut, dann frage ich ihn. Wie heißt du, und unter welcher E-Mail-Adresse kann Robin dir persönlich antworten?",
         'calendar': "Ein Gespräch dauert 30 Minuten, per Video, Telefon oder in Balingen. Buchen kannst du hier:",
         'contact': "Robin erreichst du per E-Mail:",
+        'music': "Selbst am Synthesizer: House, Techno, Neo-Jazz. Und er hört viel – gerade das hier.",
         'tax': "Steuerliche Beratung darf Robin nicht erteilen – das ist Steuerberatern vorbehalten, und er ist in Ausbildung. Ich auch nicht. Wenn du ein Gespräch möchtest, richte ich es gern aus.",
         'unknown': "Das weiß ich nicht. Soll ich Robin fragen?",
     },
@@ -34,6 +36,7 @@ REPLIES = {
         'askmsg': "Good, I'll ask him. What's your name, and which email address can Robin reply to?",
         'calendar': "A conversation takes 30 minutes, by video, phone or in Balingen. You can book here:",
         'contact': "You can reach Robin by email:",
+        'music': "He plays synthesizer: house, techno, neo-jazz. And he listens a lot – this one right now.",
         'tax': "Robin cannot give tax advice – that is reserved for licensed tax advisers, and he is still in training. Neither can I.",
         'unknown': "I don't know that. Shall I ask Robin?",
     },
@@ -56,6 +59,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/_sent': return self.reply(SENT)
+        if self.path == '/_last': return self.reply(LAST)
         if self.path == '/':
             self.send_response(200); self.cors(); self.send_header('Content-Type', 'text/plain'); self.end_headers(); self.wfile.write(b'Goch'); return
         self.reply({'error': 'Nicht gefunden.'}, 404)
@@ -66,6 +70,7 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0)) or b'{}'))
         except Exception:
             return self.reply({'error': 'Ungültige Anfrage.'}, 400)
+        global LAST; LAST = body
         lang = 'en' if body.get('lang') == 'en' else 'de'
         T = REPLIES[lang]
         msgs = [m for m in body.get('messages', []) if m.get('role') in ('user', 'assistant')]
@@ -89,6 +94,10 @@ class Handler(BaseHTTPRequestHandler):
             m = {k.strip().lower(): v.strip() for k, v in fields.items()}
             return self.reply({'reply': T['confirm'].format(text=m.get('text', ''), name=m.get('name', ''), email=m.get('email', '')), 'action': None})
         if 'ausrichten' in low or 'message' in low: return self.reply({'reply': T['message'], 'action': None})
+        if 'musik' in low or 'music' in low:  # Link aus links.md: einmal je Gespräch, danach nur Text
+            label = 'Testlied bei YouTube' if lang == 'de' else 'Test song on YouTube'
+            offered = any(m['role'] == 'assistant' and '(Link: ' + label + ')' in m['content'] for m in msgs)
+            return self.reply({'reply': T['music'], 'action': None, 'link': None if offered else {'label': label, 'url': 'https://www.youtube.com/watch?v=test'}})
         if 'woran' in low or 'working' in low: return self.reply({'reply': T['work'], 'action': None})
         if 'wer ist' in low or 'who is' in low: return self.reply({'reply': T['who'], 'action': None})
         if 'termin' in low or 'appointment' in low or 'gespräch' in low: return self.reply({'reply': T['calendar'], 'action': 'calendar'})

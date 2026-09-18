@@ -236,6 +236,6 @@ Speicherung außer Tageszähler). Beim Wechsel des Modellanbieters (Workers AI �
 den Absatz anpassen.
 
 **Prüfen:** `python3 tests/goch_fake_worker.py 8787`, dazu `python3 -m http.server 8788`, dann
-`python3 tests/goch_test.py http://localhost:8788/ http://localhost:8787` (13 Gruppen, u. a. keine
+`python3 tests/goch_test.py http://localhost:8788/ http://localhost:8787` (14 Gruppen, u. a. Links aus `worker/links.md`, keine
 Anfrage vor Einwilligung, Nachricht kommt an, Serverfehler, Escape, Englisch, Handy). Die
 Flug-Tests (`tests/im-browser.html`) und `tests/consent_test.py` bleiben unverändert gültig.

@@ -95,3 +95,11 @@ Einwilligung; der Datenschutztext im Impressum beschreibt die Beteiligten.
 beantworten konnte – ohne Personenbezug, mit Häufigkeit. Zusammen mit `profile.md` und
 `aktuell.md` ist das die Grundlage der Durchsicht: Robin entscheidet, was ein Satz im Profil
 wird; das Profil bleibt bei rund 9.000 Token (neuer Satz verdrängt einen schwächeren).
+
+## Links (`links.md`)
+
+Tabelle „Kennung | Wann | Text DE | Text EN | Adresse“. Der Worker hängt „Kennung – Wann“ ans Profil
+und lässt im Antwortfeld `link` nur Kennungen aus der Tabelle zu; die Adresse setzt er selbst ein
+(`{ label, url }`), die Seite zeigt den Link unter der Antwort in neuem Tab. Jeder Link höchstens
+einmal je Gespräch: Die Seite merkt sich „(Link: Text)“ im Verlauf, der Worker prüft darauf.
+Zeilen ohne https-Adresse gelten nicht. Nach Änderung: `npm run deploy`.

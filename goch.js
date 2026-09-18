@@ -160,12 +160,20 @@
     }
     thinking.classList.remove('goch-thinking');
     thinking.textContent = data.reply;
-    history.push({ role: 'assistant', content: data.reply });
     if (data.action === 'calendar') {
       thinking.append(' ', link('#kontakt', t('gochCalendar')));
     } else if (data.action === 'contact') {
       thinking.append(' ', link('mailto:robinjameslewis@googlemail.com', 'robinjameslewis@googlemail.com'));
     }
+    // Link aus Robins Liste (links.md im Worker): nur https, öffnet in neuem Tab. Der Verlauf merkt sich
+    // „(Link: Text)“, damit der Worker denselben Link nicht noch einmal anbietet.
+    const l = data.link;
+    let remembered = data.reply;
+    if (l && typeof l.url === 'string' && /^https:\/\//.test(l.url) && typeof l.label === 'string' && l.label) {
+      thinking.append(' ', link(l.url, l.label, true));
+      remembered += ' (Link: ' + l.label + ')';
+    }
+    history.push({ role: 'assistant', content: remembered });
     log.scrollTop = log.scrollHeight;
     busy = false; setAvailability(); input.focus();
   }

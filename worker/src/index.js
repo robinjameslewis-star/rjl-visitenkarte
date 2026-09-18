@@ -1,12 +1,14 @@
 // Goch, das Rotkehlchen von Robin – LLM-Proxy für die Visitenkarte von Robin James Lewis.
 // POST /chat  { lang: "de"|"en", messages: [{role:"user"|"assistant", content:"…"}, …] }
-// Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message", sent: true|false|undefined }
+// Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message", sent: true|false|undefined,
+//               link: null | { label: "…", url: "https://…" } }  – Links nur aus links.md, nie vom Modell erfunden
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import PROFILE from "../profile.md";
 import AKTUELL from "../aktuell.md";
+import LINKS_MD from "../links.md";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -125,7 +127,7 @@ export default {
       ctx.waitUntil(env.USAGE.put(key, String(used + 1), { expirationTtl: 172800 }));
     }
 
-    const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + AKTUELL + "\n\n" + FORMAT;
+    const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + AKTUELL + LINKS_PROMPT + "\n\n" + FORMAT;
     let text;
     try {
       text = await complete(env, system, messages);
@@ -144,6 +146,9 @@ export default {
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
     if (env.USAGE && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
+    // Link: das Modell nennt nur eine Kennung, die Adresse kommt aus links.md. Jeder Link einmal je Gespräch –
+    // die Seite hängt „(Link: Text)“ an den Verlauf, daran erkennt der Worker, was schon angeboten wurde.
+    out.link = resolveLink(out.link, lang, messages);
 
     // Der Draht: Nachricht an Robin. Das Protokoll gehört dem Worker, nicht dem Modell:
     // Felder notfalls aus dem Verlauf ergänzen, die Zusammenfassung selbst schreiben, und senden
@@ -219,6 +224,7 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
   Fehlt Name oder E-Mail-Adresse: kein "message", sondern in "reply" danach fragen.
   Zusammenfassung, Rückfrage „Soll ich das so senden?“ und die Bestätigung „Ausgerichtet“ schreibt der Worker –
   du schreibst diese Sätze nie selbst.
+"link" ist null oder eine Kennung aus „Links, die du anbieten darfst“ (falls vorhanden).
 "reply" ist immer dein Text an den Besucher, in dessen Sprache.`;
 
 const CONFIRM = /^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b/i;
@@ -261,11 +267,42 @@ function completeMessage(m, messages) {
   return out;
 }
 
+// links.md: Tabelle „Kennung | Wann | Text DE | Text EN | Adresse“. Zeilen ohne gültige https-Adresse gelten nicht.
+function parseLinks(md) {
+  const out = [];
+  for (const line of String(md).split("\n")) {
+    if (!/^\s*\|/.test(line) || /^\s*\|\s*-{3,}/.test(line)) continue;
+    const cells = line.split("|").slice(1, -1).map(c => c.trim());
+    if (cells.length < 5) continue;
+    let [id, when, de, en, url] = cells;
+    id = id.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    if (!id || id === "kennung" || !when || !de) continue;
+    if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+    if (!/^https:\/\/[^\s"'<>]+$/i.test(url)) continue;
+    out.push({ id, when, de, en: en || de, url });
+  }
+  return out;
+}
+const LINKS = parseLinks(LINKS_MD);
+const LINK_IDS = LINKS.map(l => l.id);
+const LINKS_PROMPT = LINKS.length ? "\n\n# Links, die du anbieten darfst\n\nGib im Feld \"link\" die Kennung an – nur wenn die Frage " +
+  "das Thema selbst trifft, höchstens einen je Antwort, sonst null. Die Adresse schreibst du nie in den Text.\n" +
+  LINKS.map(l => `- ${l.id}: ${l.when}`).join("\n") : "";
+
+function resolveLink(id, lang, messages) {
+  const l = LINKS.find(x => x.id === id);
+  if (!l) return null;
+  const label = lang === "en" ? l.en : l.de;
+  const offered = messages.some(m => m.role === "assistant" && m.content.includes("(Link: " + label + ")"));
+  return offered ? null : { label, url: l.url };
+}
+
 // Antwortschema: das Modell kann nur dieses Format liefern – kein kaputtes JSON, keine Platzhalter im Aufbau.
 const GochOutput = z.object({
   reply: z.string(),
   action: z.enum(["calendar", "contact", "message"]).nullable(),
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
+  link: LINK_IDS.length ? z.enum(LINK_IDS).nullable() : z.null(),
 });
 
 async function complete(env, system, messages) {
@@ -312,6 +349,7 @@ const SCHEMA = {
   properties: {
     reply: { type: "string" },
     action: { type: ["string", "null"], enum: ["calendar", "contact", "message", null] },
+    link: { type: ["string", "null"], enum: [...LINK_IDS, null] },
     message: { type: ["object", "null"], properties: { name: { type: "string" }, email: { type: "string" }, text: { type: "string" } }, required: ["name", "email", "text"] },
   },
   required: ["reply", "action"],
@@ -339,7 +377,7 @@ function parse(text) {
       const o = JSON.parse(m[0]);
       const action = ["calendar", "contact", "message"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
-      const out = { reply: tidy(reply), action };
+      const out = { reply: tidy(reply), action, link: LINK_IDS.includes(o.link) ? o.link : null };
       if (action === "message" && o.message && typeof o.message === "object") out.message = o.message;
       return out;
     } catch {}
@@ -348,7 +386,8 @@ function parse(text) {
   if (/^\s*\{/.test(text)) {
     const reply = (text.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/) || [])[1] || "";
     const action = (text.match(/"action"\s*:\s*"(calendar|contact|message)"/) || [])[1] || null;
-    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action };
+    const link = (text.match(/"link"\s*:\s*"([a-z0-9-]+)"/) || [])[1] || null;
+    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: LINK_IDS.includes(link) ? link : null };
     if (action === "message") {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
@@ -357,14 +396,14 @@ function parse(text) {
     }
     return out;
   }
-  return { reply: tidy(text), action: null };
+  return { reply: tidy(text), action: null, link: null };
 }
 
 // Doppelte Sätze streichen (Endlosschleifen), Länge kappen, am Satzende abschneiden.
 function tidy(reply) {
   const seen = new Set(), keep = [];
   // Die Sprechblase zeigt Text roh: Markdown-Zeichen (Sternchen, Backticks, Unterstriche) entfernen.
-  reply = String(reply).replace(/\*\*?([^*]+)\*\*?/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/(^|\s)_([^_]+)_(?=\s|[.,;:!?]|$)/g, "$1$2");
+  reply = String(reply).replace(/\s*\(Link: [^)]*\)/g, "").replace(/\*\*?([^*]+)\*\*?/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/(^|\s)_([^_]+)_(?=\s|[.,;:!?]|$)/g, "$1$2");
   for (const part of reply.trim().split(/(?<=[.!?])\s+/)) {
     const key = part.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
     if (!key || seen.has(key)) continue;
