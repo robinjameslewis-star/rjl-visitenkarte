@@ -158,7 +158,7 @@ export default {
   },
 };
 
-const UNKNOWN = /das weiß ich nicht|weiß ich (leider )?nicht|kann dir nur robin sagen|i don't know that|only robin can tell|i don't know/i;
+const UNKNOWN = /das weiß ich nicht|weiß ich (leider )?nicht|kann dir nur robin sagen|i don't know|only robin can (tell|say|answer)|pass (that|this|it) (on )?to robin|(ask|check with) robin (for you|about that)/i;
 
 // Frage ohne Personenbezug zählen: E-Mail-Adressen und lange Zahlen entfernt, auf 160 Zeichen gekürzt,
 // Schlüssel aus der normalisierten Frage; Eintrag verfällt nach 30 Tagen ohne Wiederholung.
