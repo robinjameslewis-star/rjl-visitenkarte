@@ -363,7 +363,7 @@ const LOGIN = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta 
 <div class="bar" style="margin:0"><button id="pass">Mit Passkey bestätigen</button><span class="msg" id="m3"></span></div></section>
 <script>
 const $=id=>document.getElementById(id);
-const bu={enc:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}};
+const bu={enc:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''),dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}};
 async function post(p,b){const r=await fetch(p,{method:'POST',headers:{'content-type':'application/json','x-goch-admin':'1'},body:JSON.stringify(b||{})});return {ok:r.ok,...(await r.json().catch(()=>({})))};}
 function show(n){for(const k of [1,2,3])$('step'+k).hidden=k!==n;}
 $('send').onclick=async()=>{$('send').disabled=true;await post('/admin/login',{});show(2);$('code').focus();};
@@ -410,7 +410,7 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <script>
 const $=id=>document.getElementById(id);
 const H={'content-type':'application/json','x-goch-admin':'1'};
-const bu={enc:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}};
+const bu={enc:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''),dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}};
 function renderKeys(list){$('keys').innerHTML=list.map(k=>'<li><span style="flex:1">'+esc(k.name)+'</span><span class="note">eingerichtet '+fmt(k.at)+(k.lastUsed?', zuletzt '+fmt(k.lastUsed):'')+'</span><button class="x" title="entfernen" data-id="'+esc(k.id)+'">×</button></li>').join('');
  const sn=$('secnote');if(!list.length){sn.style.color='var(--warn)';sn.textContent='Kein zweiter Faktor: Wer Zugang zu deinem Postfach hat, könnte hier veröffentlichen. Richte jetzt einen Passkey ein.';}else{sn.style.color='';sn.textContent=list.length+(list.length===1?' Passkey':' Passkeys')+' – die Anmeldung verlangt E-Mail-Code und Passkey.';}}
 $('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCredential)throw new Error('Dieser Browser kann keine Passkeys.');const r0=await fetch('/admin/passkey/options',{method:'POST',headers:H});const o=await r0.json();if(!r0.ok)throw new Error(o.error||'Fehler');
