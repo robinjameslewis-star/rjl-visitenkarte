@@ -104,10 +104,10 @@ und lässt im Antwortfeld `link` nur Kennungen aus der Tabelle zu; die Adresse s
 einmal je Gespräch: Die Seite merkt sich „(Link: Text)“ im Verlauf, der Worker prüft darauf.
 Zeilen ohne https-Adresse gelten nicht. Nach Änderung: `npm run deploy`.
 
-## Dashboard (`/admin`)
+## Redaktion (`/admin`)
 
 `https://rjl-goch.rjl.workers.dev/admin` – Anmeldung mit Einmal-Code per E-Mail an `MAIL_TO`
-(Resend, zehn Minuten gültig, Sitzung zwölf Stunden als Cookie). Robin pflegt dort „Woran Robin
+(Resend, zehn Minuten gültig, Sitzung zwölf Stunden als Cookie). Backend der Website („Redaktion“). Robin pflegt dort „Woran Robin
 gerade arbeitet“ (Deutsch/Englisch, Stand) und die Links, sieht Antworten je Tag, die
 unbeantworteten Fragen (Häkchen = erledigt) und den Guthaben-Alarm.
 

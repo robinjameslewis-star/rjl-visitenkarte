@@ -1,4 +1,4 @@
-// Gochs Dashboard: /admin – Robin pflegt Inhalte der Website selbst und sieht Aufrufe und
+// Redaktion (/admin): Robin pflegt Inhalte der Website selbst und sieht Gochs Aufrufe und
 // unbeantwortete Fragen. Anmeldung ohne Passwort: Einmal-Code per E-Mail an MAIL_TO (Resend).
 // Speicher ist das GitHub-Repository (Historie, GitHub Pages baut daraus); der KV des Workers
 // hält nur eine Kopie, damit Goch sofort die neue Fassung kennt. Neue Inhaltsarten (Blog, Textstellen
@@ -67,8 +67,8 @@ async function login(request, env) {
       headers: { "content-type": "application/json", "authorization": "Bearer " + env.RESEND_API_KEY },
       body: JSON.stringify({
         from: env.MAIL_FROM || "Goch <onboarding@resend.dev>", to: [env.MAIL_TO],
-        subject: "Goch: Dein Anmeldecode " + code,
-        text: `Dein Code für Gochs Dashboard: ${code}\n\nGültig zehn Minuten. Wenn du dich nicht angemeldet hast, ignoriere diese Mail – ohne den Code passiert nichts.`,
+        subject: "Redaktion: Dein Anmeldecode " + code,
+        text: `Dein Code für die Redaktion (robinjameslewis): ${code}\n\nGültig zehn Minuten. Wenn du dich nicht angemeldet hast, ignoriere diese Mail – ohne den Code passiert nichts.`,
       }),
     }).then(async r => { if (!r.ok) console.error("Anmeldecode: Resend", r.status, (await r.text()).slice(0, 200)); })
       .catch(e => console.error("Anmeldecode: Resend", String(e)));
@@ -270,8 +270,8 @@ ul.q .n{min-width:36px;color:var(--muted);font-variant-numeric:tabular-nums}ul.q
 .login{max-width:420px;margin:12vh auto 0}
 `;
 
-const LOGIN = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Goch – Anmeldung</title><style>${STYLE}</style></head>
-<body><main class="login"><h1>GOCH · DASHBOARD</h1><p class="sub">Anmeldung mit Einmal-Code per E-Mail.</p>
+const LOGIN = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion – Anmeldung</title><style>${STYLE}</style></head>
+<body><main class="login"><h1>REDAKTION</h1><p class="sub">robinjameslewis – Anmeldung mit Einmal-Code per E-Mail.</p>
 <section id="step1"><p class="note" style="margin:0 0 6px">Der Code geht an Robins hinterlegte Adresse.</p>
 <div class="bar" style="margin:0"><button id="send" autofocus>Code schicken</button><span class="msg" id="m1"></span></div></section>
 <section id="step2" hidden><label for="code">Code aus der E-Mail (sechs Ziffern, zehn Minuten gültig)</label><input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
@@ -285,28 +285,28 @@ $('go').onclick=async()=>{const r=await post('/admin/verify',{code:$('code').val
 $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click();};
 </script></main></body></html>`;
 
-const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Goch – Dashboard</title><style>${STYLE}</style></head>
+const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion · robinjameslewis</title><style>${STYLE}</style></head>
 <body><main>
-<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h1>GOCH · DASHBOARD</h1><button class="quiet" id="logout">Abmelden</button></div>
-<p class="sub">Was du hier veröffentlichst, wird als Änderung im Repository gespeichert und ist für Goch innerhalb einer Minute live.</p>
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h1>REDAKTION</h1><button class="quiet" id="logout">Abmelden</button></div>
+<p class="sub">Inhalte der Website robinjameslewis. Was du hier veröffentlichst, wird als Änderung im Repository gespeichert und ist innerhalb einer Minute live.</p>
 <p class="note" id="ghnote" hidden style="border:1px solid var(--warn);border-radius:8px;padding:10px 12px;color:var(--warn)"></p>
 
-<section><h2>Übersicht</h2><div class="stats">
+<section><h2>Goch – Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
 <div class="stat"><b id="month">–</b><span>Antworten in 30 Tagen</span></div>
 <div class="stat"><b id="alert">–</b><span>Guthaben-Alarm</span></div></div>
 <div class="days" id="days" title="Antworten je Tag, letzte 30 Tage"></div>
 <p class="note" id="meta"></p></section>
 
-<section><h2>Unbeantwortete Fragen <span class="note">(30 Tage, ohne Personenbezug)</span></h2><ul class="q" id="qs"></ul><p class="note" id="qnote"></p></section>
+<section><h2>Goch – unbeantwortete Fragen <span class="note">(30 Tage, ohne Personenbezug)</span></h2><ul class="q" id="qs"></ul><p class="note" id="qnote"></p></section>
 
-<section><h2>Woran Robin gerade arbeitet</h2><p class="src" id="asrc"></p>
+<section><h2>Goch – Woran Robin gerade arbeitet</h2><p class="src" id="asrc"></p>
 <label for="stand">Stand (TT.MM.JJJJ)</label><input id="stand" style="max-width:160px">
 <div class="row"><div><label for="de">Deutsch</label><textarea id="de"></textarea></div><div><label for="en">English</label><textarea id="en"></textarea></div></div>
 <div class="bar"><button id="saveA">Veröffentlichen</button><button class="quiet" id="prevA">Vorige Fassung</button><a class="note" id="histA" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mA"></span></div>
 <p class="note">Nummerierte Punkte, Fettdruck mit ** ** ist erlaubt. Beide Sprachen dieselben Punkte.</p></section>
 
-<section><h2>Links, die Goch anbieten darf</h2><p class="src" id="lsrc"></p>
+<section><h2>Goch – Links, die er anbieten darf</h2><p class="src" id="lsrc"></p>
 <table><thead><tr><th style="width:12%">Kennung</th><th style="width:30%">Wann passt der Link</th><th style="width:19%">Text DE</th><th style="width:19%">Text EN</th><th>Adresse (https)</th><th></th></tr></thead><tbody id="rows"></tbody></table>
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
@@ -329,7 +329,7 @@ function render(s){S=s;
  $('meta').textContent='Modell '+s.model+' · Profil '+s.profileWords+' Wörter (≈ '+Math.round(s.profileWords*4.4/100)*100+' Tokens) · Grenzen: '+s.limits.perHour+' je Stunde und Adresse, '+s.limits.turns+' Fragen je Gespräch.';
  $('qs').innerHTML=s.unanswered.map(q=>'<li><span class="n">'+q.n+'×</span><span class="lang">'+q.lang+'</span><span style="flex:1">'+esc(q.q)+'</span><span class="note">'+q.last+'</span><button class="x" title="erledigt" data-k="'+esc(q.key)+'">✓</button></li>').join('');
  $('qnote').textContent=s.unanswered.length?'✓ entfernt die Frage aus der Liste – wenn du sie ins Profil aufgenommen hast oder sie nichts für Goch ist.':'Nichts offen.';
- $('ghnote').hidden=s.github;$('ghnote').textContent='Veröffentlichen ist noch nicht freigeschaltet: Der GitHub-Schlüssel fehlt im Worker. Lesen geht, Schreiben noch nicht.';
+ $('ghnote').hidden=s.github;$('ghnote').textContent='Veröffentlichen ist noch nicht freigeschaltet: Der GitHub-Schlüssel fehlt. Lesen geht, Schreiben noch nicht.';
  const A=s.content.aktuell,L=s.content.links;
  $('asrc').innerHTML=src(A);$('stand').value=A.fields.stand;$('de').value=A.fields.de;$('en').value=A.fields.en;$('prevA').disabled=!(A.meta&&A.meta.hasPrev);$('saveA').disabled=!s.github;$('histA').href=A.historyUrl;$('histA').hidden=!A.historyUrl;
  $('lsrc').innerHTML=src(L);$('rows').innerHTML='';L.fields.rows.forEach(addRow);$('prevL').disabled=!(L.meta&&L.meta.hasPrev);$('saveL').disabled=!s.github;$('histL').href=L.historyUrl;$('histL').hidden=!L.historyUrl;}
