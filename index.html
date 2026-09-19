@@ -225,7 +225,7 @@
 </head>
 <body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-version="20260919b">
 
-<nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><a href="#blog" data-title-de="Neuigkeiten" data-title-en="News">Neuigkeiten</a><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 <nav class="language-nav" aria-label="Sprache">
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
   <span aria-hidden="true">/</span>
@@ -290,7 +290,15 @@
     </div>
 
   </section>
-  <!-- redaktion:blog-section --><!-- /redaktion:blog-section -->
+  <!-- redaktion:blog-section -->
+  <section class="blog-teaser" id="blog" aria-labelledby="blog-title">
+    <h2 id="blog-title" data-title-de="Neuigkeiten" data-title-en="News">Neuigkeiten</h2>
+    <ul>
+      <li lang="de"><span class="when"><time datetime="2026-09-19">19. September 2026</time></span><a href="blog/mein-linkedin-profil/">Mein LinkedIn Profil</a><p>Alles über mein berufliches Netzwerk</p></li>
+    </ul>
+    <p class="all"><a href="blog/" data-title-de="Alle Beiträge" data-title-en="All posts">Alle Beiträge</a></p>
+  </section>
+  <!-- /redaktion:blog-section -->
 
   <section class="message" id="nachricht" aria-labelledby="nachricht-title">
     <h2 id="nachricht-title" data-i18n="messageTitle">Nachricht schreiben</h2>

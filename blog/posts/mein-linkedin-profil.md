@@ -2,7 +2,7 @@
 title: "Mein LinkedIn Profil"
 date: 2026-09-19
 lang: de
-status: draft
+status: published
 summary: "Alles über mein berufliches Netzwerk"
 ---
 
