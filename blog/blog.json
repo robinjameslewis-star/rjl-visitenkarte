@@ -1,11 +1,11 @@
 {
-  "enabled": true,
+  "enabled": false,
   "title": {
-    "de": "Notizen",
-    "en": "Notes"
+    "de": "Blog",
+    "en": "Blog"
   },
   "intro": {
-    "de": "Gelegentliche Notizen aus Balingen.",
-    "en": "Occasional notes from Balingen."
+    "de": "",
+    "en": ""
   }
 }
