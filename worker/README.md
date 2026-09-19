@@ -106,8 +106,17 @@ Zeilen ohne https-Adresse gelten nicht. Nach Änderung: `npm run deploy`.
 
 ## Redaktion (`/admin`)
 
-`https://rjl-goch.rjl.workers.dev/admin` – Anmeldung mit Einmal-Code per E-Mail an `MAIL_TO`
-(Resend, zehn Minuten gültig, Sitzung zwölf Stunden als Cookie). Backend der Website („Redaktion“). Robin pflegt dort „Woran Robin
+`https://rjl-goch.rjl.workers.dev/admin` – Anmeldung mit **Passkey** (Face ID / Touch ID,
+WebAuthn in `src/passkey.js`, Sitzung zwölf Stunden als Cookie). Solange kein Passkey eingerichtet ist,
+gilt als Erstzugang ein Einmal-Code per E-Mail an `MAIL_TO` (Resend, zehn Minuten); sobald ein Passkey
+existiert, ist der Code-Weg abgeschaltet. Passkeys verwaltet der Abschnitt „Sicherheit“ (Index
+`admin:passkeys`, Einträge `admin:passkey:<id>` im KV). **Notausgang** ohne Geräte, im Ordner `worker/`:
+
+    npx wrangler kv key delete --binding USAGE --remote admin:passkeys
+
+Danach gilt wieder der E-Mail-Code; die alten Passkeys sind verwaist und werden beim nächsten
+Einrichten nicht mehr angeboten. Passkeys hängen an der Adresse (rpId) – bei einem Umzug auf eine
+eigene Domain neu einrichten. Backend der Website („Redaktion“). Robin pflegt dort „Woran Robin
 gerade arbeitet“ (Deutsch/Englisch, Stand) und die Links, sieht Antworten je Tag, die
 unbeantworteten Fragen (Häkchen = erledigt) und den Guthaben-Alarm.
 
