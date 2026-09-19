@@ -529,7 +529,7 @@ function text(s, status = 200) { return new Response(s, { status, headers: { "co
 function html(s) {
   return new Response(s, { status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
     "x-frame-options": "DENY", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow",
-    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https:; font-src https:; frame-src 'self' about:; form-action 'none'; base-uri 'none'" } });
+    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com; form-action 'none'; base-uri 'none'" } });
 }
 
 // ---------- Seiten ----------
@@ -560,6 +560,13 @@ ul.q .n{min-width:36px;color:var(--muted);font-variant-numeric:tabular-nums}ul.q
 .box{margin:12px 0 0;padding:12px 14px 14px;border:1px dashed var(--line);border-radius:8px}.box h3{font:600 14px/1.3 Georgia,serif;margin:0}.box .note{margin:2px 0 0}.box label{margin:8px 0 3px}.box .bar{margin-top:10px}
 .boxes{display:grid;gap:12px;grid-template-columns:1fr 1fr}@media(max-width:720px){.boxes{grid-template-columns:1fr}}
 .draft{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:8px 12px;border:1px solid #E6C9A8;background:#FBF3E9;border-radius:8px;font-size:13px}
+body.editing main{max-width:1380px}
+.ed{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(320px,46%);grid-template-areas:"a pv" "b pv";align-items:start}
+.ed.nopv{grid-template-columns:1fr;grid-template-areas:"a" "b"}.ed.nopv .pv{display:none}
+.ed-a{grid-area:a;min-width:0}.ed-b{grid-area:b;min-width:0}.pv{grid-area:pv;position:sticky;top:12px;display:flex;flex-direction:column;height:calc(100vh - 24px);min-height:480px}
+.pvbar{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin:0 0 6px}.pvbar button{padding:3px 10px;font-size:12px}
+.pv iframe{flex:1;width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:0}
+@media(max-width:1099px){body.editing main{max-width:920px}.ed{grid-template-columns:1fr;grid-template-areas:"a" "pv" "b"}.pv{position:static;height:520px}}
 .ytp{display:flex;gap:10px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted)}.ytp img{width:96px;height:54px;object-fit:cover;border-radius:4px;background:#eee}
 `;
 
@@ -605,7 +612,7 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button id="bsave">Einstellungen veröffentlichen</button><a class="note" id="bopen" target="_blank" rel="noopener">Blog ansehen</a><span class="msg" id="mB"></span></div>
 <h2 style="margin-top:26px">Beiträge</h2><ul class="q" id="bposts"></ul><p class="note" id="bnote"></p>
 <div class="bar"><button class="quiet" id="bnew">+ Neuer Beitrag</button></div>
-<div id="beditor" hidden style="margin-top:16px;border-top:1px solid var(--line);padding-top:8px">
+<div id="beditor" hidden style="margin-top:16px;border-top:1px solid var(--line);padding-top:8px"><div class="ed" id="ed"><div class="ed-a">
 <div class="row"><div><label for="ptitle">Titel</label><input id="ptitle" maxlength="120"></div><div><label for="pdate">Datum</label><input id="pdate" type="date" style="max-width:200px"></div></div>
 <div class="row"><div><label for="plang">Sprache</label><select id="plang" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="de">Deutsch</option><option value="en">English</option></select></div>
 <div><label for="pstatus">Status</label><select id="pstatus" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="draft">Entwurf (nicht auf der Website)</option><option value="published">Veröffentlicht</option></select></div></div>
@@ -616,6 +623,7 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <textarea id="pbody" style="min-height:360px;font-family:inherit;font-size:15px" spellcheck="true"></textarea>
 <div id="pdraft" hidden class="draft"><span style="flex:1" id="pdrafttext"></span><button type="button" class="quiet" id="pdraftuse" style="padding:4px 12px;font-size:13px">Wiederherstellen</button><button type="button" class="quiet" id="pdraftdrop" style="padding:4px 12px;font-size:13px">Verwerfen</button></div>
 <p class="note">Absätze durch eine Leerzeile trennen. Text markieren und oben auf einen Knopf drücken – oder tippen: <code>**fett**</code>, <code>*kursiv*</code>, <code>## Überschrift</code>, <code>- Punkt</code>, <code>1. Punkt</code>, <code>&gt; Zitat</code>, <code>[Text](https://…)</code>. Mehr nicht – und nichts davon kann die Seite kaputtmachen. Bild, Karte und Video landen an der Cursorstelle.</p>
+</div><div class="ed-b">
 <div class="box"><h3>Bild</h3><p class="note">Wird im Browser auf höchstens 1600 Pixel verkleinert und ohne Aufnahmedaten (Ort, Kamera) gespeichert.</p>
 <div class="bar"><label class="quiet" style="display:inline-block;margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--ink);font-size:15px">Bild hochladen<input id="pimg" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
 <input id="palt" placeholder="Bildbeschreibung (für Menschen, die das Bild nicht sehen)" style="flex:1;min-width:200px"><span class="msg" id="mI"></span></div>
@@ -633,8 +641,8 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button type="button" class="quiet" id="pyok">Video einfügen</button><span class="msg" id="mY"></span></div></div>
 </div>
 <p class="note" id="pslug"></p>
-<div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpreview">Vorschau</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
-<iframe id="bframe" hidden title="Vorschau" style="width:100%;height:560px;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:12px"></iframe>
+<div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpvshow" hidden>Vorschau anzeigen</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
+</div><div class="pv" id="pv"><div class="pvbar"><span style="flex:1">Vorschau – so sieht der Beitrag auf der Website aus</span><button type="button" class="quiet" id="bpvwin" title="Für den zweiten Bildschirm">Eigenes Fenster</button><button type="button" class="quiet" id="bpvhide">Ausblenden</button></div><iframe id="bframe" title="Vorschau"></iframe><p class="note" id="pvnote" style="margin:4px 0 0"></p></div></div>
 </div></section>
 
 <section><h2>Goch – Betrieb</h2><p class="src" id="gstat"></p>
@@ -709,7 +717,7 @@ function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').va
  $('bopen').href=b.url;$('bopen').hidden=!b.visible;
  $('bposts').innerHTML=b.posts.map(p=>'<li><span class="note" style="min-width:90px">'+p.date+'</span><span class="lang">'+p.lang+'</span><span style="flex:1">'+esc(p.title)+'</span><span class="note">'+(p.status==='published'?'veröffentlicht':'Entwurf')+'</span><button class="quiet" data-slug="'+esc(p.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button></li>').join('');
  $('bnote').textContent=b.posts.length?'':'Noch keine Beiträge. „+ Neuer Beitrag“ legt den ersten an; als Entwurf bleibt er unsichtbar, bis du ihn veröffentlichst.';}
-function openEditor(p,meta){editing=p?p.slug:null;$('beditor').hidden=false;$('bframe').hidden=true;$('mP').textContent='';
+function openEditor(p,meta){editing=p?p.slug:null;$('beditor').hidden=false;$('mP').textContent='';
  $('ptitle').value=p?p.title:'';$('pdate').value=p?p.date:new Date().toISOString().slice(0,10);$('plang').value=p?p.lang:'de';$('pstatus').value=p?p.status:'draft';$('psummary').value=p?p.summary:'';$('pbody').value=p?p.body:'';
  $('pslug').textContent=p?'Adresse: '+B.url+p.slug+'/':'Die Adresse entsteht aus dem Titel und bleibt danach fest.';
  $('bprev').hidden=!p;$('bprev').disabled=!(meta&&meta.hasPrev);$('bdel').hidden=!p;$('bhist').hidden=!p;if(meta)$('bhist').href=meta.historyUrl;
@@ -718,10 +726,9 @@ function postBody(){return {slug:editing||'',title:$('ptitle').value,date:$('pda
 $('bsave').onclick=async()=>{if(!confirm('Blog-Einstellungen jetzt veröffentlichen?'))return;try{const r=await api('blog/settings','PUT',{enabled:$('benabled').checked,title:{de:$('btde').value,en:$('bten').value},intro:{de:$('bide').value,en:$('bien').value}});renderBlog(r);say('mB',r.note,true);}catch(e){say('mB',e.message);}};
 $('bnew').onclick=()=>openEditor(null);
 $('bposts').onclick=async e=>{const b=e.target.closest('button[data-slug]');if(!b)return;try{const d=await api('blog/post?slug='+encodeURIComponent(b.dataset.slug));openEditor(d.post,d);}catch(err){say('mB',err.message);}};
-$('bcancel').onclick=()=>{$('beditor').hidden=true;editing=null;};
-$('bpreview').onclick=async()=>{try{const d=await api('blog/preview','POST',postBody());$('bframe').srcdoc=d.html;$('bframe').hidden=false;$('bframe').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){say('mP',e.message);}};
+$('bcancel').onclick=()=>{$('beditor').hidden=true;editing=null;pvLayout();};
 $('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);dropDraft();editing=r.slug;dropDraft();$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
-$('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);dropDraft();$('beditor').hidden=true;editing=null;say('mB',r.note,true);}catch(e){say('mP',e.message);}};
+$('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);dropDraft();$('beditor').hidden=true;editing=null;pvLayout();say('mB',r.note,true);}catch(e){say('mP',e.message);}};
 $('bprev').onclick=async()=>{if(!editing||!confirm('Vorige Fassung dieses Beitrags wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{const r=await api('blog/post/restore','POST',{slug:editing});renderBlog(r);const d=await api('blog/post?slug='+encodeURIComponent(editing));openEditor(d.post,d);say('mP',r.note,true);}catch(e){say('mP',e.message);}};
 // ---- Editor: Werkzeuge ----
 // Alle Änderungen am Text laufen über replaceRange, damit ⌘Z (Rückgängig) im Browser weiter funktioniert.
@@ -761,7 +768,7 @@ T.onkeydown=e=>{if(!(e.metaKey||e.ctrlKey)||e.altKey)return;const k=e.key.toLowe
 // Wortzahl und lokale Sicherung (im Browser, nur auf diesem Gerät) – falls die Sitzung abläuft oder der Tab zugeht.
 let draftTimer=null;function draftKey(){return 'redaktion:entwurf:'+(editing||'neu');}
 function count(){const w=(T.value.match(/\\S+/g)||[]).length;$('pcount').textContent=w?w+(w===1?' Wort':' Wörter')+' · ≈ '+Math.max(1,Math.round(w/200))+' Min. Lesezeit':'';}
-function changed(){count();clearTimeout(draftTimer);draftTimer=setTimeout(()=>{try{const d=postBody();if(d.title||d.body||d.summary)localStorage.setItem(draftKey(),JSON.stringify({at:new Date().toISOString(),...d}));}catch(e){}},600);}
+function changed(){count();refreshPreview();clearTimeout(draftTimer);draftTimer=setTimeout(()=>{try{const d=postBody();if(d.title||d.body||d.summary)localStorage.setItem(draftKey(),JSON.stringify({at:new Date().toISOString(),...d}));}catch(e){}},600);}
 T.oninput=changed;['ptitle','psummary'].forEach(id=>{$(id).oninput=changed;});
 function dropDraft(){clearTimeout(draftTimer);try{localStorage.removeItem(draftKey());}catch(e){}$('pdraft').hidden=true;}
 function offerDraft(p){$('pdraft').hidden=true;let d=null;try{d=JSON.parse(localStorage.getItem(draftKey()));}catch(e){}if(!d)return;
@@ -787,7 +794,28 @@ $('pyurl').oninput=()=>{const id=ytId();$('pyprev').hidden=!id;$('mY').textConte
 $('pyok').onclick=()=>{const id=ytId();if(!id)return say('mY','Das ist keine YouTube-Adresse. Sie sieht so aus: https://www.youtube.com/watch?v=… oder https://youtu.be/…');
  const t=$('pytitle').value.trim().replace(/\\s+/g,' ');insertAtCursor('https://www.youtube.com/watch?v='+id+(t?'\\n'+t:''));$('pyurl').value=$('pytitle').value='';$('pyprev').hidden=true;say('mY','Video eingefügt.',true);};
 $('prurl').oninput=()=>{$('mR').textContent='';};
-const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);$('plink').hidden=true;count();offerDraft(p);api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
+// ---- Live-Vorschau: derselbe Renderer wie im Worker (makeRenderer aus blog.js), hier im Browser ----
+// Die Seitenhülle (Design der Website) kommt einmal vom Worker; danach wird nur der Artikel neu gezeichnet –
+// im Rahmen rechts bzw. unten und, auf Wunsch, in einem eigenen Fenster für den zweiten Bildschirm.
+const R=(${blog.makeRenderer.toString()})();
+let pvShell='',pvWin=null,pvTimer=null,pvWatch=null;
+const pvOff=()=>{try{return localStorage.getItem('redaktion:vorschau')==='aus';}catch(e){return false;}};
+function pvLayout(){const off=pvOff(),win=!!(pvWin&&!pvWin.closed);$('ed').classList.toggle('nopv',off||win);$('bpvshow').hidden=!off||win;document.body.classList.toggle('editing',!$('beditor').hidden&&!off&&!win);}
+function articleHtml(){const d=postBody();const lang=d.lang==='en'?'en':'de';const date=/^\\d{4}-\\d{2}-\\d{2}$/.test(d.date)?d.date:new Date().toISOString().slice(0,10);const site=B?B.url.replace(/blog\\/$/,''):'';
+ return '<h1>'+R.esc(d.title||'Ohne Titel')+'</h1>\\n<p class="meta"><time datetime="'+date+'">'+R.dateText(date,lang)+'</time></p>\\n'+R.renderMarkdown(d.body,site+'blog/',lang);}
+function paint(doc){if(!doc)return;const art=doc.querySelector('article');if(!art)return;const lang=$('plang').value==='en'?'en':'de';art.innerHTML=articleHtml();art.lang=lang;doc.documentElement.lang=lang;doc.title=($('ptitle').value||'Ohne Titel')+' – Vorschau';
+ doc.querySelectorAll('.yt-play').forEach(b=>{b.onclick=()=>{const box=b.closest('.yt'),f=doc.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+box.dataset.video+'?autoplay=1&rel=0';f.title=box.dataset.title;f.allow='autoplay; encrypted-media; picture-in-picture';f.allowFullscreen=true;box.replaceChildren(f);box.classList.add('yt-on');};});}
+function refreshPreview(){clearTimeout(pvTimer);pvTimer=setTimeout(()=>{const f=$('bframe');if(pvShell&&f.contentDocument&&f.contentDocument.querySelector('article'))paint(f.contentDocument);if(pvWin&&!pvWin.closed)paint(pvWin.document);},120);}
+async function loadPreview(){pvLayout();$('pvnote').textContent='';try{const d=await api('blog/preview','POST',{...postBody(),body:''});pvShell=d.html;const f=$('bframe');f.onload=()=>paint(f.contentDocument);f.srcdoc=pvShell;if(pvWin&&!pvWin.closed)openPvWin(false);}catch(e){$('pvnote').textContent='Vorschau nicht ladbar: '+e.message;}}
+function openPvWin(focus=true){const w=pvWin&&!pvWin.closed?pvWin:window.open('','rjl-vorschau','width=780,height=960');if(!w){say('mP','Der Browser hat das Fenster blockiert – bitte Pop-ups für diese Seite erlauben.');return;}
+ pvWin=w;w.document.open();w.document.write(pvShell);w.document.close();paint(w.document);if(focus)w.focus();pvLayout();
+ clearInterval(pvWatch);pvWatch=setInterval(()=>{if(!pvWin||pvWin.closed){clearInterval(pvWatch);pvWin=null;pvLayout();refreshPreview();}},800);}
+$('bpvwin').onclick=()=>{if(!pvShell)return say('mP','Die Vorschau lädt noch – gleich noch einmal drücken.');openPvWin();};
+$('bpvhide').onclick=()=>{try{localStorage.setItem('redaktion:vorschau','aus');}catch(e){}pvLayout();};
+$('bpvshow').onclick=()=>{try{localStorage.removeItem('redaktion:vorschau');}catch(e){}pvLayout();refreshPreview();};
+['pdate','plang'].forEach(id=>{$(id).onchange=changed;});
+window.addEventListener('beforeunload',()=>{if(pvWin&&!pvWin.closed)pvWin.close();});
+const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);$('plink').hidden=true;count();offerDraft(p);loadPreview();api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
 api('blog').then(b=>b&&renderBlog(b)).catch(e=>{$('bsrc').textContent='Blog nicht ladbar: '+e.message;});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}

@@ -150,6 +150,12 @@ Der Editor im Dashboard (Skript in `PAGE`, Abschnitt „Editor: Werkzeuge“) sc
 Zitat, Karte, Video, Bild) bekommen automatisch Leerzeilen um sich, weil der Renderer Absätze an
 Leerzeilen trennt. Die YouTube-Prüfung im Browser ist dieselbe Regel wie `YT` in `blog.js`.
 Lokale Sicherung: `localStorage` unter `redaktion:entwurf:<slug|neu>`, gelöscht nach Speichern/Löschen.
+Live-Vorschau: Die Seitenhülle (Design, CSS) kommt einmal je Öffnen vom Worker (`/admin/api/blog/preview`
+mit leerem Text); danach zeichnet der Browser nur den `<article>` neu – mit `makeRenderer()` aus `blog.js`,
+dessen Quelltext per `${blog.makeRenderer.toString()}` in `PAGE` steht. Die Fabrik darf deshalb nichts
+von außerhalb verwenden (esc, inline, renderMarkdown, YT, dateText liegen alle darin). Eigenes Fenster:
+`window.open` + `document.write(hülle)`, gleiches Neuzeichnen; ein Intervall merkt das Schließen.
+CSP `frame-src` erlaubt `youtube-nocookie.com`, damit „Video laden“ auch in der Vorschau geht.
 `PAGE` ist exportiert, damit `tests/admin_fake.mjs` die Seite ohne Anmeldung ausliefern kann.
 Achtung bei Änderungen am Seitenskript: Es steht in einem Template-Literal – `\n` und Regex-Escapes
 müssen dort doppelt (`\\n`) geschrieben werden; die Syntaxprüfung der eingebetteten Skripte

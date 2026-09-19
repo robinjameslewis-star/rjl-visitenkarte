@@ -68,64 +68,73 @@ export function composePost(p) {
 }
 
 // ---------- Markdown, kleine sichere Teilmenge ----------
+// Alles, was ein Beitrag zum Rendern braucht, steckt in einer in sich geschlossenen Fabrik: Sie läuft im
+// Worker (Veröffentlichen) und – als Quelltext in die Redaktionsseite eingebettet – im Browser (Live-Vorschau).
+// Darum darf sie nichts von außerhalb verwenden.
+export function makeRenderer() {
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const safeUrl = u => /^(https?:\/\/|mailto:)/i.test(u) ? u : null;
+  // Bildadressen: hochgeladene Bilder heißen im Text „bilder/name.jpg“; imgBase ist der Weg zum Ordner blog/
+  // von der jeweiligen Seite aus (Beitrag: ../, Vorschau: absolute Adresse); sonst nur https.
+  const imageUrl = (u, imgBase) => /^bilder\/[a-z0-9._-]+$/i.test(u) ? (imgBase || "") + u : safeUrl(u);
 
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const safeUrl = u => /^(https?:\/\/|mailto:)/i.test(u) ? u : null;
-// Bildadressen: hochgeladene Bilder heißen im Text „bilder/name.jpg“; imgBase ist der Weg zum Ordner blog/
-// von der jeweiligen Seite aus (Beitrag: ../, Vorschau: absolute Adresse); sonst nur https.
-const imageUrl = (u, imgBase) => /^bilder\/[a-z0-9._-]+$/i.test(u) ? (imgBase || "") + u : safeUrl(u);
+  function inline(text, imgBase) {
+    let s = esc(text);
+    s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => { const src = imageUrl(url, imgBase); return src ? `<img src="${esc(src)}" alt="${alt}" loading="lazy">` : alt; });
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, url) => safeUrl(url) ? `<a href="${esc(url)}"${/^https?:/i.test(url) ? ' rel="noopener"' : ""}>${label}</a>` : label);
+    s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g, "$1<em>$2</em>");
+    return s;
+  }
 
-export function inline(text, imgBase) {
-  let s = esc(text);
-  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => { const src = imageUrl(url, imgBase); return src ? `<img src="${esc(src)}" alt="${alt}" loading="lazy">` : alt; });
-  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, url) => safeUrl(url) ? `<a href="${esc(url)}"${/^https?:/i.test(url) ? ' rel="noopener"' : ""}>${label}</a>` : label);
-  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
-  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g, "$1<em>$2</em>");
-  return s;
-}
+  // YouTube-Adresse allein in einem Absatz (optional eine Titelzeile darunter) → Platzhalter; der Player lädt erst beim Klick.
+  const YT = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#\s]*&)?v=|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#][^\s]*)?$/;
+  const YT_TEXT = {
+    de: { kicker: "Video · YouTube", load: "Video laden", note: "Beim Klick werden Inhalte von YouTube (Google) geladen.", privacy: "Datenschutz" },
+    en: { kicker: "Video · YouTube", load: "Load video", note: "Clicking loads content from YouTube (Google).", privacy: "Privacy" },
+  };
 
-// YouTube-Adresse allein in einem Absatz (optional eine Titelzeile darunter) → Platzhalter; der Player lädt erst beim Klick.
-const YT = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#\s]*&)?v=|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#][^\s]*)?$/;
-const YT_TEXT = {
-  de: { kicker: "Video · YouTube", load: "Video laden", note: "Beim Klick werden Inhalte von YouTube (Google) geladen.", privacy: "Datenschutz" },
-  en: { kicker: "Video · YouTube", load: "Load video", note: "Clicking loads content from YouTube (Google).", privacy: "Privacy" },
-};
-export const videosUsed = md => String(md).split(/\n{2,}/).map(b => b.trim().split("\n")[0].trim().match(YT)).filter(Boolean).map(m => m[1]);
-
-export function renderMarkdown(md, imgBase, lang = "de") {
-  const blocks = String(md).replace(/\r\n?/g, "\n").split(/\n{2,}/).map(b => b.replace(/^\n+|\n+$/g, "")).filter(Boolean);
-  const out = [];
-  for (const block of blocks) {
-    const lines = block.split("\n");
-    const il = t => inline(t, imgBase);
-    const yt = lines[0].trim().match(YT);
-    if (yt && lines.length <= 2) {
-      const t = YT_TEXT[lang] || YT_TEXT.de, title = lines[1] ? il(lines[1].trim()) : "";
-      out.push(`<div class="yt" data-video="${yt[1]}" data-title="${esc(lines[1] ? lines[1].trim() : "YouTube")}"><span class="yt-kicker">${t.kicker}</span>${title ? `<span class="yt-title">${title}</span>` : ""}<button type="button" class="yt-play">${t.load}</button><span class="yt-note">${t.note} <a href="${esc((imgBase || "") + "../#privacy")}">${t.privacy}</a></span></div>`);
-      continue;
-    }
-    if (/^#{2,3}\s/.test(lines[0]) && lines.length === 1) { const level = lines[0].match(/^(#+)/)[1].length; out.push(`<h${level}>${il(lines[0].replace(/^#+\s*/, ""))}</h${level}>`); continue; }
-    if (/^(---|\*\*\*)$/.test(block)) { out.push("<hr>"); continue; }
-    if (lines.every(l => /^>\s?/.test(l))) {
-      const inner = lines.map(l => l.replace(/^>\s?/, ""));
-      const card = inner[0].match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/); // Verweis auf eine fremde Seite: Karte statt Zitat
-      if (card) {
-        let host = ""; try { host = new URL(card[2]).hostname.replace(/^www\./, ""); } catch {}
-        const rest = inner.slice(1).join("\n").trim();
-        out.push(`<a class="ref" href="${esc(card[2])}" rel="noopener"><span class="ref-host">${esc(host)}</span><span class="ref-title">${inline(card[1], imgBase)}</span>${rest ? `<span class="ref-text">${inline(rest, imgBase).replace(/\n/g, "<br>")}</span>` : ""}</a>`);
+  function renderMarkdown(md, imgBase, lang = "de") {
+    const blocks = String(md).replace(/\r\n?/g, "\n").split(/\n{2,}/).map(b => b.replace(/^\n+|\n+$/g, "")).filter(Boolean);
+    const out = [];
+    for (const block of blocks) {
+      const lines = block.split("\n");
+      const il = t => inline(t, imgBase);
+      const yt = lines[0].trim().match(YT);
+      if (yt && lines.length <= 2) {
+        const t = YT_TEXT[lang] || YT_TEXT.de, title = lines[1] ? il(lines[1].trim()) : "";
+        out.push(`<div class="yt" data-video="${yt[1]}" data-title="${esc(lines[1] ? lines[1].trim() : "YouTube")}"><span class="yt-kicker">${t.kicker}</span>${title ? `<span class="yt-title">${title}</span>` : ""}<button type="button" class="yt-play">${t.load}</button><span class="yt-note">${t.note} <a href="${esc((imgBase || "") + "../#privacy")}">${t.privacy}</a></span></div>`);
         continue;
       }
-      out.push(`<blockquote>${renderMarkdown(inner.join("\n"), imgBase, lang)}</blockquote>`); continue;
+      if (/^#{2,3}\s/.test(lines[0]) && lines.length === 1) { const level = lines[0].match(/^(#+)/)[1].length; out.push(`<h${level}>${il(lines[0].replace(/^#+\s*/, ""))}</h${level}>`); continue; }
+      if (/^(---|\*\*\*)$/.test(block)) { out.push("<hr>"); continue; }
+      if (lines.every(l => /^>\s?/.test(l))) {
+        const inner = lines.map(l => l.replace(/^>\s?/, ""));
+        const card = inner[0].match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/); // Verweis auf eine fremde Seite: Karte statt Zitat
+        if (card) {
+          let host = ""; try { host = new URL(card[2]).hostname.replace(/^www\./, ""); } catch {}
+          const rest = inner.slice(1).join("\n").trim();
+          out.push(`<a class="ref" href="${esc(card[2])}" rel="noopener"><span class="ref-host">${esc(host)}</span><span class="ref-title">${inline(card[1], imgBase)}</span>${rest ? `<span class="ref-text">${inline(rest, imgBase).replace(/\n/g, "<br>")}</span>` : ""}</a>`);
+          continue;
+        }
+        out.push(`<blockquote>${renderMarkdown(inner.join("\n"), imgBase, lang)}</blockquote>`); continue;
+      }
+      if (lines.every(l => /^[-*]\s+/.test(l))) { out.push("<ul>" + lines.map(l => `<li>${il(l.replace(/^[-*]\s+/, ""))}</li>`).join("") + "</ul>"); continue; }
+      if (lines.every(l => /^\d+\.\s+/.test(l))) { out.push("<ol>" + lines.map(l => `<li>${il(l.replace(/^\d+\.\s+/, ""))}</li>`).join("") + "</ol>"); continue; }
+      // Ein Bild allein in einem Absatz steht frei, ohne <p>-Rand darum
+      if (lines.length === 1 && /^!\[[^\]]*\]\([^)\s]+\)$/.test(lines[0])) { const img = il(lines[0]); if (img.startsWith("<img")) { out.push(`<figure>${img}</figure>`); continue; } }
+      out.push(`<p>${lines.map(il).join("<br>")}</p>`);
     }
-    if (lines.every(l => /^[-*]\s+/.test(l))) { out.push("<ul>" + lines.map(l => `<li>${il(l.replace(/^[-*]\s+/, ""))}</li>`).join("") + "</ul>"); continue; }
-    if (lines.every(l => /^\d+\.\s+/.test(l))) { out.push("<ol>" + lines.map(l => `<li>${il(l.replace(/^\d+\.\s+/, ""))}</li>`).join("") + "</ol>"); continue; }
-    // Ein Bild allein in einem Absatz steht frei, ohne <p>-Rand darum
-    if (lines.length === 1 && /^!\[[^\]]*\]\([^)\s]+\)$/.test(lines[0])) { const img = il(lines[0]); if (img.startsWith("<img")) { out.push(`<figure>${img}</figure>`); continue; } }
-    out.push(`<p>${lines.map(il).join("<br>")}</p>`);
+    return out.join("\n");
   }
-  return out.join("\n");
+  const dateText = (iso, lang) => { const [y, m, d] = iso.split("-"); return lang === "en" ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : `${+d}. ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][+m - 1]} ${y}`; };
+  return { esc, inline, renderMarkdown, YT, dateText };
 }
+const R = makeRenderer();
+const esc = R.esc, YT = R.YT, dateText = R.dateText;
+export const inline = R.inline, renderMarkdown = R.renderMarkdown;
+export const videosUsed = md => String(md).split(/\n{2,}/).map(b => b.trim().split("\n")[0].trim().match(YT)).filter(Boolean).map(m => m[1]);
 // Bilder, die ein Text verwendet (Dateinamen unter blog/bilder/)
 export const imagesUsed = md => [...String(md).matchAll(/!\[[^\]]*\]\(bilder\/([a-z0-9._-]+)\)/gi)].map(m => m[1]);
 export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
@@ -137,7 +146,6 @@ const T = {
   de: { back: "Robin James Lewis", all: "Alle Beiträge", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
   en: { back: "Robin James Lewis", all: "All posts", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
-const dateText = (iso, lang) => { const [y, m, d] = iso.split("-"); return lang === "en" ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : `${+d}. ${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][+m - 1]} ${y}`; };
 
 function shell({ lang, title, description, depth, main, siteUrl, canonical, base }) {
   const up = base || "../".repeat(depth), t = T[lang];

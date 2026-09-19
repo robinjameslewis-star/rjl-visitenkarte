@@ -26,6 +26,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `worker/src/admin.js` – Redaktion – Backend der Website unter `/admin` (Aktuell, Links, Zähler; Anmeldung per E-Mail-Code)
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
+- `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
 - `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
 - `assets/ast.webp` – Ast-Ebene (verlustfreies WebP mit Transparenz, 48 KB), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
@@ -265,4 +266,10 @@ und YouTube-Video (Adresse wird geprüft und auf `watch?v=…` bereinigt, Vorsch
 alles landet an der Cursorstelle als eigener Absatz. Wortzahl und Lesezeit stehen rechts in der
 Leiste. Während des Schreibens sichert der Browser den Text lokal (`localStorage`, nur auf dem Gerät);
 läuft die Sitzung ab oder geht der Tab zu, bietet der Editor den Stand beim nächsten Öffnen an.
-Ausprobieren ohne Anmeldung und ohne GitHub: `node tests/admin_fake.mjs 8789` → http://localhost:8789/admin.
+**Live-Vorschau:** Rechts neben dem Text (ab 1100 px Breite, sonst darunter) steht der Beitrag im Design der
+Website und folgt jedem Tastendruck – derselbe Renderer wie beim Veröffentlichen (`makeRenderer()` aus
+`worker/src/blog.js`, als Quelltext in die Seite eingebettet). „Eigenes Fenster“ öffnet die Vorschau als
+eigenes Browserfenster für einen zweiten Bildschirm (die eingebaute macht dann Platz, bis das Fenster zugeht);
+„Ausblenden“ merkt sich der Browser.
+Ausprobieren ohne Anmeldung und ohne GitHub: `node tests/admin_fake.mjs 8789` → http://localhost:8789/admin;
+Prüfung des Editors in Headless-Chrome: `python3 tests/admin_test.py`.
