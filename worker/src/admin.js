@@ -1,9 +1,11 @@
 // Redaktion (/admin): Robin pflegt Inhalte der Website selbst und sieht Gochs Aufrufe und
 // unbeantwortete Fragen. Anmeldung ohne Passwort: Einmal-Code per E-Mail an MAIL_TO (Resend).
+// Zweiter Faktor: Passkey (Face ID / Touch ID), Pflicht sobald einer eingerichtet ist (src/passkey.js).
 // Speicher ist das GitHub-Repository (Historie, GitHub Pages baut daraus); der KV des Workers
 // hält nur eine Kopie, damit Goch sofort die neue Fassung kennt. Neue Inhaltsarten (Blog, Textstellen
 // der Seite) kommen als weiterer Eintrag in CONTENT dazu.
 import * as gh from "./github.js";
+import * as pk from "./passkey.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -25,15 +27,30 @@ export async function handleAdmin(request, env, ctx, deps) {
   }
   if (path === "/admin") {
     if (request.method !== "GET") return text("Method Not Allowed", 405);
-    return html(session ? PAGE : LOGIN);
+    if (!session) return html(LOGIN);
+    if (!session.full) return html(LOGIN.replace('data-stage=""', 'data-stage="passkey"'));
+    return html(PAGE);
   }
-  if (!path.startsWith("/admin/api/")) return text("Nicht gefunden.", 404);
-  if (!session) return json({ error: "Nicht angemeldet." }, 401);
   // Schreibende Aufrufe nur aus der eigenen Seite (SameSite-Cookie plus eigener Header).
   if (request.method !== "GET" && request.headers.get("x-goch-admin") !== "1") return json({ error: "Verweigert." }, 403);
+  // Zweiter Faktor: Passkey-Anmeldung mit halber Sitzung (nach dem E-Mail-Code).
+  if (path === "/admin/passkey/login/options" && request.method === "POST") return session ? passkeyLoginOptions(env, session, url) : json({ error: "Nicht angemeldet." }, 401);
+  if (path === "/admin/passkey/login" && request.method === "POST") return session ? passkeyLogin(request, env, session, url) : json({ error: "Nicht angemeldet." }, 401);
+  if (!session || !session.full) return json({ error: "Nicht angemeldet." }, 401);
+  if (path === "/admin/passkey/options" && request.method === "POST") return passkeyRegisterOptions(env, session, url);
+  if (path === "/admin/passkey/register" && request.method === "POST") return passkeyRegister(request, env, session, url);
+  if (!path.startsWith("/admin/api/")) return text("Nicht gefunden.", 404);
 
   const api = path.slice("/admin/api/".length);
   if (api === "state" && request.method === "GET") return json(await state(env, deps));
+  if (api === "passkeys" && request.method === "GET") return json({ passkeys: await listPasskeys(env) });
+  if (api === "passkeys" && request.method === "DELETE") {
+    const body = await readJson(request);
+    const id = typeof body.id === "string" && /^[A-Za-z0-9_-]{16,300}$/.test(body.id) ? body.id : null;
+    if (!id) return json({ error: "Ungültig." }, 400);
+    await env.USAGE.delete("admin:passkey:" + id);
+    return json({ passkeys: await listPasskeys(env) });
+  }
   const m = api.match(/^content\/([a-z0-9-]+)$/);
   if (m && CONTENT[m[1]]) {
     if (request.method === "PUT") return save(m[1], request, env, deps, session);
@@ -90,8 +107,74 @@ async function verify(request, env) {
   }
   await env.USAGE.delete("admin:code");
   const token = hex(crypto.getRandomValues(new Uint8Array(32)));
-  await env.USAGE.put("admin:session:" + token, JSON.stringify({ email: env.MAIL_TO, at: new Date().toISOString() }), { expirationTtl: SESSION_TTL });
-  return json({ ok: true }, 200, { "set-cookie": cookie(token, SESSION_TTL) });
+  const needPasskey = (await listPasskeys(env)).length > 0; // zweiter Faktor Pflicht, sobald einer eingerichtet ist
+  await env.USAGE.put("admin:session:" + token, JSON.stringify({ email: env.MAIL_TO, at: new Date().toISOString(), full: !needPasskey }),
+    { expirationTtl: needPasskey ? 600 : SESSION_TTL });
+  return json({ ok: true, next: needPasskey ? "passkey" : "done" }, 200, { "set-cookie": cookie(token, needPasskey ? 600 : SESSION_TTL) });
+}
+
+// ---------- Passkeys: zweiter Faktor ----------
+
+async function listPasskeys(env) {
+  const out = [];
+  const l = await env.USAGE.list({ prefix: "admin:passkey:" });
+  for (const k of l.keys) { try { const c = JSON.parse(await env.USAGE.get(k.name)); if (c) out.push(c); } catch {} }
+  return out;
+}
+async function challengeFor(env, session) {
+  const challenge = pk.randomChallenge();
+  await env.USAGE.put("admin:challenge:" + session.token, challenge, { expirationTtl: 300 });
+  return challenge;
+}
+async function takeChallenge(env, session) {
+  const c = await env.USAGE.get("admin:challenge:" + session.token);
+  await env.USAGE.delete("admin:challenge:" + session.token).catch(() => {});
+  return c;
+}
+async function passkeyRegisterOptions(env, session, url) {
+  const existing = await listPasskeys(env);
+  const userId = pk.b64url.encode(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("redaktion:" + env.MAIL_TO))));
+  return json({
+    challenge: await challengeFor(env, session),
+    rp: { id: url.hostname, name: "Redaktion robinjameslewis" },
+    user: { id: userId, name: env.MAIL_TO, displayName: "Robin" },
+    pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+    authenticatorSelection: { residentKey: "preferred", userVerification: "required" },
+    attestation: "none", timeout: 60000,
+    excludeCredentials: existing.map(c => ({ type: "public-key", id: c.id, transports: c.transports })),
+  });
+}
+async function passkeyRegister(request, env, session, url) {
+  const body = await readJson(request);
+  const challenge = await takeChallenge(env, session);
+  if (!challenge) return json({ error: "Keine Challenge – noch einmal versuchen." }, 400);
+  try {
+    const cred = await pk.verifyRegistration(body, { challenge, origin: url.origin, rpId: url.hostname });
+    const name = String(body.name || "").replace(/[^\p{L}\p{N} .,-]/gu, "").trim().slice(0, 40) || "Passkey";
+    await env.USAGE.put("admin:passkey:" + cred.id, JSON.stringify({ ...cred, name, at: new Date().toISOString() }));
+  } catch (e) { return json({ error: e.message }, 400); }
+  return json({ passkeys: await listPasskeys(env) });
+}
+async function passkeyLoginOptions(env, session, url) {
+  const creds = await listPasskeys(env);
+  return json({ challenge: await challengeFor(env, session), rpId: url.hostname, userVerification: "required", timeout: 60000,
+    allowCredentials: creds.map(c => ({ type: "public-key", id: c.id, transports: c.transports })) });
+}
+async function passkeyLogin(request, env, session, url) {
+  const body = await readJson(request);
+  const challenge = await takeChallenge(env, session);
+  if (!challenge) return json({ error: "Keine Challenge – Seite neu laden." }, 400);
+  const id = typeof body.id === "string" ? body.id : "";
+  let cred = null; try { cred = JSON.parse(await env.USAGE.get("admin:passkey:" + id)); } catch {}
+  if (!cred) return json({ error: "Unbekannter Passkey." }, 400);
+  try {
+    const counter = await pk.verifyAssertion(body, cred, { challenge, origin: url.origin, rpId: url.hostname });
+    cred.counter = counter; cred.lastUsed = new Date().toISOString();
+    await env.USAGE.put("admin:passkey:" + cred.id, JSON.stringify(cred));
+  } catch (e) { return json({ error: e.message }, 400); }
+  await env.USAGE.put("admin:session:" + session.token, JSON.stringify({ email: session.email, at: session.at, full: true, passkey: cred.name }),
+    { expirationTtl: SESSION_TTL });
+  return json({ ok: true }, 200, { "set-cookie": cookie(session.token, SESSION_TTL) });
 }
 
 async function currentSession(request, env) {
@@ -271,18 +354,27 @@ ul.q .n{min-width:36px;color:var(--muted);font-variant-numeric:tabular-nums}ul.q
 `;
 
 const LOGIN = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion – Anmeldung</title><style>${STYLE}</style></head>
-<body><main class="login"><h1>REDAKTION</h1><p class="sub">robinjameslewis – Anmeldung mit Einmal-Code per E-Mail.</p>
+<body data-stage=""><main class="login"><h1>REDAKTION</h1><p class="sub">robinjameslewis – Anmeldung mit Einmal-Code per E-Mail.</p>
 <section id="step1"><p class="note" style="margin:0 0 6px">Der Code geht an Robins hinterlegte Adresse.</p>
 <div class="bar" style="margin:0"><button id="send" autofocus>Code schicken</button><span class="msg" id="m1"></span></div></section>
 <section id="step2" hidden><label for="code">Code aus der E-Mail (sechs Ziffern, zehn Minuten gültig)</label><input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
-<div class="bar"><button id="go">Anmelden</button><button class="quiet" id="again">Neuen Code</button><span class="msg" id="m2"></span></div></section>
+<div class="bar"><button id="go">Weiter</button><button class="quiet" id="again">Neuen Code</button><span class="msg" id="m2"></span></div></section>
+<section id="step3" hidden><p class="note" style="margin:0 0 6px">Zweiter Schritt: Bestätige mit deinem Gerät (Face ID, Touch ID oder Gerätecode).</p>
+<div class="bar" style="margin:0"><button id="pass">Mit Passkey bestätigen</button><span class="msg" id="m3"></span></div></section>
 <script>
 const $=id=>document.getElementById(id);
-async function post(p,b){const r=await fetch(p,{method:'POST',headers:{'content-type':'application/json','x-goch-admin':'1'},body:JSON.stringify(b)});return {ok:r.ok,...(await r.json().catch(()=>({})))};}
-$('send').onclick=async()=>{$('send').disabled=true;await post('/admin/login',{});$('step1').hidden=true;$('step2').hidden=false;$('code').focus();};
-$('again').onclick=()=>{$('step2').hidden=true;$('step1').hidden=false;$('send').disabled=false;$('m2').textContent='';};
-$('go').onclick=async()=>{const r=await post('/admin/verify',{code:$('code').value});if(r.ok)location.reload();else{$('m2').className='msg warn';$('m2').textContent=r.error||'Fehler';}};
+const bu={enc:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}};
+async function post(p,b){const r=await fetch(p,{method:'POST',headers:{'content-type':'application/json','x-goch-admin':'1'},body:JSON.stringify(b||{})});return {ok:r.ok,...(await r.json().catch(()=>({})))};}
+function show(n){for(const k of [1,2,3])$('step'+k).hidden=k!==n;}
+$('send').onclick=async()=>{$('send').disabled=true;await post('/admin/login',{});show(2);$('code').focus();};
+$('again').onclick=()=>{show(1);$('send').disabled=false;$('m2').textContent='';};
+$('go').onclick=async()=>{const r=await post('/admin/verify',{code:$('code').value});if(!r.ok){$('m2').className='msg warn';$('m2').textContent=r.error||'Fehler';return;}if(r.next==='passkey'){show(3);$('pass').focus();}else location.reload();};
 $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click();};
+$('pass').onclick=async()=>{$('m3').textContent='';try{if(!window.PublicKeyCredential)throw new Error('Dieser Browser kann keine Passkeys.');const o=await post('/admin/passkey/login/options');if(!o.ok)throw new Error(o.error||'Fehler');
+ const cred=await navigator.credentials.get({publicKey:{challenge:bu.dec(o.challenge),rpId:o.rpId,userVerification:o.userVerification,timeout:o.timeout,allowCredentials:o.allowCredentials.map(c=>({type:c.type,id:bu.dec(c.id),transports:c.transports}))}});
+ const r=await post('/admin/passkey/login',{id:cred.id,clientDataJSON:bu.enc(cred.response.clientDataJSON),authenticatorData:bu.enc(cred.response.authenticatorData),signature:bu.enc(cred.response.signature)});
+ if(!r.ok)throw new Error(r.error||'Fehler');location.reload();}catch(e){$('m3').className='msg warn';$('m3').textContent=e.name==='NotAllowedError'?'Abgebrochen oder abgelehnt.':e.message;}};
+if(document.body.dataset.stage==='passkey'){show(3);$('pass').focus();}
 </script></main></body></html>`;
 
 const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion · robinjameslewis</title><style>${STYLE}</style></head>
@@ -290,6 +382,10 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h1>REDAKTION</h1><button class="quiet" id="logout">Abmelden</button></div>
 <p class="sub">Inhalte der Website robinjameslewis. Was du hier veröffentlichst, wird als Änderung im Repository gespeichert und ist innerhalb einer Minute live.</p>
 <p class="note" id="ghnote" hidden style="border:1px solid var(--warn);border-radius:8px;padding:10px 12px;color:var(--warn)"></p>
+
+<section id="sec"><h2>Sicherheit</h2><p class="note" id="secnote"></p><ul class="q" id="keys"></ul>
+<div class="bar"><input id="keyname" placeholder="Name, z. B. MacBook oder iPhone" style="max-width:260px"><button id="addKey">Passkey einrichten</button><span class="msg" id="mK"></span></div>
+<p class="note">Ein Passkey liegt in deinem iCloud-Schlüsselbund und gilt damit auf Mac und iPhone. Sobald einer eingerichtet ist, verlangt die Anmeldung E-Mail-Code <b>und</b> Passkey. Richte am besten einen zweiten als Ersatz ein (z. B. ein anderes Gerät oder einen Sicherheitsschlüssel).</p></section>
 
 <section><h2>Goch – Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
@@ -314,6 +410,16 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <script>
 const $=id=>document.getElementById(id);
 const H={'content-type':'application/json','x-goch-admin':'1'};
+const bu={enc:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}};
+function renderKeys(list){$('keys').innerHTML=list.map(k=>'<li><span style="flex:1">'+esc(k.name)+'</span><span class="note">eingerichtet '+fmt(k.at)+(k.lastUsed?', zuletzt '+fmt(k.lastUsed):'')+'</span><button class="x" title="entfernen" data-id="'+esc(k.id)+'">×</button></li>').join('');
+ const sn=$('secnote');if(!list.length){sn.style.color='var(--warn)';sn.textContent='Kein zweiter Faktor: Wer Zugang zu deinem Postfach hat, könnte hier veröffentlichen. Richte jetzt einen Passkey ein.';}else{sn.style.color='';sn.textContent=list.length+(list.length===1?' Passkey':' Passkeys')+' – die Anmeldung verlangt E-Mail-Code und Passkey.';}}
+$('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCredential)throw new Error('Dieser Browser kann keine Passkeys.');const r0=await fetch('/admin/passkey/options',{method:'POST',headers:H});const o=await r0.json();if(!r0.ok)throw new Error(o.error||'Fehler');
+ const cred=await navigator.credentials.create({publicKey:{...o,challenge:bu.dec(o.challenge),user:{...o.user,id:bu.dec(o.user.id)},excludeCredentials:o.excludeCredentials.map(c=>({type:c.type,id:bu.dec(c.id),transports:c.transports}))}});
+ const transports=cred.response.getTransports?cred.response.getTransports():[];
+ const r=await fetch('/admin/passkey/register',{method:'POST',headers:H,body:JSON.stringify({name:$('keyname').value,clientDataJSON:bu.enc(cred.response.clientDataJSON),attestationObject:bu.enc(cred.response.attestationObject),transports})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Fehler');
+ renderKeys(d.passkeys);$('keyname').value='';say('mK','Passkey eingerichtet.',true);}catch(e){say('mK',e.name==='NotAllowedError'?'Abgebrochen oder abgelehnt.':e.name==='InvalidStateError'?'Dieses Gerät ist schon eingerichtet.':e.message);}};
+$('keys').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(!confirm('Diesen Passkey entfernen? Ist es der letzte, reicht danach wieder der E-Mail-Code allein.'))return;try{const d=await api('passkeys','DELETE',{id:b.dataset.id});renderKeys(d.passkeys);}catch(err){say('mK',err.message);}};
+api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}
 function fmt(iso){if(!iso)return '';const d=new Date(iso);return d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' Uhr';}
