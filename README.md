@@ -246,11 +246,13 @@ Flug-Tests (`tests/im-browser.html`) und `tests/consent_test.py` bleiben unverä
 Gepflegt in der Redaktion (`https://rjl-goch.rjl.workers.dev/admin`, Abschnitt „Blog“), gespeichert im
 Repository: `blog/blog.json` (Schalter, Titel DE/EN, Einleitung) und `blog/posts/<slug>.md` (Kopfzeilen
 `title`, `date`, `lang`, `status`, `summary`, dann Text). Der Worker baut daraus `blog/index.html`,
-`blog/<slug>/index.html` und `blog/feed.xml` im Stil der Visitenkarte und setzt den Verweis oben links
-auf der Startseite zwischen `<!-- redaktion:blog-link -->` und `<!-- /redaktion:blog-link -->` – alles
-als ein Commit (`worker/src/blog.js`, `worker/src/github.js`). Sichtbar nur, wenn der Schalter an ist
+`blog/<slug>/index.html` und `blog/feed.xml` im Stil der Visitenkarte und setzt auf der Startseite den
+Verweis in der Leiste oben links (`<!-- redaktion:blog-link -->`) und den Abschnitt mit den neuesten fünf
+Beiträgen unter dem Kalender (`<!-- redaktion:blog-section -->`) – alles als ein Commit (`worker/src/blog.js`, `worker/src/github.js`). Sichtbar nur, wenn der Schalter an ist
 **und** mindestens ein Beitrag veröffentlicht ist; sonst sind `/blog/` und der Feed nicht erreichbar.
 Markdown ist eine kleine, maskierte Teilmenge (Überschriften ##/###, fett, kursiv, Listen, Zitat,
-Links und Bilder mit https, Trennlinie); kein HTML aus dem Text. Entwürfe stehen nicht auf der Seite,
+Links, Bilder, Trennlinie); kein HTML aus dem Text. Bilder lädt die Redaktion nach `blog/bilder/` hoch
+(im Browser auf 1600 px verkleinert und ohne Aufnahmedaten, im Worker an den ersten Bytes geprüft,
+höchstens 1,5 MB); im Text stehen sie als `![Beschreibung](bilder/name.jpg)`, sonst nur https-Adressen. Entwürfe stehen nicht auf der Seite,
 liegen aber als Datei im öffentlichen Repository. Die Marken in `index.html` nicht entfernen.
 `.nojekyll` sorgt dafür, dass GitHub Pages die erzeugten Dateien unverändert ausliefert.
