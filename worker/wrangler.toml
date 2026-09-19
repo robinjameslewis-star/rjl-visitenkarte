@@ -23,6 +23,8 @@ MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 # Der Draht: Versand über Resend. Secret: npx wrangler secret put RESEND_API_KEY
 MAIL_TO = "robinjameslewis@googlemail.com"
 MAIL_FROM = "Goch <onboarding@resend.dev>"  # mit eigener Domain: verifizierte Absenderadresse
+GITHUB_REPO = "robinjameslewis-star/rjl-visitenkarte"  # Speicher des Dashboards; Schlüssel: Geheimnis GITHUB_TOKEN
+GITHUB_BRANCH = "main"
 
 # Tageszähler für MAX_PER_DAY (angelegt 17.09.2026 mit: npx wrangler kv namespace create USAGE)
 [[kv_namespaces]]

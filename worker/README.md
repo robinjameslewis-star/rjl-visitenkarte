@@ -107,9 +107,22 @@ Zeilen ohne https-Adresse gelten nicht. Nach Änderung: `npm run deploy`.
 ## Dashboard (`/admin`)
 
 `https://rjl-goch.rjl.workers.dev/admin` – Anmeldung mit Einmal-Code per E-Mail an `MAIL_TO`
-(über Resend, zehn Minuten gültig, Sitzung zwölf Stunden als Cookie). Robin pflegt dort „Woran
-Robin gerade arbeitet“ (Deutsch/Englisch, Stand) und die Links, sieht Antworten je Tag, die
-unbeantworteten Fragen (Häkchen = erledigt) und den Guthaben-Alarm. Veröffentlichtes liegt im KV
-(`content:aktuell`, `content:links`, jeweils `:prev` und `:meta`) und geht der Datei vor – ohne
-Deploy, live in unter einer Minute. „Vorige Fassung“ tauscht zurück, „Auf Datei zurücksetzen“
-löscht die KV-Fassung. Das Profil bleibt Datei (`profile.md`) mit Deploy. Code: `src/admin.js`.
+(Resend, zehn Minuten gültig, Sitzung zwölf Stunden als Cookie). Robin pflegt dort „Woran Robin
+gerade arbeitet“ (Deutsch/Englisch, Stand) und die Links, sieht Antworten je Tag, die
+unbeantworteten Fragen (Häkchen = erledigt) und den Guthaben-Alarm.
+
+**Speicher ist das Repository.** Jede Veröffentlichung ist ein Commit auf `main`
+(`worker/aktuell.md`, `worker/links.md`), „Vorige Fassung“ schreibt den Stand des vorletzten
+Commits als neuen Commit, „Verlauf“ öffnet die Historie auf GitHub. Der Worker hält im KV eine
+Kopie (`content:aktuell`, `content:links`) und gleicht sie alle fünf Minuten mit der Rohfassung auf
+GitHub ab – Änderungen außerhalb des Dashboards kommen so auch an; nach dem Dashboard sofort.
+Nötig: Geheimnis `GITHUB_TOKEN` (fein abgestuft, nur dieses Repository, Contents: Read and write;
+läuft nach höchstens einem Jahr ab – dann erneuern) und die Variablen `GITHUB_REPO`, `GITHUB_BRANCH`.
+Ohne Schlüssel liest das Dashboard, schreibt aber nicht.
+
+Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag in `CONTENT`
+(`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung.
+Das Profil bleibt Datei mit Deploy (`profile.md`). GitHub-Zugriff: `src/github.js`.
+
+**Lokal arbeiten:** Vor Änderungen an `worker/aktuell.md` oder `worker/links.md` erst `git pull`,
+weil das Dashboard direkt auf `main` schreibt.

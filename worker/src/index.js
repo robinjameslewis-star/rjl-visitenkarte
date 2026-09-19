@@ -10,6 +10,7 @@ import PROFILE from "../profile.md";
 import AKTUELL from "../aktuell.md";
 import LINKS_MD from "../links.md";
 import { handleAdmin } from "./admin.js";
+import { raw as githubRaw } from "./github.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -69,7 +70,7 @@ export default {
     if (request.method === "GET" && url.pathname === "/") return new Response("Goch", { headers: { "content-type": "text/plain; charset=utf-8" } });
     // Dashboard für Robin (Anmeldung per E-Mail-Code, Inhalte im KV) – eigene Seite, kein CORS.
     if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
-      return handleAdmin(request, env, ctx, { parseLinks, aktuellFile: AKTUELL, linksFile: LINKS_MD,
+      return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD },
         profileWords: PROFILE.split(/\s+/).filter(Boolean).length });
     }
     if (request.method !== "POST" || url.pathname !== "/chat") return json({ error: "Nicht gefunden." }, 404, cors);
@@ -133,7 +134,7 @@ export default {
       ctx.waitUntil(env.USAGE.put(key, String(used + 1), { expirationTtl: 35 * 86400 }));
     }
 
-    const content = await loadContent(env);
+    const content = await loadContent(env, ctx);
     const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
     let text;
     try {
@@ -274,16 +275,30 @@ function completeMessage(m, messages) {
   return out;
 }
 
-// Inhalte, die Robin im Dashboard pflegt, liegen im KV und gehen der Datei vor (content:aktuell, content:links).
-async function loadContent(env) {
+// Aktuell und Links: Quelle ist das Repository (Robin pflegt sie im Dashboard, das dort Commits schreibt).
+// Der KV hält eine Kopie für schnelle Antworten; alle fünf Minuten wird sie im Hintergrund mit der
+// Rohfassung auf GitHub abgeglichen, damit auch Änderungen außerhalb des Dashboards ankommen.
+// Ohne KV oder GitHub gelten die mitgelieferten Dateien.
+const CONTENT_FILES = { aktuell: "worker/aktuell.md", links: "worker/links.md" };
+async function loadContent(env, ctx) {
   let aktuell = AKTUELL, linksMd = LINKS_MD;
   if (env.USAGE) {
-    const [a, l] = await Promise.all([env.USAGE.get("content:aktuell").catch(() => null), env.USAGE.get("content:links").catch(() => null)]);
+    const [a, l, checked] = await Promise.all(["content:aktuell", "content:links", "content:checked"].map(k => env.USAGE.get(k).catch(() => null)));
     if (a) aktuell = a;
     if (l) linksMd = l;
+    if (env.GITHUB_REPO && ctx && (!checked || Date.now() - +checked > 300_000)) ctx.waitUntil(refreshContent(env, { aktuell: a, links: l }));
   }
   const links = parseLinks(linksMd);
   return { aktuell, links, linkIds: links.map(x => x.id) };
+}
+async function refreshContent(env, known) {
+  await env.USAGE.put("content:checked", String(Date.now()), { expirationTtl: 3600 }).catch(() => {});
+  for (const [key, path] of Object.entries(CONTENT_FILES)) {
+    try {
+      const fresh = await githubRaw(env, path);
+      if (fresh && fresh !== known[key]) await env.USAGE.put("content:" + key, fresh);
+    } catch (e) { console.error("Abgleich mit GitHub", key, String(e && e.message || e)); }
+  }
 }
 
 // links.md: Tabelle „Kennung | Wann | Text DE | Text EN | Adresse“. Zeilen ohne gültige https-Adresse gelten nicht.

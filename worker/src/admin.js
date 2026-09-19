@@ -1,7 +1,9 @@
-// Gochs Dashboard: /admin – Robin pflegt „Aktuell“ und die Links selbst und sieht Aufrufe und
+// Gochs Dashboard: /admin – Robin pflegt Inhalte der Website selbst und sieht Aufrufe und
 // unbeantwortete Fragen. Anmeldung ohne Passwort: Einmal-Code per E-Mail an MAIL_TO (Resend).
-// Inhalte liegen dann im KV-Speicher (content:aktuell, content:links) und gehen sofort live;
-// die Dateien im Repository bleiben Rückfallebene. Jede Veröffentlichung hebt die vorige Fassung auf.
+// Speicher ist das GitHub-Repository (Historie, GitHub Pages baut daraus); der KV des Workers
+// hält nur eine Kopie, damit Goch sofort die neue Fassung kennt. Neue Inhaltsarten (Blog, Textstellen
+// der Seite) kommen als weiterer Eintrag in CONTENT dazu.
+import * as gh from "./github.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -32,9 +34,11 @@ export async function handleAdmin(request, env, ctx, deps) {
 
   const api = path.slice("/admin/api/".length);
   if (api === "state" && request.method === "GET") return json(await state(env, deps));
-  if (api === "aktuell" && request.method === "PUT") return saveAktuell(request, env, deps, session);
-  if (api === "links" && request.method === "PUT") return saveLinks(request, env, deps, session);
-  if (api === "restore" && request.method === "POST") return restore(request, env, deps);
+  const m = api.match(/^content\/([a-z0-9-]+)$/);
+  if (m && CONTENT[m[1]]) {
+    if (request.method === "PUT") return save(m[1], request, env, deps, session);
+    if (request.method === "POST") return restore(m[1], env, deps, session);
+  }
   if (api === "unanswered" && request.method === "DELETE") {
     const body = await readJson(request);
     const key = typeof body.key === "string" && body.key.startsWith("unanswered:") ? body.key : null;
@@ -48,10 +52,8 @@ export async function handleAdmin(request, env, ctx, deps) {
 // ---------- Anmeldung: Code per E-Mail, Sitzung als Cookie, beides im KV ----------
 
 async function login(request, env) {
-  const body = await readJson(request);
-  const email = String(body.email || "").trim().toLowerCase();
-  const answer = json({ ok: true, note: "Wenn die Adresse stimmt, ist ein Code unterwegs." });
-  if (!email || email !== String(env.MAIL_TO).trim().toLowerCase()) return answer; // nichts verraten
+  // Es gibt genau einen Empfänger: MAIL_TO. Kein Adressfeld, nichts zu vertippen (gmail/googlemail).
+  const answer = json({ ok: true, note: "Code ist unterwegs." });
   const hourKey = "admin:codes:" + new Date().toISOString().slice(0, 13);
   const sent = +(await env.USAGE.get(hourKey) || 0);
   if (sent >= MAX_CODES_PER_HOUR) return answer;
@@ -68,7 +70,8 @@ async function login(request, env) {
         subject: "Goch: Dein Anmeldecode " + code,
         text: `Dein Code für Gochs Dashboard: ${code}\n\nGültig zehn Minuten. Wenn du dich nicht angemeldet hast, ignoriere diese Mail – ohne den Code passiert nichts.`,
       }),
-    }).catch(() => {});
+    }).then(async r => { if (!r.ok) console.error("Anmeldecode: Resend", r.status, (await r.text()).slice(0, 200)); })
+      .catch(e => console.error("Anmeldecode: Resend", String(e)));
   }
   return answer;
 }
@@ -103,107 +106,126 @@ function cookie(token, maxAge) {
   return `goch_admin=${token}; Path=/admin; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Strict`;
 }
 
-// ---------- Zustand für die Seite ----------
+// ---------- Inhalte: Registry, GitHub als Quelle, KV als Kopie ----------
+
+// Jede Inhaltsart: Datei im Repository, Zerlegen in Felder (für die Seite), Zusammenbauen und Prüfen
+// (aus den Feldern). Weitere Arten – Blogbeiträge, Textstellen der Seite – kommen hier dazu.
+const CONTENT = {
+  aktuell: {
+    path: "worker/aktuell.md", title: "Woran Robin gerade arbeitet",
+    split: md => ({
+      stand: (md.match(/Stand (\d{2}\.\d{2}\.\d{4})/) || [])[1] || "",
+      de: ((md.split(/^## Deutsch\s*$/m)[1] || "").split(/^## English\s*$/m)[0] || "").trim(),
+      en: (md.split(/^## English\s*$/m)[1] || "").trim(),
+    }),
+    join(f) {
+      const stand = String(f.stand || "").trim(), de = String(f.de || ""), en = String(f.en || "");
+      if (!/^\d{2}\.\d{2}\.\d{4}$/.test(stand)) throw new Error("Stand bitte als TT.MM.JJJJ.");
+      if (de.trim().length < 20 || en.trim().length < 20) throw new Error("Deutsch und Englisch brauchen beide Text.");
+      if (de.length > 6000 || en.length > 6000) throw new Error("Zu lang – höchstens 6.000 Zeichen je Sprache.");
+      return `# Woran Robin gerade arbeitet – Stand ${stand}. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.\n` +
+        `# Wird dem Systemprompt angehängt.\n\n## Deutsch\n\n${de.trim()}\n\n## English\n\n${en.trim()}\n`;
+    },
+    summary: f => "Stand " + f.stand,
+  },
+  links: {
+    path: "worker/links.md", title: "Links, die Goch anbieten darf",
+    split: (md, deps) => ({ rows: deps.parseLinks(md) }),
+    join(f, deps) {
+      const rows = Array.isArray(f.rows) ? f.rows : null;
+      if (!rows || rows.length > 20) throw new Error("Ungültig (höchstens 20 Links).");
+      const clean = [], seen = new Set();
+      for (const [i, r] of rows.entries()) {
+        const n = i + 1;
+        const id = String(r.id || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const when = String(r.when || "").trim(), de = String(r.de || "").trim(), en = String(r.en || "").trim() || de;
+        let url = String(r.url || "").trim();
+        if (!id) throw new Error(`Zeile ${n}: Kennung fehlt (Buchstaben, Ziffern, Bindestrich).`);
+        if (seen.has(id)) throw new Error(`Zeile ${n}: Kennung „${id}“ kommt doppelt vor.`);
+        if (!when || !de) throw new Error(`Zeile ${n}: „Wann“ und „Text DE“ brauchen Inhalt.`);
+        if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+        try { const u = new URL(url); if (u.protocol !== "https:") throw 0; url = u.href; } catch { throw new Error(`Zeile ${n}: Adresse muss mit https:// beginnen.`); }
+        if ([id, when, de, en].some(v => v.length > 200) || url.length > 500) throw new Error(`Zeile ${n}: zu lang.`);
+        seen.add(id); clean.push({ id, when, de, en, url });
+      }
+      const cell = v => String(v).replace(/\|/g, "／").replace(/\s+/g, " ").trim();
+      const md = "# Links, die Goch anbieten darf – gepflegt im Dashboard. Nur Adressen, die öffentlich sein dürfen.\n" +
+        "# Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, wann der Link passt.\n\n" +
+        "| Kennung | Wann passt der Link | Text DE | Text EN | Adresse |\n|---|---|---|---|---|\n" +
+        clean.map(r => `| ${cell(r.id)} | ${cell(r.when)} | ${cell(r.de)} | ${cell(r.en)} | ${cell(r.url)} |`).join("\n") + "\n";
+      if (deps.parseLinks(md).length !== clean.length) throw new Error("Interner Fehler beim Zusammenbau der Tabelle.");
+      return md;
+    },
+    summary: f => (Array.isArray(f.rows) ? f.rows.length : 0) + " Links",
+  },
+};
 
 async function state(env, deps) {
-  const [aktuellKv, aktuellMeta, linksKv, linksMeta, alert] = await Promise.all([
-    env.USAGE.get("content:aktuell"), env.USAGE.get("content:aktuell:meta"),
-    env.USAGE.get("content:links"), env.USAGE.get("content:links:meta"), env.USAGE.get("alert:credit"),
-  ]);
-  const usage = [], unanswered = [];
+  const github = gh.configured(env);
+  const out = { github, repo: env.GITHUB_REPO || "", content: {}, usage: [], unanswered: [], alert: null,
+    limits: { perDay: +(env.MAX_PER_DAY || 60), perHour: +(env.MAX_PER_IP_PER_HOUR || 12), turns: +(env.MAX_TURNS || 8) },
+    profileWords: deps.profileWords, model: env.MODEL || "" };
+  for (const [key, c] of Object.entries(CONTENT)) {
+    // Fassung: Repository (mit Schlüssel), sonst KV-Kopie, sonst die mitgelieferte Datei.
+    let md = null, meta = null, error = null;
+    if (github) {
+      try {
+        const f = await gh.getFile(env, c.path);
+        if (f) { md = f.content; const h = await gh.history(env, c.path, 2); meta = { last: h[0] || null, hasPrev: h.length > 1 }; }
+      } catch (e) { error = e.message; }
+    }
+    if (md == null) md = (await env.USAGE.get("content:" + key)) || deps.files[key];
+    out.content[key] = { title: c.title, path: c.path, fields: c.split(md, deps), meta, error, historyUrl: env.GITHUB_REPO ? gh.historyUrl(env, c.path) : "" };
+  }
+  out.alert = await env.USAGE.get("alert:credit");
   const days = await env.USAGE.list({ prefix: "usage:" });
-  for (const k of days.keys) usage.push({ date: k.name.slice(6), n: +(await env.USAGE.get(k.name) || 0) });
-  usage.sort((a, b) => a.date < b.date ? 1 : -1);
+  for (const k of days.keys) out.usage.push({ date: k.name.slice(6), n: +(await env.USAGE.get(k.name) || 0) });
+  out.usage.sort((a, b) => a.date < b.date ? 1 : -1);
   const qs = await env.USAGE.list({ prefix: "unanswered:" });
   for (const k of qs.keys) {
-    try { const e = JSON.parse(await env.USAGE.get(k.name)); if (e) unanswered.push({ key: k.name, ...e }); } catch {}
+    try { const e = JSON.parse(await env.USAGE.get(k.name)); if (e) out.unanswered.push({ key: k.name, ...e }); } catch {}
   }
-  unanswered.sort((a, b) => b.n - a.n || (a.last < b.last ? 1 : -1));
-  const aktuellMd = aktuellKv || deps.aktuellFile, linksMd = linksKv || deps.linksFile;
-  return {
-    aktuell: { ...splitAktuell(aktuellMd), source: aktuellKv ? "dashboard" : "datei", meta: parseMeta(aktuellMeta),
-      hasPrev: !!(await env.USAGE.get("content:aktuell:prev")) },
-    links: { rows: deps.parseLinks(linksMd), source: linksKv ? "dashboard" : "datei", meta: parseMeta(linksMeta),
-      hasPrev: !!(await env.USAGE.get("content:links:prev")) },
-    usage, unanswered, alert: alert || null,
-    limits: { perDay: +(env.MAX_PER_DAY || 60), perHour: +(env.MAX_PER_IP_PER_HOUR || 12), turns: +(env.MAX_TURNS || 8) },
-    profileWords: deps.profileWords, model: env.MODEL || "",
-  };
+  out.unanswered.sort((a, b) => b.n - a.n || (a.last < b.last ? 1 : -1));
+  return out;
 }
 
-// „Aktuell“: Kopfzeile mit Stand, dann „## Deutsch“ und „## English“.
-function splitAktuell(md) {
-  const stand = (md.match(/Stand (\d{2}\.\d{2}\.\d{4})/) || [])[1] || "";
-  const de = ((md.split(/^## Deutsch\s*$/m)[1] || "").split(/^## English\s*$/m)[0] || "").trim();
-  const en = (md.split(/^## English\s*$/m)[1] || "").trim();
-  return { stand, de, en };
-}
-function joinAktuell({ stand, de, en }) {
-  return `# Woran Robin gerade arbeitet – Stand ${stand}. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.\n\n## Deutsch\n\n${de.trim()}\n\n## English\n\n${en.trim()}\n`;
-}
-function joinLinks(rows) {
-  const head = "# Links, die Goch anbieten darf – aus dem Dashboard. Nur Adressen, die öffentlich sein dürfen.\n\n" +
-    "| Kennung | Wann passt der Link | Text DE | Text EN | Adresse |\n|---|---|---|---|---|\n";
-  const cell = v => String(v).replace(/\|/g, "／").replace(/\s+/g, " ").trim();
-  return head + rows.map(r => `| ${cell(r.id)} | ${cell(r.when)} | ${cell(r.de)} | ${cell(r.en)} | ${cell(r.url)} |`).join("\n") + "\n";
-}
-
-async function saveAktuell(request, env, deps, session) {
+// Veröffentlichen: Felder prüfen und zusammenbauen, ins Repository schreiben (Commit), Kopie in den KV.
+async function save(key, request, env, deps, session) {
+  if (!gh.configured(env)) return json({ error: "GitHub-Schlüssel fehlt – Veröffentlichen ist noch nicht eingerichtet." }, 503);
+  const c = CONTENT[key];
   const body = await readJson(request);
-  const stand = String(body.stand || "").trim(), de = String(body.de || ""), en = String(body.en || "");
-  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(stand)) return json({ error: "Stand bitte als TT.MM.JJJJ." }, 400);
-  if (de.trim().length < 20 || en.trim().length < 20) return json({ error: "Deutsch und Englisch brauchen beide Text." }, 400);
-  if (de.length > 6000 || en.length > 6000) return json({ error: "Zu lang – höchstens 6.000 Zeichen je Sprache." }, 400);
-  await publish(env, "aktuell", joinAktuell({ stand, de, en }), deps.aktuellFile, session);
+  let md;
+  try { md = c.join(body, deps); } catch (e) { return json({ error: e.message }, 400); }
+  try {
+    const current = await gh.getFile(env, c.path);
+    if (current && current.content === md) return json({ ...(await state(env, deps)), note: "Keine Änderung – nichts veröffentlicht." });
+    const summary = c.summary(c.split(md, deps));
+    await gh.putFile(env, c.path, md, `Dashboard: ${c.title} – ${summary}`, current && current.sha);
+    await cache(env, key, md, session.email);
+  } catch (e) { return json({ error: e.message }, 502); }
   return json(await state(env, deps));
 }
 
-async function saveLinks(request, env, deps, session) {
-  const body = await readJson(request);
-  const rows = Array.isArray(body.rows) ? body.rows : null;
-  if (!rows || rows.length > 20) return json({ error: "Ungültig (höchstens 20 Links)." }, 400);
-  const clean = [], seen = new Set();
-  for (const [i, r] of rows.entries()) {
-    const n = i + 1;
-    const id = String(r.id || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const when = String(r.when || "").trim(), de = String(r.de || "").trim(), en = String(r.en || "").trim() || de;
-    let url = String(r.url || "").trim();
-    if (!id) return json({ error: `Zeile ${n}: Kennung fehlt (Buchstaben, Ziffern, Bindestrich).` }, 400);
-    if (seen.has(id)) return json({ error: `Zeile ${n}: Kennung „${id}“ kommt doppelt vor.` }, 400);
-    if (!when || !de) return json({ error: `Zeile ${n}: „Wann“ und „Text DE“ brauchen Inhalt.` }, 400);
-    if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
-    try { const u = new URL(url); if (u.protocol !== "https:") throw 0; url = u.href; } catch { return json({ error: `Zeile ${n}: Adresse muss mit https:// beginnen.` }, 400); }
-    if ([id, when, de, en].some(v => v.length > 200) || url.length > 500) return json({ error: `Zeile ${n}: zu lang.` }, 400);
-    seen.add(id); clean.push({ id, when, de, en, url });
-  }
-  const md = joinLinks(clean);
-  if (deps.parseLinks(md).length !== clean.length) return json({ error: "Interner Fehler beim Zusammenbau der Tabelle." }, 500);
-  await publish(env, "links", md, deps.linksFile, session);
+// Vorige Fassung: Inhalt des vorletzten Commits dieser Datei als neuen Commit schreiben (nichts wird gelöscht).
+async function restore(key, env, deps, session) {
+  if (!gh.configured(env)) return json({ error: "GitHub-Schlüssel fehlt." }, 503);
+  const c = CONTENT[key];
+  try {
+    const h = await gh.history(env, c.path, 2);
+    if (h.length < 2) return json({ error: "Keine vorige Fassung vorhanden." }, 400);
+    const prev = await gh.getFile(env, c.path, h[1].sha);
+    const current = await gh.getFile(env, c.path);
+    if (!prev) return json({ error: "Vorige Fassung nicht lesbar." }, 400);
+    await gh.putFile(env, c.path, prev.content, `Dashboard: ${c.title} – vorige Fassung wiederhergestellt`, current && current.sha);
+    await cache(env, key, prev.content, session.email);
+  } catch (e) { return json({ error: e.message }, 502); }
   return json(await state(env, deps));
 }
 
-async function publish(env, what, md, fileVersion, session) {
-  const current = await env.USAGE.get("content:" + what);
-  await env.USAGE.put("content:" + what + ":prev", current || fileVersion);
-  await env.USAGE.put("content:" + what, md);
-  await env.USAGE.put("content:" + what + ":meta", JSON.stringify({ at: new Date().toISOString(), by: session.email }));
-}
-
-async function restore(request, env, deps) {
-  const body = await readJson(request);
-  const what = body.what === "links" ? "links" : body.what === "aktuell" ? "aktuell" : null;
-  if (!what) return json({ error: "Ungültig." }, 400);
-  if (body.toFile === true) {
-    await Promise.all(["", ":prev", ":meta"].map(s => env.USAGE.delete("content:" + what + s)));
-    return json(await state(env, deps));
-  }
-  const prev = await env.USAGE.get("content:" + what + ":prev");
-  if (!prev) return json({ error: "Keine vorige Fassung vorhanden." }, 400);
-  const current = await env.USAGE.get("content:" + what);
-  await env.USAGE.put("content:" + what, prev);
-  await env.USAGE.put("content:" + what + ":prev", current || (what === "links" ? deps.linksFile : deps.aktuellFile));
-  await env.USAGE.put("content:" + what + ":meta", JSON.stringify({ at: new Date().toISOString(), by: "Wiederherstellung" }));
-  return json(await state(env, deps));
+async function cache(env, key, md, by) {
+  await env.USAGE.put("content:" + key, md);
+  await env.USAGE.put("content:" + key + ":meta", JSON.stringify({ at: new Date().toISOString(), by }));
+  await env.USAGE.delete("content:checked").catch(() => {});
 }
 
 // ---------- Helfer ----------
@@ -250,15 +272,14 @@ ul.q .n{min-width:36px;color:var(--muted);font-variant-numeric:tabular-nums}ul.q
 
 const LOGIN = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Goch – Anmeldung</title><style>${STYLE}</style></head>
 <body><main class="login"><h1>GOCH · DASHBOARD</h1><p class="sub">Anmeldung mit Einmal-Code per E-Mail.</p>
-<section id="step1"><label for="email">Deine E-Mail-Adresse</label><input id="email" type="email" autocomplete="email" autofocus>
-<div class="bar"><button id="send">Code schicken</button><span class="msg" id="m1"></span></div></section>
+<section id="step1"><p class="note" style="margin:0 0 6px">Der Code geht an Robins hinterlegte Adresse.</p>
+<div class="bar" style="margin:0"><button id="send" autofocus>Code schicken</button><span class="msg" id="m1"></span></div></section>
 <section id="step2" hidden><label for="code">Code aus der E-Mail (sechs Ziffern, zehn Minuten gültig)</label><input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
 <div class="bar"><button id="go">Anmelden</button><button class="quiet" id="again">Neuen Code</button><span class="msg" id="m2"></span></div></section>
 <script>
 const $=id=>document.getElementById(id);
 async function post(p,b){const r=await fetch(p,{method:'POST',headers:{'content-type':'application/json','x-goch-admin':'1'},body:JSON.stringify(b)});return {ok:r.ok,...(await r.json().catch(()=>({})))};}
-$('send').onclick=async()=>{$('send').disabled=true;await post('/admin/login',{email:$('email').value});$('step1').hidden=true;$('step2').hidden=false;$('code').focus();};
-$('email').onkeydown=e=>{if(e.key==='Enter')$('send').click();};
+$('send').onclick=async()=>{$('send').disabled=true;await post('/admin/login',{});$('step1').hidden=true;$('step2').hidden=false;$('code').focus();};
 $('again').onclick=()=>{$('step2').hidden=true;$('step1').hidden=false;$('send').disabled=false;$('m2').textContent='';};
 $('go').onclick=async()=>{const r=await post('/admin/verify',{code:$('code').value});if(r.ok)location.reload();else{$('m2').className='msg warn';$('m2').textContent=r.error||'Fehler';}};
 $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click();};
@@ -267,7 +288,8 @@ $('code').onkeydown=e=>{if(e.key==='Enter')$('go').click();};
 const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Goch – Dashboard</title><style>${STYLE}</style></head>
 <body><main>
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h1>GOCH · DASHBOARD</h1><button class="quiet" id="logout">Abmelden</button></div>
-<p class="sub">Was du hier veröffentlichst, ist innerhalb einer Minute live. Die Dateien im Repository bleiben als Rückfallebene.</p>
+<p class="sub">Was du hier veröffentlichst, wird als Änderung im Repository gespeichert und ist für Goch innerhalb einer Minute live.</p>
+<p class="note" id="ghnote" hidden style="border:1px solid var(--warn);border-radius:8px;padding:10px 12px;color:var(--warn)"></p>
 
 <section><h2>Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
@@ -281,12 +303,12 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <section><h2>Woran Robin gerade arbeitet</h2><p class="src" id="asrc"></p>
 <label for="stand">Stand (TT.MM.JJJJ)</label><input id="stand" style="max-width:160px">
 <div class="row"><div><label for="de">Deutsch</label><textarea id="de"></textarea></div><div><label for="en">English</label><textarea id="en"></textarea></div></div>
-<div class="bar"><button id="saveA">Veröffentlichen</button><button class="quiet" id="prevA">Vorige Fassung</button><button class="quiet" id="fileA">Auf Datei zurücksetzen</button><span class="msg" id="mA"></span></div>
+<div class="bar"><button id="saveA">Veröffentlichen</button><button class="quiet" id="prevA">Vorige Fassung</button><a class="note" id="histA" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mA"></span></div>
 <p class="note">Nummerierte Punkte, Fettdruck mit ** ** ist erlaubt. Beide Sprachen dieselben Punkte.</p></section>
 
 <section><h2>Links, die Goch anbieten darf</h2><p class="src" id="lsrc"></p>
 <table><thead><tr><th style="width:12%">Kennung</th><th style="width:30%">Wann passt der Link</th><th style="width:19%">Text DE</th><th style="width:19%">Text EN</th><th>Adresse (https)</th><th></th></tr></thead><tbody id="rows"></tbody></table>
-<div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><button class="quiet" id="fileL">Auf Datei zurücksetzen</button><span class="msg" id="mL"></span></div>
+<div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
 <script>
@@ -295,7 +317,7 @@ const H={'content-type':'application/json','x-goch-admin':'1'};
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}
 function fmt(iso){if(!iso)return '';const d=new Date(iso);return d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' Uhr';}
-function src(meta,source){return source==='dashboard'?'Quelle: <b>Dashboard</b>, veröffentlicht '+fmt(meta&&meta.at):'Quelle: <b>Datei im Repository</b> – noch nichts über das Dashboard veröffentlicht.';}
+function src(c){if(c.error)return 'Repository nicht erreichbar: '+esc(c.error);if(!c.meta)return 'Quelle: <b>mitgelieferte Datei</b> (GitHub-Schlüssel fehlt).';const l=c.meta.last;return l?'Zuletzt geändert '+fmt(l.date)+' – „'+esc(l.message)+'“':'Im Repository, noch ohne Verlauf.';}
 let S=null;
 function render(s){S=s;
  const today=new Date().toISOString().slice(0,10);const t=s.usage.find(u=>u.date===today);$('today').textContent=t?t.n:0;$('perDay').textContent=s.limits.perDay;
@@ -307,18 +329,19 @@ function render(s){S=s;
  $('meta').textContent='Modell '+s.model+' · Profil '+s.profileWords+' Wörter (≈ '+Math.round(s.profileWords*4.4/100)*100+' Tokens) · Grenzen: '+s.limits.perHour+' je Stunde und Adresse, '+s.limits.turns+' Fragen je Gespräch.';
  $('qs').innerHTML=s.unanswered.map(q=>'<li><span class="n">'+q.n+'×</span><span class="lang">'+q.lang+'</span><span style="flex:1">'+esc(q.q)+'</span><span class="note">'+q.last+'</span><button class="x" title="erledigt" data-k="'+esc(q.key)+'">✓</button></li>').join('');
  $('qnote').textContent=s.unanswered.length?'✓ entfernt die Frage aus der Liste – wenn du sie ins Profil aufgenommen hast oder sie nichts für Goch ist.':'Nichts offen.';
- $('asrc').innerHTML=src(s.aktuell.meta,s.aktuell.source);$('stand').value=s.aktuell.stand;$('de').value=s.aktuell.de;$('en').value=s.aktuell.en;$('prevA').disabled=!s.aktuell.hasPrev;$('fileA').disabled=s.aktuell.source!=='dashboard';
- $('lsrc').innerHTML=src(s.links.meta,s.links.source);$('rows').innerHTML='';s.links.rows.forEach(addRow);$('prevL').disabled=!s.links.hasPrev;$('fileL').disabled=s.links.source!=='dashboard';}
+ $('ghnote').hidden=s.github;$('ghnote').textContent='Veröffentlichen ist noch nicht freigeschaltet: Der GitHub-Schlüssel fehlt im Worker. Lesen geht, Schreiben noch nicht.';
+ const A=s.content.aktuell,L=s.content.links;
+ $('asrc').innerHTML=src(A);$('stand').value=A.fields.stand;$('de').value=A.fields.de;$('en').value=A.fields.en;$('prevA').disabled=!(A.meta&&A.meta.hasPrev);$('saveA').disabled=!s.github;$('histA').href=A.historyUrl;$('histA').hidden=!A.historyUrl;
+ $('lsrc').innerHTML=src(L);$('rows').innerHTML='';L.fields.rows.forEach(addRow);$('prevL').disabled=!(L.meta&&L.meta.hasPrev);$('saveL').disabled=!s.github;$('histL').href=L.historyUrl;$('histL').hidden=!L.historyUrl;}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function addRow(r={}){const tr=document.createElement('tr');tr.innerHTML=['id','when','de','en','url'].map(k=>'<td><input data-k="'+k+'" value="'+esc(r[k]||'')+'"'+(k==='url'?' placeholder="https://…"':'')+'></td>').join('')+'<td><button class="x" title="Zeile entfernen">×</button></td>';tr.querySelector('.x').onclick=()=>tr.remove();$('rows').append(tr);}
 function rows(){return [...$('rows').querySelectorAll('tr')].map(tr=>Object.fromEntries([...tr.querySelectorAll('input')].map(i=>[i.dataset.k,i.value])));}
 $('addRow').onclick=()=>addRow();
-$('saveA').onclick=async()=>{if(!confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))return;try{render(await api('aktuell','PUT',{stand:$('stand').value,de:$('de').value,en:$('en').value}));say('mA','Veröffentlicht.',true);}catch(e){say('mA',e.message);}};
-$('saveL').onclick=async()=>{if(!confirm('Links jetzt veröffentlichen?'))return;try{render(await api('links','PUT',{rows:rows()}));say('mL','Veröffentlicht.',true);}catch(e){say('mL',e.message);}};
-$('prevA').onclick=async()=>{if(!confirm('Vorige Fassung von „Aktuell“ wiederherstellen?'))return;try{render(await api('restore','POST',{what:'aktuell'}));say('mA','Vorige Fassung ist live.',true);}catch(e){say('mA',e.message);}};
-$('prevL').onclick=async()=>{if(!confirm('Vorige Fassung der Links wiederherstellen?'))return;try{render(await api('restore','POST',{what:'links'}));say('mL','Vorige Fassung ist live.',true);}catch(e){say('mL',e.message);}};
-$('fileA').onclick=async()=>{if(!confirm('Dashboard-Fassung verwerfen und wieder die Datei aus dem Repository verwenden?'))return;try{render(await api('restore','POST',{what:'aktuell',toFile:true}));say('mA','Datei ist wieder live.',true);}catch(e){say('mA',e.message);}};
-$('fileL').onclick=async()=>{if(!confirm('Dashboard-Fassung verwerfen und wieder die Datei aus dem Repository verwenden?'))return;try{render(await api('restore','POST',{what:'links',toFile:true}));say('mL','Datei ist wieder live.',true);}catch(e){say('mL',e.message);}};
+async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
+$('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
+$('saveL').onclick=()=>{if(confirm('Links jetzt veröffentlichen?'))publish('links','mL',{rows:rows()});};
+$('prevA').onclick=async()=>{if(!confirm('Vorige Fassung von „Aktuell“ wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/aktuell','POST'));say('mA','Vorige Fassung ist live.',true);}catch(e){say('mA',e.message);}};
+$('prevL').onclick=async()=>{if(!confirm('Vorige Fassung der Links wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/links','POST'));say('mL','Vorige Fassung ist live.',true);}catch(e){say('mL',e.message);}};
 $('qs').onclick=async e=>{const b=e.target.closest('button[data-k]');if(!b)return;try{await api('unanswered','DELETE',{key:b.dataset.k});render(await api('state'));}catch(err){say('mA',err.message);}};
 $('logout').onclick=async()=>{await fetch('/admin/logout',{method:'POST',headers:H});location.reload();};
 api('state').then(s=>s&&render(s)).catch(e=>alert(e.message));
