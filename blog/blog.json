@@ -1,8 +1,8 @@
 {
-  "enabled": false,
+  "enabled": true,
   "title": {
-    "de": "Blog",
-    "en": "Blog"
+    "de": "Neuigkeiten",
+    "en": "News"
   },
   "intro": {
     "de": "",
