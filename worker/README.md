@@ -133,5 +133,9 @@ Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag i
 (`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung.
 Das Profil bleibt Datei mit Deploy (`profile.md`). GitHub-Zugriff: `src/github.js`.
 
+**Blog:** `src/blog.js` – Einstellungen und Beiträge lesen/prüfen, Markdown-Teilmenge rendern, Liste,
+Beitragsseiten, RSS und Startseitenverweis bauen; `rebuild()` in `src/admin.js` schreibt Quelle und
+erzeugte Seiten als einen Commit (`commitFiles`, Git-Data-API). Vorschau über `/admin/api/blog/preview`.
+
 **Lokal arbeiten:** Vor Änderungen an `worker/aktuell.md` oder `worker/links.md` erst `git pull`,
 weil das Dashboard direkt auf `main` schreibt.

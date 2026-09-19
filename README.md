@@ -240,3 +240,17 @@ den Absatz anpassen.
 `python3 tests/goch_test.py http://localhost:8788/ http://localhost:8787` (14 Gruppen, u. a. Links aus `worker/links.md`, keine
 Anfrage vor Einwilligung, Nachricht kommt an, Serverfehler, Escape, Englisch, Handy). Die
 Flug-Tests (`tests/im-browser.html`) und `tests/consent_test.py` bleiben unverändert gültig.
+
+## Blog
+
+Gepflegt in der Redaktion (`https://rjl-goch.rjl.workers.dev/admin`, Abschnitt „Blog“), gespeichert im
+Repository: `blog/blog.json` (Schalter, Titel DE/EN, Einleitung) und `blog/posts/<slug>.md` (Kopfzeilen
+`title`, `date`, `lang`, `status`, `summary`, dann Text). Der Worker baut daraus `blog/index.html`,
+`blog/<slug>/index.html` und `blog/feed.xml` im Stil der Visitenkarte und setzt den Verweis oben links
+auf der Startseite zwischen `<!-- redaktion:blog-link -->` und `<!-- /redaktion:blog-link -->` – alles
+als ein Commit (`worker/src/blog.js`, `worker/src/github.js`). Sichtbar nur, wenn der Schalter an ist
+**und** mindestens ein Beitrag veröffentlicht ist; sonst sind `/blog/` und der Feed nicht erreichbar.
+Markdown ist eine kleine, maskierte Teilmenge (Überschriften ##/###, fett, kursiv, Listen, Zitat,
+Links und Bilder mit https, Trennlinie); kein HTML aus dem Text. Entwürfe stehen nicht auf der Seite,
+liegen aber als Datei im öffentlichen Repository. Die Marken in `index.html` nicht entfernen.
+`.nojekyll` sorgt dafür, dass GitHub Pages die erzeugten Dateien unverändert ausliefert.
