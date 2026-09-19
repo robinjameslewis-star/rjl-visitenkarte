@@ -253,6 +253,21 @@ async def main():
             check((await ev(state))['open'], "Sprechblase offen")
             await send("Emulation.setEmulatedMedia", {"features": []})
 
+            print("14. Nachricht schreiben (Kontaktformular)")
+            await goto(BASE + '?t=14')
+            await ev("document.getElementById('nachricht').scrollIntoView()")
+            check(await ev("document.querySelector('.site-nav a[href=\"#nachricht\"]') !== null"), "Verweis „Nachricht“ in der Leiste")
+            await ev("document.getElementById('msg-name').value='Anna Test'; document.getElementById('msg-email').value='anna@example.org'; document.getElementById('msg-text').value='kurz'; document.getElementById('message-form').requestSubmit()")
+            await asyncio.sleep(0.8)
+            check((await ev("document.getElementById('msg-status').textContent")).startswith('Bitte Name'), "zu kurze Nachricht wird vor dem Senden abgefangen")
+            before = len(json.load(urllib.request.urlopen(FAKE + '/_contact')))
+            await ev("document.getElementById('msg-phone').value='07433 1234'; document.getElementById('msg-text').value='Hallo Robin, das ist eine Testnachricht über das Formular.'; document.getElementById('message-form').requestSubmit()")
+            await asyncio.sleep(1.5)
+            check((await ev("document.getElementById('msg-status').textContent")).startswith('Danke'), f"Bestätigung nach dem Senden ({await ev('document.getElementById(\'msg-status\').textContent')})")
+            got = json.load(urllib.request.urlopen(FAKE + '/_contact'))
+            check(len(got) == before + 1 and got[-1]['email'] == 'anna@example.org' and got[-1]['phone'] == '07433 1234' and got[-1]['lang'] == 'de', f"Attrappe hat die Nachricht mit Telefon erhalten ({got[-1:]})")
+            check(await ev("document.getElementById('msg-text').value") == '', "Formular nach dem Senden geleert")
+
             print("13. Konsole")
             check(console == [], f"keine Konsolenfehler ({console[:3]})")
     finally:

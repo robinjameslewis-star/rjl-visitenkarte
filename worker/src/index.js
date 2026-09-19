@@ -11,6 +11,7 @@ import AKTUELL from "../aktuell.md";
 import LINKS_MD from "../links.md";
 import { handleAdmin } from "./admin.js";
 import { raw as githubRaw } from "./github.js";
+import { handleContact } from "./contact.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -73,8 +74,10 @@ export default {
       return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD },
         profileWords: PROFILE.split(/\s+/).filter(Boolean).length });
     }
-    if (request.method !== "POST" || url.pathname !== "/chat") return json({ error: "Nicht gefunden." }, 404, cors);
+    if (request.method !== "POST" || (url.pathname !== "/chat" && url.pathname !== "/contact")) return json({ error: "Nicht gefunden." }, 404, cors);
     if (allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
+    // Kontaktformular: zweiter Eingang neben Goch, gleiche Zustellung per Resend (src/contact.js)
+    if (url.pathname === "/contact") return handleContact(request, env, ctx, cors);
 
     // Eingabe
     let body; try { body = await request.json(); } catch { return json({ error: "Ungültige Anfrage." }, 400, cors); }

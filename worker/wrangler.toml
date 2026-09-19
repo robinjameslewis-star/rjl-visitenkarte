@@ -20,6 +20,7 @@ MAX_PER_DAY = "60"                   # harte Tagesgrenze über KV (Zähler USAGE
 MAX_INPUT_CHARS = "600"
 MAX_TURNS = "8"                      # Fragen je Gespräch ans Modell; danach nur noch der Draht (ohne Modell)
 MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
+MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
 # Der Draht: Versand über Resend. Secret: npx wrangler secret put RESEND_API_KEY
 MAIL_TO = "robinjameslewis@googlemail.com"
 MAIL_FROM = "Goch <onboarding@resend.dev>"  # mit eigener Domain: verifizierte Absenderadresse

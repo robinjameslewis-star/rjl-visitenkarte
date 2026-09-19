@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
 SENT = []
+CONTACT = []  # über das Formular „versendete“ Nachrichten
 LAST = {}  # zuletzt empfangener Anfragekörper, für Tests des Verlaufs
 
 REPLIES = {
@@ -60,11 +61,22 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/_sent': return self.reply(SENT)
         if self.path == '/_last': return self.reply(LAST)
+        if self.path == '/_contact': return self.reply(CONTACT)
         if self.path == '/':
             self.send_response(200); self.cors(); self.send_header('Content-Type', 'text/plain'); self.end_headers(); self.wfile.write(b'Goch'); return
         self.reply({'error': 'Nicht gefunden.'}, 404)
 
     def do_POST(self):
+        if self.path == '/contact':  # Kontaktformular: prüfen wie der echte Worker, nur ohne Zeitprüfung und Versand
+            try:
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0)) or b'{}'))
+            except Exception:
+                return self.reply({'error': 'Ungültige Anfrage.'}, 400)
+            if body.get('website'): return self.reply({'ok': True})
+            if len(body.get('name', '')) < 2 or '@' not in body.get('email', '') or len(body.get('message', '')) < 10:
+                return self.reply({'error': 'Bitte Name, eine gültige E-Mail-Adresse und eine Nachricht angeben.'}, 400)
+            CONTACT.append({k: body.get(k, '') for k in ('name', 'email', 'phone', 'message', 'lang')})
+            return self.reply({'ok': True})
         if self.path != '/chat': return self.reply({'error': 'Nicht gefunden.'}, 404)
         try:
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0)) or b'{}'))
