@@ -156,6 +156,10 @@ dessen Quelltext per `${blog.makeRenderer.toString()}` in `PAGE` steht. Die Fabr
 von außerhalb verwenden (esc, inline, renderMarkdown, YT, dateText liegen alle darin). Eigenes Fenster:
 `window.open` + `document.write(hülle)`, gleiches Neuzeichnen; ein Intervall merkt das Schließen.
 CSP `frame-src` erlaubt `youtube-nocookie.com`, damit „Video laden“ auch in der Vorschau geht.
+**Vor jedem Deploy `node tests/bundle_check.mjs`** – prüft das gebündelte Paket, nicht den Quelltext:
+esbuild schleust mit `keep_names` (Wrangler-Standard) `__name(...)`-Aufrufe in Funktionen ein; im
+Browser fehlte dieser Helfer, das Seitenskript brach ab und das Dashboard war leer (19.09.2026).
+Darum `keep_names = false` in `wrangler.toml`, ein Schutz im Seitenskript und diese Prüfung.
 `PAGE` ist exportiert, damit `tests/admin_fake.mjs` die Seite ohne Anmeldung ausliefern kann.
 Achtung bei Änderungen am Seitenskript: Es steht in einem Template-Literal – `\n` und Regex-Escapes
 müssen dort doppelt (`\\n`) geschrieben werden; die Syntaxprüfung der eingebetteten Skripte

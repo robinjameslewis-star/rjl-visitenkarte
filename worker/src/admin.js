@@ -797,11 +797,13 @@ $('prurl').oninput=()=>{$('mR').textContent='';};
 // ---- Live-Vorschau: derselbe Renderer wie im Worker (makeRenderer aus blog.js), hier im Browser ----
 // Die Seitenhülle (Design der Website) kommt einmal vom Worker; danach wird nur der Artikel neu gezeichnet –
 // im Rahmen rechts bzw. unten und, auf Wunsch, in einem eigenen Fenster für den zweiten Bildschirm.
-const R=(${blog.makeRenderer.toString()})();
+// Der Bündler (esbuild) darf hier keine Helfer wie __name einschleusen – wrangler.toml: keep_names = false;
+// zur Sicherheit ein Schutz, damit ein Fehler im Renderer nie das übrige Dashboard lahmlegt.
+window.__name=window.__name||(f=>f);let R=null;try{R=(${blog.makeRenderer.toString()})();}catch(e){console.error('Vorschau-Renderer',e);}
 let pvShell='',pvWin=null,pvTimer=null,pvWatch=null;
 const pvOff=()=>{try{return localStorage.getItem('redaktion:vorschau')==='aus';}catch(e){return false;}};
 function pvLayout(){const off=pvOff(),win=!!(pvWin&&!pvWin.closed);$('ed').classList.toggle('nopv',off||win);$('bpvshow').hidden=!off||win;document.body.classList.toggle('editing',!$('beditor').hidden&&!off&&!win);}
-function articleHtml(){const d=postBody();const lang=d.lang==='en'?'en':'de';const date=/^\\d{4}-\\d{2}-\\d{2}$/.test(d.date)?d.date:new Date().toISOString().slice(0,10);const site=B?B.url.replace(/blog\\/$/,''):'';
+function articleHtml(){if(!R)return '<p class="meta">Live-Vorschau nicht verfügbar – bitte Robin Bescheid geben.</p>';const d=postBody();const lang=d.lang==='en'?'en':'de';const date=/^\\d{4}-\\d{2}-\\d{2}$/.test(d.date)?d.date:new Date().toISOString().slice(0,10);const site=B?B.url.replace(/blog\\/$/,''):'';
  return '<h1>'+R.esc(d.title||'Ohne Titel')+'</h1>\\n<p class="meta"><time datetime="'+date+'">'+R.dateText(date,lang)+'</time></p>\\n'+R.renderMarkdown(d.body,site+'blog/',lang);}
 function paint(doc){if(!doc)return;const art=doc.querySelector('article');if(!art)return;const lang=$('plang').value==='en'?'en':'de';art.innerHTML=articleHtml();art.lang=lang;doc.documentElement.lang=lang;doc.title=($('ptitle').value||'Ohne Titel')+' – Vorschau';
  doc.querySelectorAll('.yt-play').forEach(b=>{b.onclick=()=>{const box=b.closest('.yt'),f=doc.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+box.dataset.video+'?autoplay=1&rel=0';f.title=box.dataset.title;f.allow='autoplay; encrypted-media; picture-in-picture';f.allowFullscreen=true;box.replaceChildren(f);box.classList.add('yt-on');};});}

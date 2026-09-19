@@ -2,6 +2,8 @@
 # Deploy:  cd worker && npx wrangler login && npx wrangler deploy
 # Der Schlüssel liegt nie im Seitencode. Anbieter per PROVIDER umschalten.
 name = "rjl-goch"
+# Kein __name-Helfer von esbuild: makeRenderer() aus blog.js wird als Quelltext in die Redaktionsseite eingebettet.
+keep_names = false
 main = "src/index.js"
 compatibility_date = "2026-09-01"
 
