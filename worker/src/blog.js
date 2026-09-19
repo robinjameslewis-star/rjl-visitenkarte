@@ -8,6 +8,9 @@
 export const POSTS_DIR = "blog/posts";
 export const SETTINGS_PATH = "blog/blog.json";
 const LINK_START = "<!-- redaktion:blog-link -->", LINK_END = "<!-- /redaktion:blog-link -->";
+const SECTION_START = "<!-- redaktion:blog-section -->", SECTION_END = "<!-- /redaktion:blog-section -->";
+export const IMAGES_DIR = "blog/bilder";
+const TEASER_COUNT = 5;
 
 export const DEFAULT_SETTINGS = { enabled: false, title: { de: "Blog", en: "Blog" }, intro: { de: "", en: "" } };
 
@@ -68,10 +71,13 @@ export function composePost(p) {
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeUrl = u => /^(https?:\/\/|mailto:)/i.test(u) ? u : null;
+// Bildadressen: hochgeladene Bilder heißen im Text „bilder/name.jpg“; imgBase ist der Weg zum Ordner blog/
+// von der jeweiligen Seite aus (Beitrag: ../, Vorschau: absolute Adresse); sonst nur https.
+const imageUrl = (u, imgBase) => /^bilder\/[a-z0-9._-]+$/i.test(u) ? (imgBase || "") + u : safeUrl(u);
 
-export function inline(text) {
+export function inline(text, imgBase) {
   let s = esc(text);
-  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => safeUrl(url) ? `<img src="${esc(url)}" alt="${alt}" loading="lazy">` : alt);
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => { const src = imageUrl(url, imgBase); return src ? `<img src="${esc(src)}" alt="${alt}" loading="lazy">` : alt; });
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, url) => safeUrl(url) ? `<a href="${esc(url)}"${/^https?:/i.test(url) ? ' rel="noopener"' : ""}>${label}</a>` : label);
   s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
   s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
@@ -79,20 +85,25 @@ export function inline(text) {
   return s;
 }
 
-export function renderMarkdown(md) {
+export function renderMarkdown(md, imgBase) {
   const blocks = String(md).replace(/\r\n?/g, "\n").split(/\n{2,}/).map(b => b.replace(/^\n+|\n+$/g, "")).filter(Boolean);
   const out = [];
   for (const block of blocks) {
     const lines = block.split("\n");
-    if (/^#{2,3}\s/.test(lines[0]) && lines.length === 1) { const level = lines[0].match(/^(#+)/)[1].length; out.push(`<h${level}>${inline(lines[0].replace(/^#+\s*/, ""))}</h${level}>`); continue; }
+    const il = t => inline(t, imgBase);
+    if (/^#{2,3}\s/.test(lines[0]) && lines.length === 1) { const level = lines[0].match(/^(#+)/)[1].length; out.push(`<h${level}>${il(lines[0].replace(/^#+\s*/, ""))}</h${level}>`); continue; }
     if (/^(---|\*\*\*)$/.test(block)) { out.push("<hr>"); continue; }
-    if (lines.every(l => /^>\s?/.test(l))) { out.push(`<blockquote>${renderMarkdown(lines.map(l => l.replace(/^>\s?/, "")).join("\n"))}</blockquote>`); continue; }
-    if (lines.every(l => /^[-*]\s+/.test(l))) { out.push("<ul>" + lines.map(l => `<li>${inline(l.replace(/^[-*]\s+/, ""))}</li>`).join("") + "</ul>"); continue; }
-    if (lines.every(l => /^\d+\.\s+/.test(l))) { out.push("<ol>" + lines.map(l => `<li>${inline(l.replace(/^\d+\.\s+/, ""))}</li>`).join("") + "</ol>"); continue; }
-    out.push(`<p>${lines.map(inline).join("<br>")}</p>`);
+    if (lines.every(l => /^>\s?/.test(l))) { out.push(`<blockquote>${renderMarkdown(lines.map(l => l.replace(/^>\s?/, "")).join("\n"), imgBase)}</blockquote>`); continue; }
+    if (lines.every(l => /^[-*]\s+/.test(l))) { out.push("<ul>" + lines.map(l => `<li>${il(l.replace(/^[-*]\s+/, ""))}</li>`).join("") + "</ul>"); continue; }
+    if (lines.every(l => /^\d+\.\s+/.test(l))) { out.push("<ol>" + lines.map(l => `<li>${il(l.replace(/^\d+\.\s+/, ""))}</li>`).join("") + "</ol>"); continue; }
+    // Ein Bild allein in einem Absatz steht frei, ohne <p>-Rand darum
+    if (lines.length === 1 && /^!\[[^\]]*\]\([^)\s]+\)$/.test(lines[0])) { const img = il(lines[0]); if (img.startsWith("<img")) { out.push(`<figure>${img}</figure>`); continue; } }
+    out.push(`<p>${lines.map(il).join("<br>")}</p>`);
   }
   return out.join("\n");
 }
+// Bilder, die ein Text verwendet (Dateinamen unter blog/bilder/)
+export const imagesUsed = md => [...String(md).matchAll(/!\[[^\]]*\]\(bilder\/([a-z0-9._-]+)\)/gi)].map(m => m[1]);
 export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
   .replace(/[*`#>]/g, "").replace(/\s+/g, " ").trim();
 
@@ -140,6 +151,7 @@ article blockquote { margin: 24px 0; padding: 2px 0 2px 18px; border-left: 2px s
 article blockquote p:last-child { margin-bottom: 0; }
 article hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
 article img { max-width: 100%; height: auto; display: block; margin: 24px 0; }
+article figure { margin: 28px 0; } article figure img { margin: 0; }
 article code { font: 15px/1.4 ui-monospace, Menlo, monospace; background: rgba(0,0,0,.04); padding: 1px 5px; border-radius: 3px; }
 article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 .list { list-style: none; margin: 0; padding: 0; }
@@ -171,7 +183,7 @@ export function renderPostPage(post, settings, siteUrl, base) {
   const main = `<article lang="${post.lang}">
 <h1>${esc(post.title)}</h1>
 <p class="meta"><time datetime="${post.date}">${dateText(post.date, post.lang)}</time></p>
-${renderMarkdown(post.body)}
+${renderMarkdown(post.body, base ? base + "blog/" : "../")}
 </article>`;
   return shell({ lang: post.lang, title: post.title, description: post.summary || plainText(post.body).slice(0, 160), depth: 2, main,
     siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base });
@@ -210,12 +222,31 @@ ${items}
 }
 
 // Startseite: Verweis zwischen den Marken setzen oder leeren. Liefert null, wenn nichts zu ändern ist.
-export function updateHomepage(html, link) {
-  const i = html.indexOf(LINK_START), j = html.indexOf(LINK_END);
-  if (i < 0 || j < 0 || j < i) throw new Error("Startseite hat keine Marken für den Blog-Verweis.");
-  const inner = link ? `<a href="blog/" data-title-de="${esc(link.de)}" data-title-en="${esc(link.en)}">${esc(link.de)}</a>` : "";
-  const next = html.slice(0, i + LINK_START.length) + inner + html.slice(j);
+function between(html, start, end, inner, what) {
+  const i = html.indexOf(start), j = html.indexOf(end);
+  if (i < 0 || j < 0 || j < i) throw new Error("Startseite hat keine Marken für " + what + ".");
+  return html.slice(0, i + start.length) + inner + html.slice(j);
+}
+export function updateHomepage(html, settings, posts) {
+  const visible = !!posts;
+  const link = visible ? `<a href="#blog" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a>` : "";
+  let next = between(html, LINK_START, LINK_END, link, "den Blog-Verweis");
+  next = between(next, SECTION_START, SECTION_END, visible ? teaser(settings, posts) : "", "den Blog-Abschnitt");
   return next === html ? null : next;
+}
+// Abschnitt unter dem Kalender: die neuesten Beiträge, Titel und Einleitung je Sprache umschaltbar (language.js)
+function teaser(settings, posts) {
+  const items = posts.slice(0, TEASER_COUNT).map(p => `      <li lang="${p.lang}"><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time>${p.lang === "en" ? "<span>English</span>" : ""}</span><a href="blog/${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
+  const intro = settings.intro.de || settings.intro.en ? `\n    <p class="lead" data-title-de="${esc(settings.intro.de || settings.intro.en)}" data-title-en="${esc(settings.intro.en || settings.intro.de)}">${esc(settings.intro.de || settings.intro.en)}</p>` : "";
+  return `
+  <section class="blog-teaser" id="blog" aria-labelledby="blog-title">
+    <h2 id="blog-title" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</h2>${intro}
+    <ul>
+${items}
+    </ul>
+    <p class="all"><a href="blog/" data-title-de="Alle Beiträge" data-title-en="All posts">Alle Beiträge</a></p>
+  </section>
+  `;
 }
 
 // Alles zusammen: aus Einstellungen, Beiträgen und Startseite die Dateiänderungen für einen Commit.
@@ -233,7 +264,7 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
   const keep = new Set(shown.map(p => p.slug));
   for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl) });
   for (const dir of existingDirs) if (dir !== "posts" && !keep.has(dir)) changes.push({ path: `blog/${dir}/index.html`, delete: true });
-  const home = updateHomepage(homepage, visible ? settings.title : null);
+  const home = updateHomepage(homepage, settings, visible ? published : null);
   if (home) changes.push({ path: "index.html", content: home });
   return { changes, visible, publishedCount: published.length };
 }

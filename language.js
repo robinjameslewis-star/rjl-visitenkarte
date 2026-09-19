@@ -21,6 +21,7 @@
       privacyRights: "Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.",
       privacyAuthority: "Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg",
 
+      navContact: 'Termin',
       contactTitle: 'Termin vereinbaren',
       contactLead: 'Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.',
       book: 'Termin vorschlagen', bookHint: ' – öffnet den Kalender in einem neuen Tab.',
@@ -65,6 +66,7 @@
       privacyRights: "Subject to the GDPR, rights include access, rectification, erasure, restriction, data portability and objection, especially to processing based on legitimate interests. Requests can be sent to the email address above. There is also a right to complain to a data protection authority.",
       privacyAuthority: "Data protection authority for Baden-Württemberg",
 
+      navContact: 'Appointment',
       contactTitle: 'Arrange an appointment',
       contactLead: 'By video, by phone, in Balingen or at a place of your choosing. Every booking is a proposal at first; I confirm each appointment personally.',
       book: 'Suggest a time', bookHint: ' — opens the calendar in a new tab.',

@@ -377,6 +377,25 @@ async function blogApi(api, request, env, deps, session, url) {
         `Redaktion: Beitrag „${post.title}“ gelöscht`);
       return json({ ...(await blogState(env, r)), note: "Gelöscht. Im Verlauf auf GitHub bleibt der Text erhalten." });
     }
+    if (api === "blog/images" && request.method === "GET") return json({ images: await listImages(env) });
+    if (api === "blog/image" && request.method === "POST") {
+      const body = await readJson(request);
+      const img = checkImage(body);
+      const base = blog.slugify(String(body.name || "bild").replace(/\.[a-z0-9]+$/i, "")).slice(0, 40) || "bild";
+      const existing = (await listImages(env)).map(i => i.name);
+      let name = `${base}.${img.ext}`, n = 2;
+      while (existing.includes(name)) name = `${base}-${n++}.${img.ext}`;
+      const c = await gh.commitFiles(env, [{ path: `${blog.IMAGES_DIR}/${name}`, base64: img.base64 }], `Redaktion: Bild „${name}“ hochgeladen`);
+      return json({ name, markdown: `![${String(body.alt || "").replace(/[\[\]]/g, "").slice(0, 120)}](bilder/${name})`, images: await listImages(env), commit: c.url });
+    }
+    if (api === "blog/image" && request.method === "DELETE") {
+      const name = String((await readJson(request)).name || "");
+      if (!/^[a-z0-9._-]+$/i.test(name)) return json({ error: "Ungültig." }, 400);
+      const used = (await loadBlog(env)).posts.filter(p => blog.imagesUsed(p.body).includes(name));
+      if (used.length) return json({ error: `Das Bild wird noch verwendet: „${used[0].title}“. Erst dort entfernen.` }, 400);
+      await gh.commitFiles(env, [{ path: `${blog.IMAGES_DIR}/${name}`, delete: true }], `Redaktion: Bild „${name}“ gelöscht`);
+      return json({ images: await listImages(env) });
+    }
     if (api === "blog/post/restore" && request.method === "POST") {
       const slug = blog.slugify((await readJson(request)).slug || "");
       const path = `${blog.POSTS_DIR}/${slug}.md`;
@@ -393,6 +412,27 @@ async function blogApi(api, request, env, deps, session, url) {
   } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
   return json({ error: "Nicht gefunden." }, 404);
 }
+
+async function listImages(env) {
+  return (await gh.listDir(env, blog.IMAGES_DIR)).filter(e => e.type === "file" && /\.(jpe?g|png|webp)$/i.test(e.name))
+    .map(e => ({ name: e.name, size: e.size || 0 })).sort((a, b) => a.name < b.name ? -1 : 1);
+}
+// Bilddaten prüfen: Base64, höchstens 1,5 MB, Typ an den ersten Bytes (JPEG, PNG, WebP) – nicht an der Endung.
+function checkImage(body) {
+  const data = String(body.data || "").replace(/^data:[^,]*,/, "");
+  if (!data || !/^[A-Za-z0-9+/=\s]+$/.test(data)) return fail("Keine Bilddaten erhalten.");
+  const bytes = Uint8Array.from(atob(data.replace(/\s/g, "")), c => c.charCodeAt(0));
+  if (bytes.length > 1.5 * 1024 * 1024) return fail("Bild zu groß (höchstens 1,5 MB nach dem Verkleinern).");
+  if (bytes.length < 100) return fail("Bild zu klein oder leer.");
+  const h = [...bytes.slice(0, 12)];
+  let ext = null;
+  if (h[0] === 0xFF && h[1] === 0xD8 && h[2] === 0xFF) ext = "jpg";
+  else if (h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4E && h[3] === 0x47) ext = "png";
+  else if (String.fromCharCode(...h.slice(0, 4)) === "RIFF" && String.fromCharCode(...h.slice(8, 12)) === "WEBP") ext = "webp";
+  if (!ext) return fail("Nur JPEG, PNG oder WebP.");
+  return { ext, base64: data.replace(/\s/g, "") };
+}
+function fail(msg) { throw new Error(msg); }
 
 async function loadBlog(env) {
   const file = await gh.getFile(env, blog.SETTINGS_PATH);
@@ -520,6 +560,11 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <label for="psummary">Kurzfassung (ein, zwei Sätze – steht in der Liste und im RSS)</label><input id="psummary" maxlength="300">
 <label for="pbody">Text</label><textarea id="pbody" style="min-height:360px;font-family:inherit;font-size:15px"></textarea>
 <p class="note">Absätze durch Leerzeile. <code>## Zwischenüberschrift</code>, <code>**fett**</code>, <code>*kursiv*</code>, <code>- Aufzählung</code>, <code>1. Nummerierung</code>, <code>&gt; Zitat</code>, <code>[Linktext](https://…)</code>, <code>![Bildbeschreibung](https://…)</code>. Mehr nicht – und nichts davon kann die Seite kaputtmachen.</p>
+<div style="margin:12px 0 0;padding:12px;border:1px dashed var(--line);border-radius:8px">
+<div class="bar" style="margin:0"><label class="quiet" style="display:inline-block;margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--ink);font-size:15px">Bild hochladen<input id="pimg" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+<input id="palt" placeholder="Bildbeschreibung (für Menschen, die das Bild nicht sehen)" style="flex:1;min-width:200px"><span class="msg" id="mI"></span></div>
+<p class="note" style="margin:8px 0 0">Das Bild wird im Browser auf höchstens 1600 Pixel verkleinert und ohne Aufnahmedaten (Ort, Kamera) gespeichert; im Text erscheint es an der Cursorstelle. Vorhandene Bilder:</p>
+<div id="pimgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div></div>
 <p class="note" id="pslug"></p>
 <div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpreview">Vorschau</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
 <iframe id="bframe" hidden title="Vorschau" style="width:100%;height:560px;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:12px"></iframe>
@@ -579,6 +624,15 @@ $('bpreview').onclick=async()=>{try{const d=await api('blog/preview','POST',post
 $('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);editing=r.slug;$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
 $('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);$('beditor').hidden=true;editing=null;say('mB',r.note,true);}catch(e){say('mP',e.message);}};
 $('bprev').onclick=async()=>{if(!editing||!confirm('Vorige Fassung dieses Beitrags wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{const r=await api('blog/post/restore','POST',{slug:editing});renderBlog(r);const d=await api('blog/post?slug='+encodeURIComponent(editing));openEditor(d.post,d);say('mP',r.note,true);}catch(e){say('mP',e.message);}};
+// ---- Bilder ----
+function insertAtCursor(text){const t=$('pbody');const a=t.selectionStart||0,b=t.selectionEnd||0;const before=t.value.slice(0,a),after=t.value.slice(b);const pad=before&&!before.endsWith('\\n\\n')?(before.endsWith('\\n')?'\\n':'\\n\\n'):'';t.value=before+pad+text+'\\n\\n'+after;t.focus();const pos=(before+pad+text).length;t.setSelectionRange(pos,pos);}
+function renderImages(list){$('pimgs').innerHTML=list.length?list.map(i=>'<span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12px"><img src="'+esc(B.url)+'bilder/'+esc(i.name)+'" alt="" style="height:36px;width:48px;object-fit:cover;border-radius:3px;background:#eee"><span>'+esc(i.name)+'</span><button class="quiet" data-ins="'+esc(i.name)+'" style="padding:2px 8px;font-size:12px">einfügen</button><button class="x" data-del="'+esc(i.name)+'" title="Bild löschen">×</button></span>').join(''):'<span class="note">noch keine</span>';}
+async function shrink(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('Bild nicht lesbar.'));i.src=url;});
+ const max=1600,k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));const w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+ const png=file.type==='image/png'&&file.size<400000;const data=c.toDataURL(png?'image/png':'image/jpeg',0.84);return data;}finally{URL.revokeObjectURL(url);}}
+$('pimg').onchange=async()=>{const f=$('pimg').files[0];if(!f)return;$('mI').className='msg';$('mI').textContent='wird hochgeladen …';try{const data=await shrink(f);const r=await api('blog/image','POST',{name:f.name,alt:$('palt').value,data});insertAtCursor(r.markdown);renderImages(r.images);$('palt').value='';say('mI','Bild gespeichert und eingefügt.',true);}catch(e){say('mI',e.message);}finally{$('pimg').value='';}};
+$('pimgs').onclick=async e=>{const ins=e.target.closest('button[data-ins]');if(ins){insertAtCursor('!['+($('palt').value||'')+'](bilder/'+ins.dataset.ins+')');return;}const del=e.target.closest('button[data-del]');if(del&&confirm('Bild „'+del.dataset.del+'“ löschen? Geht nur, wenn kein Beitrag es verwendet.')){try{const r=await api('blog/image','DELETE',{name:del.dataset.del});renderImages(r.images);}catch(err){say('mI',err.message);}}};
+const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
 api('blog').then(b=>b&&renderBlog(b)).catch(e=>{$('bsrc').textContent='Blog nicht ladbar: '+e.message;});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}

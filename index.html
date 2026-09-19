@@ -151,11 +151,25 @@
   .contact { max-width: 980px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
   .contact > h2, .contact > .lead { max-width: 560px; }
   .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
+  /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
+  .blog-teaser { max-width: 980px; margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .blog-teaser > h2 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; max-width: 560px; }
+  .blog-teaser p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
+  .blog-teaser ul { list-style: none; margin: 0; padding: 0; max-width: 560px; }
+  .blog-teaser li { padding: 16px 0; border-top: 1px solid var(--line); }
+  .blog-teaser li:last-child { border-bottom: 1px solid var(--line); }
+  .blog-teaser .when { display: block; font-size: 13px; color: var(--ink-muted); margin-bottom: 2px; }
+  .blog-teaser .when span { margin-left: 8px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
+  .blog-teaser li a { font: 400 clamp(19px, 2.2vw, 23px)/1.3 var(--serif); color: var(--green); text-decoration: none; }
+  .blog-teaser li a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+  .blog-teaser li p { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; max-width: 60ch; }
+  .blog-teaser .all { margin: 18px 0 0; font-size: 15px; }
+  .blog-teaser .all a { color: var(--ink); text-decoration: none; border-bottom: 1px solid #D97932; padding-bottom: 1px; }
+  .blog-teaser .all a:hover { border-bottom-width: 2px; }
 
   .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
   /* Verweis auf den Blog, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken; leer = unsichtbar */
-  .site-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; }
-  .site-nav:empty { display: none; }
+  .site-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 14px; }
   .site-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; text-decoration: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
   .site-nav a:hover { color: var(--green); }
   .site-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
@@ -194,7 +208,7 @@
 </head>
 <body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-version="20260918b">
 
-<nav class="site-nav" aria-label="Seiten"><!-- redaktion:blog-link --><!-- /redaktion:blog-link --></nav>
+<nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><!-- /redaktion:blog-link --></nav>
 <nav class="language-nav" aria-label="Sprache">
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
   <span aria-hidden="true">/</span>
@@ -259,6 +273,7 @@
     </div>
 
   </section>
+  <!-- redaktion:blog-section --><!-- /redaktion:blog-section -->
 </main>
 
 <footer>
