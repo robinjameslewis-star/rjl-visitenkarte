@@ -1,10 +1,9 @@
-# Links, die Goch anbieten darf – Stand 18.09.2026, von Robin eingetragen. Nur Adressen, die öffentlich sein dürfen.
-# Eine Zeile je Link. Goch nennt nur die Kennung; die Adresse setzt der Worker ein, Goch kann
-# also keine Adresse erfinden oder verändern. „Wann“ ist der Hinweis für Goch, wann der Link
-# passt – kurz und konkret. Zeilen mit leerer Adresse gelten nicht. Kennung ohne Leerzeichen.
+# Links, die Goch anbieten darf – gepflegt im Dashboard. Nur Adressen, die öffentlich sein dürfen.
+# Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, wann der Link passt.
 
-| Kennung   | Wann passt der Link                                   | Text DE                                              | Text EN                                             | Adresse |
-|-----------|-------------------------------------------------------|------------------------------------------------------|-----------------------------------------------------|---------|
-| linkedin  | berufliches Netzwerk, Werdegang, Lebenslauf, Stellen  | Robin auf LinkedIn                                   | Robin on LinkedIn                                   | https://www.linkedin.com/in/robin-lewis-688945283 |
-| song1     | Gochs eigenes Lieblingslied – wenn jemand nach Goch selbst, seinem Lied oder seiner Musik fragt | Carpenters – Close to You bei YouTube             | Carpenters – Close to You on YouTube                | https://www.youtube.com/watch?v=iFx-5PGLgb4 |
-| set-2015  | nur wenn jemand ausdrücklich nach Robins eigener Musik, seinem DJ-Namen oder seinen Auftritten fragt – nicht danach, was er hört | Robin Roots – Set im E41 Tübingen, 2015 (SoundCloud) | Robin Roots – set at E41 Tübingen, 2015 (SoundCloud) | https://soundcloud.com/robinrootsmusic/732015-green-nana-e41-tubingen |
+| Kennung | Wann passt der Link | Text DE | Text EN | Adresse |
+|---|---|---|---|---|
+| linkedin | berufliches Netzwerk, Werdegang, Lebenslauf, Stellen | Robin auf LinkedIn | Robin on LinkedIn | https://www.linkedin.com/in/robin-lewis-688945283 |
+| song1 | Gochs eigenes Lieblingslied – wenn jemand nach Goch selbst, seinem Lied oder seiner Musik fragt | Carpenters – Close to You bei YouTube | Carpenters – Close to You on YouTube | https://www.youtube.com/watch?v=iFx-5PGLgb4 |
+| set-2015 | nur wenn jemand ausdrücklich nach Robins eigener Musik, seinem DJ-Namen oder seinen Auftritten fragt – nicht danach, was er hört | Robin Roots – Set im E41 Tübingen, 2015 (SoundCloud) | Robin Roots – set at E41 Tübingen, 2015 (SoundCloud) | https://soundcloud.com/robinrootsmusic/732015-green-nana-e41-tubingen |
+| dashboard-test | wenn jemand nach dem Dashboard-Test fragt | Dashboard-Test | Dashboard test | https://example.org/test |
