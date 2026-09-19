@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "title": {
+    "de": "Notizen",
+    "en": "Notes"
+  },
+  "intro": {
+    "de": "Gelegentliche Notizen aus Balingen.",
+    "en": "Occasional notes from Balingen."
+  }
+}

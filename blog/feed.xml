@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>Robin James Lewis – Notizen</title>
+  <link>https://robinjameslewis-star.github.io/rjl-visitenkarte/blog/</link>
+  <description>Gelegentliche Notizen aus Balingen.</description>
+  <language>de</language>
+  <item>
+    <title>Probelauf der Redaktion</title>
+    <link>https://robinjameslewis-star.github.io/rjl-visitenkarte/blog/probelauf-der-redaktion/</link>
+    <guid isPermaLink="true">https://robinjameslewis-star.github.io/rjl-visitenkarte/blog/probelauf-der-redaktion/</guid>
+    <pubDate>Sat, 19 Sep 2026 09:00:00 GMT</pubDate>
+    <description>Ein Test, der gleich wieder verschwindet.</description>
+  </item>
+</channel>
+</rss>
