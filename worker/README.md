@@ -156,6 +156,10 @@ dessen Quelltext per `${blog.makeRenderer.toString()}` in `PAGE` steht. Die Fabr
 von außerhalb verwenden (esc, inline, renderMarkdown, YT, dateText liegen alle darin). Eigenes Fenster:
 `window.open` + `document.write(hülle)`, gleiches Neuzeichnen; ein Intervall merkt das Schließen.
 CSP `frame-src` erlaubt `youtube-nocookie.com`, damit „Video laden“ auch in der Vorschau geht.
+Teilen: LinkedIn öffnet nur ein Fenster (kein API). Instagram: Karte per Canvas im Browser (`drawCard` im Seitenskript,
+Maße 1080² für Instagram, 1200×630 als Vorschaubild); `POST /admin/api/blog/image` mit `card: <slug>` legt sie als
+`blog/bilder/karte-<slug>.jpg` ab, ersetzt eine vorhandene und baut die Seiten im selben Commit neu (`rebuild(..., extraImages)`),
+damit `shareImage()` in `blog.js` sie als `og:image` einsetzt, solange der Beitrag kein eigenes Bild hat.
 **Vor jedem Deploy `node tests/bundle_check.mjs`** – prüft das gebündelte Paket, nicht den Quelltext:
 esbuild schleust mit `keep_names` (Wrangler-Standard) `__name(...)`-Aufrufe in Funktionen ein; im
 Browser fehlte dieser Helfer, das Seitenskript brach ab und das Dashboard war leer (19.09.2026).

@@ -26,6 +26,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `worker/src/admin.js` – Redaktion – Backend der Website unter `/admin` (Aktuell, Links, Zähler; Anmeldung per E-Mail-Code)
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
+- `tests/blog_test.mjs` – Blog-Renderer ohne Worker: Open-Graph-Angaben, Vorschaubild-Regeln
 - `tests/bundle_check.mjs` – prüft vor dem Deploy das gebündelte Worker-Paket (eingebetteter Renderer läuft ohne Bündler-Helfer, Seitenskript der Redaktion)
 - `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
 - `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
@@ -280,5 +281,13 @@ In der Beitragsliste gibt es den Knopf „LinkedIn“ ebenfalls. Die Blogseiten 
 (Titel, Kurzfassung, erstes Bild des Beitrags, Datum), die auch WhatsApp und Signal für die Vorschau nutzen.
 Eine Vollautomatik über LinkedIns API (App an eine Unternehmensseite gebunden, Berechtigung läuft alle 60 Tage ab)
 ist bewusst nicht gebaut – siehe Vault-Briefing.
+**Auf Instagram teilen:** Instagram nimmt von Webseiten nichts entgegen, Beiträge brauchen ein Bild, Links im Text
+sind nicht anklickbar. Der Kasten daneben erzeugt deshalb im Browser (Canvas) eine Karte im Stil der Seite –
+Papier, Name in Kapitälchen, Kupferstrich, Titel in EB Garamond, Datum, Rotkehlchen (`assets/signatur-rotkehlchen.png`),
+Adresse – zum Herunterladen (1080 × 1080) oder, auf dem Handy, per Teilen-Blatt direkt in die Instagram-App;
+dazu ein Text zum Kopieren (Titel, Kurzfassung, „Link im Profil“). „Als Vorschaubild speichern“ legt dieselbe Karte
+als `blog/bilder/karte-<slug>.jpg` (1200 × 630) ab und baut die Seiten neu: Sie wird `og:image`, wenn der Beitrag kein
+eigenes Bild hat (das erste Bild im Text hat Vorrang). Die Karte lädt Papier, Schrift und Vogel von der Website
+(GitHub Pages liefert CORS-Freigabe); fehlen sie, entsteht eine schlichte Karte ohne Textur.
 Ausprobieren ohne Anmeldung und ohne GitHub: `node tests/admin_fake.mjs 8789` → http://localhost:8789/admin;
 Prüfung des Editors in Headless-Chrome: `python3 tests/admin_test.py`.

@@ -241,7 +241,13 @@ export function firstImage(md, siteUrl) {
   return /^https:\/\//i.test(m[1]) ? m[1] : "";
 }
 
-export function renderPostPage(post, settings, siteUrl, base) {
+// Vorschaubild beim Teilen: das erste Bild des Beitrags, sonst die in der Redaktion erzeugte Karte karte-<slug>.jpg (falls vorhanden).
+export const CARD_PREFIX = "karte-";
+export function shareImage(post, siteUrl, images = []) {
+  return firstImage(post.body, siteUrl) || (siteUrl && images.includes(`${CARD_PREFIX}${post.slug}.jpg`) ? `${siteUrl}blog/bilder/${CARD_PREFIX}${post.slug}.jpg` : "");
+}
+
+export function renderPostPage(post, settings, siteUrl, base, images = []) {
   const t = T[post.lang];
   const main = `<article lang="${post.lang}">
 <h1>${esc(post.title)}</h1>
@@ -260,7 +266,7 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
 </script>`;
   return shell({ lang: post.lang, title: post.title, description: post.summary || plainText(post.body).slice(0, 160), depth: 2, main,
     siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base,
-    og: { type: "article", image: firstImage(post.body, siteUrl), published: post.date } });
+    og: { type: "article", image: shareImage(post, siteUrl, images), published: post.date } });
 }
 
 export function renderListPage(posts, settings, siteUrl) {
@@ -324,7 +330,7 @@ ${items}
 }
 
 // Alles zusammen: aus Einstellungen, Beiträgen und Startseite die Dateiänderungen für einen Commit.
-export function buildBlog({ settings, posts, homepage, existingDirs = [], existingFiles = [], siteUrl }) {
+export function buildBlog({ settings, posts, homepage, existingDirs = [], existingFiles = [], siteUrl, images = [] }) {
   const published = posts.filter(p => p.status === "published" && p.date).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
   const visible = settings.enabled && published.length > 0;
   const changes = [];
@@ -336,7 +342,7 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
     for (const f of ["index.html", "feed.xml"]) if (existingFiles.includes(f)) changes.push({ path: "blog/" + f, delete: true });
   }
   const keep = new Set(shown.map(p => p.slug));
-  for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl) });
+  for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl, undefined, images) });
   for (const dir of existingDirs) if (dir !== "posts" && !keep.has(dir)) changes.push({ path: `blog/${dir}/index.html`, delete: true });
   const home = updateHomepage(homepage, settings, visible ? published : null);
   if (home) changes.push({ path: "index.html", content: home });

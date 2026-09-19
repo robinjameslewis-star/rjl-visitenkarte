@@ -384,6 +384,15 @@ async function blogApi(api, request, env, deps, session, url) {
       const body = await readJson(request);
       const img = checkImage(body);
       const base = blog.slugify(String(body.name || "bild").replace(/\.[a-z0-9]+$/i, "")).slice(0, 40) || "bild";
+      if (body.card) { // Vorschaubild-Karte eines Beitrags: fester Name, darf ersetzt werden, Seiten werden mitgebaut (og:image)
+        const slug = String(body.card);
+        const current = await loadBlog(env);
+        if (!current.posts.some(p => p.slug === slug)) return json({ error: "Beitrag nicht gefunden." }, 400);
+        if (img.ext !== "jpg") return json({ error: "Die Karte muss ein JPEG sein." }, 400);
+        const name = `${blog.CARD_PREFIX}${slug}.jpg`;
+        const r = await rebuild(env, current, [{ path: `${blog.IMAGES_DIR}/${name}`, base64: img.base64 }], `Redaktion: Vorschaubild „${name}“ gespeichert`, [name]);
+        return json({ name, images: await listImages(env), commit: r.commit ? r.commit.url : null });
+      }
       const existing = (await listImages(env)).map(i => i.name);
       let name = `${base}.${img.ext}`, n = 2;
       while (existing.includes(name)) name = `${base}-${n++}.${img.ext}`;
@@ -449,11 +458,11 @@ async function loadBlog(env) {
 }
 
 // Aus Einstellungen und Beiträgen alle Seiten neu bauen und zusammen mit den Quelländerungen als ein Commit schreiben.
-async function rebuild(env, { settings, posts }, sourceChanges, message) {
+async function rebuild(env, { settings, posts }, sourceChanges, message, extraImages = []) {
   const home = await gh.getFile(env, "index.html");
   if (!home) throw new Error("Startseite (index.html) nicht im Repository gefunden.");
-  const entries = await gh.listDir(env, "blog");
-  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "",
+  const [entries, images] = await Promise.all([gh.listDir(env, "blog"), listImages(env)]);
+  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "", images: [...images.map(i => i.name), ...extraImages],
     existingDirs: entries.filter(e => e.type === "dir").map(e => e.name), existingFiles: entries.filter(e => e.type === "file").map(e => e.name) });
   const changes = [...sourceChanges, ...built.changes];
   const commit = changes.length ? await gh.commitFiles(env, changes, message) : null;
@@ -642,9 +651,14 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 </div>
 <p class="note" id="pslug"></p>
 <div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpvshow" hidden>Vorschau anzeigen</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
-<div class="box" id="pshare" hidden><h3>Auf LinkedIn teilen</h3><p class="note">Öffnet LinkedIn am Rechner mit diesem Text; dort siehst du die Vorschau und klickst „Posten“. Auf dem Handy übergibt LinkedIn nur den Link – dann „Text kopieren“ und einfügen. Titel, Kurzfassung und das erste Bild des Beitrags liefert die Seite als Vorschau mit.</p>
+<div class="boxes" id="pshare" hidden><div class="box"><h3>Auf LinkedIn teilen</h3><p class="note">Öffnet LinkedIn am Rechner mit diesem Text; dort siehst du die Vorschau und klickst „Posten“. Auf dem Handy übergibt LinkedIn nur den Link – dann „Text kopieren“ und einfügen. Titel, Kurzfassung und das erste Bild des Beitrags liefert die Seite als Vorschau mit.</p>
 <label for="pstext">Text für LinkedIn</label><textarea id="pstext" style="min-height:96px;font-family:inherit;font-size:14px"></textarea>
 <div class="bar"><button type="button" class="quiet" id="pshareli">Auf LinkedIn teilen</button><button type="button" class="quiet" id="pscopy">Text kopieren</button><span class="note" id="psurl" style="word-break:break-all"></span><span class="msg" id="mS"></span></div></div>
+<div class="box"><h3>Auf Instagram teilen</h3><p class="note">Instagram nimmt von Webseiten nichts entgegen und macht Links im Text nicht anklickbar. Der Weg: ein Bild plus Text – den Link trägt dein Profil. Das Bild entsteht hier aus Titel und Datum im Stil der Seite.</p>
+<canvas id="pcard" width="1080" height="1080" style="width:100%;max-width:300px;aspect-ratio:1;display:block;margin-top:10px;border:1px solid var(--line);border-radius:6px;background:#F3EFE5"></canvas>
+<label for="pitext">Text für Instagram</label><textarea id="pitext" style="min-height:96px;font-family:inherit;font-size:14px"></textarea>
+<div class="bar"><button type="button" class="quiet" id="pidown">Bild herunterladen</button><button type="button" class="quiet" id="picopy">Text kopieren</button><button type="button" class="quiet" id="pishare" hidden>Teilen …</button><button type="button" class="quiet" id="piopen">Instagram öffnen</button><span class="msg" id="mIg"></span></div>
+<p class="note" style="margin-top:10px">Dasselbe Bild dient als Vorschaubild bei LinkedIn, WhatsApp und Signal, wenn der Beitrag kein eigenes Bild hat: <button type="button" class="quiet" id="picard" style="padding:2px 10px;font-size:12px">Als Vorschaubild speichern</button></p></div></div>
 </div><div class="pv" id="pv"><div class="pvbar"><span style="flex:1">Vorschau – so sieht der Beitrag auf der Website aus</span><button type="button" class="quiet" id="bpvwin" title="Für den zweiten Bildschirm">Eigenes Fenster</button><button type="button" class="quiet" id="bpvhide">Ausblenden</button></div><iframe id="bframe" title="Vorschau"></iframe><p class="note" id="pvnote" style="margin:4px 0 0"></p></div></div>
 </div></section>
 
@@ -810,7 +824,7 @@ function articleHtml(){if(!R)return '<p class="meta">Live-Vorschau nicht verfüg
  return '<h1>'+R.esc(d.title||'Ohne Titel')+'</h1>\\n<p class="meta"><time datetime="'+date+'">'+R.dateText(date,lang)+'</time></p>\\n'+R.renderMarkdown(d.body,site+'blog/',lang);}
 function paint(doc){if(!doc)return;const art=doc.querySelector('article');if(!art)return;const lang=$('plang').value==='en'?'en':'de';art.innerHTML=articleHtml();art.lang=lang;doc.documentElement.lang=lang;doc.title=($('ptitle').value||'Ohne Titel')+' – Vorschau';
  doc.querySelectorAll('.yt-play').forEach(b=>{b.onclick=()=>{const box=b.closest('.yt'),f=doc.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+box.dataset.video+'?autoplay=1&rel=0';f.title=box.dataset.title;f.allow='autoplay; encrypted-media; picture-in-picture';f.allowFullscreen=true;box.replaceChildren(f);box.classList.add('yt-on');};});}
-function refreshPreview(){clearTimeout(pvTimer);pvTimer=setTimeout(()=>{const f=$('bframe');if(pvShell&&f.contentDocument&&f.contentDocument.querySelector('article'))paint(f.contentDocument);if(pvWin&&!pvWin.closed)paint(pvWin.document);},120);}
+function refreshPreview(){clearTimeout(pvTimer);pvTimer=setTimeout(()=>{const f=$('bframe');if(pvShell&&f.contentDocument&&f.contentDocument.querySelector('article'))paint(f.contentDocument);if(pvWin&&!pvWin.closed)paint(pvWin.document);if(!$('pshare').hidden)renderCard();},120);}
 async function loadPreview(){pvLayout();$('pvnote').textContent='';try{const d=await api('blog/preview','POST',{...postBody(),body:''});pvShell=d.html;const f=$('bframe');f.onload=()=>paint(f.contentDocument);f.srcdoc=pvShell;if(pvWin&&!pvWin.closed)openPvWin(false);}catch(e){$('pvnote').textContent='Vorschau nicht ladbar: '+e.message;}}
 function openPvWin(focus=true){const w=pvWin&&!pvWin.closed?pvWin:window.open('','rjl-vorschau','width=780,height=960');if(!w){say('mP','Der Browser hat das Fenster blockiert – bitte Pop-ups für diese Seite erlauben.');return;}
  pvWin=w;w.document.open();w.document.write(pvShell);w.document.close();paint(w.document);if(focus)w.focus();pvLayout();
@@ -825,12 +839,45 @@ let savedStatus=null;
 function shareUrlFor(slug){return B?B.url+slug+'/':'';}
 function shareText(summary,title,url){return (summary||title||'').trim()+'\\n\\n'+url;}
 function shareBox(){const on=!!(editing&&savedStatus==='published');$('pshare').hidden=!on;if(!on)return;const url=shareUrlFor(editing);$('psurl').textContent=url;
- if($('pstext').dataset.slug!==editing){$('pstext').dataset.slug=editing;$('pstext').value=shareText($('psummary').value,$('ptitle').value,url);}}
+ if($('pstext').dataset.slug!==editing){$('pstext').dataset.slug=editing;$('pstext').value=shareText($('psummary').value,$('ptitle').value,url);$('pitext').value=instaText();}
+ $('pishare').hidden=!(navigator.canShare&&navigator.canShare({files:[new File([''],'x.png',{type:'image/png'})]}));renderCard();}
 // Am Rechner nimmt LinkedIn den Text vorbelegt entgegen (inoffiziell, klappt seit Jahren); auf dem Handy nur den Link – dort Text kopieren und einfügen.
 function openLinkedIn(text,url){const mobile=matchMedia('(max-width: 900px)').matches;const u=(text.trim()&&!mobile)?'https://www.linkedin.com/feed/?shareActive=true&text='+encodeURIComponent(text.trim()):'https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url);
  const w=window.open(u,'_blank','noopener');if(!w)say('mS','Der Browser hat das Fenster blockiert – bitte Pop-ups für diese Seite erlauben.');}
 $('pshareli').onclick=()=>openLinkedIn($('pstext').value,shareUrlFor(editing));
 $('pscopy').onclick=async()=>{try{await navigator.clipboard.writeText($('pstext').value);say('mS','Text kopiert.',true);}catch(e){say('mS','Kopieren nicht möglich – bitte den Text markieren und kopieren.');}};
+// ---- Instagram: Bild und Text vorbereiten. Instagram hat kein Teilen-Fenster für Webseiten, Beiträge brauchen
+// ein Bild, Links im Text sind nicht anklickbar – also: Karte im Stil der Seite (Canvas) + Text zum Kopieren.
+const siteUrl=()=>B?B.url.replace(/blog\\/$/,''):'';
+const siteHost=()=>{try{const u=new URL(siteUrl());return u.host+u.pathname.replace(/\\/$/,'');}catch(e){return '';}};
+let cardAssets=null;
+function loadImg(u){return new Promise(res=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=()=>res(null);i.src=u;});}
+async function loadCardAssets(){if(cardAssets)return cardAssets;const site=siteUrl();const [paper,bird]=await Promise.all([loadImg(site+'assets/papier.jpg'),loadImg(site+'assets/signatur-rotkehlchen.png')]);
+ try{const f=new FontFace('EB Garamond','url('+site+'assets/fonts/eb-garamond-latin.woff2)');await f.load();document.fonts.add(f);}catch(e){}cardAssets={paper,bird};return cardAssets;}
+function wrapLines(x,text,maxW){const out=[];let cur='';for(const w of text.split(/\\s+/)){const t=cur?cur+' '+w:w;if(cur&&x.measureText(t).width>maxW){out.push(cur);cur=w;}else cur=t;}if(cur)out.push(cur);return out;}
+// Karte: Papier, Name in Kapitälchen, Kupferstrich, Titel in Garamond-Grün, Datum, Rotkehlchen, Adresse. w>h = Linkvorschau, sonst Instagram.
+function drawCard(c,w,h){const a=cardAssets||{},x=c.getContext('2d');c.width=w;c.height=h;const wide=w>h;
+ x.fillStyle='#F3EFE5';x.fillRect(0,0,w,h);if(a.paper){try{x.fillStyle=x.createPattern(a.paper,'repeat');x.fillRect(0,0,w,h);}catch(e){}}
+ const pad=Math.round(w*(wide?0.06:0.085)),serif='"EB Garamond","Cormorant Garamond",Baskerville,Georgia,serif',sans='"Helvetica Neue",Arial,sans-serif';
+ x.textBaseline='alphabetic';x.fillStyle='#0B3D2E';x.font='500 '+Math.round(w*(wide?0.017:0.024))+'px '+serif;try{x.letterSpacing='0.2em';}catch(e){}x.fillText('ROBIN JAMES LEWIS',pad,pad+Math.round(w*0.018));try{x.letterSpacing='0px';}catch(e){}
+ x.fillStyle='#B8724F';x.fillRect(pad,pad+Math.round(w*(wide?0.032:0.042)),Math.round(w*0.07),2);
+ const d=postBody(),title=(d.title||'Ohne Titel').trim(),maxW=w-2*pad-(wide?Math.round(w*0.24):0);let size=Math.round(w*(wide?0.056:0.078)),lines;
+ for(;;){x.font='400 '+size+'px '+serif;lines=wrapLines(x,title,maxW);if(lines.length*size*1.15>h*(wide?0.46:0.5)&&size>Math.round(w*0.035))size-=4;else break;}
+ const lh=Math.round(size*1.15);let y=Math.round(h*0.3)+size;x.fillStyle='#0B3D2E';for(const l of lines){x.fillText(l,pad,y);y+=lh;}
+ const lang=d.lang==='en'?'en':'de',date=/^\\d{4}-\\d{2}-\\d{2}$/.test(d.date)?d.date:new Date().toISOString().slice(0,10);
+ x.fillStyle='#9A9A9A';x.font='400 '+Math.round(w*(wide?0.02:0.026))+'px '+sans;x.fillText(R?R.dateText(date,lang):date,pad,y+Math.round(w*0.012));
+ if(a.bird){const bw=Math.round(w*(wide?0.2:0.3)),bh=Math.round(bw*a.bird.naturalHeight/a.bird.naturalWidth);x.drawImage(a.bird,w-pad-bw,h-pad-bh+Math.round(w*0.015),bw,bh);}
+ x.fillStyle='#5C5C5C';x.font='400 '+Math.round(w*(wide?0.017:0.022))+'px '+sans;x.fillText(siteHost(),pad,h-pad);}
+async function renderCard(){if($('pshare').hidden)return;await loadCardAssets();drawCard($('pcard'),1080,1080);}
+function instaText(){const d=postBody();const en=d.lang==='en';return [d.title.trim(),(d.summary||'').trim(),en?'Full post via the link in my profile.':'Den ganzen Beitrag gibt es über den Link in meinem Profil.'].filter(Boolean).join('\\n\\n');}
+function cardBlob(w,h,type,q){const c=document.createElement('canvas');drawCard(c,w,h);return new Promise(res=>c.toBlob(res,type,q));}
+$('pidown').onclick=async()=>{await loadCardAssets();const b=await cardBlob(1080,1080,'image/png');const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='instagram-'+(editing||'beitrag')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);say('mIg','Bild gespeichert (1080 × 1080).',true);};
+$('picopy').onclick=async()=>{try{await navigator.clipboard.writeText($('pitext').value);say('mIg','Text kopiert.',true);}catch(e){say('mIg','Kopieren nicht möglich – bitte den Text markieren und kopieren.');}};
+$('piopen').onclick=()=>{if(!window.open('https://www.instagram.com/','_blank','noopener'))say('mIg','Der Browser hat das Fenster blockiert – bitte Pop-ups erlauben.');};
+$('pishare').onclick=async()=>{await loadCardAssets();const b=await cardBlob(1080,1080,'image/png');const file=new File([b],'instagram-'+(editing||'beitrag')+'.png',{type:'image/png'});
+ try{await navigator.share({files:[file],text:$('pitext').value});}catch(e){if(e.name!=='AbortError')say('mIg','Teilen nicht möglich: '+e.message);}};
+$('picard').onclick=async()=>{if(!editing)return;$('picard').disabled=true;say('mIg','speichert …');try{await loadCardAssets();const b=await cardBlob(1200,630,'image/jpeg',0.86);const data=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(b);});
+ const r=await api('blog/image','POST',{name:'karte',card:editing,data});renderImages(r.images);say('mIg','Vorschaubild gespeichert – gilt für Linkvorschauen, sobald die Seite neu gebaut ist (etwa eine Minute).',true);}catch(e){say('mIg',e.message);}finally{$('picard').disabled=false;}};
 const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);$('plink').hidden=true;count();offerDraft(p);shareBox();loadPreview();api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
 api('blog').then(b=>b&&renderBlog(b)).catch(e=>{$('bsrc').textContent='Blog nicht ladbar: '+e.message;});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}

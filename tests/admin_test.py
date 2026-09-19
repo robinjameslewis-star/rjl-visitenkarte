@@ -4,7 +4,7 @@ Fenster), lokale Sicherung.
 
 Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets`, laufende Attrappe:
     node tests/admin_fake.mjs 8789
-Aufruf:  python3 tests/admin_test.py [http://localhost:8789/admin]
+Aufruf:  python3 tests/admin_test.py [http://localhost:8789/admin]   (Attrappe je Lauf frisch starten – sie merkt sich Gespeichertes)
 """
 import asyncio, json, subprocess, sys, tempfile, time, urllib.request
 import websockets
@@ -123,13 +123,24 @@ async def main():
             await ev("window.__opened=[];window.open=(u)=>{window.__opened.push(u);return {closed:false};}")
             check(await ev("document.getElementById('pshare').hidden") is False, "Teilen-Kasten nach dem Veröffentlichen sichtbar")
             text = await ev("document.getElementById('pstext').value")
-            check(text.startswith("Ein Test.") and text.endswith("https://example.org/blog/erster-beitrag/"), "Text vorbelegt: Kurzfassung + Adresse", text.replace("\n", "⏎"))
+            check(text.startswith("Ein Test.") and text.endswith("/site/blog/erster-beitrag/"), "Text vorbelegt: Kurzfassung + Adresse", text.replace("\n", "⏎"))
             await ev("document.getElementById('pshareli').click()")
             opened = await ev("window.__opened.pop()")
-            check(opened.startswith("https://www.linkedin.com/feed/?shareActive=true&text=") and "example.org%2Fblog%2Ferster-beitrag" in opened, "öffnet LinkedIn mit dem Text", opened[:90])
+            check(opened.startswith("https://www.linkedin.com/feed/?shareActive=true&text=") and "blog%2Ferster-beitrag" in opened, "öffnet LinkedIn mit dem Text", opened[:90])
             check(await ev("!!document.querySelector('#bposts button[data-share=\"erster-beitrag\"]')"), "LinkedIn-Knopf in der Liste beim veröffentlichten Beitrag")
             await ev("document.querySelector('#bposts button[data-share=\"erster-beitrag\"]').click()")
             check("erster-beitrag" in (await ev("window.__opened.pop()") or ""), "Listen-Knopf öffnet LinkedIn")
+            print("8b. Instagram: Karte, Text, Vorschaubild")
+            await ev("loadCardAssets().then(()=>renderCard())"); await wait(600)
+            check(await ev("!!(cardAssets&&cardAssets.paper&&cardAssets.bird)"), "Papier und Rotkehlchen der Website geladen")
+            check(await ev("document.fonts.check('20px \"EB Garamond\"')"), "Schrift der Website geladen")
+            painted = await ev("(()=>{const c=document.getElementById('pcard'),x=c.getContext('2d');const d=x.getImageData(0,0,c.width,c.height).data;let dark=0;for(let i=0;i<d.length;i+=4*97){if(d[i]<120&&d[i+1]<120)dark++;}return dark;})()")
+            check(painted > 50, "Karte gezeichnet (grüner Titel vorhanden)", str(painted))
+            itext = await ev("document.getElementById('pitext').value")
+            check(itext.startswith("Anderer Titel") and ("link in my profile" in itext or "Link in meinem Profil" in itext), "Instagram-Text vorbelegt (Sprache des Beitrags)", itext.replace("\n", "⏎")[:80])
+            await ev("document.getElementById('picard').click()"); await wait(1500)
+            check("Vorschaubild gespeichert" in (await ev("document.getElementById('mIg').textContent")), "Vorschaubild hochgeladen", await ev("document.getElementById('mIg').textContent"))
+            check(await ev("document.getElementById('pimgs').textContent.includes('karte-erster-beitrag.jpg')"), "Karte erscheint in der Bilderliste")
             # Entwurf: kein Teilen
             await ev("document.getElementById('bcancel').click();document.getElementById('bnew').click()"); await wait(300)
             check(await ev("document.getElementById('pshare').hidden"), "kein Teilen-Kasten bei neuem Entwurf")
