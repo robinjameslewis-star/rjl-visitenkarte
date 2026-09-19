@@ -49,6 +49,7 @@ export async function handleAdmin(request, env, ctx, deps) {
     const id = typeof body.id === "string" && /^[A-Za-z0-9_-]{16,300}$/.test(body.id) ? body.id : null;
     if (!id) return json({ error: "Ungültig." }, 400);
     await env.USAGE.delete("admin:passkey:" + id);
+    await indexPasskey(env, id, false);
     return json({ passkeys: await listPasskeys(env) });
   }
   const m = api.match(/^content\/([a-z0-9-]+)$/);
@@ -115,11 +116,20 @@ async function verify(request, env) {
 
 // ---------- Passkeys: zweiter Faktor ----------
 
+// Passkeys über einen Index lesen statt über list(): list() hinkt bis zu einer Minute hinterher,
+// der Index ist sofort nach dem Schreiben sichtbar (und die Anmeldung verlangt den zweiten Faktor sofort).
+async function passkeyIds(env) {
+  try { const a = JSON.parse(await env.USAGE.get("admin:passkeys")); return Array.isArray(a) ? a : []; } catch { return []; }
+}
 async function listPasskeys(env) {
   const out = [];
-  const l = await env.USAGE.list({ prefix: "admin:passkey:" });
-  for (const k of l.keys) { try { const c = JSON.parse(await env.USAGE.get(k.name)); if (c) out.push(c); } catch {} }
+  for (const id of await passkeyIds(env)) { try { const c = JSON.parse(await env.USAGE.get("admin:passkey:" + id)); if (c) out.push(c); } catch {} }
   return out;
+}
+async function indexPasskey(env, id, add) {
+  const ids = (await passkeyIds(env)).filter(x => x !== id);
+  if (add) ids.push(id);
+  await env.USAGE.put("admin:passkeys", JSON.stringify(ids));
 }
 async function challengeFor(env, session) {
   const challenge = pk.randomChallenge();
@@ -152,6 +162,7 @@ async function passkeyRegister(request, env, session, url) {
     const cred = await pk.verifyRegistration(body, { challenge, origin: url.origin, rpId: url.hostname });
     const name = String(body.name || "").replace(/[^\p{L}\p{N} .,-]/gu, "").trim().slice(0, 40) || "Passkey";
     await env.USAGE.put("admin:passkey:" + cred.id, JSON.stringify({ ...cred, name, at: new Date().toISOString() }));
+    await indexPasskey(env, cred.id, true);
   } catch (e) { return json({ error: e.message }, 400); }
   return json({ passkeys: await listPasskeys(env) });
 }
