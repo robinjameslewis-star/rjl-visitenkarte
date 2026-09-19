@@ -2,7 +2,7 @@
 title: "Probelauf der Redaktion"
 date: 2026-09-19
 lang: de
-status: draft
+status: published
 summary: "Ein Test, der gleich wieder verschwindet."
 ---
 
