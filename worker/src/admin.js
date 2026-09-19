@@ -8,6 +8,7 @@
 // der Seite) kommen als weiterer Eintrag in CONTENT dazu.
 import * as gh from "./github.js";
 import * as pk from "./passkey.js";
+import * as blog from "./blog.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -52,6 +53,7 @@ export async function handleAdmin(request, env, ctx, deps) {
     await indexPasskey(env, id, false);
     return json({ passkeys: await listPasskeys(env) });
   }
+  if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
   if (m && CONTENT[m[1]]) {
     if (request.method === "PUT") return save(m[1], request, env, deps, session);
@@ -327,6 +329,106 @@ async function cache(env, key, md, by) {
   await env.USAGE.delete("content:checked").catch(() => {});
 }
 
+// ---------- Blog: Beiträge und Schalter, gebaut vom Worker (src/blog.js), gespeichert als ein Commit ----------
+
+async function blogApi(api, request, env, deps, session, url) {
+  if (!gh.configured(env)) return json({ error: "GitHub-Schlüssel fehlt – der Blog braucht das Repository." }, 503);
+  try {
+    if (api === "blog" && request.method === "GET") return json(await blogState(env));
+    if (api === "blog/settings" && request.method === "PUT") {
+      const settings = blog.validateSettings(await readJson(request));
+      const current = await loadBlog(env);
+      const r = await rebuild(env, { ...current, settings }, [{ path: blog.SETTINGS_PATH, content: blog.composeSettings(settings) }],
+        `Redaktion: Blog ${settings.enabled ? "eingeschaltet" : "ausgeschaltet"} – „${settings.title.de}“`);
+      return json({ ...(await blogState(env, r)), note: r.visible ? "Veröffentlicht – der Blog ist auf der Website sichtbar, sobald GitHub Pages gebaut hat (etwa eine Minute)." : "Gespeichert – der Blog bleibt auf der Website verborgen." });
+    }
+    if (api === "blog/post" && request.method === "GET") {
+      const slug = blog.slugify(url.searchParams.get("slug") || "");
+      const f = slug ? await gh.getFile(env, `${blog.POSTS_DIR}/${slug}.md`) : null;
+      if (!f) return json({ error: "Beitrag nicht gefunden." }, 404);
+      const h = await gh.history(env, `${blog.POSTS_DIR}/${slug}.md`, 2);
+      return json({ post: blog.parsePost(f.content, slug), hasPrev: h.length > 1, historyUrl: gh.historyUrl(env, `${blog.POSTS_DIR}/${slug}.md`) });
+    }
+    if (api === "blog/preview" && request.method === "POST") {
+      const f = await readJson(request);
+      const post = { slug: "vorschau", title: String(f.title || "Ohne Titel").slice(0, 120), date: /^\d{4}-\d{2}-\d{2}$/.test(f.date || "") ? f.date : new Date().toISOString().slice(0, 10),
+        lang: f.lang === "en" ? "en" : "de", status: "draft", summary: String(f.summary || "").slice(0, 300), body: String(f.body || "").slice(0, 40000) };
+      const settings = (await loadBlog(env)).settings;
+      return json({ html: blog.renderPostPage(post, settings, env.SITE_URL || "", env.SITE_URL || "") });
+    }
+    if (api === "blog/post" && request.method === "PUT") {
+      const body = await readJson(request);
+      const current = await loadBlog(env);
+      const post = blog.validatePost(body, current.posts.map(p => p.slug));
+      const others = current.posts.filter(p => p.slug !== post.slug);
+      const isNew = !current.posts.some(p => p.slug === post.slug);
+      const r = await rebuild(env, { ...current, posts: [...others, post] }, [{ path: `${blog.POSTS_DIR}/${post.slug}.md`, content: blog.composePost(post) }],
+        `Redaktion: Beitrag „${post.title}“ ${post.status === "published" ? "veröffentlicht" : "als Entwurf gespeichert"}`);
+      const note = post.status === "published" ? (r.visible ? "Veröffentlicht – auf der Website in etwa einer Minute." : "Veröffentlicht, aber der Blog ist ausgeschaltet – oben einschalten, damit er erscheint.")
+        : "Als Entwurf gespeichert – nicht auf der Website." + (isNew ? "" : " Eine frühere veröffentlichte Fassung ist damit offline.");
+      return json({ ...(await blogState(env, r)), slug: post.slug, note });
+    }
+    if (api === "blog/post" && request.method === "DELETE") {
+      const slug = blog.slugify((await readJson(request)).slug || "");
+      const current = await loadBlog(env);
+      const post = current.posts.find(p => p.slug === slug);
+      if (!post) return json({ error: "Beitrag nicht gefunden." }, 404);
+      const r = await rebuild(env, { ...current, posts: current.posts.filter(p => p.slug !== slug) }, [{ path: `${blog.POSTS_DIR}/${slug}.md`, delete: true }],
+        `Redaktion: Beitrag „${post.title}“ gelöscht`);
+      return json({ ...(await blogState(env, r)), note: "Gelöscht. Im Verlauf auf GitHub bleibt der Text erhalten." });
+    }
+    if (api === "blog/post/restore" && request.method === "POST") {
+      const slug = blog.slugify((await readJson(request)).slug || "");
+      const path = `${blog.POSTS_DIR}/${slug}.md`;
+      const h = await gh.history(env, path, 2);
+      if (h.length < 2) return json({ error: "Keine vorige Fassung vorhanden." }, 400);
+      const prev = await gh.getFile(env, path, h[1].sha);
+      if (!prev) return json({ error: "Vorige Fassung nicht lesbar." }, 400);
+      const post = blog.parsePost(prev.content, slug);
+      const current = await loadBlog(env);
+      const r = await rebuild(env, { ...current, posts: [...current.posts.filter(p => p.slug !== slug), post] }, [{ path, content: prev.content }],
+        `Redaktion: Beitrag „${post.title}“ – vorige Fassung wiederhergestellt`);
+      return json({ ...(await blogState(env, r)), slug, note: "Vorige Fassung ist gespeichert." });
+    }
+  } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
+
+async function loadBlog(env) {
+  const file = await gh.getFile(env, blog.SETTINGS_PATH);
+  const settings = file ? blog.parseSettings(file.content) : { ...blog.DEFAULT_SETTINGS };
+  const posts = [];
+  for (const e of await gh.listDir(env, blog.POSTS_DIR)) {
+    if (e.type !== "file" || !e.name.endsWith(".md")) continue;
+    const f = await gh.getFile(env, e.path);
+    if (f) posts.push(blog.parsePost(f.content, e.name.slice(0, -3)));
+  }
+  return { settings, posts };
+}
+
+// Aus Einstellungen und Beiträgen alle Seiten neu bauen und zusammen mit den Quelländerungen als ein Commit schreiben.
+async function rebuild(env, { settings, posts }, sourceChanges, message) {
+  const home = await gh.getFile(env, "index.html");
+  if (!home) throw new Error("Startseite (index.html) nicht im Repository gefunden.");
+  const entries = await gh.listDir(env, "blog");
+  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "",
+    existingDirs: entries.filter(e => e.type === "dir").map(e => e.name), existingFiles: entries.filter(e => e.type === "file").map(e => e.name) });
+  const changes = [...sourceChanges, ...built.changes];
+  const commit = changes.length ? await gh.commitFiles(env, changes, message) : null;
+  return { ...built, commit, settings, posts };
+}
+
+async function blogState(env, r) {
+  const { settings, posts } = r || await loadBlog(env);
+  const published = posts.filter(p => p.status === "published").length;
+  const visible = settings.enabled && published > 0;
+  return { settings, visible, published,
+    reason: visible ? "" : !settings.enabled ? "Schalter ist aus." : "Kein Beitrag veröffentlicht.",
+    posts: posts.map(p => ({ slug: p.slug, title: p.title, date: p.date, lang: p.lang, status: p.status, summary: p.summary }))
+      .sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0),
+    url: (env.SITE_URL || "") + "blog/", historyUrl: gh.historyUrl(env, blog.POSTS_DIR), commit: r && r.commit ? r.commit.url : null };
+}
+
 // ---------- Helfer ----------
 
 async function readJson(request) { try { return await request.json(); } catch { return {}; } }
@@ -340,7 +442,7 @@ function text(s, status = 200) { return new Response(s, { status, headers: { "co
 function html(s) {
   return new Response(s, { status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
     "x-frame-options": "DENY", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow",
-    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; form-action 'none'; base-uri 'none'" } });
+    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https:; font-src https:; frame-src 'self' about:; form-action 'none'; base-uri 'none'" } });
 }
 
 // ---------- Seiten ----------
@@ -403,6 +505,26 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <div class="bar"><input id="keyname" placeholder="Name, z. B. MacBook oder iPhone" style="max-width:260px"><button id="addKey">Passkey einrichten</button><span class="msg" id="mK"></span></div>
 <p class="note">Ein Passkey liegt in deinem iCloud-Schlüsselbund und gilt damit auf Mac und iPhone. Sobald einer eingerichtet ist, meldet nur noch der Passkey an – der E-Mail-Code ist dann abgeschaltet, wer nur dein Postfach hat, kommt nicht herein. Richte einen zweiten als Ersatz ein (anderes Gerät oder Sicherheitsschlüssel). Sind alle Geräte weg, hilft der Notausgang im Terminal (README).</p></section>
 
+<section><h2>Blog</h2><p class="src" id="bsrc"></p>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="benabled" style="width:auto;margin:0"> Blog auf der Website anzeigen</label>
+<p class="note" style="margin:0 0 6px">Der Blog erscheint nur, wenn dieser Schalter an ist <b>und</b> mindestens ein Beitrag veröffentlicht ist. Dann bekommt die Startseite oben links einen Verweis.</p>
+<div class="row"><div><label for="btde">Titel Deutsch</label><input id="btde"></div><div><label for="bten">Title English</label><input id="bten"></div></div>
+<div class="row"><div><label for="bide">Einleitungssatz Deutsch (optional)</label><input id="bide"></div><div><label for="bien">Intro sentence English (optional)</label><input id="bien"></div></div>
+<div class="bar"><button id="bsave">Einstellungen veröffentlichen</button><a class="note" id="bopen" target="_blank" rel="noopener">Blog ansehen</a><span class="msg" id="mB"></span></div>
+<h2 style="margin-top:26px">Beiträge</h2><ul class="q" id="bposts"></ul><p class="note" id="bnote"></p>
+<div class="bar"><button class="quiet" id="bnew">+ Neuer Beitrag</button></div>
+<div id="beditor" hidden style="margin-top:16px;border-top:1px solid var(--line);padding-top:8px">
+<div class="row"><div><label for="ptitle">Titel</label><input id="ptitle" maxlength="120"></div><div><label for="pdate">Datum</label><input id="pdate" type="date" style="max-width:200px"></div></div>
+<div class="row"><div><label for="plang">Sprache</label><select id="plang" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="de">Deutsch</option><option value="en">English</option></select></div>
+<div><label for="pstatus">Status</label><select id="pstatus" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="draft">Entwurf (nicht auf der Website)</option><option value="published">Veröffentlicht</option></select></div></div>
+<label for="psummary">Kurzfassung (ein, zwei Sätze – steht in der Liste und im RSS)</label><input id="psummary" maxlength="300">
+<label for="pbody">Text</label><textarea id="pbody" style="min-height:360px;font-family:inherit;font-size:15px"></textarea>
+<p class="note">Absätze durch Leerzeile. <code>## Zwischenüberschrift</code>, <code>**fett**</code>, <code>*kursiv*</code>, <code>- Aufzählung</code>, <code>1. Nummerierung</code>, <code>&gt; Zitat</code>, <code>[Linktext](https://…)</code>, <code>![Bildbeschreibung](https://…)</code>. Mehr nicht – und nichts davon kann die Seite kaputtmachen.</p>
+<p class="note" id="pslug"></p>
+<div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpreview">Vorschau</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
+<iframe id="bframe" hidden title="Vorschau" style="width:100%;height:560px;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:12px"></iframe>
+</div></section>
+
 <section><h2>Goch – Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
 <div class="stat"><b id="month">–</b><span>Antworten in 30 Tagen</span></div>
@@ -436,6 +558,28 @@ $('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCre
  renderKeys(d.passkeys);$('keyname').value='';say('mK','Passkey eingerichtet.',true);}catch(e){say('mK',e.name==='NotAllowedError'?'Abgebrochen oder abgelehnt.':e.name==='InvalidStateError'?'Dieses Gerät ist schon eingerichtet.':e.message);}};
 $('keys').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(!confirm('Diesen Passkey entfernen? Ist es der letzte, gilt danach wieder der E-Mail-Code als Erstzugang.'))return;try{const d=await api('passkeys','DELETE',{id:b.dataset.id});renderKeys(d.passkeys);}catch(err){say('mK',err.message);}};
 api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
+// ---- Blog ----
+let B=null,editing=null;
+function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;
+ $('bsrc').innerHTML=b.visible?'Auf der Website: <b>sichtbar</b> – '+b.published+(b.published===1?' veröffentlichter Beitrag':' veröffentlichte Beiträge')+'.':'Auf der Website: <b>verborgen</b> – '+esc(b.reason)+' ('+b.published+' veröffentlicht, '+b.posts.length+' insgesamt.)';
+ $('bopen').href=b.url;$('bopen').hidden=!b.visible;
+ $('bposts').innerHTML=b.posts.map(p=>'<li><span class="note" style="min-width:90px">'+p.date+'</span><span class="lang">'+p.lang+'</span><span style="flex:1">'+esc(p.title)+'</span><span class="note">'+(p.status==='published'?'veröffentlicht':'Entwurf')+'</span><button class="quiet" data-slug="'+esc(p.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button></li>').join('');
+ $('bnote').textContent=b.posts.length?'':'Noch keine Beiträge. „+ Neuer Beitrag“ legt den ersten an; als Entwurf bleibt er unsichtbar, bis du ihn veröffentlichst.';}
+function openEditor(p,meta){editing=p?p.slug:null;$('beditor').hidden=false;$('bframe').hidden=true;$('mP').textContent='';
+ $('ptitle').value=p?p.title:'';$('pdate').value=p?p.date:new Date().toISOString().slice(0,10);$('plang').value=p?p.lang:'de';$('pstatus').value=p?p.status:'draft';$('psummary').value=p?p.summary:'';$('pbody').value=p?p.body:'';
+ $('pslug').textContent=p?'Adresse: '+B.url+p.slug+'/':'Die Adresse entsteht aus dem Titel und bleibt danach fest.';
+ $('bprev').hidden=!p;$('bprev').disabled=!(meta&&meta.hasPrev);$('bdel').hidden=!p;$('bhist').hidden=!p;if(meta)$('bhist').href=meta.historyUrl;
+ $('beditor').scrollIntoView({behavior:'smooth',block:'start'});$('ptitle').focus();}
+function postBody(){return {slug:editing||'',title:$('ptitle').value,date:$('pdate').value,lang:$('plang').value,status:$('pstatus').value,summary:$('psummary').value,body:$('pbody').value};}
+$('bsave').onclick=async()=>{if(!confirm('Blog-Einstellungen jetzt veröffentlichen?'))return;try{const r=await api('blog/settings','PUT',{enabled:$('benabled').checked,title:{de:$('btde').value,en:$('bten').value},intro:{de:$('bide').value,en:$('bien').value}});renderBlog(r);say('mB',r.note,true);}catch(e){say('mB',e.message);}};
+$('bnew').onclick=()=>openEditor(null);
+$('bposts').onclick=async e=>{const b=e.target.closest('button[data-slug]');if(!b)return;try{const d=await api('blog/post?slug='+encodeURIComponent(b.dataset.slug));openEditor(d.post,d);}catch(err){say('mB',err.message);}};
+$('bcancel').onclick=()=>{$('beditor').hidden=true;editing=null;};
+$('bpreview').onclick=async()=>{try{const d=await api('blog/preview','POST',postBody());$('bframe').srcdoc=d.html;$('bframe').hidden=false;$('bframe').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){say('mP',e.message);}};
+$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);editing=r.slug;$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
+$('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);$('beditor').hidden=true;editing=null;say('mB',r.note,true);}catch(e){say('mP',e.message);}};
+$('bprev').onclick=async()=>{if(!editing||!confirm('Vorige Fassung dieses Beitrags wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{const r=await api('blog/post/restore','POST',{slug:editing});renderBlog(r);const d=await api('blog/post?slug='+encodeURIComponent(editing));openEditor(d.post,d);say('mP',r.note,true);}catch(e){say('mP',e.message);}};
+api('blog').then(b=>b&&renderBlog(b)).catch(e=>{$('bsrc').textContent='Blog nicht ladbar: '+e.message;});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}
 function fmt(iso){if(!iso)return '';const d=new Date(iso);return d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' Uhr';}

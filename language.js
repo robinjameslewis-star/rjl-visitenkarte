@@ -108,6 +108,9 @@
     document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
       element.placeholder = t(element.dataset.i18nPlaceholder);
     });
+    document.querySelectorAll('[data-title-de]').forEach(element => { // von der Redaktion gesetzte Verweise
+      element.textContent = element.dataset['title' + (language === 'en' ? 'En' : 'De')] || element.dataset.titleDe;
+    });
     document.querySelector('.language-nav').setAttribute('aria-label', t('language'));
     document.querySelectorAll('[data-language]').forEach(link => {
       if (link.dataset.language === language) link.setAttribute('aria-current', 'page');

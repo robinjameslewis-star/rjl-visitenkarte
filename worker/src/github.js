@@ -63,3 +63,26 @@ export async function raw(env, path) {
 export function historyUrl(env, path) {
   return `https://github.com/${env.GITHUB_REPO}/commits/${env.GITHUB_BRANCH || "main"}/${path}`;
 }
+
+// Ordnerinhalt: [{ name, type: "file"|"dir", path, sha }] – oder [] wenn der Ordner fehlt.
+export async function listDir(env, path) {
+  try {
+    const d = await call(env, "GET", `/repos/${env.GITHUB_REPO}/contents/${path}?ref=${encodeURIComponent(env.GITHUB_BRANCH || "main")}`);
+    return Array.isArray(d) ? d.map(e => ({ name: e.name, type: e.type, path: e.path, sha: e.sha })) : [];
+  } catch (e) { if (e.status === 404) return []; throw e; }
+}
+
+// Mehrere Dateien in einem Commit (Git-Data-API): changes = [{ path, content } | { path, delete: true }].
+// Ein Commit statt vieler, damit Liste, Beitrag, Feed und Startseite immer zusammenpassen.
+export async function commitFiles(env, changes, message) {
+  const repo = env.GITHUB_REPO, branch = env.GITHUB_BRANCH || "main";
+  const ref = await call(env, "GET", `/repos/${repo}/git/ref/heads/${branch}`);
+  const head = ref.object.sha;
+  const base = await call(env, "GET", `/repos/${repo}/git/commits/${head}`);
+  const tree = changes.map(c => c.delete ? { path: c.path, mode: "100644", type: "blob", sha: null }
+    : { path: c.path, mode: "100644", type: "blob", content: c.content });
+  const newTree = await call(env, "POST", `/repos/${repo}/git/trees`, { base_tree: base.tree.sha, tree });
+  const commit = await call(env, "POST", `/repos/${repo}/git/commits`, { message, tree: newTree.sha, parents: [head] });
+  await call(env, "PATCH", `/repos/${repo}/git/refs/heads/${branch}`, { sha: commit.sha });
+  return { sha: commit.sha, url: `https://github.com/${repo}/commit/${commit.sha}` };
+}

@@ -153,6 +153,12 @@
   .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
 
   .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
+  /* Verweis auf den Blog, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken; leer = unsichtbar */
+  .site-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; }
+  .site-nav:empty { display: none; }
+  .site-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; text-decoration: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
+  .site-nav a:hover { color: var(--green); }
+  .site-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
   .language-nav[hidden] { display: none; }
   .language-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; border: 0; background: transparent; text-decoration: none; text-transform: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
   .language-nav a:hover { color: var(--green); }
@@ -188,6 +194,7 @@
 </head>
 <body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-version="20260918b">
 
+<nav class="site-nav" aria-label="Seiten"><!-- redaktion:blog-link --><!-- /redaktion:blog-link --></nav>
 <nav class="language-nav" aria-label="Sprache">
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
   <span aria-hidden="true">/</span>
