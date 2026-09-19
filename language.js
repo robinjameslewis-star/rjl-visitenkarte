@@ -23,7 +23,7 @@
 
       navContact: 'Termin',
       navMessage: 'Nachricht', messageTitle: 'Nachricht schreiben',
-      messageLead: 'Ohne Umweg über das Rotkehlchen. Ich antworte persönlich per E-Mail.',
+      messageLead: 'Ich antworte persönlich per E-Mail.',
       fieldName: 'Name', fieldEmail: 'E-Mail-Adresse', fieldPhone: 'Telefon', optional: '(freiwillig)', fieldMessage: 'Nachricht',
       send: 'Senden', sending: 'Wird gesendet …', messageSent: 'Danke – deine Nachricht ist angekommen. Ich melde mich per E-Mail.',
       messageInvalid: 'Bitte Name, eine gültige E-Mail-Adresse und eine Nachricht angeben.',
@@ -77,7 +77,7 @@
 
       navContact: 'Appointment',
       navMessage: 'Message', messageTitle: 'Write a message',
-      messageLead: 'No detour via the robin. I reply personally by email.',
+      messageLead: 'I reply personally by email.',
       fieldName: 'Name', fieldEmail: 'Email address', fieldPhone: 'Phone', optional: '(optional)', fieldMessage: 'Message',
       send: 'Send', sending: 'Sending …', messageSent: 'Thank you – your message has arrived. I will get back to you by email.',
       messageInvalid: 'Please give your name, a valid email address and a message.',
