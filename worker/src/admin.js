@@ -642,6 +642,9 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 </div>
 <p class="note" id="pslug"></p>
 <div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpvshow" hidden>Vorschau anzeigen</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
+<div class="box" id="pshare" hidden><h3>Auf LinkedIn teilen</h3><p class="note">Öffnet LinkedIn am Rechner mit diesem Text; dort siehst du die Vorschau und klickst „Posten“. Auf dem Handy übergibt LinkedIn nur den Link – dann „Text kopieren“ und einfügen. Titel, Kurzfassung und das erste Bild des Beitrags liefert die Seite als Vorschau mit.</p>
+<label for="pstext">Text für LinkedIn</label><textarea id="pstext" style="min-height:96px;font-family:inherit;font-size:14px"></textarea>
+<div class="bar"><button type="button" class="quiet" id="pshareli">Auf LinkedIn teilen</button><button type="button" class="quiet" id="pscopy">Text kopieren</button><span class="note" id="psurl" style="word-break:break-all"></span><span class="msg" id="mS"></span></div></div>
 </div><div class="pv" id="pv"><div class="pvbar"><span style="flex:1">Vorschau – so sieht der Beitrag auf der Website aus</span><button type="button" class="quiet" id="bpvwin" title="Für den zweiten Bildschirm">Eigenes Fenster</button><button type="button" class="quiet" id="bpvhide">Ausblenden</button></div><iframe id="bframe" title="Vorschau"></iframe><p class="note" id="pvnote" style="margin:4px 0 0"></p></div></div>
 </div></section>
 
@@ -715,9 +718,9 @@ let B=null,editing=null;
 function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;
  $('bsrc').innerHTML=b.visible?'Auf der Website: <b>sichtbar</b> – '+b.published+(b.published===1?' veröffentlichter Beitrag':' veröffentlichte Beiträge')+'.':'Auf der Website: <b>verborgen</b> – '+esc(b.reason)+' ('+b.published+' veröffentlicht, '+b.posts.length+' insgesamt.)';
  $('bopen').href=b.url;$('bopen').hidden=!b.visible;
- $('bposts').innerHTML=b.posts.map(p=>'<li><span class="note" style="min-width:90px">'+p.date+'</span><span class="lang">'+p.lang+'</span><span style="flex:1">'+esc(p.title)+'</span><span class="note">'+(p.status==='published'?'veröffentlicht':'Entwurf')+'</span><button class="quiet" data-slug="'+esc(p.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button></li>').join('');
+ $('bposts').innerHTML=b.posts.map(p=>'<li><span class="note" style="min-width:90px">'+p.date+'</span><span class="lang">'+p.lang+'</span><span style="flex:1">'+esc(p.title)+'</span><span class="note">'+(p.status==='published'?'veröffentlicht':'Entwurf')+'</span>'+(p.status==='published'?'<button class="quiet" data-share="'+esc(p.slug)+'" title="Auf LinkedIn teilen" style="padding:4px 10px;font-size:13px">LinkedIn</button>':'')+'<button class="quiet" data-slug="'+esc(p.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button></li>').join('');
  $('bnote').textContent=b.posts.length?'':'Noch keine Beiträge. „+ Neuer Beitrag“ legt den ersten an; als Entwurf bleibt er unsichtbar, bis du ihn veröffentlichst.';}
-function openEditor(p,meta){editing=p?p.slug:null;$('beditor').hidden=false;$('mP').textContent='';
+function openEditor(p,meta){editing=p?p.slug:null;savedStatus=p?p.status:null;$('beditor').hidden=false;$('mP').textContent='';
  $('ptitle').value=p?p.title:'';$('pdate').value=p?p.date:new Date().toISOString().slice(0,10);$('plang').value=p?p.lang:'de';$('pstatus').value=p?p.status:'draft';$('psummary').value=p?p.summary:'';$('pbody').value=p?p.body:'';
  $('pslug').textContent=p?'Adresse: '+B.url+p.slug+'/':'Die Adresse entsteht aus dem Titel und bleibt danach fest.';
  $('bprev').hidden=!p;$('bprev').disabled=!(meta&&meta.hasPrev);$('bdel').hidden=!p;$('bhist').hidden=!p;if(meta)$('bhist').href=meta.historyUrl;
@@ -725,9 +728,9 @@ function openEditor(p,meta){editing=p?p.slug:null;$('beditor').hidden=false;$('m
 function postBody(){return {slug:editing||'',title:$('ptitle').value,date:$('pdate').value,lang:$('plang').value,status:$('pstatus').value,summary:$('psummary').value,body:$('pbody').value};}
 $('bsave').onclick=async()=>{if(!confirm('Blog-Einstellungen jetzt veröffentlichen?'))return;try{const r=await api('blog/settings','PUT',{enabled:$('benabled').checked,title:{de:$('btde').value,en:$('bten').value},intro:{de:$('bide').value,en:$('bien').value}});renderBlog(r);say('mB',r.note,true);}catch(e){say('mB',e.message);}};
 $('bnew').onclick=()=>openEditor(null);
-$('bposts').onclick=async e=>{const b=e.target.closest('button[data-slug]');if(!b)return;try{const d=await api('blog/post?slug='+encodeURIComponent(b.dataset.slug));openEditor(d.post,d);}catch(err){say('mB',err.message);}};
+$('bposts').onclick=async e=>{const sh=e.target.closest('button[data-share]');if(sh){const p=B.posts.find(x=>x.slug===sh.dataset.share);openLinkedIn(shareText(p.summary,p.title,shareUrlFor(p.slug)),shareUrlFor(p.slug));return;}const b=e.target.closest('button[data-slug]');if(!b)return;try{const d=await api('blog/post?slug='+encodeURIComponent(b.dataset.slug));openEditor(d.post,d);}catch(err){say('mB',err.message);}};
 $('bcancel').onclick=()=>{$('beditor').hidden=true;editing=null;pvLayout();};
-$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);dropDraft();editing=r.slug;dropDraft();$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
+$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);dropDraft();editing=r.slug;dropDraft();savedStatus=st;shareBox();$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
 $('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);dropDraft();$('beditor').hidden=true;editing=null;pvLayout();say('mB',r.note,true);}catch(e){say('mP',e.message);}};
 $('bprev').onclick=async()=>{if(!editing||!confirm('Vorige Fassung dieses Beitrags wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{const r=await api('blog/post/restore','POST',{slug:editing});renderBlog(r);const d=await api('blog/post?slug='+encodeURIComponent(editing));openEditor(d.post,d);say('mP',r.note,true);}catch(e){say('mP',e.message);}};
 // ---- Editor: Werkzeuge ----
@@ -817,7 +820,18 @@ $('bpvhide').onclick=()=>{try{localStorage.setItem('redaktion:vorschau','aus');}
 $('bpvshow').onclick=()=>{try{localStorage.removeItem('redaktion:vorschau');}catch(e){}pvLayout();refreshPreview();};
 ['pdate','plang'].forEach(id=>{$(id).onchange=changed;});
 window.addEventListener('beforeunload',()=>{if(pvWin&&!pvWin.closed)pvWin.close();});
-const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);$('plink').hidden=true;count();offerDraft(p);loadPreview();api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
+// ---- Teilen: LinkedIn (Stufe 1 – öffnet LinkedIns Teilen-Fenster mit vorbelegtem Text; gepostet wird dort) ----
+let savedStatus=null;
+function shareUrlFor(slug){return B?B.url+slug+'/':'';}
+function shareText(summary,title,url){return (summary||title||'').trim()+'\\n\\n'+url;}
+function shareBox(){const on=!!(editing&&savedStatus==='published');$('pshare').hidden=!on;if(!on)return;const url=shareUrlFor(editing);$('psurl').textContent=url;
+ if($('pstext').dataset.slug!==editing){$('pstext').dataset.slug=editing;$('pstext').value=shareText($('psummary').value,$('ptitle').value,url);}}
+// Am Rechner nimmt LinkedIn den Text vorbelegt entgegen (inoffiziell, klappt seit Jahren); auf dem Handy nur den Link – dort Text kopieren und einfügen.
+function openLinkedIn(text,url){const mobile=matchMedia('(max-width: 900px)').matches;const u=(text.trim()&&!mobile)?'https://www.linkedin.com/feed/?shareActive=true&text='+encodeURIComponent(text.trim()):'https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url);
+ const w=window.open(u,'_blank','noopener');if(!w)say('mS','Der Browser hat das Fenster blockiert – bitte Pop-ups für diese Seite erlauben.');}
+$('pshareli').onclick=()=>openLinkedIn($('pstext').value,shareUrlFor(editing));
+$('pscopy').onclick=async()=>{try{await navigator.clipboard.writeText($('pstext').value);say('mS','Text kopiert.',true);}catch(e){say('mS','Kopieren nicht möglich – bitte den Text markieren und kopieren.');}};
+const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);$('plink').hidden=true;count();offerDraft(p);shareBox();loadPreview();api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
 api('blog').then(b=>b&&renderBlog(b)).catch(e=>{$('bsrc').textContent='Blog nicht ladbar: '+e.message;});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}

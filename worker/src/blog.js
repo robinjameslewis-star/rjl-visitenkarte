@@ -147,7 +147,7 @@ const T = {
   en: { back: "Robin James Lewis", all: "All posts", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
 
-function shell({ lang, title, description, depth, main, siteUrl, canonical, base }) {
+function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {} }) {
   const up = base || "../".repeat(depth), t = T[lang];
   return `<!doctype html>
 <html lang="${lang}">
@@ -160,6 +160,15 @@ function shell({ lang, title, description, depth, main, siteUrl, canonical, base
 <link rel="apple-touch-icon" href="${up}assets/apple-touch-icon.png">
 <link rel="alternate" type="application/rss+xml" title="Robin James Lewis – Blog" href="${up}blog/feed.xml">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">` : ""}
+<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:type" content="${og.type || "website"}">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(description)}">
+<meta property="og:locale" content="${lang === "en" ? "en_GB" : "de_DE"}">
+${canonical ? `<meta property="og:url" content="${esc(canonical)}">` : ""}
+${og.image ? `<meta property="og:image" content="${esc(og.image)}">` : ""}
+${og.published ? `<meta property="article:published_time" content="${og.published}">` : ""}
+<meta name="twitter:card" content="${og.image ? "summary_large_image" : "summary"}">
 <style>
 @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("${up}assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
 :root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
@@ -224,6 +233,14 @@ ${main}
 `;
 }
 
+// Erstes Bild eines Beitrags, absolut – für die Vorschau beim Teilen (LinkedIn, WhatsApp, Signal).
+export function firstImage(md, siteUrl) {
+  const m = String(md).match(/!\[[^\]]*\]\(([^)\s]+)\)/);
+  if (!m) return "";
+  if (/^bilder\/[a-z0-9._-]+$/i.test(m[1])) return siteUrl ? `${siteUrl}blog/${m[1]}` : "";
+  return /^https:\/\//i.test(m[1]) ? m[1] : "";
+}
+
 export function renderPostPage(post, settings, siteUrl, base) {
   const t = T[post.lang];
   const main = `<article lang="${post.lang}">
@@ -242,7 +259,8 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
 });
 </script>`;
   return shell({ lang: post.lang, title: post.title, description: post.summary || plainText(post.body).slice(0, 160), depth: 2, main,
-    siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base });
+    siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base,
+    og: { type: "article", image: firstImage(post.body, siteUrl), published: post.date } });
 }
 
 export function renderListPage(posts, settings, siteUrl) {

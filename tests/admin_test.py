@@ -115,10 +115,26 @@ async def main():
             check(await ev("!document.getElementById('pdraft').hidden"), "nicht gespeicherter Text wird angeboten")
             await ev("document.getElementById('pdraftuse').click()"); await wait(400)
             check(await ev("document.getElementById('ptitle').value") == "Anderer Titel", "Wiederherstellen setzt Titel und Text")
-            await ev("window.confirm=()=>true;document.getElementById('bpsave').click()"); await wait(800)
+            await ev("window.confirm=()=>true;document.getElementById('pstatus').value='published';document.getElementById('bpsave').click()"); await wait(800)
             check(await ev("Object.keys(localStorage).filter(k=>k.startsWith('redaktion:entwurf:')).length===0"), "nach dem Speichern ist die Sicherung weg")
 
-            print("8. Konsole")
+            print("8. Auf LinkedIn teilen (Stufe 1)")
+            # window.open abfangen, statt wirklich LinkedIn zu öffnen
+            await ev("window.__opened=[];window.open=(u)=>{window.__opened.push(u);return {closed:false};}")
+            check(await ev("document.getElementById('pshare').hidden") is False, "Teilen-Kasten nach dem Veröffentlichen sichtbar")
+            text = await ev("document.getElementById('pstext').value")
+            check(text.startswith("Ein Test.") and text.endswith("https://example.org/blog/erster-beitrag/"), "Text vorbelegt: Kurzfassung + Adresse", text.replace("\n", "⏎"))
+            await ev("document.getElementById('pshareli').click()")
+            opened = await ev("window.__opened.pop()")
+            check(opened.startswith("https://www.linkedin.com/feed/?shareActive=true&text=") and "example.org%2Fblog%2Ferster-beitrag" in opened, "öffnet LinkedIn mit dem Text", opened[:90])
+            check(await ev("!!document.querySelector('#bposts button[data-share=\"erster-beitrag\"]')"), "LinkedIn-Knopf in der Liste beim veröffentlichten Beitrag")
+            await ev("document.querySelector('#bposts button[data-share=\"erster-beitrag\"]').click()")
+            check("erster-beitrag" in (await ev("window.__opened.pop()") or ""), "Listen-Knopf öffnet LinkedIn")
+            # Entwurf: kein Teilen
+            await ev("document.getElementById('bcancel').click();document.getElementById('bnew').click()"); await wait(300)
+            check(await ev("document.getElementById('pshare').hidden"), "kein Teilen-Kasten bei neuem Entwurf")
+
+            print("9. Konsole")
             check(not console, "keine Fehler", "; ".join(console)[:200])
     finally:
         proc.terminate()

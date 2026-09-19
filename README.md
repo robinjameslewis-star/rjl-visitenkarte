@@ -272,5 +272,13 @@ Website und folgt jedem Tastendruck – derselbe Renderer wie beim Veröffentlic
 `worker/src/blog.js`, als Quelltext in die Seite eingebettet). „Eigenes Fenster“ öffnet die Vorschau als
 eigenes Browserfenster für einen zweiten Bildschirm (die eingebaute macht dann Platz, bis das Fenster zugeht);
 „Ausblenden“ merkt sich der Browser.
+**Auf LinkedIn teilen (Stufe 1):** Bei einem veröffentlichten Beitrag zeigt der Editor einen Kasten mit vorbelegtem
+Text (Kurzfassung + Adresse, änderbar); „Auf LinkedIn teilen“ öffnet LinkedIn am Rechner mit diesem Text
+(`feed/?shareActive=true&text=…`, inoffiziell, nur Desktop), auf dem Handy das offizielle Teilen-Fenster nur mit
+dem Link (`sharing/share-offsite/?url=…`) – gepostet wird immer bei LinkedIn selbst, nichts geht automatisch raus.
+In der Beitragsliste gibt es den Knopf „LinkedIn“ ebenfalls. Die Blogseiten tragen dafür Open-Graph-Angaben
+(Titel, Kurzfassung, erstes Bild des Beitrags, Datum), die auch WhatsApp und Signal für die Vorschau nutzen.
+Eine Vollautomatik über LinkedIns API (App an eine Unternehmensseite gebunden, Berechtigung läuft alle 60 Tage ab)
+ist bewusst nicht gebaut – siehe Vault-Briefing.
 Ausprobieren ohne Anmeldung und ohne GitHub: `node tests/admin_fake.mjs 8789` → http://localhost:8789/admin;
 Prüfung des Editors in Headless-Chrome: `python3 tests/admin_test.py`.
