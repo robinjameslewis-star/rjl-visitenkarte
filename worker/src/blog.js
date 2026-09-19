@@ -85,12 +85,26 @@ export function inline(text, imgBase) {
   return s;
 }
 
-export function renderMarkdown(md, imgBase) {
+// YouTube-Adresse allein in einem Absatz (optional eine Titelzeile darunter) → Platzhalter; der Player lädt erst beim Klick.
+const YT = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#\s]*&)?v=|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#][^\s]*)?$/;
+const YT_TEXT = {
+  de: { kicker: "Video · YouTube", load: "Video laden", note: "Beim Klick werden Inhalte von YouTube (Google) geladen.", privacy: "Datenschutz" },
+  en: { kicker: "Video · YouTube", load: "Load video", note: "Clicking loads content from YouTube (Google).", privacy: "Privacy" },
+};
+export const videosUsed = md => String(md).split(/\n{2,}/).map(b => b.trim().split("\n")[0].trim().match(YT)).filter(Boolean).map(m => m[1]);
+
+export function renderMarkdown(md, imgBase, lang = "de") {
   const blocks = String(md).replace(/\r\n?/g, "\n").split(/\n{2,}/).map(b => b.replace(/^\n+|\n+$/g, "")).filter(Boolean);
   const out = [];
   for (const block of blocks) {
     const lines = block.split("\n");
     const il = t => inline(t, imgBase);
+    const yt = lines[0].trim().match(YT);
+    if (yt && lines.length <= 2) {
+      const t = YT_TEXT[lang] || YT_TEXT.de, title = lines[1] ? il(lines[1].trim()) : "";
+      out.push(`<div class="yt" data-video="${yt[1]}" data-title="${esc(lines[1] ? lines[1].trim() : "YouTube")}"><span class="yt-kicker">${t.kicker}</span>${title ? `<span class="yt-title">${title}</span>` : ""}<button type="button" class="yt-play">${t.load}</button><span class="yt-note">${t.note} <a href="${esc((imgBase || "") + "../#privacy")}">${t.privacy}</a></span></div>`);
+      continue;
+    }
     if (/^#{2,3}\s/.test(lines[0]) && lines.length === 1) { const level = lines[0].match(/^(#+)/)[1].length; out.push(`<h${level}>${il(lines[0].replace(/^#+\s*/, ""))}</h${level}>`); continue; }
     if (/^(---|\*\*\*)$/.test(block)) { out.push("<hr>"); continue; }
     if (lines.every(l => /^>\s?/.test(l))) {
@@ -102,7 +116,7 @@ export function renderMarkdown(md, imgBase) {
         out.push(`<a class="ref" href="${esc(card[2])}" rel="noopener"><span class="ref-host">${esc(host)}</span><span class="ref-title">${inline(card[1], imgBase)}</span>${rest ? `<span class="ref-text">${inline(rest, imgBase).replace(/\n/g, "<br>")}</span>` : ""}</a>`);
         continue;
       }
-      out.push(`<blockquote>${renderMarkdown(inner.join("\n"), imgBase)}</blockquote>`); continue;
+      out.push(`<blockquote>${renderMarkdown(inner.join("\n"), imgBase, lang)}</blockquote>`); continue;
     }
     if (lines.every(l => /^[-*]\s+/.test(l))) { out.push("<ul>" + lines.map(l => `<li>${il(l.replace(/^[-*]\s+/, ""))}</li>`).join("") + "</ul>"); continue; }
     if (lines.every(l => /^\d+\.\s+/.test(l))) { out.push("<ol>" + lines.map(l => `<li>${il(l.replace(/^\d+\.\s+/, ""))}</li>`).join("") + "</ol>"); continue; }
@@ -159,6 +173,15 @@ article p { margin: 0 0 18px; }
 article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 article blockquote { margin: 24px 0; padding: 2px 0 2px 18px; border-left: 2px solid var(--copper); color: var(--ink-soft); }
 article blockquote p:last-child { margin-bottom: 0; }
+article .yt { aspect-ratio: 16 / 9; margin: 28px 0; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.35); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; gap: 8px; }
+article .yt.yt-on { padding: 0; border: 0; background: #000; display: block; }
+article .yt iframe { width: 100%; height: 100%; border: 0; display: block; }
+article .yt-kicker { font-size: 12px; color: var(--ink-muted); letter-spacing: .03em; }
+article .yt-title { font: 500 19px/1.3 var(--serif); color: var(--green); max-width: 40ch; }
+article .yt-play { margin-top: 6px; min-height: 44px; border: 1px solid #D97932; border-radius: 3px; padding: 9px 16px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+article .yt-play:hover { background: rgba(217,121,50,.08); }
+article .yt-note { font-size: 12px; color: var(--ink-muted); max-width: 44ch; }
+article .yt-note a { color: inherit; }
 article .ref { display: block; margin: 26px 0; padding: 14px 18px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; text-decoration: none; color: inherit; background: rgba(255,255,255,.35); }
 article .ref:hover { border-color: var(--copper); }
 article .ref-host { display: block; font-size: 12px; color: var(--ink-muted); letter-spacing: .03em; margin-bottom: 4px; }
@@ -198,8 +221,18 @@ export function renderPostPage(post, settings, siteUrl, base) {
   const main = `<article lang="${post.lang}">
 <h1>${esc(post.title)}</h1>
 <p class="meta"><time datetime="${post.date}">${dateText(post.date, post.lang)}</time></p>
-${renderMarkdown(post.body, base ? base + "blog/" : "../")}
-</article>`;
+${renderMarkdown(post.body, base ? base + "blog/" : "../", post.lang)}
+</article>
+<script>
+document.querySelectorAll(".yt-play").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var box = b.closest(".yt"), id = box.dataset.video, f = document.createElement("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/" + id + "?autoplay=1&rel=0"; f.title = box.dataset.title;
+    f.allow = "autoplay; encrypted-media; picture-in-picture"; f.allowFullscreen = true; f.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+    box.replaceChildren(f); box.classList.add("yt-on");
+  });
+});
+</script>`;
   return shell({ lang: post.lang, title: post.title, description: post.summary || plainText(post.body).slice(0, 160), depth: 2, main,
     siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base });
 }
