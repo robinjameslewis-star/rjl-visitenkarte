@@ -9,6 +9,7 @@ import { z } from "zod";
 import PROFILE from "../profile.md";
 import AKTUELL from "../aktuell.md";
 import LINKS_MD from "../links.md";
+import { handleAdmin } from "./admin.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -66,6 +67,11 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/") return new Response("Goch", { headers: { "content-type": "text/plain; charset=utf-8" } });
+    // Dashboard für Robin (Anmeldung per E-Mail-Code, Inhalte im KV) – eigene Seite, kein CORS.
+    if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+      return handleAdmin(request, env, ctx, { parseLinks, aktuellFile: AKTUELL, linksFile: LINKS_MD,
+        profileWords: PROFILE.split(/\s+/).filter(Boolean).length });
+    }
     if (request.method !== "POST" || url.pathname !== "/chat") return json({ error: "Nicht gefunden." }, 404, cors);
     if (allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
 
@@ -124,13 +130,14 @@ export default {
       const key = "usage:" + new Date().toISOString().slice(0, 10);
       const used = +(await env.USAGE.get(key) || 0);
       if (used >= +(env.MAX_PER_DAY || 60)) return json({ reply: t.quiet, action: null }, 200, cors);
-      ctx.waitUntil(env.USAGE.put(key, String(used + 1), { expirationTtl: 172800 }));
+      ctx.waitUntil(env.USAGE.put(key, String(used + 1), { expirationTtl: 35 * 86400 }));
     }
 
-    const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + AKTUELL + LINKS_PROMPT + "\n\n" + FORMAT;
+    const content = await loadContent(env);
+    const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
     let text;
     try {
-      text = await complete(env, system, messages);
+      text = await complete(env, system, messages, content.linkIds);
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -141,14 +148,14 @@ export default {
       return json({ reply: t.quiet, action: null, ...(body.debug === true ? { detail } : {}) }, 200, cors);
     }
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
-    const out = parse(text);
+    const out = parse(text, content.linkIds);
     if (body.debug === true) { out.raw = String(text).slice(0, 2000); out.usage = lastUsage; }
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
     if (env.USAGE && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
     // Link: das Modell nennt nur eine Kennung, die Adresse kommt aus links.md. Jeder Link einmal je Gespräch –
     // die Seite hängt „(Link: Text)“ an den Verlauf, daran erkennt der Worker, was schon angeboten wurde.
-    out.link = resolveLink(out.link, lang, messages);
+    out.link = resolveLink(out.link, lang, messages, content.links);
 
     // Der Draht: Nachricht an Robin. Das Protokoll gehört dem Worker, nicht dem Modell:
     // Felder notfalls aus dem Verlauf ergänzen, die Zusammenfassung selbst schreiben, und senden
@@ -267,6 +274,18 @@ function completeMessage(m, messages) {
   return out;
 }
 
+// Inhalte, die Robin im Dashboard pflegt, liegen im KV und gehen der Datei vor (content:aktuell, content:links).
+async function loadContent(env) {
+  let aktuell = AKTUELL, linksMd = LINKS_MD;
+  if (env.USAGE) {
+    const [a, l] = await Promise.all([env.USAGE.get("content:aktuell").catch(() => null), env.USAGE.get("content:links").catch(() => null)]);
+    if (a) aktuell = a;
+    if (l) linksMd = l;
+  }
+  const links = parseLinks(linksMd);
+  return { aktuell, links, linkIds: links.map(x => x.id) };
+}
+
 // links.md: Tabelle „Kennung | Wann | Text DE | Text EN | Adresse“. Zeilen ohne gültige https-Adresse gelten nicht.
 function parseLinks(md) {
   const out = [];
@@ -283,14 +302,14 @@ function parseLinks(md) {
   }
   return out;
 }
-const LINKS = parseLinks(LINKS_MD);
-const LINK_IDS = LINKS.map(l => l.id);
-const LINKS_PROMPT = LINKS.length ? "\n\n# Links, die du anbieten darfst\n\nGib im Feld \"link\" die Kennung an – nur wenn die Frage " +
-  "das Thema selbst trifft, höchstens einen je Antwort, sonst null. Die Adresse schreibst du nie in den Text.\n" +
-  LINKS.map(l => `- ${l.id}: ${l.when}`).join("\n") : "";
-
-function resolveLink(id, lang, messages) {
-  const l = LINKS.find(x => x.id === id);
+function linksPrompt(links) {
+  if (!links.length) return "";
+  return "\n\n# Links, die du anbieten darfst\n\nGib im Feld \"link\" die Kennung an – nur wenn die Frage " +
+    "das Thema selbst trifft, höchstens einen je Antwort, sonst null. Die Adresse schreibst du nie in den Text.\n" +
+    links.map(l => `- ${l.id}: ${l.when}`).join("\n");
+}
+function resolveLink(id, lang, messages, links) {
+  const l = links.find(x => x.id === id);
   if (!l) return null;
   const label = lang === "en" ? l.en : l.de;
   const offered = messages.some(m => m.role === "assistant" && m.content.includes("(Link: " + label + ")"));
@@ -298,14 +317,14 @@ function resolveLink(id, lang, messages) {
 }
 
 // Antwortschema: das Modell kann nur dieses Format liefern – kein kaputtes JSON, keine Platzhalter im Aufbau.
-const GochOutput = z.object({
+const gochOutput = linkIds => z.object({
   reply: z.string(),
   action: z.enum(["calendar", "contact", "message"]).nullable(),
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
-  link: LINK_IDS.length ? z.enum(LINK_IDS).nullable() : z.null(),
+  link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
 });
 
-async function complete(env, system, messages) {
+async function complete(env, system, messages, linkIds = []) {
   const provider = env.PROVIDER || "workers-ai";
   if (provider === "anthropic") {
     if (!env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY fehlt");
@@ -317,7 +336,7 @@ async function complete(env, system, messages) {
       system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
       messages,
       // Kurze Gesprächsantworten brauchen wenig Denkarbeit; das Schema erzwingt das Antwortformat.
-      output_config: { effort: "low", format: zodOutputFormat(GochOutput) },
+      output_config: { effort: "low", format: zodOutputFormat(gochOutput(linkIds)) },
       // Empfehlung von Anthropic: bei einer seltenen Ablehnung durch die Sicherheitsprüfung
       // beantwortet ein Schwestermodell die Anfrage im selben Aufruf.
       betas: ["server-side-fallback-2026-07-01"],
@@ -335,7 +354,7 @@ async function complete(env, system, messages) {
     repetition_penalty: 1.15, frequency_penalty: 0.4 };
   let d, first;
   try {
-    d = await env.AI.run(model, { ...input, response_format: { type: "json_schema", json_schema: SCHEMA } });
+    d = await env.AI.run(model, { ...input, response_format: { type: "json_schema", json_schema: schemaFor(linkIds) } });
   } catch (e) {
     first = e;
     try { d = await env.AI.run(model, input); }
@@ -344,16 +363,16 @@ async function complete(env, system, messages) {
   return asText(d);
 }
 
-const SCHEMA = {
+const schemaFor = linkIds => ({
   type: "object",
   properties: {
     reply: { type: "string" },
     action: { type: ["string", "null"], enum: ["calendar", "contact", "message", null] },
-    link: { type: ["string", "null"], enum: [...LINK_IDS, null] },
+    link: { type: ["string", "null"], enum: [...linkIds, null] },
     message: { type: ["object", "null"], properties: { name: { type: "string" }, email: { type: "string" }, text: { type: "string" } }, required: ["name", "email", "text"] },
   },
   required: ["reply", "action"],
-};
+});
 
 // Workers AI antwortet je nach Modell und Modus mit Text, { response: Text }, { response: Objekt }
 // oder im OpenAI-Format; alles wird zu dem Text, den parse() liest.
@@ -369,7 +388,7 @@ function asText(d) {
 
 const EMAIL = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
 
-function parse(text) {
+function parse(text, linkIds = []) {
   text = String(text);
   const m = text.match(/\{[\s\S]*\}/);
   if (m) {
@@ -377,7 +396,7 @@ function parse(text) {
       const o = JSON.parse(m[0]);
       const action = ["calendar", "contact", "message"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
-      const out = { reply: tidy(reply), action, link: LINK_IDS.includes(o.link) ? o.link : null };
+      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null };
       if (action === "message" && o.message && typeof o.message === "object") out.message = o.message;
       return out;
     } catch {}
@@ -387,7 +406,7 @@ function parse(text) {
     const reply = (text.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/) || [])[1] || "";
     const action = (text.match(/"action"\s*:\s*"(calendar|contact|message)"/) || [])[1] || null;
     const link = (text.match(/"link"\s*:\s*"([a-z0-9-]+)"/) || [])[1] || null;
-    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: LINK_IDS.includes(link) ? link : null };
+    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null };
     if (action === "message") {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
