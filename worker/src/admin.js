@@ -9,6 +9,7 @@
 import * as gh from "./github.js";
 import * as pk from "./passkey.js";
 import * as blog from "./blog.js";
+import * as cfg from "./settings.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -54,6 +55,7 @@ export async function handleAdmin(request, env, ctx, deps) {
     return json({ passkeys: await listPasskeys(env) });
   }
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
+  if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
   if (m && CONTENT[m[1]]) {
     if (request.method === "PUT") return save(m[1], request, env, deps, session);
@@ -469,6 +471,51 @@ async function blogState(env, r) {
     url: (env.SITE_URL || "") + "blog/", historyUrl: gh.historyUrl(env, blog.POSTS_DIR), commit: r && r.commit ? r.commit.url : null };
 }
 
+// ---------- Goch: Betrieb (an/aus, Anbieter, Modell, Cache, Testfrage) ----------
+
+const ENDPOINT_ATTR = /data-chat-endpoint="[^"]*"/;
+async function gochApi(api, request, env, deps, session) {
+  try {
+    if (api === "goch" && request.method === "GET") return json(await gochState(env));
+    if (api === "goch" && request.method === "PUT") {
+      const input = await readJson(request);
+      const previous = await cfg.loadSettings(env, true);
+      const next = await cfg.saveSettings(env, input, previous);
+      let note = "Gespeichert – gilt ab der nächsten Frage.";
+      // An/aus auch auf der Seite: ohne Endpunkt öffnet der Vogel kein Gespräch, sondern fliegt wie früher.
+      if (next.enabled !== previous.enabled && gh.configured(env)) {
+        const home = await gh.getFile(env, "index.html");
+        if (home && ENDPOINT_ATTR.test(home.content)) {
+          const url = (env.CHAT_ENDPOINT || "https://rjl-goch.rjl.workers.dev/chat");
+          const html = home.content.replace(ENDPOINT_ATTR, `data-chat-endpoint="${next.enabled ? url : ""}"`);
+          if (html !== home.content) {
+            await gh.putFile(env, "index.html", html, `Redaktion: Goch ${next.enabled ? "eingeschaltet" : "ausgeschaltet"}`, home.sha);
+            note = next.enabled ? "Goch ist eingeschaltet – auf der Website in etwa einer Minute wieder da." : "Goch ist ausgeschaltet – der Worker antwortet nicht mehr, und die Website zeigt in etwa einer Minute kein Gespräch mehr.";
+          }
+        }
+      } else if (next.enabled !== previous.enabled) {
+        note = next.enabled ? "Goch antwortet wieder." : "Goch antwortet nicht mehr (die Sprechblase bleibt ohne GitHub-Schlüssel sichtbar und zeigt einen Hinweis).";
+      }
+      return json({ ...(await gochState(env)), note });
+    }
+    if (api === "goch/test" && request.method === "POST") {
+      const body = await readJson(request);
+      const settings = await cfg.loadSettings(env, true);
+      const started = Date.now();
+      const r = await deps.testGoch(env, String(body.question || "").slice(0, 600), settings, body.lang === "en" ? "en" : "de");
+      return json({ ...r, ms: Date.now() - started, model: r.usage && r.usage.model, provider: settings.provider });
+    }
+  } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
+async function gochState(env) {
+  const settings = await cfg.loadSettings(env, true);
+  let pageOn = null;
+  if (gh.configured(env)) { try { const home = await gh.getFile(env, "index.html"); const m = home && home.content.match(ENDPOINT_ATTR); pageOn = m ? /https?:/.test(m[0]) : null; } catch {} }
+  return { settings: cfg.publicSettings(settings, env), status: await cfg.readStatus(env), models: cfg.ANTHROPIC_MODELS, providers: cfg.PROVIDERS,
+    pageOn, keys: { anthropic: !!env.ANTHROPIC_API_KEY, custom: !!env.CUSTOM_API_KEY, workersAi: !!env.AI } };
+}
+
 // ---------- Helfer ----------
 
 async function readJson(request) { try { return await request.json(); } catch { return {}; } }
@@ -572,6 +619,20 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <iframe id="bframe" hidden title="Vorschau" style="width:100%;height:560px;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:12px"></iframe>
 </div></section>
 
+<section><h2>Goch – Betrieb</h2><p class="src" id="gstat"></p>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="genabled" style="width:auto;margin:0"> Goch ist eingeschaltet (antwortet auf der Website)</label>
+<p class="note" style="margin:0 0 10px">Aus heißt: Der Worker antwortet nicht mehr, und die Website zeigt kein Gespräch – der Vogel fliegt beim Klick wie früher. Beides sofort bzw. nach einer Minute.</p>
+<label for="gprovider">Anbieter</label><select id="gprovider" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"></select>
+<div id="ganthropic"><label for="gmodel">Modell</label><select id="gmodel" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"></select>
+<label style="display:flex;gap:8px;align-items:center;font-size:14px;color:var(--ink);margin:10px 0 0"><input type="checkbox" id="gcache" style="width:auto;margin:0"> Prompt-Cache verwenden (Profil wird zwischengespeichert – ab der zweiten Frage ein Zehntel des Eingabepreises)</label></div>
+<div id="gcustom" hidden><div class="row"><div><label for="gurl">Basis-Adresse der Schnittstelle</label><input id="gurl" placeholder="https://api.openai.com/v1"></div><div><label for="gcmodel">Modellname</label><input id="gcmodel" placeholder="z. B. gpt-4.1-mini"></div></div>
+<label for="gkey">API-Schlüssel des Anbieters <span class="note" id="gkeyhint"></span></label><input id="gkey" type="password" autocomplete="off" placeholder="leer lassen = unverändert">
+<p class="note">Der Anbieter bekommt denselben Kontext und dieselben Anweisungen wie Claude (Profil, Aktuell, Links, Antwortformat). Funktioniert mit jeder OpenAI-kompatiblen Schnittstelle: OpenAI, Mistral, Groq, DeepSeek, OpenRouter. Der Schlüssel liegt im Speicher des Workers; sicherer ist das Geheimnis <code>CUSTOM_API_KEY</code> per Terminal, das dann Vorrang hat.</p></div>
+<div class="bar"><button id="gsave">Speichern</button><span class="msg" id="mG"></span></div>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><label for="gq">Testfrage an das eingestellte Modell (kostet einen Cent, zählt nicht als Besucher)</label>
+<div class="bar" style="margin:0"><input id="gq" value="Wer ist Robin?" style="flex:1;min-width:200px"><button class="quiet" id="gtest">Fragen</button><span class="msg" id="mT"></span></div>
+<p id="gout" style="margin:10px 0 0;font-size:14px;white-space:pre-wrap"></p></div></section>
+
 <section><h2>Goch – Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
 <div class="stat"><b id="month">–</b><span>Antworten in 30 Tagen</span></div>
@@ -605,6 +666,24 @@ $('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCre
  renderKeys(d.passkeys);$('keyname').value='';say('mK','Passkey eingerichtet.',true);}catch(e){say('mK',e.name==='NotAllowedError'?'Abgebrochen oder abgelehnt.':e.name==='InvalidStateError'?'Dieses Gerät ist schon eingerichtet.':e.message);}};
 $('keys').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(!confirm('Diesen Passkey entfernen? Ist es der letzte, gilt danach wieder der E-Mail-Code als Erstzugang.'))return;try{const d=await api('passkeys','DELETE',{id:b.dataset.id});renderKeys(d.passkeys);}catch(err){say('mK',err.message);}};
 api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
+// ---- Goch: Betrieb ----
+let G=null;
+function renderGoch(g){G=g;const s=g.settings;$('genabled').checked=s.enabled;
+ $('gprovider').innerHTML=Object.entries(g.providers).map(([k,v])=>'<option value="'+k+'"'+(k===s.provider?' selected':'')+(k==='anthropic'&&!g.keys.anthropic?' disabled':'')+(k==='workers-ai'&&!g.keys.workersAi?' disabled':'')+'>'+esc(v)+'</option>').join('');
+ $('gmodel').innerHTML=g.models.map(m=>'<option value="'+m.id+'"'+(m.id===s.model?' selected':'')+'>'+esc(m.label)+'</option>').join('')+(g.models.some(m=>m.id===s.model)?'':'<option value="'+esc(s.model)+'" selected>'+esc(s.model)+'</option>');
+ $('gcache').checked=s.cache;$('gurl').value=s.custom.baseUrl;$('gcmodel').value=s.custom.model;$('gkey').value='';$('gkeyhint').textContent=s.custom.keySet?'(hinterlegt '+s.custom.keyHint+', Quelle: '+s.custom.keySource+')':'(fehlt)';
+ providerView();
+ const st=g.status;const live=s.provider==='anthropic'?s.model:s.provider==='openai'?(s.custom.model+' bei '+(s.custom.baseUrl||'?')):s.model;
+ $('gstat').innerHTML=(s.enabled?'<b>An.</b> ':'<b style="color:var(--warn)">Aus.</b> ')+'Eingestellt: <b>'+esc(g.providers[s.provider])+'</b> – '+esc(live)+(s.provider==='anthropic'?(s.cache?', Cache an':', Cache aus'):'')+
+  (st?'<br>Letzte Antwort '+fmt(st.at)+' von <b>'+esc(st.model||'?')+'</b>'+(st.cache_read!=null?' · Cache gelesen '+st.cache_read+' Tokens':'')+(st.output!=null?' · Ausgabe '+st.output+' Tokens':'')+(st.ms?' · '+st.ms+' ms':''):'<br>Noch keine Antwort gemerkt.')+
+  (g.pageOn===false?'<br><span style="color:var(--warn)">Die Startseite hat zurzeit keinen Endpunkt – Goch ist dort ausgeblendet.</span>':'');}
+function providerView(){const p=$('gprovider').value;$('ganthropic').hidden=p!=='anthropic';$('gcustom').hidden=p!=='openai';}
+$('gprovider').onchange=providerView;
+$('gsave').onclick=async()=>{const p=$('gprovider').value;const body={enabled:$('genabled').checked,provider:p,cache:$('gcache').checked,model:p==='anthropic'?$('gmodel').value:(p==='workers-ai'?'@cf/meta/llama-3.3-70b-instruct-fp8-fast':G.settings.model),custom:{baseUrl:$('gurl').value,model:$('gcmodel').value,key:$('gkey').value}};
+ if(G&&G.settings.enabled&&!body.enabled&&!confirm('Goch ausschalten? Besucher können dann nicht mehr mit ihm sprechen.'))return;
+ try{const r=await api('goch','PUT',body);renderGoch(r);say('mG',r.note,true);}catch(e){say('mG',e.message);}};
+$('gtest').onclick=async()=>{$('gtest').disabled=true;$('gout').textContent='';say('mT','fragt …');try{const r=await api('goch/test','POST',{question:$('gq').value});$('gout').textContent=r.reply+(r.link?'\\n[Link: '+r.link.label+']':'');say('mT','Antwort von '+(r.model||'?')+' in '+r.ms+' ms'+(r.usage&&r.usage.cache_read!=null?' · Cache gelesen '+r.usage.cache_read:'')+(r.usage&&r.usage.output!=null?' · Ausgabe '+r.usage.output+' Tokens':''),true);const g=await api('goch');renderGoch(g);}catch(e){say('mT',e.message);}finally{$('gtest').disabled=false;}};
+api('goch').then(g=>g&&renderGoch(g)).catch(e=>{$('gstat').textContent='Betrieb nicht ladbar: '+e.message;});
 // ---- Blog ----
 let B=null,editing=null;
 function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;

@@ -133,6 +133,15 @@ Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag i
 (`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung.
 Das Profil bleibt Datei mit Deploy (`profile.md`). GitHub-Zugriff: `src/github.js`.
 
+**Betrieb (Goch – Betrieb in der Redaktion, `src/settings.js`):** an/aus, Anbieter, Modell, Prompt-Cache,
+zweiter Anbieter über eine OpenAI-kompatible Schnittstelle – im KV (`settings:goch`), gilt ohne Deploy
+ab der nächsten Frage (je Instanz eine Minute gemerkt). „Aus“ schaltet den Worker (503) und entfernt per
+Commit den Endpunkt aus `index.html` (Vogel fliegt wieder statt zu sprechen); „An“ trägt `CHAT_ENDPOINT`
+wieder ein. Anzeige „verbunden“ = letzte erfolgreiche Antwort (`status:goch`: Modell, Zeit, Tokens).
+Testfrage: `POST /admin/api/goch/test` ruft das Modell mit dem echten Kontext, ohne Tageszähler.
+Der Schlüssel des zweiten Anbieters liegt im KV; das Geheimnis `CUSTOM_API_KEY` hat Vorrang.
+Die Werte in `wrangler.toml` (`PROVIDER`, `MODEL`) sind nur noch der Ausgangspunkt.
+
 **Blog:** `src/blog.js` – Einstellungen und Beiträge lesen/prüfen, Markdown-Teilmenge rendern, Liste,
 Beitragsseiten, RSS und Startseitenverweis bauen; `rebuild()` in `src/admin.js` schreibt Quelle und
 erzeugte Seiten als einen Commit (`commitFiles`, Git-Data-API). Vorschau über `/admin/api/blog/preview`.

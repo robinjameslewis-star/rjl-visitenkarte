@@ -26,6 +26,7 @@ MAIL_TO = "robinjameslewis@googlemail.com"
 MAIL_FROM = "Goch <onboarding@resend.dev>"  # mit eigener Domain: verifizierte Absenderadresse
 GITHUB_REPO = "robinjameslewis-star/rjl-visitenkarte"  # Speicher des Dashboards; Schlüssel: Geheimnis GITHUB_TOKEN
 GITHUB_BRANCH = "main"
+CHAT_ENDPOINT = "https://rjl-goch.rjl.workers.dev/chat"  # trägt die Redaktion beim Einschalten wieder in index.html ein
 SITE_URL = "https://robinjameslewis-star.github.io/rjl-visitenkarte/"  # für Blog-Verweise und RSS
 
 # Tageszähler für MAX_PER_DAY (angelegt 17.09.2026 mit: npx wrangler kv namespace create USAGE)

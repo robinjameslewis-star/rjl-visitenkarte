@@ -12,6 +12,7 @@ import LINKS_MD from "../links.md";
 import { handleAdmin } from "./admin.js";
 import { raw as githubRaw } from "./github.js";
 import { handleContact } from "./contact.js";
+import { loadSettings, rememberStatus } from "./settings.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -72,12 +73,16 @@ export default {
     // Dashboard für Robin (Anmeldung per E-Mail-Code, Inhalte im KV) – eigene Seite, kein CORS.
     if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
       return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD },
-        profileWords: PROFILE.split(/\s+/).filter(Boolean).length });
+        profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch });
     }
     if (request.method !== "POST" || (url.pathname !== "/chat" && url.pathname !== "/contact")) return json({ error: "Nicht gefunden." }, 404, cors);
     if (allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
     // Kontaktformular: zweiter Eingang neben Goch, gleiche Zustellung per Resend (src/contact.js)
     if (url.pathname === "/contact") return handleContact(request, env, ctx, cors);
+
+    // Betriebseinstellungen aus der Redaktion (an/aus, Anbieter, Modell, Cache)
+    const settings = await loadSettings(env);
+    if (!settings.enabled) return json({ error: "Goch ist zurzeit ausgeschaltet." }, 503, cors);
 
     // Eingabe
     let body; try { body = await request.json(); } catch { return json({ error: "Ungültige Anfrage." }, 400, cors); }
@@ -141,7 +146,7 @@ export default {
     const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
     let text;
     try {
-      text = await complete(env, system, messages, content.linkIds);
+      text = await complete(env, system, messages, content.linkIds, settings);
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -152,6 +157,7 @@ export default {
       return json({ reply: t.quiet, action: null, ...(body.debug === true ? { detail } : {}) }, 200, cors);
     }
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
+    ctx.waitUntil(rememberStatus(env, lastUsage, settings.provider));
     const out = parse(text, content.linkIds);
     if (body.debug === true) { out.raw = String(text).slice(0, 2000); out.usage = lastUsage; }
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
@@ -342,16 +348,19 @@ const gochOutput = linkIds => z.object({
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
 });
 
-async function complete(env, system, messages, linkIds = []) {
-  const provider = env.PROVIDER || "workers-ai";
+export async function complete(env, system, messages, linkIds = [], settings = null) {
+  settings = settings || { provider: env.PROVIDER || "anthropic", model: env.MODEL || "claude-opus-5", cache: true, custom: {} };
+  const provider = settings.provider;
+  const started = Date.now();
   if (provider === "anthropic") {
     if (!env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY fehlt");
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
     const response = await client.beta.messages.create({
-      model: env.MODEL || "claude-opus-5",
+      model: settings.model || "claude-opus-5",
       max_tokens: 1024,
       // Das Profil ist bei jeder Frage identisch → Prompt-Caching: ab der zweiten Frage ein Zehntel des Preises.
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+      // In der Redaktion abschaltbar (zum Vergleich der Kosten oder bei Problemen).
+      system: [{ type: "text", text: system, ...(settings.cache !== false ? { cache_control: { type: "ephemeral" } } : {}) }],
       messages,
       // Kurze Gesprächsantworten brauchen wenig Denkarbeit; das Schema erzwingt das Antwortformat.
       output_config: { effort: "low", format: zodOutputFormat(gochOutput(linkIds)) },
@@ -362,11 +371,34 @@ async function complete(env, system, messages, linkIds = []) {
     });
     if (response.stop_reason === "refusal") return JSON.stringify({ reply: "", action: "contact", message: null });
     lastUsage = { model: response.model, input: response.usage.input_tokens, cache_write: response.usage.cache_creation_input_tokens,
-      cache_read: response.usage.cache_read_input_tokens, output: response.usage.output_tokens };
+      cache_read: response.usage.cache_read_input_tokens, output: response.usage.output_tokens, ms: Date.now() - started };
     return response.content.filter(b => b.type === "text").map(b => b.text).join("");
   }
-  // Workers AI (Start). Erst im JSON-Modus (zuverlässiges Format), bei Ablehnung ohne.
-  const model = env.MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+  if (provider === "openai") {
+    // Anderer Anbieter über die OpenAI-kompatible Schnittstelle (OpenAI, Mistral, Groq, DeepSeek, OpenRouter, …).
+    // Bekommt denselben Kontext und dieselben Anweisungen; JSON-Antwort erbeten, parse() rettet notfalls.
+    const key = env.CUSTOM_API_KEY || settings.custom.key;
+    if (!key || !settings.custom.baseUrl || !settings.custom.model) throw new Error("Anderer Anbieter unvollständig eingerichtet");
+    const r = await fetch(settings.custom.baseUrl.replace(/\/+$/, "") + "/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", "authorization": "Bearer " + key },
+      body: JSON.stringify({
+        model: settings.custom.model, max_tokens: 600, temperature: 0.5,
+        response_format: { type: "json_object" },
+        messages: [{ role: "system", content: system + "\n\nAntworte ausschließlich mit dem JSON-Objekt." }, ...messages],
+      }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error("Anbieter " + r.status + ": " + String(d && d.error && d.error.message || JSON.stringify(d)).slice(0, 200));
+    const choice = d.choices && d.choices[0] && d.choices[0].message;
+    const text = choice ? (typeof choice.content === "string" ? choice.content : JSON.stringify(choice.content)) : "";
+    lastUsage = { model: d.model || settings.custom.model, input: d.usage && d.usage.prompt_tokens, output: d.usage && d.usage.completion_tokens,
+      cache_read: d.usage && d.usage.prompt_tokens_details && d.usage.prompt_tokens_details.cached_tokens, ms: Date.now() - started };
+    return text;
+  }
+  // Workers AI (kostenlos). Erst im JSON-Modus (zuverlässiges Format), bei Ablehnung ohne.
+  if (!env.AI) throw new Error("Workers AI nicht eingebunden");
+  const model = /^@cf\//.test(settings.model) ? settings.model : "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
   // Kürzeres Limit und Wiederholungsstrafe: das Modell neigt sonst zu Endlosschleifen aus Abschiedsformeln.
   const input = { messages: [{ role: "system", content: system }, ...messages], max_tokens: 320, temperature: 0.45,
     repetition_penalty: 1.15, frequency_penalty: 0.4 };
@@ -378,6 +410,7 @@ async function complete(env, system, messages, linkIds = []) {
     try { d = await env.AI.run(model, input); }
     catch (e2) { throw new Error("mit Schema: " + String(first && first.message || first) + " | ohne Schema: " + String(e2 && e2.message || e2)); }
   }
+  lastUsage = { model, ms: Date.now() - started };
   return asText(d);
 }
 
@@ -488,4 +521,17 @@ async function sendMail(env, m, lang, messages, withTranscript = true) {
 
 function json(obj, status, headers) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", ...headers } });
+}
+
+// Testfrage aus der Redaktion: derselbe Kontext, dieselben Anweisungen, das eingestellte Modell –
+// aber ohne Tageszähler, ohne Draht-Logik. Liefert Antwort und Verbrauch, damit Robin sieht, was verbunden ist.
+async function testGoch(env, question, settings, lang = "de") {
+  const content = await loadContent(env, null);
+  const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
+  lastUsage = null;
+  const text = await complete(env, system, [{ role: "user", content: String(question || (lang === "en" ? "Who is Robin?" : "Wer ist Robin?")).slice(0, 600) }], content.linkIds, settings);
+  const out = parse(text, content.linkIds);
+  out.link = resolveLink(out.link, lang, [], content.links);
+  await rememberStatus(env, lastUsage, settings.provider);
+  return { reply: out.reply, action: out.action, link: out.link, usage: lastUsage, raw: String(text).slice(0, 600) };
 }
