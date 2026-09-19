@@ -14,7 +14,7 @@ LAST = {}  # zuletzt empfangener Anfragekörper, für Tests des Verlaufs
 REPLIES = {
     'de': {
         'work': "Robin lernt gerade für die Abschlussprüfung zum Steuerfachangestellten, schriftlich Ende November. Daneben bekommt diese Seite eine Landschaft, und er baut kleine Werkzeuge für seinen Mac.",
-        'who': "Robin James Lewis lebt in Balingen am Fuß der Schwäbischen Alb, mit walisischen Wurzeln. Er wird Steuerfachangestellter und arbeitet daran, Verwaltung mit Software leichter zu machen. Sein Leitsatz: Glücklich sind die Friedensstifter, sie sind Kinder Gottes.",
+        'who': "Robin James Lewis lebt in Balingen am Fuß der Schwäbischen Alb, mit walisischen Wurzeln. Er wird Steuerfachangestellter und arbeitet daran, Verwaltung mit Software leichter zu machen. Sein Leitsatz: Selig sind die Friedensstifter, sie werden Kinder Gottes heißen.",
         'message': "Gern. Was soll ich Robin ausrichten – und wie heißt du, und unter welcher E-Mail-Adresse kann er dir antworten?",
         'confirm': "Ich richte Robin aus: {text} Von: {name}, {email}. Soll ich das so senden?",
         'sent': "Ausgerichtet. Robin antwortet dir persönlich per E-Mail an {email}.",
