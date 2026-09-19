@@ -147,6 +147,7 @@
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ lang: language.current, messages: history.slice(-24) })
       });
+      if (r.status === 503) { switchOff(); return; } // in der Redaktion ausgeschaltet: Vogel fliegt wieder statt zu sprechen
       if (!r.ok) throw new Error(String(r.status));
       data = await r.json();
       if (!data || typeof data.reply !== 'string') throw new Error('format');
@@ -178,7 +179,16 @@
     busy = false; setAvailability(); input.focus();
   }
 
-  scene.addEventListener('click', event => { event.preventDefault(); open(); });
+  // Goch ausgeschaltet (Worker antwortet 503, z. B. weil die Seite noch aus dem Cache kommt): Gespräch schließen,
+  // Vogel wie vor Goch – der Klick wiederholt den Anflug.
+  function switchOff() {
+    busy = false; history.length = 0; log.replaceChildren(); opened = false;
+    panel.hidden = true; scene.setAttribute('aria-expanded', 'false');
+    delete scene.dataset.chat; language.refresh();
+    scene.removeEventListener('click', onClick);
+  }
+  const onClick = event => { event.preventDefault(); open(); };
+  scene.addEventListener('click', onClick);
   closeButton.addEventListener('click', close);
   panel.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
   form.addEventListener('submit', event => { event.preventDefault(); const v = input.value; input.value = ''; ask(v); });
