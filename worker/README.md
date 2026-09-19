@@ -145,6 +145,15 @@ Die Werte in `wrangler.toml` (`PROVIDER`, `MODEL`) sind nur noch der Ausgangspun
 **Blog:** `src/blog.js` – Einstellungen und Beiträge lesen/prüfen, Markdown-Teilmenge rendern, Liste,
 Beitragsseiten, RSS und Startseitenverweis bauen; `rebuild()` in `src/admin.js` schreibt Quelle und
 erzeugte Seiten als einen Commit (`commitFiles`, Git-Data-API). Vorschau über `/admin/api/blog/preview`.
+Der Editor im Dashboard (Skript in `PAGE`, Abschnitt „Editor: Werkzeuge“) schreibt Markdown über
+`replaceRange()` mit `execCommand('insertText')`, damit ⌘Z funktioniert; Blöcke (Überschrift, Listen,
+Zitat, Karte, Video, Bild) bekommen automatisch Leerzeilen um sich, weil der Renderer Absätze an
+Leerzeilen trennt. Die YouTube-Prüfung im Browser ist dieselbe Regel wie `YT` in `blog.js`.
+Lokale Sicherung: `localStorage` unter `redaktion:entwurf:<slug|neu>`, gelöscht nach Speichern/Löschen.
+`PAGE` ist exportiert, damit `tests/admin_fake.mjs` die Seite ohne Anmeldung ausliefern kann.
+Achtung bei Änderungen am Seitenskript: Es steht in einem Template-Literal – `\n` und Regex-Escapes
+müssen dort doppelt (`\\n`) geschrieben werden; die Syntaxprüfung der eingebetteten Skripte
+(`new Function`) vor dem Deploy fängt das ab.
 
 **Lokal arbeiten:** Vor Änderungen an `worker/aktuell.md` oder `worker/links.md` erst `git pull`,
 weil das Dashboard direkt auf `main` schreibt.

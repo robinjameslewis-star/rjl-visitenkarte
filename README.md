@@ -25,6 +25,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `worker/profile.md`, `worker/aktuell.md` – was Goch weiß (von Robin freigegeben, öffentlich); `worker/src/index.js` der Cloudflare Worker
 - `worker/src/admin.js` – Redaktion – Backend der Website unter `/admin` (Aktuell, Links, Zähler; Anmeldung per E-Mail-Code)
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
+- `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
 - `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
 - `assets/ast.webp` – Ast-Ebene (verlustfreies WebP mit Transparenz, 48 KB), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
@@ -256,3 +257,12 @@ Links, Bilder, Trennlinie); kein HTML aus dem Text. Bilder lädt die Redaktion n
 höchstens 1,5 MB); im Text stehen sie als `![Beschreibung](bilder/name.jpg)`, sonst nur https-Adressen. Entwürfe stehen nicht auf der Seite,
 liegen aber als Datei im öffentlichen Repository. Die Marken in `index.html` nicht entfernen.
 `.nojekyll` sorgt dafür, dass GitHub Pages die erzeugten Dateien unverändert ausliefert.
+
+Der Editor in der Redaktion braucht kein Markdown-Wissen: Werkzeugleiste über dem Text (Überschrift,
+Fett, Kursiv, Aufzählung, Nummerierung, Zitat, Link, Linie – markieren und drücken, ⌘B/⌘I/⌘K; alles
+mit ⌘Z rückgängig), darunter Eingabeflächen für Bild (Hochladen), Verweis-Karte (Adresse, Titel, Satz)
+und YouTube-Video (Adresse wird geprüft und auf `watch?v=…` bereinigt, Vorschaubild zur Kontrolle);
+alles landet an der Cursorstelle als eigener Absatz. Wortzahl und Lesezeit stehen rechts in der
+Leiste. Während des Schreibens sichert der Browser den Text lokal (`localStorage`, nur auf dem Gerät);
+läuft die Sitzung ab oder geht der Tab zu, bietet der Editor den Stand beim nächsten Öffnen an.
+Ausprobieren ohne Anmeldung und ohne GitHub: `node tests/admin_fake.mjs 8789` → http://localhost:8789/admin.

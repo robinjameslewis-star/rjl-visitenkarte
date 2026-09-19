@@ -536,7 +536,7 @@ function html(s) {
 
 const STYLE = `
 :root{--paper:#F6F1E8;--ink:#2B2A28;--muted:#7A736A;--copper:#B06A3B;--line:#E2D9CB;--card:#FFFDF9;--ok:#4C7A4C;--warn:#A63D2F}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 -apple-system,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 -apple-system,"Helvetica Neue",Arial,sans-serif}
 main{max-width:920px;margin:0 auto;padding:28px 18px 60px}h1{font:600 22px/1.2 Georgia,"Times New Roman",serif;letter-spacing:.06em;margin:0 0 4px}
 h2{font:600 17px/1.3 Georgia,serif;margin:0 0 10px}.sub{color:var(--muted);margin:0 0 24px}
 section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:0 0 18px}
@@ -556,6 +556,11 @@ ul.q{list-style:none;padding:0;margin:0}ul.q li{display:flex;gap:10px;align-item
 ul.q .n{min-width:36px;color:var(--muted);font-variant-numeric:tabular-nums}ul.q .lang{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
 .src{font-size:12px;color:var(--muted)}.src b{color:var(--ink);font-weight:500}
 .login{max-width:420px;margin:12vh auto 0}
+.tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 6px}.tools button{padding:4px 11px;font-size:13px;background:#fff;color:var(--ink);border-color:var(--line)}.tools button:hover{border-color:var(--copper)}
+.box{margin:12px 0 0;padding:12px 14px 14px;border:1px dashed var(--line);border-radius:8px}.box h3{font:600 14px/1.3 Georgia,serif;margin:0}.box .note{margin:2px 0 0}.box label{margin:8px 0 3px}.box .bar{margin-top:10px}
+.boxes{display:grid;gap:12px;grid-template-columns:1fr 1fr}@media(max-width:720px){.boxes{grid-template-columns:1fr}}
+.draft{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:8px 12px;border:1px solid #E6C9A8;background:#FBF3E9;border-radius:8px;font-size:13px}
+.ytp{display:flex;gap:10px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted)}.ytp img{width:96px;height:54px;object-fit:cover;border-radius:4px;background:#eee}
 `;
 
 const LOGIN = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion – Anmeldung</title><style>${STYLE}</style></head>
@@ -582,7 +587,7 @@ $('pass').onclick=async()=>{$('m3').textContent='';try{if(!window.PublicKeyCrede
 fetch('/admin/login/mode').then(r=>r.json()).then(m=>{if(m.passkey){show(3);$('pass').focus();}else{show(1);$('send').focus();}}).catch(()=>{show(1);});
 </script></main></body></html>`;
 
-const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion · robinjameslewis</title><style>${STYLE}</style></head>
+export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Redaktion · robinjameslewis</title><style>${STYLE}</style></head>
 <body><main>
 <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h1>REDAKTION</h1><button class="quiet" id="logout">Abmelden</button></div>
 <p class="sub">Inhalte der Website robinjameslewis. Was du hier veröffentlichst, wird als Änderung im Repository gespeichert und ist innerhalb einer Minute live.</p>
@@ -605,15 +610,28 @@ const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta n
 <div class="row"><div><label for="plang">Sprache</label><select id="plang" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="de">Deutsch</option><option value="en">English</option></select></div>
 <div><label for="pstatus">Status</label><select id="pstatus" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="draft">Entwurf (nicht auf der Website)</option><option value="published">Veröffentlicht</option></select></div></div>
 <label for="psummary">Kurzfassung (ein, zwei Sätze – steht in der Liste und im RSS)</label><input id="psummary" maxlength="300">
-<label for="pbody">Text</label><textarea id="pbody" style="min-height:360px;font-family:inherit;font-size:15px"></textarea>
-<p class="note">Absätze durch Leerzeile. <code>## Zwischenüberschrift</code>, <code>**fett**</code>, <code>*kursiv*</code>, <code>- Aufzählung</code>, <code>1. Nummerierung</code>, <code>&gt; Zitat</code>, <code>[Linktext](https://…)</code> für Quellen und Verweise im Satz. Mehr nicht – und nichts davon kann die Seite kaputtmachen.</p>
-<p class="note"><b>Verweis-Karte</b> (LinkedIn-Beitrag, Instagram, YouTube, Artikel) – ein Zitatblock, dessen erste Zeile nur ein Link ist, wird zur Karte mit Titel und Beschreibung, ohne dass fremde Dienste auf deiner Seite geladen werden:<br><code>&gt; [Titel des Beitrags](https://www.linkedin.com/posts/…)</code><br><code>&gt; Ein Satz dazu, warum das lesenswert ist.</code> <button type="button" class="quiet" id="pref" style="padding:2px 10px;font-size:12px;margin-left:6px">Vorlage einfügen</button></p>
-<p class="note"><b>YouTube-Video</b> – die Adresse des Videos allein in eine Zeile, darunter optional eine Zeile mit dem Titel. Auf der Seite erscheint ein Platzhalter; der Player lädt erst, wenn jemand klickt (steht so im Datenschutz).<br><code>https://www.youtube.com/watch?v=…</code><br><code>Titel des Videos</code> <button type="button" class="quiet" id="pvid" style="padding:2px 10px;font-size:12px;margin-left:6px">Vorlage einfügen</button></p>
-<div style="margin:12px 0 0;padding:12px;border:1px dashed var(--line);border-radius:8px">
-<div class="bar" style="margin:0"><label class="quiet" style="display:inline-block;margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--ink);font-size:15px">Bild hochladen<input id="pimg" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+<label for="pbody">Text</label>
+<div class="tools" role="toolbar" aria-label="Formatierung" id="ptools"><button type="button" data-t="h" title="Zwischenüberschrift">Überschrift</button><button type="button" data-t="b" title="Fett (⌘B)"><b>Fett</b></button><button type="button" data-t="i" title="Kursiv (⌘I)"><i>Kursiv</i></button><button type="button" data-t="ul" title="Aufzählung">• Aufzählung</button><button type="button" data-t="ol" title="Nummerierung">1. Nummerierung</button><button type="button" data-t="q" title="Zitat">„ Zitat</button><button type="button" data-t="a" title="Link im Satz (⌘K)">Link</button><button type="button" data-t="hr" title="Trennlinie">— Linie</button><span class="note" id="pcount" style="margin-left:auto"></span></div>
+<div id="plink" hidden class="box" style="margin:0 0 8px"><h3>Link im Satz</h3><div class="bar" style="margin-top:6px"><input id="platext" placeholder="Linktext" style="flex:1;min-width:140px"><input id="plaurl" placeholder="https://…" style="flex:2;min-width:220px"><button type="button" class="quiet" id="plaok">Link einfügen</button><button type="button" class="x" id="plax" title="Schließen">×</button><span class="msg" id="mLa"></span></div></div>
+<textarea id="pbody" style="min-height:360px;font-family:inherit;font-size:15px" spellcheck="true"></textarea>
+<div id="pdraft" hidden class="draft"><span style="flex:1" id="pdrafttext"></span><button type="button" class="quiet" id="pdraftuse" style="padding:4px 12px;font-size:13px">Wiederherstellen</button><button type="button" class="quiet" id="pdraftdrop" style="padding:4px 12px;font-size:13px">Verwerfen</button></div>
+<p class="note">Absätze durch eine Leerzeile trennen. Text markieren und oben auf einen Knopf drücken – oder tippen: <code>**fett**</code>, <code>*kursiv*</code>, <code>## Überschrift</code>, <code>- Punkt</code>, <code>1. Punkt</code>, <code>&gt; Zitat</code>, <code>[Text](https://…)</code>. Mehr nicht – und nichts davon kann die Seite kaputtmachen. Bild, Karte und Video landen an der Cursorstelle.</p>
+<div class="box"><h3>Bild</h3><p class="note">Wird im Browser auf höchstens 1600 Pixel verkleinert und ohne Aufnahmedaten (Ort, Kamera) gespeichert.</p>
+<div class="bar"><label class="quiet" style="display:inline-block;margin:0;padding:8px 14px;border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--ink);font-size:15px">Bild hochladen<input id="pimg" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
 <input id="palt" placeholder="Bildbeschreibung (für Menschen, die das Bild nicht sehen)" style="flex:1;min-width:200px"><span class="msg" id="mI"></span></div>
-<p class="note" style="margin:8px 0 0">Das Bild wird im Browser auf höchstens 1600 Pixel verkleinert und ohne Aufnahmedaten (Ort, Kamera) gespeichert; im Text erscheint es an der Cursorstelle. Vorhandene Bilder:</p>
-<div id="pimgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div></div>
+<p class="note" style="margin-top:10px">Vorhandene Bilder:</p><div id="pimgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div></div>
+<div class="boxes">
+<div class="box"><h3>Verweis-Karte</h3><p class="note">LinkedIn-Beitrag, Instagram, Artikel: eine Karte mit Titel und einem Satz, die auf die fremde Seite führt. Fremde Dienste werden dabei nicht geladen.</p>
+<label for="prurl">Adresse</label><input id="prurl" placeholder="https://www.linkedin.com/posts/…" inputmode="url">
+<label for="prtitle">Titel</label><input id="prtitle" placeholder="Titel des Beitrags oder Artikels" maxlength="160">
+<label for="prtext">Ein Satz dazu (optional)</label><input id="prtext" placeholder="Warum das lesenswert ist" maxlength="300">
+<div class="bar"><button type="button" class="quiet" id="prok">Karte einfügen</button><span class="msg" id="mR"></span></div></div>
+<div class="box"><h3>YouTube-Video</h3><p class="note">Auf der Seite erscheint ein Platzhalter; der Player lädt erst, wenn jemand klickt (steht so im Datenschutz).</p>
+<label for="pyurl">Adresse des Videos</label><input id="pyurl" placeholder="https://www.youtube.com/watch?v=… oder https://youtu.be/…" inputmode="url">
+<label for="pytitle">Titel (optional)</label><input id="pytitle" placeholder="Titel des Videos" maxlength="160">
+<div class="ytp" id="pyprev" hidden><img id="pyimg" alt=""><span id="pytext"></span></div>
+<div class="bar"><button type="button" class="quiet" id="pyok">Video einfügen</button><span class="msg" id="mY"></span></div></div>
+</div>
 <p class="note" id="pslug"></p>
 <div class="bar"><button id="bpsave">Speichern</button><button class="quiet" id="bpreview">Vorschau</button><button class="quiet" id="bprev">Vorige Fassung</button><button class="quiet" id="bdel">Löschen</button><a class="note" id="bhist" target="_blank" rel="noopener">Verlauf</a><button class="quiet" id="bcancel">Schließen</button><span class="msg" id="mP"></span></div>
 <iframe id="bframe" hidden title="Vorschau" style="width:100%;height:560px;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:12px"></iframe>
@@ -702,20 +720,74 @@ $('bnew').onclick=()=>openEditor(null);
 $('bposts').onclick=async e=>{const b=e.target.closest('button[data-slug]');if(!b)return;try{const d=await api('blog/post?slug='+encodeURIComponent(b.dataset.slug));openEditor(d.post,d);}catch(err){say('mB',err.message);}};
 $('bcancel').onclick=()=>{$('beditor').hidden=true;editing=null;};
 $('bpreview').onclick=async()=>{try{const d=await api('blog/preview','POST',postBody());$('bframe').srcdoc=d.html;$('bframe').hidden=false;$('bframe').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){say('mP',e.message);}};
-$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);editing=r.slug;$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
-$('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);$('beditor').hidden=true;editing=null;say('mB',r.note,true);}catch(e){say('mP',e.message);}};
+$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);dropDraft();editing=r.slug;dropDraft();$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
+$('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);dropDraft();$('beditor').hidden=true;editing=null;say('mB',r.note,true);}catch(e){say('mP',e.message);}};
 $('bprev').onclick=async()=>{if(!editing||!confirm('Vorige Fassung dieses Beitrags wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{const r=await api('blog/post/restore','POST',{slug:editing});renderBlog(r);const d=await api('blog/post?slug='+encodeURIComponent(editing));openEditor(d.post,d);say('mP',r.note,true);}catch(e){say('mP',e.message);}};
-// ---- Bilder ----
-function insertAtCursor(text){const t=$('pbody');const a=t.selectionStart||0,b=t.selectionEnd||0;const before=t.value.slice(0,a),after=t.value.slice(b);const pad=before&&!before.endsWith('\\n\\n')?(before.endsWith('\\n')?'\\n':'\\n\\n'):'';t.value=before+pad+text+'\\n\\n'+after;t.focus();const pos=(before+pad+text).length;t.setSelectionRange(pos,pos);}
+// ---- Editor: Werkzeuge ----
+// Alle Änderungen am Text laufen über replaceRange, damit ⌘Z (Rückgängig) im Browser weiter funktioniert.
+const T=$('pbody');
+function replaceRange(a,b,text,sa,sb){T.focus();T.setSelectionRange(a,b);let ok=false;try{ok=document.execCommand('insertText',false,text);}catch(e){}
+ if(!ok||T.value.slice(a,a+text.length)!==text){T.setRangeText(text,a,b,'end');}
+ T.setSelectionRange(sa==null?a+text.length:sa,sb==null?(sa==null?a+text.length:sa):sb);changed();}
+function selection(){let a=T.selectionStart||0,b=T.selectionEnd||0;const v=T.value;while(a<b&&/\\s/.test(v[a]))a++;while(b>a&&/\\s/.test(v[b-1]))b--;return [a,b];}
+function wrap(m,ph){const [a,b]=selection(),v=T.value,s=v.slice(a,b);
+ if(s.length>=2*m.length&&s.startsWith(m)&&s.endsWith(m)){replaceRange(a,b,s.slice(m.length,s.length-m.length),a,b-2*m.length);return;}
+ if(v.slice(a-m.length,a)===m&&v.slice(b,b+m.length)===m){replaceRange(a-m.length,b+m.length,s,a-m.length,b-m.length);return;}
+ const t=s||ph,sp=!s&&a>0&&!/[\\s(]/.test(v[a-1])?' ':'';replaceRange(a,b,sp+m+t+m,a+sp.length+m.length,a+sp.length+m.length+t.length);}
+const PREFIX={h:/^##\\s+/,ul:/^[-*]\\s+/,ol:/^\\d+\\.\\s+/,q:/^>\\s?/},ANY=/^(#{2,3}\\s+|[-*]\\s+|\\d+\\.\\s+|>\\s?)/,PH={h:'Zwischenüberschrift',ul:'Punkt',ol:'Punkt',q:'Zitat'};
+function block(kind){const v=T.value;let [a,b]=[T.selectionStart||0,T.selectionEnd||0];if(b>a&&v[b-1]==='\\n')b--;
+ const ls=v.lastIndexOf('\\n',a-1)+1;let le=v.indexOf('\\n',kind==='h'?a:b);if(le<0)le=v.length;
+ const L=v.slice(ls,le).split('\\n');const re=PREFIX[kind];const on=L.every(l=>re.test(l));let out,ph=false;
+ if(on)out=L.map(l=>l.replace(re,''));
+ else{const clean=L.map(l=>l.replace(ANY,''));if(clean.length===1&&!clean[0]){clean[0]=PH[kind];ph=true;}
+  out=clean.map((l,i)=>kind==='h'?'## '+l:kind==='ul'?'- '+l:kind==='ol'?(i+1)+'. '+l:'> '+l);}
+ // Ein Block braucht Leerzeilen um sich, sonst hängt er am Absatz davor oder danach.
+ let pre='',post='';if(!on){if(ls>=2&&v[ls-2]!=='\\n')pre='\\n';if(le<v.length&&v[le+1]&&v[le+1]!=='\\n')post='\\n';}
+ const body=out.join('\\n');const p0=ls+pre.length;
+ if(ph){const m=body.length-PH[kind].length;replaceRange(ls,le,pre+body+post,p0+m,p0+body.length);}else replaceRange(ls,le,pre+body+post,p0,p0+body.length);}
+// Ein Block (Bild, Karte, Video, Linie) steht allein zwischen Leerzeilen; der Cursor landet danach in einer eigenen Leerzeile.
+function insertAtCursor(text){const a=T.selectionStart||0,b=T.selectionEnd||0;const before=T.value.slice(0,a);let k=b;while(T.value[k]==='\\n')k++;const rest=T.value.slice(k);
+ const pad=before&&!before.endsWith('\\n\\n')?(before.endsWith('\\n')?'\\n':'\\n\\n'):'';const ins=pad+text+'\\n\\n'+(rest?'\\n\\n':'');
+ replaceRange(a,k,ins,a+pad.length+text.length+2);}
+function linkBox(){const [a,b]=selection();const s=T.value.slice(a,b);const isUrl=/^https?:\\/\\/\\S+$/i.test(s);$('platext').value=isUrl?'':s;$('plaurl').value=isUrl?s:'';$('plink').hidden=false;$('mLa').textContent='';(isUrl||!s?$('platext'):$('plaurl')).focus();}
+$('plax').onclick=()=>{$('plink').hidden=true;T.focus();};
+$('plaok').onclick=()=>{const t=$('platext').value.trim().replace(/[\\[\\]]/g,''),u=$('plaurl').value.trim().replace(/\\)/g,'%29').replace(/\\s/g,'%20');
+ if(!t)return say('mLa','Bitte einen Linktext angeben.');if(!/^(https?:\\/\\/\\S+|mailto:\\S+@\\S+)$/i.test(u))return say('mLa','Die Adresse muss mit https:// beginnen.');
+ const [a,b]=selection();replaceRange(a,b,'['+t+']('+u+')');$('plink').hidden=true;};
+$('plaurl').onkeydown=$('platext').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('plaok').click();}if(e.key==='Escape'){$('plax').click();}};
+$('ptools').onclick=e=>{const b=e.target.closest('button[data-t]');if(!b)return;const k=b.dataset.t;
+ if(k==='b')wrap('**','fett');else if(k==='i')wrap('*','kursiv');else if(k==='a')linkBox();else if(k==='hr')insertAtCursor('---');else block(k);};
+T.onkeydown=e=>{if(!(e.metaKey||e.ctrlKey)||e.altKey)return;const k=e.key.toLowerCase();if(k==='b'){e.preventDefault();wrap('**','fett');}else if(k==='i'){e.preventDefault();wrap('*','kursiv');}else if(k==='k'){e.preventDefault();linkBox();}};
+// Wortzahl und lokale Sicherung (im Browser, nur auf diesem Gerät) – falls die Sitzung abläuft oder der Tab zugeht.
+let draftTimer=null;function draftKey(){return 'redaktion:entwurf:'+(editing||'neu');}
+function count(){const w=(T.value.match(/\\S+/g)||[]).length;$('pcount').textContent=w?w+(w===1?' Wort':' Wörter')+' · ≈ '+Math.max(1,Math.round(w/200))+' Min. Lesezeit':'';}
+function changed(){count();clearTimeout(draftTimer);draftTimer=setTimeout(()=>{try{const d=postBody();if(d.title||d.body||d.summary)localStorage.setItem(draftKey(),JSON.stringify({at:new Date().toISOString(),...d}));}catch(e){}},600);}
+T.oninput=changed;['ptitle','psummary'].forEach(id=>{$(id).oninput=changed;});
+function dropDraft(){clearTimeout(draftTimer);try{localStorage.removeItem(draftKey());}catch(e){}$('pdraft').hidden=true;}
+function offerDraft(p){$('pdraft').hidden=true;let d=null;try{d=JSON.parse(localStorage.getItem(draftKey()));}catch(e){}if(!d)return;
+ const same=d.body===(p?p.body:'')&&d.title===(p?p.title:'')&&d.summary===(p?p.summary:'');if(same){dropDraft();return;}
+ $('pdrafttext').textContent='Hier liegt ein nicht gespeicherter Text vom '+fmt(d.at)+(d.title?' („'+d.title+'“)':'')+'.';$('pdraft').hidden=false;
+ $('pdraftuse').onclick=()=>{$('ptitle').value=d.title||'';$('psummary').value=d.summary||'';T.value=d.body||'';if(d.date)$('pdate').value=d.date;if(d.lang)$('plang').value=d.lang;if(d.status)$('pstatus').value=d.status;$('pdraft').hidden=true;changed();};
+ $('pdraftdrop').onclick=()=>{if(confirm('Den nicht gespeicherten Text verwerfen?'))dropDraft();};}
+// ---- Einfügen: Bild, Verweis-Karte, YouTube ----
 function renderImages(list){$('pimgs').innerHTML=list.length?list.map(i=>'<span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12px"><img src="'+esc(B.url)+'bilder/'+esc(i.name)+'" alt="" style="height:36px;width:48px;object-fit:cover;border-radius:3px;background:#eee"><span>'+esc(i.name)+'</span><button class="quiet" data-ins="'+esc(i.name)+'" style="padding:2px 8px;font-size:12px">einfügen</button><button class="x" data-del="'+esc(i.name)+'" title="Bild löschen">×</button></span>').join(''):'<span class="note">noch keine</span>';}
 async function shrink(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('Bild nicht lesbar.'));i.src=url;});
  const max=1600,k=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));const w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
  const png=file.type==='image/png'&&file.size<400000;const data=c.toDataURL(png?'image/png':'image/jpeg',0.84);return data;}finally{URL.revokeObjectURL(url);}}
-$('pref').onclick=()=>insertAtCursor('> [Titel des Beitrags](https://…)\\n> Ein Satz dazu.');
-$('pvid').onclick=()=>insertAtCursor('https://www.youtube.com/watch?v=…\\nTitel des Videos');
 $('pimg').onchange=async()=>{const f=$('pimg').files[0];if(!f)return;$('mI').className='msg';$('mI').textContent='wird hochgeladen …';try{const data=await shrink(f);const r=await api('blog/image','POST',{name:f.name,alt:$('palt').value,data});insertAtCursor(r.markdown);renderImages(r.images);$('palt').value='';say('mI','Bild gespeichert und eingefügt.',true);}catch(e){say('mI',e.message);}finally{$('pimg').value='';}};
-$('pimgs').onclick=async e=>{const ins=e.target.closest('button[data-ins]');if(ins){insertAtCursor('!['+($('palt').value||'')+'](bilder/'+ins.dataset.ins+')');return;}const del=e.target.closest('button[data-del]');if(del&&confirm('Bild „'+del.dataset.del+'“ löschen? Geht nur, wenn kein Beitrag es verwendet.')){try{const r=await api('blog/image','DELETE',{name:del.dataset.del});renderImages(r.images);}catch(err){say('mI',err.message);}}};
-const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
+$('pimgs').onclick=async e=>{const ins=e.target.closest('button[data-ins]');if(ins){insertAtCursor('!['+($('palt').value||'').replace(/[\\[\\]]/g,'')+'](bilder/'+ins.dataset.ins+')');return;}const del=e.target.closest('button[data-del]');if(del&&confirm('Bild „'+del.dataset.del+'“ löschen? Geht nur, wenn kein Beitrag es verwendet.')){try{const r=await api('blog/image','DELETE',{name:del.dataset.del});renderImages(r.images);}catch(err){say('mI',err.message);}}};
+const cleanUrl=u=>u.trim().replace(/\\)/g,'%29').replace(/\\s/g,'%20');
+$('prok').onclick=()=>{const u=cleanUrl($('prurl').value),t=$('prtitle').value.trim().replace(/[\\[\\]]/g,''),x=$('prtext').value.trim().replace(/^>\\s*/,'');
+ if(!/^https:\\/\\/[^\\s/]+\\.[^\\s/]+/i.test(u))return say('mR','Die Adresse muss mit https:// beginnen, z. B. https://www.linkedin.com/posts/…');
+ if(!t)return say('mR','Bitte einen Titel angeben – er steht groß auf der Karte.');
+ insertAtCursor('> ['+t+']('+u+')'+(x?'\\n> '+x:''));$('prurl').value=$('prtitle').value=$('prtext').value='';say('mR','Karte eingefügt.',true);};
+const YT=/^https?:\\/\\/(?:www\\.|m\\.)?(?:youtube\\.com\\/(?:watch\\?(?:[^#\\s]*&)?v=|shorts\\/|live\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})(?:[?&#][^\\s]*)?$/;
+function ytId(){const m=$('pyurl').value.trim().match(YT);return m?m[1]:null;}
+$('pyurl').oninput=()=>{const id=ytId();$('pyprev').hidden=!id;$('mY').textContent='';if(id){$('pyimg').src='https://i.ytimg.com/vi/'+id+'/mqdefault.jpg';$('pytext').textContent='Video erkannt (Kennung '+id+').';}};
+$('pyok').onclick=()=>{const id=ytId();if(!id)return say('mY','Das ist keine YouTube-Adresse. Sie sieht so aus: https://www.youtube.com/watch?v=… oder https://youtu.be/…');
+ const t=$('pytitle').value.trim().replace(/\\s+/g,' ');insertAtCursor('https://www.youtube.com/watch?v='+id+(t?'\\n'+t:''));$('pyurl').value=$('pytitle').value='';$('pyprev').hidden=true;say('mY','Video eingefügt.',true);};
+$('prurl').oninput=()=>{$('mR').textContent='';};
+const _openEditor=openEditor;openEditor=function(p,meta){_openEditor(p,meta);$('plink').hidden=true;count();offerDraft(p);api('blog/images').then(d=>d&&renderImages(d.images)).catch(()=>{});};
 api('blog').then(b=>b&&renderBlog(b)).catch(e=>{$('bsrc').textContent='Blog nicht ladbar: '+e.message;});
 async function api(p,method='GET',body){const r=await fetch('/admin/api/'+p,{method,headers:H,body:body?JSON.stringify(body):undefined});if(r.status===401){location.reload();return null;}const d=await r.json().catch(()=>({error:'Antwort unlesbar'}));if(!r.ok)throw new Error(d.error||('Fehler '+r.status));return d;}
 function say(id,txt,ok){const m=$(id);m.className='msg '+(ok?'ok':'warn');m.textContent=txt;if(ok)setTimeout(()=>{if(m.textContent===txt)m.textContent='';},6000);}
