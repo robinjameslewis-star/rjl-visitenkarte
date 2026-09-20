@@ -37,6 +37,8 @@ http.createServer(async (req, res) => {
   if (api === "state") return json(res, { usage: [], limits: { perDay: 60, perHour: 12, turns: 8 }, alert: false, model: "claude-opus-5", profileWords: 2700,
     unanswered: [], github: true, content: { aktuell: { fields: { stand: "19.09.2026", de: "", en: "" }, meta: { hasPrev: false }, historyUrl: "" },
       links: { fields: { rows: [] }, meta: { hasPrev: false }, historyUrl: "" } } });
+  if (api === "site" && req.method === "GET") return json(res, { landschaft: "aus", url: SITE });
+  if (api === "site" && req.method === "PUT") { const f = await readBody(req); return json(res, { landschaft: f.landschaft === "an" ? "an" : "aus", url: SITE, note: "Schalter gesetzt (Attrappe)." }); }
   if (api === "passkeys") return json(res, { passkeys: [{ id: "k1", name: "MacBook", at: "2026-09-19T08:00:00Z" }] });
   if (api === "goch") return json(res, { settings: { enabled: true, provider: "anthropic", model: "claude-opus-5", cache: true,
     custom: { baseUrl: "", model: "", key: "", keySet: false, keyHint: "", keySource: "" } }, providers: { anthropic: "Anthropic (Claude)" },

@@ -56,6 +56,7 @@ export async function handleAdmin(request, env, ctx, deps) {
   }
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
+  if (api === "site") return siteApi(request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
   if (m && CONTENT[m[1]]) {
     if (request.method === "PUT") return save(m[1], request, env, deps, session);
@@ -517,6 +518,32 @@ async function gochApi(api, request, env, deps, session) {
   } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
   return json({ error: "Nicht gefunden." }, 404);
 }
+// Startseite: Schalter der Landschaft (data-landschaft am <body>) – Lesen und Umschalten per Commit.
+const LANDSCAPE_ATTR = /data-landschaft="(an|aus)"/;
+async function siteState(env) {
+  let landschaft = null;
+  if (gh.configured(env)) { try { const home = await gh.getFile(env, "index.html"); const m = home && home.content.match(LANDSCAPE_ATTR); landschaft = m ? m[1] : null; } catch {} }
+  return { landschaft, url: env.SITE_URL || "" };
+}
+async function siteApi(request, env) {
+  try {
+    if (request.method === "GET") return json(await siteState(env));
+    if (request.method === "PUT") {
+      const wish = (await readJson(request)).landschaft === "an" ? "an" : "aus";
+      if (!gh.configured(env)) return json({ error: "Veröffentlichen ist ohne GitHub-Schlüssel nicht möglich." }, 400);
+      const home = await gh.getFile(env, "index.html");
+      if (!home || !LANDSCAPE_ATTR.test(home.content)) return json({ error: "Schalter data-landschaft auf der Startseite nicht gefunden." }, 400);
+      const html = home.content.replace(LANDSCAPE_ATTR, `data-landschaft="${wish}"`);
+      let note = wish === "an" ? "Die Landschaft ist schon an." : "Die Landschaft ist schon aus.";
+      if (html !== home.content) {
+        await gh.putFile(env, "index.html", html, `Redaktion: Landschaft ${wish === "an" ? "eingeschaltet" : "ausgeschaltet"}`, home.sha);
+        note = wish === "an" ? "Landschaft eingeschaltet – auf der Website in etwa einer Minute zu sehen." : "Landschaft ausgeschaltet – die Website zeigt in etwa einer Minute wieder die Fassung ohne Landschaft.";
+      }
+      return json({ ...(await siteState(env)), note });
+    }
+  } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
 async function gochState(env) {
   const settings = await cfg.loadSettings(env, true);
   let pageOn = null;
@@ -662,6 +689,11 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 </div><div class="pv" id="pv"><div class="pvbar"><span style="flex:1">Vorschau – so sieht der Beitrag auf der Website aus</span><button type="button" class="quiet" id="bpvwin" title="Für den zweiten Bildschirm">Eigenes Fenster</button><button type="button" class="quiet" id="bpvhide">Ausblenden</button></div><iframe id="bframe" title="Vorschau"></iframe><p class="note" id="pvnote" style="margin:4px 0 0"></p></div></div>
 </div></section>
 
+<section><h2>Startseite – Landschaft</h2><p class="src" id="lstat"></p>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="lenabled" style="width:auto;margin:0"> Landschaft anzeigen – Himmel nach Tageszeit, Sonne, Mond, Sterne, Jahreszeit, nachts die ganze Seite dunkel</label>
+<p class="note" style="margin:0 0 6px">Aus heißt: Die Startseite ist genau die Fassung von vor der Landschaft. Zum Prüfen, ohne dass Besucher etwas sehen: <span id="lprev"></span></p>
+<div class="bar"><button id="lsave">Veröffentlichen</button><span class="msg" id="mLs"></span></div></section>
+
 <section><h2>Goch – Betrieb</h2><p class="src" id="gstat"></p>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="genabled" style="width:auto;margin:0"> Goch ist eingeschaltet (antwortet auf der Website)</label>
 <p class="note" style="margin:0 0 10px">Aus heißt: Der Worker antwortet nicht mehr, und die Website zeigt kein Gespräch – der Vogel fliegt beim Klick wie früher. Beides sofort bzw. nach einer Minute.</p>
@@ -709,6 +741,13 @@ $('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCre
  renderKeys(d.passkeys);$('keyname').value='';say('mK','Passkey eingerichtet.',true);}catch(e){say('mK',e.name==='NotAllowedError'?'Abgebrochen oder abgelehnt.':e.name==='InvalidStateError'?'Dieses Gerät ist schon eingerichtet.':e.message);}};
 $('keys').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(!confirm('Diesen Passkey entfernen? Ist es der letzte, gilt danach wieder der E-Mail-Code als Erstzugang.'))return;try{const d=await api('passkeys','DELETE',{id:b.dataset.id});renderKeys(d.passkeys);}catch(err){say('mK',err.message);}};
 api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
+// ---- Startseite: Landschaft ----
+function renderSite(s){const on=s.landschaft==='an';$('lenabled').checked=on;$('lenabled').disabled=s.landschaft==null;
+ $('lstat').innerHTML=s.landschaft==null?'Schalter auf der Startseite nicht gefunden.':(on?'<b>An.</b> Besucher sehen Himmel, Sonne, Mond und Jahreszeit.':'<b style="color:var(--warn)">Aus.</b> Die Startseite zeigt die Fassung ohne Landschaft.');
+ const base=s.url;const d=new Date();const day=d.toISOString().slice(0,10);
+ $('lprev').innerHTML=[['mit Landschaft, jetzt',base+'?landschaft=an'],['Mittag',base+'?landschaft=an&zeit='+day+'T13:00'],['Dämmerung',base+'?landschaft=an&zeit='+day+'T18:45'],['Nacht',base+'?landschaft=an&zeit='+day+'T23:00'],['ohne Landschaft',base+'?landschaft=aus']].map(([t,u])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+t+'</a>').join(' · ');}
+$('lsave').onclick=async()=>{const on=$('lenabled').checked;if(!confirm(on?'Landschaft für alle Besucher einschalten?':'Landschaft ausschalten? Die Seite zeigt dann wieder die Fassung ohne Landschaft.'))return;$('lsave').disabled=true;try{const r=await api('site','PUT',{landschaft:on?'an':'aus'});renderSite(r);say('mLs',r.note,true);}catch(e){say('mLs',e.message);}finally{$('lsave').disabled=false;}};
+api('site').then(s=>s&&renderSite(s)).catch(e=>{$('lstat').textContent='Nicht ladbar: '+e.message;});
 // ---- Goch: Betrieb ----
 let G=null;
 function renderGoch(g){G=g;const s=g.settings;$('genabled').checked=s.enabled;

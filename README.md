@@ -231,7 +231,7 @@ Alles wird im Browser berechnet (`landscape.js`, eigene Portierung von SunCalc 1
 `LICENSE-SUNCALC`): Uhrzeit aus der Geräteuhr, ungefährer Ort aus der Zeitzone (Tabelle im Skript,
 Rückfall 45° N / UTC-Versatz), keine Standortabfrage, kein Fremddienst, nichts wird gespeichert.
 
-**Schalter:** `data-landschaft="an|aus"` am `<body>` (pflegt die Redaktion). Steht er auf `aus`, ist die
+**Schalter:** `data-landschaft="an|aus"` am `<body>` – in der Redaktion unter „Startseite – Landschaft“ (ein Haken, „Veröffentlichen“ = Commit; dort auch Vorschau-Links für Mittag, Dämmerung, Nacht und ohne Landschaft). Steht er auf `aus`, ist die
 Seite exakt die von vor der Landschaft – auch die Vogelbilder kommen dann aus `assets/bestand/`
 (byteidentische Originale mit weißem Grund und `multiply`). Zum Prüfen: `?landschaft=an` übersteuert
 den Schalter, `?landschaft=aus` schaltet ab, `?zeit=YYYY-MM-DDTHH:mm` setzt die Uhr, `?ort=lat,lon`
