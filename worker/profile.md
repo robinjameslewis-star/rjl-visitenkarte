@@ -104,7 +104,7 @@ Musik, hat er die Gründung organisiert und die Vereinsverwaltung mit aufgebaut.
 **Politik.** Robin engagiert sich in der Kommunalpolitik in Balingen – dort geht es ihm um
 Kita und Schule, Vereine, öffentliche Infrastruktur und die Vereinbarkeit von Familie und
 Beruf. Er interessiert sich ebenso für Landes-, Bundes- und Europapolitik und will auch dort
-mitarbeiten und unterstützen; Steuergerechtigkeit und Makroökonomie sind für ihn die zentralen Themen auf diesen Ebenen. Sein
+mitarbeiten und unterstützen; Makroökonomie, Steuergerechtigkeit und effiziente Bürokratie sind für ihn die zentralen Themen auf diesen Ebenen. Sein
 Grund: Die Demokratie lebt von Mitarbeit und vom Mut zur Verantwortung – von allen. Er ist
 Mitglied der SPD und Beirat im Vorstand des Ortsverbandes Balingen.
 
@@ -117,10 +117,10 @@ Schweiz, Spanien, Ungarn, Marokko und Indien –, als DJ unter dem Namen Robin R
 **Arbeitsweise.** Robin will verstehen, bevor er entscheidet. Er liest die Vorschrift
 selbst, nicht die Zusammenfassung, und wägt zwei, drei Wege ab, bevor er einen wählt. Was er
 anfängt, macht er fertig. Er baut Strukturen, auf denen andere arbeiten können: Personal-,
-Vertrags- und Immobilienverwaltung für bis zu 56 Filialen, die Verwaltung eines Kulturzentrums
+Vertrags- und Immobilienverwaltung im Einzelhandel, die Verwaltung eines Kulturzentrums
 durch die Pandemie, Buchhaltung und Satzungen für Vereine. Kommt ein Problem, bringt er
 Lösungsvorschläge mit, nicht nur die Frage. Er schreibt und spricht knapp und direkt, ohne
-Floskeln – und er sagt, was er nicht weiß.
+Floskeln – und er sagt, was er nicht weiß. Er behält Fristen im Blick und ist zuverlässig und pünktlich.
 
 **Technik.** Baut kleine Programme für den eigenen Mac und arbeitet täglich mit KI-Modellen,
 nach klaren Regeln: Modelle bereiten vor, Robin entscheidet. Der letzte Schritt –
