@@ -103,8 +103,15 @@
     const right = sceneBox.left + sceneBox.width * .24 - base.left; // vor dem Vogelkörper
     panel.style.left = left + 'px';
     panel.style.width = Math.max(260, Math.min(400, right - left)) + 'px';
-    panel.style.bottom = (base.bottom - nameBox.top + 14) + 'px';
-    panel.style.maxHeight = Math.max(240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
+    if (document.documentElement.classList.contains('landscape-on')) {
+      // Mit Landschaft steht der Name oben im Himmel: Die Blase hängt unter ihm, vor der fernen Landschaft.
+      panel.style.bottom = 'auto';
+      panel.style.top = (nameBox.bottom - base.top + 16) + 'px';
+      panel.style.maxHeight = Math.max(240, Math.min(520, base.bottom - nameBox.bottom + 120)) + 'px';
+    } else {
+      panel.style.bottom = (base.bottom - nameBox.top + 14) + 'px';
+      panel.style.maxHeight = Math.max(240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
+    }
   }
   function open() {
     if (!panel.hidden) { input.focus(); return; }

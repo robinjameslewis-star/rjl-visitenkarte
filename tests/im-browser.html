@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Tests im Browser – bird-flight</title>
-<!-- Führt tests/bird-flight.test.cjs ohne Node aus (Chrome/Safari). Über einen lokalen Server öffnen,
+<title>Tests im Browser – Vogel und Landschaft</title>
+<!-- Führt die unveränderten Vogel- und Landschaftstests ohne Node aus (Chrome/Safari). Über einen lokalen Server öffnen,
      z. B. python3 -m http.server 8788 im Projektordner → http://localhost:8788/tests/im-browser.html
      Nachgebildet werden nur die genutzten Node-Module: node:test, node:assert/strict, node:fs, node:vm, node:path. -->
 <style>
@@ -15,16 +15,19 @@
 </style>
 </head>
 <body>
-<h1>bird-flight.test.cjs im Browser</h1>
+<h1>Vogel und Landschaft im Browser</h1>
 <ul id="list"></ul>
 <div id="summary">läuft …</div>
 <script>
 (async () => {
   const list = document.getElementById('list'), summary = document.getElementById('summary');
-  const [source, testSource] = await Promise.all([
-    fetch('../bird-flight.js?ts=' + Date.now()).then(r => r.text()),
-    fetch('bird-flight.test.cjs?ts=' + Date.now()).then(r => r.text())
-  ]);
+  const files = ['../bird-flight.js', '../landscape.js', 'bird-flight.test.cjs', 'landscape.test.cjs'];
+  const contents = await Promise.all(files.map(async path => {
+    const response = await fetch(path + '?ts=' + Date.now());
+    if (!response.ok) throw new Error('Datei nicht ladbar: ' + path);
+    return response.text();
+  }));
+  const sources = Object.fromEntries(files.map((path, i) => [path.split('/').pop(), contents[i]]));
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const fail = (msg, actual, expected) => { throw new Error(msg + ' – erhalten: ' + JSON.stringify(actual) + ', erwartet: ' + JSON.stringify(expected)); };
   const assert = {
@@ -37,7 +40,11 @@
   const modules = {
     'node:test': { test: (name, fn) => tests.push({ name, fn }) },
     'node:assert/strict': assert,
-    'node:fs': { readFileSync: () => source },
+    'node:fs': { readFileSync: path => {
+      const name = path.split('/').pop();
+      if (!(name in sources)) throw new Error('Datei fehlt im Browser-Läufer: ' + name);
+      return sources[name];
+    } },
     'node:path': { join: (...p) => p.join('/') },
     'node:vm': { runInNewContext: (code, context) => {
       // Freie Variablen des Skripts werden als Parameter gebunden – entspricht dem Kontextobjekt in Node.
@@ -48,7 +55,9 @@
   const require = name => { if (!(name in modules)) throw new Error('Modul fehlt im Browser-Läufer: ' + name); return modules[name]; };
   const process = { argv: [] };
   const setImmediate = fn => setTimeout(fn, 0);
-  new Function('require', 'process', 'setImmediate', '__dirname', testSource)(require, process, setImmediate, '');
+  for (const name of ['bird-flight.test.cjs', 'landscape.test.cjs']) {
+    new Function('require', 'process', 'setImmediate', '__dirname', sources[name])(require, process, setImmediate, '');
+  }
   let passed = 0;
   for (const t of tests) {
     const li = document.createElement('li'); li.textContent = t.name; list.appendChild(li);
@@ -57,7 +66,10 @@
   }
   summary.textContent = `${passed} von ${tests.length} Tests bestanden`;
   window.__testResult = { passed, total: tests.length, names: tests.map(t => t.name) };
-})();
+})().catch(error => {
+  document.getElementById('summary').textContent = 'Teststart fehlgeschlagen: ' + error.message;
+  window.__testResult = { passed: 0, total: 0, error: String(error) };
+});
 </script>
 </body>
 </html>

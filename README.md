@@ -27,6 +27,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
 - `tests/blog_test.mjs` – Blog-Renderer ohne Worker: Open-Graph-Angaben, Vorschaubild-Regeln
+- `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tests/landscape.test.cjs`
 - `tests/bundle_check.mjs` – prüft vor dem Deploy das gebündelte Worker-Paket (eingebetteter Renderer läuft ohne Bündler-Helfer, Seitenskript der Redaktion)
 - `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
 - `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
@@ -218,6 +219,49 @@ Tabwechsel und Größenänderung. Ohne Node:
 im Projektordner → http://localhost:8788/tests/im-browser.html); dort laufen dieselben Tests.
 `python3 tests/consent_test.py <Adresse>` prüft die Einwilligung (siehe oben).
 Die visuelle Abnahme erfolgt zusätzlich im Browser auf breitem und schmalem Bildschirm.
+
+## Landschaft (Stand 20.09.2026)
+
+Um Goch herum liegt eine Landschaft in zwei Ebenen – **nah**: sein Ast, der rechts aus dem Bild läuft,
+und darüber ein Stück Buchenkrone desselben Baums; **fern**: der Kegelberg mit der Burg Hohenzollern im
+Herbstdunst, hinter dem Vogel auf Körperhöhe. Dazwischen Papier. Der Name steht im Himmel auf Augenhöhe
+des Vogels. Die Seite zeigt Tageszeit, Mondphase und Jahreszeit **des Besuchers**: Himmel, Sonne,
+Mond (mit echter Phase), Sterne, im Herbst fallende Blätter, nachts die ganze Seite in der Nachtpalette.
+Alles wird im Browser berechnet (`landscape.js`, eigene Portierung von SunCalc 1.9.0, BSD-2 – siehe
+`LICENSE-SUNCALC`): Uhrzeit aus der Geräteuhr, ungefährer Ort aus der Zeitzone (Tabelle im Skript,
+Rückfall 45° N / UTC-Versatz), keine Standortabfrage, kein Fremddienst, nichts wird gespeichert.
+
+**Schalter:** `data-landschaft="an|aus"` am `<body>` (pflegt die Redaktion). Steht er auf `aus`, ist die
+Seite exakt die von vor der Landschaft – auch die Vogelbilder kommen dann aus `assets/bestand/`
+(byteidentische Originale mit weißem Grund und `multiply`). Zum Prüfen: `?landschaft=an` übersteuert
+den Schalter, `?landschaft=aus` schaltet ab, `?zeit=YYYY-MM-DDTHH:mm` setzt die Uhr, `?ort=lat,lon`
+den Ort (z. B. `?landschaft=an&zeit=2026-10-14T23:00`).
+
+**Bilder mit Alpha statt Weiß.** `mix-blend-mode: multiply` trägt nur auf hellem Papier; auf dem
+Nachtpapier verschwänden Landschaft und Vogel. Deshalb sind Krone, Ferne und die fünf Vogelbilder
+freigestellt (Weiß → Transparenz, `tools/landschaft-bilder.py`, Protokoll in `tools/landschaft-bilder.json`)
+und werden ohne Blendmodus gezeigt; nachts dunkelt ein SVG-Farbfilter (`#landscape-moonlight`,
+× 0,55/0,62/0,80) Ebenen, Vogel, Ast und Blätter ab. Dateien: `assets/krone-herbst-{1000,560}.{avif,webp}`,
+`assets/ferne-herbst-{1400,800}.{avif,webp}` (AVIF zuerst, WebP als Rückfall, `srcset`; nur die
+aktuelle Jahreszeit wird geladen), `assets/ast.webp` (2800 × 167, links pixelgleich mit dem alten Ast).
+Weitere Jahreszeiten: Bilder nach demselben Muster erzeugen (`python3 tools/landschaft-bilder.py --season
+winter --crown … --distance … --skip-birds`) und in `landscape.js` unter `available` eintragen; fehlt eine
+Jahreszeit, bleibt die Seite ohne diese Ebene nutzbar.
+
+**Bühnenlogik:** Blick vom Zeller Horn nach Norden – Osten rechts, Westen links; Sonne und Mond wandern
+von rechts nach links, die Höhe ist echt (0° Horizont, 65° oberer Rand), auf der Südhalbkugel gespiegelt.
+Jahreszeiten meteorologisch, südlich des Äquators um sechs Monate versetzt, zehn Tage Überblendung.
+Nachtpalette (Papier `#1B2230`, Tinte `#E8E2D6`, Grün `#9FC4B3`, Kupfer `#D39A78`, Linien `#3A4351`,
+Akzent bleibt `#D97932`) wird über `--nacht` (0…1 nach Sonnenhöhe −12…0°) mit `color-mix()` gemischt;
+Textfarben werden zur Laufzeit nachgeführt, bis jedes Paar ≥ 4,5 : 1 hat (`--readable-*`). Cal.com wird
+nachts mit `theme: "dark"` initialisiert. Goch hängt mit Landschaft unter dem Namen statt darüber.
+`prefers-reduced-motion`: keine Bewegung; verborgener Tab: Blätter und Sterne pausieren.
+
+**Gewicht:** Erstaufruf Schreibtisch/Herbst ≈ 0,93 MB (Budget 1,2 MB); Vogelbilder zusammen 431 KB
+(vorher 505 KB); `landscape.js` 17,7 KB unkomprimiert (Budget 15 KB, bewusst lesbar mit Kommentaren –
+gzip ≈ 6 KB). **Prüfen:** `node tests/landscape.test.cjs` (15 Punkte: Sonnenhöhen 48,27° N/8,85° O,
+Mondphasen nach USNO, Bühne, Jahreszeiten, Zeitzonen, URL-Parameter) – auch in `tests/im-browser.html`;
+dazu unverändert `bird-flight.test.cjs`, `consent_test.py`, `goch_test.py`.
 
 ## Goch, das Rotkehlchen von Robin (Stand 17.09.2026)
 

@@ -10,7 +10,10 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <!-- Mit Skript bleibt der Ast leer, bis der Anflug beginnt (Regel .js .bird-rest); ohne Skript oder bei
      Ladefehler von bird-flight.js sitzt der Vogel von Anfang an. -->
-<script>document.documentElement.classList.add('js')</script>
+<script>
+  document.documentElement.classList.add('js');
+  if (new URLSearchParams(location.search).get('landschaft') === 'aus') document.documentElement.classList.add('landscape-off');
+</script>
 <link rel="preload" as="image" href="assets/vogel.webp" fetchpriority="high">
 <link rel="preload" as="image" href="assets/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference)">
 <link rel="preload" as="image" href="assets/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference)">
@@ -20,14 +23,14 @@
   @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
   [hidden] { display: none !important; }
   body { padding-bottom: var(--consent-height, 0px); }
-  .consent-banner { position: fixed; inset: auto 0 0; z-index: 10; max-height: 65dvh; overflow-y: auto; background: #F3EFE5 url("assets/papier.jpg") repeat; background-size: 512px; border-top: 1px solid #D97932; padding: 18px max(6vw, calc((100vw - 980px) / 2)) max(18px, env(safe-area-inset-bottom)); color: #1F1F1F; }
+  .consent-banner { position: fixed; inset: auto 0 0; z-index: 10; max-height: 65dvh; overflow-y: auto; background: var(--paper) url("assets/papier.jpg") repeat; background-size: 512px; border-top: 1px solid var(--accent); padding: 18px max(6vw, calc((100vw - 980px) / 2)) max(18px, env(safe-area-inset-bottom)); color: var(--ink); }
   .consent-banner h2 { margin: 0 0 5px; font: 400 23px/1.25 var(--serif); }
   .consent-banner p { max-width: 76ch; margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
   .consent-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
-  .consent-button { min-height: 44px; border: 1px solid #D97932; border-radius: 3px; padding: 9px 14px; background: transparent; color: #1F1F1F; font: inherit; font-size: 14px; cursor: pointer; }
-  .consent-button:hover { background: #EDE5D8; }
-  .consent-link { border: 0; border-bottom: 1px solid #D97932; padding: 8px 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
-  .consent-button:focus-visible, .consent-link:focus-visible { outline: 2px solid #1F1F1F; outline-offset: 3px; }
+  .consent-button { min-height: 44px; border: 1px solid var(--accent); border-radius: 3px; padding: 9px 14px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+  .consent-button:hover { background: var(--hover); }
+  .consent-link { border: 0; border-bottom: 1px solid var(--accent); padding: 8px 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
+  .consent-button:focus-visible, .consent-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
   .booking-notice { color: var(--ink-soft); font-size: 14px; margin: 0 0 12px; }
   footer details[open] { color: var(--ink-soft); }
   footer .privacy-copy p { margin-top: 16px; }
@@ -37,6 +40,8 @@
   :root {
     --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A;
     --line: #D6D9D6; --paper: #F3EFE5;
+    --accent: #D97932; --hover: #EDE5D8; --warning: #A63D2F;
+    --surface: rgba(255,255,255,.55); --reply: rgba(11,61,46,.07); --shadow: rgba(31,31,31,.10);
     --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif;
     --sans: "Helvetica Neue", Inter, Arial, sans-serif;
   }
@@ -109,7 +114,7 @@
     display: flex; flex-direction: column; gap: 10px;
     padding: 14px 16px 12px; border: 1px solid var(--line); border-radius: 4px;
     background: var(--paper) url("assets/papier.jpg") repeat; background-size: 512px;
-    box-shadow: 0 10px 30px rgba(31, 31, 31, .10); font-size: 15px; line-height: 1.45; text-align: left;
+    box-shadow: 0 10px 30px var(--shadow); font-size: 15px; line-height: 1.45; text-align: left;
   }
   .goch::after { /* Schnabel der Sprechblase, zeigt zum Vogel */
     content: ""; position: absolute; right: -9px; bottom: 28px; width: 16px; height: 16px;
@@ -123,18 +128,18 @@
   .goch-close:focus-visible, .goch-starter:focus-visible, .goch-send:focus-visible, #goch-input:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
   .goch-log { overflow-y: auto; min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
   .goch-bubble { margin: 0; max-width: 92%; padding: 8px 11px; border-radius: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .goch-goch { align-self: flex-start; background: rgba(255, 255, 255, .55); border: 1px solid var(--line); }
-  .goch-you { align-self: flex-end; background: rgba(11, 61, 46, .07); color: var(--ink); }
+  .goch-goch { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); }
+  .goch-you { align-self: flex-end; background: var(--reply); color: var(--ink); }
   .goch-thinking { color: var(--ink-muted); letter-spacing: .2em; }
   .goch-action { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--copper); padding-bottom: 1px; white-space: nowrap; }
   .goch-consent p { margin: 0 0 10px; font-size: 14px; }
   .goch-starters { display: flex; flex-wrap: wrap; gap: 6px; }
   .goch-starter { border: 1px solid var(--copper); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
-  .goch-starter:hover { background: #EDE5D8; }
+  .goch-starter:hover { background: var(--hover); }
   .goch-form { display: flex; gap: 8px; align-items: flex-end; }
-  #goch-input { flex: 1 1 auto; min-height: 44px; resize: none; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255, 255, 255, .55); color: var(--ink); font: inherit; font-size: 15px; }
+  #goch-input { flex: 1 1 auto; min-height: 44px; resize: none; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; }
   .goch-send { min-height: 44px; border: 1px solid var(--copper); border-radius: 3px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; padding: 9px 14px; cursor: pointer; }
-  .goch-send:hover { background: #EDE5D8; }
+  .goch-send:hover { background: var(--hover); }
   .goch-send:disabled, #goch-input:disabled { opacity: .55; cursor: default; }
   .goch-note { margin: 0; font-size: 12px; color: var(--ink-muted); line-height: 1.5; }
   .goch-note a { color: inherit; }
@@ -159,14 +164,14 @@
   .message .field { margin: 0 0 14px; }
   .message label { display: block; font-size: 13px; color: var(--ink-soft); margin: 0 0 4px; }
   .message .optional { color: var(--ink-muted); }
-  .message input, .message textarea { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.55); color: var(--ink); }
+  .message input, .message textarea { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); color: var(--ink); }
   .message textarea { resize: vertical; min-height: 140px; }
   .message input:focus-visible, .message textarea:focus-visible { outline: 1px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
   .message .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .message .actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 6px 0 12px; }
   .message .msg-status { font-size: 14px; color: var(--ink-soft); }
   .message .msg-status.ok { color: var(--green); }
-  .message .msg-status.warn { color: #A63D2F; }
+  .message .msg-status.warn { color: var(--warning); }
   .message .hint { color: var(--ink-soft); font-size: 14px; margin: 0; max-width: 60ch; }
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
   .blog-teaser { max-width: 980px; margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
@@ -181,7 +186,7 @@
   .blog-teaser li a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
   .blog-teaser li p { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; max-width: 60ch; }
   .blog-teaser .all { margin: 18px 0 0; font-size: 15px; }
-  .blog-teaser .all a { color: var(--ink); text-decoration: none; border-bottom: 1px solid #D97932; padding-bottom: 1px; }
+  .blog-teaser .all a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
   .blog-teaser .all a:hover { border-bottom-width: 2px; }
 
   .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
@@ -203,7 +208,7 @@
   .cal-embed iframe { display: block; max-width: 100%; border: 0; }
   .cal-embed:empty { display: none; }
   .cal-fallback { margin: 0; font-size: 15px; }
-  .cal-fallback a { color: var(--ink); text-decoration: none; border-bottom: 1px solid #D97932; padding-bottom: 1px; }
+  .cal-fallback a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
   .cal-fallback a:hover { border-bottom-width: 2px; }
   .cal-fallback .hint { color: var(--ink-soft); font-size: 14px; }
   .booking.loaded .cal-fallback { display: none; }
@@ -221,9 +226,120 @@
     .perch { order: 1; }
     .contact { margin-top: 32px; }
   }
+
+  /* ---------- Landschaft: zwei Ebenen, unveränderte Vogelgeometrie ---------- */
+  :root {
+    --nacht: 0; --nacht-prozent: 0%;
+    --paper-day: #F3EFE5; --paper-night: #1B2230;
+    --ink-day: #1F1F1F; --ink-night: #E8E2D6;
+    --ink-soft-day: #5C5C5C; --ink-soft-night: #B5AFA4;
+    --ink-muted-day: #68665F; --ink-muted-night: #B5AFA4;
+    --green-day: #0B3D2E; --green-night: #9FC4B3;
+    --copper-day: #B8724F; --copper-night: #D39A78;
+    --line-day: #D6D9D6; --line-night: #3A4351;
+    --hover-day: #EDE5D8; --hover-night: #293241;
+    --surface-day: #F8F5EE; --surface-night: #242D3B;
+    --reply-day: #E3E3D8; --reply-night: #2B3842;
+    --warning-day: #A63D2F; --warning-night: #F0AC91;
+    --sky-top: #EDF2F1; --sky-bottom: #FAF4E8; --sky-glow: #E1A777;
+    --star: #EEE8D9; --sun: #FAE5A7; --sun-halo: #F9DA9A;
+    --moon-light: #EEE8D9; --moon-dark: #252D3A;
+    --leaf-copper: #B8724F; --leaf-ochre: #AE8951; --leaf-rust: #90513E;
+    --snow: #E8E8DF; --petal: #F4E9DF;
+  }
+  html.landscape-on {
+    --paper: var(--fallback-paper); --ink: var(--fallback-ink); --ink-soft: var(--fallback-ink-soft);
+    --ink-muted: var(--fallback-ink-muted); --green: var(--fallback-green); --copper: var(--fallback-copper);
+    --line: var(--fallback-line); --hover: var(--fallback-hover); --surface: var(--fallback-surface);
+    --reply: var(--fallback-reply); --warning: var(--fallback-warning);
+  }
+  @supports (color: color-mix(in srgb, white, black)) {
+    html.landscape-on {
+      --paper: color-mix(in srgb, var(--paper-day), var(--paper-night) var(--nacht-prozent));
+      --ink: var(--readable-ink, color-mix(in srgb, var(--ink-day), var(--ink-night) var(--nacht-prozent)));
+      --ink-soft: var(--readable-ink-soft, color-mix(in srgb, var(--ink-soft-day), var(--ink-soft-night) var(--nacht-prozent)));
+      --ink-muted: var(--readable-ink-muted, color-mix(in srgb, var(--ink-muted-day), var(--ink-muted-night) var(--nacht-prozent)));
+      --green: var(--readable-green, color-mix(in srgb, var(--green-day), var(--green-night) var(--nacht-prozent)));
+      --copper: color-mix(in srgb, var(--copper-day), var(--copper-night) var(--nacht-prozent));
+      --line: color-mix(in srgb, var(--line-day), var(--line-night) var(--nacht-prozent));
+      --hover: color-mix(in srgb, var(--hover-day), var(--hover-night) var(--nacht-prozent));
+      --surface: color-mix(in srgb, var(--surface-day), var(--surface-night) var(--nacht-prozent));
+      --reply: color-mix(in srgb, var(--reply-day), var(--reply-night) var(--nacht-prozent));
+      --warning: var(--readable-warning, color-mix(in srgb, var(--warning-day), var(--warning-night) var(--nacht-prozent)));
+    }
+  }
+  .landscape-on body, .landscape-on .consent-banner, .landscape-on .goch {
+    background-blend-mode: multiply;
+    transition: background-color 2s, color 2s, border-color 2s;
+  }
+  .landscape-on .stage { isolation: isolate; }
+  .landscape-on .perch { grid-column: 2; z-index: 2; }
+  .landscape-on .name {
+    position: absolute; left: 6vw; top: calc(var(--scene-top) + var(--scene-height) * .140845 - .75em);
+    width: 36%; padding: 0; z-index: 3;
+  }
+  .landscape-on .bird-move { mix-blend-mode: normal; }
+  /* Sprachlinks liegen oben rechts vor der Krone: ein Lichthof aus Papierfarbe hält sie lesbar. */
+  .landscape-on .language-nav a { text-shadow: 0 0 2px var(--paper), 0 0 6px var(--paper), 0 0 12px var(--paper); }
+  .landscape-on .goch::after { bottom: auto; top: 28px; }
+  .landscape-on .branch { width: 242.8447528%; transform-origin: 20.5892857% 35%; }
+  .landscape-on .branch img { max-width: none; }
+  .landscape-on .bird-move, .landscape-on .branch, .landscape-picture, .landscape-particles {
+    filter: url(#landscape-moonlight); transition: filter 2s;
+  }
+  .landscape { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .landscape-svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .landscape-sky {
+    position: absolute; left: calc((100% - 100vw) / 2); top: 0; width: 100vw;
+    height: calc(var(--horizon) + 70px);
+    background: radial-gradient(ellipse at var(--sun-side, 80%) 70%, var(--sky-glow), transparent 52%), linear-gradient(var(--sky-top), var(--sky-bottom));
+    opacity: .52; mask-image: linear-gradient(black 5%, rgba(0,0,0,.8) 45%, transparent 100%);
+    transition: background 2s, opacity 2s;
+  }
+  .landscape-stars { position: absolute; top: 0; left: 0; width: 100%; height: var(--horizon); opacity: var(--stars, 0); transition: opacity 2s; }
+  .landscape-stars circle { fill: var(--star); animation: shimmer 5s ease-in-out infinite alternate; }
+  .landscape-orb { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -50%); transition: left 2s, top 2s, opacity 2s; }
+  .landscape-sun { border-radius: 50%; background: var(--sun); box-shadow: 0 0 24px 8px var(--sun-halo); opacity: .55; }
+  .landscape-moon { width: 27px; height: 27px; }
+  .landscape-moon .dark { fill: var(--moon-dark); opacity: .22; }
+  .landscape-moon .light { fill: var(--moon-light); }
+  .landscape-picture { position: absolute; display: block; }
+  .landscape-picture img { display: block; width: 100%; height: auto; }
+  .landscape-far { left: 12%; width: 55%; bottom: calc(100% - var(--scene-top) - var(--scene-height) * .8448); mask-image: linear-gradient(black 58%, transparent 100%); }
+  .landscape-crown { right: calc((100% - 100vw) / 2); top: -25px; width: max(320px, calc(40% + (100vw - 100%) * .15)); }
+  .landscape-particles { position: absolute; inset: 0; overflow: clip; }
+  .landscape-particle { position: absolute; width: 15px; height: 23px; opacity: 0; color: var(--leaf-copper); animation: leaf-fall var(--duration) linear var(--delay) infinite; }
+  .landscape-particle:nth-child(3n) { color: var(--leaf-ochre); }
+  .landscape-particle:nth-child(4n) { color: var(--leaf-rust); }
+  .landscape-particle:nth-child(7n) { color: var(--accent); }
+  .landscape-particle use { fill: currentColor; }
+  .landscape-particle.snow { width: 4px; height: 4px; border-radius: 50%; background: var(--snow); }
+  .landscape-particle.petal { color: var(--petal); width: 10px; height: 14px; }
+  .landscape-paused .landscape-particle, .landscape-paused .landscape-stars circle { animation-play-state: paused; }
+  @keyframes shimmer { from { opacity: .35; } to { opacity: .85; } }
+  @keyframes leaf-fall {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+    10% { opacity: .85; }
+    45% { transform: translate(calc(var(--drift) * .45), calc(var(--fall) * .38)) rotate(125deg) scaleX(.6); }
+    85% { opacity: .8; }
+    100% { opacity: 0; transform: translate(var(--drift), var(--fall)) rotate(320deg) scaleX(-.7); }
+  }
+  @media (max-width: 720px) {
+    .landscape-on .perch { grid-column: 1; grid-row: 1; }
+    .landscape-on .name { position: static; width: auto; padding: 0; grid-row: 2; }
+    /* Unter den Sprachlinks; die Oberkante läuft weich aus, damit kein Bildrand sichtbar wird. */
+    .landscape-crown { width: min(260px, 60vw); top: 52px; mask-image: linear-gradient(to bottom, transparent 0, black 34px); }
+    .landscape-far { left: 8%; width: 62%; bottom: calc(100% - var(--scene-top) - var(--scene-height) * .82); }
+    .landscape-moon { width: 22px; height: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .landscape *, .landscape-on body, .landscape-on .consent-banner, .landscape-on .goch { animation: none !important; transition: none !important; }
+    .landscape-particles { display: none; }
+  }
+
 </style>
 </head>
-<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-version="20260919c">
+<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-landschaft="aus" data-version="20260920">
 
 <nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 <nav class="language-nav" aria-label="Sprache">
@@ -232,6 +348,10 @@
   <a href="?lang=en" data-language="en" lang="en" hreflang="en">English</a>
 </nav>
 
+<script>
+  // Schalter der Redaktion (data-landschaft am body); ?landschaft=an zeigt die Landschaft trotzdem – zum Prüfen vor dem Einschalten.
+  if (document.body.dataset.landschaft === 'aus' && new URLSearchParams(location.search).get('landschaft') !== 'an') document.documentElement.classList.add('landscape-off');
+</script>
 <main>
   <section class="stage" aria-label="Robin James Lewis">
     <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">Robin James Lewis</a></h1>
@@ -342,10 +462,11 @@
 </section>
 
 
+<script src="landscape.js?v=20260920" defer></script>
 <script src="bird-flight.js?v=20260918" defer onerror="document.documentElement.classList.remove('js')"></script>
 <script src="language.js?v=20260919b" defer></script>
 <script src="site.js?v=20260918" defer></script>
-<script src="goch.js?v=20260919c" defer></script>
+<script src="goch.js?v=20260920" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 </body>
 </html>
