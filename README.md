@@ -276,6 +276,11 @@ und zeigt sie sofort auf der echten Startseite: Die Seite nimmt per `postMessage
 gibt es im Vault den Rahmenprompt (`Landschaft_Rahmenprompt`) und die Schablone der Bühne
 (`tools/landschaft-schablone.py` erzeugt sie aus der echten Seite).
 
+**Sprachwahl (21.09.2026):** zwei Flaggen (Deutsch, Englisch; Inline-SVG, keine Emoji – Windows zeigt dort Buchstaben)
+links oben vor dem Menü statt Text rechts oben, wo sie in der Krone untergingen. Text bleibt versteckt für Vorlesen und
+Suchmaschinen (`.visually-hidden`), `data-language`/`aria-current` unverändert für `language.js`; die aktive Flagge voll,
+die andere gedämpft, ein Kupferstrich darunter. Das Menü rückt um 74 px nach rechts.
+
 **Bühnenlogik:** Blick vom Zeller Horn nach Norden – Osten rechts, Westen links; Sonne und Mond wandern
 von rechts nach links, die Höhe ist echt (0° Horizont, 65° oberer Rand), auf der Südhalbkugel gespiegelt.
 Jahreszeiten meteorologisch, südlich des Äquators um sechs Monate versetzt, zehn Tage Überblendung.

@@ -195,18 +195,20 @@
   .blog-teaser .all a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
   .blog-teaser .all a:hover { border-bottom-width: 2px; }
 
-  .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - var(--seite)) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
+  /* Sprachwahl links oben vor dem Menü (Flaggen); das Menü rückt um deren Breite nach rechts. */
+  .language-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - var(--seite)) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 6px; }
   /* Verweis auf den Blog, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken; leer = unsichtbar */
-  .site-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - var(--seite)) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 14px; }
+  .site-nav { position: absolute; top: 20px; left: calc(max(6vw, calc((100vw - var(--seite)) / 2 + 6vw)) + 74px); z-index: 3; display: flex; align-items: center; gap: 14px; }
   .site-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; text-decoration: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
   .site-nav a:hover { color: var(--green); }
   .site-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
   .language-nav[hidden] { display: none; }
-  .language-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; border: 0; background: transparent; text-decoration: none; text-transform: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
-  .language-nav a:hover { color: var(--green); }
-  .language-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
-  .language-nav a[aria-current="page"] { color: var(--green); text-decoration: underline; text-underline-offset: 6px; text-decoration-color: var(--copper); }
-  .language-nav span { color: var(--line); }
+  .language-nav a { position: relative; display: inline-flex; align-items: center; min-height: 44px; min-width: 30px; padding: 8px 4px; border: 0; background: transparent; text-decoration: none; }
+  .language-nav .flag { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(31,31,31,.14); opacity: .5; filter: saturate(.8); transition: opacity .2s; }
+  .language-nav a:hover .flag { opacity: .85; }
+  .language-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; border-radius: 3px; }
+  .language-nav a[aria-current="page"] .flag { opacity: 1; filter: none; }
+  .language-nav a[aria-current="page"]::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 7px; height: 1px; background: var(--copper); }
 
   /* ---------- Terminbuchung (Cal.com) ---------- */
   .booking { max-width: 680px; margin: 0 0 40px; }
@@ -285,8 +287,9 @@
     width: 36%; padding: 0; z-index: 3;
   }
   .landscape-on .bird-move { mix-blend-mode: normal; }
-  /* Sprachlinks liegen oben rechts vor der Krone: ein Lichthof aus Papierfarbe hält sie lesbar. */
-  .landscape-on .language-nav a { text-shadow: 0 0 2px var(--paper), 0 0 6px var(--paper), 0 0 12px var(--paper); }
+  /* Sprachwahl und Menü oben links: ein Lichthof aus Papierfarbe hält sie vor Himmel und Blättern lesbar. */
+  .landscape-on .language-nav .flag, .landscape-on .site-nav a { filter: drop-shadow(0 0 3px var(--paper)); }
+  .landscape-on .language-nav a[aria-current="page"] .flag { filter: drop-shadow(0 0 3px var(--paper)); }
   .landscape-on .goch::after { bottom: auto; top: 28px; }
   .landscape-on .branch { width: 242.8447528%; transform-origin: 20.5892857% 35%; }
   .landscape-on .branch img { max-width: none; }
@@ -333,7 +336,7 @@
   @media (max-width: 720px) {
     .landscape-on .perch { grid-column: 1; grid-row: 1; }
     .landscape-on .name { position: static; width: auto; padding: 0; grid-row: 2; }
-    /* Unter den Sprachlinks; die Oberkante läuft weich aus, damit kein Bildrand sichtbar wird. */
+    /* Unter der Menüzeile (Sprachwahl und Menü stehen links oben); die Oberkante läuft weich aus, damit kein Bildrand sichtbar wird. */
     .landscape-crown { width: min(260px, 60vw); top: 52px; mask-image: linear-gradient(to bottom, transparent 0, black 34px); }
     .landscape-far { left: 8%; width: 62%; bottom: calc(100% - var(--scene-top) - var(--scene-height) * .82); }
     .landscape-moon { width: 22px; height: 22px; }
@@ -345,13 +348,13 @@
 
 </style>
 </head>
-<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20260921c">
+<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20260921d">
 
 <nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<!-- Sprachwahl als Flaggen (Robin, 21.09.2026): links oben vor dem Menü, damit sie nicht in der Krone untergeht. Text bleibt für Vorlesen und Suchmaschinen. -->
 <nav class="language-nav" aria-label="Sprache">
-  <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page">Deutsch</a>
-  <span aria-hidden="true">/</span>
-  <a href="?lang=en" data-language="en" lang="en" hreflang="en">English</a>
+  <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
+  <a href="?lang=en" data-language="en" lang="en" hreflang="en" title="English"><svg class="flag" viewBox="0 0 60 30" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><clipPath id="flag-uk-quarters"><path d="M30 15h30v15zv15H30zH0V15zV0h30z"/></clipPath><rect width="60" height="30" fill="#1B3A73"/><path d="M0 0l60 30m0-30L0 30" stroke="#F6F1E8" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-quarters)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#F6F1E8" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg><span class="visually-hidden">English</span></a>
 </nav>
 
 <script>

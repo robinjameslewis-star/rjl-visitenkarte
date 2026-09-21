@@ -94,11 +94,11 @@ def draw(raw, R):
     box(bird, (166, 61, 47, 36), RED, hatch=True); label(int(bird[0])+12, int(bird[1])+8, "GOCH – bleibt frei", RED)
     br = R["branch"]; box((br[0], br[1]-3, W, br[3]+3), (166, 61, 47, 26), RED, hatch=True); label(int(br[0])+12, int(br[3])-31, "AST – bleibt frei", RED)
     n = R["name"]; box((n[0]-10, n[1]-8, n[2]+10, n[3]+8), (166, 61, 47, 26), RED, width=2); label(int(n[0])-10, int(n[1])-38, "NAME – bleibt lesbar", RED, F)
-    for key, text in (("lang", "Sprachlinks – bleiben lesbar"), ("nav", "Menü – bleibt lesbar")):
+    for key, text in (("lang", "Sprachwahl – bleibt lesbar"), ("nav", "Menü – bleibt lesbar")):
         r = R[key]; box((r[0]-8, r[1]-4, r[2]+8, r[3]+4), (166, 61, 47, 26), RED, width=2); label(int(r[0])-8, int(r[3])+12, text, RED, FS)
     canvas = Image.alpha_composite(canvas, ov)
     d = ImageDraw.Draw(canvas); y = TOP + 14
-    d.text((24, y), "Schablone der Bühne · robinjameslewis · Schreibtisch, 1536 px breit (Handy: alles rückt zusammen, die Krone sitzt unter den Sprachlinks)", font=FT, fill=INK); y += 38
+    d.text((24, y), "Schablone der Bühne · robinjameslewis · Schreibtisch, 1536 px breit (Handy: alles rückt zusammen, die Krone sitzt unter der Menüzeile)", font=FT, fill=INK); y += 38
     paras = [
         ("Geliefert werden zwei Bilder, jedes als eigenes PNG auf reinem Weiß (#FFFFFF): ohne Himmel, ohne Sonne und Mond, ohne Schlagschatten, ohne Text, ohne Rahmen. Weiß wird durchsichtig – Papier, Himmel und nachts das Dunkel scheinen durch.", INK),
         ("FERNE (blau): Querformat, mindestens 1536 px breit. Motiv als liegender Streifen mit ruhiger Oberkante; alles Dunkle und Detaillierte liegt unten, nach oben Dunst, der ins Weiß übergeht. Die Ferne steht hinter dem Vogel auf Körperhöhe.", BLUE),
