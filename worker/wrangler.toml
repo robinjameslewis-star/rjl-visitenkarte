@@ -29,7 +29,7 @@ MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
 # Der Draht: Versand über Resend. Secret: npx wrangler secret put RESEND_API_KEY
 MAIL_TO = "robinjameslewis@googlemail.com"
-MAIL_FROM = "Goch <onboarding@resend.dev>"  # mit eigener Domain: verifizierte Absenderadresse
+MAIL_FROM = "Goch <goch@robin.vision>"  # Absenderdomain robin.vision bei Resend verifiziert (21.09.2026; DKIM/SPF/DMARC im Cloudflare-DNS)
 GITHUB_REPO = "robinjameslewis-star/rjl-visitenkarte"  # Speicher des Dashboards; Schlüssel: Geheimnis GITHUB_TOKEN
 GITHUB_BRANCH = "main"
 CHAT_ENDPOINT = "https://goch.robin.vision/chat"  # trägt die Redaktion beim Einschalten wieder in index.html ein
