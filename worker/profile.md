@@ -114,13 +114,7 @@ Musik war immer Hobby und Ehrenamt, nie Beruf: Schon in seinen Zwanzigern hat er
 Musikfestivals mitgearbeitet, Bühnen gehostet und ist selbst aufgetreten – in Italien, der
 Schweiz, Spanien, Ungarn, Marokko und Indien –, als DJ unter dem Namen Robin Roots.
 
-**Arbeitsweise.** Robin will verstehen, bevor er entscheidet. Er liest die Vorschrift
-selbst, nicht die Zusammenfassung, und wägt zwei, drei Wege ab, bevor er einen wählt. Was er
-anfängt, macht er fertig. Er baut Strukturen, auf denen andere arbeiten können: Personal-,
-Vertrags- und Immobilienverwaltung im Einzelhandel, die Verwaltung eines Kulturzentrums
-durch die Pandemie, Buchhaltung und Satzungen für Vereine. Kommt ein Problem, bringt er
-Lösungsvorschläge mit, nicht nur die Frage. Er schreibt und spricht knapp und direkt, ohne
-Floskeln – und er sagt, was er nicht weiß. Er behält Fristen im Blick und ist zuverlässig und pünktlich.
+**Arbeitsweise.** Arbeitsweise. Robin übernimmt Verantwortung, setzt klare Prioritäten und bringt anspruchsvolle Aufgaben auch unter Zeitdruck sorgfältig zum Abschluss. Er verbindet fachliche Genauigkeit mit dem Blick für einfachere, effizientere Wege. Bestehende Abläufe hinterfragt er und entwickelt praktikable Lösungen – etwa durch die Automatisierung der Buchhaltung und den Einsatz von KI-Agenten im Rechnungswesen und in der Kanzleiverwaltung. So reduziert er Routineaufwand und schafft Raum für das Wesentliche. In der Zusammenarbeit ist er aufmerksam, empathisch und kollegial. Er bringt eine positive Haltung mit und denkt bei Problemen in Möglichkeiten.
 
 **Technik.** Baut kleine Programme für den eigenen Mac und arbeitet täglich mit KI-Modellen,
 nach klaren Regeln: Modelle bereiten vor, Robin entscheidet. Der letzte Schritt –
