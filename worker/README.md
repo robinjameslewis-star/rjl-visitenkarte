@@ -134,6 +134,8 @@ Ohne Schlüssel liest das Dashboard, schreibt aber nicht.
 Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag in `CONTENT`
 (`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung. GitHub-Zugriff: `src/github.js`.
 
+**E-Mail seit 21.09.2026:** Goch schreibt von `goch@robin.vision` (Resend-Domain verifiziert: DKIM `resend._domainkey`, SPF-CNAMEs `send`/`rsend`, DMARC `p=none`); Post an `robin@robin.vision` leitet Cloudflare Email Routing an Robins Gmail weiter (MX/SPF-Einträge gesperrt verwaltet, Catch-all aus).
+
 **Gochs Profil in der Redaktion (seit 21.09.2026).** `profile.md` ist der dritte Eintrag in `CONTENT`: Abschnitt
 „Goch – Profil“ mit dem ganzen Text, Wortzahl (≈ Tokens), Veröffentlichen (Commit auf `worker/profile.md` + KV-Kopie
 `content:profile`), „Vorige Fassung“, „Verlauf“. Der Worker nimmt das Profil wie Aktuell und Links aus dem KV
