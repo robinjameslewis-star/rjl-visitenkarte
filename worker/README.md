@@ -133,6 +133,14 @@ Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag i
 (`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung.
 Das Profil bleibt Datei mit Deploy (`profile.md`). GitHub-Zugriff: `src/github.js`.
 
+**Startseite – Landschaft** (`site`-API in `src/admin.js`): ein Haken, „Veröffentlichen“ = Commit auf
+`index.html`. `applyLandscape(html, wish)` setzt `data-landschaft="an|aus"` am `<body>` **und** die Bildpfade
+von Vogel und Ast in einem Zug – `assets/bestand/` (ohne Landschaft: kurzer Ast 1153 px, Vogel auf Weiß)
+oder `assets/` (mit Landschaft: langer Ast 2800 px, freigestellter Vogel) – in der Szene und in den
+`<link rel="preload">` des `<head>`, dazu die Astbreite. So steht vom ersten Bild an das Richtige in der Seite;
+`landscape.js` tauscht nur noch für die Vorschau-Links (`?landschaft=an|aus`) zur Laufzeit. Prüfung ohne
+Worker: `node tests/site_test.mjs` (Rundreise an → aus lässt die Datei unverändert).
+
 **Betrieb (Goch – Betrieb in der Redaktion, `src/settings.js`):** an/aus, Anbieter, Modell, Prompt-Cache,
 zweiter Anbieter über eine OpenAI-kompatible Schnittstelle – im KV (`settings:goch`), gilt ohne Deploy
 ab der nächsten Frage (je Instanz eine Minute gemerkt). „Aus“ schaltet den Worker (503) und entfernt per

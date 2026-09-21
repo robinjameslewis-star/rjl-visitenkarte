@@ -518,8 +518,21 @@ async function gochApi(api, request, env, deps, session) {
   } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
   return json({ error: "Nicht gefunden." }, 404);
 }
-// Startseite: Schalter der Landschaft (data-landschaft am <body>) – Lesen und Umschalten per Commit.
+// Startseite: Schalter der Landschaft – Lesen und Umschalten per Commit. Umgeschaltet werden data-landschaft am <body>
+// und in einem Zug die Bildpfade der Szene: assets/bestand/ = ohne Landschaft (kurzer Ast, 1153 px breit, Vogel auf
+// Weiß), assets/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht vom ersten Bild an das Richtige
+// in der Seite; landscape.js tauscht nur noch für ?landschaft=an|aus zur Laufzeit.
 const LANDSCAPE_ATTR = /data-landschaft="(an|aus)"/;
+const SCENE = /<button class="scene"[\s\S]*?<\/button>/;
+export function applyLandscape(html, wish) {
+  const on = wish === "an";
+  const folder = on ? "assets/" : "assets/bestand/";
+  return html.replace(LANDSCAPE_ATTR, `data-landschaft="${on ? "an" : "aus"}"`)
+    .replace(/(<link rel="preload" as="image" href=")assets\/(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1${folder}$2`) // Vorabladen im <head>
+    .replace(SCENE, scene => scene
+      .replace(/(src|data-src)="assets\/(?:bestand\/)?([^"]+)"/g, (_, attr, name) => `${attr}="${folder}${name}"`)
+      .replace(/(<img src="assets\/(?:bestand\/)?ast\.webp"[^>]*?width=")\d+"/, `$1${on ? 2800 : 1153}"`));
+}
 async function siteState(env) {
   let landschaft = null;
   if (gh.configured(env)) { try { const home = await gh.getFile(env, "index.html"); const m = home && home.content.match(LANDSCAPE_ATTR); landschaft = m ? m[1] : null; } catch {} }
@@ -532,8 +545,8 @@ async function siteApi(request, env) {
       const wish = (await readJson(request)).landschaft === "an" ? "an" : "aus";
       if (!gh.configured(env)) return json({ error: "Veröffentlichen ist ohne GitHub-Schlüssel nicht möglich." }, 400);
       const home = await gh.getFile(env, "index.html");
-      if (!home || !LANDSCAPE_ATTR.test(home.content)) return json({ error: "Schalter data-landschaft auf der Startseite nicht gefunden." }, 400);
-      const html = home.content.replace(LANDSCAPE_ATTR, `data-landschaft="${wish}"`);
+      if (!home || !LANDSCAPE_ATTR.test(home.content) || !SCENE.test(home.content)) return json({ error: "Schalter data-landschaft oder Szene (Vogel und Ast) auf der Startseite nicht gefunden." }, 400);
+      const html = applyLandscape(home.content, wish);
       let note = wish === "an" ? "Die Landschaft ist schon an." : "Die Landschaft ist schon aus.";
       if (html !== home.content) {
         await gh.putFile(env, "index.html", html, `Redaktion: Landschaft ${wish === "an" ? "eingeschaltet" : "ausgeschaltet"}`, home.sha);

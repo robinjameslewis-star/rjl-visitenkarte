@@ -133,16 +133,21 @@
   if (!scene) return;
   const api = window.RJLLandscape, stage = scene.closest('.stage');
   const wish = new URLSearchParams(location.search).get('landschaft'); // 'aus' schaltet ab, 'an' übersteuert den Schalter der Redaktion
+  // Vogel und Ast gibt es zweimal: assets/bestand/ (ohne Landschaft: kurzer Ast, Vogel auf Weiß) und assets/
+  // (mit Landschaft: langer Ast, freigestellter Vogel). Die Startseite trägt die Pfade der eingeschalteten Fassung,
+  // damit vom ersten Bild an das Richtige steht; nur ?landschaft=an|aus tauscht hier zur Laufzeit.
+  const use = folder => document.querySelectorAll('.scene img').forEach(img => {
+    ['src', 'data-src'].forEach(attr => {
+      const src = img.getAttribute(attr), m = src && src.match(/^assets\/(?:bestand\/)?(.+)$/);
+      if (m && src !== folder + m[1]) img.setAttribute(attr, folder + m[1]);
+    });
+  });
   if (wish !== 'an' && (root.classList.contains('landscape-off') || document.body.dataset.landschaft === 'aus')) {
     root.classList.add('landscape-off');
-    document.querySelectorAll('.scene img').forEach(img => {
-      ['src', 'data-src'].forEach(attr => {
-        const src = img.getAttribute(attr);
-        if (src) img.setAttribute(attr, src.replace('assets/', 'assets/bestand/'));
-      });
-    });
+    use('assets/bestand/');
     return;
   }
+  use('assets/');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const input = api.parseOverrides(location.search, new Date());
   const place = input.location || api.locationForZone(Intl.DateTimeFormat().resolvedOptions().timeZone, input.date.getTimezoneOffset());
