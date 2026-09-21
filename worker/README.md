@@ -3,8 +3,8 @@
 Cloudflare Worker als Proxy zwischen Website und Sprachmodell – und als Draht zu Robin.
 Der Schlüssel bleibt im Worker, die Seite ruft nur `POST /chat` auf. Was Goch weiß, steht in
 `profile.md` (wer Robin ist, wie Goch spricht, was er nie tut) und `aktuell.md` (woran Robin
-gerade arbeitet; alle vier bis sechs Wochen erneuern). Beide Dateien sind öffentlich und von
-Robin freigegeben; Herleitung im Vault unter `10_Projects/Website Visitenkarte/`.
+gerade arbeitet; alle vier bis sechs Wochen erneuern). Beide Dateien sind öffentlich, von
+Robin freigegeben und in der Redaktion (`/admin`) pflegbar; Herleitung im Vault unter `10_Projects/Website Visitenkarte/`.
 
 ## Schnittstelle
 
@@ -130,8 +130,18 @@ läuft nach höchstens einem Jahr ab – dann erneuern) und die Variablen `GITHU
 Ohne Schlüssel liest das Dashboard, schreibt aber nicht.
 
 Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag in `CONTENT`
-(`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung.
-Das Profil bleibt Datei mit Deploy (`profile.md`). GitHub-Zugriff: `src/github.js`.
+(`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung. GitHub-Zugriff: `src/github.js`.
+
+**Gochs Profil in der Redaktion (seit 21.09.2026).** `profile.md` ist der dritte Eintrag in `CONTENT`: Abschnitt
+„Goch – Profil“ mit dem ganzen Text, Wortzahl (≈ Tokens), Veröffentlichen (Commit auf `worker/profile.md` + KV-Kopie
+`content:profile`), „Vorige Fassung“, „Verlauf“. Der Worker nimmt das Profil wie Aktuell und Links aus dem KV
+(Abgleich mit GitHub alle fünf Minuten); die mitgelieferte Datei ist nur noch Rückfall – auch dann, wenn die
+KV-Kopie leer oder kürzer als 500 Zeichen wäre (ein kaputtes Profil darf Goch nicht stumm machen). Prüfung beim
+Speichern: mindestens 300 Wörter, höchstens 60.000 Zeichen, „Goch“ muss vorkommen, keine Telefon- oder
+Kontonummern (die E-Mail-Adresse steht drin, Goch nennt sie auf Frage). Robins Regel bleibt: Alles im Profil darf
+öffentlich sein – keine Namen aus der Familie, keine Adresse, nichts zu Finanzen, Gesundheit, Mandanten.
+Die Links stehen im Prompt jetzt mit Titel (`- song2 („Steve Miller Band – Fly Like An Eagle“): NUR wenn …`),
+damit Goch etwa sein Lieblingslied beim Namen nennen kann; das Profil verweist dafür auf die Links.
 
 **Landschaften** (`site`- und `landschaften`-API in `src/admin.js`, Logik in `src/landscapes.js`): Schalter, Wahl
 des Satzes, Bestand, Editor. „Veröffentlichen“ = Commit auf `index.html`: `applyLandscape(html, wish, satz)` setzt

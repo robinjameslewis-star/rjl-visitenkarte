@@ -188,7 +188,18 @@ async def main():
             await ev("document.querySelector('#led .lview[data-v=phone]').click()"); await wait(200)
             check(await ev("document.getElementById('lframe').className") == "phone" and await ev("document.getElementById('lframe').getBoundingClientRect().width") == 390, "Handy-Ansicht 390 px")
 
-            print("10. Konsole")
+            print("10. Gochs Profil: Textfeld, Wortzahl, Prüfung, Veröffentlichen")
+            check(await ev("document.getElementById('ptext').value.includes('Goch, das Rotkehlchen von Robin')"), "Profil steht im Textfeld")
+            check(await ev("/^\\d{4} Wörter/.test(document.getElementById('pwords').textContent)"), "Wortzahl wird gezeigt", await ev("document.getElementById('pwords').textContent"))
+            await ev("(()=>{window.confirm=()=>true;const t=document.getElementById('ptext');t.value=t.value+'\\nRobin ist unter 07433 12345 erreichbar.';t.dispatchEvent(new Event('input'));})()")
+            await ev("document.getElementById('saveP').click()"); await wait(800)
+            msg = await ev("document.getElementById('mP2').textContent"); check("Telefonnummern" in msg, "Telefonnummer wird abgelehnt", msg[:60])
+            await ev("(()=>{const t=document.getElementById('ptext');t.value=t.value.replace('\\nRobin ist unter 07433 12345 erreichbar.','\\nRobin mag Herbstspaziergänge.');t.dispatchEvent(new Event('input'));})()")
+            await ev("document.getElementById('saveP').click()"); await wait(1200)
+            msg = await ev("document.getElementById('mP2').textContent"); check("Veröffentlicht" in msg, "geänderte Fassung veröffentlicht", msg[:60])
+            check(await ev("document.getElementById('ptext').value.includes('Herbstspaziergänge') && !document.getElementById('prevP').disabled"), "Textfeld zeigt die gespeicherte Fassung, „Vorige Fassung“ verfügbar")
+
+            print("11. Konsole")
             check(not console, "keine Fehler", "; ".join(console)[:200])
     finally:
         proc.terminate()

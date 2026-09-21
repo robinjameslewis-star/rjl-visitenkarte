@@ -22,7 +22,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation; `tests/im-browser.html` führt sie ohne Node im Browser aus
 - `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
 - `goch.js` – Goch: Sprechblase am Ast (Einwilligung, Gespräch, Nachricht an Robin)
-- `worker/profile.md`, `worker/aktuell.md` – was Goch weiß (von Robin freigegeben, öffentlich); `worker/src/index.js` der Cloudflare Worker
+- `worker/profile.md`, `worker/aktuell.md` – was Goch weiß (von Robin freigegeben, öffentlich, in der Redaktion pflegbar); `worker/src/index.js` der Cloudflare Worker
 - `worker/src/admin.js` – Redaktion – Backend der Website unter `/admin` (Aktuell, Links, Zähler; Anmeldung per E-Mail-Code)
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
@@ -285,7 +285,9 @@ Textfarben werden zur Laufzeit nachgeführt, bis jedes Paar ≥ 4,5 : 1 hat (`--
 nachts mit `theme: "dark"` initialisiert. Goch hängt mit Landschaft unter dem Namen statt darüber.
 `prefers-reduced-motion`: keine Bewegung; verborgener Tab: Blätter und Sterne pausieren.
 Breite Bildschirme: Reicht der Ast (2,43 Szenenbreiten) nicht bis zum Fensterrand (ab ≈ 2100 px), rückt die Krone
-ans Astende (`--landscape-inset`), der Ast läuft weich aus, die Blätter fallen weiter neben dem Vogel.
+ans Astende (`--landscape-inset`), der Ast läuft weich aus, die Blätter fallen weiter neben dem Vogel. Ab 2200 px
+wachsen Bühne und Textspalten mit (`--seite`, `--text` in `:root`: 1120/980 px plus 35 % der Breite über 2200 px –
+4K bei 100 % zeigt den Vogel dann etwa doppelt so groß); darunter liefern die Formeln exakt die alten Werte.
 
 **Gewicht:** Erstaufruf Schreibtisch/Herbst ≈ 1,0 MB (Budget 1,2 MB; Krone-AVIF 118 KB, Ferne-AVIF 77 KB,
 Ast 183 KB, Vogelbilder zusammen 511 KB – deckend und ohne Vorfilter etwas schwerer als die 431 KB der

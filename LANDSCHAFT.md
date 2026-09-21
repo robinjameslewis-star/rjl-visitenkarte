@@ -60,7 +60,9 @@ Der Ast (2,43 Szenenbreiten) endete mit harter Kante im Papier, die Krone hing a
 über leeren Himmel. Jetzt: Reicht der Ast nicht bis zum Rand (ab ≈ 2100 px), setzt `landscape.js` `--landscape-inset`,
 die Krone rückt ans Astende (Breite wie auf einem Fenster, das dort endet, höchstens 1,15 Szenenbreiten), der Ast läuft
 über die letzten 15 % weich aus (`mask-image`), die Blätter fallen wieder neben dem Vogel. Geprüft bei 1920 (unverändert:
-Inset 0, keine Maske), 2560 und 3840 px.
+Inset 0, keine Maske), 2560 und 3840 px. Dazu (Robins Wunsch): Ab 2200 px wachsen Bühne und Textspalten mit
+(`--seite`/`--text`), bei 3840 px ist die Bühne 1694 px breit (Vogel 648 statt 303 px); bis 2199 px unverändert
+(bei 1920 geprüft: Bühne 1120, Text 980, Menü und Sprachlinks an alter Stelle).
 
 ## Offen / Robins Abnahme
 - Live prüfen mit den Vorschau-Links der Redaktion (Mittag, Dämmerung, Nacht, Handy); dann Schalter auf „an“.

@@ -23,7 +23,7 @@
   @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
   [hidden] { display: none !important; }
   body { padding-bottom: var(--consent-height, 0px); }
-  .consent-banner { position: fixed; inset: auto 0 0; z-index: 10; max-height: 65dvh; overflow-y: auto; background: var(--paper) url("assets/papier.jpg") repeat; background-size: 512px; border-top: 1px solid var(--accent); padding: 18px max(6vw, calc((100vw - 980px) / 2)) max(18px, env(safe-area-inset-bottom)); color: var(--ink); }
+  .consent-banner { position: fixed; inset: auto 0 0; z-index: 10; max-height: 65dvh; overflow-y: auto; background: var(--paper) url("assets/papier.jpg") repeat; background-size: 512px; border-top: 1px solid var(--accent); padding: 18px max(6vw, calc((100vw - var(--text)) / 2)) max(18px, env(safe-area-inset-bottom)); color: var(--ink); }
   .consent-banner h2 { margin: 0 0 5px; font: 400 23px/1.25 var(--serif); }
   .consent-banner p { max-width: 76ch; margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
   .consent-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
@@ -38,12 +38,18 @@
   @media (max-width: 480px) { .consent-actions .consent-button { width: 100%; } }
 
   :root {
+    /* Seitenbreite: Bühne 1120 px, Textspalten 980 px. Ab 2200 px Fensterbreite wachsen beide mit (4K bei 100 %),
+       darunter bleibt alles wie gehabt – die Formeln liefern dort exakt 1120 px bzw. 980 px. */
+    --seite: 1120px; --text: 980px;
     --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A;
     --line: #D6D9D6; --paper: #F3EFE5;
     --accent: #D97932; --hover: #EDE5D8; --warning: #A63D2F;
     --surface: rgba(255,255,255,.55); --reply: rgba(11,61,46,.07); --shadow: rgba(31,31,31,.10);
     --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif;
     --sans: "Helvetica Neue", Inter, Arial, sans-serif;
+  }
+  @media (min-width: 2200px) {
+    :root { --seite: calc(1120px + (100vw - 2200px) * .35); --text: calc(980px + (100vw - 2200px) * .35); }
   }
   * { box-sizing: border-box; }
   html { height: 100%; }
@@ -58,7 +64,7 @@
 
   /* ---------- Bühne ---------- */
   .stage {
-    max-width: 1120px; margin: 0 auto;
+    max-width: var(--seite); margin: 0 auto;
     padding: clamp(105px, 17vh, 175px) 6vw 0;
     display: grid; grid-template-columns: minmax(180px, 2fr) minmax(280px, 3fr);
     column-gap: 4vw; align-items: end;
@@ -153,11 +159,11 @@
   @media (prefers-reduced-motion: reduce) { .goch-log { scroll-behavior: auto; } }
 
   /* ---------- Terminbereich ---------- */
-  .contact { max-width: 980px; margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .contact { max-width: var(--text); margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
   .contact > h2, .contact > .lead { max-width: 560px; }
   .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
   /* Nachricht: Kontaktformular ganz unten, zweiter Eingang neben Goch (contact.js) */
-  .message { max-width: 980px; margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .message { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
   .message > h2 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; max-width: 560px; }
   .message p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
   .message form { max-width: 560px; }
@@ -174,7 +180,7 @@
   .message .msg-status.warn { color: var(--warning); }
   .message .hint { color: var(--ink-soft); font-size: 14px; margin: 0; max-width: 60ch; }
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
-  .blog-teaser { max-width: 980px; margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
   .blog-teaser > h2 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; max-width: 560px; }
   .blog-teaser p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
   .blog-teaser ul { list-style: none; margin: 0; padding: 0; max-width: 560px; }
@@ -189,9 +195,9 @@
   .blog-teaser .all a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
   .blog-teaser .all a:hover { border-bottom-width: 2px; }
 
-  .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
+  .language-nav { position: absolute; top: 20px; right: max(6vw, calc((100vw - var(--seite)) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 10px; }
   /* Verweis auf den Blog, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken; leer = unsichtbar */
-  .site-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - 1120px) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 14px; }
+  .site-nav { position: absolute; top: 20px; left: max(6vw, calc((100vw - var(--seite)) / 2 + 6vw)); z-index: 3; display: flex; align-items: center; gap: 14px; }
   .site-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 3px; text-decoration: none; letter-spacing: .03em; font-size: 12px; color: var(--ink-soft); }
   .site-nav a:hover { color: var(--green); }
   .site-nav a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }

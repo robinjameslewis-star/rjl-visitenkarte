@@ -5,7 +5,7 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
-import { PAGE } from "../worker/src/admin.js";
+import { PAGE, CONTENT } from "../worker/src/admin.js";
 import * as blog from "../worker/src/blog.js";
 import landscape from "../landscape.js";
 
@@ -21,6 +21,9 @@ let site = { landschaft: "aus", satz: "burgberg-herbst" };
 const landState = () => ({ ...site, url: SITE, landschaften: sets, standard: landscape.normalizeSet(null),
   sizes: Object.fromEntries(Object.entries(landscape.LAYERS).map(([k, v]) => [k, v.sizes])), budgets: Object.fromEntries(Object.entries(landscape.LAYERS).map(([k, v]) => [k, v.budget])) });
 
+// Inhalte der Registry (Profil, Aktuell, Links) – Profil aus der echten Datei, Speichern prüft mit der echten Regel und merkt sich den Text
+const content = { profile: { fields: { text: await readFile(new URL("../worker/profile.md", import.meta.url), "utf8") }, meta: { hasPrev: false }, historyUrl: "" },
+  aktuell: { fields: { stand: "19.09.2026", de: "", en: "" }, meta: { hasPrev: false }, historyUrl: "" }, links: { fields: { rows: [] }, meta: { hasPrev: false }, historyUrl: "" } };
 const SITE = `http://localhost:${port}/site/`; // die Website selbst wird aus dem Projektordner ausgeliefert (Papier, Schrift, Rotkehlchen für die Karte)
 const ROOT = new URL("..", import.meta.url).pathname;
 const MIME = { ".jpg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2", ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript" };
@@ -44,9 +47,13 @@ http.createServer(async (req, res) => {
     catch { res.writeHead(404); return res.end(); }
   }
   const api = u.pathname.replace(/^\/admin\/api\//, "");
-  if (api === "state") return json(res, { usage: [], limits: { perDay: 60, perHour: 12, turns: 8 }, alert: false, model: "claude-opus-5", profileWords: 2700,
-    unanswered: [], github: true, content: { aktuell: { fields: { stand: "19.09.2026", de: "", en: "" }, meta: { hasPrev: false }, historyUrl: "" },
-      links: { fields: { rows: [] }, meta: { hasPrev: false }, historyUrl: "" } } });
+  const stateJson = () => ({ usage: [], limits: { perDay: 60, perHour: 12, turns: 8 }, alert: false, model: "claude-opus-5", profileWords: 2700, unanswered: [], github: true, content });
+  if (api === "state") return json(res, stateJson());
+  const cm = api.match(/^content\/(profile|aktuell|links)$/);
+  if (cm && req.method === "PUT") { const f = await readBody(req); const c = CONTENT[cm[1]];
+    try { const md = c.join(f, { parseLinks: () => [] }); content[cm[1]].fields = c.split(md, { parseLinks: () => [] }); content[cm[1]].meta = { hasPrev: true }; return json(res, { ...stateJson(), note: "Veröffentlicht (Attrappe)." }); }
+    catch (e) { return json(res, { error: e.message }, 400); } }
+  if (cm && req.method === "POST") return json(res, { ...stateJson(), note: "Vorige Fassung (Attrappe)." });
   if (api === "site" && req.method === "GET") return json(res, { ...site, url: SITE });
   if (api === "site" && req.method === "PUT") { const f = await readBody(req); site = { landschaft: f.landschaft === "an" ? "an" : "aus", satz: sets.some(s => s.slug === f.satz) ? f.satz : site.satz }; return json(res, { ...site, url: SITE, note: "Schalter gesetzt (Attrappe)." }); }
   if (api === "landschaften" && req.method === "GET") return json(res, landState());

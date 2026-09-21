@@ -216,7 +216,23 @@ function cookie(token, maxAge) {
 
 // Jede Inhaltsart: Datei im Repository, Zerlegen in Felder (für die Seite), Zusammenbauen und Prüfen
 // (aus den Feldern). Weitere Arten – Blogbeiträge, Textstellen der Seite – kommen hier dazu.
-const CONTENT = {
+export const CONTENT = {
+  profile: {
+    path: "worker/profile.md", title: "Gochs Profil",
+    split: md => ({ text: md }),
+    join(f) {
+      const text = String(f.text || "").replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").trim() + "\n";
+      const words = text.split(/\s+/).filter(Boolean).length;
+      if (words < 300) throw new Error("Das Profil ist zu kurz (" + words + " Wörter) – so kann Goch nicht arbeiten.");
+      if (text.length > 60000) throw new Error("Das Profil ist zu lang (höchstens 60.000 Zeichen).");
+      if (!/\bGoch\b/.test(text)) throw new Error("Im Profil muss Goch vorkommen – sonst weiß der Vogel nicht, wer er ist.");
+      // Was nie ins Profil gehört (alles darin darf öffentlich sein): Telefonnummern, Kontonummern. Die E-Mail-Adresse steht drin – Goch nennt sie auf Frage.
+      const m = text.match(/(?:\+|00)\d[\d\s/()-]{7,}\d/) || text.match(/\b(?:0\d{2,5}[\s/-]?\d{3,}[\s-]?\d{2,})\b/) || text.match(/\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){3,7}\b/);
+      if (m) throw new Error("Bitte keine Telefonnummern oder Kontonummern ins Profil („" + m[0].slice(0, 30) + "“).");
+      return text;
+    },
+    summary: f => String(f.text || "").split(/\s+/).filter(Boolean).length + " Wörter",
+  },
   aktuell: {
     path: "worker/aktuell.md", title: "Woran Robin gerade arbeitet",
     split: md => ({
@@ -793,6 +809,11 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
+<section><h2>Goch – Profil <span class="note">(wer Robin ist, wie Goch spricht, was er nie tut)</span></h2><p class="src" id="psrc"></p>
+<p class="note" style="margin:0 0 6px">Das ist Gochs Systemprompt – jeder Satz hier wird sein Wissen und sein Ton. Alles darin darf öffentlich sein: keine Namen aus der Familie, keine Adresse, nichts zu Finanzen oder Gesundheit, keine Mandanten. Nach dem Veröffentlichen antwortet Goch sofort mit der neuen Fassung; „Vorige Fassung“ holt den Stand davor zurück.</p>
+<textarea id="ptext" style="min-height:460px" spellcheck="true"></textarea>
+<div class="bar"><button id="saveP">Veröffentlichen</button><button class="quiet" id="prevP">Vorige Fassung</button><a class="note" id="histP" target="_blank" rel="noopener">Verlauf</a><span class="note" id="pwords"></span><span class="msg" id="mP2"></span></div></section>
+
 <script>
 const $=id=>document.getElementById(id);
 const H={'content-type':'application/json','x-goch-admin':'1'};
@@ -1090,11 +1111,13 @@ function render(s){S=s;
  const byDate=Object.fromEntries(last.map(u=>[u.date,u.n]));const max=Math.max(1,...last.map(u=>u.n));const bars=[];
  for(let i=29;i>=0;i--){const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);const n=byDate[d]||0;bars.push('<i style="height:'+Math.round(n/max*100)+'%" title="'+d+': '+n+'"></i>');}
  $('days').innerHTML=bars.join('');
- $('meta').textContent='Modell '+s.model+' · Profil '+s.profileWords+' Wörter (≈ '+Math.round(s.profileWords*4.4/100)*100+' Tokens) · Grenzen: '+s.limits.perHour+' je Stunde und Adresse, '+s.limits.turns+' Fragen je Gespräch.';
+ const pw=s.content.profile?s.content.profile.fields.text.split(/\\s+/).filter(Boolean).length:s.profileWords;
+ $('meta').textContent='Modell '+s.model+' · Profil '+pw+' Wörter (≈ '+Math.round(pw*4.4/100)*100+' Tokens) · Grenzen: '+s.limits.perHour+' je Stunde und Adresse, '+s.limits.turns+' Fragen je Gespräch.';
  $('qs').innerHTML=s.unanswered.map(q=>'<li><span class="n">'+q.n+'×</span><span class="lang">'+q.lang+'</span><span style="flex:1">'+esc(q.q)+'</span><span class="note">'+q.last+'</span><button class="x" title="erledigt" data-k="'+esc(q.key)+'">✓</button></li>').join('');
  $('qnote').textContent=s.unanswered.length?'✓ entfernt die Frage aus der Liste – wenn du sie ins Profil aufgenommen hast oder sie nichts für Goch ist.':'Nichts offen.';
  $('ghnote').hidden=s.github;$('ghnote').textContent='Veröffentlichen ist noch nicht freigeschaltet: Der GitHub-Schlüssel fehlt. Lesen geht, Schreiben noch nicht.';
- const A=s.content.aktuell,L=s.content.links;
+ const A=s.content.aktuell,L=s.content.links,P=s.content.profile;
+ if(P){$('psrc').innerHTML=src(P);if(document.activeElement!==$('ptext'))$('ptext').value=P.fields.text;$('prevP').disabled=!(P.meta&&P.meta.hasPrev);$('saveP').disabled=!s.github;$('histP').href=P.historyUrl;$('histP').hidden=!P.historyUrl;pwords();}
  $('asrc').innerHTML=src(A);$('stand').value=A.fields.stand;$('de').value=A.fields.de;$('en').value=A.fields.en;$('prevA').disabled=!(A.meta&&A.meta.hasPrev);$('saveA').disabled=!s.github;$('histA').href=A.historyUrl;$('histA').hidden=!A.historyUrl;
  $('lsrc').innerHTML=src(L);$('rows').innerHTML='';L.fields.rows.forEach(addRow);$('prevL').disabled=!(L.meta&&L.meta.hasPrev);$('saveL').disabled=!s.github;$('histL').href=L.historyUrl;$('histL').hidden=!L.historyUrl;}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1103,6 +1126,10 @@ function rows(){return [...$('rows').querySelectorAll('tr')].map(tr=>Object.from
 $('addRow').onclick=()=>addRow();
 async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
 $('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
+function pwords(){const n=$('ptext').value.split(/\\s+/).filter(Boolean).length;$('pwords').textContent=n+' Wörter (≈ '+Math.round(n*4.4/100)*100+' Tokens)';}
+$('ptext').oninput=pwords;
+$('saveP').onclick=()=>{if(confirm('Gochs Profil jetzt veröffentlichen? Goch antwortet danach sofort mit dieser Fassung.'))publish('profile','mP2',{text:$('ptext').value});};
+$('prevP').onclick=async()=>{if(!confirm('Vorige Fassung des Profils wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/profile','POST'));say('mP2','Vorige Fassung ist live.',true);}catch(e){say('mP2',e.message);}};
 $('saveL').onclick=()=>{if(confirm('Links jetzt veröffentlichen?'))publish('links','mL',{rows:rows()});};
 $('prevA').onclick=async()=>{if(!confirm('Vorige Fassung von „Aktuell“ wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/aktuell','POST'));say('mA','Vorige Fassung ist live.',true);}catch(e){say('mA',e.message);}};
 $('prevL').onclick=async()=>{if(!confirm('Vorige Fassung der Links wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/links','POST'));say('mL','Vorige Fassung ist live.',true);}catch(e){say('mL',e.message);}};

@@ -72,7 +72,7 @@ export default {
     if (request.method === "GET" && url.pathname === "/") return new Response("Goch", { headers: { "content-type": "text/plain; charset=utf-8" } });
     // Dashboard für Robin (Anmeldung per E-Mail-Code, Inhalte im KV) – eigene Seite, kein CORS.
     if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
-      return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD },
+      return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD, profile: PROFILE },
         profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch });
     }
     if (request.method !== "POST" || (url.pathname !== "/chat" && url.pathname !== "/contact")) return json({ error: "Nicht gefunden." }, 404, cors);
@@ -143,7 +143,7 @@ export default {
     }
 
     const content = await loadContent(env, ctx);
-    const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
+    const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
     let text;
     try {
       text = await complete(env, system, messages, content.linkIds, settings);
@@ -284,21 +284,22 @@ function completeMessage(m, messages) {
   return out;
 }
 
-// Aktuell und Links: Quelle ist das Repository (Robin pflegt sie im Dashboard, das dort Commits schreibt).
+// Profil, Aktuell und Links: Quelle ist das Repository (Robin pflegt sie in der Redaktion, die dort Commits schreibt).
 // Der KV hält eine Kopie für schnelle Antworten; alle fünf Minuten wird sie im Hintergrund mit der
-// Rohfassung auf GitHub abgeglichen, damit auch Änderungen außerhalb des Dashboards ankommen.
-// Ohne KV oder GitHub gelten die mitgelieferten Dateien.
-const CONTENT_FILES = { aktuell: "worker/aktuell.md", links: "worker/links.md" };
+// Rohfassung auf GitHub abgeglichen, damit auch Änderungen außerhalb der Redaktion ankommen.
+// Ohne KV oder GitHub gelten die mitgelieferten Dateien (das Profil also auch nach einem Deploy ohne KV-Kopie).
+const CONTENT_FILES = { profile: "worker/profile.md", aktuell: "worker/aktuell.md", links: "worker/links.md" };
 async function loadContent(env, ctx) {
-  let aktuell = AKTUELL, linksMd = LINKS_MD;
+  let profile = PROFILE, aktuell = AKTUELL, linksMd = LINKS_MD;
   if (env.USAGE) {
-    const [a, l, checked] = await Promise.all(["content:aktuell", "content:links", "content:checked"].map(k => env.USAGE.get(k).catch(() => null)));
+    const [p, a, l, checked] = await Promise.all(["content:profile", "content:aktuell", "content:links", "content:checked"].map(k => env.USAGE.get(k).catch(() => null)));
+    if (p && p.trim().length > 500) profile = p; // ein leeres oder verstümmeltes Profil darf Goch nicht stumm machen
     if (a) aktuell = a;
     if (l) linksMd = l;
-    if (env.GITHUB_REPO && ctx && (!checked || Date.now() - +checked > 300_000)) ctx.waitUntil(refreshContent(env, { aktuell: a, links: l }));
+    if (env.GITHUB_REPO && ctx && (!checked || Date.now() - +checked > 300_000)) ctx.waitUntil(refreshContent(env, { profile: p, aktuell: a, links: l }));
   }
   const links = parseLinks(linksMd);
-  return { aktuell, links, linkIds: links.map(x => x.id) };
+  return { profile, aktuell, links, linkIds: links.map(x => x.id) };
 }
 async function refreshContent(env, known) {
   await env.USAGE.put("content:checked", String(Date.now()), { expirationTtl: 3600 }).catch(() => {});
@@ -329,8 +330,9 @@ function parseLinks(md) {
 function linksPrompt(links) {
   if (!links.length) return "";
   return "\n\n# Links, die du anbieten darfst\n\nGib im Feld \"link\" die Kennung an – nur wenn die Frage " +
-    "das Thema selbst trifft, höchstens einen je Antwort, sonst null. Die Adresse schreibst du nie in den Text.\n" +
-    links.map(l => `- ${l.id}: ${l.when}`).join("\n");
+    "das Thema selbst trifft, höchstens einen je Antwort, sonst null. Die Adresse schreibst du nie in den Text; " +
+    "den Titel in Anführungszeichen darfst du nennen (z. B. bei deinem Lieblingslied).\n" +
+    links.map(l => `- ${l.id} („${l.de}“): ${l.when}`).join("\n");
 }
 function resolveLink(id, lang, messages, links) {
   const l = links.find(x => x.id === id);
@@ -527,7 +529,7 @@ function json(obj, status, headers) {
 // aber ohne Tageszähler, ohne Draht-Logik. Liefert Antwort und Verbrauch, damit Robin sieht, was verbunden ist.
 async function testGoch(env, question, settings, lang = "de") {
   const content = await loadContent(env, null);
-  const system = PROFILE + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
+  const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
   lastUsage = null;
   const text = await complete(env, system, [{ role: "user", content: String(question || (lang === "en" ? "Who is Robin?" : "Wer ist Robin?")).slice(0, 600) }], content.linkIds, settings);
   const out = parse(text, content.linkIds);
