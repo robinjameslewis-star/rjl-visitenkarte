@@ -30,8 +30,22 @@ Codex' Kontingent aufgebraucht war. Beschreibung in README, Abschnitt „Landsch
 | `?landschaft=aus` und Schalter `aus` | Seite exakt wie vor der Landschaft (Name unten, alter Ast, Vogelbilder aus `assets/bestand/`, `multiply`) |
 | Goch-Sprechblase mit Landschaft (1440 px) | unter dem Namen, 400 px breit, Schnabel zum Vogel |
 
+## Nachbesserung 21.09.2026 (Robins Rückmeldung nach dem Einschalten)
+1. **Ohne Landschaft blitzte erst der lange Ast auf, dann der kurze.** Die Startseite trug die Pfade der
+   Landschaftsfassung (`assets/ast.webp`, 2800 px) und `landscape.js` tauschte erst nach dem Laden auf
+   `assets/bestand/`. Jetzt trägt `index.html` die Pfade der **eingeschalteten** Fassung (Szene, Vorabladen,
+   Astbreite); die Redaktion schreibt sie beim Umschalten mit (`applyLandscape`), `landscape.js` tauscht nur noch
+   für `?landschaft=an|aus`. Geprüft im Browser: ohne Landschaft werden ausschließlich `assets/bestand/*` geladen
+   (sechs Anfragen, keine doppelte), Ast 1153 px von Anfang an. `node tests/site_test.mjs` (13 Punkte).
+2. **Der Vogel war durchsichtig** (Blätter hinter ihm schienen durch). Weiß → Transparenz macht helle Flächen wie
+   den Bauch zwangsläufig transparent (kein Pixel hatte Alpha 255). Neues Verfahren `opaque_cutout` in
+   `tools/landschaft-bilder.py` für Vogelbilder und Astverlängerung: Silhouette per Flutfüllung vom Bildrand,
+   innen Alpha 1, 2-px-Saum mit geschätzter Deckung aus der nahen Innenfarbe. Vogelbilder jetzt 511 KB
+   (Budget 600), Ast 183 KB, links weiterhin pixelgleich mit dem alten Ast. Krone und Ferne unverändert
+   (dort ist das Durchscheinen des Papiers gewollt). Geprüft: Bauch nachts deckend vor dem Himmel, keine hellen Säume.
+   `tools/landschaft-bilder.json` behält bei Teilläufen (`--skip-…`) jetzt die Einträge früherer Läufe.
+
 ## Offen / Robins Abnahme
-- Live prüfen mit `?landschaft=an&zeit=…` (Mittag, Dämmerung, Mitternacht, ein Vollmond, Handy); dann
-  Schalter in der Redaktion auf „an“.
+- Live prüfen mit den Vorschau-Links der Redaktion (Mittag, Dämmerung, Nacht, Handy); dann Schalter auf „an“.
 - Weitere Jahreszeiten (Winter bis 1. Dezember) nach README-Abschnitt „Landschaft“.
 - Idee: nachts ein warmer Lichtpunkt an der Burg (Robins Entscheidung).

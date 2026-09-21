@@ -220,7 +220,7 @@ im Projektordner → http://localhost:8788/tests/im-browser.html); dort laufen d
 `python3 tests/consent_test.py <Adresse>` prüft die Einwilligung (siehe oben).
 Die visuelle Abnahme erfolgt zusätzlich im Browser auf breitem und schmalem Bildschirm.
 
-## Landschaft (Stand 20.09.2026)
+## Landschaft (Stand 21.09.2026)
 
 Um Goch herum liegt eine Landschaft in zwei Ebenen – **nah**: sein Ast, der rechts aus dem Bild läuft,
 und darüber ein Stück Buchenkrone desselben Baums; **fern**: der Kegelberg mit der Burg Hohenzollern im
@@ -232,15 +232,26 @@ Alles wird im Browser berechnet (`landscape.js`, eigene Portierung von SunCalc 1
 Rückfall 45° N / UTC-Versatz), keine Standortabfrage, kein Fremddienst, nichts wird gespeichert.
 
 **Schalter:** `data-landschaft="an|aus"` am `<body>` – in der Redaktion unter „Startseite – Landschaft“ (ein Haken, „Veröffentlichen“ = Commit; dort auch Vorschau-Links für Mittag, Dämmerung, Nacht und ohne Landschaft). Steht er auf `aus`, ist die
-Seite exakt die von vor der Landschaft – auch die Vogelbilder kommen dann aus `assets/bestand/`
-(byteidentische Originale mit weißem Grund und `multiply`). Zum Prüfen: `?landschaft=an` übersteuert
-den Schalter, `?landschaft=aus` schaltet ab, `?zeit=YYYY-MM-DDTHH:mm` setzt die Uhr, `?ort=lat,lon`
-den Ort (z. B. `?landschaft=an&zeit=2026-10-14T23:00`).
+Seite exakt die von vor der Landschaft: Vogel und Ast kommen aus `assets/bestand/` (byteidentische
+Originale, kurzer Ast, weißer Grund und `multiply`). Vogel und Ast gibt es also zweimal, und die
+Redaktion schreibt beim Umschalten **beide Pfade mit** (Szene, `<link rel="preload">` im `<head>`, Astbreite
+1153/2800 – `applyLandscape` in `worker/src/admin.js`), damit vom ersten Bild an das Richtige in der Seite
+steht und nichts doppelt geladen wird; `landscape.js` tauscht nur noch für `?landschaft=an|aus` zur
+Laufzeit (dabei blitzt der andere Ast kurz auf – das ist der Preis der Vorschau). Zum Prüfen: `?landschaft=an`
+übersteuert den Schalter, `?landschaft=aus` schaltet ab, `?zeit=YYYY-MM-DDTHH:mm` setzt die Uhr, `?ort=lat,lon`
+den Ort (z. B. `?landschaft=an&zeit=2026-10-14T23:00`). `node tests/site_test.mjs` prüft, dass Pfade und
+Schalter zusammenpassen und das Umschalten in beide Richtungen die Datei sonst unangetastet lässt.
 
 **Bilder mit Alpha statt Weiß.** `mix-blend-mode: multiply` trägt nur auf hellem Papier; auf dem
-Nachtpapier verschwänden Landschaft und Vogel. Deshalb sind Krone, Ferne und die fünf Vogelbilder
-freigestellt (Weiß → Transparenz, `tools/landschaft-bilder.py`, Protokoll in `tools/landschaft-bilder.json`)
-und werden ohne Blendmodus gezeigt; nachts dunkelt ein SVG-Farbfilter (`#landscape-moonlight`,
+Nachtpapier verschwänden Landschaft und Vogel. Deshalb sind Krone, Ferne, die fünf Vogelbilder und die
+Astverlängerung freigestellt (`tools/landschaft-bilder.py`, Protokoll in `tools/landschaft-bilder.json`)
+und werden ohne Blendmodus gezeigt. Zwei Verfahren: Krone und Ferne bekommen **Weiß → Transparenz**
+(a = 1 − min(R,G,B)/255) – das Papier scheint durch, wie bei Aquarell gewollt. Vogel und Ast sind Figuren
+und müssen **deckend** sein: Weiß → Transparenz allein machte den hellen Bauch durchsichtig (Blätter und
+Nachthimmel schienen durch). `opaque_cutout` bestimmt deshalb die Silhouette per Flutfüllung vom Bildrand,
+setzt innen Alpha 1 mit Originalfarbe und schätzt nur im 2-px-Saum die Deckung aus der nahen Innenfarbe
+(kleinste Quadrate; Untergrenze Weiß → Transparenz; Saumfarbe vom Weiß befreit – kein heller Rand, kein
+Geisterbild). Nachts dunkelt ein SVG-Farbfilter (`#landscape-moonlight`,
 × 0,55/0,62/0,80) Ebenen, Vogel, Ast und Blätter ab. Dateien: `assets/krone-herbst-{1000,560}.{avif,webp}`,
 `assets/ferne-herbst-{1400,800}.{avif,webp}` (AVIF zuerst, WebP als Rückfall, `srcset`; nur die
 aktuelle Jahreszeit wird geladen), `assets/ast.webp` (2800 × 167, links pixelgleich mit dem alten Ast).
@@ -257,11 +268,13 @@ Textfarben werden zur Laufzeit nachgeführt, bis jedes Paar ≥ 4,5 : 1 hat (`--
 nachts mit `theme: "dark"` initialisiert. Goch hängt mit Landschaft unter dem Namen statt darüber.
 `prefers-reduced-motion`: keine Bewegung; verborgener Tab: Blätter und Sterne pausieren.
 
-**Gewicht:** Erstaufruf Schreibtisch/Herbst ≈ 0,93 MB (Budget 1,2 MB); Vogelbilder zusammen 431 KB
-(vorher 505 KB); `landscape.js` 17,7 KB unkomprimiert (Budget 15 KB, bewusst lesbar mit Kommentaren –
-gzip ≈ 6 KB). **Prüfen:** `node tests/landscape.test.cjs` (15 Punkte: Sonnenhöhen 48,27° N/8,85° O,
+**Gewicht:** Erstaufruf Schreibtisch/Herbst ≈ 1,0 MB (Budget 1,2 MB; Krone-AVIF 118 KB, Ferne-AVIF 77 KB,
+Ast 183 KB, Vogelbilder zusammen 511 KB – deckend und ohne Vorfilter etwas schwerer als die 431 KB der
+durchsichtigen Fassung, Budget 600 KB); ohne Landschaft lädt die Seite nur `assets/bestand/` wie früher.
+`landscape.js` 18,8 KB unkomprimiert (Budget 15 KB, bewusst lesbar mit Kommentaren – gzip ≈ 6 KB).
+**Prüfen:** `node tests/landscape.test.cjs` (15 Punkte: Sonnenhöhen 48,27° N/8,85° O,
 Mondphasen nach USNO, Bühne, Jahreszeiten, Zeitzonen, URL-Parameter) – auch in `tests/im-browser.html`;
-dazu unverändert `bird-flight.test.cjs`, `consent_test.py`, `goch_test.py`.
+`node tests/site_test.mjs` (Schalter und Bildpfade); dazu unverändert `bird-flight.test.cjs`, `consent_test.py`, `goch_test.py`.
 
 ## Goch, das Rotkehlchen von Robin (Stand 17.09.2026)
 

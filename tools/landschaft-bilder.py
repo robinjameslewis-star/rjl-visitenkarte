@@ -22,7 +22,7 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageFilter, features, __version__ as pillow_version
+from PIL import Image, ImageDraw, ImageFilter, features, __version__ as pillow_version
 
 REPO = Path(__file__).resolve().parent.parent
 SOURCE_DIR = Path.home() / 'Documents/Second Brain/90_Meta/Design/Entwuerfe'
@@ -36,6 +36,7 @@ ORIGINALS = {
     'flugpose-4-landeanflug.webp': '2f5a953d78db8e0a812111bc434f86ca4d7531b2467c654718b394352438dd00',
 }
 PAPER = np.array([243, 239, 229], dtype=np.float32)
+ALPHA_QUALITY_BIRDS = 90  # deckende Silhouette mit weicher Kante: verlustarmes Alpha, sonst fransen die Ränder
 
 
 def digest(data: bytes) -> str:
@@ -67,6 +68,44 @@ def white_to_alpha(image: Image.Image) -> Image.Image:
     # Neutrales PNG-/WebP-Weißrauschen darf keinen grauen Flächenschleier bilden.
     near_white = (low >= 250.0) & (rgb.max(axis=2) - low <= 5.0)
     alpha[near_white] = 0.0
+    foreground = np.zeros_like(rgb)
+    np.divide(rgb - (1.0 - alpha[:, :, None]) * 255.0,
+              alpha[:, :, None], out=foreground, where=alpha[:, :, None] > 0)
+    alpha *= source[:, :, 3] / 255.0
+    out = np.dstack((np.clip(foreground, 0, 255), alpha * 255.0))
+    return Image.fromarray(np.rint(out).astype(np.uint8), 'RGBA')
+
+
+def opaque_cutout(image: Image.Image, background: int = 246, rim: int = 2, reach: float = 3.0) -> Image.Image:
+    """Deckende Freistellung für Figuren (Vögel, Ast). Weiß-zu-Alpha allein macht helle Flächen wie den
+    Bauch durchsichtig; hier wird die Silhouette per Flutfüllung vom Bildrand bestimmt (Hintergrund =
+    min(R,G,B) >= background, 4er-Nachbarschaft). Innen: Alpha 1, Originalfarbe. Außen: Alpha 0.
+    Kantensaum (rim Pixel breit): Deckung aus der nahen Innenfarbe geschätzt (c = f·d + 255·(1−d),
+    kleinste Quadrate über RGB, f = Innenfarbe im Umkreis reach), nach unten durch Weiß-zu-Alpha
+    begrenzt; die Saumfarbe wird vom eingemischten Weiß befreit. So entsteht vor dunklem Grund weder
+    ein heller Saum noch ein Geisterbild."""
+    source = np.asarray(image.convert('RGBA'), dtype=np.float32)
+    rgb = source[:, :, :3]
+    low = rgb.min(axis=2)
+    height, width = low.shape
+    mask = Image.new('L', (width+2, height+2), 255)  # ein Pixel Rand, damit die Füllung überall ansetzt
+    mask.paste(Image.fromarray(np.where(low >= background, 255, 0).astype(np.uint8)), (1, 1))
+    ImageDraw.floodfill(mask, (0, 0), 128)
+    exterior = np.asarray(mask)[1:-1, 1:-1] == 128
+    inside = Image.fromarray(np.where(exterior, 0, 255).astype(np.uint8))
+    core = np.asarray(inside.filter(ImageFilter.MinFilter(2*rim+1))) == 255  # sicher voll bedeckt
+    lower = 1.0 - low / 255.0  # Weiß-zu-Alpha ist eine harte Untergrenze der Deckung
+    near_white = (low >= 250.0) & (rgb.max(axis=2) - low <= 5.0)
+    lower[near_white] = 0.0
+    # Innenfarbe im Umkreis: vorgewichtete Mittelung (Farbe·Kern) / Kern, 8-Bit-Gauß genügt.
+    blur = lambda a: np.asarray(Image.fromarray(np.rint(a).astype(np.uint8), 'L').filter(ImageFilter.GaussianBlur(reach)), dtype=np.float32)
+    weight = blur(core * 255.0) / 255.0
+    local = np.dstack([blur(rgb[:, :, i] * core) for i in range(3)]) / np.maximum(weight, 1e-6)[:, :, None]
+    contrast = 255.0 - local
+    fit = ((255.0 - rgb) * contrast).sum(axis=2) / np.maximum((contrast * contrast).sum(axis=2), 1.0)
+    known = weight > 0.02  # ohne Innenfarbe in Reichweite bleibt nur die Untergrenze
+    coverage = np.where(known, np.clip(fit, 0.0, 1.0), lower)
+    alpha = np.where(exterior, 0.0, np.where(core, 1.0, np.maximum(coverage, lower)))
     foreground = np.zeros_like(rgb)
     np.divide(rgb - (1.0 - alpha[:, :, None]) * 255.0,
               alpha[:, :, None], out=foreground, where=alpha[:, :, None] > 0)
@@ -209,11 +248,11 @@ def build_birds(repo: Path, output: Path) -> list[dict]:
             continue
         path = repo / 'assets/bestand' / name
         source = Image.open(path)
-        cutout = white_to_alpha(source.filter(ImageFilter.GaussianBlur(1.0)))
+        cutout = opaque_cutout(source)  # deckend: der helle Bauch darf Blätter und Nachthimmel nicht durchscheinen lassen
         report = source_stats(path, source)
-        report['source_prefilter_gaussian_radius_px_at_original_size'] = 1.0
+        report['matte'] = 'opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung'
         report['crop'] = [0, 0, *source.size]
-        report['outputs'] = [export(cutout, output/name, 83, alpha_quality=40)]
+        report['outputs'] = [export(cutout, output/name, 83, alpha_quality=ALPHA_QUALITY_BIRDS)]
         reports.append(report)
     total = sum(r['outputs'][0]['bytes'] for r in reports)
     if total > 600000:
@@ -227,7 +266,7 @@ def build_branch(path: Path, repo: Path, output: Path) -> dict:
     original=np.asarray(Image.open(original_path).convert('RGBA'),dtype=np.float32)
     start=864; blend=136; width=2800; height=167
     crop=(round(source.width*950/2172),round(source.height*270/724),source.width,round(source.height*410/724))
-    cut=white_to_alpha(source).crop(crop)
+    cut=opaque_cutout(source).crop(crop)  # deckend wie der Bestandsast links
     scale=(width-start)/cut.width
     cut=cut.resize((width-start,round(cut.height*scale)),Image.Resampling.LANCZOS)
     new=np.asarray(cut,dtype=np.float32)
@@ -327,15 +366,16 @@ def main() -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     avif = not args.no_avif and features.check('avif')
     report = {
-        'pipeline_version': 2, 'season': args.season,
+        'pipeline_version': 3, 'season': args.season,
         'runtime': {'pillow': pillow_version, 'numpy': np.__version__, 'avif_encoder': avif},
         'method': {
             'color_to_alpha': 'a = 1 - min(R,G,B)/255; f = (rgb - (1-a)*255)/a',
             'near_white_cleanup': 'min(R,G,B) >= 250 und max(rgb)-min(rgb) <= 5 → Alpha 0',
+            'figure_matte': 'Vögel und Ast-Verlängerung: Silhouette per Flutfüllung vom Bildrand (min(R,G,B) >= 246 = Hintergrund), innen Alpha 1 mit Originalfarbe, Saum 2 px: Deckung aus naher Innenfarbe geschätzt (kleinste Quadrate, Umkreis 3 px), Untergrenze Farbe-zu-Alpha, Saumfarbe vom Weiß befreit. Krone und Ferne bleiben Farbe-zu-Alpha (Papier scheint durch).',
             'existing_alpha': 'Ausgangsalpha wird multipliziert; Vögel immer aus unverändertem Bestand.',
             'resampling': 'Lanczos; source RGB vor CTA; Ast RGBA/Pillow (vorgewichtetes Alpha)',
-            'prefilter': 'Krone 1px bei 1000px, 0.5px bei 560px; Vögel 1px bei nativer Größe; Ferne ohne Vorfilter.',
-            'webp_alpha_quality': '40 für Krone/Vögel, 100 für Ferne; Ast vollständig verlustfrei.',
+            'prefilter': 'Krone 1px bei 1000px, 0.5px bei 560px; Vögel und Ferne ohne Vorfilter.',
+            'webp_alpha_quality': f'40 für Krone, {ALPHA_QUALITY_BIRDS} für Vögel, 100 für Ferne; Ast vollständig verlustfrei.',
             'avif': 'Qualität 82, speed 4, YUV 4:2:0',
             'webp_rgb_quality': 83, 'paper_rgb': PAPER.astype(int).tolist(),
             'crop_coordinates': '[links, oben, rechts exklusiv, unten exklusiv]',
@@ -351,6 +391,14 @@ def main() -> None:
         report['images'].extend(build_birds(repo, output))
     if not args.skip_branch:
         report['images'].append(build_branch(branch, repo, output))
+    # Teilläufe (--skip-…) behalten die Einträge früherer Läufe für nicht neu gebaute Dateien.
+    built = {o['file'] for entry in report['images'] for o in entry['outputs']}
+    if report_path.exists():
+        try:
+            previous = json.loads(report_path.read_text(encoding='utf-8')).get('images', [])
+        except (OSError, ValueError):
+            previous = []
+        report['images'] = [e for e in previous if not any(o['file'] in built for o in e.get('outputs', []))] + report['images']
     report['available_seasons'] = sorted({p.name[len('krone-'):-len('-1000.webp')] for p in output.glob('krone-*-1000.webp')} & {p.name[len('ferne-'):-len('-1400.webp')] for p in output.glob('ferne-*-1400.webp')})
     outputs = [o for entry in report['images'] for o in entry['outputs']]
     report['total_output_bytes'] = sum(o['bytes'] for o in outputs)

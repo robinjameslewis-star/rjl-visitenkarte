@@ -1,18 +1,19 @@
 {
-  "pipeline_version": 2,
+  "pipeline_version": 3,
   "season": "herbst",
   "runtime": {
     "pillow": "12.3.0",
-    "numpy": "2.3.5",
+    "numpy": "2.5.3",
     "avif_encoder": true
   },
   "method": {
     "color_to_alpha": "a = 1 - min(R,G,B)/255; f = (rgb - (1-a)*255)/a",
     "near_white_cleanup": "min(R,G,B) >= 250 und max(rgb)-min(rgb) <= 5 → Alpha 0",
+    "figure_matte": "Vögel und Ast-Verlängerung: Silhouette per Flutfüllung vom Bildrand (min(R,G,B) >= 246 = Hintergrund), innen Alpha 1 mit Originalfarbe, Saum 2 px: Deckung aus naher Innenfarbe geschätzt (kleinste Quadrate, Umkreis 3 px), Untergrenze Farbe-zu-Alpha, Saumfarbe vom Weiß befreit. Krone und Ferne bleiben Farbe-zu-Alpha (Papier scheint durch).",
     "existing_alpha": "Ausgangsalpha wird multipliziert; Vögel immer aus unverändertem Bestand.",
     "resampling": "Lanczos; source RGB vor CTA; Ast RGBA/Pillow (vorgewichtetes Alpha)",
-    "prefilter": "Krone 1px bei 1000px, 0.5px bei 560px; Vögel 1px bei nativer Größe; Ferne ohne Vorfilter.",
-    "webp_alpha_quality": "40 für Krone/Vögel, 100 für Ferne; Ast vollständig verlustfrei.",
+    "prefilter": "Krone 1px bei 1000px, 0.5px bei 560px; Vögel und Ferne ohne Vorfilter.",
+    "webp_alpha_quality": "40 für Krone, 90 für Vögel, 100 für Ferne; Ast vollständig verlustfrei.",
     "avif": "Qualität 82, speed 4, YUV 4:2:0",
     "webp_rgb_quality": 83,
     "paper_rgb": [
@@ -307,7 +308,7 @@
         915,
         635
       ],
-      "source_prefilter_gaussian_radius_px_at_original_size": 1.0,
+      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
       "crop": [
         0,
         0,
@@ -321,17 +322,17 @@
             1153,
             637
           ],
-          "bytes": 48662,
+          "bytes": 53330,
           "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "3ced53d2c1e5e4870485821e2e927a23faf05730ecb822de9b8c4ba41ed6c9d0",
+          "alpha_quality": 90,
+          "sha256": "127daddc34cd05b8af6434c3a77de75b1ebd1cbdc0d0fe548ffb18b83aeed438",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.95142,
+          "paper_composite_mean_abs_error_rgb": 0.70889,
           "alpha_min": 0,
-          "alpha_max": 243,
-          "alpha_mean": 26.0672,
-          "transparent_fraction": 0.806473,
-          "partial_alpha_fraction": 0.193527
+          "alpha_max": 255,
+          "alpha_mean": 47.2148,
+          "transparent_fraction": 0.810063,
+          "partial_alpha_fraction": 0.007823
         }
       ]
     },
@@ -358,7 +359,7 @@
         1190,
         868
       ],
-      "source_prefilter_gaussian_radius_px_at_original_size": 1.0,
+      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
       "crop": [
         0,
         0,
@@ -372,17 +373,17 @@
             1536,
             1024
           ],
-          "bytes": 95026,
+          "bytes": 108880,
           "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "e1db94828459a1614c32cf4b471a5f012853cb9b5a74eb5e0a755f81499ad26b",
+          "alpha_quality": 90,
+          "sha256": "c1f7be5d9be6735cc863c2f3274b421b06c0eb57624dc3f570a99b87caeb89fa",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 1.0452,
+          "paper_composite_mean_abs_error_rgb": 0.51116,
           "alpha_min": 0,
-          "alpha_max": 248,
-          "alpha_mean": 27.284,
-          "transparent_fraction": 0.796073,
-          "partial_alpha_fraction": 0.203927
+          "alpha_max": 255,
+          "alpha_mean": 50.8427,
+          "transparent_fraction": 0.797907,
+          "partial_alpha_fraction": 0.00463
         }
       ]
     },
@@ -409,7 +410,7 @@
         1476,
         823
       ],
-      "source_prefilter_gaussian_radius_px_at_original_size": 1.0,
+      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
       "crop": [
         0,
         0,
@@ -423,17 +424,17 @@
             1536,
             1024
           ],
-          "bytes": 97362,
+          "bytes": 116562,
           "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "2d8d1b71e72b7bbe17fb102a775adc366f6c682cf8f1d3d2c60960c818108b01",
+          "alpha_quality": 90,
+          "sha256": "834f9ce2f392353cb4ee8a8b9fbc03bbdeb397ff056e557bfc0aa9826036f59d",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 1.11365,
+          "paper_composite_mean_abs_error_rgb": 0.58219,
           "alpha_min": 0,
-          "alpha_max": 252,
-          "alpha_mean": 31.1687,
-          "transparent_fraction": 0.778568,
-          "partial_alpha_fraction": 0.221432
+          "alpha_max": 255,
+          "alpha_mean": 55.1992,
+          "transparent_fraction": 0.780516,
+          "partial_alpha_fraction": 0.004966
         }
       ]
     },
@@ -460,7 +461,7 @@
         1188,
         927
       ],
-      "source_prefilter_gaussian_radius_px_at_original_size": 1.0,
+      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
       "crop": [
         0,
         0,
@@ -474,17 +475,17 @@
             1536,
             1024
           ],
-          "bytes": 74938,
+          "bytes": 80614,
           "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "16a54f7644cde0fe9c7eeba6a1d09d5850cc28454d0283b5fab6df59a853c5ab",
+          "alpha_quality": 90,
+          "sha256": "738a7b0e0a6b60681c6991ef96082690b68e6775a3655e2acb4953332ec0b3e9",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.87098,
+          "paper_composite_mean_abs_error_rgb": 0.41061,
           "alpha_min": 0,
-          "alpha_max": 252,
-          "alpha_mean": 23.7623,
-          "transparent_fraction": 0.833838,
-          "partial_alpha_fraction": 0.166162
+          "alpha_max": 255,
+          "alpha_mean": 41.2468,
+          "transparent_fraction": 0.835833,
+          "partial_alpha_fraction": 0.00397
         }
       ]
     },
@@ -511,7 +512,7 @@
         1401,
         919
       ],
-      "source_prefilter_gaussian_radius_px_at_original_size": 1.0,
+      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
       "crop": [
         0,
         0,
@@ -525,17 +526,17 @@
             1536,
             1024
           ],
-          "bytes": 125832,
+          "bytes": 151274,
           "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "bbb3ad9777c4f1f907b5c10f2be8f640cfcc39040e759ba3cfcd361c283e3fb5",
+          "alpha_quality": 90,
+          "sha256": "520ddd7b08361c16d662eb30290b43f9b8625acfd3fe9b4ad9ed76617ae18663",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 1.36321,
+          "paper_composite_mean_abs_error_rgb": 0.6843,
           "alpha_min": 0,
-          "alpha_max": 245,
-          "alpha_mean": 36.4157,
-          "transparent_fraction": 0.732118,
-          "partial_alpha_fraction": 0.267882
+          "alpha_max": 255,
+          "alpha_mean": 66.5355,
+          "transparent_fraction": 0.735612,
+          "partial_alpha_fraction": 0.005953
         }
       ]
     },
@@ -586,15 +587,15 @@
             2800,
             167
           ],
-          "bytes": 174580,
-          "sha256": "2d831ea40f7612478ccbd7f75a23f361dca4f5c755901f49f9dfcae4ec7bc655",
+          "bytes": 183428,
+          "sha256": "309020e78027b80f304d30da99b960c86816d553a2126f1ed09db0887a574346",
           "lossless": true,
           "exact": true,
           "alpha_min": 0,
           "alpha_max": 255,
-          "alpha_mean": 43.0958,
-          "transparent_fraction": 0.743843,
-          "partial_alpha_fraction": 0.228159
+          "alpha_mean": 53.9823,
+          "transparent_fraction": 0.746441,
+          "partial_alpha_fraction": 0.07759
         }
       ]
     }
@@ -602,6 +603,6 @@
   "available_seasons": [
     "herbst"
   ],
-  "total_output_bytes": 1218755,
-  "bird_webp_bytes": 441820
+  "total_output_bytes": 1296443,
+  "bird_webp_bytes": 510660
 }
