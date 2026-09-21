@@ -226,8 +226,17 @@
     style.setProperty('--scene-top',s.top-box.top+'px'); style.setProperty('--scene-height',s.height+'px');
     style.setProperty('--horizon',s.top-box.top+s.height*.8448-box.width*.55/3.8*.7+'px');
     const branch=scene.querySelector('.branch img'); branch.width=2800; branch.height=167;
+    // Breite Bildschirme: Der Ast ist 2,43 Szenenbreiten lang. Reicht das nicht bis zum Fensterrand (ab etwa 2100 px),
+    // rückt die Krone ans Astende, der Ast läuft davor weich aus, und die Blätter fallen wieder neben dem Vogel –
+    // statt Krone am fernen Rand, Ast mit harter Kante im Papier und Blätter aus dem Nichts.
+    const branchEnd=s.left+s.width*2.4284475, inset=Math.max(0,document.documentElement.clientWidth-branchEnd);
+    style.setProperty('--landscape-inset',inset+'px');
+    const wrap=scene.querySelector('.branch'), fade=inset>0?'linear-gradient(to right,#000 84%,transparent 99%)':'';
+    wrap.style.maskImage=fade; wrap.style.webkitMaskImage=fade;
     const crown=area.querySelector('.landscape-crown');
     if (crown) {
+      // Kronenbreite wie auf einem Fenster, das am Astende endet – höchstens 1,15 Szenenbreiten, damit sie den Vogel nicht überwächst.
+      crown.style.width=inset>0?Math.max(300,Math.min(1.15*s.width,box.width*.4+(document.documentElement.clientWidth-2*inset-box.width)*.15))+'px':'';
       const c=crown.getBoundingClientRect();
       particles.querySelectorAll('.landscape-particle').forEach((leaf,i) => {
         const x=c.left-box.left+c.width*(.18+(i%5)*.13);

@@ -55,6 +55,13 @@ unter Budget, Weiß durchsichtig/Motiv deckend, Vorschau per Nachricht, Himmelsf
 Speichern, Nacht- und Handy-Vorschau), `node tests/bundle_check.mjs`, `node tests/landscape.test.cjs` 15/15;
 Bilder des Herbst-Satzes nach dem Verschieben byteidentisch (Werkzeug deterministisch, `git mv` ohne Änderung).
 
+## Breite Bildschirme (21.09.2026, Robins Foto vom 4K-Monitor)
+Der Ast (2,43 Szenenbreiten) endete mit harter Kante im Papier, die Krone hing am fernen Fensterrand, die Blätter fielen
+über leeren Himmel. Jetzt: Reicht der Ast nicht bis zum Rand (ab ≈ 2100 px), setzt `landscape.js` `--landscape-inset`,
+die Krone rückt ans Astende (Breite wie auf einem Fenster, das dort endet, höchstens 1,15 Szenenbreiten), der Ast läuft
+über die letzten 15 % weich aus (`mask-image`), die Blätter fallen wieder neben dem Vogel. Geprüft bei 1920 (unverändert:
+Inset 0, keine Maske), 2560 und 3840 px.
+
 ## Offen / Robins Abnahme
 - Live prüfen mit den Vorschau-Links der Redaktion (Mittag, Dämmerung, Nacht, Handy); dann Schalter auf „an“.
 - Weitere Jahreszeiten (Winter bis 1. Dezember) nach README-Abschnitt „Landschaft“.

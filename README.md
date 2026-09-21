@@ -284,6 +284,8 @@ Akzent bleibt `#D97932`) wird über `--nacht` (0…1 nach Sonnenhöhe −12…0�
 Textfarben werden zur Laufzeit nachgeführt, bis jedes Paar ≥ 4,5 : 1 hat (`--readable-*`). Cal.com wird
 nachts mit `theme: "dark"` initialisiert. Goch hängt mit Landschaft unter dem Namen statt darüber.
 `prefers-reduced-motion`: keine Bewegung; verborgener Tab: Blätter und Sterne pausieren.
+Breite Bildschirme: Reicht der Ast (2,43 Szenenbreiten) nicht bis zum Fensterrand (ab ≈ 2100 px), rückt die Krone
+ans Astende (`--landscape-inset`), der Ast läuft weich aus, die Blätter fallen weiter neben dem Vogel.
 
 **Gewicht:** Erstaufruf Schreibtisch/Herbst ≈ 1,0 MB (Budget 1,2 MB; Krone-AVIF 118 KB, Ferne-AVIF 77 KB,
 Ast 183 KB, Vogelbilder zusammen 511 KB – deckend und ohne Vorfilter etwas schwerer als die 431 KB der

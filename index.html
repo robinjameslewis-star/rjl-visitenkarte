@@ -306,7 +306,7 @@
   .landscape-picture { position: absolute; display: block; }
   .landscape-picture img { display: block; width: 100%; height: auto; }
   .landscape-far { left: 12%; width: 55%; bottom: calc(100% - var(--scene-top) - var(--scene-height) * .8448); mask-image: linear-gradient(black 58%, transparent 100%); }
-  .landscape-crown { right: calc((100% - 100vw) / 2); top: -25px; width: max(320px, calc(40% + (100vw - 100%) * .15)); }
+  .landscape-crown { right: calc((100% - 100vw) / 2 + var(--landscape-inset, 0px)); top: -25px; width: max(320px, calc(40% + (100vw - 100%) * .15)); } /* --landscape-inset: landscape.js rückt die Krone auf breiten Bildschirmen ans Astende */
   .landscape-particles { position: absolute; inset: 0; overflow: clip; }
   .landscape-particle { position: absolute; width: 15px; height: 23px; opacity: 0; color: var(--leaf-copper); animation: leaf-fall var(--duration) linear var(--delay) infinite; }
   .landscape-particle:nth-child(3n) { color: var(--leaf-ochre); }
@@ -339,7 +339,7 @@
 
 </style>
 </head>
-<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-landschaft="aus" data-landschaft-satz="burgberg-herbst" data-version="20260921b">
+<body data-chat-endpoint="https://rjl-goch.rjl.workers.dev/chat" data-contact-endpoint="https://rjl-goch.rjl.workers.dev/contact" data-landschaft="aus" data-landschaft-satz="burgberg-herbst" data-version="20260921c">
 
 <nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 <nav class="language-nav" aria-label="Sprache">
@@ -465,7 +465,7 @@
 </section>
 
 
-<script src="landscape.js?v=20260921b" defer></script>
+<script src="landscape.js?v=20260921c" defer></script>
 <script src="bird-flight.js?v=20260918" defer onerror="document.documentElement.classList.remove('js')"></script>
 <script src="language.js?v=20260919b" defer></script>
 <script src="site.js?v=20260918" defer></script>
