@@ -15,6 +15,10 @@
       "ferne": {
         "avif": false,
         "bytes": 120014
+      },
+      "krone": {
+        "avif": false,
+        "bytes": 118476
       }
     }
   },
