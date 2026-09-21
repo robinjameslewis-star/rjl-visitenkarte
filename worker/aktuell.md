@@ -1,5 +1,5 @@
-# Woran Robin gerade arbeitet – Stand 17.09.2026. Von Robin freigegeben; alle 4–6 Wochen erneuern.
-# Wird dem Systemprompt angehängt. Dieselben Punkte erscheinen als Absatz „Zurzeit“ auf der Seite.
+# Woran Robin gerade arbeitet – Stand 17.09.2026. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.
+# Wird dem Systemprompt angehängt.
 
 ## Deutsch
 
@@ -11,9 +11,7 @@
 3. **E-Rechnung.** Robin hat sich in die Pflichten zur E-Rechnung eingearbeitet
    (Empfangspflicht seit 2025, Ausstellungspflicht ab 2027/2028, Standard EN 16931) und
    daraus Arbeitshilfen für den Kanzleialltag erstellt.
-4. **Diese Website.** Das Rotkehlchen bekommt gerade eine Landschaft: eine Wiese am Fuß
-   der Schwäbischen Alb, die sich mit der Jahreszeit und der Tageszeit des Besuchers ändert.
-   Die Bilder entstehen im Stil der Handzeichnung, Stück für Stück.
+4. **Diese Website.** Die Seite bekommt eine Blog Funktion für die Veröffentlichung von Neuigkeiten und Artikeln. 
 5. **Werkzeuge für den eigenen Mac.** Cribe nimmt Besprechungen auf und schreibt sie lokal
    mit, ohne Cloud. Ein kleines Stream Deck zeigt den Verbrauch der KI-Werkzeuge an und
    hat eine Freigabetaste. Beides baut Robin für sich selbst, mit KI als Werkzeug.
@@ -30,8 +28,7 @@
 3. **E-invoicing.** Robin has worked through Germany's e-invoicing obligations (receipt
    mandatory since 2025, issuance from 2027/2028, standard EN 16931) and turned them into
    practical guides for everyday practice work.
-4. **This website.** The robin is getting a landscape: a meadow at the foot of the Swabian
-   Alb that follows the visitor's season and time of day, drawn piece by piece.
+4. **This website.** Adding a Blog Section for News and Articles. 
 5. **Tools for his own Mac.** Cribe records meetings and transcribes them locally, no cloud.
    A small Stream Deck shows AI usage and has an approval key. Built for himself, with AI as a tool.
 6. **Second brain.** A personal knowledge system in Obsidian that gives agents like this
