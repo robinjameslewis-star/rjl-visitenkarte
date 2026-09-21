@@ -9,6 +9,7 @@
 import * as gh from "./github.js";
 import * as pk from "./passkey.js";
 import * as blog from "./blog.js";
+import * as land from "./landscapes.js";
 import * as cfg from "./settings.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
@@ -34,7 +35,7 @@ export async function handleAdmin(request, env, ctx, deps) {
   }
   if (path === "/admin") {
     if (request.method !== "GET") return text("Method Not Allowed", 405);
-    return html(session ? PAGE : LOGIN);
+    return html(session ? PAGE : LOGIN, env);
   }
   // Schreibende Aufrufe nur aus der eigenen Seite (SameSite-Cookie plus eigener Header).
   if (request.method !== "GET" && request.headers.get("x-goch-admin") !== "1") return json({ error: "Verweigert." }, 403);
@@ -57,6 +58,7 @@ export async function handleAdmin(request, env, ctx, deps) {
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
   if (api === "site") return siteApi(request, env);
+  if (api.startsWith("landschaften")) return landscapesApi(api, request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
   if (m && CONTENT[m[1]]) {
     if (request.method === "PUT") return save(m[1], request, env, deps, session);
@@ -518,44 +520,70 @@ async function gochApi(api, request, env, deps, session) {
   } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
   return json({ error: "Nicht gefunden." }, 404);
 }
-// Startseite: Schalter der Landschaft – Lesen und Umschalten per Commit. Umgeschaltet werden data-landschaft am <body>
-// und in einem Zug die Bildpfade der Szene: assets/bestand/ = ohne Landschaft (kurzer Ast, 1153 px breit, Vogel auf
-// Weiß), assets/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht vom ersten Bild an das Richtige
-// in der Seite; landscape.js tauscht nur noch für ?landschaft=an|aus zur Laufzeit.
+// Startseite: Schalter der Landschaft – Lesen und Umschalten per Commit. Umgeschaltet werden data-landschaft und
+// data-landschaft-satz am <body> und in einem Zug die Bildpfade der Szene: assets/bestand/ = ohne Landschaft (kurzer
+// Ast, 1153 px breit, Vogel auf Weiß), assets/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht
+// vom ersten Bild an das Richtige in der Seite; landscape.js tauscht nur noch für ?landschaft=an|aus zur Laufzeit.
 const LANDSCAPE_ATTR = /data-landschaft="(an|aus)"/;
+const LANDSCAPE_SET_ATTR = /data-landschaft-satz="([a-z0-9-]*)"/;
 const SCENE = /<button class="scene"[\s\S]*?<\/button>/;
-export function applyLandscape(html, wish) {
-  const on = wish === "an";
-  const folder = on ? "assets/" : "assets/bestand/";
-  return html.replace(LANDSCAPE_ATTR, `data-landschaft="${on ? "an" : "aus"}"`)
+export function applyLandscape(html, wish, satz) {
+  const on = wish === "an", folder = on ? "assets/" : "assets/bestand/";
+  let out = html.replace(LANDSCAPE_ATTR, `data-landschaft="${on ? "an" : "aus"}"`);
+  if (satz) out = LANDSCAPE_SET_ATTR.test(out) ? out.replace(LANDSCAPE_SET_ATTR, `data-landschaft-satz="${satz}"`) : out.replace(LANDSCAPE_ATTR, m => `${m} data-landschaft-satz="${satz}"`);
+  return out
     .replace(/(<link rel="preload" as="image" href=")assets\/(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1${folder}$2`) // Vorabladen im <head>
     .replace(SCENE, scene => scene
       .replace(/(src|data-src)="assets\/(?:bestand\/)?([^"]+)"/g, (_, attr, name) => `${attr}="${folder}${name}"`)
       .replace(/(<img src="assets\/(?:bestand\/)?ast\.webp"[^>]*?width=")\d+"/, `$1${on ? 2800 : 1153}"`));
 }
 async function siteState(env) {
-  let landschaft = null;
-  if (gh.configured(env)) { try { const home = await gh.getFile(env, "index.html"); const m = home && home.content.match(LANDSCAPE_ATTR); landschaft = m ? m[1] : null; } catch {} }
-  return { landschaft, url: env.SITE_URL || "" };
+  let landschaft = null, satz = null;
+  if (gh.configured(env)) { try { const home = await gh.getFile(env, "index.html"); const m = home && home.content.match(LANDSCAPE_ATTR); landschaft = m ? m[1] : null; const n = home && home.content.match(LANDSCAPE_SET_ATTR); satz = n ? n[1] : land.DEFAULT_SLUG; } catch {} }
+  return { landschaft, satz, url: env.SITE_URL || "" };
 }
 async function siteApi(request, env) {
   try {
     if (request.method === "GET") return json(await siteState(env));
     if (request.method === "PUT") {
-      const wish = (await readJson(request)).landschaft === "an" ? "an" : "aus";
+      const body = await readJson(request), wish = body.landschaft === "an" ? "an" : "aus";
       if (!gh.configured(env)) return json({ error: "Veröffentlichen ist ohne GitHub-Schlüssel nicht möglich." }, 400);
+      const sets = await land.listSets(env), current = await siteState(env);
+      const satz = typeof body.satz === "string" && sets.some(s => s.slug === body.satz) ? body.satz : (current.satz || land.DEFAULT_SLUG);
+      if (wish === "an" && !sets.some(s => s.slug === satz)) return json({ error: "Diese Landschaft gibt es nicht (mehr)." }, 400);
       const home = await gh.getFile(env, "index.html");
       if (!home || !LANDSCAPE_ATTR.test(home.content) || !SCENE.test(home.content)) return json({ error: "Schalter data-landschaft oder Szene (Vogel und Ast) auf der Startseite nicht gefunden." }, 400);
-      const html = applyLandscape(home.content, wish);
-      let note = wish === "an" ? "Die Landschaft ist schon an." : "Die Landschaft ist schon aus.";
+      const html = applyLandscape(home.content, wish, satz), name = (sets.find(s => s.slug === satz) || {}).name || satz;
+      let note = wish === "an" ? `Die Landschaft „${name}“ ist schon an.` : "Die Landschaft ist schon aus.";
       if (html !== home.content) {
-        await gh.putFile(env, "index.html", html, `Redaktion: Landschaft ${wish === "an" ? "eingeschaltet" : "ausgeschaltet"}`, home.sha);
-        note = wish === "an" ? "Landschaft eingeschaltet – auf der Website in etwa einer Minute zu sehen." : "Landschaft ausgeschaltet – die Website zeigt in etwa einer Minute wieder die Fassung ohne Landschaft.";
+        await gh.putFile(env, "index.html", html, wish === "an" ? `Redaktion: Landschaft „${name}“ eingeschaltet` : "Redaktion: Landschaft ausgeschaltet", home.sha);
+        note = wish === "an" ? `Landschaft „${name}“ eingeschaltet – auf der Website in etwa einer Minute zu sehen.` : "Landschaft ausgeschaltet – die Website zeigt in etwa einer Minute wieder die Fassung ohne Landschaft.";
       }
       return json({ ...(await siteState(env)), note });
     }
   } catch (e) { return json({ error: e.message }, e.status ? 502 : 400); }
   return json({ error: "Nicht gefunden." }, 404);
+}
+// Landschaften: Bestand lesen, Satz anlegen/ändern/löschen, Ebenen speichern/entfernen (Bilder kommen fertig aus dem Browser).
+async function landscapesApi(api, request, env) {
+  try {
+    const body = request.method === "GET" ? {} : await readJson(request);
+    if (api === "landschaften" && request.method === "GET") {
+      const site = await siteState(env);
+      const std = landscapeDefaults();
+      return json({ ...site, landschaften: await land.listSets(env), standard: std.set, sizes: std.sizes, budgets: std.budgets });
+    }
+    if (!gh.configured(env)) return json({ error: "Ohne GitHub-Schlüssel kann die Redaktion keine Landschaften speichern." }, 400);
+    if (api === "landschaften/satz" && request.method === "PUT") return json(await land.saveSet(env, body));
+    if (api === "landschaften/satz" && request.method === "DELETE") return json(await land.deleteSet(env, body.slug, (await siteState(env)).satz));
+    if (api === "landschaften/ebene" && request.method === "POST") return json(await land.saveLayer(env, body));
+    if (api === "landschaften/ebene" && request.method === "DELETE") return json(await land.deleteLayer(env, body));
+  } catch (e) { return json({ error: e.message }, e.status === 400 ? 400 : e.status ? 502 : 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
+function landscapeDefaults() {
+  const l = land.landscape;
+  return { set: l.normalizeSet(null), sizes: Object.fromEntries(Object.entries(l.LAYERS).map(([k, v]) => [k, v.sizes])), budgets: Object.fromEntries(Object.entries(l.LAYERS).map(([k, v]) => [k, v.budget])) };
 }
 async function gochState(env) {
   const settings = await cfg.loadSettings(env, true);
@@ -575,10 +603,11 @@ function json(obj, status = 200, extra = {}) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...extra } });
 }
 function text(s, status = 200) { return new Response(s, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } }); }
-function html(s) {
+function html(s, env) {
+  let site = ""; try { site = env && env.SITE_URL ? " " + new URL(env.SITE_URL).origin : ""; } catch {} // Vorschau der Startseite (Landschaften) im Rahmen
   return new Response(s, { status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
     "x-frame-options": "DENY", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow",
-    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com; form-action 'none'; base-uri 'none'" } });
+    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
 }
 
 // ---------- Seiten ----------
@@ -609,7 +638,9 @@ ul.q .n{min-width:36px;color:var(--muted);font-variant-numeric:tabular-nums}ul.q
 .box{margin:12px 0 0;padding:12px 14px 14px;border:1px dashed var(--line);border-radius:8px}.box h3{font:600 14px/1.3 Georgia,serif;margin:0}.box .note{margin:2px 0 0}.box label{margin:8px 0 3px}.box .bar{margin-top:10px}
 .boxes{display:grid;gap:12px;grid-template-columns:1fr 1fr}@media(max-width:720px){.boxes{grid-template-columns:1fr}}
 .draft{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:8px 12px;border:1px solid #E6C9A8;background:#FBF3E9;border-radius:8px;font-size:13px}
-body.editing main{max-width:1380px}
+body.editing main,body.lediting main{max-width:1380px}
+.led{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(320px,50%);align-items:start}.led .pv{grid-area:auto;height:calc(100vh - 24px);min-height:520px;overflow:hidden}.led .pv iframe.desk{width:1280px;flex:none;transform-origin:0 0}.led .pv iframe.phone{width:390px;margin:0 auto;flex:1}@media(max-width:1099px){.led{grid-template-columns:1fr}.led .pv{position:static;height:520px}}
+#lsky td{padding:3px 6px;border:0}#lsky input[type=color]{width:44px;height:30px;padding:2px}#lsec .lang{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;vertical-align:middle}
 .ed{display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(320px,46%);grid-template-areas:"a pv" "b pv";align-items:start}
 .ed.nopv{grid-template-columns:1fr;grid-template-areas:"a" "b"}.ed.nopv .pv{display:none}
 .ed-a{grid-area:a;min-width:0}.ed-b{grid-area:b;min-width:0}.pv{grid-area:pv;position:sticky;top:12px;display:flex;flex-direction:column;height:calc(100vh - 24px);min-height:480px}
@@ -702,10 +733,31 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 </div><div class="pv" id="pv"><div class="pvbar"><span style="flex:1">Vorschau – so sieht der Beitrag auf der Website aus</span><button type="button" class="quiet" id="bpvwin" title="Für den zweiten Bildschirm">Eigenes Fenster</button><button type="button" class="quiet" id="bpvhide">Ausblenden</button></div><iframe id="bframe" title="Vorschau"></iframe><p class="note" id="pvnote" style="margin:4px 0 0"></p></div></div>
 </div></section>
 
-<section><h2>Startseite – Landschaft</h2><p class="src" id="lstat"></p>
+<section id="lsec"><h2>Landschaften</h2><p class="src" id="lstat"></p>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="lenabled" style="width:auto;margin:0"> Landschaft anzeigen – Himmel nach Tageszeit, Sonne, Mond, Sterne, Jahreszeit, nachts die ganze Seite dunkel</label>
-<p class="note" style="margin:0 0 6px">Aus heißt: Die Startseite ist genau die Fassung von vor der Landschaft. Zum Prüfen, ohne dass Besucher etwas sehen: <span id="lprev"></span></p>
-<div class="bar"><button id="lsave">Veröffentlichen</button><span class="msg" id="mLs"></span></div></section>
+<label for="lactive">Welche Landschaft</label><select id="lactive" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"></select>
+<p class="note" style="margin:6px 0 0">Aus heißt: Die Startseite ist genau die Fassung von vor der Landschaft. Zum Prüfen, ohne dass Besucher etwas sehen: <span id="lprev"></span></p>
+<div class="bar"><button id="lsave">Veröffentlichen</button><span class="msg" id="mLs"></span></div>
+<h3 style="font:600 14px/1.3 Georgia,serif;margin:20px 0 4px">Bestand</h3>
+<p class="note" style="margin:0 0 8px">Eine Landschaft besteht aus zwei Bild-Ebenen je Jahreszeit: der <b>Ferne</b> (hinter dem Vogel, auf Körperhöhe) und der <b>Krone</b> (oben rechts, Gochs Baum). Himmel, Sonne, Mond, Sterne und Ast bleiben immer gleich – die kommen aus dem Code. Fehlt eine Jahreszeit, bleibt die Bühne dort leer. Bilder entstehen mit dem Rahmenprompt und der Schablone (Vault, „Landschaft_Rahmenprompt“) in ChatGPT, Nano Banana o. ä.: PNG auf reinem Weiß, ohne Himmel und ohne Schatten.</p>
+<table id="ltable"><thead><tr><th>Landschaft</th><th>Herbst</th><th>Winter</th><th>Frühling</th><th>Sommer</th><th></th></tr></thead><tbody></tbody></table>
+<div class="bar"><button class="quiet" id="lnew">Neue Landschaft anlegen</button></div>
+<div id="led" class="box" hidden><h3 id="ledtitle">Landschaft</h3>
+<div class="led"><div class="led-a">
+<label for="lname">Name</label><input id="lname" maxlength="80" placeholder="z. B. Alb im Winter">
+<label for="lseason">Jahreszeit (Bilder und Vorschau)</label><select id="lseason" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="herbst">Herbst (September–November)</option><option value="winter">Winter (Dezember–Februar)</option><option value="fruehling">Frühling (März–Mai)</option><option value="sommer">Sommer (Juni–August)</option></select>
+<div class="boxes" style="margin-top:10px">
+<div class="box lbox" data-layer="ferne" style="margin:0"><h3>Ferne</h3><p class="note">Landschaft hinter dem Vogel. Querformat, Inhalt als Streifen; wird auf 1400 px und 800 px gebracht, Ränder laufen weich aus.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
+<div class="box lbox" data-layer="krone" style="margin:0"><h3>Krone</h3><p class="note">Baum oben rechts, hängt von der oberen Kante herein. Wird auf 1000 px und 560 px gebracht.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
+</div>
+<label for="lkind">Was in dieser Jahreszeit fällt</label><select id="lkind" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="blaetter">Blätter (aus der Krone – nur wenn es eine gibt)</option><option value="schnee">Schnee</option><option value="blueten">Blüten</option><option value="keine">Nichts</option></select>
+<h3 style="font:600 14px/1.3 Georgia,serif;margin:18px 0 2px">Himmelsfarben</h3><p class="note" style="margin:0 0 6px">Der Himmel bleibt gerechnet – Sonne, Mond, Sterne und die Uhrzeit des Besuchers. Hier nur seine Farben je Zustand: oben, unten, Glühen um die Sonne.</p>
+<table id="lsky" style="width:auto"><tbody></tbody></table>
+<div class="bar" style="margin-top:6px"><button class="quiet" id="lskyreset" style="padding:4px 11px;font-size:13px">Standardfarben</button></div>
+<div class="bar" style="margin-top:16px"><button id="ledsave">Speichern</button><button class="quiet" id="ledclose">Schließen</button><button class="quiet" id="leddelete" style="margin-left:auto;color:var(--warn)">Landschaft löschen</button><span class="msg" id="mLe" style="margin-left:0;flex-basis:100%"></span></div>
+</div>
+<div class="pv"><div class="pvbar">Vorschau: <button class="quiet ltime" data-t="mittag">Mittag</button><button class="quiet ltime" data-t="daemmerung">Dämmerung</button><button class="quiet ltime" data-t="nacht">Nacht</button><span style="margin-left:auto"></span><button class="quiet lview" data-v="desk">Schreibtisch</button><button class="quiet lview" data-v="phone">Handy</button></div><iframe id="lframe" title="Vorschau der Startseite mit dieser Landschaft"></iframe></div>
+</div></div></section>
 
 <section><h2>Goch – Betrieb</h2><p class="src" id="gstat"></p>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="genabled" style="width:auto;margin:0"> Goch ist eingeschaltet (antwortet auf der Website)</label>
@@ -755,12 +807,106 @@ $('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCre
 $('keys').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(!confirm('Diesen Passkey entfernen? Ist es der letzte, gilt danach wieder der E-Mail-Code als Erstzugang.'))return;try{const d=await api('passkeys','DELETE',{id:b.dataset.id});renderKeys(d.passkeys);}catch(err){say('mK',err.message);}};
 api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
 // ---- Startseite: Landschaft ----
-function renderSite(s){const on=s.landschaft==='an';$('lenabled').checked=on;$('lenabled').disabled=s.landschaft==null;
- $('lstat').innerHTML=s.landschaft==null?'Schalter auf der Startseite nicht gefunden.':(on?'<b>An.</b> Besucher sehen Himmel, Sonne, Mond und Jahreszeit.':'<b style="color:var(--warn)">Aus.</b> Die Startseite zeigt die Fassung ohne Landschaft.');
- const base=s.url;const d=new Date();const day=d.toISOString().slice(0,10);
- $('lprev').innerHTML=[['mit Landschaft, jetzt',base+'?landschaft=an'],['Mittag',base+'?landschaft=an&zeit='+day+'T13:00'],['Dämmerung',base+'?landschaft=an&zeit='+day+'T18:45'],['Nacht',base+'?landschaft=an&zeit='+day+'T23:00'],['ohne Landschaft',base+'?landschaft=aus']].map(([t,u])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+t+'</a>').join(' · ');}
-$('lsave').onclick=async()=>{const on=$('lenabled').checked;if(!confirm(on?'Landschaft für alle Besucher einschalten?':'Landschaft ausschalten? Die Seite zeigt dann wieder die Fassung ohne Landschaft.'))return;$('lsave').disabled=true;try{const r=await api('site','PUT',{landschaft:on?'an':'aus'});renderSite(r);say('mLs',r.note,true);}catch(e){say('mLs',e.message);}finally{$('lsave').disabled=false;}};
-api('site').then(s=>s&&renderSite(s)).catch(e=>{$('lstat').textContent='Nicht ladbar: '+e.message;});
+// ---- Landschaften: Schalter, Bestand, Editor mit Aufbereitung im Browser und Vorschau auf der echten Startseite ----
+let L=null,LE=null,LTimer=null;
+const LSEASONS=[['herbst','Herbst'],['winter','Winter'],['fruehling','Frühling'],['sommer','Sommer']];
+const LSKY=[['tag','Tag'],['tief','Tiefe Sonne'],['daemmerung','Dämmerung'],['nacht','Nacht']];
+const LKINDS={blaetter:'Blätter',schnee:'Schnee',blueten:'Blüten',keine:'nichts'};
+const LLAYERS={ferne:'Ferne',krone:'Krone'};
+const lcopy=o=>JSON.parse(JSON.stringify(o));
+function lslug(s){return String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);}
+function lzeit(season,t){const y=new Date().getFullYear();const day={herbst:'-10-15',winter:'-01-15',fruehling:'-04-15',sommer:'-07-15'}[season];
+ const time=t==='mittag'?'13:00':t==='nacht'?'23:00':{herbst:'18:45',winter:'16:50',fruehling:'20:15',sommer:'21:15'}[season];return y+day+'T'+time;}
+function lkb(n){return Math.round(n/1024)+' KB';}
+function renderLand(d){L=d;const on=d.landschaft==='an';$('lenabled').checked=on;$('lenabled').disabled=d.landschaft==null;
+ const sel=$('lactive');sel.innerHTML=d.landschaften.map(s=>'<option value="'+esc(s.slug)+'">'+esc(s.name||s.slug)+'</option>').join('');
+ if(d.satz&&d.landschaften.some(s=>s.slug===d.satz))sel.value=d.satz;
+ const cur=d.landschaften.find(s=>s.slug===d.satz);
+ $('lstat').innerHTML=d.landschaft==null?'Schalter auf der Startseite nicht gefunden.':(on?'<b>An:</b> „'+esc(cur?cur.name:d.satz)+'“. Besucher sehen Himmel, Sonne, Mond und Jahreszeit.':'<b style="color:var(--warn)">Aus.</b> Die Startseite zeigt die Fassung ohne Landschaft.');
+ renderPrev();
+ $('ltable').querySelector('tbody').innerHTML=d.landschaften.map(s=>{const cells=LSEASONS.map(([k])=>{const e=s.ebenen[k]||{};const t=e.ferne&&e.krone?'Ferne, Krone':e.ferne?'nur Ferne':e.krone?'nur Krone':'–';return '<td'+(t==='–'?' style="color:var(--muted)"':'')+'>'+t+'</td>';}).join('');
+  return '<tr><td><b>'+esc(s.name||s.slug)+'</b>'+(s.slug===d.satz?' <span class="lang">aktiv</span>':'')+'<br><span class="src">'+esc(s.slug)+'</span></td>'+cells+'<td style="white-space:nowrap"><button class="quiet ledit" data-slug="'+esc(s.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button> <a href="'+esc(d.url+'?landschaft='+s.slug)+'" target="_blank" rel="noopener" style="font-size:13px">Vorschau</a></td></tr>';}).join('')||'<tr><td colspan="6" class="note">Noch keine Landschaft.</td></tr>';
+ document.querySelectorAll('.ledit').forEach(b=>{b.onclick=()=>openLand(d.landschaften.find(s=>s.slug===b.dataset.slug));});}
+function renderPrev(){if(!L)return;const slug=$('lactive').value||L.satz||'an',base=L.url,d=new Date().toISOString().slice(0,10);
+ $('lprev').innerHTML=[['mit Landschaft, jetzt',base+'?landschaft='+slug],['Mittag',base+'?landschaft='+slug+'&zeit='+d+'T13:00'],['Dämmerung',base+'?landschaft='+slug+'&zeit='+d+'T18:45'],['Nacht',base+'?landschaft='+slug+'&zeit='+d+'T23:00'],['ohne Landschaft',base+'?landschaft=aus']].map(([t,u])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+t+'</a>').join(' · ');}
+$('lactive').onchange=renderPrev;
+$('lsave').onclick=async()=>{const on=$('lenabled').checked,satz=$('lactive').value;if(!satz)return say('mLs','Bitte eine Landschaft wählen.');
+ const name=(L.landschaften.find(s=>s.slug===satz)||{}).name||satz;
+ if(!confirm(on?'Landschaft „'+name+'“ für alle Besucher einschalten?':'Landschaft ausschalten? Die Seite zeigt dann wieder die Fassung ohne Landschaft.'))return;
+ $('lsave').disabled=true;try{const r=await api('site','PUT',{landschaft:on?'an':'aus',satz});renderLand({...L,landschaft:r.landschaft,satz:r.satz});say('mLs',r.note,true);}catch(e){say('mLs',e.message);}finally{$('lsave').disabled=false;}};
+$('lnew').onclick=()=>openLand(null);
+function openLand(s){LE=s?{slug:s.slug,neu:false,name:s.name,blaetter:lcopy(s.blaetter),himmel:lcopy(s.himmel),ebenen:lcopy(s.ebenen),pending:{},removed:{},time:'mittag'}
+ :{slug:'',neu:true,name:'',blaetter:lcopy(L.standard.blaetter),himmel:lcopy(L.standard.himmel),ebenen:{},pending:{},removed:{},time:'mittag'};
+ $('ledtitle').textContent=s?'Landschaft bearbeiten: '+(s.name||s.slug):'Neue Landschaft';$('lname').value=LE.name;$('leddelete').hidden=!s;
+ $('led').hidden=false;document.body.classList.add('lediting');say('mLe','');renderSky();renderLayers();loadFrame(LE.time);$('led').scrollIntoView({behavior:'smooth',block:'start'});}
+function closeLand(){LE=null;$('led').hidden=true;document.body.classList.remove('lediting');$('lframe').src='about:blank';}
+$('ledclose').onclick=()=>{if(LE&&(Object.keys(LE.pending).length||Object.keys(LE.removed).length)&&!confirm('Ungespeicherte Bilder verwerfen?'))return;closeLand();};
+function renderLayers(){const s=$('lseason').value;$('lkind').value=LE.blaetter[s]||'keine';
+ document.querySelectorAll('#led .lbox').forEach(box=>{const l=box.dataset.layer,p=(LE.pending[s]||{})[l],r=(LE.removed[s]||{})[l],e=(LE.ebenen[s]||{})[l],st=box.querySelector('.lstate');
+  st.innerHTML=p?'<b style="color:var(--copper)">Neu: '+lkb(p.bytes)+'</b> – noch nicht gespeichert.'+(p.note?' '+esc(p.note):''):r?'<b style="color:var(--warn)">Wird beim Speichern entfernt.</b>':e?'Vorhanden, '+lkb(e.bytes)+(e.avif?' (mit AVIF)':'')+'.':'<span style="color:var(--muted)">Fehlt – die Bühne bleibt hier leer.</span>';
+  box.querySelector('.lremove').hidden=!(p||(e&&!r));box.querySelector('.lremove').textContent=p?'Neues Bild verwerfen':'Ebene entfernen';box.querySelector('.lfile').value='';});}
+$('lseason').onchange=()=>{renderLayers();loadFrame(LE.time);};
+$('lkind').onchange=()=>{LE.blaetter[$('lseason').value]=$('lkind').value;postPreview();};
+document.querySelectorAll('#led .lbox').forEach(box=>{const l=box.dataset.layer;
+ box.querySelector('.lfile').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const s=$('lseason').value;say('mLe','Bereite '+LLAYERS[l]+' auf …');
+  try{const r=await prepareLayer(f,l);(LE.pending[s]=LE.pending[s]||{})[l]=r;if(LE.removed[s])delete LE.removed[s][l];say('mLe',LLAYERS[l]+' aufbereitet: '+lkb(r.bytes)+' – in der Vorschau zu sehen, noch nicht gespeichert.',true);}
+  catch(e){say('mLe',e.message);}renderLayers();postPreview();};
+ box.querySelector('.lremove').onclick=()=>{const s=$('lseason').value;if(LE.pending[s]&&LE.pending[s][l]){delete LE.pending[s][l];if(!Object.keys(LE.pending[s]).length)delete LE.pending[s];}
+  else if(confirm(LLAYERS[l]+' für diese Jahreszeit wirklich entfernen? (Wirkt beim Speichern.)'))(LE.removed[s]=LE.removed[s]||{})[l]=true;renderLayers();postPreview();};});
+function renderSky(){$('lsky').querySelector('tbody').innerHTML=LSKY.map(([k,t])=>'<tr><td style="width:36%">'+t+'</td>'+[0,1,2].map(i=>'<td><input type="color" data-state="'+k+'" data-i="'+i+'" value="'+esc(LE.himmel[k][i])+'" title="'+['oben','unten','Glühen'][i]+'"></td>').join('')+'</tr>').join('');
+ $('lsky').querySelectorAll('input').forEach(inp=>{inp.oninput=()=>{LE.himmel[inp.dataset.state][+inp.dataset.i]=inp.value.toUpperCase();clearTimeout(LTimer);LTimer=setTimeout(postPreview,150);};});}
+$('lskyreset').onclick=()=>{LE.himmel=lcopy(L.standard.himmel);renderSky();postPreview();};
+document.querySelectorAll('#led .ltime').forEach(b=>{b.onclick=()=>loadFrame(b.dataset.t);});
+function lview(v){if(!LE)return;LE.view=v;const f=$('lframe'),pv=f.parentElement;f.className=v;document.querySelectorAll('#led .lview').forEach(b=>b.style.borderColor=b.dataset.v===v?'var(--copper)':'');
+ if(v==='desk'){const sc=pv.clientWidth/1280;f.style.transform='scale('+sc+')';f.style.height=Math.max(400,(pv.clientHeight-pv.querySelector('.pvbar').offsetHeight-8)/sc)+'px';}else{f.style.transform='';f.style.height='';}}
+document.querySelectorAll('#led .lview').forEach(b=>{b.onclick=()=>lview(b.dataset.v);});window.addEventListener('resize',()=>{if(LE&&!$('led').hidden)lview(LE.view||'desk');});
+function frameUrl(t){return L.url+'?landschaft='+encodeURIComponent(LE.slug||'neu')+'&zeit='+lzeit($('lseason').value,t);}
+function loadFrame(t){LE.time=t;document.querySelectorAll('#led .ltime').forEach(b=>b.style.borderColor=b.dataset.t===t?'var(--copper)':'');lview(LE.view||'desk');$('lframe').src=frameUrl(t);}
+function previewSet(){const ebenen={};LSEASONS.forEach(([s])=>{Object.keys(LLAYERS).forEach(l=>{const p=(LE.pending[s]||{})[l],r=(LE.removed[s]||{})[l],e=(LE.ebenen[s]||{})[l];
+ if(p)(ebenen[s]=ebenen[s]||{})[l]={avif:false,bytes:p.bytes};else if(e&&!r)(ebenen[s]=ebenen[s]||{})[l]=e;});});return {name:LE.name,ebenen,blaetter:LE.blaetter,himmel:LE.himmel};}
+function postPreview(){const f=$('lframe');if(!LE||!f.contentWindow||!L)return;const bilder={};
+ Object.entries(LE.pending).forEach(([s,layers])=>{bilder[s]={};Object.entries(layers).forEach(([l,p])=>{bilder[s][l]=p.big;});});
+ try{f.contentWindow.postMessage({type:'landschaft-vorschau',satz:previewSet(),bilder},new URL(L.url).origin);}catch(e){}}
+$('lframe').onload=postPreview;
+$('lname').oninput=()=>{LE.name=$('lname').value;};
+$('ledsave').onclick=async()=>{const name=$('lname').value.trim();if(!name)return say('mLe','Bitte einen Namen angeben.');
+ const slug=LE.neu?lslug(name):LE.slug;if(!slug)return say('mLe','Aus dem Namen lässt sich kein Ordnername bilden – bitte Buchstaben verwenden.');
+ $('ledsave').disabled=true;
+ try{say('mLe','Speichere Beschreibung …');const r=await api('landschaften/satz','PUT',{slug,name,neu:LE.neu,blaetter:LE.blaetter,himmel:LE.himmel});
+  for(const [s,layers] of Object.entries(LE.removed))for(const l of Object.keys(layers)){say('mLe','Entferne '+LLAYERS[l]+' '+s+' …');await api('landschaften/ebene','DELETE',{slug:r.slug,ebene:l,saison:s});}
+  for(const [s,layers] of Object.entries(LE.pending))for(const [l,p] of Object.entries(layers)){say('mLe','Lade '+LLAYERS[l]+' '+s+' hoch …');
+   const sizes=Object.keys(p.blobs);const bilder={};for(const w of sizes)bilder[w]=await toB64(p.blobs[w]);await api('landschaften/ebene','POST',{slug:r.slug,ebene:l,saison:s,bilder});}
+  const d=await api('landschaften');const season=$('lseason').value,time=LE.time;renderLand(d);openLand(d.landschaften.find(x=>x.slug===r.slug));$('lseason').value=season;renderLayers();loadFrame(time);
+  say('mLe','Gespeichert – auf der Website in etwa einer Minute; die Vorschau rechts zeigt schon den gespeicherten Stand.',true);}
+ catch(e){say('mLe',e.message);}finally{$('ledsave').disabled=false;}};
+$('leddelete').onclick=async()=>{if(!LE||LE.neu)return;if(!confirm('Landschaft „'+(LE.name||LE.slug)+'“ mit allen Bildern löschen? (Der Verlauf auf GitHub behält sie.)'))return;
+ try{await api('landschaften/satz','DELETE',{slug:LE.slug});closeLand();renderLand(await api('landschaften'));say('mLs','Landschaft gelöscht.',true);}catch(e){say('mLe',e.message);}};
+const toB64=blob=>new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=()=>rej(new Error('Bild nicht lesbar.'));fr.readAsDataURL(blob);});
+// Aufbereitung wie tools/landschaft-bilder.py, nur im Browser: Weiß → Transparenz (a = 1 − min(R,G,B)/255, reines Weiß → 0),
+// Beschnitt (Krone: Inhalt plus Rand; Ferne: Streifen mindestens Breite/3,8 hoch), zwei Größen, Ferne mit weichem Rand, WebP unter Budget.
+async function prepareLayer(file,layer){const sizes=L.sizes[layer],budget=L.budgets[layer];
+ const bmp=await createImageBitmap(file).catch(()=>{throw new Error('Bild nicht lesbar – bitte PNG, JPEG oder WebP.');});
+ const W=bmp.width,H=bmp.height;if(W<sizes[1])throw new Error('Bild zu klein: '+W+' px breit, mindestens '+sizes[1]+' px (besser '+sizes[0]+').');
+ const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(bmp,0,0);bmp.close&&bmp.close();
+ const id=ctx.getImageData(0,0,W,H),p=id.data;let minX=W,minY=H,maxX=-1,maxY=-1;
+ for(let i=0,n=W*H;i<n;i++){const o=4*i,r=p[o],g=p[o+1],b=p[o+2],lo=Math.min(r,g,b),hi=Math.max(r,g,b);
+  if(lo<245){const x=i%W,y=(i-x)/W;if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+  let a=1-lo/255;if(lo>=250&&hi-lo<=5)a=0;
+  if(a<=0){p[o]=p[o+1]=p[o+2]=p[o+3]=0;}else{const k=(1-a)*255;p[o]=Math.min(255,Math.max(0,Math.round((r-k)/a)));p[o+1]=Math.min(255,Math.max(0,Math.round((g-k)/a)));p[o+2]=Math.min(255,Math.max(0,Math.round((b-k)/a)));p[o+3]=Math.round(a*p[o+3]);}}
+ if(maxX<0)throw new Error('Das Bild ist leer – nur Weiß.');
+ ctx.putImageData(id,0,0);let crop;
+ if(layer==='krone'){const pad=Math.max(4,Math.round(H*.008));crop=[Math.max(0,minX-pad),Math.max(0,minY-pad),Math.min(W,maxX+1+pad),Math.min(H,maxY+1+pad)];}
+ else{const pad=Math.max(8,Math.round(H*.024));let top=Math.max(0,minY-pad);const h=Math.max(Math.round(W/3.8),maxY+1+pad-top);if(top+h>H)top=Math.max(0,H-h);crop=[0,top,W,Math.min(H,top+h)];}
+ const cw=crop[2]-crop[0],ch=crop[3]-crop[1],blobs={};
+ for(const width of sizes){const height=Math.round(width*ch/cw),c2=document.createElement('canvas');c2.width=width;c2.height=height;const x=c2.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(c,crop[0],crop[1],cw,ch,0,0,width,height);
+  if(layer==='ferne')soften(x,width,height);blobs[width]=await encodeWebp(c2,budget);}
+ return {blobs,big:blobs[sizes[0]],bytes:blobs[sizes[0]].size,note:W<sizes[0]?'Quelle nur '+W+' px breit – wird hochgerechnet.':''};}
+function soften(ctx,w,h){const id=ctx.getImageData(0,0,w,h),p=id.data,fx=Math.max(1,Math.round(w*.025)),fy=Math.max(1,Math.round(h*.025)),s=t=>{t=Math.min(1,t);return t*t*(3-2*t);};
+ for(let y=0;y<h;y++){const sy=s(Math.min(y,h-1-y)/fy);for(let x=0;x<w;x++){const o=4*(y*w+x);if(p[o+3])p[o+3]=Math.round(p[o+3]*s(Math.min(x,w-1-x)/fx)*sy);}}ctx.putImageData(id,0,0);}
+async function encodeWebp(canvas,budget){for(const q of [.83,.76,.7,.62,.55,.48]){const blob=await new Promise(r=>canvas.toBlob(r,'image/webp',q));
+ if(!blob||blob.type!=='image/webp')throw new Error('Dieser Browser kann kein WebP erzeugen – bitte Chrome, Edge oder Firefox verwenden.');if(blob.size<=budget)return blob;}
+ throw new Error('Das Bild bleibt auch stark verdichtet über dem Budget von '+lkb(budget)+' – einfacher malen lassen: weniger Kleinteiliges, mehr ruhige Fläche.');}
+api('landschaften').then(d=>d&&renderLand(d)).catch(e=>{$('lstat').textContent='Nicht ladbar: '+e.message;});
 // ---- Goch: Betrieb ----
 let G=null;
 function renderGoch(g){G=g;const s=g.settings;$('genabled').checked=s.enabled;

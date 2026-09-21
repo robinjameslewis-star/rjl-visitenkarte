@@ -120,8 +120,32 @@
     const x = (1-sin(azimuth))/2;
     return { x: lat<0 ? 1-x : x, y: 1-clamp(altitude/rad/65), visible: altitude>=0 };
   }
+  // Eine Landschaft ist ein Satz aus Bildern je Ebene (ferne, krone) und Jahreszeit, dazu Blätterart und
+  // Himmelsfarben; beschrieben in assets/landschaften/<satz>/landschaft.json (schreibt die Redaktion).
+  const SET_DIR = 'assets/landschaften/', SEASONS = ['herbst','winter','fruehling','sommer'];
+  const LAYERS = { ferne: { sizes: [1400, 800], budget: 150000 }, krone: { sizes: [1000, 560], budget: 120000 } };
+  const PARTICLES = { blaetter: 'leaf', schnee: 'snow', blueten: 'petal', keine: '' };
+  const DEFAULT_SET = { name: '', ebenen: {},
+    blaetter: { herbst: 'blaetter', winter: 'schnee', fruehling: 'blueten', sommer: 'keine' },
+    himmel: { nacht: ['#172137','#242C38','#242C38'], daemmerung: ['#4E6378','#D4B8A0','#D99B69'],
+      tief: ['#CFDEE2','#F2DDC1','#E5B282'], tag: ['#E2ECEC','#F6EEDF','#F6EEDF'] } };
+  const isColor = c => typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c);
+  function normalizeSet(raw) {
+    const r = raw && typeof raw === 'object' ? raw : {}, set = { name: String(r.name || '').slice(0, 80), ebenen: {}, blaetter: {}, himmel: {} };
+    SEASONS.forEach(season => {
+      const e = r.ebenen && r.ebenen[season];
+      Object.keys(LAYERS).forEach(layer => { if (e && e[layer]) set.ebenen[season] = { ...set.ebenen[season], [layer]: { avif: !!e[layer].avif, bytes: Number(e[layer].bytes) || 0 } }; });
+      const kind = r.blaetter && r.blaetter[season];
+      set.blaetter[season] = kind in PARTICLES ? kind : DEFAULT_SET.blaetter[season];
+    });
+    Object.keys(DEFAULT_SET.himmel).forEach(state => {
+      const c = r.himmel && r.himmel[state];
+      set.himmel[state] = Array.isArray(c) && c.length === 3 && c.every(isColor) ? c.map(x => x.toUpperCase()) : DEFAULT_SET.himmel[state];
+    });
+    return set;
+  }
   const api = { sunPosition, moonPosition, moonIllumination, locationForZone,
-    parseOverrides, seasonState, nightFactor, stagePosition };
+    parseOverrides, seasonState, nightFactor, stagePosition, normalizeSet, SET_DIR, SEASONS, LAYERS, PARTICLES, DEFAULT_SET };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.RJLLandscape = api;
 })();
@@ -132,7 +156,8 @@
   const root = document.documentElement, scene = document.getElementById('scene');
   if (!scene) return;
   const api = window.RJLLandscape, stage = scene.closest('.stage');
-  const wish = new URLSearchParams(location.search).get('landschaft'); // 'aus' schaltet ab, 'an' übersteuert den Schalter der Redaktion
+  const wish = new URLSearchParams(location.search).get('landschaft'); // 'aus' schaltet ab; 'an' oder ein Satzname übersteuert den Schalter der Redaktion
+  const wantOn = !!wish && wish !== 'aus';
   // Vogel und Ast gibt es zweimal: assets/bestand/ (ohne Landschaft: kurzer Ast, Vogel auf Weiß) und assets/
   // (mit Landschaft: langer Ast, freigestellter Vogel). Die Startseite trägt die Pfade der eingeschalteten Fassung,
   // damit vom ersten Bild an das Richtige steht; nur ?landschaft=an|aus tauscht hier zur Laufzeit.
@@ -142,12 +167,15 @@
       if (m && src !== folder + m[1]) img.setAttribute(attr, folder + m[1]);
     });
   });
-  if (wish !== 'an' && (root.classList.contains('landscape-off') || document.body.dataset.landschaft === 'aus')) {
+  if (!wantOn && (root.classList.contains('landscape-off') || document.body.dataset.landschaft === 'aus')) {
     root.classList.add('landscape-off');
     use('assets/bestand/');
     return;
   }
-  use('assets/');
+  root.classList.remove('landscape-off'); use('assets/');
+  // Welcher Satz: ?landschaft=<satz> zeigt einen bestimmten (Vorschau), sonst der von der Redaktion gesetzte.
+  const slug = wish && wish !== 'an' && /^[a-z0-9-]{1,40}$/.test(wish) ? wish : (document.body.dataset.landschaftSatz || 'burgberg-herbst');
+  let set = api.normalizeSet(null), preview = {}; // preview: Blob-URLs der Redaktion je Jahreszeit+Ebene, noch ungespeichert
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const input = api.parseOverrides(location.search, new Date());
   const place = input.location || api.locationForZone(Intl.DateTimeFormat().resolvedOptions().timeZone, input.date.getTimezoneOffset());
@@ -215,25 +243,31 @@
     const key=state.from+state.to;
     if (key!==seasonKey) {
       seasonKey=key; frames.forEach(f=>f.remove()); frames=[];
-      // Nur vorhandene Jahreszeiten deklarieren; fehlende Ebenen erzeugen auch keine 404-Anfrage.
-      const available={autumn:true};
+      // Nur Ebenen bauen, die der Satz nennt; fehlende erzeugen auch keine 404-Anfrage.
+      const layer=(season,kind)=>(set.ebenen[FILE[season]]||{})[kind];
       [...new Set([state.to,state.from])].forEach(season => {
-        if (!available[season]) return;
         ['krone','ferne'].forEach(kind => {
-          const small=kind==='krone'?560:800, big=kind==='krone'?1000:1400;
-          const base='assets/'+kind+'-'+FILE[season]+'-', sizes=kind==='krone'?'(max-width:720px) 60vw, 560px':'(max-width:720px) 62vw, 616px';
+          const own=layer(season,kind), url=preview[FILE[season]+kind];
+          if (!own && !url) return;
+          const [big,small]=api.LAYERS[kind].sizes;
+          const base=api.SET_DIR+slug+'/'+kind+'-'+FILE[season]+'-', sizes=kind==='krone'?'(max-width:720px) 60vw, 560px':'(max-width:720px) 62vw, 616px';
           const picture=document.createElement('picture'); picture.className='landscape-picture landscape-'+(kind==='krone'?'crown':'far');
           picture.dataset.season=season;
-          picture.innerHTML=`<source type="image/avif" srcset="${base+small}.avif ${small}w, ${base+big}.avif ${big}w" sizes="${sizes}"><img src="${base+big}.webp" srcset="${base+small}.webp ${small}w, ${base+big}.webp ${big}w" sizes="${sizes}" alt="" decoding="async">`;
-          const preload=document.createElement('link'); preload.rel='preload'; preload.as='image'; preload.type='image/avif';
-          preload.href=base+big+'.avif'; preload.imageSrcset=base+small+'.avif '+small+'w, '+base+big+'.avif '+big+'w'; preload.imageSizes=sizes;
-          document.head.append(preload); area.insertBefore(picture,particles); frames.push(picture);
+          if (url) picture.innerHTML=`<img src="${url}" alt="" decoding="async">`; // ungespeicherte Vorschau aus der Redaktion
+          else {
+            picture.innerHTML=(own.avif?`<source type="image/avif" srcset="${base+small}.avif ${small}w, ${base+big}.avif ${big}w" sizes="${sizes}">`:'')+`<img src="${base+big}.webp" srcset="${base+small}.webp ${small}w, ${base+big}.webp ${big}w" sizes="${sizes}" alt="" decoding="async">`;
+            const ext=own.avif?'avif':'webp', preload=document.createElement('link'); preload.rel='preload'; preload.as='image'; preload.type='image/'+ext;
+            preload.href=base+big+'.'+ext; preload.imageSrcset=base+small+'.'+ext+' '+small+'w, '+base+big+'.'+ext+' '+big+'w'; preload.imageSizes=sizes;
+            document.head.append(preload);
+          }
+          area.insertBefore(picture,particles); frames.push(picture);
           picture.querySelector('img').onerror=()=>picture.remove();
         });
       });
       particles.replaceChildren();
-      const kind=state.current==='autumn'?'leaf':state.current==='winter'?'snow':state.current==='spring'?'petal':'';
-      if (kind && (kind!=='leaf'||available[state.current])) for(let i=0;i<10;i++) {
+      // Blätterart je Jahreszeit aus dem Satz; Blätter fallen nur aus einer vorhandenen Krone, Schnee und Blüten immer.
+      const kind=api.PARTICLES[set.blaetter[FILE[state.current]]]||'';
+      if (kind && (kind!=='leaf'||layer(state.current,'krone')||preview[FILE[state.current]+'krone'])) for(let i=0;i<10;i++) {
         const leaf=document.createElement(kind==='snow'?'span':'div'); leaf.className='landscape-particle '+kind;
         if(kind!=='snow') leaf.innerHTML=`<svg viewBox="0 0 20 30"><use href="#${kind==='leaf'?'leaf-'+i%3:'petal'}"/></svg>`;
         leaf.style.setProperty('--duration',9+random()*6+'s'); leaf.style.setProperty('--delay',-random()*15+'s');
@@ -251,7 +285,7 @@
     colors(n); root.classList.add('landscape-on'); geometry(); seasonal(api.seasonState(date,place.lat));
     const altitude=sp.altitude*180/Math.PI, pos=api.stagePosition(sp.altitude,sp.azimuth,place.lat);
     style.setProperty('--sun-side',pos.x*100+'%'); style.setProperty('--stars',altitude< -6?Math.min(1,(-altitude-6)/6):0);
-    const sky=altitude< -12?['#172137','#242C38','#242C38']:altitude<0?['#4E6378','#D4B8A0','#D99B69']:altitude<10?['#CFDEE2','#F2DDC1','#E5B282']:['#E2ECEC','#F6EEDF','#F6EEDF'];
+    const sky=set.himmel[altitude< -12?'nacht':altitude<0?'daemmerung':altitude<10?'tief':'tag'];
     ['top','bottom','glow'].forEach((k,i)=>style.setProperty('--sky-'+k,sky[i]));
     const horizon=parseFloat(style.getPropertyValue('--horizon'));
     [[sun,sp],[moon,mp]].forEach(([node,p])=>{
@@ -266,6 +300,20 @@
     window.RJLLandscape.state={date:date.toISOString(),place,sun:sp,moon:mp,illumination:light,night:n,season:api.seasonState(date,place.lat)};
   }
   update();
+  let previewed=false;
+  const applySet=raw=>{set=api.normalizeSet(raw); seasonKey=''; update();};
+  fetch(api.SET_DIR+slug+'/landschaft.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(raw=>{if(!previewed) applySet(raw);}).catch(()=>{});
+  // Vorschau aus der Redaktion (eingebettet oder im eigenen Fenster): ungespeicherte Bilder, Blätterart und
+  // Himmelsfarben werden per postMessage hereingereicht – nur vom Worker, dessen Adresse die Seite selbst nennt.
+  const worker=document.body.dataset.contactEndpoint||document.body.dataset.chatEndpoint||'';
+  if (worker) window.addEventListener('message',e=>{
+    const d=e.data; if (e.origin!==new URL(worker).origin||!d||d.type!=='landschaft-vorschau') return;
+    previewed=true; Object.values(preview).forEach(URL.revokeObjectURL); preview={};
+    Object.entries(d.bilder||{}).forEach(([season,layers])=>Object.entries(layers||{}).forEach(([kind,blob])=>{
+      if (api.SEASONS.includes(season)&&api.LAYERS[kind]&&blob instanceof Blob&&/^image\//.test(blob.type)) preview[season+kind]=URL.createObjectURL(blob);
+    }));
+    applySet(d.satz);
+  });
   // Cal.coms vorhandene Warteschlange konfigurieren, ohne sie zu starten oder site.js zu ändern.
   if (Number(style.getPropertyValue('--nacht'))>=.5 && !window.Cal) {
     let cal;

@@ -45,6 +45,16 @@ Codex' Kontingent aufgebraucht war. Beschreibung in README, Abschnitt „Landsch
    (dort ist das Durchscheinen des Papiers gewollt). Geprüft: Bauch nachts deckend vor dem Himmel, keine hellen Säume.
    `tools/landschaft-bilder.json` behält bei Teilläufen (`--skip-…`) jetzt die Einträge früherer Läufe.
 
+## Landschaften in der Redaktion (21.09.2026)
+Robins Idee: Landschaften in ChatGPT/Nano Banana malen lassen und selbst einbetten, mit Bestand zum Umschalten.
+Gebaut: Sätze unter `assets/landschaften/<satz>/` (erster Satz `burgberg-herbst`, Dateien dorthin verschoben),
+`data-landschaft-satz` am `<body>`, Abschnitt „Landschaften“ in der Redaktion (Schalter + Satzwahl, Bestand,
+Editor mit Aufbereitung im Browser und Vorschau auf der echten Startseite), Rahmenprompt und Schablone im Vault.
+Geprüft: `node tests/site_test.mjs` (17 Punkte), `python3 tests/admin_test.py` (Abschnitt 9: Test-PNGs → WebP
+unter Budget, Weiß durchsichtig/Motiv deckend, Vorschau per Nachricht, Himmelsfarbe und Blätterart sofort,
+Speichern, Nacht- und Handy-Vorschau), `node tests/bundle_check.mjs`, `node tests/landscape.test.cjs` 15/15;
+Bilder des Herbst-Satzes nach dem Verschieben byteidentisch (Werkzeug deterministisch, `git mv` ohne Änderung).
+
 ## Offen / Robins Abnahme
 - Live prüfen mit den Vorschau-Links der Redaktion (Mittag, Dämmerung, Nacht, Handy); dann Schalter auf „an“.
 - Weitere Jahreszeiten (Winter bis 1. Dezember) nach README-Abschnitt „Landschaft“.

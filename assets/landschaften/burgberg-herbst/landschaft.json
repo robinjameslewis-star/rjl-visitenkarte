@@ -1,0 +1,43 @@
+{
+  "name": "Burgberg im Herbst",
+  "ebenen": {
+    "herbst": {
+      "ferne": {
+        "avif": true,
+        "bytes": 96904
+      },
+      "krone": {
+        "avif": true,
+        "bytes": 114608
+      }
+    }
+  },
+  "blaetter": {
+    "herbst": "blaetter",
+    "winter": "schnee",
+    "fruehling": "blueten",
+    "sommer": "keine"
+  },
+  "himmel": {
+    "nacht": [
+      "#172137",
+      "#242C38",
+      "#242C38"
+    ],
+    "daemmerung": [
+      "#4E6378",
+      "#D4B8A0",
+      "#D99B69"
+    ],
+    "tief": [
+      "#CFDEE2",
+      "#F2DDC1",
+      "#E5B282"
+    ],
+    "tag": [
+      "#E2ECEC",
+      "#F6EEDF",
+      "#F6EEDF"
+    ]
+  }
+}

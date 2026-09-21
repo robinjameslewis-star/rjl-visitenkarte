@@ -58,234 +58,6 @@
   },
   "images": [
     {
-      "source": "16_Krone_Herbst.png",
-      "source_sha256": "15300c1f734fbe60ef6295ff60e61a6c8f31572824c13981efa561eaed7df822",
-      "source_bytes": 1983795,
-      "source_size": [
-        1536,
-        1024
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.747518,
-      "source_white_mean_rgb": [
-        253.7291,
-        253.5989,
-        253.5006
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        366,
-        0,
-        1536,
-        818
-      ],
-      "crop": [
-        358,
-        0,
-        1536,
-        826
-      ],
-      "cropped_size": [
-        1178,
-        826
-      ],
-      "horizontal_edge_fade_fraction": 0,
-      "vertical_edge_fade_fraction": 0,
-      "outputs": [
-        {
-          "file": "assets/krone-herbst-1000.webp",
-          "size": [
-            1000,
-            701
-          ],
-          "bytes": 114608,
-          "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "ca6069bf0a031acb1a074157a32abed98692115daa9891a90fbc6b0bf821b0d9",
-          "byte_limit": 120000,
-          "paper_composite_mean_abs_error_rgb": 1.84409,
-          "alpha_min": 0,
-          "alpha_max": 241,
-          "alpha_mean": 65.2113,
-          "transparent_fraction": 0.578054,
-          "partial_alpha_fraction": 0.421946,
-          "source_prefilter_gaussian_radius_px_at_export_size": 1.0
-        },
-        {
-          "file": "assets/krone-herbst-1000.avif",
-          "size": [
-            1000,
-            701
-          ],
-          "bytes": 117595,
-          "quality": 82,
-          "alpha_quality": "AVIF quality",
-          "sha256": "e09962fbbf717bc2596f92fd0f03a2288856a8498e657d3f52f3a6071dfffba1",
-          "byte_limit": 120000,
-          "paper_composite_mean_abs_error_rgb": 0.51567,
-          "alpha_min": 0,
-          "alpha_max": 241,
-          "alpha_mean": 65.3696,
-          "transparent_fraction": 0.547779,
-          "partial_alpha_fraction": 0.452221,
-          "source_prefilter_gaussian_radius_px_at_export_size": 1.0
-        },
-        {
-          "file": "assets/krone-herbst-560.webp",
-          "size": [
-            560,
-            393
-          ],
-          "bytes": 59480,
-          "quality": 83,
-          "alpha_quality": 40,
-          "sha256": "360a58c364270f080e00d94bc1e43d5dbd694934696815c8ddd4f6a77f4424dd",
-          "byte_limit": 120000,
-          "paper_composite_mean_abs_error_rgb": 2.06922,
-          "alpha_min": 0,
-          "alpha_max": 244,
-          "alpha_mean": 65.0188,
-          "transparent_fraction": 0.57943,
-          "partial_alpha_fraction": 0.42057,
-          "source_prefilter_gaussian_radius_px_at_export_size": 0.5
-        },
-        {
-          "file": "assets/krone-herbst-560.avif",
-          "size": [
-            560,
-            393
-          ],
-          "bytes": 72694,
-          "quality": 82,
-          "alpha_quality": "AVIF quality",
-          "sha256": "1d01e77119adca62f49ac3d3340fffed9e8eff9b8ed3cff838f46044b2e0a5fd",
-          "byte_limit": 120000,
-          "paper_composite_mean_abs_error_rgb": 0.88302,
-          "alpha_min": 0,
-          "alpha_max": 246,
-          "alpha_mean": 65.238,
-          "transparent_fraction": 0.538681,
-          "partial_alpha_fraction": 0.461319,
-          "source_prefilter_gaussian_radius_px_at_export_size": 0.5
-        }
-      ]
-    },
-    {
-      "source": "17_Ferne_Herbst.png",
-      "source_sha256": "4030092bfd33778437d4234ff129c32646fe4f175e594ddb59087ab9b8f66c31",
-      "source_bytes": 886515,
-      "source_size": [
-        1774,
-        887
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.832663,
-      "source_white_mean_rgb": [
-        254.1265,
-        253.8326,
-        253.921
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        213,
-        271,
-        1617,
-        649
-      ],
-      "crop": [
-        0,
-        250,
-        1774,
-        717
-      ],
-      "cropped_size": [
-        1774,
-        467
-      ],
-      "horizontal_edge_fade_fraction": 0.025,
-      "vertical_edge_fade_fraction": 0.025,
-      "outputs": [
-        {
-          "file": "assets/ferne-herbst-1400.webp",
-          "size": [
-            1400,
-            369
-          ],
-          "bytes": 96904,
-          "quality": 83,
-          "alpha_quality": 100,
-          "sha256": "e44d6be1ea0a8fb2c5f11fa90354547b918f728eac4e386cf5f3a0ef2285bfb5",
-          "byte_limit": 150000,
-          "paper_composite_mean_abs_error_rgb": 0.11494,
-          "alpha_min": 0,
-          "alpha_max": 99,
-          "alpha_mean": 8.6646,
-          "transparent_fraction": 0.681698,
-          "partial_alpha_fraction": 0.318302,
-          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
-        },
-        {
-          "file": "assets/ferne-herbst-1400.avif",
-          "size": [
-            1400,
-            369
-          ],
-          "bytes": 77297,
-          "quality": 82,
-          "alpha_quality": "AVIF quality",
-          "sha256": "07928ac6d4a7789a014048877fda8359bb4b049c6b4fd58af52f07b721843938",
-          "byte_limit": 150000,
-          "paper_composite_mean_abs_error_rgb": 0.23985,
-          "alpha_min": 0,
-          "alpha_max": 100,
-          "alpha_mean": 8.6807,
-          "transparent_fraction": 0.676624,
-          "partial_alpha_fraction": 0.323376,
-          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
-        },
-        {
-          "file": "assets/ferne-herbst-800.webp",
-          "size": [
-            800,
-            211
-          ],
-          "bytes": 35438,
-          "quality": 83,
-          "alpha_quality": 100,
-          "sha256": "1be8923cbffdf0defa9be1bca0db59e719bc877de96dd72e20ba20cff8f383cf",
-          "byte_limit": 150000,
-          "paper_composite_mean_abs_error_rgb": 0.11617,
-          "alpha_min": 0,
-          "alpha_max": 97,
-          "alpha_mean": 8.6609,
-          "transparent_fraction": 0.681665,
-          "partial_alpha_fraction": 0.318335,
-          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
-        },
-        {
-          "file": "assets/ferne-herbst-800.avif",
-          "size": [
-            800,
-            211
-          ],
-          "bytes": 28339,
-          "quality": 82,
-          "alpha_quality": "AVIF quality",
-          "sha256": "bab45a57017c8847bc65355488dcefcc65614e80b5af5af9136776294e03fb90",
-          "byte_limit": 150000,
-          "paper_composite_mean_abs_error_rgb": 0.25962,
-          "alpha_min": 0,
-          "alpha_max": 97,
-          "alpha_mean": 8.6798,
-          "transparent_fraction": 0.677127,
-          "partial_alpha_fraction": 0.322873,
-          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
-        }
-      ]
-    },
-    {
       "source": "assets/bestand/vogel.webp",
       "source_sha256": "aa83e830d9d9cba3847e67d778d3eb163ad3da0caece99f978187ac1eebc8576",
       "source_bytes": 66458,
@@ -598,8 +370,237 @@
           "partial_alpha_fraction": 0.07759
         }
       ]
+    },
+    {
+      "source": "16_Krone_Herbst.png",
+      "source_sha256": "15300c1f734fbe60ef6295ff60e61a6c8f31572824c13981efa561eaed7df822",
+      "source_bytes": 1983795,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.747518,
+      "source_white_mean_rgb": [
+        253.7291,
+        253.5989,
+        253.5006
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        366,
+        0,
+        1536,
+        818
+      ],
+      "crop": [
+        358,
+        0,
+        1536,
+        826
+      ],
+      "cropped_size": [
+        1178,
+        826
+      ],
+      "horizontal_edge_fade_fraction": 0,
+      "vertical_edge_fade_fraction": 0,
+      "outputs": [
+        {
+          "file": "assets/landschaften/burgberg-herbst/krone-herbst-1000.webp",
+          "size": [
+            1000,
+            701
+          ],
+          "bytes": 114608,
+          "quality": 83,
+          "alpha_quality": 40,
+          "sha256": "ca6069bf0a031acb1a074157a32abed98692115daa9891a90fbc6b0bf821b0d9",
+          "byte_limit": 120000,
+          "paper_composite_mean_abs_error_rgb": 1.84409,
+          "alpha_min": 0,
+          "alpha_max": 241,
+          "alpha_mean": 65.2113,
+          "transparent_fraction": 0.578054,
+          "partial_alpha_fraction": 0.421946,
+          "source_prefilter_gaussian_radius_px_at_export_size": 1.0
+        },
+        {
+          "file": "assets/landschaften/burgberg-herbst/krone-herbst-1000.avif",
+          "size": [
+            1000,
+            701
+          ],
+          "bytes": 117595,
+          "quality": 82,
+          "alpha_quality": "AVIF quality",
+          "sha256": "e09962fbbf717bc2596f92fd0f03a2288856a8498e657d3f52f3a6071dfffba1",
+          "byte_limit": 120000,
+          "paper_composite_mean_abs_error_rgb": 0.51567,
+          "alpha_min": 0,
+          "alpha_max": 241,
+          "alpha_mean": 65.3696,
+          "transparent_fraction": 0.547779,
+          "partial_alpha_fraction": 0.452221,
+          "source_prefilter_gaussian_radius_px_at_export_size": 1.0
+        },
+        {
+          "file": "assets/landschaften/burgberg-herbst/krone-herbst-560.webp",
+          "size": [
+            560,
+            393
+          ],
+          "bytes": 59480,
+          "quality": 83,
+          "alpha_quality": 40,
+          "sha256": "360a58c364270f080e00d94bc1e43d5dbd694934696815c8ddd4f6a77f4424dd",
+          "byte_limit": 120000,
+          "paper_composite_mean_abs_error_rgb": 2.06922,
+          "alpha_min": 0,
+          "alpha_max": 244,
+          "alpha_mean": 65.0188,
+          "transparent_fraction": 0.57943,
+          "partial_alpha_fraction": 0.42057,
+          "source_prefilter_gaussian_radius_px_at_export_size": 0.5
+        },
+        {
+          "file": "assets/landschaften/burgberg-herbst/krone-herbst-560.avif",
+          "size": [
+            560,
+            393
+          ],
+          "bytes": 72694,
+          "quality": 82,
+          "alpha_quality": "AVIF quality",
+          "sha256": "1d01e77119adca62f49ac3d3340fffed9e8eff9b8ed3cff838f46044b2e0a5fd",
+          "byte_limit": 120000,
+          "paper_composite_mean_abs_error_rgb": 0.88302,
+          "alpha_min": 0,
+          "alpha_max": 246,
+          "alpha_mean": 65.238,
+          "transparent_fraction": 0.538681,
+          "partial_alpha_fraction": 0.461319,
+          "source_prefilter_gaussian_radius_px_at_export_size": 0.5
+        }
+      ]
+    },
+    {
+      "source": "17_Ferne_Herbst.png",
+      "source_sha256": "4030092bfd33778437d4234ff129c32646fe4f175e594ddb59087ab9b8f66c31",
+      "source_bytes": 886515,
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.832663,
+      "source_white_mean_rgb": [
+        254.1265,
+        253.8326,
+        253.921
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        213,
+        271,
+        1617,
+        649
+      ],
+      "crop": [
+        0,
+        250,
+        1774,
+        717
+      ],
+      "cropped_size": [
+        1774,
+        467
+      ],
+      "horizontal_edge_fade_fraction": 0.025,
+      "vertical_edge_fade_fraction": 0.025,
+      "outputs": [
+        {
+          "file": "assets/landschaften/burgberg-herbst/ferne-herbst-1400.webp",
+          "size": [
+            1400,
+            369
+          ],
+          "bytes": 96904,
+          "quality": 83,
+          "alpha_quality": 100,
+          "sha256": "e44d6be1ea0a8fb2c5f11fa90354547b918f728eac4e386cf5f3a0ef2285bfb5",
+          "byte_limit": 150000,
+          "paper_composite_mean_abs_error_rgb": 0.11494,
+          "alpha_min": 0,
+          "alpha_max": 99,
+          "alpha_mean": 8.6646,
+          "transparent_fraction": 0.681698,
+          "partial_alpha_fraction": 0.318302,
+          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
+        },
+        {
+          "file": "assets/landschaften/burgberg-herbst/ferne-herbst-1400.avif",
+          "size": [
+            1400,
+            369
+          ],
+          "bytes": 77297,
+          "quality": 82,
+          "alpha_quality": "AVIF quality",
+          "sha256": "07928ac6d4a7789a014048877fda8359bb4b049c6b4fd58af52f07b721843938",
+          "byte_limit": 150000,
+          "paper_composite_mean_abs_error_rgb": 0.23985,
+          "alpha_min": 0,
+          "alpha_max": 100,
+          "alpha_mean": 8.6807,
+          "transparent_fraction": 0.676624,
+          "partial_alpha_fraction": 0.323376,
+          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
+        },
+        {
+          "file": "assets/landschaften/burgberg-herbst/ferne-herbst-800.webp",
+          "size": [
+            800,
+            211
+          ],
+          "bytes": 35438,
+          "quality": 83,
+          "alpha_quality": 100,
+          "sha256": "1be8923cbffdf0defa9be1bca0db59e719bc877de96dd72e20ba20cff8f383cf",
+          "byte_limit": 150000,
+          "paper_composite_mean_abs_error_rgb": 0.11617,
+          "alpha_min": 0,
+          "alpha_max": 97,
+          "alpha_mean": 8.6609,
+          "transparent_fraction": 0.681665,
+          "partial_alpha_fraction": 0.318335,
+          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
+        },
+        {
+          "file": "assets/landschaften/burgberg-herbst/ferne-herbst-800.avif",
+          "size": [
+            800,
+            211
+          ],
+          "bytes": 28339,
+          "quality": 82,
+          "alpha_quality": "AVIF quality",
+          "sha256": "bab45a57017c8847bc65355488dcefcc65614e80b5af5af9136776294e03fb90",
+          "byte_limit": 150000,
+          "paper_composite_mean_abs_error_rgb": 0.25962,
+          "alpha_min": 0,
+          "alpha_max": 97,
+          "alpha_mean": 8.6798,
+          "transparent_fraction": 0.677127,
+          "partial_alpha_fraction": 0.322873,
+          "source_prefilter_gaussian_radius_px_at_export_size": 0.0
+        }
+      ]
     }
   ],
+  "landscape_set": "burgberg-herbst",
   "available_seasons": [
     "herbst"
   ],

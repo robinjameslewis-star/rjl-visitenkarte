@@ -7,7 +7,9 @@ Vom Repository-Stamm aus:
   python3 tools/landschaft-bilder.py --season winter --crown /pfad/krone.png \
       --distance /pfad/ferne.png --skip-birds
 
-Die sechs unveränderten Bestandsdateien werden aus assets/bestand/ gelesen.
+Krone und Ferne landen im Satz-Ordner assets/landschaften/<satz>/ (Standard: burgberg-herbst) und werden in
+dessen landschaft.json eingetragen – derselbe Ort, in den auch die Redaktion hochlädt (dort ohne AVIF).
+Vogelbilder und Ast bleiben in assets/. Die sechs unveränderten Bestandsdateien werden aus assets/bestand/ gelesen.
 Fehlen sie beim ersten Lauf, werden sie aus dem festgelegten Git-Stand restauriert.
 Die Originalbilder im Vault werden ausschließlich gelesen.
 """
@@ -202,13 +204,43 @@ def export(image: Image.Image, destination: Path, quality: int, byte_limit: int 
     after = np.asarray(decoded, dtype=np.float32)
     paper_error = abs(composite(before, PAPER) - composite(after, PAPER))
     return {
-        'file': 'assets/' + destination.name,
+        'file': report_label(destination),
         'size': list(image.size), 'bytes': len(encoded), 'quality': quality,
         'alpha_quality': alpha_quality if destination.suffix == '.webp' else 'AVIF quality',
         'sha256': digest(encoded), 'byte_limit': byte_limit,
         'paper_composite_mean_abs_error_rgb': round(float(paper_error.mean()), 5),
         **alpha_stats(decoded),
     }
+
+
+def report_label(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(REPO))
+    except ValueError:
+        return 'assets/' + path.name
+
+
+def register_layers(set_dir: Path, slug: str, season: str, images: list, avif: bool) -> None:
+    """Krone und Ferne in landschaft.json des Satzes eintragen (Datei anlegen, falls neu) – wie die Redaktion."""
+    path = set_dir / 'landschaft.json'
+    data = {}
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding='utf-8'))
+        except ValueError:
+            data = {}
+    data.setdefault('name', slug.replace('-', ' ').title())
+    data.setdefault('ebenen', {})
+    data.setdefault('blaetter', {'herbst': 'blaetter', 'winter': 'schnee', 'fruehling': 'blueten', 'sommer': 'keine'})
+    data.setdefault('himmel', {'nacht': ['#172137', '#242C38', '#242C38'], 'daemmerung': ['#4E6378', '#D4B8A0', '#D99B69'],
+                               'tief': ['#CFDEE2', '#F2DDC1', '#E5B282'], 'tag': ['#E2ECEC', '#F6EEDF', '#F6EEDF']})
+    for entry in images:
+        for out in entry['outputs']:
+            name = Path(out['file']).name
+            m = re.fullmatch(r'(krone|ferne)-([a-z0-9-]+)-(\d+)\.webp', name)
+            if m and m.group(2) == season and int(m.group(3)) == (1000 if m.group(1) == 'krone' else 1400):
+                data['ebenen'].setdefault(season, {})[m.group(1)] = {'avif': bool(avif), 'bytes': out['bytes']}
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 
 def build_landscape(path: Path, kind: str, season: str, output: Path, avif: bool) -> dict:
@@ -323,7 +355,7 @@ def build_branch(path: Path, repo: Path, output: Path) -> dict:
         'output_prefix_rgba_sha256': digest(output_prefix),
         'prefix_pixels_identical_fraction': 1.0,
         'outputs': [{
-            'file': 'assets/ast.webp', 'size': [width, height],
+            'file': report_label(destination), 'size': [width, height],
             'bytes': destination.stat().st_size, 'sha256': digest(destination.read_bytes()),
             'lossless': True, 'exact': True, **alpha_stats(decoded),
         }],
@@ -334,6 +366,7 @@ def build_branch(path: Path, repo: Path, output: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--season', default='herbst', help='ASCII-Jahreszeit im Ausgabedateinamen')
+    parser.add_argument('--set', dest='landscape_set', default='burgberg-herbst', help='Satz-Ordner unter assets/landschaften/ für Krone und Ferne')
     parser.add_argument('--crown', type=Path, help='Original-PNG der Krone')
     parser.add_argument('--distance', type=Path, help='Original-PNG der Ferne')
     parser.add_argument('--branch', type=Path, help='Quellbild der rechten Astverlängerung')
@@ -348,6 +381,8 @@ def main() -> None:
     args = parser.parse_args()
     if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', args.season):
         parser.error('--season benötigt Kleinbuchstaben/Ziffern und optionale Bindestriche.')
+    if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', args.landscape_set) or len(args.landscape_set) > 40:
+        parser.error('--set benötigt Kleinbuchstaben/Ziffern und optionale Bindestriche (höchstens 40 Zeichen).')
     if args.season != 'herbst':
         if not args.skip_crown and not args.crown:
             parser.error('Andere Jahreszeiten benötigen --crown oder --skip-crown.')
@@ -355,6 +390,7 @@ def main() -> None:
             parser.error('Andere Jahreszeiten benötigen --distance oder --skip-distance.')
     repo = args.repo.resolve()
     output = args.output_dir or repo/'assets'
+    set_dir = output if args.output_dir else repo/'assets/landschaften'/args.landscape_set  # Krone und Ferne
     report_path = args.report or repo/'tools/landschaft-bilder.json'
     crown = args.crown or SOURCE_DIR/'16_Krone_Herbst.png'
     distance = args.distance or SOURCE_DIR/'17_Ferne_Herbst.png'
@@ -363,6 +399,7 @@ def main() -> None:
         if not skip and not path.is_file():
             parser.error(f'Quelldatei fehlt: {path}')
     output.mkdir(parents=True, exist_ok=True)
+    set_dir.mkdir(parents=True, exist_ok=True)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     avif = not args.no_avif and features.check('avif')
     report = {
@@ -384,9 +421,11 @@ def main() -> None:
         'originals': preserve_originals(repo), 'images': [],
     }
     if not args.skip_crown:
-        report['images'].append(build_landscape(crown, 'krone', args.season, output, avif))
+        report['images'].append(build_landscape(crown, 'krone', args.season, set_dir, avif))
     if not args.skip_distance:
-        report['images'].append(build_landscape(distance, 'ferne', args.season, output, avif))
+        report['images'].append(build_landscape(distance, 'ferne', args.season, set_dir, avif))
+    if not args.output_dir and not (args.skip_crown and args.skip_distance):
+        register_layers(set_dir, args.landscape_set, args.season, report['images'], avif)
     if not args.skip_birds:
         report['images'].extend(build_birds(repo, output))
     if not args.skip_branch:
@@ -398,8 +437,10 @@ def main() -> None:
             previous = json.loads(report_path.read_text(encoding='utf-8')).get('images', [])
         except (OSError, ValueError):
             previous = []
-        report['images'] = [e for e in previous if not any(o['file'] in built for o in e.get('outputs', []))] + report['images']
-    report['available_seasons'] = sorted({p.name[len('krone-'):-len('-1000.webp')] for p in output.glob('krone-*-1000.webp')} & {p.name[len('ferne-'):-len('-1400.webp')] for p in output.glob('ferne-*-1400.webp')})
+        keep = lambda e: not any(o['file'] in built for o in e.get('outputs', [])) and all((repo / o['file']).exists() for o in e.get('outputs', []))
+        report['images'] = [e for e in previous if keep(e)] + report['images']  # verschwundene Dateien fallen aus dem Bericht
+    report['landscape_set'] = args.landscape_set
+    report['available_seasons'] = sorted({p.name[len('krone-'):-len('-1000.webp')] for p in set_dir.glob('krone-*-1000.webp')} & {p.name[len('ferne-'):-len('-1400.webp')] for p in set_dir.glob('ferne-*-1400.webp')})
     outputs = [o for entry in report['images'] for o in entry['outputs']]
     report['total_output_bytes'] = sum(o['bytes'] for o in outputs)
     report['bird_webp_bytes'] = sum(o['bytes'] for o in outputs if Path(o['file']).name in ORIGINALS and Path(o['file']).name != 'ast.webp')

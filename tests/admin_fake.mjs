@@ -7,6 +7,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { PAGE } from "../worker/src/admin.js";
 import * as blog from "../worker/src/blog.js";
+import landscape from "../landscape.js";
 
 const port = +(process.argv[2] || 8789);
 const settings = { enabled: true, title: { de: "Neuigkeiten", en: "News" }, intro: { de: "", en: "" } };
@@ -14,6 +15,11 @@ const posts = [{ slug: "erster-beitrag", title: "Erster Beitrag", date: "2026-09
   body: "Erster Absatz mit etwas Text.\n\nZweiter Absatz.\n\n## Eine Überschrift\n\nDritter Absatz." }];
 const images = [{ name: "beispiel.jpg", size: 1234 }];
 const saved = []; // was PUT blog/post erhielt
+// Landschaften: der echte Herbst-Satz aus dem Repository plus alles, was die Oberfläche anlegt (nur im Speicher; Bilder werden nicht abgelegt)
+const sets = [{ slug: "burgberg-herbst", ...landscape.normalizeSet(JSON.parse(await readFile(new URL("../assets/landschaften/burgberg-herbst/landschaft.json", import.meta.url), "utf8"))) }];
+let site = { landschaft: "aus", satz: "burgberg-herbst" };
+const landState = () => ({ ...site, url: SITE, landschaften: sets, standard: landscape.normalizeSet(null),
+  sizes: Object.fromEntries(Object.entries(landscape.LAYERS).map(([k, v]) => [k, v.sizes])), budgets: Object.fromEntries(Object.entries(landscape.LAYERS).map(([k, v]) => [k, v.budget])) });
 
 const SITE = `http://localhost:${port}/site/`; // die Website selbst wird aus dem Projektordner ausgeliefert (Papier, Schrift, Rotkehlchen für die Karte)
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -29,16 +35,34 @@ http.createServer(async (req, res) => {
   if (u.pathname === "/admin") { res.writeHead(200, { "content-type": "text/html; charset=utf-8" }); return res.end(PAGE); }
   if (u.pathname === "/_saved") return json(res, saved);
   if (u.pathname.startsWith("/site/")) { // statische Dateien der Website
-    const rel = normalize(decodeURIComponent(u.pathname.slice(6))).replace(/^(\.\.[/\\])+/, "");
-    try { const data = await readFile(join(ROOT, rel)); res.writeHead(200, { "content-type": MIME[extname(rel)] || "application/octet-stream", "access-control-allow-origin": "*" }); return res.end(data); }
+    let rel = normalize(decodeURIComponent(u.pathname.slice(6))).replace(/^(\.\.[/\\])+/, "");
+    if (rel === "" || rel === ".") rel = "index.html"; else if (rel.endsWith("/")) rel += "index.html"; // /site/ → Startseite (Vorschau der Landschaften)
+    try { let data = await readFile(join(ROOT, rel));
+      // Die Startseite nennt den Worker (data-contact-endpoint); Vorschau-Nachrichten der Redaktion nimmt sie nur von dessen Ursprung an – hier also von der Attrappe.
+      if (rel === "index.html") data = Buffer.from(data.toString("utf8").replace(/data-contact-endpoint="[^"]*"/, `data-contact-endpoint="http://localhost:${port}/contact"`));
+      res.writeHead(200, { "content-type": MIME[extname(rel)] || "application/octet-stream", "access-control-allow-origin": "*" }); return res.end(data); }
     catch { res.writeHead(404); return res.end(); }
   }
   const api = u.pathname.replace(/^\/admin\/api\//, "");
   if (api === "state") return json(res, { usage: [], limits: { perDay: 60, perHour: 12, turns: 8 }, alert: false, model: "claude-opus-5", profileWords: 2700,
     unanswered: [], github: true, content: { aktuell: { fields: { stand: "19.09.2026", de: "", en: "" }, meta: { hasPrev: false }, historyUrl: "" },
       links: { fields: { rows: [] }, meta: { hasPrev: false }, historyUrl: "" } } });
-  if (api === "site" && req.method === "GET") return json(res, { landschaft: "aus", url: SITE });
-  if (api === "site" && req.method === "PUT") { const f = await readBody(req); return json(res, { landschaft: f.landschaft === "an" ? "an" : "aus", url: SITE, note: "Schalter gesetzt (Attrappe)." }); }
+  if (api === "site" && req.method === "GET") return json(res, { ...site, url: SITE });
+  if (api === "site" && req.method === "PUT") { const f = await readBody(req); site = { landschaft: f.landschaft === "an" ? "an" : "aus", satz: sets.some(s => s.slug === f.satz) ? f.satz : site.satz }; return json(res, { ...site, url: SITE, note: "Schalter gesetzt (Attrappe)." }); }
+  if (api === "landschaften" && req.method === "GET") return json(res, landState());
+  if (api === "landschaften/satz" && req.method === "PUT") { const f = await readBody(req); const slug = String(f.slug || "").toLowerCase(); let s = sets.find(x => x.slug === slug);
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return json(res, { error: "Ungültiger Name der Landschaft." }, 400);
+    if (s && f.neu === true) return json(res, { error: `„${slug}“ gibt es schon – bitte einen anderen Namen wählen.` }, 400);
+    const next = landscape.normalizeSet({ ...(s || {}), name: f.name, blaetter: f.blaetter, himmel: f.himmel, ebenen: s ? s.ebenen : {} });
+    if (s) Object.assign(s, next); else sets.push({ slug, ...next }); return json(res, { slug, commit: null }); }
+  if (api === "landschaften/satz" && req.method === "DELETE") { const f = await readBody(req); if (f.slug === site.satz) return json(res, { error: "Die aktive Landschaft kann nicht gelöscht werden – erst eine andere veröffentlichen." }, 400);
+    const i = sets.findIndex(x => x.slug === f.slug); if (i < 0) return json(res, { error: "Diese Landschaft gibt es nicht." }, 400); sets.splice(i, 1); return json(res, { commit: null }); }
+  if (api === "landschaften/ebene" && req.method === "POST") { const f = await readBody(req); const s = sets.find(x => x.slug === f.slug); if (!s) return json(res, { error: "Bitte die Landschaft zuerst anlegen (Name speichern)." }, 400);
+    const sizes = (landscape.LAYERS[f.ebene] || {}).sizes; if (!sizes || !landscape.SEASONS.includes(f.saison)) return json(res, { error: "Unbekannte Ebene oder Jahreszeit." }, 400);
+    const big = Buffer.from(String((f.bilder || {})[sizes[0]] || ""), "base64"); if (big.subarray(0, 4).toString() !== "RIFF" || big.subarray(8, 12).toString() !== "WEBP") return json(res, { error: "Kein WebP." }, 400);
+    s.ebenen[f.saison] = { ...s.ebenen[f.saison], [f.ebene]: { avif: false, bytes: big.length } }; return json(res, { slug: s.slug, commit: null, bytes: big.length }); }
+  if (api === "landschaften/ebene" && req.method === "DELETE") { const f = await readBody(req); const s = sets.find(x => x.slug === f.slug); if (!s || !s.ebenen[f.saison] || !s.ebenen[f.saison][f.ebene]) return json(res, { error: "Diese Ebene gibt es nicht." }, 400);
+    delete s.ebenen[f.saison][f.ebene]; if (!Object.keys(s.ebenen[f.saison]).length) delete s.ebenen[f.saison]; return json(res, { slug: s.slug, commit: null }); }
   if (api === "passkeys") return json(res, { passkeys: [{ id: "k1", name: "MacBook", at: "2026-09-19T08:00:00Z" }] });
   if (api === "goch") return json(res, { settings: { enabled: true, provider: "anthropic", model: "claude-opus-5", cache: true,
     custom: { baseUrl: "", model: "", key: "", keySet: false, keyHint: "", keySource: "" } }, providers: { anthropic: "Anthropic (Claude)" },

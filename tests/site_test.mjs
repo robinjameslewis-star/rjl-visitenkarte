@@ -30,9 +30,17 @@ check(state(on) === "an" && [...paths(on), ...preloads(on)].every(x => x.startsW
 check(state(off) === "aus" && [...paths(off), ...preloads(off)].every(x => x.startsWith("assets/bestand/")) && branchWidth(off) === 1153, "aus: assets/bestand/ (Szene und Vorabladen), Ast 1153 px");
 check(applyLandscape(html, s) === html && applyLandscape(on, "an") === on, "Umschalten auf den bestehenden Zustand ändert nichts");
 check((s === "aus" ? off : on) === html, "Rundreise an → aus liefert die Datei unverändert zurück");
-const rest = h => h.replace(scene(h), "").replace(/<link rel="preload" as="image"[^>]*>/g, "").replace(/data-landschaft="(an|aus)"/, "");
+const rest = h => h.replace(scene(h), "").replace(/<link rel="preload" as="image"[^>]*>/g, "").replace(/data-landschaft="(an|aus)"/, "").replace(/ data-landschaft-satz="[a-z0-9-]*"/, "");
 check(rest(on) === rest(html), "außerhalb von Szene, Vorabladen und Schalter bleibt alles unberührt");
 check(applyLandscape("<body data-landschaft=\"aus\"><p>kein Vogel</p>", "an") === "<body data-landschaft=\"an\"><p>kein Vogel</p>", "ohne Szene wird nur das Attribut gesetzt");
+
+// 2b. Welcher Satz (data-landschaft-satz): gesetzt, gewechselt, nachgerüstet
+const satz = h => (h.match(/data-landschaft-satz="([a-z0-9-]*)"/) || [])[1];
+check(satz(html) === "burgberg-herbst", "Startseite nennt den Satz burgberg-herbst", satz(html));
+check(satz(applyLandscape(html, "an", "meer")) === "meer" && satz(applyLandscape(html, "aus")) === "burgberg-herbst", "Satz wechselt mit, bleibt ohne Angabe erhalten");
+check(applyLandscape("<body data-landschaft=\"aus\">", "an", "meer") === "<body data-landschaft=\"an\" data-landschaft-satz=\"meer\">", "fehlendes Satz-Attribut wird ergänzt");
+const setJson = JSON.parse(readFileSync(root + "assets/landschaften/burgberg-herbst/landschaft.json", "utf8"));
+check(setJson.ebenen.herbst.ferne && setJson.ebenen.herbst.krone && ["ferne-herbst-1400.webp", "ferne-herbst-800.webp", "krone-herbst-1000.webp", "krone-herbst-560.webp"].every(f => { try { readFileSync(root + "assets/landschaften/burgberg-herbst/" + f); return true; } catch { return false; } }), "Satz burgberg-herbst: Beschreibung und Dateien vorhanden");
 
 // 3. landscape.js tauscht zur Laufzeit in beide Richtungen (dasselbe Muster wie im Skript)
 const js = readFileSync(root + "landscape.js", "utf8");

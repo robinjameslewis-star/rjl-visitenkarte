@@ -27,7 +27,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
 - `tests/blog_test.mjs` – Blog-Renderer ohne Worker: Open-Graph-Angaben, Vorschaubild-Regeln
-- `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tests/landscape.test.cjs`
+- `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter, Sätze aus `assets/landschaften/` (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tools/landschaft-schablone.py` – Schablone für Bildagenten; `tests/landscape.test.cjs`, `tests/site_test.mjs`
 - `tests/bundle_check.mjs` – prüft vor dem Deploy das gebündelte Worker-Paket (eingebetteter Renderer läuft ohne Bündler-Helfer, Seitenskript der Redaktion)
 - `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
 - `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
@@ -252,12 +252,29 @@ Nachthimmel schienen durch). `opaque_cutout` bestimmt deshalb die Silhouette per
 setzt innen Alpha 1 mit Originalfarbe und schätzt nur im 2-px-Saum die Deckung aus der nahen Innenfarbe
 (kleinste Quadrate; Untergrenze Weiß → Transparenz; Saumfarbe vom Weiß befreit – kein heller Rand, kein
 Geisterbild). Nachts dunkelt ein SVG-Farbfilter (`#landscape-moonlight`,
-× 0,55/0,62/0,80) Ebenen, Vogel, Ast und Blätter ab. Dateien: `assets/krone-herbst-{1000,560}.{avif,webp}`,
-`assets/ferne-herbst-{1400,800}.{avif,webp}` (AVIF zuerst, WebP als Rückfall, `srcset`; nur die
-aktuelle Jahreszeit wird geladen), `assets/ast.webp` (2800 × 167, links pixelgleich mit dem alten Ast).
-Weitere Jahreszeiten: Bilder nach demselben Muster erzeugen (`python3 tools/landschaft-bilder.py --season
-winter --crown … --distance … --skip-birds`) und in `landscape.js` unter `available` eintragen; fehlt eine
+× 0,55/0,62/0,80) Ebenen, Vogel, Ast und Blätter ab. Dateien: `krone-herbst-{1000,560}.{avif,webp}` und
+`ferne-herbst-{1400,800}.{avif,webp}` im Satz-Ordner `assets/landschaften/burgberg-herbst/` (AVIF zuerst,
+WebP als Rückfall, `srcset`; nur die aktuelle Jahreszeit wird geladen), `assets/ast.webp` (2800 × 167, links
+pixelgleich mit dem alten Ast). Weitere Jahreszeiten und ganz neue Landschaften kommen über die Redaktion (unten)
+oder das Werkzeug (`python3 tools/landschaft-bilder.py --set <ordner> --season winter --crown … --distance …
+--skip-birds --skip-branch`, schreibt auch AVIF und trägt die Ebenen in `landschaft.json` ein); fehlt eine
 Jahreszeit, bleibt die Seite ohne diese Ebene nutzbar.
+
+**Landschaften in der Redaktion (Stand 21.09.2026).** Eine Landschaft ist ein **Satz**: Ordner
+`assets/landschaften/<satz>/` mit `landschaft.json` (`name`, `ebenen` je Jahreszeit `herbst|winter|fruehling|sommer`
+× Ebene `ferne|krone` mit `{avif, bytes}`, `blaetter` je Jahreszeit `blaetter|schnee|blueten|keine`, `himmel` je
+Zustand `tag|tief|daemmerung|nacht` als drei Farben oben/unten/Glühen) und den Bildern
+`<ebene>-<jahreszeit>-<breite>.webp` (Ferne 1400/800, Krone 1000/560; AVIF optional). Welcher Satz läuft, steht am
+`<body>`: `data-landschaft-satz="<satz>"` neben dem Schalter `data-landschaft`; `landscape.js` lädt die
+`landschaft.json` nach, baut nur vorhandene Ebenen, nimmt Blätterart und Himmelsfarben daraus.
+`?landschaft=<satz>` zeigt jeden Satz zur Probe. Beschreibung und Standardwerte (`normalizeSet`, Größen, Budgets)
+stehen einmal in `landscape.js` und werden vom Worker mitbenutzt (`worker/src/landscapes.js`).
+Der Redaktionsabschnitt „Landschaften“ (worker/README) lädt Bilder hoch, bereitet sie **im Browser** auf (Weiß →
+Transparenz, Beschnitt, zwei Größen, WebP unter Budget – Port der Python-Schritte, ohne AVIF und ohne Vorfilter)
+und zeigt sie sofort auf der echten Startseite: Die Seite nimmt per `postMessage` (nur vom Worker-Ursprung, den
+`data-contact-endpoint` nennt) ungespeicherte Bilder, Blätterart und Himmelsfarben entgegen. Für die Bildagenten
+gibt es im Vault den Rahmenprompt (`Landschaft_Rahmenprompt`) und die Schablone der Bühne
+(`tools/landschaft-schablone.py` erzeugt sie aus der echten Seite).
 
 **Bühnenlogik:** Blick vom Zeller Horn nach Norden – Osten rechts, Westen links; Sonne und Mond wandern
 von rechts nach links, die Höhe ist echt (0° Horizont, 65° oberer Rand), auf der Südhalbkugel gespiegelt.
@@ -271,7 +288,7 @@ nachts mit `theme: "dark"` initialisiert. Goch hängt mit Landschaft unter dem N
 **Gewicht:** Erstaufruf Schreibtisch/Herbst ≈ 1,0 MB (Budget 1,2 MB; Krone-AVIF 118 KB, Ferne-AVIF 77 KB,
 Ast 183 KB, Vogelbilder zusammen 511 KB – deckend und ohne Vorfilter etwas schwerer als die 431 KB der
 durchsichtigen Fassung, Budget 600 KB); ohne Landschaft lädt die Seite nur `assets/bestand/` wie früher.
-`landscape.js` 18,8 KB unkomprimiert (Budget 15 KB, bewusst lesbar mit Kommentaren – gzip ≈ 6 KB).
+`landscape.js` ≈ 23 KB unkomprimiert (Budget 15 KB, bewusst lesbar mit Kommentaren – gzip ≈ 7 KB).
 **Prüfen:** `node tests/landscape.test.cjs` (15 Punkte: Sonnenhöhen 48,27° N/8,85° O,
 Mondphasen nach USNO, Bühne, Jahreszeiten, Zeitzonen, URL-Parameter) – auch in `tests/im-browser.html`;
 `node tests/site_test.mjs` (Schalter und Bildpfade); dazu unverändert `bird-flight.test.cjs`, `consent_test.py`, `goch_test.py`.

@@ -1,8 +1,9 @@
-"""Prüft den Blog-Editor der Redaktion in einem frischen Headless-Chrome (CDP) gegen die Attrappe
-tests/admin_fake.mjs: Werkzeugleiste, Einfügen von Karte und Video, Live-Vorschau (Rahmen und eigenes
-Fenster), lokale Sicherung.
+"""Prüft den Blog-Editor und die Landschaften der Redaktion in einem frischen Headless-Chrome (CDP) gegen die
+Attrappe tests/admin_fake.mjs: Werkzeugleiste, Einfügen von Karte und Video, Live-Vorschau (Rahmen und eigenes
+Fenster), lokale Sicherung; Landschaften: Aufbereitung im Browser (Weiß → Transparenz, WebP), Vorschau per
+Nachricht an die echte Startseite, Speichern.
 
-Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets`, laufende Attrappe:
+Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets Pillow`, laufende Attrappe:
     node tests/admin_fake.mjs 8789
 Aufruf:  python3 tests/admin_test.py [http://localhost:8789/admin]   (Attrappe je Lauf frisch starten – sie merkt sich Gespeichertes)
 """
@@ -145,7 +146,49 @@ async def main():
             await ev("document.getElementById('bcancel').click();document.getElementById('bnew').click()"); await wait(300)
             check(await ev("document.getElementById('pshare').hidden"), "kein Teilen-Kasten bei neuem Entwurf")
 
-            print("9. Konsole")
+            print("9. Landschaften: Bestand, Editor, Aufbereitung, Vorschau, Speichern")
+            check(await ev("document.querySelectorAll('#ltable tbody tr').length") == 1 and await ev("document.querySelector('#ltable tbody td:nth-child(2)').textContent") == "Ferne, Krone", "Bestand zeigt den Herbst-Satz mit Ferne und Krone")
+            await ev("document.getElementById('lnew').click()"); await wait(2500)
+            check(await ev("!document.getElementById('led').hidden && document.getElementById('lframe').src.includes('landschaft=neu&zeit=')"), "neue Landschaft: Editor offen, Vorschau lädt die Startseite")
+            check(await ev("document.getElementById('lframe').contentDocument.documentElement.classList.contains('landscape-on')"), "Startseite im Rahmen zeigt die Landschaft (ohne Ebenen)")
+            await ev("document.getElementById('lname').value='Test Alb';document.getElementById('lname').dispatchEvent(new Event('input'))")
+            # Test-Bilder: Krone oben rechts, Ferne als Hügelband – beide auf reinem Weiß
+            from PIL import Image, ImageDraw
+            tmp = tempfile.mkdtemp(prefix='rjl-land-')
+            im = Image.new('RGB', (1536, 1024), (255, 255, 255)); d = ImageDraw.Draw(im); d.ellipse((900, -200, 1700, 500), fill=(190, 120, 60)); d.rectangle((1400, 0, 1536, 900), fill=(120, 80, 40)); im.save(tmp + '/krone.png')
+            im = Image.new('RGB', (1536, 1024), (255, 255, 255)); d = ImageDraw.Draw(im); d.ellipse((200, 500, 1300, 1000), fill=(150, 160, 170)); d.ellipse((600, 420, 1000, 800), fill=(120, 130, 150)); im.save(tmp + '/ferne.png')
+            async def set_file(selector, path):
+                doc = await send("DOM.getDocument"); node = await send("DOM.querySelector", {"nodeId": doc["root"]["nodeId"], "selector": selector})
+                await send("DOM.setFileInputFiles", {"nodeId": node["nodeId"], "files": [path]})
+            await set_file('#led .lbox[data-layer="krone"] .lfile', tmp + '/krone.png'); await wait(2500)
+            st = await ev("document.querySelector('#led .lbox[data-layer=\"krone\"] .lstate').textContent")
+            check(st.startswith("Neu:") and "KB" in st, "Krone aufbereitet (WebP unter Budget)", st)
+            check(await ev("LE.pending.herbst.krone.big.type") == "image/webp" and await ev("LE.pending.herbst.krone.big.size") < 120000, "WebP, unter 120 KB")
+            check(await ev("Object.keys(LE.pending.herbst.krone.blobs).sort().join(',')") == "1000,560", "zwei Größen 1000/560")
+            await wait(800)
+            src = await ev("(document.getElementById('lframe').contentDocument.querySelector('.landscape-crown img')||{}).src||''")
+            check(src.startswith("blob:"), "Vorschau im Rahmen zeigt das neue Kronenbild (per Nachricht, ungespeichert)", src[:30])
+            await set_file('#led .lbox[data-layer="ferne"] .lfile', tmp + '/ferne.png'); await wait(2500)
+            check(await ev("LE.pending.herbst.ferne.big.type") == "image/webp", "Ferne aufbereitet")
+            # Transparenz geprüft: Ecke außerhalb des Motivs ist durchsichtig
+            alpha = await ev("(async()=>{const b=await createImageBitmap(LE.pending.herbst.krone.big);const c=document.createElement('canvas');c.width=b.width;c.height=b.height;const x=c.getContext('2d');x.drawImage(b,0,0);const p=x.getImageData(0,0,1,1).data;const q=x.getImageData(b.width-2,2,1,1).data;return [p[3],q[3],b.width,b.height];})()")
+            check(alpha[0] == 0 and alpha[1] > 200, "Weiß wurde durchsichtig, Motiv deckend", str(alpha))
+            await ev("const i=document.querySelector('#lsky input[data-state=\"tag\"][data-i=\"0\"]');i.value='#112233';i.dispatchEvent(new Event('input'))"); await wait(600)
+            check(await ev("document.getElementById('lframe').contentDocument.documentElement.style.getPropertyValue('--sky-top').trim()") == "#112233", "Himmelsfarbe wirkt sofort in der Vorschau")
+            await ev("document.getElementById('lkind').value='schnee';document.getElementById('lkind').dispatchEvent(new Event('change'))"); await wait(600)
+            check(await ev("!!document.getElementById('lframe').contentDocument.querySelector('.landscape-particle.snow')"), "Blätterart wirkt sofort in der Vorschau (Schnee)")
+            await ev("document.getElementById('ledsave').click()"); await wait(4000)
+            msg = await ev("document.getElementById('mLe').textContent")
+            check(msg.startswith("Gespeichert"), "Speichern: Beschreibung, Krone und Ferne", msg[:80])
+            check(await ev("[...document.querySelectorAll('#ltable tbody tr')].some(tr=>tr.textContent.includes('Test Alb')&&tr.children[1].textContent==='Ferne, Krone')"), "Bestand zeigt „Test Alb“ mit Ferne und Krone im Herbst")
+            check(await ev("[...document.querySelectorAll('#lactive option')].map(o=>o.value).includes('test-alb')"), "neue Landschaft wählbar")
+            check(await ev("document.getElementById('lframe').src.includes('landschaft=test-alb')"), "Vorschau nach dem Speichern auf dem gespeicherten Satz")
+            await ev("document.querySelector('#led .ltime[data-t=nacht]').click()"); await wait(2500)
+            check(await ev("document.getElementById('lframe').src.includes('T23:00')") and await ev("Number(document.getElementById('lframe').contentDocument.documentElement.style.getPropertyValue('--nacht'))") == 1, "Nacht-Vorschau: Seite dunkel")
+            await ev("document.querySelector('#led .lview[data-v=phone]').click()"); await wait(200)
+            check(await ev("document.getElementById('lframe').className") == "phone" and await ev("document.getElementById('lframe').getBoundingClientRect().width") == 390, "Handy-Ansicht 390 px")
+
+            print("10. Konsole")
             check(not console, "keine Fehler", "; ".join(console)[:200])
     finally:
         proc.terminate()

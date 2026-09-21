@@ -133,13 +133,26 @@ Weitere Inhaltsarten (Blogbeiträge, Textstellen der Seite) kommen als Eintrag i
 (`src/admin.js`) dazu: Pfad im Repository, Zerlegen in Felder, Zusammenbauen mit Prüfung.
 Das Profil bleibt Datei mit Deploy (`profile.md`). GitHub-Zugriff: `src/github.js`.
 
-**Startseite – Landschaft** (`site`-API in `src/admin.js`): ein Haken, „Veröffentlichen“ = Commit auf
-`index.html`. `applyLandscape(html, wish)` setzt `data-landschaft="an|aus"` am `<body>` **und** die Bildpfade
-von Vogel und Ast in einem Zug – `assets/bestand/` (ohne Landschaft: kurzer Ast 1153 px, Vogel auf Weiß)
-oder `assets/` (mit Landschaft: langer Ast 2800 px, freigestellter Vogel) – in der Szene und in den
-`<link rel="preload">` des `<head>`, dazu die Astbreite. So steht vom ersten Bild an das Richtige in der Seite;
-`landscape.js` tauscht nur noch für die Vorschau-Links (`?landschaft=an|aus`) zur Laufzeit. Prüfung ohne
-Worker: `node tests/site_test.mjs` (Rundreise an → aus lässt die Datei unverändert).
+**Landschaften** (`site`- und `landschaften`-API in `src/admin.js`, Logik in `src/landscapes.js`): Schalter, Wahl
+des Satzes, Bestand, Editor. „Veröffentlichen“ = Commit auf `index.html`: `applyLandscape(html, wish, satz)` setzt
+`data-landschaft="an|aus"` und `data-landschaft-satz="<satz>"` am `<body>` **und** die Bildpfade von Vogel und Ast in
+einem Zug – `assets/bestand/` (ohne Landschaft: kurzer Ast 1153 px, Vogel auf Weiß) oder `assets/` (mit Landschaft:
+langer Ast 2800 px, freigestellter Vogel) – in der Szene und in den `<link rel="preload">` des `<head>`, dazu die
+Astbreite. So steht vom ersten Bild an das Richtige in der Seite; `landscape.js` tauscht nur noch für die
+Vorschau-Links (`?landschaft=an|aus|<satz>`) zur Laufzeit.
+Bestand: `GET landschaften` listet die Ordner unter `assets/landschaften/` mit ihrer `landschaft.json`
+(`normalizeSet` aus `landscape.js`, das der Worker importiert – eine Fassung für Seite und Redaktion) und liefert
+Standardwerte, Größen und Budgets mit. `PUT landschaften/satz` legt einen Satz an oder ändert Name, Blätterart,
+Himmelsfarben (Ordnername aus dem Namen, `neu: true` verhindert Überschreiben). `POST landschaften/ebene` nimmt
+zwei fertige WebP (Base64; geprüft: RIFF/WEBP-Kennung, Budget Ferne 150 KB, Krone 120 KB) und schreibt sie mit der
+Beschreibung in einem Commit; ein früheres AVIF derselben Ebene wird dabei gelöscht. `DELETE landschaften/ebene`
+und `DELETE landschaften/satz` (nie der aktive) räumen auf – der Verlauf auf GitHub behält alles.
+Die Aufbereitung geschieht im Browser der Redaktion (`prepareLayer` im Seitenskript: Weiß → Transparenz mit
+a = 1 − min(R,G,B)/255, Beschnitt wie im Python-Werkzeug, zwei Größen, Ferne mit weichem Rand, WebP mit sinkender
+Qualität bis unters Budget); die Vorschau ist die echte Startseite im Rahmen (`frame-src` erlaubt `SITE_URL`;
+Schreibtisch = 1280 px skaliert, Handy = 390 px), der die ungespeicherten Bilder, Blätterart und Himmelsfarben per
+`postMessage` bekommt. Prüfung ohne Worker: `node tests/site_test.mjs` (Schalter, Satz, Rundreise) und
+`python3 tests/admin_test.py` (Abschnitt 9: Aufbereitung mit Test-PNGs, Vorschau per Nachricht, Speichern).
 
 **Betrieb (Goch – Betrieb in der Redaktion, `src/settings.js`):** an/aus, Anbieter, Modell, Prompt-Cache,
 zweiter Anbieter über eine OpenAI-kompatible Schnittstelle – im KV (`settings:goch`), gilt ohne Deploy
