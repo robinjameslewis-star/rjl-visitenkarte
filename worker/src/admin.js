@@ -24,9 +24,9 @@ export async function handleAdmin(request, env, ctx, deps) {
   const session = await currentSession(request, env);
 
   // Anmeldung
-  if (path === "/admin/login/mode" && request.method === "GET") return json({ passkey: (await passkeyIds(env)).length > 0 });
-  if (path === "/admin/login" && request.method === "POST") return login(request, env);
-  if (path === "/admin/verify" && request.method === "POST") return verify(request, env);
+  if (path === "/admin/login/mode" && request.method === "GET") return json({ passkey: (await listPasskeys(env, url.hostname)).length > 0 });
+  if (path === "/admin/login" && request.method === "POST") return login(request, env, url);
+  if (path === "/admin/verify" && request.method === "POST") return verify(request, env, url);
   if (path === "/admin/passkey/login/options" && request.method === "POST") return passkeyLoginOptions(env, url);
   if (path === "/admin/passkey/login" && request.method === "POST") return passkeyLogin(request, env, url);
   if (path === "/admin/logout" && request.method === "POST") {
@@ -46,14 +46,14 @@ export async function handleAdmin(request, env, ctx, deps) {
 
   const api = path.slice("/admin/api/".length);
   if (api === "state" && request.method === "GET") return json(await state(env, deps));
-  if (api === "passkeys" && request.method === "GET") return json({ passkeys: await listPasskeys(env) });
+  if (api === "passkeys" && request.method === "GET") return json({ passkeys: await listPasskeys(env, url.hostname) });
   if (api === "passkeys" && request.method === "DELETE") {
     const body = await readJson(request);
     const id = typeof body.id === "string" && /^[A-Za-z0-9_-]{16,300}$/.test(body.id) ? body.id : null;
     if (!id) return json({ error: "Ungültig." }, 400);
     await env.USAGE.delete("admin:passkey:" + id);
     await indexPasskey(env, id, false);
-    return json({ passkeys: await listPasskeys(env) });
+    return json({ passkeys: await listPasskeys(env, url.hostname) });
   }
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
@@ -76,9 +76,9 @@ export async function handleAdmin(request, env, ctx, deps) {
 
 // ---------- Anmeldung: Code per E-Mail, Sitzung als Cookie, beides im KV ----------
 
-async function login(request, env) {
+async function login(request, env, url) {
   // Es gibt genau einen Empfänger: MAIL_TO. Kein Adressfeld, nichts zu vertippen (gmail/googlemail).
-  if ((await passkeyIds(env)).length) return json({ error: "Anmeldung nur mit Passkey." }, 403);
+  if ((await listPasskeys(env, url.hostname)).length) return json({ error: "Anmeldung nur mit Passkey." }, 403);
   const answer = json({ ok: true, note: "Code ist unterwegs." });
   const hourKey = "admin:codes:" + new Date().toISOString().slice(0, 13);
   const sent = +(await env.USAGE.get(hourKey) || 0);
@@ -102,8 +102,8 @@ async function login(request, env) {
   return answer;
 }
 
-async function verify(request, env) {
-  if ((await passkeyIds(env)).length) return json({ error: "Anmeldung nur mit Passkey." }, 403);
+async function verify(request, env, url) {
+  if ((await listPasskeys(env, url.hostname)).length) return json({ error: "Anmeldung nur mit Passkey." }, 403);
   const body = await readJson(request);
   const code = String(body.code || "").replace(/\D/g, "");
   let entry = null;
@@ -132,9 +132,12 @@ async function newSession(env, via) {
 async function passkeyIds(env) {
   try { const a = JSON.parse(await env.USAGE.get("admin:passkeys")); return Array.isArray(a) ? a : []; } catch { return []; }
 }
-async function listPasskeys(env) {
+// Passkeys hängen an der Adresse (rpId). Seit der eigenen Domain (21.09.2026) merkt sich jeder Passkey seine rpId;
+// ältere ohne Eintrag gehören zur ersten Adresse. Ohne host: alle (Sicherheitsabschnitt zeigt je Adresse nur die eigenen).
+const LEGACY_RP = "rjl-goch.rjl.workers.dev";
+async function listPasskeys(env, host) {
   const out = [];
-  for (const id of await passkeyIds(env)) { try { const c = JSON.parse(await env.USAGE.get("admin:passkey:" + id)); if (c) out.push(c); } catch {} }
+  for (const id of await passkeyIds(env)) { try { const c = JSON.parse(await env.USAGE.get("admin:passkey:" + id)); if (c && (!host || (c.rpId || LEGACY_RP) === host)) out.push(c); } catch {} }
   return out;
 }
 async function indexPasskey(env, id, add) {
@@ -153,7 +156,7 @@ async function takeChallenge(env, key) {
   return c;
 }
 async function passkeyRegisterOptions(env, session, url) {
-  const existing = await listPasskeys(env);
+  const existing = await listPasskeys(env, url.hostname);
   const userId = pk.b64url.encode(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("redaktion:" + env.MAIL_TO))));
   return json({
     challenge: await challengeFor(env, session.token),
@@ -172,13 +175,13 @@ async function passkeyRegister(request, env, session, url) {
   try {
     const cred = await pk.verifyRegistration(body, { challenge, origin: url.origin, rpId: url.hostname });
     const name = String(body.name || "").replace(/[^\p{L}\p{N} .,-]/gu, "").trim().slice(0, 40) || "Passkey";
-    await env.USAGE.put("admin:passkey:" + cred.id, JSON.stringify({ ...cred, name, at: new Date().toISOString() }));
+    await env.USAGE.put("admin:passkey:" + cred.id, JSON.stringify({ ...cred, name, rpId: url.hostname, at: new Date().toISOString() }));
     await indexPasskey(env, cred.id, true);
   } catch (e) { return json({ error: e.message }, 400); }
-  return json({ passkeys: await listPasskeys(env) });
+  return json({ passkeys: await listPasskeys(env, url.hostname) });
 }
 async function passkeyLoginOptions(env, url) {
-  const creds = await listPasskeys(env);
+  const creds = await listPasskeys(env, url.hostname);
   if (!creds.length) return json({ error: "Kein Passkey eingerichtet." }, 400);
   const cid = hex(crypto.getRandomValues(new Uint8Array(16))); // Kennung der Challenge, kommt mit der Antwort zurück
   return json({ cid, challenge: await challengeFor(env, "login:" + cid), rpId: url.hostname, userVerification: "required", timeout: 60000,
@@ -514,7 +517,7 @@ async function gochApi(api, request, env, deps, session) {
       if (next.enabled !== previous.enabled && gh.configured(env)) {
         const home = await gh.getFile(env, "index.html");
         if (home && ENDPOINT_ATTR.test(home.content)) {
-          const url = (env.CHAT_ENDPOINT || "https://rjl-goch.rjl.workers.dev/chat");
+          const url = (env.CHAT_ENDPOINT || "https://goch.robin.vision/chat");
           const html = home.content.replace(ENDPOINT_ATTR, `data-chat-endpoint="${next.enabled ? url : ""}"`);
           if (html !== home.content) {
             await gh.putFile(env, "index.html", html, `Redaktion: Goch ${next.enabled ? "eingeschaltet" : "ausgeschaltet"}`, home.sha);

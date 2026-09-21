@@ -1,7 +1,9 @@
 # Robin James Lewis – Visitenkarte
 
-Online: https://robinjameslewis-star.github.io/rjl-visitenkarte/ (GitHub Pages, Branch `main`;
-der Branch `wartung` enthält eine Wartungsseite ohne Fremddienste, siehe `GO-LIVE.md`)
+Online: **https://robin.vision/** (seit 21.09.2026 eigene Domain bei Cloudflare, Seite weiter auf GitHub Pages, Branch
+`main`, Datei `CNAME`; die alte Adresse https://robinjameslewis-star.github.io/rjl-visitenkarte/ leitet um. Goch:
+`https://goch.robin.vision`, Redaktion `https://goch.robin.vision/admin`; `rjl-goch.rjl.workers.dev` bleibt parallel
+erreichbar. Der Branch `wartung` enthält eine Wartungsseite ohne Fremddienste, siehe `GO-LIVE.md`)
 
 Eine Seite: das handgezeichnete Rotkehlchen fliegt an und landet auf dem Ast, darunter die
 Terminbuchung (Cal.com, erst nach Einwilligung geladen). Gestaltung nach dem persönlichen Designsystem 3.1
@@ -313,7 +315,7 @@ zusammen, und erst nach ausdrücklichem Ja sendet der Worker per Resend eine E-M
 Was Robin gerade macht, erzählt Goch aus `aktuell.md` (alle vier bis sechs Wochen erneuern); einen
 sichtbaren Absatz dazu gibt es auf der Seite bewusst nicht (Robin, 17.09.2026).
 
-**Schalter:** `data-chat-endpoint` am `<body>`, gesetzt auf `https://rjl-goch.rjl.workers.dev/chat`
+**Schalter:** `data-chat-endpoint` am `<body>`, gesetzt auf `https://goch.robin.vision/chat`
 (live seit 17.09.2026). Leer: kein Gespräch, Klick auf den Vogel wiederholt den Anflug. Zum
 Testen: lokal `?goch=http://localhost:8787/chat` oder `?goch=off` (nur auf localhost wirksam), auf
 der veröffentlichten Seite `localStorage.setItem('rjl-goch-endpoint', 'https://…/chat')` in der
@@ -330,7 +332,7 @@ Flug-Tests (`tests/im-browser.html`) und `tests/consent_test.py` bleiben unverä
 
 ## Blog
 
-Gepflegt in der Redaktion (`https://rjl-goch.rjl.workers.dev/admin`, Abschnitt „Blog“), gespeichert im
+Gepflegt in der Redaktion (`https://goch.robin.vision/admin`, Abschnitt „Blog“), gespeichert im
 Repository: `blog/blog.json` (Schalter, Titel DE/EN, Einleitung) und `blog/posts/<slug>.md` (Kopfzeilen
 `title`, `date`, `lang`, `status`, `summary`, dann Text). Der Worker baut daraus `blog/index.html`,
 `blog/<slug>/index.html` und `blog/feed.xml` im Stil der Visitenkarte und setzt auf der Startseite den

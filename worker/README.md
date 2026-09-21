@@ -22,8 +22,8 @@ sendet per Resend an `MAIL_TO`; Antwort-an ist die Besucheradresse. Nichts wird 
 
 1. Cloudflare-Konto (kostenlos) und Node.js. Resend-Konto (kostenlos, 100 Mails/Tag).
 2. `cd worker && npx wrangler login && npx wrangler secret put RESEND_API_KEY`
-3. `npx wrangler deploy` → URL der Form `https://rjl-goch.<konto>.workers.dev`.
-4. In `../index.html` am `<body>` eintragen: `data-chat-endpoint="https://rjl-goch.<konto>.workers.dev/chat"`.
+3. `npx wrangler deploy` → erreichbar unter `https://goch.robin.vision` (Custom Domain aus `wrangler.toml`) und `https://rjl-goch.<konto>.workers.dev`.
+4. In `../index.html` am `<body>` eintragen: `data-chat-endpoint="https://goch.robin.vision/chat"`.
    Solange das Attribut leer ist, öffnet ein Klick auf den Vogel kein Gespräch, sondern
    wiederholt den Anflug; die Seite bleibt wie vor Goch.
 5. `ALLOWED_ORIGINS` in `wrangler.toml` prüfen (GitHub-Pages-Adresse; später eigene Domain).
@@ -106,10 +106,12 @@ Zeilen ohne https-Adresse gelten nicht. Nach Änderung: `npm run deploy`.
 
 ## Redaktion (`/admin`)
 
-`https://rjl-goch.rjl.workers.dev/admin` – Anmeldung mit **Passkey** (Face ID / Touch ID,
+`https://goch.robin.vision/admin` (alt und weiter gültig: `https://rjl-goch.rjl.workers.dev/admin`) – Anmeldung mit **Passkey** (Face ID / Touch ID,
 WebAuthn in `src/passkey.js`, Sitzung zwölf Stunden als Cookie). Solange kein Passkey eingerichtet ist,
 gilt als Erstzugang ein Einmal-Code per E-Mail an `MAIL_TO` (Resend, zehn Minuten); sobald ein Passkey
-existiert, ist der Code-Weg abgeschaltet. Passkeys verwaltet der Abschnitt „Sicherheit“ (Index
+existiert, ist der Code-Weg abgeschaltet. Passkeys gelten **je Adresse** (rpId): Jeder Passkey merkt sich seit 21.09.2026 seine
+Adresse, ältere gehören zu `rjl-goch.rjl.workers.dev`; unter `goch.robin.vision` gilt deshalb zunächst wieder der E-Mail-Code, bis dort
+ein Passkey eingerichtet ist. Passkeys verwaltet der Abschnitt „Sicherheit“ (Index
 `admin:passkeys`, Einträge `admin:passkey:<id>` im KV). **Notausgang** ohne Geräte, im Ordner `worker/`:
 
     npx wrangler kv key delete --binding USAGE --remote admin:passkeys

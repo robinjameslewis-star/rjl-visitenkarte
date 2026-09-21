@@ -1,6 +1,9 @@
 # Go-live – nur das, was zum Veröffentlichen nötig ist
 
-**Online seit 14.09.2026:** https://robinjameslewis-star.github.io/rjl-visitenkarte/
+**Online seit 14.09.2026:** https://robinjameslewis-star.github.io/rjl-visitenkarte/ – **seit 21.09.2026 unter https://robin.vision/**
+(Domain bei Cloudflare Registrar; DNS only: A/AAAA der Wurzel auf GitHub Pages, `www` CNAME auf `robinjameslewis-star.github.io`,
+GitHub „Custom domain“ = `robin.vision` mit erzwungenem HTTPS, Datei `CNAME` im Repository; `www` leitet auf die Wurzel um,
+die alte Adresse leitet mit 301 um. Goch unter `goch.robin.vision` als Workers Custom Domain, siehe `worker/wrangler.toml`.)
 Am 14.09.2026 kurz auf die Wartungsseite (Branch `wartung`) geschaltet, bis Einwilligung und
 lokale Schriften fertig waren; seitdem wieder `main`.
 

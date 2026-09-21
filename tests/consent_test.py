@@ -2,7 +2,7 @@
 
 Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets`.
 Aufruf:  python3 tests/consent_test.py http://localhost:8788/ [Ordner für Bildschirmfotos]
-         python3 tests/consent_test.py https://robinjameslewis-star.github.io/rjl-visitenkarte/
+         python3 tests/consent_test.py https://robin.vision/
 
 Geprüft wird unter anderem: keine Anfrage an cal.com oder Google vor der Zustimmung, Ablehnen,
 Erlauben, Widerruf mit Neuladen, Englisch, abgelaufene und defekte Speicherwerte, Handy-Ansicht,
@@ -80,7 +80,7 @@ async def main():
                 await send("Page.navigate", {"url": url}); await pump(wait)
             async def viewport(w, h, mobile=False):
                 await send("Emulation.setDeviceMetricsOverride", {"width": w, "height": h, "deviceScaleFactor": 1, "mobile": mobile})
-            foreign = lambda: sorted({h for h, _ in requests if h not in ('localhost', '127.0.0.1', 'robinjameslewis-star.github.io')})
+            foreign = lambda: sorted({h for h, _ in requests if h not in ('localhost', '127.0.0.1', 'robin.vision', 'robinjameslewis-star.github.io')})
             cal = lambda: [u for h, u in requests if h and 'cal.com' in h]
             state = ("({banner: !document.getElementById('consent-banner').hidden, notice: !document.getElementById('booking-notice').hidden,"
                      " settings: !document.getElementById('consent-settings').hidden, close: !document.getElementById('consent-close').hidden,"
