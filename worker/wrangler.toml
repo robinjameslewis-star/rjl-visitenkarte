@@ -6,17 +6,21 @@ name = "rjl-goch"
 keep_names = false
 main = "src/index.js"
 compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+# Eigene Adresse für Goch (21.09.2026): Cloudflare legt DNS-Eintrag und Zertifikat selbst an. workers.dev bleibt erreichbar.
+# (Top-Level-Schlüssel müssen vor der ersten [Tabelle] stehen.)
+routes = [{ pattern = "goch.robin.vision", custom_domain = true }]
+workers_dev = true                   # rjl-goch.rjl.workers.dev bleibt erreichbar (Übergang, Redaktion, alte Verweise)
+preview_urls = false                 # keine öffentlichen Versions-Adressen
 
 [ai]
 binding = "AI"                       # Workers AI (Free-Kontingent, Start)
-
-compatibility_flags = ["nodejs_compat"]
 
 [vars]
 PROVIDER = "anthropic"               # "anthropic" (Claude, Secret ANTHROPIC_API_KEY) | "workers-ai" (Cloudflare, kostenlos, 10.000 Neuronen/Tag)
 MODEL = "claude-opus-5"              # Robin, 17.09.2026: Opus 5 mit Prompt-Caching. Cloudflare: "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 # Secret setzen: npx wrangler secret put ANTHROPIC_API_KEY
-ALLOWED_ORIGINS = "https://robinjameslewis-star.github.io,http://localhost:8788"  # bei eigener Domain ergänzen
+ALLOWED_ORIGINS = "https://robin.vision,https://www.robin.vision,https://robinjameslewis-star.github.io,http://localhost:8788"  # eigene Domain seit 21.09.2026; github.io leitet dorthin um
 MAX_PER_IP_PER_HOUR = "12"           # weiche Grenze je Besucher (pro Worker-Instanz)
 MAX_PER_DAY = "60"                   # harte Tagesgrenze über KV (Zähler USAGE) – Kostenbremse, Robin 17.09.2026
 MAX_INPUT_CHARS = "600"
