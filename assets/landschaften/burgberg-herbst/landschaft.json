@@ -10,6 +10,12 @@
         "avif": true,
         "bytes": 114608
       }
+    },
+    "winter": {
+      "ferne": {
+        "avif": false,
+        "bytes": 120014
+      }
     }
   },
   "blaetter": {
