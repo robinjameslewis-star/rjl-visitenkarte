@@ -91,3 +91,20 @@ Inset 0, keine Maske), 2560 und 3840 px. Dazu (Robins Wunsch): Ab 2200 px wachse
 Belege: [Anflug nachts](tests/screenshots/goch-reparatur/1440-nacht-1600.png),
 [Handychat](tests/screenshots/goch-reparatur/390-chat-an.png),
 [Messprotokoll](tests/screenshots/goch-reparatur/report.json).
+
+## Nachtrag 22.09.2026: kein heller Zwischenzustand beim Nachtstart
+Ursache: Die Seite wurde mit Tagespalette gezeichnet; das nachgelagerte Landschaftsskript setzte
+danach die Nachtfarben und startete eine zweisekündige CSS-Überblendung.
+Die Anfangspalette wird jetzt vor sichtbarem Inhalt gesetzt. Für spätere Zeitänderungen bleiben
+die Übergänge erhalten. Szene und Cal.com-Konfiguration starten weiter vor bird-flight.js und site.js.
+
+Browserprüfung bei 390 px, leerem Cache, 250 ms Netzlatenz und 256.000 Bytes/s Download:
+- Nacht: erste gemessene Darstellung RGB 27/34/48 (`#1B2230`), alle 196 beobachteten Frames gleich.
+- Tag: RGB 243/239/229 (`#F3EFE5`) von Beginn an.
+- URL-Schalter aus und body-Schalter aus: helle Grundseite, keine Nachtüberblendung.
+- Blockiertes landscape.js: Inhalt bleibt sichtbar, keine JavaScript-Folgekaskade.
+- Übergänge anfangs 0 s, danach 2 s; keine Fremdanfragen im Starttest.
+
+Zusätzlich erneut bestanden: Anflug-/Handychat-Browserlauf, Einwilligungs-Browserlauf, 8 Flugtests,
+15 Landschaftstests, 17 Site-/Redaktionsprüfungen und Worker-Bündeltest (nur lokal, kein Deployment).
+Messprotokoll: [Nachtstart](tests/screenshots/goch-reparatur/nachtstart-report.json).

@@ -389,3 +389,13 @@ kehrt derselbe DOM-Knoten zum Ast zurück; Gespräch und Ereignisse bleiben erha
 Zusätzliche Prüfungen: `python3 tests/goch-landscape_test.py` (lokaler Webserver auf Port 8788,
 Chrome und websockets) und `python3 tests/landscape-matte_test.py` (Pillow und NumPy).
 Prüfumfang und Bilder stehen in `LANDSCHAFT.md`.
+
+**Nacht direkt beim Laden.** `landscape.js` wird einmal synchron am Ende des `<head>` geladen.
+`prepare()` direkt nach dem öffnenden body berechnet die Anfangspalette mit denselben Sonnen- und
+Farbfunktionen wie das Minuten-Update. `init()` am Ende des body baut die Szene auf, weiterhin vor
+Anflug und Einwilligung. Erst nach dem Anfangszustand aktiviert `landscape-ready` die Farbüberblendung.
+So gibt es nachts keinen hellen Zwischenzustand; es wird weder eine zweite Uhrzeitberechnung
+nachgebaut noch die Seite versteckt. Bei Ladefehler des Skripts bleibt die Grundseite nutzbar.
+Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (einmalig und cachebar).
+`python3 tests/landscape-start_test.py` prüft Nacht, Tag, beide Aus-Schalter und einen Skriptladefehler
+bei deaktiviertem Cache und gedrosseltem Netz.
