@@ -122,3 +122,18 @@ test('hidden tabs and resize settle immediately, without stale transforms', asyn
   assert.equal(e.pending.size, 0);
   assert.equal(e.scene.dataset.pose, 'rest');
 });
+
+test('landscape flight enters below the branch and returns to the unchanged landing point', async () => {
+  const e = environment(); e.scene.dataset.flightRoute = 'under-branch'; await e.ready();
+  const position = () => e.bird.style.transform.match(/translate3d\(([-\d.]+)px, ([-\d.]+)px/).slice(1).map(Number);
+  const start = position();
+  assert.ok(start[0] > 410 && start[1] > 200, 'begin below and to the right of the scene');
+  e.step(1600); const mid = position();
+  assert.ok(mid[0] < start[0] && mid[1] > 0, 'approach below the canopy');
+  e.step(4199); const end = position();
+  assert.ok(Math.abs(end[0]) < .1 && Math.abs(end[1]) < .1, 'touchdown has no positional offset');
+  e.step(5250);
+  assert.equal(e.scene.dataset.state, 'rest');
+  assert.equal(e.bird.style.transform, '');
+  assert.equal(e.branch.style.transform, '');
+});

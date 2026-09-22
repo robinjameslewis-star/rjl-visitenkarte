@@ -95,7 +95,12 @@
   const stage = document.querySelector('.stage');
   const nameLink = document.getElementById('name-link');
   const narrow = matchMedia('(max-width: 720px)');
+  const panelHome = panel.parentNode;
   function place() {
+    // Das feste Handyfenster gehört auf die Seitenebene, nicht in die isolierte Landschaft.
+    // Desktop: zurück an den Ast. Ereignisse und Gesprächszustand bleiben am selben DOM-Knoten.
+    const parent = narrow.matches ? document.body : panelHome;
+    if (panel.parentNode !== parent) parent.appendChild(panel);
     if (panel.hidden || narrow.matches) { panel.style.cssText = ''; return; }
     const base = (panel.offsetParent || stage).getBoundingClientRect(); // .perch, der Bezugsrahmen der Lage
     const nameBox = nameLink.getBoundingClientRect(), sceneBox = scene.getBoundingClientRect();

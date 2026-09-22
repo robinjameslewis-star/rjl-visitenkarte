@@ -68,3 +68,26 @@ Inset 0, keine Maske), 2560 und 3840 px. Dazu (Robins Wunsch): Ab 2200 px wachse
 - Live prüfen mit den Vorschau-Links der Redaktion (Mittag, Dämmerung, Nacht, Handy); dann Schalter auf „an“.
 - Weitere Jahreszeiten (Winter bis 1. Dezember) nach README-Abschnitt „Landschaft“.
 - Idee: nachts ein warmer Lichtpunkt an der Burg (Robins Entscheidung).
+
+## Reparatur 22.09.2026: Anflug, Nachtfarben und Handychat
+- Bei eingeschalteter Landschaft beginnt der Anflug rechts unter dem Ast und steigt links der
+  Krone zur unveränderten Landeposition auf. Ohne Landschaft bleibt die bisherige Flugkurve.
+- Alle fünf Vogelbilder und der Ast erhalten denselben nativen Nachtfilter; der bewegte Container
+  hat keinen SVG-Filter mehr. Sieben Stichproben über den Anflug zeigen durchgehend
+  `brightness(0.6) saturate(0.82)` bei voller Nacht.
+- Weißreste am transparenten Rand werden reproduzierbar im Bildskript entfernt. Der helle Bauch
+  bleibt deckend. Am alten Aststück werden nun ebenfalls Randpixel korrigiert: Die frühere
+  Pixelgleichheit gilt dort deshalb nicht mehr; Größe, Lage und Innenzeichnung bleiben erhalten.
+  Vogelbilder zusammen: 595.136 Bytes (Budget 600.000); Ast: 187.020 Bytes, 2800 × 167 px.
+  Die Originale unter `assets/bestand/` bleiben unverändert.
+- Der mobile Chat liegt direkt am body und damit über Name und Kalender. Beim Vergrößern
+  kehrt er zum Ast zurück. Geprüft in Headless Chrome bei 390 und 1440 px, Breitenwechsel auf
+  1024 px; Landschaft an/aus. Ein lokales Kalender-iframe mit eigenem Stapelkontext prüft die
+  Überdeckung; kein Rasterpunkt der mobilen Sprechblase wird verdeckt. Kein Gerätetest in Safari.
+- Bestanden: Flugtests 8, Landschaftstests 15, Site-/Redaktionsprüfungen 17, Bildtests 2;
+  vollständige Goch- und Einwilligungs-Browsertests sowie der neue Landschaft-/Chat-Browserlauf.
+- Backend, site.js und Redaktionsmarken bleiben unberührt. Der veröffentlichte Schalter bleibt aus.
+
+Belege: [Anflug nachts](tests/screenshots/goch-reparatur/1440-nacht-1600.png),
+[Handychat](tests/screenshots/goch-reparatur/390-chat-an.png),
+[Messprotokoll](tests/screenshots/goch-reparatur/report.json).
