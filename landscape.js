@@ -144,13 +144,53 @@
     });
     return set;
   }
+  function applyColors(root, n) {
+    const style = root.style, initial = getComputedStyle(root);
+    const roles = ['paper','ink','ink-soft','ink-muted','green','copper','line','hover','surface','reply','warning'];
+    const rgb = value => value.trim().replace('#','').match(/../g).map(v => parseInt(v,16));
+    const palette = Object.fromEntries(roles.map(k => [k, ['day','night'].map(t => rgb(initial.getPropertyValue('--'+k+'-'+t)))]));
+    const mix = (a,b,t) => a.map((n,i) => n+(b[i]-n)*t);
+    const color = a => '#'+a.map(n => Math.round(n).toString(16).padStart(2,'0')).join('');
+    const lum = c => c.map(n => (n/=255)<=.04045?n/12.92:((n+.055)/1.055)**2.4).reduce((a,n,i)=>a+n*[.2126,.7152,.0722][i],0);
+    const contrast = (a,b) => (Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
+    style.setProperty('--nacht',n); style.setProperty('--nacht-prozent',n*100+'%');
+    const backgrounds = ['paper','surface','hover','reply'].map(k => mix(...palette[k],n));
+    roles.forEach(k => {
+      let c = mix(...palette[k],n);
+      if (['ink','ink-soft','ink-muted','green','warning'].includes(k)) {
+        // Bei Dämmerung würden zwei mittlere Töne unlesbar. Nur Textfarben nachführen.
+        const target = lum(backgrounds[0])>.18?[20,25,24]:[250,247,239];
+        const original = c;
+        for (let t=0; t<=1 && Math.min(...backgrounds.map(bg=>contrast(c,bg)))<4.5; t+=.025) c=mix(original,target,t);
+        style.setProperty('--readable-'+k,color(c));
+      }
+      const fallback = ['ink','ink-soft','ink-muted','green','warning'].includes(k)?c:palette[k][n>=.5?1:0];
+      style.setProperty('--fallback-'+k,color(fallback));
+    });
+  }
+  // Vor dem ersten sichtbaren Inhalt: dieselbe Astronomie und Palette wie beim Minuten-Update.
+  // Der Redaktionsschalter steht am body; deshalb ruft dessen erstes Inline-Skript prepare() auf.
+  function prepare() {
+    const root = document.documentElement;
+    const wish = new URLSearchParams(location.search).get('landschaft');
+    if (wish === 'aus' || (!wish && document.body.dataset.landschaft === 'aus')) {
+      root.classList.add('landscape-off');
+      return;
+    }
+    const input = parseOverrides(location.search, new Date());
+    const place = input.location || locationForZone(Intl.DateTimeFormat().resolvedOptions().timeZone, input.date.getTimezoneOffset());
+    applyColors(root, nightFactor(sunPosition(input.date, place.lat, place.lon).altitude));
+    root.classList.remove('landscape-off');
+    root.classList.add('landscape-on');
+  }
   const api = { sunPosition, moonPosition, moonIllumination, locationForZone,
-    parseOverrides, seasonState, nightFactor, stagePosition, normalizeSet, SET_DIR, SEASONS, LAYERS, PARTICLES, DEFAULT_SET };
+    parseOverrides, seasonState, nightFactor, stagePosition, normalizeSet, prepare, applyColors, SET_DIR, SEASONS, LAYERS, PARTICLES, DEFAULT_SET };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.RJLLandscape = api;
 })();
 
-(function () {
+// Aufruf am Ende des body, weiterhin vor Vogel, Sprache und Einwilligung.
+if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.init = function () {
   'use strict';
   if (typeof document === 'undefined') return;
   const root = document.documentElement, scene = document.getElementById('scene');
@@ -173,6 +213,7 @@
     return;
   }
   root.classList.remove('landscape-off'); use('assets/');
+  scene.dataset.flightRoute = 'under-branch';
   // Welcher Satz: ?landschaft=<satz> zeigt einen bestimmten (Vorschau), sonst der von der Redaktion gesetzte.
   const slug = wish && wish !== 'an' && /^[a-z0-9-]{1,40}$/.test(wish) ? wish : (document.body.dataset.landschaftSatz || 'burgberg-herbst');
   let set = api.normalizeSet(null), preview = {}; // preview: Blob-URLs der Redaktion je Jahreszeit+Ebene, noch ungespeichert
@@ -195,29 +236,9 @@
   let seed = 417, seasonKey = '', frames = [];
   const random = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
   for (let i = 0; i < 60; i++) stars.insertAdjacentHTML('beforeend', `<circle cx="${random()*1000}" cy="${random()*360}" r="${.55+random()*.65}" style="animation-delay:-${random()*5}s"/>`);
-  const style = root.style, initial = getComputedStyle(root);
-  const roles = ['paper','ink','ink-soft','ink-muted','green','copper','line','hover','surface','reply','warning'];
-  const rgb = value => value.trim().replace('#','').match(/../g).map(v => parseInt(v,16));
-  const palette = Object.fromEntries(roles.map(k => [k, ['day','night'].map(t => rgb(initial.getPropertyValue('--'+k+'-'+t)))]));
-  const mix = (a,b,t) => a.map((n,i) => n+(b[i]-n)*t);
-  const color = a => '#'+a.map(n => Math.round(n).toString(16).padStart(2,'0')).join('');
-  const lum = c => c.map(n => (n/=255)<=.04045?n/12.92:((n+.055)/1.055)**2.4).reduce((a,n,i)=>a+n*[.2126,.7152,.0722][i],0);
-  const contrast = (a,b) => (Math.max(lum(a),lum(b))+.05)/(Math.min(lum(a),lum(b))+.05);
+  const style = root.style;
   function colors(n) {
-    style.setProperty('--nacht',n); style.setProperty('--nacht-prozent',n*100+'%');
-    const backgrounds = ['paper','surface','hover','reply'].map(k => mix(...palette[k],n));
-    roles.forEach(k => {
-      let c = mix(...palette[k],n);
-      if (['ink','ink-soft','ink-muted','green','warning'].includes(k)) {
-        // Bei Dämmerung würden zwei mittlere Töne unlesbar. Nur Textfarben nachführen.
-        const target = lum(backgrounds[0])>.18?[20,25,24]:[250,247,239];
-        const original = c;
-        for (let t=0; t<=1 && Math.min(...backgrounds.map(bg=>contrast(c,bg)))<4.5; t+=.025) c=mix(original,target,t);
-        style.setProperty('--readable-'+k,color(c));
-      }
-      const fallback = ['ink','ink-soft','ink-muted','green','warning'].includes(k)?c:palette[k][n>=.5?1:0];
-      style.setProperty('--fallback-'+k,color(fallback));
-    });
+    api.applyColors(root, n);
     const r=1-.45*n,g=1-.38*n,b=1-.20*n;
     area.querySelector('feColorMatrix').setAttribute('values',`${r} 0 0 0 0 0 ${g} 0 0 0 0 0 ${b} 0 0 0 0 0 1 0`);
   }
@@ -344,4 +365,9 @@
   setInterval(()=>{if(!document.hidden) update();},60000);
   window.addEventListener('resize',geometry); motion.addEventListener('change',geometry);
   document.fonts.ready.then(geometry);
-})();
+  // Erst den Anfangszustand zeichnen, dann künftige Farbwechsel weich überblenden.
+  requestAnimationFrame(() => {
+    getComputedStyle(document.body).backgroundColor;
+    requestAnimationFrame(() => root.classList.add('landscape-ready'));
+  });
+};

@@ -1,0 +1,312 @@
+[
+  {
+    "case": "nacht",
+    "first": {
+      "t": 1007.5,
+      "rgb": [
+        27,
+        34,
+        48
+      ],
+      "night": "1",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "last": {
+      "t": 4239.5,
+      "rgb": [
+        27,
+        34,
+        48
+      ],
+      "night": "1",
+      "visible": true,
+      "transition": "2s, 2s, 2s",
+      "ready": true
+    },
+    "paints": [
+      {
+        "name": "first-paint",
+        "t": 1032,
+        "snapshot": {
+          "t": 1038.5,
+          "rgb": [
+            27,
+            34,
+            48
+          ],
+          "night": "1",
+          "visible": true,
+          "transition": "2s, 2s, 2s",
+          "ready": true
+        }
+      },
+      {
+        "name": "first-contentful-paint",
+        "t": 1032,
+        "snapshot": {
+          "t": 1038.5,
+          "rgb": [
+            27,
+            34,
+            48
+          ],
+          "night": "1",
+          "visible": true,
+          "transition": "2s, 2s, 2s",
+          "ready": true
+        }
+      }
+    ],
+    "frameCount": 196
+  },
+  {
+    "case": "tag",
+    "first": {
+      "t": 2415.899999976158,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "0",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "last": {
+      "t": 4293.699999988079,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "0",
+      "visible": true,
+      "transition": "2s, 2s, 2s",
+      "ready": true
+    },
+    "paints": [
+      {
+        "name": "first-paint",
+        "t": 2432,
+        "snapshot": {
+          "t": 2444,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "0",
+          "visible": true,
+          "transition": "2s, 2s, 2s",
+          "ready": true
+        }
+      },
+      {
+        "name": "first-contentful-paint",
+        "t": 2432,
+        "snapshot": {
+          "t": 2444.099999964237,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "0",
+          "visible": true,
+          "transition": "2s, 2s, 2s",
+          "ready": true
+        }
+      }
+    ],
+    "frameCount": 115
+  },
+  {
+    "case": "query-aus",
+    "first": {
+      "t": 1322.5,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "last": {
+      "t": 4546.100000023842,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "paints": [
+      {
+        "name": "first-paint",
+        "t": 1336,
+        "snapshot": {
+          "t": 1346.7000000476837,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "",
+          "visible": true,
+          "transition": "0s",
+          "ready": false
+        }
+      },
+      {
+        "name": "first-contentful-paint",
+        "t": 1336,
+        "snapshot": {
+          "t": 1346.9000000357628,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "",
+          "visible": true,
+          "transition": "0s",
+          "ready": false
+        }
+      }
+    ],
+    "frameCount": 195
+  },
+  {
+    "case": "body-aus",
+    "first": {
+      "t": 1007.1999999880791,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "last": {
+      "t": 4258.100000023842,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "paints": [
+      {
+        "name": "first-paint",
+        "t": 1028,
+        "snapshot": {
+          "t": 1040.699999988079,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "",
+          "visible": true,
+          "transition": "0s",
+          "ready": false
+        }
+      },
+      {
+        "name": "first-contentful-paint",
+        "t": 1028,
+        "snapshot": {
+          "t": 1040.800000011921,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "",
+          "visible": true,
+          "transition": "0s",
+          "ready": false
+        }
+      }
+    ],
+    "frameCount": 197
+  },
+  {
+    "case": "skriptfehler",
+    "first": {
+      "t": 360.80000001192093,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "last": {
+      "t": 4255,
+      "rgb": [
+        243,
+        239,
+        229
+      ],
+      "night": "",
+      "visible": true,
+      "transition": "0s",
+      "ready": false
+    },
+    "paints": [
+      {
+        "name": "first-paint",
+        "t": 368,
+        "snapshot": {
+          "t": 373.60000002384186,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "",
+          "visible": true,
+          "transition": "0s",
+          "ready": false
+        }
+      },
+      {
+        "name": "first-contentful-paint",
+        "t": 368,
+        "snapshot": {
+          "t": 373.60000002384186,
+          "rgb": [
+            243,
+            239,
+            229
+          ],
+          "night": "",
+          "visible": true,
+          "transition": "0s",
+          "ready": false
+        }
+      }
+    ],
+    "frameCount": 235
+  }
+]

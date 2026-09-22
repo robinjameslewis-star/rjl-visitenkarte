@@ -40,7 +40,8 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 ## Animation
 
 Vier Flugposen wechseln zwischen Aufschlag, Gleitflug, Abschlag und Landeanflug.
-Der Anflug folgt einer kontinuierlichen Kurve von rechts oben nach unten zur Sitzposition, mit
+Ohne Landschaft folgt der Anflug einer Kurve von rechts oben zur Sitzposition; mit Landschaft
+kommt Goch von rechts unter dem Ast und steigt vor der Landung links der Krone auf, mit
 kurzen Schlagphasen, einer ruhigen Gleitphase und weichem Abbremsen. Beim Aufsetzen
 federn Vogel und Ast gemeinsam aus. Für die CD-konforme Ansicht bleibt der Vogel mit Blick nach
 links ausgerichtet; beim Aufsetzen faltet er nur die Flügel ein, ohne Drehung.
@@ -253,11 +254,15 @@ und müssen **deckend** sein: Weiß → Transparenz allein machte den hellen Bau
 Nachthimmel schienen durch). `opaque_cutout` bestimmt deshalb die Silhouette per Flutfüllung vom Bildrand,
 setzt innen Alpha 1 mit Originalfarbe und schätzt nur im 2-px-Saum die Deckung aus der nahen Innenfarbe
 (kleinste Quadrate; Untergrenze Weiß → Transparenz; Saumfarbe vom Weiß befreit – kein heller Rand, kein
-Geisterbild). Nachts dunkelt ein SVG-Farbfilter (`#landscape-moonlight`,
-× 0,55/0,62/0,80) Ebenen, Vogel, Ast und Blätter ab. Dateien: `krone-herbst-{1000,560}.{avif,webp}` und
+Geisterbild). `remove_white_fringe` entfernt anschließend verbliebenes Weiß im 3-px-Randsaum,
+auch am ursprünglichen Aststück; deckende Innenflächen und die Landekoordinaten bleiben erhalten.
+Nachts dunkeln native CSS-Filter jedes Vogelbild und das Astbild gleichmäßig ab
+(`brightness(0.6) saturate(0.82)` bei voller Nacht). Der bewegte Flugcontainer bleibt ohne Filter,
+damit beim Posenwechsel keine SVG-Filterfläche flackert. Landschaft und Blätter behalten den
+SVG-Farbfilter (`#landscape-moonlight`, × 0,55/0,62/0,80). Dateien: `krone-herbst-{1000,560}.{avif,webp}` und
 `ferne-herbst-{1400,800}.{avif,webp}` im Satz-Ordner `assets/landschaften/burgberg-herbst/` (AVIF zuerst,
 WebP als Rückfall, `srcset`; nur die aktuelle Jahreszeit wird geladen), `assets/ast.webp` (2800 × 167, links
-pixelgleich mit dem alten Ast). Weitere Jahreszeiten und ganz neue Landschaften kommen über die Redaktion (unten)
+geometrisch unverändert, Weißsaum bereinigt). Weitere Jahreszeiten und ganz neue Landschaften kommen über die Redaktion (unten)
 oder das Werkzeug (`python3 tools/landschaft-bilder.py --set <ordner> --season winter --crown … --distance …
 --skip-birds --skip-branch`, schreibt auch AVIF und trägt die Ebenen in `landschaft.json` ein); fehlt eine
 Jahreszeit, bleibt die Seite ohne diese Ebene nutzbar.
@@ -376,3 +381,21 @@ eigenes Bild hat (das erste Bild im Text hat Vorrang). Die Karte lädt Papier, S
 (GitHub Pages liefert CORS-Freigabe); fehlen sie, entsteht eine schlichte Karte ohne Textur.
 Ausprobieren ohne Anmeldung und ohne GitHub: `node tests/admin_fake.mjs 8789` → http://localhost:8789/admin;
 Prüfung des Editors in Headless-Chrome: `python3 tests/admin_test.py`.
+
+### Reparatur von Anflug und Handychat (22.09.2026)
+Auf schmalen Fenstern hängt die geöffnete Goch-Sprechblase direkt am `body`, damit ihr
+fester Vordergrund nicht in der isolierten Landschaft eingeschlossen bleibt. Auf dem Desktop
+kehrt derselbe DOM-Knoten zum Ast zurück; Gespräch und Ereignisse bleiben erhalten.
+Zusätzliche Prüfungen: `python3 tests/goch-landscape_test.py` (lokaler Webserver auf Port 8788,
+Chrome und websockets) und `python3 tests/landscape-matte_test.py` (Pillow und NumPy).
+Prüfumfang und Bilder stehen in `LANDSCHAFT.md`.
+
+**Nacht direkt beim Laden.** `landscape.js` wird einmal synchron am Ende des `<head>` geladen.
+`prepare()` direkt nach dem öffnenden body berechnet die Anfangspalette mit denselben Sonnen- und
+Farbfunktionen wie das Minuten-Update. `init()` am Ende des body baut die Szene auf, weiterhin vor
+Anflug und Einwilligung. Erst nach dem Anfangszustand aktiviert `landscape-ready` die Farbüberblendung.
+So gibt es nachts keinen hellen Zwischenzustand; es wird weder eine zweite Uhrzeitberechnung
+nachgebaut noch die Seite versteckt. Bei Ladefehler des Skripts bleibt die Grundseite nutzbar.
+Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (einmalig und cachebar).
+`python3 tests/landscape-start_test.py` prüft Nacht, Tag, beide Aus-Schalter und einen Skriptladefehler
+bei deaktiviertem Cache und gedrosseltem Netz.

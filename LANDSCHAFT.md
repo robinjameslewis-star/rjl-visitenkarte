@@ -68,3 +68,43 @@ Inset 0, keine Maske), 2560 und 3840 px. Dazu (Robins Wunsch): Ab 2200 px wachse
 - Live prüfen mit den Vorschau-Links der Redaktion (Mittag, Dämmerung, Nacht, Handy); dann Schalter auf „an“.
 - Weitere Jahreszeiten (Winter bis 1. Dezember) nach README-Abschnitt „Landschaft“.
 - Idee: nachts ein warmer Lichtpunkt an der Burg (Robins Entscheidung).
+
+## Reparatur 22.09.2026: Anflug, Nachtfarben und Handychat
+- Bei eingeschalteter Landschaft beginnt der Anflug rechts unter dem Ast und steigt links der
+  Krone zur unveränderten Landeposition auf. Ohne Landschaft bleibt die bisherige Flugkurve.
+- Alle fünf Vogelbilder und der Ast erhalten denselben nativen Nachtfilter; der bewegte Container
+  hat keinen SVG-Filter mehr. Sieben Stichproben über den Anflug zeigen durchgehend
+  `brightness(0.6) saturate(0.82)` bei voller Nacht.
+- Weißreste am transparenten Rand werden reproduzierbar im Bildskript entfernt. Der helle Bauch
+  bleibt deckend. Am alten Aststück werden nun ebenfalls Randpixel korrigiert: Die frühere
+  Pixelgleichheit gilt dort deshalb nicht mehr; Größe, Lage und Innenzeichnung bleiben erhalten.
+  Vogelbilder zusammen: 595.136 Bytes (Budget 600.000); Ast: 187.020 Bytes, 2800 × 167 px.
+  Die Originale unter `assets/bestand/` bleiben unverändert.
+- Der mobile Chat liegt direkt am body und damit über Name und Kalender. Beim Vergrößern
+  kehrt er zum Ast zurück. Geprüft in Headless Chrome bei 390 und 1440 px, Breitenwechsel auf
+  1024 px; Landschaft an/aus. Ein lokales Kalender-iframe mit eigenem Stapelkontext prüft die
+  Überdeckung; kein Rasterpunkt der mobilen Sprechblase wird verdeckt. Kein Gerätetest in Safari.
+- Bestanden: Flugtests 8, Landschaftstests 15, Site-/Redaktionsprüfungen 17, Bildtests 2;
+  vollständige Goch- und Einwilligungs-Browsertests sowie der neue Landschaft-/Chat-Browserlauf.
+- Backend, site.js und Redaktionsmarken bleiben unberührt. Der veröffentlichte Schalter bleibt aus.
+
+Belege: [Anflug nachts](tests/screenshots/goch-reparatur/1440-nacht-1600.png),
+[Handychat](tests/screenshots/goch-reparatur/390-chat-an.png),
+[Messprotokoll](tests/screenshots/goch-reparatur/report.json).
+
+## Nachtrag 22.09.2026: kein heller Zwischenzustand beim Nachtstart
+Ursache: Die Seite wurde mit Tagespalette gezeichnet; das nachgelagerte Landschaftsskript setzte
+danach die Nachtfarben und startete eine zweisekündige CSS-Überblendung.
+Die Anfangspalette wird jetzt vor sichtbarem Inhalt gesetzt. Für spätere Zeitänderungen bleiben
+die Übergänge erhalten. Szene und Cal.com-Konfiguration starten weiter vor bird-flight.js und site.js.
+
+Browserprüfung bei 390 px, leerem Cache, 250 ms Netzlatenz und 256.000 Bytes/s Download:
+- Nacht: erste gemessene Darstellung RGB 27/34/48 (`#1B2230`), alle 196 beobachteten Frames gleich.
+- Tag: RGB 243/239/229 (`#F3EFE5`) von Beginn an.
+- URL-Schalter aus und body-Schalter aus: helle Grundseite, keine Nachtüberblendung.
+- Blockiertes landscape.js: Inhalt bleibt sichtbar, keine JavaScript-Folgekaskade.
+- Übergänge anfangs 0 s, danach 2 s; keine Fremdanfragen im Starttest.
+
+Zusätzlich erneut bestanden: Anflug-/Handychat-Browserlauf, Einwilligungs-Browserlauf, 8 Flugtests,
+15 Landschaftstests, 17 Site-/Redaktionsprüfungen und Worker-Bündeltest (nur lokal, kein Deployment).
+Messprotokoll: [Nachtstart](tests/screenshots/goch-reparatur/nachtstart-report.json).

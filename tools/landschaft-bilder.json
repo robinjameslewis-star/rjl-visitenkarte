@@ -1,21 +1,25 @@
 {
-  "pipeline_version": 3,
+  "pipeline_version": 4,
   "season": "herbst",
   "runtime": {
     "pillow": "12.3.0",
-    "numpy": "2.5.3",
+    "numpy": "2.3.5",
     "avif_encoder": true
   },
   "method": {
     "color_to_alpha": "a = 1 - min(R,G,B)/255; f = (rgb - (1-a)*255)/a",
     "near_white_cleanup": "min(R,G,B) >= 250 und max(rgb)-min(rgb) <= 5 → Alpha 0",
     "figure_matte": "Vögel und Ast-Verlängerung: Silhouette per Flutfüllung vom Bildrand (min(R,G,B) >= 246 = Hintergrund), innen Alpha 1 mit Originalfarbe, Saum 2 px: Deckung aus naher Innenfarbe geschätzt (kleinste Quadrate, Umkreis 3 px), Untergrenze Farbe-zu-Alpha, Saumfarbe vom Weiß befreit. Krone und Ferne bleiben Farbe-zu-Alpha (Papier scheint durch).",
+    "fringe_cleanup": "3px Alpha-Randsaum bei Vögeln und gesamtem Ast zusätzlich Farbe-zu-Alpha; deckende Innenflächen unverändert.",
     "existing_alpha": "Ausgangsalpha wird multipliziert; Vögel immer aus unverändertem Bestand.",
     "resampling": "Lanczos; source RGB vor CTA; Ast RGBA/Pillow (vorgewichtetes Alpha)",
     "prefilter": "Krone 1px bei 1000px, 0.5px bei 560px; Vögel und Ferne ohne Vorfilter.",
     "webp_alpha_quality": "40 für Krone, 90 für Vögel, 100 für Ferne; Ast vollständig verlustfrei.",
     "avif": "Qualität 82, speed 4, YUV 4:2:0",
-    "webp_rgb_quality": 83,
+    "webp_rgb_quality": {
+      "landscape": 83,
+      "birds": 82
+    },
     "paper_rgb": [
       243,
       239,
@@ -57,320 +61,6 @@
     }
   },
   "images": [
-    {
-      "source": "assets/bestand/vogel.webp",
-      "source_sha256": "aa83e830d9d9cba3847e67d778d3eb163ad3da0caece99f978187ac1eebc8576",
-      "source_bytes": 66458,
-      "source_size": [
-        1153,
-        637
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.807068,
-      "source_white_mean_rgb": [
-        254.9732,
-        254.98,
-        254.9756
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        272,
-        24,
-        915,
-        635
-      ],
-      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
-      "crop": [
-        0,
-        0,
-        1153,
-        637
-      ],
-      "outputs": [
-        {
-          "file": "assets/vogel.webp",
-          "size": [
-            1153,
-            637
-          ],
-          "bytes": 53330,
-          "quality": 83,
-          "alpha_quality": 90,
-          "sha256": "127daddc34cd05b8af6434c3a77de75b1ebd1cbdc0d0fe548ffb18b83aeed438",
-          "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.70889,
-          "alpha_min": 0,
-          "alpha_max": 255,
-          "alpha_mean": 47.2148,
-          "transparent_fraction": 0.810063,
-          "partial_alpha_fraction": 0.007823
-        }
-      ]
-    },
-    {
-      "source": "assets/bestand/flugpose-1-aufschlag.webp",
-      "source_sha256": "89632a73b3c5b07d97a1d5831ed069218501cbb265f773dc09ae9415fab63682",
-      "source_bytes": 103286,
-      "source_size": [
-        1536,
-        1024
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.795409,
-      "source_white_mean_rgb": [
-        253.9911,
-        253.9913,
-        253.9921
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        446,
-        45,
-        1190,
-        868
-      ],
-      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
-      "crop": [
-        0,
-        0,
-        1536,
-        1024
-      ],
-      "outputs": [
-        {
-          "file": "assets/flugpose-1-aufschlag.webp",
-          "size": [
-            1536,
-            1024
-          ],
-          "bytes": 108880,
-          "quality": 83,
-          "alpha_quality": 90,
-          "sha256": "c1f7be5d9be6735cc863c2f3274b421b06c0eb57624dc3f570a99b87caeb89fa",
-          "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.51116,
-          "alpha_min": 0,
-          "alpha_max": 255,
-          "alpha_mean": 50.8427,
-          "transparent_fraction": 0.797907,
-          "partial_alpha_fraction": 0.00463
-        }
-      ]
-    },
-    {
-      "source": "assets/bestand/flugpose-2-gleiten.webp",
-      "source_sha256": "ccaa59ed3d1a6440b517aadcfe6f62db8125438e735f5972877ecc80b2ba04f9",
-      "source_bytes": 113332,
-      "source_size": [
-        1536,
-        1024
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.777707,
-      "source_white_mean_rgb": [
-        253.9815,
-        253.9822,
-        253.9814
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        52,
-        248,
-        1476,
-        823
-      ],
-      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
-      "crop": [
-        0,
-        0,
-        1536,
-        1024
-      ],
-      "outputs": [
-        {
-          "file": "assets/flugpose-2-gleiten.webp",
-          "size": [
-            1536,
-            1024
-          ],
-          "bytes": 116562,
-          "quality": 83,
-          "alpha_quality": 90,
-          "sha256": "834f9ce2f392353cb4ee8a8b9fbc03bbdeb397ff056e557bfc0aa9826036f59d",
-          "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.58219,
-          "alpha_min": 0,
-          "alpha_max": 255,
-          "alpha_mean": 55.1992,
-          "transparent_fraction": 0.780516,
-          "partial_alpha_fraction": 0.004966
-        }
-      ]
-    },
-    {
-      "source": "assets/bestand/flugpose-3-abschlag.webp",
-      "source_sha256": "d4f05c80bd5eedbb9eb898688ba112fec0237233b49b53afee73b0ecf74673e9",
-      "source_bytes": 76802,
-      "source_size": [
-        1536,
-        1024
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.833222,
-      "source_white_mean_rgb": [
-        254.0401,
-        254.0414,
-        254.0413
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        316,
-        241,
-        1188,
-        927
-      ],
-      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
-      "crop": [
-        0,
-        0,
-        1536,
-        1024
-      ],
-      "outputs": [
-        {
-          "file": "assets/flugpose-3-abschlag.webp",
-          "size": [
-            1536,
-            1024
-          ],
-          "bytes": 80614,
-          "quality": 83,
-          "alpha_quality": 90,
-          "sha256": "738a7b0e0a6b60681c6991ef96082690b68e6775a3655e2acb4953332ec0b3e9",
-          "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.41061,
-          "alpha_min": 0,
-          "alpha_max": 255,
-          "alpha_mean": 41.2468,
-          "transparent_fraction": 0.835833,
-          "partial_alpha_fraction": 0.00397
-        }
-      ]
-    },
-    {
-      "source": "assets/bestand/flugpose-4-landeanflug.webp",
-      "source_sha256": "2f5a953d78db8e0a812111bc434f86ca4d7531b2467c654718b394352438dd00",
-      "source_bytes": 144982,
-      "source_size": [
-        1536,
-        1024
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.731311,
-      "source_white_mean_rgb": [
-        254.0178,
-        254.0196,
-        254.0197
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        412,
-        55,
-        1401,
-        919
-      ],
-      "matte": "opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung",
-      "crop": [
-        0,
-        0,
-        1536,
-        1024
-      ],
-      "outputs": [
-        {
-          "file": "assets/flugpose-4-landeanflug.webp",
-          "size": [
-            1536,
-            1024
-          ],
-          "bytes": 151274,
-          "quality": 83,
-          "alpha_quality": 90,
-          "sha256": "520ddd7b08361c16d662eb30290b43f9b8625acfd3fe9b4ad9ed76617ae18663",
-          "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.6843,
-          "alpha_min": 0,
-          "alpha_max": 255,
-          "alpha_mean": 66.5355,
-          "transparent_fraction": 0.735612,
-          "partial_alpha_fraction": 0.005953
-        }
-      ]
-    },
-    {
-      "source": "tools/landschaft-ast-quelle.webp",
-      "source_sha256": "2c81f5e57685944bb17777c37717e8261895872799348c1d0f190f4cec561f40",
-      "source_bytes": 326616,
-      "source_size": [
-        2172,
-        724
-      ],
-      "source_mode": "RGB",
-      "white_threshold_rgb_each_channel_at_least": 250,
-      "source_white_fraction": 0.963709,
-      "source_white_mean_rgb": [
-        254.2351,
-        254.2207,
-        254.2366
-      ],
-      "content_bbox_threshold_min_channel_below": 245,
-      "content_bbox": [
-        37,
-        240,
-        2172,
-        405
-      ],
-      "generation_provenance": "OpenAI Imagegen, 20.09.2026, exec-4f13beb2-c737-4585-8a67-9ac03f1016d9",
-      "source_storage": "tools/landschaft-ast-quelle.webp: verlustfreie RGB-Kopie der generierten PNG-Quelle",
-      "crop": [
-        950,
-        270,
-        2172,
-        410
-      ],
-      "extension_uniform_scale": 1.5842880523731588,
-      "original_prefix_width": 864,
-      "original_prefix_height": 167,
-      "blend_x_start_inclusive": 864,
-      "blend_x_end_exclusive": 1000,
-      "join": "Hauptlinie spaltenweise ausgerichtet, lokale Aststärke 0.65→1 über 250px, vormultiplizierte Alphablende.",
-      "original_prefix_rgba_sha256": "7fbda02e5e52875281223282ffac64d9d32197ca34366c4f477b2a1d972e4107",
-      "output_prefix_rgba_sha256": "7fbda02e5e52875281223282ffac64d9d32197ca34366c4f477b2a1d972e4107",
-      "prefix_pixels_identical_fraction": 1.0,
-      "outputs": [
-        {
-          "file": "assets/ast.webp",
-          "size": [
-            2800,
-            167
-          ],
-          "bytes": 183428,
-          "sha256": "309020e78027b80f304d30da99b960c86816d553a2126f1ed09db0887a574346",
-          "lossless": true,
-          "exact": true,
-          "alpha_min": 0,
-          "alpha_max": 255,
-          "alpha_mean": 53.9823,
-          "transparent_fraction": 0.746441,
-          "partial_alpha_fraction": 0.07759
-        }
-      ]
-    },
     {
       "source": "16_Krone_Herbst.png",
       "source_sha256": "15300c1f734fbe60ef6295ff60e61a6c8f31572824c13981efa561eaed7df822",
@@ -598,12 +288,328 @@
           "source_prefilter_gaussian_radius_px_at_export_size": 0.0
         }
       ]
+    },
+    {
+      "source": "assets/bestand/vogel.webp",
+      "source_sha256": "aa83e830d9d9cba3847e67d778d3eb163ad3da0caece99f978187ac1eebc8576",
+      "source_bytes": 66458,
+      "source_size": [
+        1153,
+        637
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.807068,
+      "source_white_mean_rgb": [
+        254.9732,
+        254.98,
+        254.9756
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        272,
+        24,
+        915,
+        635
+      ],
+      "matte": "opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit",
+      "crop": [
+        0,
+        0,
+        1153,
+        637
+      ],
+      "outputs": [
+        {
+          "file": "assets/vogel.webp",
+          "size": [
+            1153,
+            637
+          ],
+          "bytes": 62354,
+          "quality": 82,
+          "alpha_quality": 90,
+          "sha256": "884dcd027832d58d184bb24332a4f1954c9285e7d84cbdb78b9ab728879101db",
+          "byte_limit": null,
+          "paper_composite_mean_abs_error_rgb": 0.71429,
+          "alpha_min": 0,
+          "alpha_max": 255,
+          "alpha_mean": 45.5785,
+          "transparent_fraction": 0.810077,
+          "partial_alpha_fraction": 0.024317
+        }
+      ]
+    },
+    {
+      "source": "assets/bestand/flugpose-1-aufschlag.webp",
+      "source_sha256": "89632a73b3c5b07d97a1d5831ed069218501cbb265f773dc09ae9415fab63682",
+      "source_bytes": 103286,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.795409,
+      "source_white_mean_rgb": [
+        253.9911,
+        253.9913,
+        253.9921
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        446,
+        45,
+        1190,
+        868
+      ],
+      "matte": "opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit",
+      "crop": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "outputs": [
+        {
+          "file": "assets/flugpose-1-aufschlag.webp",
+          "size": [
+            1536,
+            1024
+          ],
+          "bytes": 125900,
+          "quality": 82,
+          "alpha_quality": 90,
+          "sha256": "4271e18d3346a0baf198088da756d9b8a7a33fc0029c65c12ef98a7700262f1e",
+          "byte_limit": null,
+          "paper_composite_mean_abs_error_rgb": 0.56618,
+          "alpha_min": 0,
+          "alpha_max": 255,
+          "alpha_mean": 49.2349,
+          "transparent_fraction": 0.797918,
+          "partial_alpha_fraction": 0.017753
+        }
+      ]
+    },
+    {
+      "source": "assets/bestand/flugpose-2-gleiten.webp",
+      "source_sha256": "ccaa59ed3d1a6440b517aadcfe6f62db8125438e735f5972877ecc80b2ba04f9",
+      "source_bytes": 113332,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.777707,
+      "source_white_mean_rgb": [
+        253.9815,
+        253.9822,
+        253.9814
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        52,
+        248,
+        1476,
+        823
+      ],
+      "matte": "opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit",
+      "crop": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "outputs": [
+        {
+          "file": "assets/flugpose-2-gleiten.webp",
+          "size": [
+            1536,
+            1024
+          ],
+          "bytes": 134594,
+          "quality": 82,
+          "alpha_quality": 90,
+          "sha256": "74898debdfb9d70233f760577dfbe58c7df8f0754756709551a12435cf3db9a5",
+          "byte_limit": null,
+          "paper_composite_mean_abs_error_rgb": 0.63349,
+          "alpha_min": 0,
+          "alpha_max": 255,
+          "alpha_mean": 53.6256,
+          "transparent_fraction": 0.780537,
+          "partial_alpha_fraction": 0.018666
+        }
+      ]
+    },
+    {
+      "source": "assets/bestand/flugpose-3-abschlag.webp",
+      "source_sha256": "d4f05c80bd5eedbb9eb898688ba112fec0237233b49b53afee73b0ecf74673e9",
+      "source_bytes": 76802,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.833222,
+      "source_white_mean_rgb": [
+        254.0401,
+        254.0414,
+        254.0413
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        316,
+        241,
+        1188,
+        927
+      ],
+      "matte": "opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit",
+      "crop": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "outputs": [
+        {
+          "file": "assets/flugpose-3-abschlag.webp",
+          "size": [
+            1536,
+            1024
+          ],
+          "bytes": 95474,
+          "quality": 82,
+          "alpha_quality": 90,
+          "sha256": "1d2003239f0009bf6a52ca5499ac9b52e900853379d8b5206f68a2a7f1aa26a3",
+          "byte_limit": null,
+          "paper_composite_mean_abs_error_rgb": 0.44908,
+          "alpha_min": 0,
+          "alpha_max": 255,
+          "alpha_mean": 39.9794,
+          "transparent_fraction": 0.835841,
+          "partial_alpha_fraction": 0.015214
+        }
+      ]
+    },
+    {
+      "source": "assets/bestand/flugpose-4-landeanflug.webp",
+      "source_sha256": "2f5a953d78db8e0a812111bc434f86ca4d7531b2467c654718b394352438dd00",
+      "source_bytes": 144982,
+      "source_size": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.731311,
+      "source_white_mean_rgb": [
+        254.0178,
+        254.0196,
+        254.0197
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        412,
+        55,
+        1401,
+        919
+      ],
+      "matte": "opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit",
+      "crop": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "outputs": [
+        {
+          "file": "assets/flugpose-4-landeanflug.webp",
+          "size": [
+            1536,
+            1024
+          ],
+          "bytes": 176814,
+          "quality": 82,
+          "alpha_quality": 90,
+          "sha256": "97da5a88de92b09a2806800cfbf59795c9367cf55c2380e5ed6239788aabc753",
+          "byte_limit": null,
+          "paper_composite_mean_abs_error_rgb": 0.74719,
+          "alpha_min": 0,
+          "alpha_max": 255,
+          "alpha_mean": 64.1949,
+          "transparent_fraction": 0.735627,
+          "partial_alpha_fraction": 0.025522
+        }
+      ]
+    },
+    {
+      "source": "tools/landschaft-ast-quelle.webp",
+      "source_sha256": "2c81f5e57685944bb17777c37717e8261895872799348c1d0f190f4cec561f40",
+      "source_bytes": 326616,
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_mode": "RGB",
+      "white_threshold_rgb_each_channel_at_least": 250,
+      "source_white_fraction": 0.963709,
+      "source_white_mean_rgb": [
+        254.2351,
+        254.2207,
+        254.2366
+      ],
+      "content_bbox_threshold_min_channel_below": 245,
+      "content_bbox": [
+        37,
+        240,
+        2172,
+        405
+      ],
+      "generation_provenance": "OpenAI Imagegen, 20.09.2026, exec-4f13beb2-c737-4585-8a67-9ac03f1016d9",
+      "source_storage": "tools/landschaft-ast-quelle.webp: verlustfreie RGB-Kopie der generierten PNG-Quelle",
+      "crop": [
+        950,
+        270,
+        2172,
+        410
+      ],
+      "extension_uniform_scale": 1.5842880523731588,
+      "original_prefix_width": 864,
+      "original_prefix_height": 167,
+      "blend_x_start_inclusive": 864,
+      "blend_x_end_exclusive": 1000,
+      "join": "Hauptlinie spaltenweise ausgerichtet, lokale Aststärke 0.65→1 über 250px, vormultiplizierte Alphablende.",
+      "original_prefix_rgba_sha256": "7fbda02e5e52875281223282ffac64d9d32197ca34366c4f477b2a1d972e4107",
+      "output_prefix_rgba_sha256": "cdc419ac9a055bdd19b744b96a6a0dbfd10d94208693e2489696374c27f531fe",
+      "prefix_pixels_identical_fraction": 0.909112330893768,
+      "prefix_edge_correction": "22.09.2026: Weißsaum auch im bisherigen Präfix entfernt; Pixelpositionen und deckende Innenflächen bleiben erhalten.",
+      "outputs": [
+        {
+          "file": "assets/ast.webp",
+          "size": [
+            2800,
+            167
+          ],
+          "bytes": 187020,
+          "sha256": "046c168458b7ae5805b6d2aee066a66a362dc1891ca54ecf2df2f05dcdefe9cd",
+          "lossless": true,
+          "exact": true,
+          "alpha_min": 0,
+          "alpha_max": 255,
+          "alpha_mean": 50.0772,
+          "transparent_fraction": 0.748028,
+          "partial_alpha_fraction": 0.103785
+        }
+      ]
     }
   ],
   "landscape_set": "burgberg-herbst",
   "available_seasons": [
-    "herbst"
+    "herbst",
+    "winter"
   ],
-  "total_output_bytes": 1296443,
-  "bird_webp_bytes": 510660
+  "total_output_bytes": 1384511,
+  "bird_webp_bytes": 595136
 }

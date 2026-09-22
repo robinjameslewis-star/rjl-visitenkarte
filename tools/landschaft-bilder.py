@@ -116,6 +116,26 @@ def opaque_cutout(image: Image.Image, background: int = 246, rim: int = 2, reach
     return Image.fromarray(np.rint(out).astype(np.uint8), 'RGBA')
 
 
+def remove_white_fringe(image: Image.Image, rim: int = 3) -> Image.Image:
+    """Nur der Alpha-Randsaum wird vom eingemischten Weiß befreit; deckende Innenfarben bleiben.
+
+    Die alte Astquelle enthält bereits einen weißen Saum in ihrem Alpha. Darum nach dem
+    Zusammensetzen anwenden, auch auf das Originalpräfix. Geometrie und Landepunkt ändern sich nicht.
+    """
+    pixels = np.asarray(image.convert('RGBA'), dtype=np.float32)
+    rgb, alpha = pixels[:, :, :3], pixels[:, :, 3] / 255.0
+    solid = Image.fromarray(np.where(alpha >= .98, 255, 0).astype(np.uint8))
+    core = np.asarray(solid.filter(ImageFilter.MinFilter(2*rim+1))) == 255
+    edge = (~core) & (alpha > 0)
+    coverage = 1.0 - rgb.min(axis=2) / 255.0
+    unmatted = np.zeros_like(rgb)
+    np.divide(rgb - (1-coverage[:, :, None])*255, coverage[:, :, None],
+              out=unmatted, where=coverage[:, :, None] > 0)
+    result = np.dstack((np.where(edge[:, :, None], np.clip(unmatted, 0, 255), rgb),
+                       np.where(edge, alpha*coverage, alpha)*255))
+    return Image.fromarray(np.rint(result).astype(np.uint8), 'RGBA')
+
+
 def bbox_below_white(image: Image.Image, threshold: int = 245) -> tuple[int, int, int, int]:
     rgb = np.asarray(image.convert('RGB'))
     y, x = np.where(rgb.min(axis=2) < threshold)
@@ -280,11 +300,11 @@ def build_birds(repo: Path, output: Path) -> list[dict]:
             continue
         path = repo / 'assets/bestand' / name
         source = Image.open(path)
-        cutout = opaque_cutout(source)  # deckend: der helle Bauch darf Blätter und Nachthimmel nicht durchscheinen lassen
+        cutout = remove_white_fringe(opaque_cutout(source))  # deckend: der helle Bauch darf Blätter und Nachthimmel nicht durchscheinen lassen
         report = source_stats(path, source)
-        report['matte'] = 'opaque_cutout: Silhouette per Flutfüllung, innen Alpha 1, Saum 2 px mit geschätzter Deckung'
+        report['matte'] = 'opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit'
         report['crop'] = [0, 0, *source.size]
-        report['outputs'] = [export(cutout, output/name, 83, alpha_quality=ALPHA_QUALITY_BIRDS)]
+        report['outputs'] = [export(cutout, output/name, 82, alpha_quality=ALPHA_QUALITY_BIRDS)]
         reports.append(report)
     total = sum(r['outputs'][0]['bytes'] for r in reports)
     if total > 600000:
@@ -335,14 +355,14 @@ def build_branch(path: Path, repo: Path, output: Path) -> dict:
     result[:,start:start+blend]=mix*255
     result=np.rint(np.clip(result,0,255)).astype(np.uint8)
     result[:,:start]=original[:,:start].astype(np.uint8)
-    image = Image.fromarray(result, 'RGBA')
+    image = remove_white_fringe(Image.fromarray(result, 'RGBA'))
     destination = output/'ast.webp'
     image.save(destination, lossless=True, quality=100, method=6, exact=True)
     decoded = Image.open(destination).convert('RGBA')
     original_prefix = original[:, :start].astype(np.uint8).tobytes()
     output_prefix = np.asarray(decoded)[:, :start].tobytes()
-    if output_prefix != original_prefix:
-        raise ValueError('Ast-Präfix wurde beim Export verändert.')
+    if np.asarray(decoded).tobytes() != np.asarray(image).tobytes():
+        raise ValueError('Ast wurde beim verlustfreien Export verändert.')
     report = source_stats(path, source)
     report.update({
         'generation_provenance': 'OpenAI Imagegen, 20.09.2026, exec-4f13beb2-c737-4585-8a67-9ac03f1016d9',
@@ -353,7 +373,8 @@ def build_branch(path: Path, repo: Path, output: Path) -> dict:
         'join': 'Hauptlinie spaltenweise ausgerichtet, lokale Aststärke 0.65→1 über 250px, vormultiplizierte Alphablende.',
         'original_prefix_rgba_sha256': digest(original_prefix),
         'output_prefix_rgba_sha256': digest(output_prefix),
-        'prefix_pixels_identical_fraction': 1.0,
+        'prefix_pixels_identical_fraction': float(np.all(np.asarray(decoded)[:, :start] == original[:, :start], axis=2).mean()),
+        'prefix_edge_correction': '22.09.2026: Weißsaum auch im bisherigen Präfix entfernt; Pixelpositionen und deckende Innenflächen bleiben erhalten.',
         'outputs': [{
             'file': report_label(destination), 'size': [width, height],
             'bytes': destination.stat().st_size, 'sha256': digest(destination.read_bytes()),
@@ -403,18 +424,19 @@ def main() -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     avif = not args.no_avif and features.check('avif')
     report = {
-        'pipeline_version': 3, 'season': args.season,
+        'pipeline_version': 4, 'season': args.season,
         'runtime': {'pillow': pillow_version, 'numpy': np.__version__, 'avif_encoder': avif},
         'method': {
             'color_to_alpha': 'a = 1 - min(R,G,B)/255; f = (rgb - (1-a)*255)/a',
             'near_white_cleanup': 'min(R,G,B) >= 250 und max(rgb)-min(rgb) <= 5 → Alpha 0',
             'figure_matte': 'Vögel und Ast-Verlängerung: Silhouette per Flutfüllung vom Bildrand (min(R,G,B) >= 246 = Hintergrund), innen Alpha 1 mit Originalfarbe, Saum 2 px: Deckung aus naher Innenfarbe geschätzt (kleinste Quadrate, Umkreis 3 px), Untergrenze Farbe-zu-Alpha, Saumfarbe vom Weiß befreit. Krone und Ferne bleiben Farbe-zu-Alpha (Papier scheint durch).',
+            'fringe_cleanup': '3px Alpha-Randsaum bei Vögeln und gesamtem Ast zusätzlich Farbe-zu-Alpha; deckende Innenflächen unverändert.',
             'existing_alpha': 'Ausgangsalpha wird multipliziert; Vögel immer aus unverändertem Bestand.',
             'resampling': 'Lanczos; source RGB vor CTA; Ast RGBA/Pillow (vorgewichtetes Alpha)',
             'prefilter': 'Krone 1px bei 1000px, 0.5px bei 560px; Vögel und Ferne ohne Vorfilter.',
             'webp_alpha_quality': f'40 für Krone, {ALPHA_QUALITY_BIRDS} für Vögel, 100 für Ferne; Ast vollständig verlustfrei.',
             'avif': 'Qualität 82, speed 4, YUV 4:2:0',
-            'webp_rgb_quality': 83, 'paper_rgb': PAPER.astype(int).tolist(),
+            'webp_rgb_quality': {'landscape': 83, 'birds': 82}, 'paper_rgb': PAPER.astype(int).tolist(),
             'crop_coordinates': '[links, oben, rechts exklusiv, unten exklusiv]',
             'fallback': f'assets/bestand enthält byteidentische Originale aus Git {ORIGINAL_REF}.',
         },

@@ -52,11 +52,13 @@
       const p = clamp(elapsed / flightDuration);
       // A continuous curve with a soft deceleration; no pauses between waypoints.
       const t = 1 - Math.pow(1 - p, 1.65);
-      // Enter from the upper right and travel down-left toward the perch.
-      const startX = w * .58;
-      const startY = -Math.min(bounds.top + w * .12, w * .72);
-      let x = bezier(startX, w * .34, w * .10, 0, t);
-      let y = bezier(startY, -w * .20, -w * .06, 0, t);
+      // Mit Krone kommt Goch von rechts unter dem Ast und steigt erst links der Krone zur Landung.
+      // Ohne Landschaft bleibt der bisherige Anflug erhalten. Beide Bahnen enden exakt am selben Ort.
+      const low = scene.dataset.flightRoute === 'under-branch';
+      const startX = w * (low ? 1.6 : .58);
+      const startY = low ? w * .70 : -Math.min(bounds.top + w * .12, w * .72);
+      let x = bezier(startX, w * (low ? .45 : .34), w * (low ? -.24 : .10), 0, t);
+      let y = bezier(startY, w * (low ? .65 : -.20), w * (low ? -.08 : -.06), 0, t);
       const glide = p >= .32 && p < .57;
       const braking = p >= .79;
       const cycle = elapsed / (p < .32 ? 265 : 310);

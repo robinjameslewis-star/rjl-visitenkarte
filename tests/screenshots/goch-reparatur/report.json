@@ -1,0 +1,506 @@
+[
+  {
+    "width": 1440,
+    "mode": "an",
+    "flight": [
+      {
+        "t": 0,
+        "pose": "up",
+        "route": "under-branch",
+        "state": "flapping",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(854.05px, 373.65px, 0px) scale(0.57)"
+      },
+      {
+        "t": 700,
+        "pose": "down",
+        "route": "under-branch",
+        "state": "flapping",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(429.74px, 291.64px, 0px) scale(0.608)"
+      },
+      {
+        "t": 1600,
+        "pose": "glide",
+        "route": "under-branch",
+        "state": "gliding",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(108.4px, 131.87px, 0px) scale(0.733)"
+      },
+      {
+        "t": 2600,
+        "pose": "glide",
+        "route": "under-branch",
+        "state": "flapping",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(-18.66px, 23.51px, 0px) scale(0.8962)"
+      },
+      {
+        "t": 3500,
+        "pose": "landing",
+        "route": "under-branch",
+        "state": "braking",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(-15.99px, -1.2px, 0px) scale(0.9914)"
+      },
+      {
+        "t": 4190,
+        "pose": "landing",
+        "route": "under-branch",
+        "state": "braking",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(-0.02px, -0.01px, 0px) scale(1)"
+      },
+      {
+        "t": 5200,
+        "pose": "rest",
+        "route": "under-branch",
+        "state": "rest",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": ""
+      }
+    ],
+    "chat": {
+      "parent": "DIV",
+      "hidden": false,
+      "covered": [],
+      "position": "absolute",
+      "width": 400,
+      "height": 361.4375
+    }
+  },
+  {
+    "width": 1440,
+    "mode": "aus",
+    "flight": [
+      {
+        "t": 0,
+        "pose": "up",
+        "route": "",
+        "state": "flapping",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(309.59px, -217.05px, 0px) scale(0.57)"
+      },
+      {
+        "t": 700,
+        "pose": "down",
+        "route": "",
+        "state": "flapping",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(211.06px, -140.07px, 0px) scale(0.608)"
+      },
+      {
+        "t": 1600,
+        "pose": "glide",
+        "route": "",
+        "state": "gliding",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(111.68px, -71.68px, 0px) scale(0.733)"
+      },
+      {
+        "t": 2600,
+        "pose": "glide",
+        "route": "",
+        "state": "flapping",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(41.23px, -22.2px, 0px) scale(0.8962)"
+      },
+      {
+        "t": 3500,
+        "pose": "landing",
+        "route": "",
+        "state": "braking",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(8.92px, -3.28px, 0px) scale(0.9914)"
+      },
+      {
+        "t": 4190,
+        "pose": "landing",
+        "route": "",
+        "state": "braking",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(0.01px, -0.01px, 0px) scale(1)"
+      },
+      {
+        "t": 5200,
+        "pose": "rest",
+        "route": "",
+        "state": "rest",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": ""
+      }
+    ],
+    "chat": {
+      "parent": "DIV",
+      "hidden": false,
+      "covered": [],
+      "position": "absolute",
+      "width": 400,
+      "height": 361.4375
+    }
+  },
+  {
+    "width": 390,
+    "mode": "an",
+    "flight": [
+      {
+        "t": 0,
+        "pose": "up",
+        "route": "under-branch",
+        "state": "flapping",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(549.15px, 240.25px, 0px) scale(0.57)"
+      },
+      {
+        "t": 700,
+        "pose": "down",
+        "route": "under-branch",
+        "state": "flapping",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(276.32px, 187.52px, 0px) scale(0.608)"
+      },
+      {
+        "t": 1600,
+        "pose": "glide",
+        "route": "under-branch",
+        "state": "gliding",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(69.7px, 84.79px, 0px) scale(0.733)"
+      },
+      {
+        "t": 2600,
+        "pose": "glide",
+        "route": "under-branch",
+        "state": "flapping",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(-12px, 15.12px, 0px) scale(0.8962)"
+      },
+      {
+        "t": 3500,
+        "pose": "landing",
+        "route": "under-branch",
+        "state": "braking",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(-10.28px, -0.77px, 0px) scale(0.9914)"
+      },
+      {
+        "t": 4190,
+        "pose": "landing",
+        "route": "under-branch",
+        "state": "braking",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": "translate3d(-0.01px, -0.01px, 0px) scale(1)"
+      },
+      {
+        "t": 5200,
+        "pose": "rest",
+        "route": "under-branch",
+        "state": "rest",
+        "filter": [
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)",
+          "brightness(0.6) saturate(0.82)"
+        ],
+        "branch": "brightness(0.6) saturate(0.82)",
+        "move": "none",
+        "transform": ""
+      }
+    ],
+    "chat": {
+      "parent": "BODY",
+      "hidden": false,
+      "covered": [],
+      "position": "fixed",
+      "width": 335.40625,
+      "height": 371.421875
+    }
+  },
+  {
+    "width": 390,
+    "mode": "aus",
+    "flight": [
+      {
+        "t": 0,
+        "pose": "up",
+        "route": "",
+        "state": "flapping",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(199.07px, -186.19px, 0px) scale(0.57)"
+      },
+      {
+        "t": 700,
+        "pose": "down",
+        "route": "",
+        "state": "flapping",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(135.71px, -108.97px, 0px) scale(0.608)"
+      },
+      {
+        "t": 1600,
+        "pose": "glide",
+        "route": "",
+        "state": "gliding",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(71.81px, -50.43px, 0px) scale(0.733)"
+      },
+      {
+        "t": 2600,
+        "pose": "glide",
+        "route": "",
+        "state": "flapping",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(26.51px, -14.67px, 0px) scale(0.8962)"
+      },
+      {
+        "t": 3500,
+        "pose": "landing",
+        "route": "",
+        "state": "braking",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(5.74px, -2.11px, 0px) scale(0.9914)"
+      },
+      {
+        "t": 4190,
+        "pose": "landing",
+        "route": "",
+        "state": "braking",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": "translate3d(0px, 0px, 0px) scale(1)"
+      },
+      {
+        "t": 5200,
+        "pose": "rest",
+        "route": "",
+        "state": "rest",
+        "filter": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ],
+        "branch": "none",
+        "move": "none",
+        "transform": ""
+      }
+    ],
+    "chat": {
+      "parent": "BODY",
+      "hidden": false,
+      "covered": [],
+      "position": "fixed",
+      "width": 335.40625,
+      "height": 371.421875
+    }
+  }
+]

@@ -278,6 +278,8 @@
   }
   .landscape-on body, .landscape-on .consent-banner, .landscape-on .goch {
     background-blend-mode: multiply;
+  }
+  .landscape-ready body, .landscape-ready .consent-banner, .landscape-ready .goch {
     transition: background-color 2s, color 2s, border-color 2s;
   }
   .landscape-on .stage { isolation: isolate; }
@@ -293,9 +295,12 @@
   .landscape-on .goch::after { bottom: auto; top: 28px; }
   .landscape-on .branch { width: 242.8447528%; transform-origin: 20.5892857% 35%; }
   .landscape-on .branch img { max-width: none; }
-  .landscape-on .bird-move, .landscape-on .branch, .landscape-picture, .landscape-particles {
-    filter: url(#landscape-moonlight); transition: filter 2s;
+  /* Native Filter auf den einzelnen Bildern: keine SVG-Filterfläche auf dem bewegten Flugcontainer.
+     So werden auch außerhalb der Szene liegende Flugposen vom ersten Frame an gleich abgedunkelt. */
+  .landscape-on .bird-frame, .landscape-on .branch img {
+    filter: brightness(calc(1 - var(--nacht) * .40)) saturate(calc(1 - var(--nacht) * .18));
   }
+  .landscape-picture, .landscape-particles { filter: url(#landscape-moonlight); }
   .landscape { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
   .landscape-svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
   .landscape-sky {
@@ -347,8 +352,11 @@
   }
 
 </style>
+<!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
+<script src="landscape.js?v=20260922b"></script>
 </head>
-<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-landschaft="aus" data-landschaft-satz="burgberg-herbst" data-version="20260921e">
+<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-landschaft="aus" data-landschaft-satz="burgberg-herbst" data-version="20260922b">
+<script>window.RJLLandscape?.prepare();</script>
 
 <nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 <!-- Sprachwahl als Flaggen (Robin, 21.09.2026): links oben vor dem Menü, damit sie nicht in der Krone untergeht. Text bleibt für Vorlesen und Suchmaschinen. -->
@@ -474,11 +482,11 @@
 </section>
 
 
-<script src="landscape.js?v=20260921c" defer></script>
-<script src="bird-flight.js?v=20260918" defer onerror="document.documentElement.classList.remove('js')"></script>
+<script>window.RJLLandscape?.init();</script>
+<script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
 <script src="language.js?v=20260919b" defer></script>
 <script src="site.js?v=20260918" defer></script>
-<script src="goch.js?v=20260920" defer></script>
+<script src="goch.js?v=20260922" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 </body>
 </html>
