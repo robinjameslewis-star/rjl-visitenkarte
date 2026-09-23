@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import {evaluateMemberAccess,canUseInvoicePurchase,formOfAddress,canDisplayCaioAffiliation,relevantArticles,PILOT_END} from '../prototypes/member-policy.mjs';
+const trial={kind:'pilot',startsAt:'2026-10-15T00:00:00+02:00',endsAt:PILOT_END,redeemedAt:'2026-10-15T00:00:00+02:00',revoked:false};
+const paid={startsAt:'2027-01-31T23:00:00Z',endsAt:'2027-02-28T23:00:00Z',paymentState:'settled',revoked:false};
+const base={authenticated:true,accountState:'enabled',now:'2027-01-31T22:59:59Z'};
+assert.equal(evaluateMemberAccess({...base,trial}).basis,'pilot');
+const expired=evaluateMemberAccess({...base,trial,now:PILOT_END});
+assert.equal(expired.member,false);
+assert.equal(expired.billing,true);
+assert.equal(expired.contractDocuments,true);
+assert.equal(evaluateMemberAccess({...base,trial:{...trial,endsAt:'2027-02-01T23:00:00Z'}}).member,false);
+assert.equal(evaluateMemberAccess({...base,trial:{...trial,revoked:true}}).member,false);
+assert.equal(evaluateMemberAccess({...base,trial:{...trial,redeemedAt:'2027-02-01T23:00:00Z'}}).member,false);
+assert.equal(evaluateMemberAccess({...base,trial,authenticated:false}).member,false);
+assert.equal(evaluateMemberAccess({...base,trial,accountState:'suspended'}).member,false);
+assert.equal(evaluateMemberAccess({...base,trial,now:'not-a-date'}).member,false);
+assert.equal(evaluateMemberAccess({...base,trial,now:'2027-01-31T22:59:59'}).member,false);
+assert.equal(evaluateMemberAccess({...base,paidPeriods:[paid]}).member,false); // not yet paid period
+assert.equal(evaluateMemberAccess({...base,now:PILOT_END,paidPeriods:[paid]}).basis,'paid');
+assert.equal(evaluateMemberAccess({...base,now:paid.endsAt,paidPeriods:[paid]}).member,false);
+for(const paymentState of ['pending','failed','refunded','disputed','active'])
+ assert.equal(evaluateMemberAccess({...base,now:PILOT_END,paidPeriods:[{...paid,paymentState}]}).member,false);
+assert.equal(evaluateMemberAccess({...base,now:PILOT_END,paidPeriods:[{...paid,revoked:true}]}).member,false);
+assert.equal(evaluateMemberAccess({...base,now:PILOT_END,paidPeriods:[{...paid,revoked:undefined}]}).member,false);
+assert.equal(evaluateMemberAccess({...base,now:'2027-01-01T10:00:00Z',paidPeriods:[{...paid,startsAt:'2027-01-01T00:00:00Z'}]}).member,false);
+// A failed next period or old revoked record cannot invalidate another settled coverage period.
+assert.equal(evaluateMemberAccess({...base,now:PILOT_END,paidPeriods:[{...paid,paymentState:'failed'},paid]}).member,true);
+assert.equal(evaluateMemberAccess({...base,trial,paidPeriods:[{...paid,paymentState:'failed'}]}).basis,'pilot');
+assert.equal(canUseInvoicePurchase({orderKind:'retainer',profile:{invoicePurchaseApproved:true}}),false);
+assert.equal(canUseInvoicePurchase({orderKind:'project',profile:{invoicePurchaseApproved:true}}),true);
+assert.equal(canUseInvoicePurchase({orderKind:'project',profile:{invoicePurchaseApproved:'true'}}),false);
+assert.equal(formOfAddress({area:'public',profile:{informalAddressApproved:true}}),'Sie');
+assert.equal(formOfAddress({area:'member'}),'Sie');
+assert.equal(formOfAddress({area:'member',profile:{informalAddressApproved:true}}),'du');
+assert.equal(formOfAddress({area:'member',language:'en'}),'you');
+const addon={...trial,kind:'coupon',wordingApproved:true};
+assert.equal(canDisplayCaioAffiliation({now:base.now,access:{member:true},addon}),true);
+assert.equal(canDisplayCaioAffiliation({now:PILOT_END,access:{member:true},addon}),false);
+assert.equal(canDisplayCaioAffiliation({now:base.now,access:{member:false},addon}),false);
+assert.equal(canDisplayCaioAffiliation({now:base.now,access:{member:true},addon:{...addon,wordingApproved:false}}),false);
+const articles=[{id:1,language:'de',audiences:['accounting']},{id:2,language:'de',audiences:['culture']},{id:3,language:'de',audiences:['all']},{id:4,language:'en',audiences:['accounting']}];
+assert.deepEqual(relevantArticles(articles,{segments:['accounting']}).map(x=>x.id),[1,3]);
+assert.deepEqual(relevantArticles(articles,{language:'en',segments:['accounting']}).map(x=>x.id),[4]);
+console.log('Member policy boundary checks passed (isolated prototype; no live integration).');
