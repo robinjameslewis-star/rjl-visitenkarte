@@ -112,12 +112,9 @@ Der Datenschutztext (Impressum-Klappe) nennt GitHub Pages (Hosting), Cal.com (na
 Google Kalender/Meet (Terminverwaltung), Speicherdauer, Betroffenenrechte und die
 Aufsichtsbehörde Baden-Württemberg. Keine Rechtsberatung; bei Zweifeln prüfen lassen.
 
-**Anschrift:** Die Klappe nennt Name, Ort (72336 Balingen) und E-Mail, keine Straße (Robin,
-14.09.2026). Für eine private Seite ohne Angebot, Werbung oder berufliche Leistung greift die
-Impressumspflicht (§ 5 DDG) nicht; § 18 Abs. 1 MStV nimmt persönliche Zwecke aus; Art. 13 DSGVO
-verlangt „Kontaktdaten“, hier Name und E-Mail. **Sobald Artikel erscheinen (§ 18 Abs. 2 MStV)
-oder die Seite beruflich genutzt wird (§ 5 DDG), ist eine ladungsfähige Anschrift Pflicht** –
-dann Privatadresse oder Impressum-Service (c/o, Post wird weitergeleitet; Postfach reicht nicht).
+**Anschrift:** Seit 24.09.2026 nennt die Klappe Name, ladungsfähige Anschrift (Höchststr. 32,
+72336 Balingen) und E-Mail, dazu den Verantwortlichen nach § 18 Abs. 2 MStV (Robin, Entscheidung
+vom 24.09.2026: Blogartikel und geplanter Memberpilot machen die Seite geschäftsmäßig, § 5 DDG).
 
 Prüfung: `python3 tests/consent_test.py http://localhost:8788/` (Chrome und `pip install
 websockets` nötig) startet ein frisches Headless-Chrome und prüft alle Pfade inklusive
