@@ -1,0 +1,47 @@
+{
+  "id": "demo-firm",
+  "fields": {
+    "org_name": "Demo-Kanzlei Morgenblick · synthetisches Beispiel",
+    "contact_name": "Alex Beispiel",
+    "contact_role": "Kanzleileitung",
+    "email": "demo@example.invalid",
+    "website": "https://example.invalid",
+    "sector": "Kanzlei",
+    "team_size": "6-15",
+    "locations": "Fiktiver Standort; Zusammenarbeit vor Ort und digital",
+    "purpose": "Synthetischer Beispielbetrieb für die Gestaltung des Memberpiloten.",
+    "strengths": "Das Team kennt seine Aufgaben und unterstützt sich bei Rückfragen.",
+    "vision": "Ein gemeinsamer Überblick über Aufgaben und nächste Entscheidungen.",
+    "success": "Übergaben lassen sich nachvollziehen; Rückfragen werden sichtbar dokumentiert.",
+    "pain": "Informationen zu demselben Vorgang liegen an mehreren Stellen.",
+    "priority": "Einen wiederkehrenden Übergabeprozess gemeinsam beschreiben.",
+    "target_date": "Pilotgespräch im Oktober 2026 (fiktiv)",
+    "process": "Eine Anfrage kommt an, wird einer Rolle zugeordnet und intern weitergegeben.",
+    "handoffs": "Bei Rückfragen ist gelegentlich offen, wer den nächsten Schritt übernimmt.",
+    "tools": "Fiktives Fachsystem und gemeinsame Aufgabenübersicht; keine echten Zugänge.",
+    "team_change": "Zeit für ein kurzes gemeinsames Verständnis des Ablaufs.",
+    "constraints": "Zunächst einen abgegrenzten Ablauf betrachten.",
+    "support_process": true,
+    "support_people": true,
+    "support_vision": true,
+    "support_delivery": false,
+    "support_representation": false,
+    "collaboration": "Je nach Anliegen",
+    "information_flow": "Kurze schriftliche Rückfragen und vorhandene Übersichten aus dem Demobetrieb.",
+    "expectation": "Ein gemeinsames Bild des Ablaufs und ein vereinbarter nächster Schritt.",
+    "open_questions": "Welche Rollen gehören in das erste Gespräch?",
+    "completed_on": "23.09.2026"
+  },
+  "informalAddressApproved": false,
+  "segments": ["accounting"],
+  "review": {
+    "status": "reviewed",
+    "updatedAt": "2026-09-23T16:00:00Z",
+    "note": "Synthetisches, vorab angelegtes Demoprofil. Keine Angaben eines echten Kunden."
+  },
+  "followup": {
+    "nextAt": "2026-10-22",
+    "text": "Fiktive Wiedervorlage: Übergabeprozess und offene Rollen besprechen."
+  },
+  "source": {"filename": null, "language": "de", "kind": "demo"}
+}
