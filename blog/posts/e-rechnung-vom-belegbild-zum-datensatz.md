@@ -2,7 +2,7 @@
 title: "E-Rechnung: vom Belegbild zum Datensatz"
 date: 2026-09-25
 lang: de
-status: draft
+status: published
 summary: "Die Daseinsberechtigung für das Belegbild entfällt mit den Gesetzesänderungen in § 14 UStG rund um die E-Rechnung endgültig"
 ---
 
