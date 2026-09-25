@@ -1,4 +1,4 @@
-# Woran Robin gerade arbeitet – Stand 21.09.2026. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.
+# Woran Robin gerade arbeitet – Stand 25.09.2026. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.
 # Wird dem Systemprompt angehängt.
 
 ## Deutsch
