@@ -16,7 +16,7 @@ import { loadSettings, rememberStatus } from "./settings.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
-let lastUsage = null;            // Verbrauch des letzten Modellaufrufs (nur für debug)
+let lastUsage = null;            // Verbrauch des letzten Modellaufrufs (Status und Testfrage in der Redaktion)
 
 const TEXT = {
   de: {
@@ -112,7 +112,7 @@ export default {
       if (fields && noTranscript && !CONFIRM.test(lastText)) return json({ reply: t.summaryBare(fields), action: null }, 200, cors);
       if (DECLINE.test(lastText)) return json({ reply: t.cancelled, action: null }, 200, cors);
       if (fields && CONFIRM.test(lastText)) {
-        return await deliver(env, fields, lang, messages, !bare, ip, now, day, body, t, cors);
+        return await deliver(env, fields, lang, messages, !bare, ip, now, day, t, cors);
       }
     }
 
@@ -154,12 +154,11 @@ export default {
       if (/credit balance|insufficient credit|billing/i.test(detail)) ctx.waitUntil(notifyOnce(env, "credit",
         "Goch: Guthaben bei Anthropic aufgebraucht",
         "Die Anthropic-API meldet: " + detail + "\n\nGoch leitet Besucher bis auf Weiteres in den Draht (Nachricht per E-Mail), ohne Modell. Guthaben aufladen unter console.anthropic.com → Billing. Diese Nachricht kommt erst wieder, wenn danach eine Antwort gelungen ist und das Guthaben erneut ausgeht."));
-      return json({ reply: t.quiet, action: null, ...(body.debug === true ? { detail } : {}) }, 200, cors);
+      return json({ reply: t.quiet, action: null }, 200, cors);
     }
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
     ctx.waitUntil(rememberStatus(env, lastUsage, settings.provider));
     const out = parse(text, content.linkIds);
-    if (body.debug === true) { out.raw = String(text).slice(0, 2000); out.usage = lastUsage; }
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
     if (env.USAGE && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
@@ -209,16 +208,22 @@ async function notifyOnce(env, kind, subject, text) {
   }).catch(() => {});
 }
 
-async function deliver(env, m, lang, messages, withTranscript, ip, now, day, body, t, cors) {
+// Der Verlauf kommt vom Browser – wer die Rückfrage fälscht, landet hier ohne Modellaufruf. Darum neben der Grenze
+// je Adresse (nur je Instanz) eine Tagesgrenze über alle Besucher im KV, wie beim Kontaktformular.
+async function deliver(env, m, lang, messages, withTranscript, ip, now, day, t, cors) {
   const sentToday = (perIpMessages.get(ip) || []).filter(x => now - x < day);
   if (sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
+  const dayKey = "draht:" + new Date(now).toISOString().slice(0, 10);
+  const used = env.USAGE ? +(await env.USAGE.get(dayKey) || 0) : 0;
+  if (used >= +(env.MAX_DRAHT_PER_DAY || 20)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
   const result = await sendMail(env, m, lang, messages, withTranscript);
   if (!result.ok) {
     console.error("Resend-Fehler", result.status, result.detail);
-    return json({ reply: t.failed, action: "contact", sent: false, ...(body.debug === true ? { detail: result.detail } : {}) }, 200, cors);
+    return json({ reply: t.failed, action: "contact", sent: false }, 200, cors);
   }
   sentToday.push(now); perIpMessages.set(ip, sentToday);
-  return json({ reply: t.sent(m.email), action: "message", sent: true, ...(body.debug === true ? { id: result.id } : {}) }, 200, cors);
+  if (env.USAGE) await env.USAGE.put(dayKey, String(used + 1), { expirationTtl: 35 * 86400 }).catch(() => {});
+  return json({ reply: t.sent(m.email), action: "message", sent: true }, 200, cors);
 }
 
 // Die Felder aus der eigenen Zusammenfassung lesen – zuverlässiger als jede Modellausgabe.

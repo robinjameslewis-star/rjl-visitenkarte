@@ -23,7 +23,12 @@ export async function handleAdmin(request, env, ctx, deps) {
   if (!env.USAGE || !env.MAIL_TO) return text("Dashboard nicht eingerichtet (KV oder MAIL_TO fehlt).", 503);
   const session = await currentSession(request, env);
 
-  // Anmeldung
+  // Anmeldung. Jeder Schritt ohne Sitzung schreibt in den KV (Challenge, Code) – je Adresse begrenzt,
+  // damit ein Skript weder den Speicher noch das Tageskontingent aufbraucht (Bindung LOGIN_LIMIT, ohne KV).
+  if (!session && request.method === "POST" && /^\/admin\/(login|verify|passkey\/login)/.test(path) && env.LOGIN_LIMIT) {
+    const { success } = await env.LOGIN_LIMIT.limit({ key: request.headers.get("CF-Connecting-IP") || "0" });
+    if (!success) return json({ error: "Zu viele Versuche – bitte eine Minute warten." }, 429);
+  }
   if (path === "/admin/login/mode" && request.method === "GET") return json({ passkey: (await listPasskeys(env, url.hostname)).length > 0 });
   if (path === "/admin/login" && request.method === "POST") return login(request, env, url);
   if (path === "/admin/verify" && request.method === "POST") return verify(request, env, url);
@@ -76,9 +81,12 @@ export async function handleAdmin(request, env, ctx, deps) {
 
 // ---------- Anmeldung: Code per E-Mail, Sitzung als Cookie, beides im KV ----------
 
+// Der E-Mail-Code gilt nur, solange es gar keinen Passkey gibt – egal für welche Adresse. Sonst würde das Löschen
+// der Passkeys einer Adresse (z. B. workers.dev) dort den sechsstelligen Code wieder öffnen.
+const CODE_OFF = "Anmeldung nur mit Passkey (goch.robin.vision/admin).";
 async function login(request, env, url) {
   // Es gibt genau einen Empfänger: MAIL_TO. Kein Adressfeld, nichts zu vertippen (gmail/googlemail).
-  if ((await listPasskeys(env, url.hostname)).length) return json({ error: "Anmeldung nur mit Passkey." }, 403);
+  if ((await passkeyIds(env)).length) return json({ error: CODE_OFF }, 403);
   const answer = json({ ok: true, note: "Code ist unterwegs." });
   const hourKey = "admin:codes:" + new Date().toISOString().slice(0, 13);
   const sent = +(await env.USAGE.get(hourKey) || 0);
@@ -103,7 +111,7 @@ async function login(request, env, url) {
 }
 
 async function verify(request, env, url) {
-  if ((await listPasskeys(env, url.hostname)).length) return json({ error: "Anmeldung nur mit Passkey." }, 403);
+  if ((await passkeyIds(env)).length) return json({ error: CODE_OFF }, 403);
   const body = await readJson(request);
   const code = String(body.code || "").replace(/\D/g, "");
   let entry = null;

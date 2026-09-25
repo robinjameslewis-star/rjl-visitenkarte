@@ -27,6 +27,7 @@ MAX_INPUT_CHARS = "600"
 MAX_TURNS = "8"                      # Fragen je Gespräch ans Modell; danach nur noch der Draht (ohne Modell)
 MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
+MAX_DRAHT_PER_DAY = "20"    # Goch: Nachrichten an Robin je Tag insgesamt (Review 25.09.2026)
 # Der Draht: Versand über Resend. Secret: npx wrangler secret put RESEND_API_KEY
 MAIL_TO = "robinjameslewis@googlemail.com"
 MAIL_FROM = "Goch <goch@robin.vision>"  # Absenderdomain robin.vision bei Resend verifiziert (21.09.2026; DKIM/SPF/DMARC im Cloudflare-DNS)
@@ -39,6 +40,13 @@ SITE_URL = "https://robin.vision/"  # eigene Domain seit 21.09.2026 (GitHub Page
 [[kv_namespaces]]
 binding = "USAGE"
 id = "46e7ba80286c4ed1b701bb0c2fd3af30"
+
+# Anfragengrenze für die Anmeldung der Redaktion: 10 je Minute und Adresse, gezählt von Cloudflare ohne KV
+# (sonst könnte ein Skript mit Challenges das Schreibkontingent des KV aufbrauchen). Review 25.09.2026.
+[[ratelimits]]
+name = "LOGIN_LIMIT"
+namespace_id = "2509"
+simple = { limit = 10, period = 60 }
 
 [[rules]]
 type = "Text"

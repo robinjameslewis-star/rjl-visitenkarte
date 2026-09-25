@@ -23,15 +23,18 @@ function cbor(bytes) {
     if (info === 26) { const v = view.getUint32(i); i += 4; return v; }
     throw new Error("CBOR: Länge nicht unterstützt");
   }
+  // Jedes Element braucht mindestens ein Byte: Längen über den Rest hinaus sind ungültig (kein Endlos-Lauf).
+  const rest = n => { if (n > bytes.length - i) throw new Error("CBOR: Länge über das Ende hinaus"); return n; };
   function item() {
+    if (i >= bytes.length) throw new Error("CBOR: unerwartetes Ende");
     const b = bytes[i++], major = b >> 5, info = b & 31;
     switch (major) {
       case 0: return len(info);
       case 1: return -1 - len(info);
-      case 2: { const n = len(info); const v = bytes.slice(i, i + n); i += n; return v; }
-      case 3: { const n = len(info); const v = new TextDecoder().decode(bytes.slice(i, i + n)); i += n; return v; }
-      case 4: { const n = len(info); const a = []; for (let k = 0; k < n; k++) a.push(item()); return a; }
-      case 5: { const n = len(info); const m = new Map(); for (let k = 0; k < n; k++) { const key = item(); m.set(key, item()); } return m; }
+      case 2: { const n = rest(len(info)); const v = bytes.slice(i, i + n); i += n; return v; }
+      case 3: { const n = rest(len(info)); const v = new TextDecoder().decode(bytes.slice(i, i + n)); i += n; return v; }
+      case 4: { const n = rest(len(info)); const a = []; for (let k = 0; k < n; k++) a.push(item()); return a; }
+      case 5: { const n = rest(len(info)); const m = new Map(); for (let k = 0; k < n; k++) { const key = item(); m.set(key, item()); } return m; }
       case 7: if (info === 20) return false; if (info === 21) return true; if (info === 22) return null; throw new Error("CBOR: einfacher Wert");
       default: throw new Error("CBOR: Typ nicht unterstützt");
     }
