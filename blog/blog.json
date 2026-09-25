@@ -1,8 +1,8 @@
 {
-  "enabled": false,
+  "enabled": true,
   "title": {
-    "de": "Neuigkeiten",
-    "en": "News"
+    "de": "Den Datenfluss der Wertschöpfung surfen",
+    "en": "Surfing the data flow of value creation"
   },
   "intro": {
     "de": "",

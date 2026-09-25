@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>Robin James Lewis – Den Datenfluss der Wertschöpfung surfen</title>
+  <link>https://robin.vision/blog/</link>
+  <description>Den Datenfluss der Wertschöpfung surfen</description>
+  <language>de</language>
+  <item>
+    <title>E-invoicing: from invoice image to data record</title>
+    <link>https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/</guid>
+    <pubDate>Fri, 25 Sep 2026 09:00:00 GMT</pubDate>
+    <description>With the legal changes to Section 14 of the German VAT Act around e-invoicing, the invoice image finally loses its reason to exist</description>
+  </item>
+</channel>
+</rss>
