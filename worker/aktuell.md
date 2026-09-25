@@ -28,7 +28,7 @@
 3. **E-invoicing.** Robin has worked through Germany's e-invoicing obligations (receipt
    mandatory since 2025, issuance from 2027/2028, standard EN 16931) and turned them into
    practical guides for everyday practice work.
-4. **This website.** Adding a Blog Section for News and Articles. 
+4. **This website.** Adding a secure section to develop and realize visions wth business partners. 
 5. **Tools for his own Mac.** Cribe records meetings and transcribes them locally, no cloud.
    A small Stream Deck shows AI usage and has an approval key. Built for himself, with AI as a tool.
 6. **Second brain.** A personal knowledge system in Obsidian that gives agents like this
