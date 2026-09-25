@@ -4,7 +4,8 @@
 // KV (nur für den Worker lesbar) – alternativ als Geheimnis CUSTOM_API_KEY, das dann Vorrang hat.
 
 export const ANTHROPIC_MODELS = [
-  { id: "claude-opus-5", label: "Claude Opus 5 – stärkstes Modell (Standard)" },
+  { id: "claude-opus-5-5", label: "Claude Opus 5.5 – stärkstes Opus, günstiger als Opus 5 (Standard)" },
+  { id: "claude-opus-5", label: "Claude Opus 5 – Vorgänger" },
   { id: "claude-sonnet-5", label: "Claude Sonnet 5 – schnell, deutlich günstiger" },
   { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5 – am günstigsten, knapper" },
 ];
@@ -20,7 +21,7 @@ export function defaults(env) {
   return {
     enabled: true,
     provider: PROVIDERS[env.PROVIDER] ? env.PROVIDER : "anthropic",
-    model: env.MODEL || "claude-opus-5",
+    model: env.MODEL || "claude-opus-5-5",
     cache: true,
     custom: { baseUrl: "", model: "", key: "" },
   };

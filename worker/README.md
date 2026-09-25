@@ -57,7 +57,7 @@ Anthropic-Konsole kein Auto-Reload aktiv ist.
 
 | Anbieter | `PROVIDER` | `MODEL` | Secret |
 |---|---|---|---|
-| Anthropic | `anthropic` | `claude-opus-5` / `claude-sonnet-5` | `npx wrangler secret put ANTHROPIC_API_KEY` |
+| Anthropic | `anthropic` | `claude-opus-5-5` / `claude-opus-5` / `claude-sonnet-5` | `npx wrangler secret put ANTHROPIC_API_KEY` |
 | Workers AI (Notweg, kostenlos, 10.000 Neuronen/Tag ≈ 40 Antworten) | `workers-ai` | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | keins |
 
 Danach `npx wrangler deploy`. Beim Anbieterwechsel den Datenschutzabsatz auf der Seite anpassen.

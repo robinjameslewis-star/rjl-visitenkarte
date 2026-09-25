@@ -351,14 +351,14 @@ const gochOutput = linkIds => z.object({
 });
 
 export async function complete(env, system, messages, linkIds = [], settings = null) {
-  settings = settings || { provider: env.PROVIDER || "anthropic", model: env.MODEL || "claude-opus-5", cache: true, custom: {} };
+  settings = settings || { provider: env.PROVIDER || "anthropic", model: env.MODEL || "claude-opus-5-5", cache: true, custom: {} };
   const provider = settings.provider;
   const started = Date.now();
   if (provider === "anthropic") {
     if (!env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY fehlt");
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
     const response = await client.beta.messages.create({
-      model: settings.model || "claude-opus-5",
+      model: settings.model || "claude-opus-5-5",
       max_tokens: 1024,
       // Das Profil ist bei jeder Frage identisch → Prompt-Caching: ab der zweiten Frage ein Zehntel des Preises.
       // In der Redaktion abschaltbar (zum Vergleich der Kosten oder bei Problemen).

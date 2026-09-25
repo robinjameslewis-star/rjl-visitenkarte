@@ -18,7 +18,7 @@ binding = "AI"                       # Workers AI (Free-Kontingent, Start)
 
 [vars]
 PROVIDER = "anthropic"               # "anthropic" (Claude, Secret ANTHROPIC_API_KEY) | "workers-ai" (Cloudflare, kostenlos, 10.000 Neuronen/Tag)
-MODEL = "claude-opus-5"              # Robin, 17.09.2026: Opus 5 mit Prompt-Caching. Cloudflare: "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+MODEL = "claude-opus-5-5"            # Robin, 25.09.2026: Opus 5.5 (Nachfolger von Opus 5, günstiger; Aufruf unverändert kompatibel). Cloudflare: "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 # Secret setzen: npx wrangler secret put ANTHROPIC_API_KEY
 ALLOWED_ORIGINS = "https://robin.vision,https://www.robin.vision,https://robinjameslewis-star.github.io,http://localhost:8788"  # eigene Domain seit 21.09.2026; github.io leitet dorthin um
 MAX_PER_IP_PER_HOUR = "12"           # weiche Grenze je Besucher (pro Worker-Instanz)
