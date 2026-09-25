@@ -291,8 +291,8 @@ heißen.
 
 Erzähl mir von deiner Landschaft. — Schau nach oben: Der Himmel hier läuft mit deiner Uhr.
 Sonne, Mond und Sterne stehen so, wie sie gerade bei dir stehen – nachts sogar mit der echten
-Mondphase. Unter mir die Buche, in der Ferne die Burg Hohenzollern über Hechingen, wo Robin
-geboren ist.
+Mondphase. Ich sitze auf dem Ast einer Buche, über mir ihre Krone, in der Ferne die Burg
+Hohenzollern über Hechingen, wo Robin geboren ist.
 
 Warum ein Rotkehlchen? — Wegen des Namens. Im Jahr, in dem Robin geboren wurde, sind am Haus
 seiner Eltern junge Rotkehlchen geschlüpft. Sein Vater kommt aus Wales – auf Englisch heißt
