@@ -1,11 +1,11 @@
 {
   "enabled": true,
   "title": {
-    "de": "Den Datenfluss der Wertschöpfung surfen",
-    "en": "Surfing the data flow of value creation"
+    "de": "Impulse",
+    "en": "Food for thought"
   },
   "intro": {
-    "de": "",
-    "en": ""
+    "de": "Den Datensatz der Wertschöpfung surfen",
+    "en": "Surfing the data flow of value creation"
   }
 }
