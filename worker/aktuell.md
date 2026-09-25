@@ -11,7 +11,7 @@
 3. **E-Rechnung.** Robin hat sich in die Pflichten zur E-Rechnung eingearbeitet
    (Empfangspflicht seit 2025, Ausstellungspflicht ab 2027/2028, Standard EN 16931) und
    daraus Arbeitshilfen für den Kanzleialltag erstellt.
-4. **Diese Website.** Die Seite bekommt eine Blog Funktion für die Veröffentlichung von Neuigkeiten und Artikeln.
+4. **Diese Website.** Die Seite bekommt einen geschlossenen Member Bereich für die Entwicklung und Umsetzung von Visionen mit Geschäftspartnern. 
 5. **Werkzeuge für den eigenen Mac.** Cribe nimmt Besprechungen auf und schreibt sie lokal
    mit, ohne Cloud. Ein kleines Stream Deck zeigt den Verbrauch der KI-Werkzeuge an und
    hat eine Freigabetaste. Beides baut Robin für sich selbst, mit KI als Werkzeug.
