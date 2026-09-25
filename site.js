@@ -85,7 +85,21 @@
         'cal-bg': '#F3EFE5', 'cal-bg-emphasis': '#EDE5D8', 'cal-bg-subtle': '#F3EFE5', 'cal-bg-muted': '#F3EFE5',
         'cal-text': '#1F1F1F', 'cal-text-emphasis': '#1F1F1F', 'cal-text-subtle': '#5C5C5C', 'cal-text-muted': '#5C5C5C',
         'cal-border': '#DFD5C5', 'cal-border-emphasis': '#D97932', 'cal-border-subtle': '#E8DFD1', 'cal-border-booker': '#DFD5C5' } } });
-    Cal.ns['robin-james-lewis']('on', { action: 'linkReady', callback: function () { booking.classList.add('loaded'); } });
+    Cal.ns['robin-james-lewis']('on', { action: 'linkReady', callback: function () { noScrollbar(); booking.classList.add('loaded'); } });
+  }
+
+  // Cal.com passt die Höhe des Rahmens selbst an. Sind Scrollleisten dauerhaft sichtbar (Mac mit Maus oder zweitem
+  // Bildschirm, Windows) und rundet der Browser bei anderer Pixeldichte anders, ragt der Inhalt ein paar Pixel über –
+  // dann zeigte der Rahmen rechts eine weiße Scrollleiste. Darum: keine Scrollleiste im Rahmen, gesetzt sobald er entsteht.
+  function noScrollbar() {
+    var frame = document.querySelector('#cal-embed iframe');
+    if (frame && frame.getAttribute('scrolling') !== 'no') frame.setAttribute('scrolling', 'no');
+    return !!frame;
+  }
+  if (window.MutationObserver) {
+    var frameWatch = new MutationObserver(function () { if (noScrollbar()) frameWatch.disconnect(); });
+    var embed = document.getElementById('cal-embed');
+    if (embed) frameWatch.observe(embed, { childList: true, subtree: true });
   }
 
   function checkExpiry() {
