@@ -343,7 +343,10 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
   }
   const keep = new Set(shown.map(p => p.slug));
   for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl, undefined, images) });
-  for (const dir of existingDirs) if (dir !== "posts" && !keep.has(dir)) changes.push({ path: `blog/${dir}/index.html`, delete: true });
+  // Quellordner (Beiträge, Bilder) sind keine Beitragsseiten – nie deren index.html löschen wollen, die es nicht gibt
+  // (GitHub lehnt das Löschen einer fehlenden Datei mit „GitRPC::BadObjectState“ ab).
+  const sourceDirs = new Set([POSTS_DIR, IMAGES_DIR].map(d => d.split("/").pop()));
+  for (const dir of existingDirs) if (!sourceDirs.has(dir) && !keep.has(dir)) changes.push({ path: `blog/${dir}/index.html`, delete: true });
   const home = updateHomepage(homepage, settings, visible ? published : null);
   if (home) changes.push({ path: "index.html", content: home });
   return { changes, visible, publishedCount: published.length };

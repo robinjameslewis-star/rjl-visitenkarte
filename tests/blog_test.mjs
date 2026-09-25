@@ -21,6 +21,14 @@ check(t["og:image"] === site + "blog/bilder/karte-test.jpg", "ohne Bild, mit Kar
 t = tags(blog.renderPostPage({ ...base, body: "![b](bilder/foto.jpg)" }, blog.DEFAULT_SETTINGS, site, site, ["karte-test.jpg"]));
 check(t["og:image"] === site + "blog/bilder/foto.jpg", "Bild im Beitrag hat Vorrang vor der Karte");
 
+// Veröffentlichen: Quellordner posts/ und bilder/ werden nie als alte Beitragsseiten gelöscht (GitRPC::BadObjectState, 25.09.2026)
+{
+  const b = blog.buildBlog({ settings: { ...blog.DEFAULT_SETTINGS, enabled: true }, posts: [{ ...base, body: "Text." }], homepage: (await import("node:fs")).readFileSync(new URL("../index.html", import.meta.url), "utf8"),
+    existingDirs: ["posts", "bilder", "test", "alter-beitrag"], existingFiles: [], siteUrl: site });
+  const deletes = b.changes.filter(c => c.delete).map(c => c.path);
+  check(JSON.stringify(deletes) === JSON.stringify(["blog/alter-beitrag/index.html"]), "nur alte Beitragsseiten werden gelöscht, nicht posts/ oder bilder/", deletes.join(", "));
+}
+
 t = tags(renderList());
 function renderList() { return blog.renderListPage([{ ...base, body: "" }], blog.DEFAULT_SETTINGS, site); }
 check(t["og:type"] === "website" && t["og:url"] === site + "blog/", "Liste: og:type website");
