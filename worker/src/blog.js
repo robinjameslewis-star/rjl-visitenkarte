@@ -10,6 +10,8 @@ export const SETTINGS_PATH = "blog/blog.json";
 const LINK_START = "<!-- redaktion:blog-link -->", LINK_END = "<!-- /redaktion:blog-link -->";
 const SECTION_START = "<!-- redaktion:blog-section -->", SECTION_END = "<!-- /redaktion:blog-section -->";
 export const IMAGES_DIR = "blog/bilder";
+export const EN_DIR = "en"; // englische Beitragsliste und englischer Feed: blog/en/
+const RESERVED_SLUGS = ["posts", "bilder", EN_DIR];
 const TEASER_COUNT = 5;
 
 export const DEFAULT_SETTINGS = { enabled: false, title: { de: "Blog", en: "Blog" }, intro: { de: "", en: "" } };
@@ -55,6 +57,7 @@ export function validatePost(f, existingSlugs = []) {
   if (body.length > 40000) throw new Error("Der Text ist zu lang (höchstens 40.000 Zeichen).");
   let slug = str(f.slug) ? slugify(f.slug) : slugify(title);
   if (!slug) throw new Error("Aus dem Titel lässt sich keine Adresse bilden – bitte lateinische Buchstaben verwenden.");
+  if (RESERVED_SLUGS.includes(slug)) slug += "-beitrag"; // Ordner unter blog/, die keine Beiträge sind
   if (!str(f.slug)) { let base = slug, n = 2; while (existingSlugs.includes(slug)) slug = `${base}-${n++}`; }
   return { slug, title, date, lang, status, summary, body };
 }
@@ -147,8 +150,11 @@ const T = {
   en: { back: "Robin James Lewis", all: "All posts", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
 
-function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {} }) {
+function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref }) {
   const up = base || "../".repeat(depth), t = T[lang];
+  // Jede Sprache bleibt unter sich: Startseite, Liste und Feed in der Sprache der Seite
+  const homeHref = up + (lang === "en" ? "?lang=en" : ""), feedHref = `${up}blog/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`;
+  allHref = allHref || (depth > 1 ? "../" : "./");
   return `<!doctype html>
 <html lang="${lang}">
 <head>
@@ -158,7 +164,7 @@ function shell({ lang, title, description, depth, main, siteUrl, canonical, base
 <meta name="description" content="${esc(description)}">
 <link rel="icon" href="${up}assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="${up}assets/apple-touch-icon.png">
-<link rel="alternate" type="application/rss+xml" title="Robin James Lewis – Blog" href="${up}blog/feed.xml">
+<link rel="alternate" type="application/rss+xml" title="Robin James Lewis – Blog" href="${feedHref}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">` : ""}
 <meta property="og:site_name" content="Robin James Lewis">
 <meta property="og:type" content="${og.type || "website"}">
@@ -223,11 +229,11 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 </style>
 </head>
 <body>
-<nav class="top" aria-label="Seite"><a class="home" href="${up}">${t.back}</a><a href="${depth > 1 ? "../" : "./"}">${t.all}</a></nav>
+<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${homeHref}">${t.back}</a><a href="${allHref}">${t.all}</a></nav>
 <main>
 ${main}
 </main>
-<footer class="foot"><a href="${up}#privacy">${t.legal}</a><a href="${up}blog/feed.xml">${t.feed}</a></footer>
+<footer class="foot"><a href="${homeHref}#privacy">${t.legal}</a><a href="${feedHref}">${t.feed}</a></footer>
 </body>
 </html>
 `;
@@ -265,23 +271,26 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
 });
 </script>`;
   return shell({ lang: post.lang, title: post.title, description: post.summary || plainText(post.body).slice(0, 160), depth: 2, main,
-    siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base,
+    siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base, allHref: post.lang === "en" ? `../${EN_DIR}/` : "../",
     og: { type: "article", image: shareImage(post, siteUrl, images), published: post.date } });
 }
 
-export function renderListPage(posts, settings, siteUrl) {
-  const lang = "de", t = T[lang];
-  const items = posts.map(p => `<li lang="${p.lang}"><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time>${p.lang === "en" ? `<span>${T.de.english}</span>` : ""}</span><a href="${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
-  const main = `<h1>${esc(settings.title.de)}</h1>
-${settings.intro.de ? `<p class="intro">${esc(settings.intro.de)}</p>` : ""}
-${posts.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.empty}</p>`}`;
-  return shell({ lang, title: settings.title.de, description: settings.intro.de || `${settings.title.de} von Robin James Lewis`, depth: 1, main,
-    siteUrl, canonical: siteUrl ? `${siteUrl}blog/` : "" });
+// Liste einer Sprache: Deutsch unter blog/, Englisch unter blog/en/ – jeweils nur Beiträge dieser Sprache.
+export function renderListPage(posts, settings, siteUrl, lang = "de") {
+  const t = T[lang], en = lang === "en", own = posts.filter(p => p.lang === lang);
+  const title = settings.title[lang] || settings.title.de, intro = settings.intro[lang] || "";
+  const items = own.map(p => `<li lang="${p.lang}"><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time></span><a href="${en ? "../" : ""}${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
+  const main = `<h1>${esc(title)}</h1>
+${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
+${own.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.empty}</p>`}`;
+  return shell({ lang, title, description: intro || `${title} – Robin James Lewis`, depth: en ? 2 : 1, main, allHref: "./",
+    siteUrl, canonical: siteUrl ? `${siteUrl}blog/${en ? EN_DIR + "/" : ""}` : "" });
 }
 
-export function renderFeed(posts, settings, siteUrl) {
+export function renderFeed(posts, settings, siteUrl, lang = "de") {
   const x = s => String(s).replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
-  const items = posts.map(p => `  <item>
+  const title = settings.title[lang] || settings.title.de, list = `${siteUrl}blog/${lang === "en" ? EN_DIR + "/" : ""}`;
+  const items = posts.filter(p => p.lang === lang).map(p => `  <item>
     <title>${x(p.title)}</title>
     <link>${x(siteUrl)}blog/${p.slug}/</link>
     <guid isPermaLink="true">${x(siteUrl)}blog/${p.slug}/</guid>
@@ -291,10 +300,10 @@ export function renderFeed(posts, settings, siteUrl) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>Robin James Lewis – ${x(settings.title.de)}</title>
-  <link>${x(siteUrl)}blog/</link>
-  <description>${x(settings.intro.de || settings.title.de)}</description>
-  <language>de</language>
+  <title>Robin James Lewis – ${x(title)}</title>
+  <link>${x(list)}</link>
+  <description>${x(settings.intro[lang] || title)}</description>
+  <language>${lang}</language>
 ${items}
 </channel>
 </rss>
@@ -309,22 +318,25 @@ function between(html, start, end, inner, what) {
 }
 export function updateHomepage(html, settings, posts) {
   const visible = !!posts;
-  const link = visible ? `<a href="#blog" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a>` : "";
+  const langs = visible ? [...new Set(posts.map(p => p.lang))].sort().join(" ") : "";
+  const link = visible ? `<a href="#blog" data-langs="${langs}"${langs.includes("de") ? "" : " hidden"} data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a>` : "";
   let next = between(html, LINK_START, LINK_END, link, "den Blog-Verweis");
   next = between(next, SECTION_START, SECTION_END, visible ? teaser(settings, posts) : "", "den Blog-Abschnitt");
   return next === html ? null : next;
 }
-// Abschnitt unter dem Kalender: die neuesten Beiträge, Titel und Einleitung je Sprache umschaltbar (language.js)
+// Abschnitt unter dem Kalender: je Sprache die neuesten Beiträge. Ohne Skript gilt Deutsch; language.js blendet beim
+// Umschalten die Einträge der anderen Sprache aus und setzt „Alle Beiträge“ auf blog/ bzw. blog/en/.
 function teaser(settings, posts) {
-  const items = posts.slice(0, TEASER_COUNT).map(p => `      <li lang="${p.lang}"><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time>${p.lang === "en" ? "<span>English</span>" : ""}</span><a href="blog/${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
+  const langs = [...new Set(posts.map(p => p.lang))].sort().join(" ");
+  const items = ["de", "en"].flatMap(l => posts.filter(p => p.lang === l).slice(0, TEASER_COUNT)).map(p => `      <li lang="${p.lang}"${p.lang === "de" ? "" : " hidden"}><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time></span><a href="blog/${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
   const intro = settings.intro.de || settings.intro.en ? `\n    <p class="lead" data-title-de="${esc(settings.intro.de || settings.intro.en)}" data-title-en="${esc(settings.intro.en || settings.intro.de)}">${esc(settings.intro.de || settings.intro.en)}</p>` : "";
   return `
-  <section class="blog-teaser" id="blog" aria-labelledby="blog-title">
+  <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="${langs}"${langs.includes("de") ? "" : " hidden"}>
     <h2 id="blog-title" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</h2>${intro}
     <ul>
 ${items}
     </ul>
-    <p class="all"><a href="blog/" data-title-de="Alle Beiträge" data-title-en="All posts">Alle Beiträge</a></p>
+    <p class="all"><a href="blog/" data-href-de="blog/" data-href-en="blog/${EN_DIR}/" data-title-de="Alle Beiträge" data-title-en="All posts">Alle Beiträge</a></p>
   </section>
   `;
 }
@@ -336,16 +348,19 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
   const changes = [];
   const shown = visible ? published : [];
   if (visible) {
-    changes.push({ path: "blog/index.html", content: renderListPage(shown, settings, siteUrl) });
-    changes.push({ path: "blog/feed.xml", content: renderFeed(shown, settings, siteUrl) });
+    changes.push({ path: "blog/index.html", content: renderListPage(shown, settings, siteUrl, "de") });
+    changes.push({ path: "blog/feed.xml", content: renderFeed(shown, settings, siteUrl, "de") });
+    changes.push({ path: `blog/${EN_DIR}/index.html`, content: renderListPage(shown, settings, siteUrl, "en") });
+    changes.push({ path: `blog/${EN_DIR}/feed.xml`, content: renderFeed(shown, settings, siteUrl, "en") });
   } else { // verborgen heißt: gar nicht erreichbar, auch nicht als leere Liste
     for (const f of ["index.html", "feed.xml"]) if (existingFiles.includes(f)) changes.push({ path: "blog/" + f, delete: true });
+    if (existingDirs.includes(EN_DIR)) for (const f of ["index.html", "feed.xml"]) changes.push({ path: `blog/${EN_DIR}/${f}`, delete: true });
   }
   const keep = new Set(shown.map(p => p.slug));
   for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl, undefined, images) });
   // Quellordner (Beiträge, Bilder) sind keine Beitragsseiten – nie deren index.html löschen wollen, die es nicht gibt
   // (GitHub lehnt das Löschen einer fehlenden Datei mit „GitRPC::BadObjectState“ ab).
-  const sourceDirs = new Set([POSTS_DIR, IMAGES_DIR].map(d => d.split("/").pop()));
+  const sourceDirs = new Set([...[POSTS_DIR, IMAGES_DIR].map(d => d.split("/").pop()), EN_DIR]);
   for (const dir of existingDirs) if (!sourceDirs.has(dir) && !keep.has(dir)) changes.push({ path: `blog/${dir}/index.html`, delete: true });
   const home = updateHomepage(homepage, settings, visible ? published : null);
   if (home) changes.push({ path: "index.html", content: home });

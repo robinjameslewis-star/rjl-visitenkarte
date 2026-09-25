@@ -133,6 +133,10 @@
     document.querySelectorAll('[data-title-de]').forEach(element => { // von der Redaktion gesetzte Verweise
       element.textContent = element.dataset['title' + (language === 'en' ? 'En' : 'De')] || element.dataset.titleDe;
     });
+    // Blog: jede Sprache nur ihre eigenen Beiträge; Abschnitt und Menüpunkt nur, wenn es Beiträge in dieser Sprache gibt
+    document.querySelectorAll('.blog-teaser li[lang]').forEach(item => { item.hidden = item.lang !== language; });
+    document.querySelectorAll('[data-langs]').forEach(element => { element.hidden = !element.dataset.langs.split(' ').includes(language); });
+    document.querySelectorAll('[data-href-de]').forEach(link => { link.href = link.dataset['href' + (language === 'en' ? 'En' : 'De')] || link.dataset.hrefDe; });
     document.querySelector('.language-nav').setAttribute('aria-label', t('language'));
     document.querySelectorAll('[data-language]').forEach(link => {
       if (link.dataset.language === language) link.setAttribute('aria-current', 'page');
