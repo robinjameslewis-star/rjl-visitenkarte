@@ -3,7 +3,7 @@ title: "E-Rechnung: vom Belegbild zum Datensatz"
 date: 2026-09-25
 lang: de
 status: published
-summary: "Die Daseinsberechtigung für das Belegbild entfällt mit den Gesetzesänderungen in § 14 UStG rund um die E-Rechnung endgültig"
+summary: "Diese letzte Daseinsberechtigung für das Belegbild ist mit der Neufassung von *§ 14 Abs. 1 UStG* zum 01.01.2025 und der Anpassung der *GoBD (Rz. 76, 118 und 119)* durch das BMF-Schreiben vom 14.07.2025 entfallen."
 ---
 
 ![Grafik: Papierrechnungen, deren Zeilen als Datenstrom nach rechts fließen; darüber gleitet ein Rotkehlchen.](bilder/e-rechnung-belegbild-datensatz.jpg)
