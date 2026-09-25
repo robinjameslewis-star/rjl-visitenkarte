@@ -2,7 +2,7 @@
 title: "E-invoicing: from invoice image to data record"
 date: 2026-09-25
 lang: en
-status: draft
+status: published
 summary: "With the legal changes to Section 14 of the German VAT Act around e-invoicing, the invoice image finally loses its reason to exist"
 ---
 
