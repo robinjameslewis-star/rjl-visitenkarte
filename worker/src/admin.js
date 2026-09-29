@@ -375,7 +375,7 @@ async function blogApi(api, request, env, deps, session, url) {
       return json({ ...(await blogState(env, r)), note: r.visible ? "Veröffentlicht – der Blog ist auf der Website sichtbar, sobald GitHub Pages gebaut hat (etwa eine Minute)." : "Gespeichert – der Blog bleibt auf der Website verborgen." });
     }
     if (api === "blog/post" && request.method === "GET") {
-      const slug = blog.slugify(url.searchParams.get("slug") || "");
+      const slug = blog.existingSlug(url.searchParams.get("slug"));
       const f = slug ? await gh.getFile(env, `${blog.POSTS_DIR}/${slug}.md`) : null;
       if (!f) return json({ error: "Beitrag nicht gefunden." }, 404);
       const h = await gh.history(env, `${blog.POSTS_DIR}/${slug}.md`, 2);
@@ -401,7 +401,7 @@ async function blogApi(api, request, env, deps, session, url) {
       return json({ ...(await blogState(env, r)), slug: post.slug, note });
     }
     if (api === "blog/post" && request.method === "DELETE") {
-      const slug = blog.slugify((await readJson(request)).slug || "");
+      const slug = blog.existingSlug((await readJson(request)).slug);
       const current = await loadBlog(env);
       const post = current.posts.find(p => p.slug === slug);
       if (!post) return json({ error: "Beitrag nicht gefunden." }, 404);
@@ -438,7 +438,7 @@ async function blogApi(api, request, env, deps, session, url) {
       return json({ images: await listImages(env) });
     }
     if (api === "blog/post/restore" && request.method === "POST") {
-      const slug = blog.slugify((await readJson(request)).slug || "");
+      const slug = blog.existingSlug((await readJson(request)).slug);
       const path = `${blog.POSTS_DIR}/${slug}.md`;
       const h = await gh.history(env, path, 2);
       if (h.length < 2) return json({ error: "Keine vorige Fassung vorhanden." }, 400);

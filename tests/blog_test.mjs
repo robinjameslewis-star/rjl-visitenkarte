@@ -29,6 +29,14 @@ check(t["og:image"] === site + "blog/bilder/foto.jpg", "Bild im Beitrag hat Vorr
   check(JSON.stringify(deletes) === JSON.stringify(["blog/alter-beitrag/index.html"]), "nur alte Beitragsseiten werden gelöscht, nicht posts/ oder bilder/", deletes.join(", "));
 }
 
+// Vorhandene Beiträge mit langen Dateinamen lassen sich öffnen und löschen (29.09.2026: „Beitrag nicht gefunden“)
+{
+  const lang = "straight-through-processing-when-a-transaction-may-run-without-human-intervention";
+  check(blog.existingSlug(lang) === lang, "langer gültiger Dateiname bleibt unverändert");
+  check(blog.existingSlug("E-Rechnung: vom Belegbild") === "e-rechnung-vom-belegbild", "Freitext wird wie bisher umgewandelt");
+  check(blog.existingSlug("../index") === "index" && blog.existingSlug("") === "" && blog.existingSlug("a".repeat(130)).length === 60, "nichts außerhalb von blog/posts, überlange Eingaben gekürzt");
+}
+
 // Sprachen getrennt (Robin, 25.09.2026): deutsche Beiträge nur auf der deutschen, englische nur auf der englischen Seite
 {
   const de = { ...base, slug: "beitrag-de", title: "Deutscher Beitrag", lang: "de", body: "Text." };

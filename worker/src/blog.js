@@ -61,6 +61,12 @@ export function validatePost(f, existingSlugs = []) {
   if (!str(f.slug)) { let base = slug, n = 2; while (existingSlugs.includes(slug)) slug = `${base}-${n++}`; }
   return { slug, title, date, lang, status, summary, body };
 }
+// Kennung eines vorhandenen Beitrags zum Öffnen und Löschen: gültige Dateinamen unverändert übernehmen, auch wenn sie länger als
+// 60 Zeichen sind (außerhalb der Redaktion angelegt) – sonst fände die Redaktion sie nach dem Kürzen nicht (29.09.2026).
+export function existingSlug(s) {
+  const x = String(s || "");
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(x) && x.length <= 120 ? x : slugify(x);
+}
 export function slugify(s) {
   return String(s).toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
