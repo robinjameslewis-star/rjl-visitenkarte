@@ -6,6 +6,8 @@ status: draft
 summary: "Wo Daten noch das Medium wechseln, entstehen Fehler – und Schritte, die die Verfahrensdokumentation nach den GoBD erklären muss."
 ---
 
+![Illustration eines Datenstroms, der an einem Blatt Papier abreißt und dahinter neu ansetzt; auf dem Blatt sitzt ein Rotkehlchen.](bilder/medienbruchfreiheit.jpg)
+
 In der Buchhaltung arbeiten wir zwischen den Medien. Ein Belegbild wird vom Mandanten bearbeitet und kommt über das Mandantenportal in die Kanzlei. Die Änderungen am Belegbild ändern den Datensatz nicht. Das ist ein Medienbruch und eine Ursache für Fehler und Stau im Datenfluss.
 
 Reicht es also, das Belegbild hinter sich zu lassen? Nein. Redundante Datenübertragung gibt es auch jenseits des Belegbildes. Ein Medienbruch ist auch der manuelle Übertrag beim Systemwechsel, weil keine Schnittstelle eingerichtet ist. Dazu mehr im nächsten Impuls über Schnittstellenintegration.

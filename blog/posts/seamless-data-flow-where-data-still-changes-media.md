@@ -6,6 +6,8 @@ status: draft
 summary: "Wherever data still changes media, errors creep in – and so do steps that the procedural documentation required by the GoBD has to explain."
 ---
 
+![Illustration of a data stream that breaks off at a sheet of paper and starts again behind it; a robin sits on the sheet.](bilder/medienbruchfreiheit.jpg)
+
 In accounting, we work between media. A client annotates an invoice image, and it reaches the firm through the client portal. The changes to the image do not change the data record. That is a media break, and a source of errors and bottlenecks in the data flow.
 
 So is it enough to leave the invoice image behind? No. Redundant data transfer happens beyond the invoice image too. Re-keying data when switching systems, because no interface has been set up, is also a media break. More on that in the next piece on interface integration.
