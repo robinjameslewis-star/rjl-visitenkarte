@@ -2,7 +2,7 @@
 title: "Seamless data flow – where data still changes media today"
 date: 2026-10-02
 lang: en
-status: draft
+status: published
 summary: "Wherever data still changes media, errors creep in – and so do steps that the procedural documentation required by the GoBD has to explain."
 ---
 
