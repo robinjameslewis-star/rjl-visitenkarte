@@ -2,7 +2,7 @@
 title: "Medienbruchfreiheit – wo Daten heute noch das Medium wechseln"
 date: 2026-10-02
 lang: de
-status: draft
+status: published
 summary: "Wo Daten noch das Medium wechseln, entstehen Fehler – und Schritte, die die Verfahrensdokumentation nach den GoBD erklären muss."
 ---
 
