@@ -2,7 +2,7 @@
 title: "The end of ERP as we know it – why internal interfaces are an interim step"
 date: 2026-10-09
 lang: en
-status: draft
+status: published
 summary: "AI is changing ERP rather than abolishing it – and internal interfaces are only needed while a company's own systems remain separate."
 ---
 
