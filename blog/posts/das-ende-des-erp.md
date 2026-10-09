@@ -2,7 +2,7 @@
 title: "Das Ende des ERP, wie wir es kennen – warum interne Schnittstellen ein Zwischenschritt sind"
 date: 2026-10-09
 lang: de
-status: draft
+status: published
 summary: "KI verändert das ERP, schafft es aber nicht ab – und interne Schnittstellen braucht es nur, solange die eigenen Systeme getrennt sind."
 ---
 
