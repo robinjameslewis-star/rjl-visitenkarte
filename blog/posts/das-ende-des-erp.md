@@ -6,6 +6,8 @@ status: draft
 summary: "KI verändert das ERP, schafft es aber nicht ab – und interne Schnittstellen braucht es nur, solange die eigenen Systeme getrennt sind."
 ---
 
+![Illustration: links vier kleine Blätter, die durch schmale Brücken verbunden sind; rechts ein großer Kreis aus Datenlinien, auf dem ein Rotkehlchen sitzt und der nur noch über zwei Brücken mit Blättern außerhalb verbunden ist.](bilder/das-ende-des-erp.jpg)
+
 In der Kanzlei und beim Mandanten sehe ich dieselbe Landschaft: ein Warenwirtschaftssystem, eine Buchhaltung, ein Banking-Tool, ein Belegeingang, eine Lohnabrechnung, dazu Tabellen. Jedes System ist für sich gut. Zusammen sind sie ein Flickenteppich, den Schnittstellen zusammenhalten müssen.
 
 Im letzten Impuls ging es um Medienbrüche. Eine Schnittstelle beseitigt den Medienbruch, aber nicht die Übertragung: Dieselben Daten liegen in zwei Systemen, sie müssen abgeglichen und zugeordnet werden, und jede Übergabe kann scheitern. Ausgangsrechnungen gehen über die Fakturierungsschnittstelle aus der Warenwirtschaft in die Buchhaltung, Lohnbuchungen aus der Lohnabrechnung. Diese Schnittstellen gibt es nur, weil innerhalb desselben Unternehmens zwei Systeme getrennt sind. Sie sind Brücken über einen Graben, den ein gemeinsames Datenmodell nicht hätte.

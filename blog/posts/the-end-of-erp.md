@@ -6,6 +6,8 @@ status: draft
 summary: "AI is changing ERP rather than abolishing it – and internal interfaces are only needed while a company's own systems remain separate."
 ---
 
+![Illustration: on the left, four small sheets linked by narrow bridges; on the right, a large circle of data lines with a robin perched on top, connected by just two bridges to sheets outside.](bilder/das-ende-des-erp.jpg)
+
 In the firm and at the client, I see the same landscape: an inventory management system, an accounting package, a banking tool, a document inbox, payroll, plus spreadsheets. Each system is good on its own. Together they form a patchwork that interfaces have to hold together.
 
 The last piece was about media breaks. An interface removes the media break, but not the transfer: the same data sits in two systems, has to be reconciled and matched, and every hand-over can fail. Outgoing invoices pass through the invoicing interface from inventory management into accounting, payroll entries from the payroll system. These interfaces only exist because two systems within the same company are separate. They are bridges over a ditch that a shared data model would not have.
