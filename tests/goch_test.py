@@ -170,7 +170,7 @@ async def main():
             await say("Kann ich einen Termin machen?")
             check(await ev("document.querySelector('.goch-log').lastChild.querySelector('a.goch-action[href=\"#kontakt\"]') !== null"), "Kalenderverweis als Link")
             await say("Wie ist die E-Mail?")
-            check(await ev("(document.querySelector('.goch-log').lastChild.querySelector('a.goch-action') || {}).href || ''") == 'mailto:robinjameslewis@googlemail.com', "Kontaktverweis als mailto")
+            check(await ev("(document.querySelector('.goch-log').lastChild.querySelector('a.goch-action') || {}).href || ''") == 'mailto:robin@robin.vision', "Kontaktverweis als mailto")
 
             print("5b. Link aus Robins Liste")
             await say("Welche Musik mag Robin?")
@@ -197,7 +197,7 @@ async def main():
             print("7. Serverfehler")
             await say("Fehler bitte")
             b = await ev(bubbles)
-            check(b[-1].startswith('Gerade antworte ich nicht') and 'robinjameslewis@googlemail.com' in b[-1], f"Fehlertext mit E-Mail ({b[-1][:60]})")
+            check(b[-1].startswith('Gerade antworte ich nicht') and 'robin@robin.vision' in b[-1], f"Fehlertext mit E-Mail ({b[-1][:60]})")
             check(await ev("!document.getElementById('goch-input').disabled"), "Eingabe wieder frei")
             hist = await ev("document.querySelectorAll('.goch-you').length")
             check(hist == 9, f"gescheiterte Frage bleibt im Verlauf sichtbar ({hist})")

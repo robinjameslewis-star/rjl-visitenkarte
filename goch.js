@@ -166,7 +166,7 @@
     } catch (_) {
       thinking.remove();
       const p = bubble('goch', t('gochError') + ' ');
-      p.append(link('mailto:robinjameslewis@googlemail.com', 'robinjameslewis@googlemail.com'));
+      p.append(link('mailto:robin@robin.vision', 'robin@robin.vision'));
       history.pop();
       busy = false; setAvailability(); input.focus();
       return;
@@ -176,7 +176,7 @@
     if (data.action === 'calendar') {
       thinking.append(' ', link('#kontakt', t('gochCalendar')));
     } else if (data.action === 'contact') {
-      thinking.append(' ', link('mailto:robinjameslewis@googlemail.com', 'robinjameslewis@googlemail.com'));
+      thinking.append(' ', link('mailto:robin@robin.vision', 'robin@robin.vision'));
     }
     // Link aus Robins Liste (links.md im Worker): nur https, öffnet in neuem Tab. Der Verlauf merkt sich
     // „(Link: Text)“, damit der Worker denselben Link nicht noch einmal anbietet.

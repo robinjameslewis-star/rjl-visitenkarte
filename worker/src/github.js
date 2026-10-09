@@ -29,6 +29,9 @@ async function call(env, method, path, body) {
 const encode = s => { const b = new TextEncoder().encode(s); let out = ""; for (const x of b) out += String.fromCharCode(x); return btoa(out); };
 const decode = b64 => { const s = atob(b64.replace(/\n/g, "")); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return new TextDecoder().decode(b); };
 
+// Kennung der Redaktions-Commits: GitHubs Noreply-Adresse statt der privaten E-Mail (öffentliches Repository).
+const AUTOR = { name: "Robin James Lewis", email: "328852210+robinjameslewis-star@users.noreply.github.com" };
+
 // Datei lesen: { content, sha } – oder null, wenn sie nicht existiert.
 export async function getFile(env, path, ref) {
   try {
@@ -41,7 +44,7 @@ export async function getFile(env, path, ref) {
 // Änderung stillschweigend überschrieben wird. Liefert die Commit-Angaben.
 export async function putFile(env, path, content, message, sha) {
   const d = await call(env, "PUT", `/repos/${env.GITHUB_REPO}/contents/${path}`, {
-    message, content: encode(content), branch: env.GITHUB_BRANCH || "main", ...(sha ? { sha } : {}),
+    message, content: encode(content), branch: env.GITHUB_BRANCH || "main", author: AUTOR, committer: AUTOR, ...(sha ? { sha } : {}),
   });
   return { sha: d.content && d.content.sha, commit: d.commit && d.commit.sha, url: d.commit && d.commit.html_url };
 }
@@ -87,7 +90,7 @@ export async function commitFiles(env, changes, message) {
     else tree.push({ path: c.path, mode: "100644", type: "blob", content: c.content });
   }
   const newTree = await call(env, "POST", `/repos/${repo}/git/trees`, { base_tree: base.tree.sha, tree });
-  const commit = await call(env, "POST", `/repos/${repo}/git/commits`, { message, tree: newTree.sha, parents: [head] });
+  const commit = await call(env, "POST", `/repos/${repo}/git/commits`, { message, tree: newTree.sha, parents: [head], author: AUTOR, committer: AUTOR });
   await call(env, "PATCH", `/repos/${repo}/git/refs/heads/${branch}`, { sha: commit.sha });
   return { sha: commit.sha, url: `https://github.com/${repo}/commit/${commit.sha}` };
 }

@@ -22,7 +22,7 @@ const TEXT = {
   de: {
     // Wenn das Modell nicht antworten kann oder soll (Tagesgrenze, Störung, Guthaben): kein Wort davon zum
     // Besucher – Goch leitet in den gewohnten Draht über, der Worker führt ihn ohne Modell zu Ende.
-    quiet: "Das richte ich lieber direkt an Robin weiter. Was soll ich Robin ausrichten? Oder schreib ihm selbst: robinjameslewis@googlemail.com",
+    quiet: "Das richte ich lieber direkt an Robin weiter. Was soll ich Robin ausrichten? Oder schreib ihm selbst: robin@robin.vision",
     sent: e => `Ausgerichtet. Robin antwortet dir persönlich per E-Mail an ${e}.`,
     summary: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Unser Gespräch schicke ich mit, damit Robin den Zusammenhang kennt; wenn du das nicht möchtest, sag es. Soll ich das so senden?`,
     summaryBare: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Ohne unser Gespräch, nur diese Nachricht. Soll ich das so senden?`,
@@ -39,7 +39,7 @@ const TEXT = {
     failed: "Das Ausrichten hat nicht geklappt. Schreib Robin bitte direkt per E-Mail.",
   },
   en: {
-    quiet: "I'd rather pass that on to Robin directly. What should I pass on to Robin? Or write to him yourself: robinjameslewis@googlemail.com",
+    quiet: "I'd rather pass that on to Robin directly. What should I pass on to Robin? Or write to him yourself: robin@robin.vision",
     sent: e => `Passed on. Robin will reply to you personally by email at ${e}.`,
     summary: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. I'll include our conversation so Robin has the context; if you'd rather not, just say so. Shall I send it like this?`,
     summaryBare: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. Without our conversation, just this message. Shall I send it like this?`,
