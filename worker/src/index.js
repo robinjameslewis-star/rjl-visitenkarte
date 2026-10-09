@@ -121,16 +121,10 @@ export default {
     const userTurns = messages.filter(x => x.role === "user").length;
     const closingAsked = previous && previous.role === "assistant" && (previous.content.includes(t.closingMarker) || previous.content.includes(t.askWhat));
     const whoAsked = previous && previous.role === "assistant" && previous.content.includes(t.whoMarker);
-    if (whoAsked) {
-      const m = completeMessage(null, messages);
-      if (m) return json({ reply: t.summary(m), action: null }, 200, cors);
-      return json({ reply: t.invalid, action: null }, 200, cors);
-    }
+    if (whoAsked) return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), true), action: null }, 200, cors);
     if (closingAsked) {
       if (DECLINE.test(lastText)) return json({ reply: t.cancelled, action: null }, 200, cors);
-      const m = completeMessage(null, messages);
-      if (m) return json({ reply: t.summary(m), action: null }, 200, cors);
-      return json({ reply: t.askWho, action: null }, 200, cors);
+      return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), false), action: null }, 200, cors);
     }
     if (userTurns > maxTurns) return json({ reply: t.closing, action: null }, 200, cors);
 
@@ -170,10 +164,8 @@ export default {
     // Felder notfalls aus dem Verlauf ergänzen, die Zusammenfassung selbst schreiben, und senden
     // nur, wenn der Besucher auf genau diese Zusammenfassung mit Ja geantwortet hat.
     if (out.action === "message") {
-      const m = completeMessage(out.message, messages);
-      if (!m) return json({ reply: t.invalid, action: null }, 200, cors);
       // Das Modell sammelt nur; gesendet wird erst nach Ja auf die Zusammenfassung des Workers (siehe oben).
-      return json({ reply: t.summary(m), action: null }, 200, cors);
+      return json({ reply: nextDrahtReply(t, gatherMessage(out.message, messages), false), action: null }, 200, cors);
     }
     return json(out, 200, cors);
   },
@@ -254,9 +246,11 @@ const DECLINE = /^\s*(nein|no|nope|lieber nicht|doch nicht|abbrechen|cancel|stop
 const NO_TRANSCRIPT = /(ohne|nicht|kein|keinen|no|without|don't|do not|nur die nachricht|only the message)[^.!?]{0,60}(gespräch|verlauf|unterhaltung|chat|conversation|transcript|history)|(gespräch|verlauf|unterhaltung|conversation|transcript|history)[^.!?]{0,40}(nicht|weglassen|raus|weg|out|off|leave)/i;
 const EMAIL_ANY = /[^\s@<>,;:"']+@[^\s@<>,;:"']+\.[^\s@<>,;:"']{2,}/;
 
-// Fehlende Felder aus dem Verlauf ergänzen: die letzte E-Mail-Adresse, die der Besucher genannt hat,
-// der Name aus derselben Nachricht, die Frage aus der ersten Besuchernachricht.
-function completeMessage(m, messages) {
+// Felder für den Draht sammeln: Name, E-Mail-Adresse, Anliegen. Was das Modell liefert, gilt, wenn es brauchbar ist;
+// sonst kommt es aus dem Verlauf – Adresse und Name aus der letzten Besuchernachricht mit Adresse (dort oft auch das
+// Anliegen: „Max, max@example.com, bitte ruf mich an“), das Anliegen sonst aus der letzten Nachricht ohne Adresse.
+// Liefert die Felder auch unvollständig; was fehlt, entscheidet über die nächste Rückfrage.
+function gatherMessage(m, messages) {
   const out = { name: "", email: "", text: "" };
   if (m && typeof m === "object") {
     out.name = String(m.name || "").trim().slice(0, 80);
@@ -264,29 +258,102 @@ function completeMessage(m, messages) {
     out.text = String(m.text || "").replace(/[',"\s]+$/, "").trim().slice(0, 2000);
   }
   const users = messages.filter(x => x.role === "user").map(x => x.content);
-  if (!EMAIL.test(out.email)) {
-    out.email = "";
-    for (let i = users.length - 1; i >= 0 && !out.email; i--) {
-      const hit = users[i].match(EMAIL_ANY);
-      if (hit && EMAIL.test(hit[0])) {
-        out.email = hit[0];
-        if (out.name.length < 2 || /[?]/.test(out.name)) {
-          const rest = users[i].replace(hit[0], "").replace(/\b(name|e-?mail|adresse|address|ich heiße|ich bin|mein name ist|my name is|i am|i'm)\b/gi, "")
-            .replace(/[:,;()\[\]"'–-]+/g, " ").replace(/\s+/g, " ").trim();
-          if (rest.length >= 2 && rest.length <= 80) out.name = rest;
-        }
-      }
+  let split = null, at = -1;
+  for (let i = users.length - 1; i >= 0 && !split; i--) { split = splitVisitorMessage(users[i]); if (split) at = i; }
+  if (!EMAIL.test(out.email)) out.email = split ? split.email : "";
+  if (out.name.length < 2 || /[?]/.test(out.name)) {
+    out.name = split && split.name ? split.name : "";
+    // Sonst ein Name allein in einer eigenen Nachricht: zuerst danach (Antwort auf die Rückfrage), dann direkt davor
+    const near = at < 0 ? [] : [...users.slice(at + 1).reverse(), ...(at > 0 ? [users[at - 1]] : [])];
+    for (const u of near) {
+      if (out.name) break;
+      const c = u.trim().replace(/[.!]+$/, "");
+      out.name = nameFrom(c) || (looksLikeName(c) ? c : "");
     }
   }
   if (!out.text || out.text.length < 3 || /[?]{2,}|\bunbekannt\b/i.test(out.text)) {
-    // Das Anliegen ist die letzte Besuchernachricht vor Name/E-Mail, die keine Bestätigung ist –
-    // ohne die Einleitung „Ich möchte Robin etwas ausrichten:“.
-    const candidates = users.filter(u => !CONFIRM.test(u) && !DECLINE.test(u) && !EMAIL_ANY.test(u) && u.trim().length >= 3);
-    const last = candidates[candidates.length - 1] || "";
-    out.text = last.replace(/^\s*(ich möchte|ich will|ich würde gern|i('d| would) like to|i want to)\s+(robin|ihm|him)?\s*(etwas|something)?\s*(ausrichten|mitteilen|sagen|leave a message|tell)\s*[:,.-]?\s*/i, "").trim().slice(0, 2000);
+    out.text = split && split.text.length >= 3 ? split.text : "";
+    if (!out.text) {
+      // Das Anliegen ist die letzte Besuchernachricht ohne Adresse, die keine Bestätigung ist –
+      // ohne die Einleitung „Ich möchte Robin etwas ausrichten:“.
+      const candidates = users.filter(u => !CONFIRM.test(u) && !DECLINE.test(u) && !EMAIL_ANY.test(u) && u.trim().length >= 3)
+        .map(u => u.replace(/^\s*(ich möchte|ich will|ich würde gern|i('d| would) like to|i want to)\s+(robin|ihm|him)?\s*(etwas|something)?\s*(ausrichten|mitteilen|sagen|leave a message|tell)\s*[:,.-]?\s*/i, "").trim())
+        .filter(u => u.length >= 3 && !(out.name && u.replace(/[.!]+$/, "") === out.name));
+      out.text = (candidates[candidates.length - 1] || "").slice(0, 2000);
+    }
   }
-  if (out.name.length < 2 || /[?]/.test(out.name) || !EMAIL.test(out.email) || out.text.length < 3) return null;
   return out;
+}
+const hasSender = m => m.name.length >= 2 && !/[?]/.test(m.name) && EMAIL.test(m.email);
+const isComplete = m => hasSender(m) && m.text.length >= 3;
+// Nächste Antwort im Draht: Zusammenfassung, wenn alles da ist – sonst genau nach dem fragen, was fehlt.
+function nextDrahtReply(t, m, whoAsked) {
+  if (isComplete(m)) return t.summary(m);
+  if (!hasSender(m)) return whoAsked ? t.invalid : t.askWho;
+  return t.askWhat;
+}
+
+const GREETING = /^(hallo|hi|hey|moin|servus|grüß gott|guten (tag|morgen|abend)|liebe[rs]?|hello|dear|good (morning|afternoon|evening))\b/i;
+const NOT_A_NAME = /^(bitte|danke|gern|gerne|ja|nein|ok|okay|test|termin|frage|rückruf|anruf|please|thanks|thank you|yes|no)\b/i;
+const STRONG_INTRO = /(?:^|\b)(ich heiße|mein name ist|my name is|name)\s*:?\s+/i;
+const WEAK_INTRO = /(?:^|\b)(ich bin|hier ist|hier spricht|i am|i'm|this is)\s+/i;
+const FIELD_LABEL = /^\s*(?:e-?mail|mail|adresse|address|nachricht|message|anliegen)\s*:\s*/i;
+const FIELD_LABEL_ANY = /\b(?:e-?mail|mail|adresse|address|nachricht|message|anliegen)\s*:\s*/gi;
+
+function looksLikeName(s, maxWords = 3) {
+  const words = s.trim().split(/\s+/);
+  return s.length >= 2 && s.length <= 60 && words.length <= maxWords && !GREETING.test(s) && !NOT_A_NAME.test(s)
+    && words.every(w => /^[\p{L}][\p{L}'.-]*$/u.test(w));
+}
+// Name aus einem eingeleiteten Teil: „mein Name ist …“ trägt bis vier Wörter; „ich bin …“ nur zwei Wörter oder
+// durchgehend großgeschrieben – sonst würde „ich bin interessiert an …“ zum Namen.
+function nameFrom(p) {
+  let m = p.match(STRONG_INTRO);
+  if (m) { const c = p.slice(m.index + m[0].length).trim(); return looksLikeName(c, 4) ? c : ""; }
+  m = p.match(WEAK_INTRO);
+  if (m) {
+    const c = p.slice(m.index + m[0].length).trim(), words = c.split(/\s+/);
+    return looksLikeName(c) && (words.length <= 2 || words.every(w => /^\p{Lu}/u.test(w))) ? c : "";
+  }
+  return "";
+}
+
+// Eine Besuchernachricht mit E-Mail-Adresse zerlegen. Teile trennen Komma, Semikolon, Zeilenumbruch, Gedankenstrich
+// und Satzende. Name ist ein ausdrücklich eingeleiteter Teil („ich heiße …“) oder der kurze Teil direkt vor oder nach
+// der Adresse; der Rest ist das Anliegen. Ohne gültige Adresse: null.
+function splitVisitorMessage(text) {
+  const src = String(text), hit = src.match(EMAIL_ANY);
+  if (!hit) return null;
+  const email = hit[0].replace(/[.!?)\]]+$/, "");
+  if (!EMAIL.test(email)) return null;
+  const raw = src.replace(hit[0], "\n\u0000\n").split(/\n|[;,]|\s[–-]\s|(?<=[.!?])\s+/);
+  const parts = raw.map(p => p === "\u0000" ? p : p.replace(FIELD_LABEL, "").replace(/^[\s.:–-]+|[\s.:!–-]+$/g, "").trim());
+  const pos = parts.indexOf("\u0000");
+  let nameIdx = -1, name = "";
+  // 1. ausdrücklich eingeleitet: „ich heiße Max Muster“, „mein Name ist …“, „Name: …“
+  parts.forEach((p, i) => {
+    if (nameIdx >= 0 || !p || p === "\u0000") return;
+    const c = nameFrom(p);
+    if (c) { nameIdx = i; name = c; }
+  });
+  // 2. sonst der kurze Teil direkt vor der Adresse, dann direkt danach, dann der erste kurze Teil überhaupt
+  if (nameIdx < 0) {
+    for (const i of [pos - 1, pos + 1, ...parts.keys()]) {
+      const p = parts[i];
+      if (i >= 0 && i < parts.length && p && p !== "\u0000" && !STRONG_INTRO.test(p) && !WEAK_INTRO.test(p) && looksLikeName(p)) { nameIdx = i; name = p; break; }
+    }
+  }
+  // Anliegen: der Wortlaut ohne Adresse, Namensteil und Feldbezeichnungen; übrige Trennzeichen aufgeräumt
+  let rest = src.replace(hit[0], " " + hit[0].slice(email.length)); // Satzzeichen hinter der Adresse bleibt
+  if (nameIdx >= 0) rest = rest.replace(raw[nameIdx], " ");
+  return { email, name, text: tidyRest(rest).slice(0, 2000) };
+}
+
+// Reste nach dem Herauslösen aufräumen: verwaiste Kommas, doppelte Punkte, Trennzeichen am Rand.
+function tidyRest(s) {
+  let r = s.replace(FIELD_LABEL_ANY, " ").replace(/\s+/g, " "), prev;
+  do { prev = r; r = r.replace(/\s*[,;]\s*(?=[,;.!?]|$)/g, ""); } while (r !== prev);
+  return r.replace(/([.!?])\s*[.,;]+/g, "$1").replace(/\s+([.!?,;])/g, "$1").replace(/^[\s,;:.–-]+|[\s,;:–-]+$/g, "").trim();
 }
 
 // Profil, Aktuell und Links: Quelle ist das Repository (Robin pflegt sie in der Redaktion, die dort Commits schreibt).

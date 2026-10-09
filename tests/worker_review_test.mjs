@@ -89,5 +89,39 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
   check(r.status === 403 && mails.length === before && !e.USAGE.map.has("admin:code"), "E-Mail-Code: gesperrt, sobald ein Passkey existiert (auch unter workers.dev)");
 }
 
+// 6. Draht: Name, Adresse und Anliegen in einer Nachricht; Rückfrage nur nach dem, was fehlt (Befund 09.10.2026)
+{
+  const e = env();
+  const ask = "Gern, ich bin der Draht. Was soll ich Robin ausrichten? Und nenn mir bitte deinen Namen und deine E-Mail-Adresse, damit Robin dir persönlich antworten kann.";
+  const askWho = "Und wie heißt du, und unter welcher E-Mail-Adresse kann Robin dir persönlich antworten?";
+  const say = async (lang, ...turns) => (await (await chat(e, { lang, messages: turns.map((c, i) => ({ role: i % 2 ? "assistant" : "user", content: c })) }, "6.6.6." + Math.floor(Math.random() * 200))).json()).reply;
+  const start = "Ich möchte Robin etwas ausrichten.";
+
+  let r = await say("de", start, ask, "eva, eva.muster@example.test, hallo ich teste diese funktion");
+  check(r.startsWith("Ich richte Robin aus: hallo ich teste diese funktion – Von: eva, eva.muster@example.test."), `Draht: alles in einer Nachricht (${r.slice(0, 90)})`);
+
+  r = await say("de", start, ask, "Max Muster, max@example.test");
+  check(r === "Was soll ich Robin ausrichten?", `Draht: Name und Adresse da, Anliegen fehlt → fragt nach dem Anliegen (${r.slice(0, 60)})`);
+  r = await say("de", start, ask, "Max Muster, max@example.test", "Was soll ich Robin ausrichten?", "Bitte um Rückruf wegen des Angebots.");
+  check(r.startsWith("Ich richte Robin aus: Bitte um Rückruf wegen des Angebots. – Von: Max Muster, max@example.test."), `Draht: Anliegen nachgereicht (${r.slice(0, 90)})`);
+
+  r = await say("de", start, ask, "Er soll mich wegen des Vortrags anrufen.");
+  check(r === askWho, `Draht: Anliegen da, Absender fehlt → fragt nach Name und Adresse (${r.slice(0, 60)})`);
+  r = await say("de", start, ask, "Er soll mich wegen des Vortrags anrufen.", askWho, "Max Muster, max@example.test");
+  check(r.startsWith("Ich richte Robin aus: Er soll mich wegen des Vortrags anrufen. – Von: Max Muster, max@example.test."), `Draht: Absender nachgereicht (${r.slice(0, 90)})`);
+
+  r = await say("de", start, ask, "Hallo Robin. Ich bin Max Muster, max@example.test. Ich habe eine Frage zum Vortrag.");
+  check(r.startsWith("Ich richte Robin aus: Hallo Robin. Ich habe eine Frage zum Vortrag. – Von: Max Muster, max@example.test."), `Draht: „Ich bin …“ mit Sätzen davor und danach (${r.slice(0, 100)})`);
+
+  r = await say("de", start, ask, "Bitte zurückrufen, Max Muster, max@example.test");
+  check(r.startsWith("Ich richte Robin aus: Bitte zurückrufen – Von: Max Muster, max@example.test."), `Draht: Name direkt vor der Adresse, nicht der erste kurze Teil (${r.slice(0, 90)})`);
+
+  r = await say("de", start, ask, "ich bin interessiert an einem Vortrag, max@example.test");
+  check(r === askWho, `Draht: „ich bin interessiert …“ ist kein Name (${r.slice(0, 60)})`);
+
+  r = await say("en", "I'd like to leave a message for Robin.", "Happy to. What should I pass on to Robin? And please tell me your name and email address.", "My name is Jane Doe, jane@example.test – please call me back");
+  check(r.startsWith("I'll pass on to Robin: please call me back – From: Jane Doe, jane@example.test."), `Draht EN: „My name is …“ (${r.slice(0, 90)})`);
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nAlle Prüfungen bestanden.");
 process.exit(fails ? 1 : 0);
