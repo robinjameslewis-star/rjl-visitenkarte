@@ -108,3 +108,32 @@ Browserprüfung bei 390 px, leerem Cache, 250 ms Netzlatenz und 256.000 Bytes/s 
 Zusätzlich erneut bestanden: Anflug-/Handychat-Browserlauf, Einwilligungs-Browserlauf, 8 Flugtests,
 15 Landschaftstests, 17 Site-/Redaktionsprüfungen und Worker-Bündeltest (nur lokal, kein Deployment).
 Messprotokoll: [Nachtstart](tests/screenshots/goch-reparatur/nachtstart-report.json).
+
+
+## Mondkorrektur – lokale Prüfung 10.10.2026
+
+Ausgangspunkt: Screenshot vom 05.10.2026 um 19:46 MESZ und Tagesansicht nahe Neumond.
+Der Mond lag beim ersten Zeitpunkt rechnerisch bei −18,56° (48,27° N / 8,85° O).
+Chrome bestätigte: `.hidden = true` erzeugte auf dem SVG kein Attribut; der Mond blieb `display:block`.
+Außerdem ließ die Geländealpha Himmelskörper durch, und `.dark` mit Deckkraft 0,22 verursachte
+zusammen mit Tagesdeckkraft 0,35 eine sichtbare graue Neumondscheibe.
+
+Korrektur und Reproduktion sind im README-Abschnitt „Mond“ beschrieben. Originalbilder unverändert.
+Arbeitszweig `codex/mond-realitaet`, Grundlage `origin/main` bei `db33e11`; lokal geprüft, nicht veröffentlicht.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Astronomie, Mond-API und Vogelanflug | 35 Node-Tests bestanden |
+| Seitenschalter und Bildpfade | 17 Prüfungen bestanden |
+| Beleuchtete Flächen und Seiten | 33 Phasen in Canvas gerastert; größte absolute Flächenabweichung rund 0,00133 der Vollscheibe |
+| Tag/Dämmerung/Nacht | Acht Hauptphasen × drei Lichtlagen × zwei Ansichten (390/1440 px); keine dunkle Tagesseite, stetige Helligkeit |
+| Burg und Sterne | Pixelvergleich: hinter Gelände kein Mondrest, am Grat nur sichtbarer oberer Teil; kein Teststern durch die dunkle Sichelhälfte |
+| Horizont | Fehlerzeitpunkt reproduziert und behoben: echtes hidden-Attribut, display:none |
+| Größenwechsel | Relative Höhe bei Wechsel 1440 → 390 px sofort stabil (Abweichung kleiner 0,00002) |
+| Jahreszeit | Winterbild und Herbst-/Winterüberblendung mit Verdeckungsmaske geprüft |
+| Browserfehler | Keine JavaScript-Fehler in den Mondtests; alle externen Anfragen blockiert |
+
+Grenzen: Chrome geprüft, kein echter iOS-Safari-Gerätetest. Der ältere zusätzliche Python-Test
+`goch-landscape_test.py` konnte wegen fehlendem Paket `websockets` nicht starten; die acht unabhängigen
+Node-Anflugtests bestanden. Ein versuchsweise gestarteter Worker-Bündeltest wurde beim
+Wrangler-Vorlauf ohne Ergebnis abgebrochen; am Worker wurde nichts geändert. Keine Veröffentlichung vorgenommen.

@@ -396,3 +396,44 @@ nachgebaut noch die Seite versteckt. Bei Ladefehler des Skripts bleibt die Grund
 Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (einmalig und cachebar).
 `python3 tests/landscape-start_test.py` prüft Nacht, Tag, beide Aus-Schalter und einen Skriptladefehler
 bei deaktiviertem Cache und gedrosseltem Netz.
+
+
+## Mond: Sichtbarkeit und Verdeckung (10.10.2026)
+
+Die beleuchtete Fläche wird weiterhin aus der astronomischen Beleuchtungsfraktion berechnet.
+Am Tag ist die unbeleuchtete Seite unsichtbar; eine sehr sonnennahe Sichel verblasst zusätzlich.
+Weißes Tageslicht geht stetig in das warme Nachtweiß über. Nur im dunklen Himmel kann schwaches
+Erdlicht die übrige Scheibe zeigen. Das ist eine Kontrastnäherung, keine photometrische Simulation.
+Die künstlerische Bühnenbahn, die Zeitzonen-Näherung und die vorhandene Terminatorausrichtung
+bleiben bestehen; die Szene ist kein maßstäbliches Planetarium.
+
+Verdeckung ist unabhängig von dieser Helligkeit: Die vollständige Mondscheibe maskiert Sterne;
+Burg, Berg und Krone maskieren die Himmelskörper. Die Landschaftsbilder behalten ihre ursprüngliche
+Aquarelltransparenz. Eine lokale Canvas-Maske liest aus der vorhandenen Bildalpha die Geländeoberkante
+(Schwelle 8/255) und verdeckt darunter vollständig. Kronen berücksichtigen Bildalpha, Saison-Deckkraft
+und den mobilen oberen Verlauf. Masken werden bei Bildwechsel und Größenänderung neu berechnet,
+ansonsten wiederverwendet. Keine zusätzlichen Bilddateien oder Netzwerkdienste.
+
+SVG-Mond und Sonne erhalten ein echtes `hidden`-Attribut mit expliziter CSS-Regel unter dem Horizont.
+Ihre Höhe hängt direkt von `--horizon` ab, damit Drehen/Vergrößern des Fensters sofort stimmt.
+Die langsame Positionsanimation entfällt, damit Mond und seine Sternmaske synchron bleiben.
+
+Prüfen:
+
+```sh
+node --test tests/landscape.test.cjs tests/moon.test.cjs tests/bird-flight.test.cjs
+node tests/site_test.mjs
+# Lokaler Server; Playwright und pngjs müssen im Node-Suchpfad installiert/verfügbar sein.
+python3 -m http.server 8789 --bind 127.0.0.1
+node tests/moon-browser.test.cjs http://127.0.0.1:8789 /tmp/mond-pruefung
+```
+
+Der Browsertest verwendet Chrome (macOS-Pfad voreingestellt, überschreibbar über `CHROME`), blockiert
+externe Anfragen und schreibt Pixelprüfungen, Sichttafel und Bildschirmfotos in den Ausgabeordner.
+Er prüft 33 Phasenflächen, acht Hauptphasen bei Tag/Dämmerung/Nacht auf 390/1440 px, Verdeckung,
+Sterne hinter der dunklen Hälfte, den Fehlerzeitpunkt 05.10.2026 19:46 MESZ, Resize sowie Winterwechsel.
+Die Sichttafel zeigt die Phasen vergrößert und ungedreht zum Vergleich; nicht alle Kombinationen sind
+zu einer bestimmten Uhrzeit gleichzeitig am Himmel sichtbar.
+
+Physikalische Grundlage: [NASA – Mondphasen, Erdlicht und Tagesmond](https://science.nasa.gov/moon/moon-phases/),
+[SunCalc 1.9.0 – Mondbeleuchtung und Winkel](https://github.com/mourner/suncalc/tree/v1.9.0#moon-illumination).

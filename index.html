@@ -252,7 +252,7 @@
     --warning-day: #A63D2F; --warning-night: #F0AC91;
     --sky-top: #EDF2F1; --sky-bottom: #FAF4E8; --sky-glow: #E1A777;
     --star: #EEE8D9; --sun: #FAE5A7; --sun-halo: #F9DA9A;
-    --moon-light: #EEE8D9; --moon-dark: #252D3A;
+    --moon-light: #EEE8D9;
     --leaf-copper: #B8724F; --leaf-ochre: #AE8951; --leaf-rust: #90513E;
     --snow: #E8E8DF; --petal: #F4E9DF;
   }
@@ -311,17 +311,23 @@
     opacity: .52; mask-image: linear-gradient(black 5%, rgba(0,0,0,.8) 45%, transparent 100%);
     transition: background 2s, opacity 2s;
   }
+  .landscape-celestial { position: absolute; inset: 0; mask-size: 100% 100%; -webkit-mask-size: 100% 100%; }
   .landscape-stars { position: absolute; top: 0; left: 0; width: 100%; height: var(--horizon); opacity: var(--stars, 0); transition: opacity 2s; }
   .landscape-stars circle { fill: var(--star); animation: shimmer 5s ease-in-out infinite alternate; }
-  .landscape-orb { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -50%); transition: left 2s, top 2s, opacity 2s; }
+  .landscape-orb { position: absolute; top: calc(var(--orb-y, 1) * var(--horizon)); width: 30px; height: 30px; transform: translate(-50%, -50%); transition: opacity 2s; }
   .landscape-sun { border-radius: 50%; background: var(--sun); box-shadow: 0 0 24px 8px var(--sun-halo); opacity: .55; }
   .landscape-moon { width: 27px; height: 27px; }
-  .landscape-moon .dark { fill: var(--moon-dark); opacity: .22; }
-  .landscape-moon .light { fill: var(--moon-light); }
+  /* SVG kennt keine HTMLElement.hidden-Eigenschaft; das Attribut gilt hier ausdrücklich. */
+  .landscape-orb[hidden] { display: none; }
+  .landscape-moon .dark, .landscape-moon .light { fill: var(--moon-light); transition: opacity 2s; }
+  .landscape-moon .dark { opacity: 0; }
+  @supports (color: color-mix(in srgb, white, black)) {
+    .landscape-moon .light { fill: color-mix(in srgb, white, var(--moon-light) var(--nacht-prozent)); }
+  }
   .landscape-picture { position: absolute; display: block; }
   .landscape-picture img { display: block; width: 100%; height: auto; }
   .landscape-far { left: 12%; width: 55%; bottom: calc(100% - var(--scene-top) - var(--scene-height) * .8448); mask-image: linear-gradient(black 58%, transparent 100%); }
-  .landscape-crown { right: calc((100% - 100vw) / 2 + var(--landscape-inset, 0px)); top: -25px; width: max(320px, calc(40% + (100vw - 100%) * .15)); } /* --landscape-inset: landscape.js rückt die Krone auf breiten Bildschirmen ans Astende */
+  .landscape-crown { --crown-fade: 0px; right: calc((100% - 100vw) / 2 + var(--landscape-inset, 0px)); top: -25px; width: max(320px, calc(40% + (100vw - 100%) * .15)); } /* --landscape-inset: landscape.js rückt die Krone auf breiten Bildschirmen ans Astende */
   .landscape-particles { position: absolute; inset: 0; overflow: clip; }
   .landscape-particle { position: absolute; width: 15px; height: 23px; opacity: 0; color: var(--leaf-copper); animation: leaf-fall var(--duration) linear var(--delay) infinite; }
   .landscape-particle:nth-child(3n) { color: var(--leaf-ochre); }
@@ -343,7 +349,7 @@
     .landscape-on .perch { grid-column: 1; grid-row: 1; }
     .landscape-on .name { position: static; width: auto; padding: 0; grid-row: 2; }
     /* Unter der Menüzeile (Sprachwahl und Menü stehen links oben); die Oberkante läuft weich aus, damit kein Bildrand sichtbar wird. */
-    .landscape-crown { width: min(260px, 60vw); top: 52px; mask-image: linear-gradient(to bottom, transparent 0, black 34px); }
+    .landscape-crown { --crown-fade: 34px; width: min(260px, 60vw); top: 52px; mask-image: linear-gradient(to bottom, transparent 0, black var(--crown-fade)); }
     .landscape-far { left: 8%; width: 62%; bottom: calc(100% - var(--scene-top) - var(--scene-height) * .82); }
     .landscape-moon { width: 22px; height: 22px; }
   }
@@ -354,9 +360,9 @@
 
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
-<script src="landscape.js?v=20260922b"></script>
+<script src="landscape.js?v=20261010"></script>
 </head>
-<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20260925a">
+<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
 <nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><a href="#blog" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>

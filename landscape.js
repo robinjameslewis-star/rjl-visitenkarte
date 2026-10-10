@@ -47,6 +47,37 @@
     return { fraction: (1+cos(inc))/2, phase: .5 + .5*inc*(angle<0 ? -1 : 1)/PI, angle };
   }
 
+  // Beleuchtete Kugelhälfte orthografisch: Flächenanteil fraction, nicht lineare Sichelbreite.
+  function moonPhasePath(fraction, waxing, radius = 15) {
+    const f = clamp(fraction), r = radius, k = 1 - 2*f;
+    if (f === 0) return '';
+    if (f === 1) return `M0 ${-r}A${r} ${r} 0 1 1 0 ${r}A${r} ${r} 0 1 1 0 ${-r}Z`;
+    const terminator = Math.abs(k) < 1e-12 ? `L0 ${-r}` :
+      `A${Math.abs(k)*r} ${r} 0 0 ${waxing?(k>0?0:1):(k>0?1:0)} 0 ${-r}`;
+    return `M0 ${-r}A${r} ${r} 0 0 ${waxing?1:0} 0 ${r}${terminator}Z`;
+  }
+  function moonAppearance(sunAltitude, fraction, moonAltitude) {
+    const smooth = x => { const t=clamp(x); return t*t*(3-2*t); };
+    if (moonAltitude <= 0) return { light: 0, earthshine: 0 };
+    const f=clamp(fraction), elongation=acos(1-2*f)/rad;
+    // Atmosphärischer Kontrast als gestalterische Näherung, keine Photometrie.
+    // Tageshimmel überstrahlt die unbeleuchtete Seite vollständig; kein grauer Neumondkreis.
+    const night=smooth(-sunAltitude/rad/8), haze=smooth(moonAltitude/rad/2);
+    return {
+      light: f === 0 ? 0 : haze*(night+(1-night)*.35*smooth((elongation-10)/30)),
+      earthshine: haze*.055*night*(1-f)**2*smooth((elongation-5)/10)
+    };
+  }
+  // Die Aquarellfarbe bleibt durchsichtig, das Gelände verdeckt dennoch die Himmelskörper.
+  // Auch sehr blasse Kammlinien zählen; Pixel unter 8/255 sind Freistellungsrauschen.
+  function terrainHorizon(rgba, width, height, threshold = 8) {
+    const result=new Array(width).fill(height);
+    for (let x=0;x<width;x++) for (let y=0;y<height;y++) {
+      if (rgba[(y*width+x)*4+3]>=threshold) { result[x]=y; break; }
+    }
+    return result;
+  }
+
   // Zeitzonen liefern nur repräsentative Orte, niemals einen ermittelten Standort.
   const zones = {
     'Europe/Berlin':[52.52,13.41], 'Europe/London':[51.51,-.13],
@@ -183,7 +214,7 @@
     root.classList.remove('landscape-off');
     root.classList.add('landscape-on');
   }
-  const api = { sunPosition, moonPosition, moonIllumination, locationForZone,
+  const api = { sunPosition, moonPosition, moonIllumination, moonPhasePath, moonAppearance, terrainHorizon, locationForZone,
     parseOverrides, seasonState, nightFactor, stagePosition, normalizeSet, prepare, applyColors, SET_DIR, SEASONS, LAYERS, PARTICLES, DEFAULT_SET };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (typeof window !== 'undefined') window.RJLLandscape = api;
@@ -228,11 +259,14 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     <symbol id="leaf-1" viewBox="0 0 20 30"><path d="M10 29C1 21-1 9 12 1C20 9 20 22 10 29Z"/></symbol>
     <symbol id="leaf-2" viewBox="0 0 20 30"><path d="M9 29C2 20 4 10 12 1C24 16 18 24 9 29Z"/></symbol>
     <symbol id="petal" viewBox="0 0 20 30"><path d="M10 28C-6 15 2-5 10 5C24-7 25 19 10 28Z"/></symbol>
-    </defs></svg><div class="landscape-sky"></div><svg class="landscape-stars" viewBox="0 0 1000 400" preserveAspectRatio="none"></svg>
-    <div class="landscape-orb landscape-sun"></div><svg class="landscape-orb landscape-moon" viewBox="-16 -16 32 32"><circle class="dark" r="15"/><path class="light"/></svg><div class="landscape-particles"></div>`;
+    </defs></svg><div class="landscape-sky"></div><div class="landscape-celestial"><svg class="landscape-stars" viewBox="0 0 1000 400" preserveAspectRatio="none"></svg>
+    <div class="landscape-orb landscape-sun"></div><svg class="landscape-orb landscape-moon" viewBox="-16 -16 32 32"><circle class="dark" r="15"/><path class="light"/></svg></div><div class="landscape-particles"></div>`;
   stage.prepend(area);
   const stars = area.querySelector('.landscape-stars'), sun = area.querySelector('.landscape-sun');
   const moon = area.querySelector('.landscape-moon'), particles = area.querySelector('.landscape-particles');
+  const celestial = area.querySelector('.landscape-celestial');
+  const silhouettes = new WeakMap();
+  let maskKey = '';
   let seed = 417, seasonKey = '', frames = [];
   const random = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
   for (let i = 0; i < 60; i++) stars.insertAdjacentHTML('beforeend', `<circle cx="${random()*1000}" cy="${random()*360}" r="${.55+random()*.65}" style="animation-delay:-${random()*5}s"/>`);
@@ -241,6 +275,76 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     api.applyColors(root, n);
     const r=1-.45*n,g=1-.38*n,b=1-.20*n;
     area.querySelector('feColorMatrix').setAttribute('values',`${r} 0 0 0 0 0 ${g} 0 0 0 0 0 ${b} 0 0 0 0 0 1 0`);
+  }
+  function silhouette(img, terrain) {
+    if (!img.complete || !img.naturalWidth) return null;
+    const src=img.currentSrc||img.src, cached=silhouettes.get(img);
+    if (cached && cached.src===src) return cached;
+    const canvas=document.createElement('canvas');
+    canvas.width=Math.min(1400,img.naturalWidth);
+    canvas.height=Math.max(1,Math.round(img.naturalHeight*canvas.width/img.naturalWidth));
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    try {
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      const data=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const horizon=terrain?api.terrainHorizon(data.data,canvas.width,canvas.height):null;
+      if (!terrain) {
+        for (let i=0;i<data.data.length;i+=4) data.data[i+3]=Math.max(0,Math.min(255,(data.data[i+3]-3)*16));
+        ctx.putImageData(data,0,0);
+      }
+      const result={src,canvas,horizon}; silhouettes.set(img,result); return result;
+    } catch (_) { return null; } // Fremdbilder dürfen die übrige Szene nicht lahmlegen.
+  }
+  function maskStars() {
+    // Verdeckung durch die ganze Mondkugel, unabhängig von Phase und sichtbarer Helligkeit.
+    const m=moon.getBoundingClientRect(), s=stars.getBoundingClientRect();
+    const radius=m.width*15/32, x=m.left+m.width/2-s.left, y=m.top+m.height/2-s.top;
+    const mask=moon.hasAttribute('hidden')?'none':
+      `radial-gradient(circle at ${x}px ${y}px,transparent ${Math.max(0,radius-.3)}px,#000 ${radius+.3}px)`;
+    stars.style.maskImage=mask; stars.style.webkitMaskImage=mask;
+  }
+  function maskCelestial() {
+    const box=area.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    const layers=frames.filter(f=>f.isConnected && Number(f.style.opacity||1)>.001).map(f=>{
+      const img=f.querySelector('img'), rect=f.getBoundingClientRect();
+      return {img,rect,terrain:f.classList.contains('landscape-far'),opacity:Number(f.style.opacity||1),
+        fade:parseFloat(getComputedStyle(f).getPropertyValue('--crown-fade'))||0};
+    });
+    const key=JSON.stringify([box.width,box.height,layers.map(({img,rect,terrain,opacity,fade})=>
+      [img.currentSrc||img.src,img.complete,img.naturalWidth,rect.x-box.x,rect.y-box.y,rect.width,rect.height,terrain,opacity,fade])]);
+    if (key===maskKey) return;
+    maskKey=key;
+    if (!layers.length) { celestial.style.maskImage='none'; celestial.style.webkitMaskImage='none'; return; }
+    const canvas=document.createElement('canvas'); canvas.width=Math.ceil(box.width); canvas.height=Math.ceil(box.height);
+    const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.globalCompositeOperation='destination-out';
+    layers.forEach(({img,rect,terrain,opacity,fade})=>{
+      const cut=silhouette(img,terrain); if (!cut) return;
+      const x=rect.left-box.left,y=rect.top-box.top,w=rect.width,h=rect.height;
+      if (!terrain) {
+        ctx.globalAlpha=opacity;
+        if (fade>0) {
+          const crown=document.createElement('canvas'); crown.width=Math.ceil(w); crown.height=Math.ceil(h);
+          const c=crown.getContext('2d'); c.drawImage(cut.canvas,0,0,w,h);
+          const gradient=c.createLinearGradient(0,0,0,fade);
+          gradient.addColorStop(0,'transparent'); gradient.addColorStop(1,'#000');
+          c.globalCompositeOperation='destination-in'; c.fillStyle=gradient; c.fillRect(0,0,w,h);
+          ctx.drawImage(crown,x,y);
+        } else ctx.drawImage(cut.canvas,x,y,w,h);
+        ctx.globalAlpha=1; return;
+      }
+      const line=cut.horizon, width=line.length, height=cut.canvas.height;
+      for (let start=0;start<width;start++) {
+        if (line[start]===height) continue;
+        let end=start; while (end+1<width && line[end+1]<height) end++;
+        ctx.beginPath(); ctx.moveTo(x+start/width*w,canvas.height);
+        for (let col=start;col<=end;col++) ctx.lineTo(x+(col+.5)/width*w,y+line[col]/height*h);
+        ctx.lineTo(x+(end+1)/width*w,canvas.height); ctx.closePath(); ctx.fill(); start=end;
+      }
+    });
+    const mask=`url("${canvas.toDataURL()}")`;
+    celestial.style.maskImage=mask; celestial.style.webkitMaskImage=mask;
   }
   function geometry() {
     const s=scene.getBoundingClientRect(), box=stage.getBoundingClientRect();
@@ -266,6 +370,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
         leaf.style.setProperty('--fall',Math.max(120,s.bottom-c.top)+'px');
       });
     }
+    maskCelestial(); maskStars();
   }
   // Die Rechenschicht spricht englisch (autumn …), die Dateien deutsch (herbst …).
   const FILE={autumn:'herbst',winter:'winter',spring:'fruehling',summer:'sommer'};
@@ -291,7 +396,9 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
             document.head.append(preload);
           }
           area.insertBefore(picture,particles); frames.push(picture);
-          picture.querySelector('img').onerror=()=>picture.remove();
+          const img=picture.querySelector('img');
+          img.onload=()=>{ maskKey=''; geometry(); };
+          img.onerror=()=>{ picture.remove(); maskKey=''; geometry(); };
         });
       });
       particles.replaceChildren();
@@ -308,6 +415,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     }
     frames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
     root.dataset.season=FILE[state.current];
+    maskCelestial();
   }
   function update() {
     const date=input.timeOverridden?input.date:new Date(), sp=api.sunPosition(date,place.lat,place.lon);
@@ -317,17 +425,18 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     style.setProperty('--sun-side',pos.x*100+'%'); style.setProperty('--stars',altitude< -6?Math.min(1,(-altitude-6)/6):0);
     const sky=set.himmel[altitude< -12?'nacht':altitude<0?'daemmerung':altitude<10?'tief':'tag'];
     ['top','bottom','glow'].forEach((k,i)=>style.setProperty('--sky-'+k,sky[i]));
-    const horizon=parseFloat(style.getPropertyValue('--horizon'));
     [[sun,sp],[moon,mp]].forEach(([node,p])=>{
-      const v=api.stagePosition(p.altitude,p.azimuth,place.lat); node.hidden=!v.visible;
-      node.style.left=v.x*100+'%'; node.style.top=v.y*horizon+'px';
+      const v=api.stagePosition(p.altitude,p.azimuth,place.lat); node.toggleAttribute('hidden',!v.visible);
+      node.style.left=v.x*100+'%'; node.style.setProperty('--orb-y',v.y);
     });
     // Terminator: beleuchtete Halbkugel plus elliptische Tag-Nacht-Grenze, zum Zenit gedreht.
-    const phase=light.phase, k=1-2*light.fraction, waxing=phase<.5;
-    moon.querySelector('path').setAttribute('d',`M0 -15A15 15 0 0 ${waxing?1:0} 0 15A${Math.abs(k)*15||.001} 15 0 0 ${waxing?(k>0?0:1):(k>0?1:0)} 0 -15Z`);
-    moon.style.opacity=altitude>=0?.35:1;
+    const waxing=light.phase<.5, appearance=api.moonAppearance(sp.altitude,light.fraction,mp.altitude);
+    moon.querySelector('.light').setAttribute('d',api.moonPhasePath(light.fraction,waxing));
+    moon.querySelector('.light').style.opacity=appearance.light;
+    moon.querySelector('.dark').style.opacity=appearance.earthshine;
     moon.querySelector('path').setAttribute('transform','rotate('+((light.angle-mp.parallacticAngle)*180/Math.PI+(waxing?-90:90))+')');
-    window.RJLLandscape.state={date:date.toISOString(),place,sun:sp,moon:mp,illumination:light,night:n,season:api.seasonState(date,place.lat)};
+    maskStars();
+    window.RJLLandscape.state={date:date.toISOString(),place,sun:sp,moon:mp,illumination:light,appearance,night:n,season:api.seasonState(date,place.lat)};
   }
   update();
   let previewed=false;
