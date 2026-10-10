@@ -1,21 +1,21 @@
 ---
-title: "Seamless data flow – where data still changes media today"
+title: "Seamless data flow – where data still slips between paper and screen"
 date: 2026-10-02
 lang: en
 status: published
-summary: "Wherever data still changes media, errors creep in – and so do steps that the procedural documentation required by the GoBD has to explain."
+summary: "Every time data has to switch format, mistakes creep in – along with extra steps that the procedural documentation required by the GoBD has to explain."
 ---
 
-![Illustration of a data stream that breaks off at a sheet of paper and starts again behind it; a robin sits on the sheet.](bilder/medienbruchfreiheit.jpg)
+![Illustration of a stream of data that breaks off at a sheet of paper and picks up again behind it, with a robin perched on the sheet.](bilder/medienbruchfreiheit.jpg)
 
-In accounting, we work between media. A client annotates an invoice image, and it reaches us through the client portal. The changes to the image do not change the data record. That is a media break, and a source of errors and bottlenecks in the data flow.
+Accounting still lives between paper and screen. A client marks up a scanned invoice and sends it to us through the client portal, but the notes on the image do nothing to the underlying data. That is a break in the digital chain – and a common source of errors and hold-ups.
 
-So is it enough to leave the invoice image behind? No. Redundant data transfer happens beyond the invoice image too. Re-keying data when switching systems, because no interface has been set up, is also a media break. More on that in the next piece on interface integration.
+So is it enough to leave the scanned invoice behind? Not quite. Data gets keyed in twice in plenty of other places. Copying figures by hand from one system into another, because nobody has set up an interface, is just as much a break in the chain. More on that in my next piece, on interfaces.
 
-That this is about more than efficiency is shown by *Section 145(1) of the German Fiscal Code (AO)*: transactions must be traceable "in their origin and execution". The GoBD, the German principles for electronic bookkeeping, therefore require procedural documentation for every IT system. It describes the intended process – for electronic documents, from the creation of the information through processing and storage to machine evaluability (*GoBD paras. 151, 152*). Its form depends on the complexity of the business and of the system in use. Every media break is a separate step in it that someone has to explain.
+This is about more than efficiency, as *Section 145(1) of the German Fiscal Code (AO)* makes clear: it must be possible to trace business transactions "from their origin through to their completion". For that reason, the GoBD, the German principles for electronic bookkeeping, require procedural documentation for every IT system. It sets out the intended process – for electronic documents, from the moment the information is created, through processing and storage, to the point where it can be analysed by machine (*GoBD paras. 151, 152*). How detailed it needs to be depends on the complexity of the business and of the system in use. Every break in the chain is a separate step in it that someone has to explain.
 
-As described in the last piece, since 14 July 2025 the structured data record has been sufficient for e-invoices (*para. 119*). What matters is what happens to it next: e-invoices received must be retained in the format in which they arrived, and a format conversion must not delete the XML part (*paras. 125, 131*). Printing an XRechnung and filing the paper therefore reintroduces the media break.
+As I wrote last time, since 14 July 2025 the structured data has been sufficient for an e-invoice (*para. 119*). What matters is what happens to it afterwards. E-invoices received must be kept in the format in which they arrived, and converting them must not delete the XML part (*paras. 125, 131*). Print out an XRechnung and file it, and the break is back.
 
-In a tax audit, this shows with indirect data access: taxpayers evaluate their own data by machine, following the tax authority's instructions (*para. 166*). Only what exists as a data record can be evaluated. Incomplete procedural documentation is only a defect that can lead to the bookkeeping being rejected if it impairs traceability (*para. 155*). Media breaks are where traceability is most easily lost.
+This comes to light in a tax audit through indirect data access, where taxpayers analyse their own data by machine according to the tax authority's instructions (*para. 166*). Only what exists in structured form can be analysed. Gaps in the procedural documentation only count as a defect that may lead to the books being rejected if they undermine traceability (*para. 155*). And breaks in the chain are exactly where traceability is most easily lost.
 
-The framework for audits is changing too: on 10 July 2026, the Bundesrat approved the new External Audit Regulation (Außenprüfungsordnung, ApO). It replaces the Business Audit Regulation of 2000, is intended to speed up tax audits and sets out risk-based auditing (*Section 2 ApO*). Removing media breaks is therefore not only faster. It lets you explain your data flow.
+The rules for audits are changing as well. On 10 July 2026, the Bundesrat approved the new External Audit Regulation (Außenprüfungsordnung, ApO). It replaces the Business Audit Regulation of 2000, is meant to speed up tax audits and sets out a risk-based approach (*Section 2 ApO*). Removing breaks in the chain does more than save time – it means you can explain how your data flows.
