@@ -18,4 +18,4 @@ I appreciate that the remaining transitional rules are taking up a great deal of
 
 To show what I mean, consider how much effort goes into turning documents back into data. We copy IBANs from invoices into our banking software whenever the payee is not yet on file. With an e-invoice, the IBAN is already in the data, so the payment can be set up without anyone re-keying a thing.
 
-In the next piece in my series *Surfing the data flow of value creation*, I will look at further examples of how fewer manual hand-offs, straight-through processing and well-built interfaces spare us from entering the same data twice.
+In the next piece in my series *Riding the data flow of value creation*, I will look at further examples of how fewer manual hand-offs, straight-through processing and well-built interfaces spare us from entering the same data twice.
