@@ -1,4 +1,4 @@
-// Aufbau eines nicht erkannten Kontoauszugs aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Posting Batch Generator“).
+// Aufbau eines nicht erkannten Kontoauszugs aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Booking Batch Generator“).
 // POST /aufbau. Body (text/plain mit JSON, damit der Browser keine CORS-Vorabfrage braucht): { aufbau, bank, fassung, sprache }.
 // Meldungen an das Werkzeug kommen in dessen Sprache (sprache: "en" seit Werkzeug-Fassung d296ef1, sonst deutsch).
 // Das Werkzeug läuft meist als lokal geöffnete Datei (Origin „null“) – deshalb ist nur dieser Pfad für jede Herkunft offen,
@@ -90,7 +90,7 @@ export async function handleAufbau(request, env, ctx) {
   const datum = new Date().toISOString().slice(0, 10), zeilen = aufbau.split("\n").length;
   const text = [
     "Ein Kontoauszug wurde vom Werkzeug „Buchungsstapel-Generator“ nicht erkannt; der Aufbau ohne Inhalt liegt im Anhang.", "",
-    `Fassung des Werkzeugs: ${fassung}${sprache === "en" ? " (englische Fassung „Posting Batch Generator“)" : ""}`, `Bank (Angabe des Absenders): ${bank || "–"}`, `Zeilen: ${zeilen}`, "",
+    `Fassung des Werkzeugs: ${fassung}${sprache === "en" ? " (englische Fassung „Booking Batch Generator“)" : ""}`, `Bank (Angabe des Absenders): ${bank || "–"}`, `Zeilen: ${zeilen}`, "",
     "Zum Nachrüsten: Aufbau in buchungsstapel-lokal als Muster nachbauen (tests/bankmuster.py) und beide Leser prüfen.",
   ].join("\n");
   const r = await fetch("https://api.resend.com/emails", {

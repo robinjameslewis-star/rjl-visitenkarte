@@ -17,7 +17,7 @@ const lesen = p => readFileSync(root + p, "utf8");
 const SPRACHE = {
   de: { titel: "Buchungsstapel-Generator", fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
     marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/">Werkzeuge<\/a>/ },
-  en: { titel: "Posting Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
+  en: { titel: "Booking Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
     marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/">Tools<\/a>/ },
 };
 const felder = {};
@@ -37,7 +37,7 @@ for (const w of WERKZEUGE) {
   check(html.includes(`href="${f.datei.name}" download="${f.datei.name}"`), "Download-Knopf mit download-Attribut");
   check(html.includes(`<h2 id="nutzungsbedingungen">${s.nutzung}</h2>`) && s.haftung.test(html), "Nutzungsbedingungen auf der Seite");
   check(s.marke.test(html), "Markenhinweis");
-  check(!/ADDISON|Kontoauszug-Konverter|Bank Statement Converter/.test(html), "kein ADDISON-Bezug, kein alter Name");
+  check(!/ADDISON|Kontoauszug-Konverter|Bank Statement Converter|Posting Batch Generator/.test(html), "kein ADDISON-Bezug, kein alter Name");
   const nl = html.indexOf('id="newsletter"'), dl = html.indexOf('id="download"'), nb = html.indexOf('id="nutzungsbedingungen"');
   check(dl > 0 && nl > dl && nl < nb && html.indexOf("<h2", dl) === html.indexOf('<h2 id="newsletter-title"'), "Newsletter direkt unter dem Download, vor allem anderen");
   check(/data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html) && /<script src="\.\.\/\.\.\/newsletter\.js\?v=[^"]+" defer><\/script>/.test(html), "Anmeldung über den Worker");

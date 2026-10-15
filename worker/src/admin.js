@@ -300,9 +300,9 @@ export const CONTENT = {
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
   werkzeugEn: {
-    path: werkzeugPfad("posting-batch-generator"), title: "Werkzeug „Posting Batch Generator“ (englisch)",
+    path: werkzeugPfad("booking-batch-generator"), title: "Werkzeug „Booking Batch Generator“ (englisch)",
     split: html => werkzeugFelder(html),
-    join: f => werkzeugSeite(f, "posting-batch-generator"),
+    join: f => werkzeugSeite(f, "booking-batch-generator"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
 };
@@ -834,7 +834,7 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
-${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Posting Batch Generator (englische Seite)", "posting-batch-generator", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
+${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
 <p class="note" id="wdatei${x}"></p>
 <label for="wbeschr${x}">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr${x}" style="min-height:320px"></textarea>
 <label for="wnutz${x}">Nutzungsbedingungen</label><textarea id="wnutz${x}" style="min-height:260px"></textarea>

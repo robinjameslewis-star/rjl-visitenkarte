@@ -75,7 +75,7 @@ console.log("Aufbau aus dem Werkzeug (/aufbau)");
   check((await senden(e3, { aufbau: AUFBAU }, "null", "5.5.5.5")).status === 429, "Tagesgrenze insgesamt");
   check((await senden(env({ RESEND_API_KEY: "" }), { aufbau: AUFBAU }, "null", "6.6.6.6")).status === 503, "ohne Resend-Schlüssel: 503");
 
-  // Englische Fassung „Posting Batch Generator“ (seit Werkzeug-Fassung d296ef1): eigene Kopfzeile, Meldungen auf Englisch
+  // Englische Fassung „Booking Batch Generator“ (seit Werkzeug-Fassung d296ef1): eigene Kopfzeile, Meldungen auf Englisch
   const EN_AUFBAU = AUFBAU.replace(/^[^\n]*/, "Layout of a bank statement, without content: letters as x/X, digits as 9. Columns: page, height, left margin, text.");
   r = await senden(env(), { aufbau: EN_AUFBAU, fassung: "d296ef1", sprache: "en" }, "null", "7.7.7.7");
   check(r.status === 200 && /englische Fassung/.test(mails.at(-1).text), "englischer Aufbau angenommen, Mail nennt die englische Fassung");

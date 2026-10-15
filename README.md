@@ -398,11 +398,11 @@ Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (ei
 bei deaktiviertem Cache und gedrosseltem Netz.
 
 
-## Werkzeuge: Buchungsstapel-Generator / Posting Batch Generator (15.10.2026)
+## Werkzeuge: Buchungsstapel-Generator / Booking Batch Generator (15.10.2026)
 
 Bereich „Werkzeuge“ im Menü der Startseite (`#werkzeuge`, englisch „Tools“) mit Übersichten unter `werkzeuge/` und
 `werkzeuge/en/`. Erstes Werkzeug: der **Buchungsstapel-Generator** (`werkzeuge/buchungsstapel-generator/`), englisch der
-**Posting Batch Generator** (`werkzeuge/posting-batch-generator/`, englische Oberfläche, gleiche Funktionen). Kostenloser
+**Booking Batch Generator** (`werkzeuge/booking-batch-generator/`, englische Oberfläche, gleiche Funktionen). Kostenloser
 Download ohne Anmeldung. Das Werkzeug hieß bis 15.10.2026 „Kontoauszug-Konverter“; `werkzeuge/kontoauszug-konverter/`
 leitet weiter (GitHub Pages kennt keine Weiterleitung auf dem Server, deshalb eine kleine Seite mit `meta refresh`).
 Quelle: Repository `buchungsstapel-lokal` (Browser-Variante; `browser/build.py` baut beide Sprachen aus einer Quelle).
@@ -417,7 +417,7 @@ Quelle: Repository `buchungsstapel-lokal` (Browser-Variante; `browser/build.py` 
 - **Redaktion:** Abschnitte „Website – Werkzeug …“ für beide Seiten (Inhalte `werkzeug` und `werkzeugEn` in `CONTENT`):
   Texte ändern, veröffentlichen, vorige Fassung. Die Datei selbst kommt nicht über die Redaktion.
 - **Neue Fassung:** im Werkzeug committen und bauen (`python3 browser/build.py`), dann
-  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel-Generator.html ~/Developer/buchungsstapel-lokal/browser/dist/Posting-Batch-Generator.html`
+  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel-Generator.html ~/Developer/buchungsstapel-lokal/browser/dist/Booking-Batch-Generator.html`
   (kopiert die Dateien, liest Fassung und Datum, setzt Größe und SHA-256, baut Seiten, Übersichten, Startseitenliste und
   Weiterleitungen neu), `node tests/werkzeug_seite_test.mjs`, PR. Ohne Dateien baut das Skript nur den zweiten Teil neu.
 - **Aufbau-Meldungen:** Erkennt das Werkzeug einen Auszug nicht, kann der Nutzer auf Knopfdruck den Aufbau ohne Inhalt

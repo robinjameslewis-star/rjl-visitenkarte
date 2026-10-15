@@ -1,6 +1,6 @@
 // Neue Fassungen der Werkzeuge auf die Website bringen (worker/src/werkzeug.js, WERKZEUGE):
 //   node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel-Generator.html \
-//                                       ~/Developer/buchungsstapel-lokal/browser/dist/Posting-Batch-Generator.html
+//                                       ~/Developer/buchungsstapel-lokal/browser/dist/Booking-Batch-Generator.html
 // Je Datei: Werkzeug am Dateinamen erkennen, nach werkzeuge/<id>/ kopieren, Fassung aus dem Fuß lesen, Datum des Git-Stands der
 // Quelle nehmen, Größe und SHA-256 berechnen und die Downloadseite mit den vorhandenen Texten neu bauen. Die Texte pflegt Robin
 // in der Redaktion; gibt es eine Seite noch nicht, kommen die Starttexte unten zum Einsatz. Danach immer: Übersichten
@@ -61,15 +61,15 @@ Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbei
 **Lizenzen.** Das Werkzeug enthält pdf.js (Mozilla Foundation) und Tesseract mit tesseract.js für die Texterkennung, beide unter der Apache License 2.0, sowie die Schrift EB Garamond (SIL Open Font License 1.1). Die Lizenztexte stehen in der Datei unter „Hinweise, Datenschutz und Lizenzen“.
 
 Es gilt deutsches Recht.`,
-    hinweis: `An English version of this tool is available as the [Posting Batch Generator](https://robin.vision/werkzeuge/posting-batch-generator/): same functions, English user interface. The export remains in the German DATEV format.`,
+    hinweis: `An English version of this tool is available as the [Booking Batch Generator](https://robin.vision/werkzeuge/booking-batch-generator/): same functions, English user interface. The export remains in the German DATEV format.`,
   },
-  "posting-batch-generator": {
-    beschreibung: `The Posting Batch Generator turns bank statements in PDF format into posting batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. The batches are meant for import into accounting software that reads the German DATEV format.
+  "booking-batch-generator": {
+    beschreibung: `The Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. The batches are meant for import into accounting software that reads the German DATEV format.
 
 ## What it does
 
 - **Without a template:** every transaction is posted to a fixed bank account and contra account, such as a clearing account. Debit and credit follow from the direction of the payment.
-- **With a template:** load the previous month's posting batch as well, and the generator takes the contra account, BU key and posting text from similar postings. Uncertain suggestions are marked.
+- **With a template:** load the previous month's booking batch as well, and the generator takes the contra account, BU key and posting text from similar postings. Uncertain suggestions are marked.
 - **Many banks:** it recognises the layout of a statement by itself. It has been tested with statements in the style of Sparkasse, Volks- und Raiffeisenbanken, Deutsche Bank, Commerzbank, Postbank, ING, DKB, N26, Wise and Revolut, English-language ones included.
 - **Scans too:** it reads scanned statements, black and white ones included, using text recognition, also offline, in a few seconds per page.
 - **Balance check:** for each statement it compares the transactions read with the balance and, if there is a difference, names the amount that is probably missing.
@@ -77,10 +77,10 @@ Es gilt deutsches Recht.`,
 ## How it works
 
 1. Download the file and open it with a double-click in Edge or Chrome.
-2. Optionally load the previous month's posting batch. The generator then takes its contra accounts; otherwise a fixed contra account applies.
+2. Optionally load the previous month's booking batch. The generator then takes its contra accounts; otherwise a fixed contra account applies.
 3. Drag in the bank statements as PDF files.
-4. Click “Create posting batches”, check the postings and export them. The balance check shows whether everything was read.
-5. Import the posting batch into your accounting software using its import for the DATEV format.
+4. Click “Create booking batches”, check the postings and export them. The balance check shows whether everything was read.
+5. Import the booking batch into your accounting software using its import for the DATEV format.
 
 Test it with a test client before using it for the first time.
 
@@ -98,7 +98,7 @@ Bank statements, template and postings are processed only in your browser window
 
 **Use.** You may use the tool free of charge, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.
 
-**No advice, check the result.** The tool is a technical aid and not tax or legal advice. Check every posting batch before importing it and before finalising it; the balance check for each statement helps with this.
+**No advice, check the result.** The tool is a technical aid and not tax or legal advice. Check every booking batch before importing it and before finalising it; the balance check for each statement helps with this.
 
 **Warranty and liability.** The tool is provided free of charge. I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. Liability for injury to life, body or health and under the German Product Liability Act remains unaffected.
 

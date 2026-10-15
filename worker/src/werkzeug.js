@@ -14,11 +14,11 @@ const SITE = "https://robin.vision/";
 // Werkzeuge mit ihren Sprachfassungen. „gegenstueck“ ist dieselbe Datei in der anderen Sprache.
 export const WERKZEUGE = [
   { id: "buchungsstapel-generator", lang: "de", titel: "Buchungsstapel-Generator", datei: "Buchungsstapel-Generator.html",
-    gegenstueck: "posting-batch-generator",
+    gegenstueck: "booking-batch-generator",
     kurz: "Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows." },
-  { id: "posting-batch-generator", lang: "en", titel: "Posting Batch Generator", datei: "Posting-Batch-Generator.html",
+  { id: "booking-batch-generator", lang: "en", titel: "Booking Batch Generator", datei: "Booking-Batch-Generator.html",
     gegenstueck: "buchungsstapel-generator",
-    kurz: "Turns PDF bank statements, scanned ones included, into posting batches in the German DATEV format. Runs offline in your browser, Windows included." },
+    kurz: "Turns PDF bank statements, scanned ones included, into booking batches in the German DATEV format. Runs offline in your browser, Windows included." },
 ];
 export const werkzeug = id => WERKZEUGE.find(w => w.id === id);
 export const werkzeugPfad = id => `werkzeuge/${id}/index.html`;
