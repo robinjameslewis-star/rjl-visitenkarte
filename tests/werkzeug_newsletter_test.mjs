@@ -31,7 +31,7 @@ const env = (extra = {}) => ({ USAGE: kv(), MAIL_TO: "robin@example.test", RESEN
 // Ein Aufbau, wie ihn das Werkzeug erzeugt (Buchstaben x/X, Ziffern 9, bekannte Wörter bleiben)
 const AUFBAU = ["Aufbau eines Kontoauszugs, ohne Inhalt: Buchstaben als x/X, Ziffern als 9. Spalten: Seite, Höhe, linker Rand, Text.", "",
   "1  762   42  Xxxx Xxxxxx XX", "1  452   42  Description  Incoming  Outgoing  Amount",
-  "1  429   42  Card transaction of 99.99 EUR issued by Xxxxxxx.xxx  -99.99  9,999.99",
+  "1  429   42  Card transaction of 99.99 EUR issued by Xxxxxxx.xxx  -99.99  9,999.99   [42 380 520]",
   "1  415   42  99 Sep 9999 | Card ending in 9999 | Xxxxxxxx Xxxxxx"].join("\n");
 const senden = (e, body, origin = "null", ip = "2.2.2.2") => worker.fetch(new Request("https://goch.robin.vision/aufbau", { method: "POST",
   headers: { "content-type": "text/plain;charset=UTF-8", Origin: origin, "CF-Connecting-IP": ip }, body: typeof body === "string" ? body : JSON.stringify(body) }), e, ctx);
@@ -55,6 +55,10 @@ console.log("Aufbau aus dem Werkzeug (/aufbau)");
   check(r.status === 400 && /Klartext/.test((await r.json()).error), "Klartext wird abgewiesen");
   r = await senden(env(), { aufbau: AUFBAU.replace("Xxxx Xxxxxx XX", "Xxxx Trône XX") });
   check(r.status === 400, "auch Akzentbuchstaben im Klartext werden abgewiesen");
+  r = await senden(env(), { aufbau: AUFBAU.replace("[42 380 520]", "[42 380 Wise]") });
+  check(r.status === 400, "Klartext in den Lagen der Textblöcke abgewiesen");
+  r = await senden(env(), { aufbau: AUFBAU.replace("  9,999.99   [42 380 520]", "  1,234.56   [42 380 520]") });
+  check(r.status === 400, "Ziffern im Text vor den Lagen abgewiesen");
   r = await senden(env(), { aufbau: "Irgendein Text ".repeat(10) });
   check(r.status === 400, "fremder Text wird abgewiesen");
   r = await senden(env(), "kein JSON");

@@ -2,7 +2,8 @@
 // Body (text/plain mit JSON, damit der Browser keine CORS-Vorabfrage braucht): { aufbau, bank, fassung }.
 // Das Werkzeug läuft meist als lokal geöffnete Datei (Origin „null“) – deshalb ist nur dieser Pfad für jede Herkunft offen,
 // ohne Cookies und ohne Anmeldung. Der Worker prüft, dass der Text wirklich ohne Inhalt ist (keine Ziffern außer 9, Wörter nur
-// aus x/X oder bekannten Spalten- und Fachwörtern), begrenzt die Menge und stellt ihn per Resend an MAIL_TO zu (als Anhang).
+// aus x/X oder bekannten Spalten- und Fachwörtern; am Zeilenende darf in eckigen Klammern die Lage der Textblöcke stehen, das
+// sind nur Zahlen), begrenzt die Menge und stellt ihn per Resend an MAIL_TO zu (als Anhang).
 // Gespeichert wird nichts außer einem Tageszähler ohne Personenbezug (aufbau:YYYY-MM-DD).
 
 const KOPF = "Aufbau eines Kontoauszugs, ohne Inhalt";
@@ -30,7 +31,8 @@ export function pruefeAufbau(text) {
   if (zeilen.length > MAX_ZEILEN) return "Der Aufbau hat zu viele Zeilen.";
   for (const [i, z] of zeilen.slice(1).entries()) {
     if (!z.trim()) continue;
-    const m = z.match(/^\s*\d{1,3}\s+-?\d{1,5}\s+-?\d{1,5} {2}(.*)$/); // Seite, Höhe, linker Rand, Text
+    // Seite, Höhe, linker Rand, Text, wahlweise die Lage der Textblöcke („   [72 323 451]“, seit Werkzeug-Fassung 9c301c2)
+    const m = z.match(/^\s*\d{1,3}\s+-?\d{1,5}\s+-?\d{1,5} {2}(.*?)(?: {3}\[-?\d{1,5}(?: -?\d{1,5}){1,40}\])?$/);
     if (!m) return `Zeile ${i + 2} hat nicht das Format des Aufbaus.`;
     if (/[0-8]/.test(m[1]) || /[^\P{Nd}9]/u.test(m[1])) return `Zeile ${i + 2} enthält Ziffern – der Aufbau muss ohne Inhalt sein.`;
     for (const w of m[1].split(/\s+/)) {
