@@ -12,6 +12,8 @@ import LINKS_MD from "../links.md";
 import { handleAdmin } from "./admin.js";
 import { raw as githubRaw } from "./github.js";
 import { handleContact } from "./contact.js";
+import { handleAufbau } from "./aufbau.js";
+import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
@@ -59,6 +61,8 @@ const TEXT = {
 
 export default {
   async fetch(request, env, ctx) {
+    // Aufbau aus dem Werkzeug „Kontoauszug-Konverter“: offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
+    if (new URL(request.url).pathname === "/aufbau") return handleAufbau(request, env, ctx);
     const origin = request.headers.get("Origin") || "";
     const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
     const cors = {
@@ -75,10 +79,12 @@ export default {
       return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD, profile: PROFILE },
         profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch });
     }
-    if (request.method !== "POST" || (url.pathname !== "/chat" && url.pathname !== "/contact")) return json({ error: "Nicht gefunden." }, 404, cors);
+    if (request.method !== "POST" || !["/chat", "/contact", "/newsletter"].includes(url.pathname)) return json({ error: "Nicht gefunden." }, 404, cors);
     if (allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
     // Kontaktformular: zweiter Eingang neben Goch, gleiche Zustellung per Resend (src/contact.js)
     if (url.pathname === "/contact") return handleContact(request, env, ctx, cors);
+    // Newsletter „Impulse“: Anmeldung mit Double-Opt-In über Brevo (src/newsletter.js)
+    if (url.pathname === "/newsletter") return handleNewsletter(request, env, ctx, cors);
 
     // Betriebseinstellungen aus der Redaktion (an/aus, Anbieter, Modell, Cache)
     const settings = await loadSettings(env);

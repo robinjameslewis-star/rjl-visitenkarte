@@ -176,6 +176,7 @@
   .message input:focus-visible, .message textarea:focus-visible { outline: 1px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
   .message .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .message .actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 6px 0 12px; }
+  .message a.werkzeug-link { display: inline-block; text-decoration: none; }
   .message .msg-status { font-size: 14px; color: var(--ink-soft); }
   .message .msg-status.ok { color: var(--green); }
   .message .msg-status.warn { color: var(--warning); }
@@ -362,7 +363,7 @@
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
 <script src="landscape.js?v=20261010"></script>
 </head>
-<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
+<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
 <nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><a href="#blog" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
@@ -454,6 +455,24 @@
   </section>
   <!-- /redaktion:blog-section -->
 
+  <!-- Newsletter (Impulse und Werkzeuge, newsletter.js): sichtbar, sobald data-newsletter-endpoint am <body> gesetzt ist -->
+  <section class="message newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+    <h2 id="newsletter-title" data-i18n="newsletterTitle">Impulse und Werkzeuge per E-Mail</h2>
+    <p class="lead" data-i18n="newsletterLead">Jeden Freitag der neue Impuls, kurz und mit Quellen, dazu Neues zu meinen Werkzeugen. Jederzeit abbestellbar.</p>
+    <form id="newsletter-form" novalidate>
+      <div class="field"><label for="nl-email" data-i18n="fieldEmail">E-Mail-Adresse</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email"></div>
+      <div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <p class="actions"><button type="submit" class="consent-button" id="nl-send" data-i18n="newsletterSend">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span></p>
+      <p class="hint" data-i18n="newsletterNote">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach bist du angemeldet. Versand über Brevo, Abmeldung jederzeit über den Link in jeder Ausgabe. Einzelheiten unter Impressum · Datenschutz.</p>
+    </form>
+  </section>
+
+  <section class="message werkzeug" id="werkzeuge" aria-labelledby="werkzeug-title">
+    <h2 id="werkzeug-title" data-i18n="toolTitle">Werkzeug: Kontoauszug-Konverter</h2>
+    <p class="lead" data-i18n="toolLead">Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Kostenlos, offline im Browser, auch unter Windows.</p>
+    <p><a class="consent-button werkzeug-link" href="werkzeuge/kontoauszug-konverter/" data-i18n="toolLink">Zum Download</a></p>
+  </section>
+
   <section class="message" id="nachricht" aria-labelledby="nachricht-title">
     <h2 id="nachricht-title" data-i18n="messageTitle">Nachricht schreiben</h2>
     <p class="lead" data-i18n="messageLead">Ich antworte persönlich per E-Mail.</p>
@@ -484,7 +503,9 @@
       <p data-i18n="privacyGoch">Gespräch mit Goch: Das Gespräch mit dem Rotkehlchen ist freiwillig und beginnt erst nach Zustimmung (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO); die Auswahl wird wie beim Kalender für 180 Tage lokal im Browser gespeichert und ist im Gespräch jederzeit widerrufbar. Eingegebene Texte und die IP-Adresse werden an einen Cloudflare Worker (Cloudflare, Inc.) übertragen und von dort an das Sprachmodell Claude von Anthropic, PBC (USA) weitergegeben, das die Antwort erzeugt; Anthropic verwendet API-Eingaben laut seinen Bedingungen nicht zum Training. Der Worker speichert keine Gespräche, nur einen Tageszähler ohne Personenbezug sowie Fragen, die Goch nicht beantworten konnte – ohne Bezug zur fragenden Person, für 30 Tage, damit Robin das Profil ergänzen kann. Eine Nachricht an Robin wird erst nach ausdrücklicher Bestätigung mit Name und E-Mail-Adresse über den Versanddienst Resend (Resend, Inc., USA) per E-Mail zugestellt – zusammen mit dem Gesprächsverlauf dieser Sitzung, damit Robin den Zusammenhang kennt – und wie Kontaktdaten behandelt. Antworten des Sprachmodells sind automatisch erzeugt und keine verbindliche Auskunft.</p>
       <p data-i18n="privacyContact">Kontaktformular: Name, E-Mail-Adresse, freiwillig Telefonnummer und der Nachrichtentext werden beim Absenden über einen Cloudflare Worker (Cloudflare, Inc.) und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich zugestellt und ausschließlich zur Beantwortung verwendet (Art. 6 Abs. 1 lit. b und f DSGVO). Es werden keine Cookies gesetzt und keine Eingaben auf dem Server gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
       <p data-i18n="privacyYoutube">Eingebettete Videos von YouTube (Google Ireland Ltd.) werden erst geladen, wenn Sie auf den Platzhalter klicken (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Dabei verarbeitet Google Ihre IP-Adresse und Browserdaten, auch in den USA; es wird die Variante ohne Cookies zur Wiedergabeverfolgung („youtube-nocookie“) verwendet. Ohne Klick wird keine Verbindung zu YouTube aufgebaut.</p>
-      <p><a href="https://www.cloudflare.com/privacypolicy/" data-i18n="cloudflarePrivacy">Datenschutz bei Cloudflare</a> · <a href="https://www.anthropic.com/privacy" data-i18n="anthropicPrivacy">Datenschutz bei Anthropic</a> · <a href="https://resend.com/legal/privacy-policy" data-i18n="resendPrivacy">Datenschutz bei Resend</a></p>
+      <p data-i18n="privacyNewsletter">Newsletter: Er bringt die Impulse und Neues zu meinen Werkzeugen (neue Werkzeuge und Fassungen). Bei der Anmeldung geht die E-Mail-Adresse über einen Cloudflare Worker (Cloudflare, Inc.) an den Versanddienst Brevo (Sendinblue SAS, Paris, Frankreich). Brevo schickt eine Bestätigungsmail; erst nach dem Klick auf den Link ist die Adresse angemeldet (Double-Opt-In). Gespeichert werden die Adresse, die Sprache sowie Zeitpunkt und IP-Adresse von Anmeldung und Bestätigung, damit die Einwilligung nachweisbar ist. Grundlage ist die Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie lässt sich jederzeit über den Abmeldelink in jeder Ausgabe oder per E-Mail widerrufen; danach wird die Adresse gelöscht oder, soweit sie zum Nachweis nötig ist, gesperrt. Öffnungen und Klicks werden nicht personenbezogen ausgewertet. Brevo verarbeitet die Daten in meinem Auftrag. Die Ausgaben mit den Impulsen erstellt Brevo aus dem Blog-Feed mit dem Dienst Integry (USA), den Brevo als Unterauftragsverarbeiter einsetzt. Eine Verarbeitung in den USA ist dabei möglich; laut Brevo gelten dafür Standardvertragsklauseln.</p>
+      <p data-i18n="privacyTool">Werkzeug „Kontoauszug-Konverter“: Der Download ist ohne Anmeldung möglich. Das Werkzeug verarbeitet Kontoauszüge nur im Browser und überträgt sie nicht. Nur wenn Sie bei einem nicht erkannten Auszug ausdrücklich „Aufbau senden“ wählen, geht dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9, freiwillig der Name der Bank) über einen Cloudflare Worker und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich, damit ich das Layout nachrüsten kann (Art. 6 Abs. 1 lit. a DSGVO). Die IP-Adresse wird dabei technisch verarbeitet, aber nicht gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
+      <p><a href="https://www.cloudflare.com/privacypolicy/" data-i18n="cloudflarePrivacy">Datenschutz bei Cloudflare</a> · <a href="https://www.anthropic.com/privacy" data-i18n="anthropicPrivacy">Datenschutz bei Anthropic</a> · <a href="https://resend.com/legal/privacy-policy" data-i18n="resendPrivacy">Datenschutz bei Resend</a> · <a href="https://www.brevo.com/de/legal/privacypolicy/" data-i18n="brevoPrivacy">Datenschutz bei Brevo</a></p>
       <p data-i18n="privacyRetention">Kontakt- und Termindaten dienen der Bearbeitung der Anfrage und der Organisation des Gesprächs (Art. 6 Abs. 1 lit. f DSGVO; bei vertragsbezogenen Anfragen lit. b). Sie werden so lange aufbewahrt, wie dies für diesen Zweck oder gesetzliche Pflichten erforderlich ist. Die Speicherdauer technischer Daten bei den Anbietern richtet sich nach deren verlinkten Angaben.</p>
       <p data-i18n="privacyRights">Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.</p>
       <p><a href="https://www.baden-wuerttemberg.datenschutz.de/" data-i18n="privacyAuthority">Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg</a></p>
@@ -507,9 +528,10 @@
 
 <script>window.RJLLandscape?.init();</script>
 <script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
-<script src="language.js?v=20260925b" defer></script>
+<script src="language.js?v=20261015b" defer></script>
 <script src="site.js?v=20260925" defer></script>
 <script src="goch.js?v=20260922" defer></script>
 <script src="contact.js?v=20260919" defer></script>
+<script src="newsletter.js?v=20261015b" defer></script>
 </body>
 </html>

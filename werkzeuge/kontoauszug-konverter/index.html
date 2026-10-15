@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontoauszug-Konverter – Robin James Lewis</title>
+<meta name="description" content="Kostenloses Werkzeug: macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten Auszügen. Läuft offline im Browser.">
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/werkzeuge/kontoauszug-konverter/">
+<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kontoauszug-Konverter">
+<meta property="og:description" content="Kostenloses Werkzeug: macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten Auszügen. Läuft offline im Browser.">
+<meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://robin.vision/werkzeuge/kontoauszug-konverter/">
+<meta name="twitter:card" content="summary">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
+.top a:hover { color: var(--green); }
+.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); }
+main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
+h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
+.meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 32px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.newsletter { margin: 18px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+</style>
+<script type="application/json" id="werkzeug-daten">{"beschreibung":"Der Kontoauszug-Konverter macht aus Kontoauszügen im PDF-Format Buchungsstapel im DATEV-Format (DatevPro, EXTF), je Auszug und Monat einen, auch aus gescannten Auszügen. Er läuft vollständig in Ihrem Browser, ohne Installation und ohne Konto, auch unter Windows.\n\n## Was er kann\n\n- **Ohne Vorlage:** Jeder Umsatz wird auf ein festes Bank- und Gegenkonto gebucht, etwa ein Verrechnungskonto. Soll und Haben ergeben sich aus der Zahlungsrichtung.\n- **Mit Vorlage:** Laden Sie den Buchungsstapel des Vormonats dazu, übernimmt der Konverter Gegenkonto, BU-Schlüssel und Buchungstext aus ähnlichen Buchungen. Unsichere Vorschläge sind markiert.\n- **Viele Banken:** Das Layout eines Auszugs erkennt er selbst. Geprüft ist er mit Auszügen im Stil von Sparkasse, Volks- und Raiffeisenbanken, Deutscher Bank, Commerzbank, Postbank, ING, DKB, N26, Wise und Revolut, auch englischsprachig.\n- **Auch Scans:** Gescannte Auszüge, auch in Schwarz-Weiß, liest er per Texterkennung, ebenfalls offline, einige Sekunden je Seite.\n- **Summenprüfung:** Je Auszug vergleicht er die gelesenen Umsätze mit dem Kontostand und nennt bei einer Abweichung den Betrag, der vermutlich fehlt.\n\n## So geht es\n\n1. Datei herunterladen und per Doppelklick in Edge oder Chrome öffnen.\n2. Wahlweise den Buchungsstapel des Vormonats laden. Dann übernimmt der Konverter dessen Gegenkonten, sonst gilt ein festes Gegenkonto.\n3. Die Kontoauszüge als PDF hineinziehen.\n4. „Buchungsstapel erstellen“, die Buchungen prüfen und exportieren. Die Summenprüfung zeigt, ob alles gelesen wurde.\n5. Den Buchungsstapel in Ihrer Buchhaltung über den Import für das DATEV-Format einlesen.\n\nVor dem ersten Einsatz mit einem Testmandanten prüfen.\n\n## Wenn etwas nicht stimmt\n\n- Bei gescannten Auszügen kann sich die Texterkennung bei Ziffern irren. Hinweise unter der Summenprüfung beachten; Beträge lassen sich in der Tabelle korrigieren.\n- Liest der Konverter einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt an robin.vision senden oder speichern und per E-Mail schicken. Er enthält keine Namen, Beträge oder Kontonummern; das Layout wird dann nachgerüstet.\n\n## Datenschutz\n\nKontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei kann keine Verbindung ins Internet aufbauen, mit einer Ausnahme, die Sie selbst auslösen: Erkennt der Konverter einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9) an robin.vision senden. Sie sehen vorher genau, was gesendet wird.","nutzung":"Stand: 15. Oktober 2026\n\n**Anbieter.** Robin James Lewis, Höchststr. 32, 72336 Balingen ([Impressum](https://robin.vision/#privacy)).\n\n**Nutzung.** Sie dürfen das Werkzeug kostenlos nutzen, für sich selbst und in Ihrem Unternehmen oder Ihrer Kanzlei, und die unveränderte Datei weitergeben. Nicht erlaubt ist, es zu verändern, zu verkaufen oder als eigenes Angebot zu vertreiben.\n\n**Keine Beratung, Ergebnis prüfen.** Das Werkzeug ist eine technische Hilfe und keine Steuer- oder Rechtsberatung. Prüfen Sie jeden Buchungsstapel vor dem Import und vor der Festschreibung; die Summenprüfung je Auszug hilft dabei.\n\n**Gewährleistung und Haftung.** Das Werkzeug wird unentgeltlich überlassen. Ich hafte nur für Vorsatz und grobe Fahrlässigkeit, für Mängel nur, wenn ich sie arglistig verschwiegen habe. Unberührt bleibt die Haftung für Schäden aus der Verletzung von Leben, Körper oder Gesundheit und nach dem Produkthaftungsgesetz.\n\n**Weiterentwicklung.** Ein Anspruch auf Aktualisierungen, Unterstützung oder dauerhafte Bereitstellung besteht nicht.\n\n**Marken.** DATEV ist eine eingetragene Marke der DATEV eG. Das Werkzeug steht in keiner Verbindung zur DATEV eG und wird von ihr weder geprüft noch unterstützt. Weitere genannte Namen sind Marken ihrer Inhaber.\n\n**Lizenzen.** Das Werkzeug enthält pdf.js (Mozilla Foundation) und Tesseract mit tesseract.js für die Texterkennung, beide unter der Apache License 2.0, sowie die Schrift EB Garamond (SIL Open Font License 1.1). Die Lizenztexte stehen in der Datei unter „Hinweise, Datenschutz und Lizenzen“.\n\nEs gilt deutsches Recht.","en":"Kontoauszug-Konverter is a free, German-language tool that turns PDF bank statements, scans included, into booking batches in the DATEV format (EXTF) for import into German accounting software. It runs entirely in your browser, text recognition included; statements and bookings never leave your computer. The terms of use above (in German) apply. The newsletter, in German, reports on new tools and versions alongside the weekly posts.","datei":{"name":"Kontoauszug-Konverter.html","fassung":"8d8afca","datum":"2026-10-15","bytes":9708009,"sha256":"e195981b51cba29d129bcfb541d2d49f8e8cce6aadb438540d8189c96da9c66c"}}</script>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<nav class="top" aria-label="Seite"><a class="home" href="../../">Robin James Lewis</a><a href="../../blog/">Impulse</a></nav>
+<main>
+<article>
+<h1>Kontoauszug-Konverter</h1>
+<p class="meta">Kostenloses Werkzeug · Fassung 8d8afca vom 15.10.2026</p>
+<p>Der Kontoauszug-Konverter macht aus Kontoauszügen im PDF-Format Buchungsstapel im DATEV-Format (DatevPro, EXTF), je Auszug und Monat einen, auch aus gescannten Auszügen. Er läuft vollständig in Ihrem Browser, ohne Installation und ohne Konto, auch unter Windows.</p>
+<div class="download" id="download">
+<a class="knopf" href="Kontoauszug-Konverter.html" download="Kontoauszug-Konverter.html">Herunterladen (9,7 MB)</a>
+<dl><dt>Datei</dt><dd>Kontoauszug-Konverter.html</dd><dt>Fassung</dt><dd>8d8afca vom 15.10.2026</dd>
+<dt>SHA-256</dt><dd><code>e195981b51cba29d129bcfb541d2d49f8e8cce6aadb438540d8189c96da9c66c</code></dd></dl>
+<p class="meta hinweis">Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.</p>
+</div>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">Neue Werkzeuge per E-Mail</h2>
+<p>Der Newsletter informiert über neue Fassungen des Konverters und weitere Werkzeuge, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">E-Mail-Adresse</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="../../#privacy">Datenschutz</a>.</p>
+</form>
+</section>
+<h2>Was er kann</h2>
+<ul><li><strong>Ohne Vorlage:</strong> Jeder Umsatz wird auf ein festes Bank- und Gegenkonto gebucht, etwa ein Verrechnungskonto. Soll und Haben ergeben sich aus der Zahlungsrichtung.</li><li><strong>Mit Vorlage:</strong> Laden Sie den Buchungsstapel des Vormonats dazu, übernimmt der Konverter Gegenkonto, BU-Schlüssel und Buchungstext aus ähnlichen Buchungen. Unsichere Vorschläge sind markiert.</li><li><strong>Viele Banken:</strong> Das Layout eines Auszugs erkennt er selbst. Geprüft ist er mit Auszügen im Stil von Sparkasse, Volks- und Raiffeisenbanken, Deutscher Bank, Commerzbank, Postbank, ING, DKB, N26, Wise und Revolut, auch englischsprachig.</li><li><strong>Auch Scans:</strong> Gescannte Auszüge, auch in Schwarz-Weiß, liest er per Texterkennung, ebenfalls offline, einige Sekunden je Seite.</li><li><strong>Summenprüfung:</strong> Je Auszug vergleicht er die gelesenen Umsätze mit dem Kontostand und nennt bei einer Abweichung den Betrag, der vermutlich fehlt.</li></ul>
+<h2>So geht es</h2>
+<ol><li>Datei herunterladen und per Doppelklick in Edge oder Chrome öffnen.</li><li>Wahlweise den Buchungsstapel des Vormonats laden. Dann übernimmt der Konverter dessen Gegenkonten, sonst gilt ein festes Gegenkonto.</li><li>Die Kontoauszüge als PDF hineinziehen.</li><li>„Buchungsstapel erstellen“, die Buchungen prüfen und exportieren. Die Summenprüfung zeigt, ob alles gelesen wurde.</li><li>Den Buchungsstapel in Ihrer Buchhaltung über den Import für das DATEV-Format einlesen.</li></ol>
+<p>Vor dem ersten Einsatz mit einem Testmandanten prüfen.</p>
+<h2>Wenn etwas nicht stimmt</h2>
+<ul><li>Bei gescannten Auszügen kann sich die Texterkennung bei Ziffern irren. Hinweise unter der Summenprüfung beachten; Beträge lassen sich in der Tabelle korrigieren.</li><li>Liest der Konverter einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt an robin.vision senden oder speichern und per E-Mail schicken. Er enthält keine Namen, Beträge oder Kontonummern; das Layout wird dann nachgerüstet.</li></ul>
+<h2>Datenschutz</h2>
+<p>Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei kann keine Verbindung ins Internet aufbauen, mit einer Ausnahme, die Sie selbst auslösen: Erkennt der Konverter einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9) an robin.vision senden. Sie sehen vorher genau, was gesendet wird.</p>
+<h2 id="nutzungsbedingungen">Nutzungsbedingungen</h2>
+<div class="nutzung">
+<p>Stand: 15. Oktober 2026</p>
+<p><strong>Anbieter.</strong> Robin James Lewis, Höchststr. 32, 72336 Balingen (<a href="https://robin.vision/#privacy" rel="noopener">Impressum</a>).</p>
+<p><strong>Nutzung.</strong> Sie dürfen das Werkzeug kostenlos nutzen, für sich selbst und in Ihrem Unternehmen oder Ihrer Kanzlei, und die unveränderte Datei weitergeben. Nicht erlaubt ist, es zu verändern, zu verkaufen oder als eigenes Angebot zu vertreiben.</p>
+<p><strong>Keine Beratung, Ergebnis prüfen.</strong> Das Werkzeug ist eine technische Hilfe und keine Steuer- oder Rechtsberatung. Prüfen Sie jeden Buchungsstapel vor dem Import und vor der Festschreibung; die Summenprüfung je Auszug hilft dabei.</p>
+<p><strong>Gewährleistung und Haftung.</strong> Das Werkzeug wird unentgeltlich überlassen. Ich hafte nur für Vorsatz und grobe Fahrlässigkeit, für Mängel nur, wenn ich sie arglistig verschwiegen habe. Unberührt bleibt die Haftung für Schäden aus der Verletzung von Leben, Körper oder Gesundheit und nach dem Produkthaftungsgesetz.</p>
+<p><strong>Weiterentwicklung.</strong> Ein Anspruch auf Aktualisierungen, Unterstützung oder dauerhafte Bereitstellung besteht nicht.</p>
+<p><strong>Marken.</strong> DATEV ist eine eingetragene Marke der DATEV eG. Das Werkzeug steht in keiner Verbindung zur DATEV eG und wird von ihr weder geprüft noch unterstützt. Weitere genannte Namen sind Marken ihrer Inhaber.</p>
+<p><strong>Lizenzen.</strong> Das Werkzeug enthält pdf.js (Mozilla Foundation) und Tesseract mit tesseract.js für die Texterkennung, beide unter der Apache License 2.0, sowie die Schrift EB Garamond (SIL Open Font License 1.1). Die Lizenztexte stehen in der Datei unter „Hinweise, Datenschutz und Lizenzen“.</p>
+<p>Es gilt deutsches Recht.</p>
+</div>
+<h2 id="english" lang="en">In English</h2>
+<div lang="en">
+<p>Kontoauszug-Konverter is a free, German-language tool that turns PDF bank statements, scans included, into booking batches in the DATEV format (EXTF) for import into German accounting software. It runs entirely in your browser, text recognition included; statements and bookings never leave your computer. The terms of use above (in German) apply. The newsletter, in German, reports on new tools and versions alongside the weekly posts.</p>
+</div>
+</article>
+</main>
+<footer class="foot"><a href="../../#privacy">Impressum · Datenschutz</a><a href="#newsletter">Newsletter</a><a href="../../blog/feed.xml">RSS</a></footer>
+<script src="../../newsletter.js?v=20261015b" defer></script>
+</body>
+</html>

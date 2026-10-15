@@ -28,6 +28,15 @@ MAX_TURNS = "8"                      # Fragen je Gespräch ans Modell; danach nu
 MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
 MAX_DRAHT_PER_DAY = "20"    # Goch: Nachrichten an Robin je Tag insgesamt (Review 25.09.2026)
+MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldungen je Tag insgesamt (src/aufbau.js)
+# Newsletter „Impulse und Werkzeuge“ über Brevo (src/newsletter.js). Aus, solange das Secret fehlt. Einrichten: siehe README, Abschnitt Newsletter.
+# Secret: npx wrangler secret put BREVO_API_KEY
+BREVO_LISTE_DE = "3"         # ID der Liste „Newsletter DE“ in Brevo (angelegt 15.10.2026)
+BREVO_LISTE_EN = "4"         # ID der Liste „Newsletter EN“ (leer: alle in die deutsche Liste)
+BREVO_DOI_VORLAGE_DE = "1"   # ID der Vorlage „Newsletter Bestätigung DE (Double-Opt-In)“
+BREVO_DOI_VORLAGE_EN = "2"   # ID der Vorlage „Newsletter Bestätigung EN (Double-Opt-In)“
+NEWSLETTER_BESTAETIGT_URL = "https://robin.vision/?newsletter=bestaetigt#newsletter"
+MAX_NEWSLETTER_PER_DAY = "100"
 # Der Draht: Versand über Resend. Secret: npx wrangler secret put RESEND_API_KEY
 MAIL_TO = "robin@robin.vision"
 MAIL_FROM = "Goch <goch@robin.vision>"  # Absenderdomain robin.vision bei Resend verifiziert (21.09.2026; DKIM/SPF/DMARC im Cloudflare-DNS)
