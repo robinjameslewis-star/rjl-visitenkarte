@@ -9,3 +9,4 @@
 | werkzeuge | wenn jemand nach Robins Werkzeugen, kostenlosen Tools oder Downloads fragt | Robins Werkzeuge | Robin's tools | https://robin.vision/werkzeuge/ https://robin.vision/werkzeuge/en/ |
 | buchungsstapel-generator | wenn es um den Buchungsstapel-Generator geht: was er kann, wie man ihn bekommt, Kontoauszüge in DATEV-Buchungsstapel | Buchungsstapel-Generator | Booking Batch Generator | https://robin.vision/werkzeuge/buchungsstapel-generator/ https://robin.vision/werkzeuge/booking-batch-generator/ |
 | newsletter | wenn jemand den Newsletter lieber selbst auf der Seite ansehen möchte – zur Anmeldung im Gespräch sonst action "newsletter" | Newsletter | Newsletter | https://robin.vision/#newsletter https://robin.vision/?lang=en#newsletter |
+| impulse | bei „Was gibt's Neues?“ und wenn jemand nach Robins Impulsen, seinem Blog oder seinen Beiträgen fragt | Impulse | Food for Thought | https://robin.vision/blog/ https://robin.vision/blog/en/ |

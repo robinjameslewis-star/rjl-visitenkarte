@@ -142,7 +142,6 @@
   .goch-starters { display: flex; flex-wrap: wrap; gap: 6px; }
   .goch-starter { border: 1px solid var(--copper); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
   .goch-starter:hover { background: var(--hover); }
-  html:not(.landscape-on) .goch-starter-landscape { display: none; } /* nur, wenn die Landschaft zu sehen ist */
   .goch-form { display: flex; gap: 8px; align-items: flex-end; }
   #goch-input { flex: 1 1 auto; min-height: 44px; resize: none; padding: 9px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; }
   .goch-send { min-height: 44px; border: 1px solid var(--copper); border-radius: 3px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; padding: 9px 14px; cursor: pointer; }
@@ -417,7 +416,7 @@
         <button class="goch-starter" type="button" data-i18n="gochQ1">Woran arbeitet Robin gerade?</button>
         <button class="goch-starter" type="button" data-i18n="gochQ2">Wer ist Robin?</button>
         <button class="goch-starter" type="button" data-i18n="gochQ3">Ich möchte Robin etwas ausrichten.</button>
-        <button class="goch-starter goch-starter-landscape" type="button" data-i18n="gochQ4">Erzähl mir von deiner Landschaft.</button>
+        <button class="goch-starter" type="button" data-i18n="gochQ4">Was gibt's Neues?</button>
       </div>
       <form class="goch-form" id="goch-form">
         <label class="visually-hidden" for="goch-input" data-i18n="gochLabel">Deine Nachricht an Goch</label>
@@ -466,7 +465,7 @@
     <ul>
 <!-- werkzeuge:liste -->
       <li lang="de"><span class="when">Kostenlos</span><a href="werkzeuge/buchungsstapel-generator/">Buchungsstapel-Generator</a><p>Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows.</p></li>
-      <li lang="en" hidden><span class="when">Free</span><a href="werkzeuge/booking-batch-generator/">Booking Batch Generator</a><p>Turns PDF bank statements, scanned ones included, into booking batches in the German DATEV format. Runs offline in your browser, Windows included.</p></li>
+      <li lang="en" hidden><span class="when">Free</span><a href="werkzeuge/booking-batch-generator/">Booking Batch Generator</a><p>Turns PDF bank statements, scanned ones included, into booking batches: CSV files in the DATEV format (EXTF) for any accounting software with a DATEV import. Runs offline in your browser, Windows included.</p></li>
 <!-- /werkzeuge:liste -->
     </ul>
     <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge</a></p>
@@ -539,9 +538,9 @@
 
 <script>window.RJLLandscape?.init();</script>
 <script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
-<script src="language.js?v=20261016" defer></script>
+<script src="language.js?v=20261016b" defer></script>
 <script src="site.js?v=20260925" defer></script>
-<script src="goch.js?v=20261016" defer></script>
+<script src="goch.js?v=20261016b" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
 </body>

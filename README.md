@@ -435,6 +435,9 @@ Die Anmeldung zum Newsletter und Feedback zu den Werkzeugen nimmt er ebenfalls a
 - **Links:** `werkzeuge`, `buchungsstapel-generator` und `newsletter` in `worker/links.md`. Eine Adresszelle darf jetzt zwei
   Adressen enthalten, durch Leerzeichen getrennt: erst die deutsche, dann die englische. Goch verlinkt in der Sprache des
   Gesprächs; die Redaktion prüft beide Adressen.
+- **„Was gibt's Neues?“** (16.10.2026): Startknopf statt „Erzähl mir von deiner Landschaft“. Goch erzählt vom neuesten Werkzeug
+  und von den Impulsen jeden Freitag und gibt zwei Links (`link` und `link2`; nur diese Antwort hat zwei). Kommt ein neues
+  Werkzeug dazu, den Satz „derzeit der Buchungsstapel-Generator“ im Profil anpassen.
 - **Newsletter im Gespräch:** action `newsletter`. `goch.js` zeigt unter der Antwort ein Feld für die E-Mail-Adresse. Die
   Adresse geht direkt an `POST /newsletter` (Double-Opt-In wie auf der Seite), nie an das Sprachmodell.
 - **Feedback:** action `feedback` mit dem Text des Besuchers. Der Worker schreibt die Zusammenfassung („Ich gebe Robin dieses

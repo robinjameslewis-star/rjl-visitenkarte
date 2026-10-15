@@ -61,10 +61,10 @@ Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbei
 **Lizenzen.** Das Werkzeug enthält pdf.js (Mozilla Foundation) und Tesseract mit tesseract.js für die Texterkennung, beide unter der Apache License 2.0, sowie die Schrift EB Garamond (SIL Open Font License 1.1). Die Lizenztexte stehen in der Datei unter „Hinweise, Datenschutz und Lizenzen“.
 
 Es gilt deutsches Recht.`,
-    hinweis: `An English version of this tool is available as the [Booking Batch Generator](https://robin.vision/werkzeuge/booking-batch-generator/): same functions, English user interface. The export remains in the German DATEV format.`,
+    hinweis: `An English version of this tool is available as the [Booking Batch Generator](https://robin.vision/werkzeuge/booking-batch-generator/): same functions, English user interface. The export file is the same in both: a CSV file in the DATEV format (EXTF).`,
   },
   "booking-batch-generator": {
-    beschreibung: `The Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. The batches are meant for import into accounting software that reads the German DATEV format.
+    beschreibung: `The Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. Any accounting software with a DATEV import can read them; more under “About the format” below.
 
 ## What it does
 
@@ -88,6 +88,10 @@ Test it with a test client before using it for the first time.
 
 - With scanned statements, text recognition can get digits wrong. Note the remarks below the balance check; amounts can be corrected in the table.
 - If the generator cannot read a statement, you can send its layout without content to robin.vision, or save it and send it by email. It contains no names, amounts or account numbers; support for the layout is then added.
+
+## About the format
+
+Each booking batch is a CSV file in the DATEV format, also known as EXTF or DatevPro format: semicolons between the fields, Windows-1252 encoding, a header line that marks the file as a booking batch, then one line per posting with amount, debit or credit, account, contra account, BU key, date and posting text. DATEV is the standard for exchanging bookkeeping data in Germany. Accounting software with a DATEV import reads these files; most systems used in Germany offer one, international systems often in their German edition. Check whether your software has such an import before you start.
 
 ## Privacy
 
