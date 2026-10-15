@@ -398,6 +398,41 @@ Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (ei
 bei deaktiviertem Cache und gedrosseltem Netz.
 
 
+## Werkzeug „Buchungsstapel aus Kontoauszug“ (15.10.2026)
+
+Kostenloser Download unter `werkzeuge/buchungsstapel/` (ohne Anmeldung), Teaser auf der Startseite (`#werkzeuge`).
+Quelle des Werkzeugs: Repository `buchungsstapel-lokal` (Browser-Variante, eine HTML-Datei).
+
+- **Seite:** entsteht vollständig aus Feldern (`worker/src/werkzeug.js`): Beschreibung, Nutzungsbedingungen, englischer
+  Hinweis (Markdown wie im Blog) und Angaben zur Datei. Die Felder stehen als JSON in der Seite (`script#werkzeug-daten`).
+- **Redaktion:** Abschnitt „Website – Werkzeug“ (Inhalt `werkzeug` in `CONTENT`): Texte ändern, veröffentlichen, vorige
+  Fassung. Die Datei selbst kommt nicht über die Redaktion.
+- **Neue Fassung:** im Werkzeug committen und bauen, dann
+  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel_aus_Kontoauszug.html`
+  (kopiert die Datei, liest Fassung und Datum, setzt Größe und SHA-256, baut die Seite neu), `node tests/werkzeug_seite_test.mjs`, PR.
+- **Aufbau-Meldungen:** Erkennt das Werkzeug einen Auszug nicht, kann der Nutzer auf Knopfdruck den Aufbau ohne Inhalt
+  senden. `POST /aufbau` im Worker (`worker/src/aufbau.js`): offen für jede Herkunft (das Werkzeug läuft als lokale Datei),
+  prüft die Anonymisierung (keine Ziffern außer 9, nur x/X oder bekannte Wörter), höchstens 3 je Adresse und Stunde und
+  `MAX_AUFBAU_PER_DAY` am Tag; Zustellung per Resend an `MAIL_TO`, der Aufbau als Anhang. Gespeichert wird nichts.
+
+## Newsletter „Impulse“ (15.10.2026, noch nicht eingerichtet)
+
+Anmeldung auf der Startseite (`#newsletter`, `newsletter.js`), Double-Opt-In über Brevo (Sendinblue SAS, Frankreich).
+Der Worker legt den Kontakt an (`POST /newsletter`, `worker/src/newsletter.js`), Brevo schickt die Bestätigungsmail.
+Der Abschnitt bleibt verborgen, solange `data-newsletter-endpoint` am `<body>` leer ist; der Endpunkt antwortet ohne
+Einrichtung mit 503. Versand der Impulse: Brevo-RSS-Kampagne aus `blog/feed.xml` (Deutsch) und `blog/en/feed.xml`
+(Englisch) – eine Ausgabe entsteht also erst, wenn Robin einen Beitrag veröffentlicht hat.
+
+Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte):
+1. Brevo-Konto anlegen, Vertrag zur Auftragsverarbeitung in den Kontoeinstellungen annehmen.
+2. Absenderdomain `robin.vision` bei Brevo bestätigen (DNS-Einträge für Brevo-Code, DKIM; DMARC besteht schon).
+3. Listen „Impulse DE“ und „Impulse EN“ anlegen; je eine Vorlage vom Typ Double-Opt-In (Bestätigungslink `{{ params.DOIurl }}`).
+4. In Brevo die Öffnungs- und Klickmessung abschalten oder nur anonym zulassen.
+5. RSS-Kampagne je Sprache: Feed wie oben, Prüfung wöchentlich am Freitag, Vorlage mit Impressum und Abmeldelink.
+6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`), dann per PR: IDs in `worker/wrangler.toml`
+   (`BREVO_LISTE_DE/EN`, `BREVO_DOI_VORLAGE_DE/EN`) und `data-newsletter-endpoint="https://goch.robin.vision/newsletter"`
+   in `index.html`; Worker deployen.
+
 ## Mond: Sichtbarkeit und Verdeckung (10.10.2026)
 
 Die beleuchtete Fläche wird weiterhin aus der astronomischen Beleuchtungsfraktion berechnet.

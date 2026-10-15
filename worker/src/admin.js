@@ -11,6 +11,7 @@ import * as pk from "./passkey.js";
 import * as blog from "./blog.js";
 import * as land from "./landscapes.js";
 import * as cfg from "./settings.js";
+import { WERKZEUG_PFAD, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -290,6 +291,13 @@ export const CONTENT = {
       return md;
     },
     summary: f => (Array.isArray(f.rows) ? f.rows.length : 0) + " Links",
+  },
+  // Downloadseite des Werkzeugs: Texte hier, Datei und ihre Angaben über tools/werkzeug-uebernehmen.mjs (src/werkzeug.js)
+  werkzeug: {
+    path: WERKZEUG_PFAD, title: "Werkzeug „Buchungsstapel aus Kontoauszug“",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
 };
 
@@ -820,6 +828,14 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
+<section id="wsec" hidden><h2>Website – Werkzeug „Buchungsstapel aus Kontoauszug“</h2><p class="src" id="wsrc"></p>
+<p class="note" id="wdatei"></p>
+<label for="wbeschr">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr" style="min-height:320px"></textarea>
+<label for="wnutz">Nutzungsbedingungen</label><textarea id="wnutz" style="min-height:260px"></textarea>
+<label for="wen">English</label><textarea id="wen" style="min-height:90px"></textarea>
+<div class="bar"><button id="saveW">Veröffentlichen</button><button class="quiet" id="prevW">Vorige Fassung</button><a class="note" id="histW" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mW"></span></div>
+<p class="note">Seite: robin.vision/werkzeuge/buchungsstapel/. Die Datei selbst und ihre Angaben (Fassung, Größe, Prüfsumme) kommen mit einer neuen Fassung über tools/werkzeug-uebernehmen.mjs; hier stehen nur die Texte. Änderungen an den Nutzungsbedingungen vorher rechtlich prüfen lassen.</p></section>
+
 <section><h2>Goch – Profil <span class="note">(wer Robin ist, wie Goch spricht, was er nie tut)</span></h2><p class="src" id="psrc"></p>
 <p class="note" style="margin:0 0 6px">Das ist Gochs Systemprompt – jeder Satz hier wird sein Wissen und sein Ton. Alles darin darf öffentlich sein: keine Namen aus der Familie, keine Adresse, nichts zu Finanzen oder Gesundheit, keine Mandanten. Nach dem Veröffentlichen antwortet Goch sofort mit der neuen Fassung; „Vorige Fassung“ holt den Stand davor zurück.</p>
 <textarea id="ptext" style="min-height:460px" spellcheck="true"></textarea>
@@ -1130,12 +1146,19 @@ function render(s){S=s;
  const A=s.content.aktuell,L=s.content.links,P=s.content.profile;
  if(P){$('psrc').innerHTML=src(P);if(document.activeElement!==$('ptext'))$('ptext').value=P.fields.text;$('prevP').disabled=!(P.meta&&P.meta.hasPrev);$('saveP').disabled=!s.github;$('histP').href=P.historyUrl;$('histP').hidden=!P.historyUrl;pwords();}
  $('asrc').innerHTML=src(A);$('stand').value=A.fields.stand;$('de').value=A.fields.de;$('en').value=A.fields.en;$('prevA').disabled=!(A.meta&&A.meta.hasPrev);$('saveA').disabled=!s.github;$('histA').href=A.historyUrl;$('histA').hidden=!A.historyUrl;
+ const W=s.content.werkzeug;$('wsec').hidden=!W;
+ if(W){WD=W.fields.datei;$('wsrc').innerHTML=src(W);$('wdatei').textContent=WD&&WD.fassung?'Datei '+WD.name+' · Fassung '+WD.fassung+' vom '+WD.datum+' · '+(WD.bytes/1e6).toFixed(1).replace('.',',')+' MB':'Noch keine Datei eingespielt.';
+  for(const [id,k] of [['wbeschr','beschreibung'],['wnutz','nutzung'],['wen','en']])if(document.activeElement!==$(id))$(id).value=W.fields[k]||'';
+  $('prevW').disabled=!(W.meta&&W.meta.hasPrev);$('saveW').disabled=!s.github||!(WD&&WD.fassung);$('histW').href=W.historyUrl;$('histW').hidden=!W.historyUrl;}
  $('lsrc').innerHTML=src(L);$('rows').innerHTML='';L.fields.rows.forEach(addRow);$('prevL').disabled=!(L.meta&&L.meta.hasPrev);$('saveL').disabled=!s.github;$('histL').href=L.historyUrl;$('histL').hidden=!L.historyUrl;}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function addRow(r={}){const tr=document.createElement('tr');tr.innerHTML=['id','when','de','en','url'].map(k=>'<td><input data-k="'+k+'" value="'+esc(r[k]||'')+'"'+(k==='url'?' placeholder="https://…"':'')+'></td>').join('')+'<td><button class="x" title="Zeile entfernen">×</button></td>';tr.querySelector('.x').onclick=()=>tr.remove();$('rows').append(tr);}
 function rows(){return [...$('rows').querySelectorAll('tr')].map(tr=>Object.fromEntries([...tr.querySelectorAll('input')].map(i=>[i.dataset.k,i.value])));}
 $('addRow').onclick=()=>addRow();
 async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
+let WD=null;
+$('saveW').onclick=()=>{if(confirm('Texte der Werkzeug-Seite jetzt veröffentlichen?'))publish('werkzeug','mW',{beschreibung:$('wbeschr').value,nutzung:$('wnutz').value,en:$('wen').value,datei:WD});};
+$('prevW').onclick=async()=>{if(!confirm('Vorige Fassung der Werkzeug-Seite wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/werkzeug','POST'));say('mW','Vorige Fassung ist live.',true);}catch(e){say('mW',e.message);}};
 $('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
 function pwords(){const n=$('ptext').value.split(/\\s+/).filter(Boolean).length;$('pwords').textContent=n+' Wörter (≈ '+Math.round(n*4.4/100)*100+' Tokens)';}
 $('ptext').oninput=pwords;
