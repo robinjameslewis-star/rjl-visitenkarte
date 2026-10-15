@@ -277,8 +277,11 @@ export const CONTENT = {
         if (!id) throw new Error(`Zeile ${n}: Kennung fehlt (Buchstaben, Ziffern, Bindestrich).`);
         if (seen.has(id)) throw new Error(`Zeile ${n}: Kennung „${id}“ kommt doppelt vor.`);
         if (!when || !de) throw new Error(`Zeile ${n}: „Wann“ und „Text DE“ brauchen Inhalt.`);
-        if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
-        try { const u = new URL(url); if (u.protocol !== "https:") throw 0; url = u.href; } catch { throw new Error(`Zeile ${n}: Adresse muss mit https:// beginnen.`); }
+        // Eine Adresse für beide Sprachen oder zwei, durch Leerzeichen getrennt: erst deutsch, dann englisch
+        const teile = url.split(/\s+/).filter(Boolean);
+        if (teile.length > 2) throw new Error(`Zeile ${n}: höchstens zwei Adressen (deutsch, englisch).`);
+        try { url = teile.map(t => { const u = new URL(/^https?:\/\//i.test(t) ? t : "https://" + t); if (u.protocol !== "https:") throw 0; return u.href; }).join(" "); if (!url) throw 0; }
+        catch { throw new Error(`Zeile ${n}: Adresse muss mit https:// beginnen.`); }
         if ([id, when, de, en].some(v => v.length > 200) || url.length > 500) throw new Error(`Zeile ${n}: zu lang.`);
         seen.add(id); clean.push({ id, when, de, en, url });
       }

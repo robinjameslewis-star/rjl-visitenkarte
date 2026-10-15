@@ -83,6 +83,38 @@
     if (external) { a.target = '_blank'; a.rel = 'noopener'; }
     return a;
   }
+  // Newsletter im Gespräch (Robin, 15.10.2026): Goch bietet die Anmeldung an, die Seite zeigt ein Feld. Die Adresse geht wie
+  // beim Formular der Seite direkt an die Anmeldung (data-newsletter-endpoint, Double-Opt-In über Brevo), nie an das Modell.
+  function newsletterForm() {
+    const target = document.body.dataset.newsletterEndpoint || '';
+    if (!/^https:\/\//.test(target)) return null;
+    const shown = Date.now();
+    const box = document.createElement('form');
+    box.className = 'goch-nl'; box.noValidate = true;
+    const field = document.createElement('input');
+    field.type = 'email'; field.required = true; field.maxLength = 120; field.autocomplete = 'email'; field.inputMode = 'email';
+    field.placeholder = t('fieldEmail'); field.setAttribute('aria-label', t('fieldEmail'));
+    const button = document.createElement('button');
+    button.type = 'submit'; button.className = 'goch-send'; button.textContent = t('newsletterSend');
+    const status = document.createElement('p');
+    status.className = 'goch-nl-status'; status.setAttribute('role', 'status');
+    box.append(field, button, status);
+    box.addEventListener('submit', async event => {
+      event.preventDefault();
+      const email = field.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { status.textContent = t('newsletterInvalid'); field.focus(); return; }
+      button.disabled = true; status.textContent = t('newsletterSending');
+      try {
+        const r = await fetch(target, { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ lang: language.current, email, website: '', t: shown }) });
+        const out = await r.json().catch(() => ({}));
+        if (r.ok && out.ok) { status.textContent = out.text || t('newsletterConfirmed'); field.disabled = true; return; }
+        status.textContent = out.error || t('newsletterError');
+      } catch (_) { status.textContent = t('newsletterError'); }
+      button.disabled = false;
+    });
+    return box;
+  }
   function setAvailability() {
     const denied = choice && !choice.allowed;
     form.hidden = denied; starters.hidden = denied || history.length > 0;
@@ -187,8 +219,11 @@
       remembered += ' (Link: ' + l.label + ')';
     }
     history.push({ role: 'assistant', content: remembered });
+    const nl = data.action === 'newsletter' ? newsletterForm() : null;
+    if (nl) log.append(nl);
     log.scrollTop = log.scrollHeight;
-    busy = false; setAvailability(); input.focus();
+    busy = false; setAvailability();
+    (nl ? nl.querySelector('input') : input).focus();
   }
 
   // Goch ausgeschaltet (Worker antwortet 503, z. B. weil die Seite noch aus dem Cache kommt): Gespräch schließen,

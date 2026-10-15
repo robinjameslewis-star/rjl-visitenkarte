@@ -426,6 +426,22 @@ Quelle: Repository `buchungsstapel-lokal` (Browser-Variante; `browser/build.py` 
   höchstens 3 je Adresse und Stunde und `MAX_AUFBAU_PER_DAY` am Tag; Zustellung per Resend an `MAIL_TO`, der Aufbau als
   Anhang. Meldungen an das Werkzeug kommen in dessen Sprache (`sprache` im Body). Gespeichert wird nichts.
 
+## Goch kennt Werkzeuge und Newsletter (15.10.2026)
+
+Auf Robins Wunsch erzählt Goch von den Werkzeugen, dem Buchungsstapel-Generator und dem Newsletter und verlinkt dorthin.
+Die Anmeldung zum Newsletter und Feedback zu den Werkzeugen nimmt er ebenfalls an.
+
+- **Wissen:** Abschnitt „Werkzeuge und Newsletter“ in `worker/profile.md` (in der Redaktion unter „Goch – Profil“ pflegbar).
+- **Links:** `werkzeuge`, `buchungsstapel-generator` und `newsletter` in `worker/links.md`. Eine Adresszelle darf jetzt zwei
+  Adressen enthalten, durch Leerzeichen getrennt: erst die deutsche, dann die englische. Goch verlinkt in der Sprache des
+  Gesprächs; die Redaktion prüft beide Adressen.
+- **Newsletter im Gespräch:** action `newsletter`. `goch.js` zeigt unter der Antwort ein Feld für die E-Mail-Adresse. Die
+  Adresse geht direkt an `POST /newsletter` (Double-Opt-In wie auf der Seite), nie an das Sprachmodell.
+- **Feedback:** action `feedback` mit dem Text des Besuchers. Der Worker schreibt die Zusammenfassung („Ich gebe Robin dieses
+  Feedback weiter: „…“ Soll ich das so senden?“) und sendet erst nach dem Ja eine Mail an `MAIL_TO` (Betreff „Goch:
+  Feedback zu den Werkzeugen“): ohne Gesprächsverlauf, Name und Adresse nur, wenn der Besucher sie selbst genannt hat. Es
+  gelten dieselben Grenzen wie beim Draht. Test: `node tests/goch_werkzeuge_test.mjs` (Sprachmodell und Resend abgefangen).
+
 ## Newsletter-Kasten unter Impulsen und Werkzeugen (15.10.2026)
 
 Unter jedem Impuls, unter den Impuls-Listen (`blog/`, `blog/en/`), auf allen Werkzeugseiten und den Übersichten steht die

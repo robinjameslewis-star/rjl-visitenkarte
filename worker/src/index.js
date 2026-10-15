@@ -1,6 +1,7 @@
 // Goch, das Rotkehlchen von Robin – LLM-Proxy für die Visitenkarte von Robin James Lewis.
 // POST /chat  { lang: "de"|"en", messages: [{role:"user"|"assistant", content:"…"}, …] }
-// Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message", sent: true|false|undefined,
+// Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message" | "newsletter", sent: true|false|undefined,
+//               (newsletter: die Seite zeigt unter der Antwort ein Feld zur Anmeldung, die Adresse geht nie an das Modell)
 //               link: null | { label: "…", url: "https://…" } }  – Links nur aus links.md, nie vom Modell erfunden
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";
@@ -39,6 +40,9 @@ const TEXT = {
     invalid: "Damit Robin dir persönlich antworten kann, brauche ich deinen Namen und eine gültige E-Mail-Adresse.",
     tooMany: "Mehr richte ich heute nicht aus – schreib Robin bitte direkt.",
     failed: "Das Ausrichten hat nicht geklappt. Schreib Robin bitte direkt per E-Mail.",
+    // Feedback zu den Werkzeugen (Robin, 15.10.2026): ohne Pflicht zu Name und Adresse, ohne Gesprächsverlauf
+    feedbackSummary: f => `Ich gebe Robin dieses Feedback weiter: „${f.text}“${f.email ? ` – Von: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Soll ich das so senden?`,
+    feedbackSent: "Weitergegeben, danke. Robin liest jedes Feedback.",
   },
   en: {
     quiet: "I'd rather pass that on to Robin directly. What should I pass on to Robin? Or write to him yourself: robin@robin.vision",
@@ -56,6 +60,8 @@ const TEXT = {
     invalid: "For Robin to reply to you personally I need your name and a valid email address.",
     tooMany: "I won't pass on more than that today – please write to Robin directly.",
     failed: "Passing it on didn't work. Please write to Robin directly by email.",
+    feedbackSummary: f => `I'll pass this feedback on to Robin: “${f.text}”${f.email ? ` – From: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Shall I send it like this?`,
+    feedbackSent: "Passed on – thank you. Robin reads all feedback.",
   },
 };
 
@@ -112,6 +118,8 @@ export default {
     const previous = messages.length >= 2 ? messages[messages.length - 2] : null;
     const lastText = messages[messages.length - 1].content;
     if (previous && previous.role === "assistant" && previous.content.includes(t.marker)) {
+      const feedback = fromFeedback(previous.content);
+      if (feedback && CONFIRM.test(lastText) && !DECLINE.test(lastText)) return await deliverFeedback(env, feedback, lang, ip, now, day, t, cors);
       const fields = fromSummary(previous.content);
       const noTranscript = NO_TRANSCRIPT.test(lastText);
       const bare = previous.content.includes(t.bareMarker) || noTranscript;
@@ -173,6 +181,12 @@ export default {
       // Das Modell sammelt nur; gesendet wird erst nach Ja auf die Zusammenfassung des Workers (siehe oben).
       return json({ reply: nextDrahtReply(t, gatherMessage(out.message, messages), false), action: null }, 200, cors);
     }
+    // Feedback zu den Werkzeugen: Zusammenfassung schreibt der Worker, gesendet wird erst nach Ja (siehe oben)
+    if (out.action === "feedback") {
+      const f = gatherFeedback(out.message);
+      return json(f ? { reply: t.feedbackSummary(f), action: null } : { ...out, action: null }, 200, cors);
+    }
+    delete out.message;
     return json(out, 200, cors);
   },
 };
@@ -224,6 +238,46 @@ async function deliver(env, m, lang, messages, withTranscript, ip, now, day, t, 
   return json({ reply: t.sent(m.email), action: "message", sent: true }, 200, cors);
 }
 
+// Feedback zu den Werkzeugen: kurz, ohne Steuerzeichen; Name und Adresse nur, wenn der Besucher sie selbst genannt hat.
+function gatherFeedback(m) {
+  if (!m || typeof m !== "object") return null;
+  const text = String(m.text || "").replace(/[\p{C}]/gu, " ").replace(/[„“”"]/g, "'").replace(/\s+/g, " ").trim().slice(0, 600);
+  if (text.length < 3) return null;
+  const email = EMAIL.test(String(m.email || "").trim()) ? String(m.email).trim() : "";
+  const name = email ? String(m.name || "").replace(/[\p{C},]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 80) : "";
+  return { text, name, email };
+}
+function fromFeedback(text) {
+  const m = String(text).match(/^(?:Ich gebe Robin dieses Feedback weiter: „|I'll pass this feedback on to Robin: “)([\s\S]*?)[“”](?: – (?:Von|From): (.*?), (\S+@\S+?)\.)?\.? (?:Soll ich|Shall I)/);
+  if (!m || !m[1].trim()) return null;
+  return { text: m[1].trim().slice(0, 600), name: (m[2] || "").trim(), email: m[3] && EMAIL.test(m[3]) ? m[3] : "" };
+}
+// Feedback zustellen: gleiche Grenzen wie der Draht (je Adresse und Tag, insgesamt je Tag), ohne Gesprächsverlauf.
+async function deliverFeedback(env, f, lang, ip, now, day, t, cors) {
+  const sentToday = (perIpMessages.get(ip) || []).filter(x => now - x < day);
+  if (sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
+  const dayKey = "draht:" + new Date(now).toISOString().slice(0, 10);
+  const used = env.USAGE ? +(await env.USAGE.get(dayKey) || 0) : 0;
+  if (used >= +(env.MAX_DRAHT_PER_DAY || 20)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
+  if (!env.RESEND_API_KEY || !env.MAIL_TO) return json({ reply: t.failed, action: "contact", sent: false }, 200, cors);
+  const when = new Date(now).toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "content-type": "application/json", "authorization": "Bearer " + env.RESEND_API_KEY },
+    body: JSON.stringify({
+      from: env.MAIL_FROM || "Goch <onboarding@resend.dev>", to: [env.MAIL_TO], ...(f.email ? { reply_to: f.email } : {}),
+      subject: "Goch: Feedback zu den Werkzeugen",
+      text: [`Feedback über Goch (${lang === "en" ? "Englisch" : "Deutsch"}, ${when} Uhr):`, "", f.text, "",
+        f.email ? `Von: ${f.name || "–"} <${f.email}> („Antworten“ geht an ihn)` : "Ohne Namen und Adresse.", "",
+        "Ohne Gesprächsverlauf; der Besucher hat genau diesen Text bestätigt."].join("\n"),
+    }),
+  }).catch(() => null);
+  if (!r || !r.ok) { console.error("Resend-Fehler (Feedback)", r && r.status); return json({ reply: t.failed, action: "contact", sent: false }, 200, cors); }
+  sentToday.push(now); perIpMessages.set(ip, sentToday);
+  if (env.USAGE) await env.USAGE.put(dayKey, String(used + 1), { expirationTtl: 35 * 86400 }).catch(() => {});
+  return json({ reply: t.feedbackSent, action: null, sent: true }, 200, cors);
+}
+
 // Die Felder aus der eigenen Zusammenfassung lesen – zuverlässiger als jede Modellausgabe.
 function fromSummary(text) {
   const m = text.match(/^(?:Ich richte Robin aus|I'll pass on to Robin): ([\s\S]*?) – (?:Von|From): (.*?), (\S+@\S+?)\.(?:\s|$)/);
@@ -244,6 +298,13 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
   Fehlt Name oder E-Mail-Adresse: kein "message", sondern in "reply" danach fragen.
   Zusammenfassung, Rückfrage „Soll ich das so senden?“ und die Bestätigung „Ausgerichtet“ schreibt der Worker –
   du schreibst diese Sätze nie selbst.
+- "newsletter": du bietest die Anmeldung zum Newsletter an, und der Besucher möchte sie (oder fragt, wie er von neuen
+  Werkzeugen und Impulsen erfährt). Die Seite zeigt dann unter deiner Antwort ein Feld für die E-Mail-Adresse. Du fragst
+  nie im Gespräch nach der Adresse für den Newsletter und sagst nie, jemand sei angemeldet.
+- "feedback": der Besucher gibt Feedback zu Robins Werkzeugen (zum Beispiel zum Buchungsstapel-Generator). Dann zusätzlich
+  "message": {"name": "", "email": "", "text": "…"} – "text" das Feedback in seinen Worten, ohne Beträge, Kontonummern
+  oder Namen aus seinen Unterlagen. Name und E-Mail-Adresse nur, wenn er sie selbst genannt hat, sonst leer lassen.
+  Zusammenfassung und Rückfrage schreibt der Worker.
 "link" ist null oder eine Kennung aus „Links, die du anbieten darfst“ (falls vorhanden).
 "reply" ist immer dein Text an den Besucher, in dessen Sprache.`;
 
@@ -399,9 +460,10 @@ function parseLinks(md) {
     let [id, when, de, en, url] = cells;
     id = id.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     if (!id || id === "kennung" || !when || !de) continue;
-    if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
-    if (!/^https:\/\/[^\s"'<>]+$/i.test(url)) continue;
-    out.push({ id, when, de, en: en || de, url });
+    // Adresse: eine für beide Sprachen oder zwei, durch Leerzeichen getrennt (erst deutsch, dann englisch)
+    const urls = url.split(/\s+/).filter(Boolean).slice(0, 2).map(u => /^https?:\/\//i.test(u) ? u : "https://" + u);
+    if (!urls.length || !urls.every(u => /^https:\/\/[^\s"'<>]+$/i.test(u))) continue;
+    out.push({ id, when, de, en: en || de, url: urls.join(" "), urls });
   }
   return out;
 }
@@ -417,13 +479,14 @@ function resolveLink(id, lang, messages, links) {
   if (!l) return null;
   const label = lang === "en" ? l.en : l.de;
   const offered = messages.some(m => m.role === "assistant" && m.content.includes("(Link: " + label + ")"));
-  return offered ? null : { label, url: l.url };
+  const urls = l.urls || [l.url];
+  return offered ? null : { label, url: (lang === "en" && urls[1]) || urls[0] };
 }
 
 // Antwortschema: das Modell kann nur dieses Format liefern – kein kaputtes JSON, keine Platzhalter im Aufbau.
 const gochOutput = linkIds => z.object({
   reply: z.string(),
-  action: z.enum(["calendar", "contact", "message"]).nullable(),
+  action: z.enum(["calendar", "contact", "message", "newsletter", "feedback"]).nullable(),
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
 });
@@ -525,20 +588,20 @@ function parse(text, linkIds = []) {
   if (m) {
     try {
       const o = JSON.parse(m[0]);
-      const action = ["calendar", "contact", "message"].includes(o.action) ? o.action : null;
+      const action = ["calendar", "contact", "message", "newsletter", "feedback"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
       const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null };
-      if (action === "message" && o.message && typeof o.message === "object") out.message = o.message;
+      if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = o.message;
       return out;
     } catch {}
   }
   // Abgeschnittenes oder kaputtes JSON (Token-Limit, Endlosschleife): retten, was da ist.
   if (/^\s*\{/.test(text)) {
     const reply = (text.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/) || [])[1] || "";
-    const action = (text.match(/"action"\s*:\s*"(calendar|contact|message)"/) || [])[1] || null;
+    const action = (text.match(/"action"\s*:\s*"(calendar|contact|message|newsletter|feedback)"/) || [])[1] || null;
     const link = (text.match(/"link"\s*:\s*"([a-z0-9-]+)"/) || [])[1] || null;
     const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null };
-    if (action === "message") {
+    if (action === "message" || action === "feedback") {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const body = (text.match(/"text"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
