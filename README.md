@@ -425,8 +425,8 @@ Anmeldung auf der Startseite (`#newsletter`) und auf der Downloadseite des Werkz
 Double-Opt-In über Brevo (Sendinblue SAS, Frankreich): Der Worker legt den Kontakt an (`POST /newsletter`,
 `worker/src/newsletter.js`), Brevo schickt die Bestätigungsmail. Der Endpunkt ist in `index.html` und `worker/src/werkzeug.js`
 gesetzt; ohne Einrichtung antwortet er mit 503. Versand der Impulse: Brevo-RSS-Kampagne aus `blog/feed.xml` (Deutsch) und
-`blog/en/feed.xml` (Englisch) – eine Ausgabe entsteht erst, wenn Robin einen Beitrag veröffentlicht hat. Neues zu den Werkzeugen
-schickt Robin als eigene Kampagne an dieselben Listen.
+`blog/en/feed.xml` (Englisch). Eine Ausgabe entsteht nur, wenn Robin einen Beitrag veröffentlicht hat, und nur als Entwurf;
+abschicken muss Robin sie selbst. Neues zu den Werkzeugen schickt Robin als eigene Kampagne an dieselben Listen.
 
 Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge:
 1. Brevo-Konto anlegen, Vertrag zur Auftragsverarbeitung in den Kontoeinstellungen annehmen.
@@ -436,9 +436,14 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
    Text: „Bitte bestätigen Sie Ihre Anmeldung zum Newsletter mit den Impulsen und Neuem zu meinen Werkzeugen: [Anmeldung
    bestätigen]. Haben Sie sich nicht angemeldet, ignorieren Sie diese E-Mail; dann geschieht nichts.“ Dazu Impressum.
 4. In Brevo die Öffnungs- und Klickmessung abschalten oder nur anonym zulassen.
-5. RSS-Kampagne je Sprache: Feed wie oben, Prüfung wöchentlich am Freitag, Vorlage mit Impressum und Abmeldelink.
-   Offen (15.10.2026): Die RSS-Kampagne ist in Brevo eine Integration des Brevo-Partners Integry, der dafür Zugriff auf
-   das Brevo-Konto bekäme. Erst nach Robins Entscheidung einrichten.
+5. RSS-Kampagne je Sprache. Eingerichtet am 15.10.2026 nach Robins Entscheidung:
+   - Integrationen „Impulse DE“ und „Impulse EN“, Feed wie oben, an „Newsletter DE“ bzw. „Newsletter EN“.
+   - Vorlagen „Newsletter Impuls DE (RSS)“ (#4) und „Newsletter Impuls EN (RSS)“ (#5) mit Impressum und Abmeldelink.
+   - Betreff ist der Titel des Beitrags. Abfrage freitags um 12 Uhr; dabei entsteht nur ein Entwurf.
+   - Warum 12 statt 10 Uhr: Brevo nimmt nur Beiträge, deren Feed-Zeit mindestens 30 Minuten vor der Abfrage liegt. Der Feed
+     trägt 09:00 UTC, also 11 Uhr Sommerzeit.
+   - Die RSS-Kampagne ist eine Integration des Brevo-Partners Integry (USA). Brevo führt Integry im Vertrag zur
+     Auftragsverarbeitung als optionalen Unterauftragnehmer, mit Standardvertragsklauseln. Die Datenschutzerklärung nennt das.
 6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`). Die IDs von Listen und Vorlagen stehen in
    `worker/wrangler.toml` (`BREVO_LISTE_DE/EN` = 3/4, `BREVO_DOI_VORLAGE_DE/EN` = 1/2, eingetragen 15.10.2026).
 
