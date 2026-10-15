@@ -398,9 +398,11 @@ Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (ei
 bei deaktiviertem Cache und gedrosseltem Netz.
 
 
-## Werkzeug „Buchungsstapel aus Kontoauszug“ (15.10.2026)
+## Werkzeug „Kontoauszug-Konverter“ (15.10.2026)
 
-Kostenloser Download unter `werkzeuge/buchungsstapel/` (ohne Anmeldung), Teaser auf der Startseite (`#werkzeuge`).
+Kostenloser Download unter `werkzeuge/kontoauszug-konverter/` (ohne Anmeldung), Teaser auf der Startseite (`#werkzeuge`). Bis 15.10.2026 hieß
+das Werkzeug „Buchungsstapel aus Kontoauszug“. Direkt unter dem Download steht die Anmeldung zum Newsletter (gleiches Skript
+`newsletter.js` wie auf der Startseite, Texte in der Sie-Form).
 Quelle des Werkzeugs: Repository `buchungsstapel-lokal` (Browser-Variante, eine HTML-Datei).
 
 - **Seite:** entsteht vollständig aus Feldern (`worker/src/werkzeug.js`): Beschreibung, Nutzungsbedingungen, englischer
@@ -408,7 +410,7 @@ Quelle des Werkzeugs: Repository `buchungsstapel-lokal` (Browser-Variante, eine 
 - **Redaktion:** Abschnitt „Website – Werkzeug“ (Inhalt `werkzeug` in `CONTENT`): Texte ändern, veröffentlichen, vorige
   Fassung. Die Datei selbst kommt nicht über die Redaktion.
 - **Neue Fassung:** im Werkzeug committen und bauen, dann
-  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel_aus_Kontoauszug.html`
+  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Kontoauszug-Konverter.html`
   (kopiert die Datei, liest Fassung und Datum, setzt Größe und SHA-256, baut die Seite neu), `node tests/werkzeug_seite_test.mjs`, PR.
 - **Aufbau-Meldungen:** Erkennt das Werkzeug einen Auszug nicht, kann der Nutzer auf Knopfdruck den Aufbau ohne Inhalt
   senden. `POST /aufbau` im Worker (`worker/src/aufbau.js`): offen für jede Herkunft (das Werkzeug läuft als lokale Datei),

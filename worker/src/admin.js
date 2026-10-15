@@ -294,7 +294,7 @@ export const CONTENT = {
   },
   // Downloadseite des Werkzeugs: Texte hier, Datei und ihre Angaben über tools/werkzeug-uebernehmen.mjs (src/werkzeug.js)
   werkzeug: {
-    path: WERKZEUG_PFAD, title: "Werkzeug „Buchungsstapel aus Kontoauszug“",
+    path: WERKZEUG_PFAD, title: "Werkzeug „Kontoauszug-Konverter“",
     split: html => werkzeugFelder(html),
     join: f => werkzeugSeite(f),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
@@ -828,13 +828,13 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
-<section id="wsec" hidden><h2>Website – Werkzeug „Buchungsstapel aus Kontoauszug“</h2><p class="src" id="wsrc"></p>
+<section id="wsec" hidden><h2>Website – Werkzeug „Kontoauszug-Konverter“</h2><p class="src" id="wsrc"></p>
 <p class="note" id="wdatei"></p>
 <label for="wbeschr">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr" style="min-height:320px"></textarea>
 <label for="wnutz">Nutzungsbedingungen</label><textarea id="wnutz" style="min-height:260px"></textarea>
 <label for="wen">English</label><textarea id="wen" style="min-height:90px"></textarea>
 <div class="bar"><button id="saveW">Veröffentlichen</button><button class="quiet" id="prevW">Vorige Fassung</button><a class="note" id="histW" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mW"></span></div>
-<p class="note">Seite: robin.vision/werkzeuge/buchungsstapel/. Die Datei selbst und ihre Angaben (Fassung, Größe, Prüfsumme) kommen mit einer neuen Fassung über tools/werkzeug-uebernehmen.mjs; hier stehen nur die Texte. Änderungen an den Nutzungsbedingungen vorher rechtlich prüfen lassen.</p></section>
+<p class="note">Seite: robin.vision/werkzeuge/kontoauszug-konverter/. Die Datei selbst und ihre Angaben (Fassung, Größe, Prüfsumme) kommen mit einer neuen Fassung über tools/werkzeug-uebernehmen.mjs; hier stehen nur die Texte. Änderungen an den Nutzungsbedingungen vorher rechtlich prüfen lassen.</p></section>
 
 <section><h2>Goch – Profil <span class="note">(wer Robin ist, wie Goch spricht, was er nie tut)</span></h2><p class="src" id="psrc"></p>
 <p class="note" style="margin:0 0 6px">Das ist Gochs Systemprompt – jeder Satz hier wird sein Wissen und sein Ton. Alles darin darf öffentlich sein: keine Namen aus der Familie, keine Adresse, nichts zu Finanzen oder Gesundheit, keine Mandanten. Nach dem Veröffentlichen antwortet Goch sofort mit der neuen Fassung; „Vorige Fassung“ holt den Stand davor zurück.</p>

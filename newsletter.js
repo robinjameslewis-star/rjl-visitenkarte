@@ -1,12 +1,20 @@
-// Newsletter „Impulse“: Anmeldung über den Worker (data-newsletter-endpoint), der Brevo die Bestätigungsmail schicken lässt
-// (Double-Opt-In). Der Abschnitt bleibt verborgen, solange kein Endpunkt gesetzt ist. Nach der Bestätigung führt Brevo auf
-// ?newsletter=bestaetigt#newsletter zurück; dann zeigt der Abschnitt den Dank. Keine Cookies, kein Speicher.
+// Newsletter (Impulse und Werkzeuge): Anmeldung über den Worker (data-newsletter-endpoint), der Brevo die Bestätigungsmail
+// schicken lässt (Double-Opt-In). Der Abschnitt bleibt verborgen, solange kein Endpunkt gesetzt ist. Nach der Bestätigung führt
+// Brevo auf ?newsletter=bestaetigt#newsletter zurück; dann zeigt der Abschnitt den Dank. Keine Cookies, kein Speicher.
+// Auf der Startseite kommen die Texte aus language.js; auf Seiten ohne Sprachmodul (Downloadseiten der Werkzeuge) die deutschen
+// Texte unten in der Sie-Form.
 (() => {
   'use strict';
   const section = document.getElementById('newsletter');
   const form = document.getElementById('newsletter-form');
   if (!section || !form) return;
-  const language = window.SiteLanguage;
+  const SIE = {
+    newsletterSending: 'Wird gesendet …', newsletterInvalid: 'Bitte eine gültige E-Mail-Adresse angeben.',
+    newsletterError: 'Die Anmeldung hat nicht geklappt. Bitte versuchen Sie es später noch einmal.',
+    newsletterSent: 'Fast geschafft: Bitte bestätigen Sie die Anmeldung über den Link in der E-Mail, die gerade unterwegs ist.',
+    newsletterConfirmed: 'Danke, die Anmeldung ist bestätigt.',
+  };
+  const language = window.SiteLanguage || { current: 'de', t: key => SIE[key] || key, eigeneTexte: true };
   const t = key => language.t(key);
   const status = document.getElementById('nl-status');
   const button = document.getElementById('nl-send');
@@ -33,7 +41,7 @@
     try {
       const r = await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
       const out = await r.json().catch(() => ({}));
-      if (r.ok && out.ok) { state = 'sent'; say(out.text || t('newsletterConfirmed'), 'ok'); form.reset(); }
+      if (r.ok && out.ok) { state = 'sent'; say(language.eigeneTexte ? t('newsletterSent') : out.text || t('newsletterConfirmed'), 'ok'); form.reset(); }
       else say(out.error || t('newsletterError'), 'warn');
     } catch (_) { say(t('newsletterError'), 'warn'); }
     button.disabled = false;

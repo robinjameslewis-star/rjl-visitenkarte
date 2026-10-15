@@ -1,4 +1,4 @@
-// Aufbau eines nicht erkannten Kontoauszugs aus dem Werkzeug „Buchungsstapel aus Kontoauszug“. POST /aufbau
+// Aufbau eines nicht erkannten Kontoauszugs aus dem Werkzeug „Kontoauszug-Konverter“. POST /aufbau
 // Body (text/plain mit JSON, damit der Browser keine CORS-Vorabfrage braucht): { aufbau, bank, fassung }.
 // Das Werkzeug läuft meist als lokal geöffnete Datei (Origin „null“) – deshalb ist nur dieser Pfad für jede Herkunft offen,
 // ohne Cookies und ohne Anmeldung. Der Worker prüft, dass der Text wirklich ohne Inhalt ist (keine Ziffern außer 9, Wörter nur
@@ -73,7 +73,7 @@ export async function handleAufbau(request, env, ctx) {
 
   const datum = new Date().toISOString().slice(0, 10), zeilen = aufbau.split("\n").length;
   const text = [
-    "Ein Kontoauszug wurde vom Werkzeug „Buchungsstapel aus Kontoauszug“ nicht erkannt; der Aufbau ohne Inhalt liegt im Anhang.", "",
+    "Ein Kontoauszug wurde vom Werkzeug „Kontoauszug-Konverter“ nicht erkannt; der Aufbau ohne Inhalt liegt im Anhang.", "",
     `Fassung des Werkzeugs: ${fassung}`, `Bank (Angabe des Absenders): ${bank || "–"}`, `Zeilen: ${zeilen}`, "",
     "Zum Nachrüsten: Aufbau in buchungsstapel-lokal als Muster nachbauen (tests/bankmuster.py) und beide Leser prüfen.",
   ].join("\n");

@@ -1,6 +1,6 @@
-// Neue Fassung des Werkzeugs „Buchungsstapel aus Kontoauszug“ auf die Website bringen:
-//   node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel_aus_Kontoauszug.html
-// Kopiert die Datei nach werkzeuge/buchungsstapel/, liest die Fassung aus ihrem Fuß, nimmt das Datum des Git-Stands der Quelle,
+// Neue Fassung des Werkzeugs „Kontoauszug-Konverter“ auf die Website bringen:
+//   node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Kontoauszug-Konverter.html
+// Kopiert die Datei nach werkzeuge/kontoauszug-konverter/, liest die Fassung aus ihrem Fuß, nimmt das Datum des Git-Stands der Quelle,
 // berechnet Größe und SHA-256 und baut die Downloadseite mit den vorhandenen Texten neu (worker/src/werkzeug.js). Die Texte
 // pflegt Robin in der Redaktion; gibt es die Seite noch nicht, kommen die Starttexte unten zum Einsatz.
 // Danach: node tests/werkzeug_seite_test.mjs, committen, PR.
@@ -12,27 +12,34 @@ import { WERKZEUG_PFAD, werkzeugFelder, werkzeugSeite } from "../worker/src/werk
 
 // Starttexte (nur für die erste Fassung der Seite; danach gilt, was in der Redaktion steht)
 const START = {
-  beschreibung: `Das Werkzeug liest Kontoauszüge als PDF und erstellt daraus je Monat einen Buchungsstapel im DatevPro-Format (DATEV-Format, EXTF) für den Import in die Buchhaltung. Es läuft vollständig in Ihrem Browser, ohne Installation und ohne Konto, auch unter Windows.
+  beschreibung: `Der Kontoauszug-Konverter macht aus Kontoauszügen im PDF-Format Buchungsstapel im DATEV-Format (DatevPro, EXTF), je Auszug und Monat einen, auch aus gescannten Auszügen. Er läuft vollständig in Ihrem Browser, ohne Installation und ohne Konto, auch unter Windows.
 
-## Was es kann
+## Was er kann
 
 - **Ohne Vorlage:** Jeder Umsatz wird auf ein festes Bank- und Gegenkonto gebucht, etwa ein Verrechnungskonto. Soll und Haben ergeben sich aus der Zahlungsrichtung.
-- **Mit Vorlage:** Laden Sie den Buchungsstapel des Vormonats dazu, übernimmt das Werkzeug Gegenkonto, BU-Schlüssel und Buchungstext aus ähnlichen Buchungen. Unsichere Vorschläge sind markiert.
-- **Viele Banken:** Das Layout eines Auszugs erkennt das Werkzeug selbst. Geprüft ist es mit Auszügen im Stil von Sparkasse, Volks- und Raiffeisenbanken, Deutscher Bank, Commerzbank, Postbank, ING, DKB, N26, Wise und Revolut, auch englischsprachig.
-- **Summenprüfung:** Je Auszug vergleicht es die gelesenen Umsätze mit dem Kontostand.
-
-## Datenschutz
-
-Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei kann keine Verbindung ins Internet aufbauen, mit einer Ausnahme, die Sie selbst auslösen: Erkennt das Werkzeug einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9) an robin.vision senden, damit das Layout nachgerüstet wird. Sie sehen vorher genau, was gesendet wird.
+- **Mit Vorlage:** Laden Sie den Buchungsstapel des Vormonats dazu, übernimmt der Konverter Gegenkonto, BU-Schlüssel und Buchungstext aus ähnlichen Buchungen. Unsichere Vorschläge sind markiert.
+- **Viele Banken:** Das Layout eines Auszugs erkennt er selbst. Geprüft ist er mit Auszügen im Stil von Sparkasse, Volks- und Raiffeisenbanken, Deutscher Bank, Commerzbank, Postbank, ING, DKB, N26, Wise und Revolut, auch englischsprachig.
+- **Auch Scans:** Gescannte Auszüge, auch in Schwarz-Weiß, liest er per Texterkennung, ebenfalls offline, einige Sekunden je Seite.
+- **Summenprüfung:** Je Auszug vergleicht er die gelesenen Umsätze mit dem Kontostand und nennt bei einer Abweichung den Betrag, der vermutlich fehlt.
 
 ## So geht es
 
-1. Datei herunterladen und speichern.
-2. Per Doppelklick in Microsoft Edge oder Google Chrome öffnen.
-3. Kontoauszüge als PDF laden, Buchungen prüfen und exportieren.
-4. Den Buchungsstapel in Ihre Buchhaltung importieren (DatevPro-Format), vor dem ersten Einsatz mit einem Testmandanten.
+1. Datei herunterladen und per Doppelklick in Edge oder Chrome öffnen.
+2. Wahlweise den Buchungsstapel des Vormonats laden. Dann übernimmt der Konverter dessen Gegenkonten, sonst gilt ein festes Gegenkonto.
+3. Die Kontoauszüge als PDF hineinziehen.
+4. „Buchungsstapel erstellen“, die Buchungen prüfen und exportieren. Die Summenprüfung zeigt, ob alles gelesen wurde.
+5. Den Buchungsstapel in Ihrer Buchhaltung über den Import für das DATEV-Format einlesen.
 
-Gescannte Auszüge ohne Text liest das Werkzeug nicht. Neue Fassungen und die wöchentlichen Impulse gibt es im [Newsletter](https://robin.vision/#newsletter).`,
+Vor dem ersten Einsatz mit einem Testmandanten prüfen.
+
+## Wenn etwas nicht stimmt
+
+- Bei gescannten Auszügen kann sich die Texterkennung bei Ziffern irren. Hinweise unter der Summenprüfung beachten; Beträge lassen sich in der Tabelle korrigieren.
+- Liest der Konverter einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt an robin.vision senden oder speichern und per E-Mail schicken. Er enthält keine Namen, Beträge oder Kontonummern; das Layout wird dann nachgerüstet.
+
+## Datenschutz
+
+Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei kann keine Verbindung ins Internet aufbauen, mit einer Ausnahme, die Sie selbst auslösen: Erkennt der Konverter einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9) an robin.vision senden. Sie sehen vorher genau, was gesendet wird.`,
   nutzung: `Stand: 15. Oktober 2026
 
 **Anbieter.** Robin James Lewis, Höchststr. 32, 72336 Balingen ([Impressum](https://robin.vision/#privacy)).
@@ -47,10 +54,10 @@ Gescannte Auszüge ohne Text liest das Werkzeug nicht. Neue Fassungen und die w�
 
 **Marken.** DATEV ist eine eingetragene Marke der DATEV eG. Das Werkzeug steht in keiner Verbindung zur DATEV eG und wird von ihr weder geprüft noch unterstützt. Weitere genannte Namen sind Marken ihrer Inhaber.
 
-**Lizenzen.** Das Werkzeug enthält pdf.js (Mozilla Foundation, Apache License 2.0) und die Schrift EB Garamond (SIL Open Font License 1.1). Die Lizenztexte stehen in der Datei unter „Hinweise, Datenschutz und Lizenzen“.
+**Lizenzen.** Das Werkzeug enthält pdf.js (Mozilla Foundation) und Tesseract mit tesseract.js für die Texterkennung, beide unter der Apache License 2.0, sowie die Schrift EB Garamond (SIL Open Font License 1.1). Die Lizenztexte stehen in der Datei unter „Hinweise, Datenschutz und Lizenzen“.
 
 Es gilt deutsches Recht.`,
-  en: `A free, German-language tool that turns PDF bank statements into monthly booking batches in the DATEV format (EXTF) for import into German accounting software. It runs entirely in your browser; statements and bookings never leave your computer. The terms of use above (in German) apply.`,
+  en: `Kontoauszug-Konverter is a free, German-language tool that turns PDF bank statements, scans included, into booking batches in the DATEV format (EXTF) for import into German accounting software. It runs entirely in your browser, text recognition included; statements and bookings never leave your computer. The terms of use above (in German) apply. The newsletter, in German, reports on new tools and versions alongside the weekly posts.`,
 };
 
 const quelle = process.argv[2];

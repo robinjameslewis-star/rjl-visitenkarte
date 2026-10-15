@@ -28,7 +28,7 @@ MAX_TURNS = "8"                      # Fragen je Gespräch ans Modell; danach nu
 MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
 MAX_DRAHT_PER_DAY = "20"    # Goch: Nachrichten an Robin je Tag insgesamt (Review 25.09.2026)
-MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Buchungsstapel aus Kontoauszug“: Aufbau-Meldungen je Tag insgesamt (src/aufbau.js)
+MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldungen je Tag insgesamt (src/aufbau.js)
 # Newsletter „Impulse“ über Brevo (src/newsletter.js). Aus, solange Secret oder IDs fehlen. Einrichten: siehe README, Abschnitt Newsletter.
 # Secret: npx wrangler secret put BREVO_API_KEY
 BREVO_LISTE_DE = ""          # ID der Liste „Impulse DE“ in Brevo
