@@ -61,7 +61,7 @@ const TEXT = {
 
 export default {
   async fetch(request, env, ctx) {
-    // Aufbau aus dem Werkzeug „Kontoauszug-Konverter“: offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
+    // Aufbau aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Posting Batch Generator“): offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
     if (new URL(request.url).pathname === "/aufbau") return handleAufbau(request, env, ctx);
     const origin = request.headers.get("Origin") || "";
     const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);

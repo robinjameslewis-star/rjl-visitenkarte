@@ -5,6 +5,8 @@
 // Der Blog erscheint nur, wenn der Schalter an ist UND mindestens ein Beitrag veröffentlicht ist.
 // Markdown ist bewusst eine kleine, sichere Teilmenge: alles wird maskiert, kein HTML aus dem Text.
 
+import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
+
 export const POSTS_DIR = "blog/posts";
 export const SETTINGS_PATH = "blog/blog.json";
 const LINK_START = "<!-- redaktion:blog-link -->", LINK_END = "<!-- /redaktion:blog-link -->";
@@ -152,11 +154,11 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
-  en: { back: "Robin James Lewis", all: "All posts", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
+  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
+  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
 
-function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref }) {
+function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true }) {
   const up = base || "../".repeat(depth), t = T[lang];
   // Jede Sprache bleibt unter sich: Startseite, Liste und Feed in der Sprache der Seite
   const homeHref = up + (lang === "en" ? "?lang=en" : ""), feedHref = `${up}blog/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`;
@@ -229,18 +231,20 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 .list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
 .list .when span { margin-left: 8px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.top .home { margin-right: auto; }
+${NEWSLETTER_CSS}
 .foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 </style>
 </head>
-<body>
-<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${homeHref}">${t.back}</a><a href="${allHref}">${t.all}</a></nav>
+<body${newsletter ? ` data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}"` : ""}>
+<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${homeHref}">${t.back}</a><a href="${allHref}">${t.all}</a><a href="${up}werkzeuge/${lang === "en" ? "en/" : ""}">${t.tools}</a></nav>
 <main>
-${main}
+${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
 </main>
-<footer class="foot"><a href="${homeHref}#privacy">${t.legal}</a><a href="${feedHref}">${t.feed}</a></footer>
-</body>
+<footer class="foot"><a href="${homeHref}#privacy">${t.legal}</a>${newsletter ? '<a href="#newsletter">Newsletter</a>' : ""}<a href="${feedHref}">${t.feed}</a></footer>
+${newsletter ? `<script src="${up}${NEWSLETTER_SKRIPT}" defer></script>\n` : ""}</body>
 </html>
 `;
 }

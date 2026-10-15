@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Posting Batch Generator – Robin James Lewis</title>
+<meta name="description" content="Free tool: Turns PDF bank statements, scanned ones included, into posting batches in the German DATEV format. Runs offline in your browser, Windows included.">
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/werkzeuge/posting-batch-generator/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/posting-batch-generator/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/">
+<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Posting Batch Generator">
+<meta property="og:description" content="Free tool: Turns PDF bank statements, scanned ones included, into posting batches in the German DATEV format. Runs offline in your browser, Windows included.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://robin.vision/werkzeuge/posting-batch-generator/">
+<meta name="twitter:card" content="summary">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
+.top a:hover { color: var(--green); }
+.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-right: auto; }
+main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
+h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
+.meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 32px; }
+.meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.download + .newsletter { margin-top: 18px; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.list { list-style: none; margin: 0 0 8px; padding: 0; }
+.list li { padding: 22px 0; border-top: 1px solid var(--line); }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.list a { color: var(--green); text-decoration: none; font: 400 clamp(21px, 2.4vw, 25px)/1.25 var(--serif); }
+.list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
+.list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+</style>
+<script type="application/json" id="werkzeug-daten">{"beschreibung":"The Posting Batch Generator turns bank statements in PDF format into posting batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. The batches are meant for import into accounting software that reads the German DATEV format.\n\n## What it does\n\n- **Without a template:** every transaction is posted to a fixed bank account and contra account, such as a clearing account. Debit and credit follow from the direction of the payment.\n- **With a template:** load the previous month's posting batch as well, and the generator takes the contra account, BU key and posting text from similar postings. Uncertain suggestions are marked.\n- **Many banks:** it recognises the layout of a statement by itself. It has been tested with statements in the style of Sparkasse, Volks- und Raiffeisenbanken, Deutsche Bank, Commerzbank, Postbank, ING, DKB, N26, Wise and Revolut, English-language ones included.\n- **Scans too:** it reads scanned statements, black and white ones included, using text recognition, also offline, in a few seconds per page.\n- **Balance check:** for each statement it compares the transactions read with the balance and, if there is a difference, names the amount that is probably missing.\n\n## How it works\n\n1. Download the file and open it with a double-click in Edge or Chrome.\n2. Optionally load the previous month's posting batch. The generator then takes its contra accounts; otherwise a fixed contra account applies.\n3. Drag in the bank statements as PDF files.\n4. Click “Create posting batches”, check the postings and export them. The balance check shows whether everything was read.\n5. Import the posting batch into your accounting software using its import for the DATEV format.\n\nTest it with a test client before using it for the first time.\n\n## If something is not right\n\n- With scanned statements, text recognition can get digits wrong. Note the remarks below the balance check; amounts can be corrected in the table.\n- If the generator cannot read a statement, you can send its layout without content to robin.vision, or save it and send it by email. It contains no names, amounts or account numbers; support for the layout is then added.\n\n## Privacy\n\nBank statements, template and postings are processed only in your browser window. The file cannot connect to the internet, with one exception that you trigger yourself: if the generator does not recognise a statement, you can send its layout without content (letters as x, digits as 9) to robin.vision. You see exactly what will be sent beforehand.","nutzung":"As of: 16 October 2026\n\n**Provider.** Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany ([legal notice](https://robin.vision/?lang=en#privacy)).\n\n**Use.** You may use the tool free of charge, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.\n\n**No advice, check the result.** The tool is a technical aid and not tax or legal advice. Check every posting batch before importing it and before finalising it; the balance check for each statement helps with this.\n\n**Warranty and liability.** The tool is provided free of charge. I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. Liability for injury to life, body or health and under the German Product Liability Act remains unaffected.\n\n**Further development.** There is no entitlement to updates, support or permanent availability.\n\n**Trademarks.** DATEV is a registered trademark of DATEV eG. The tool is not affiliated with DATEV eG and is neither reviewed nor endorsed by it. Other names mentioned are trademarks of their respective owners.\n\n**Licences.** The tool contains pdf.js (Mozilla Foundation) and Tesseract with tesseract.js for text recognition, both under the Apache License 2.0, and the typeface EB Garamond (SIL Open Font License 1.1). The licence texts are in the file under “Notes, privacy and licences”.\n\nGerman law applies. These terms are a translation; in case of doubt, the German terms of use of the [Buchungsstapel-Generator](https://robin.vision/werkzeuge/buchungsstapel-generator/#nutzungsbedingungen) apply.","hinweis":"Eine deutsche Fassung des Werkzeugs gibt es als [Buchungsstapel-Generator](https://robin.vision/werkzeuge/buchungsstapel-generator/): gleiche Funktionen, deutsche Oberfläche.","datei":{"name":"Posting-Batch-Generator.html","fassung":"04cc868","datum":"2026-10-15","bytes":9723457,"sha256":"df3866268827b3936321335258bddc029bc1d51a616a7cec1df36804c85e0a63"}}</script>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<nav class="top" aria-label="Page"><a class="home" href="../../?lang=en">Robin James Lewis</a><a href="../../blog/en/">Food for Thought</a><a href="../../werkzeuge/en/">Tools</a></nav>
+<main>
+<article>
+<h1>Posting Batch Generator</h1>
+<p class="meta">Free tool · Version 04cc868 of 15 October 2026</p>
+<p>The Posting Batch Generator turns bank statements in PDF format into posting batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. The batches are meant for import into accounting software that reads the German DATEV format.</p>
+<div class="download" id="download">
+<a class="knopf" href="Posting-Batch-Generator.html" download="Posting-Batch-Generator.html">Download (9.7 MB)</a>
+<dl><dt>File</dt><dd>Posting-Batch-Generator.html</dd><dt>Version</dt><dd>04cc868 of 15 October 2026</dd>
+<dt>SHA-256</dt><dd><code>df3866268827b3936321335258bddc029bc1d51a616a7cec1df36804c85e0a63</code></dd></dl>
+<p class="meta hinweis">The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.</p>
+</div>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">New tools by email</h2>
+<p>The newsletter reports on new tools and versions, plus the new post every Friday. No sign-up is needed for the download.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">Email address</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Email address"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Subscribe</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="../../?lang=en#privacy">Privacy</a>.</p>
+</form>
+</section>
+<h2>What it does</h2>
+<ul><li><strong>Without a template:</strong> every transaction is posted to a fixed bank account and contra account, such as a clearing account. Debit and credit follow from the direction of the payment.</li><li><strong>With a template:</strong> load the previous month&#39;s posting batch as well, and the generator takes the contra account, BU key and posting text from similar postings. Uncertain suggestions are marked.</li><li><strong>Many banks:</strong> it recognises the layout of a statement by itself. It has been tested with statements in the style of Sparkasse, Volks- und Raiffeisenbanken, Deutsche Bank, Commerzbank, Postbank, ING, DKB, N26, Wise and Revolut, English-language ones included.</li><li><strong>Scans too:</strong> it reads scanned statements, black and white ones included, using text recognition, also offline, in a few seconds per page.</li><li><strong>Balance check:</strong> for each statement it compares the transactions read with the balance and, if there is a difference, names the amount that is probably missing.</li></ul>
+<h2>How it works</h2>
+<ol><li>Download the file and open it with a double-click in Edge or Chrome.</li><li>Optionally load the previous month&#39;s posting batch. The generator then takes its contra accounts; otherwise a fixed contra account applies.</li><li>Drag in the bank statements as PDF files.</li><li>Click “Create posting batches”, check the postings and export them. The balance check shows whether everything was read.</li><li>Import the posting batch into your accounting software using its import for the DATEV format.</li></ol>
+<p>Test it with a test client before using it for the first time.</p>
+<h2>If something is not right</h2>
+<ul><li>With scanned statements, text recognition can get digits wrong. Note the remarks below the balance check; amounts can be corrected in the table.</li><li>If the generator cannot read a statement, you can send its layout without content to robin.vision, or save it and send it by email. It contains no names, amounts or account numbers; support for the layout is then added.</li></ul>
+<h2>Privacy</h2>
+<p>Bank statements, template and postings are processed only in your browser window. The file cannot connect to the internet, with one exception that you trigger yourself: if the generator does not recognise a statement, you can send its layout without content (letters as x, digits as 9) to robin.vision. You see exactly what will be sent beforehand.</p>
+<h2 id="nutzungsbedingungen">Terms of use</h2>
+<div class="nutzung">
+<p>As of: 16 October 2026</p>
+<p><strong>Provider.</strong> Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany (<a href="https://robin.vision/?lang=en#privacy" rel="noopener">legal notice</a>).</p>
+<p><strong>Use.</strong> You may use the tool free of charge, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.</p>
+<p><strong>No advice, check the result.</strong> The tool is a technical aid and not tax or legal advice. Check every posting batch before importing it and before finalising it; the balance check for each statement helps with this.</p>
+<p><strong>Warranty and liability.</strong> The tool is provided free of charge. I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. Liability for injury to life, body or health and under the German Product Liability Act remains unaffected.</p>
+<p><strong>Further development.</strong> There is no entitlement to updates, support or permanent availability.</p>
+<p><strong>Trademarks.</strong> DATEV is a registered trademark of DATEV eG. The tool is not affiliated with DATEV eG and is neither reviewed nor endorsed by it. Other names mentioned are trademarks of their respective owners.</p>
+<p><strong>Licences.</strong> The tool contains pdf.js (Mozilla Foundation) and Tesseract with tesseract.js for text recognition, both under the Apache License 2.0, and the typeface EB Garamond (SIL Open Font License 1.1). The licence texts are in the file under “Notes, privacy and licences”.</p>
+<p>German law applies. These terms are a translation; in case of doubt, the German terms of use of the <a href="https://robin.vision/werkzeuge/buchungsstapel-generator/#nutzungsbedingungen" rel="noopener">Buchungsstapel-Generator</a> apply.</p>
+</div>
+<h2 id="deutsch" lang="de">Auf Deutsch</h2>
+<div lang="de">
+<p>Eine deutsche Fassung des Werkzeugs gibt es als <a href="https://robin.vision/werkzeuge/buchungsstapel-generator/" rel="noopener">Buchungsstapel-Generator</a>: gleiche Funktionen, deutsche Oberfläche.</p>
+</div>
+</article>
+</main>
+<footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="#newsletter">Newsletter</a><a href="../../blog/en/feed.xml">RSS</a></footer>
+<script src="../../newsletter.js?v=20261016" defer></script>
+</body>
+</html>

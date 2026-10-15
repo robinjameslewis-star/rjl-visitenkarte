@@ -398,29 +398,47 @@ Der frühe Skriptabruf wartet vor dem ersten Seitenbild auf die lokale Datei (ei
 bei deaktiviertem Cache und gedrosseltem Netz.
 
 
-## Werkzeug „Kontoauszug-Konverter“ (15.10.2026)
+## Werkzeuge: Buchungsstapel-Generator / Posting Batch Generator (15.10.2026)
 
-Kostenloser Download unter `werkzeuge/kontoauszug-konverter/` (ohne Anmeldung), Teaser auf der Startseite (`#werkzeuge`). Bis 15.10.2026 hieß
-das Werkzeug „Buchungsstapel aus Kontoauszug“. Direkt unter dem Download steht die Anmeldung zum Newsletter (gleiches Skript
-`newsletter.js` wie auf der Startseite, Texte in der Sie-Form).
-Quelle des Werkzeugs: Repository `buchungsstapel-lokal` (Browser-Variante, eine HTML-Datei).
+Bereich „Werkzeuge“ im Menü der Startseite (`#werkzeuge`, englisch „Tools“) mit Übersichten unter `werkzeuge/` und
+`werkzeuge/en/`. Erstes Werkzeug: der **Buchungsstapel-Generator** (`werkzeuge/buchungsstapel-generator/`), englisch der
+**Posting Batch Generator** (`werkzeuge/posting-batch-generator/`, englische Oberfläche, gleiche Funktionen). Kostenloser
+Download ohne Anmeldung. Das Werkzeug hieß bis 15.10.2026 „Kontoauszug-Konverter“; `werkzeuge/kontoauszug-konverter/`
+leitet weiter (GitHub Pages kennt keine Weiterleitung auf dem Server, deshalb eine kleine Seite mit `meta refresh`).
+Quelle: Repository `buchungsstapel-lokal` (Browser-Variante; `browser/build.py` baut beide Sprachen aus einer Quelle).
 
-- **Seite:** entsteht vollständig aus Feldern (`worker/src/werkzeug.js`): Beschreibung, Nutzungsbedingungen, englischer
-  Hinweis (Markdown wie im Blog) und Angaben zur Datei. Die Felder stehen als JSON in der Seite (`script#werkzeug-daten`).
-- **Redaktion:** Abschnitt „Website – Werkzeug“ (Inhalt `werkzeug` in `CONTENT`): Texte ändern, veröffentlichen, vorige
-  Fassung. Die Datei selbst kommt nicht über die Redaktion.
-- **Neue Fassung:** im Werkzeug committen und bauen, dann
-  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Kontoauszug-Konverter.html`
-  (kopiert die Datei, liest Fassung und Datum, setzt Größe und SHA-256, baut die Seite neu), `node tests/werkzeug_seite_test.mjs`, PR.
+- **Werkzeuge und Sprachen:** Liste `WERKZEUGE` in `worker/src/werkzeug.js` (id, Sprache, Titel, Dateiname, Gegenstück in der
+  anderen Sprache, Kurzbeschreibung). Daraus entstehen Downloadseiten, Übersichten, die Liste auf der Startseite (zwischen
+  `<!-- werkzeuge:liste -->`) und die Weiterleitungen alter Adressen (`ALTE_ADRESSEN`).
+- **Downloadseite:** entsteht vollständig aus Feldern: Beschreibung, Nutzungsbedingungen, ein kurzer Hinweis in der anderen
+  Sprache (Markdown wie im Blog) und Angaben zur Datei. Die Felder stehen als JSON in der Seite (`script#werkzeug-daten`).
+  Die englischen Nutzungsbedingungen sind eine Übersetzung; im Zweifel gelten die deutschen (Entwurf von Claude, keine
+  anwaltliche Prüfung).
+- **Redaktion:** Abschnitte „Website – Werkzeug …“ für beide Seiten (Inhalte `werkzeug` und `werkzeugEn` in `CONTENT`):
+  Texte ändern, veröffentlichen, vorige Fassung. Die Datei selbst kommt nicht über die Redaktion.
+- **Neue Fassung:** im Werkzeug committen und bauen (`python3 browser/build.py`), dann
+  `node tools/werkzeug-uebernehmen.mjs ~/Developer/buchungsstapel-lokal/browser/dist/Buchungsstapel-Generator.html ~/Developer/buchungsstapel-lokal/browser/dist/Posting-Batch-Generator.html`
+  (kopiert die Dateien, liest Fassung und Datum, setzt Größe und SHA-256, baut Seiten, Übersichten, Startseitenliste und
+  Weiterleitungen neu), `node tests/werkzeug_seite_test.mjs`, PR. Ohne Dateien baut das Skript nur den zweiten Teil neu.
 - **Aufbau-Meldungen:** Erkennt das Werkzeug einen Auszug nicht, kann der Nutzer auf Knopfdruck den Aufbau ohne Inhalt
   senden. `POST /aufbau` im Worker (`worker/src/aufbau.js`): offen für jede Herkunft (das Werkzeug läuft als lokale Datei),
-  prüft die Anonymisierung (keine Ziffern außer 9, nur x/X oder bekannte Wörter), höchstens 3 je Adresse und Stunde und
-  `MAX_AUFBAU_PER_DAY` am Tag; Zustellung per Resend an `MAIL_TO`, der Aufbau als Anhang. Gespeichert wird nichts.
+  prüft die Anonymisierung (keine Ziffern außer 9, nur x/X oder bekannte Wörter; deutsche oder englische Kopfzeile),
+  höchstens 3 je Adresse und Stunde und `MAX_AUFBAU_PER_DAY` am Tag; Zustellung per Resend an `MAIL_TO`, der Aufbau als
+  Anhang. Meldungen an das Werkzeug kommen in dessen Sprache (`sprache` im Body). Gespeichert wird nichts.
+
+## Newsletter-Kasten unter Impulsen und Werkzeugen (15.10.2026)
+
+Unter jedem Impuls, unter den Impuls-Listen (`blog/`, `blog/en/`), auf allen Werkzeugseiten und den Übersichten steht die
+Anmeldung zum Newsletter mit kurzer Beschreibung, in der Sprache der Seite (Sie-Form wie in den Impulsen). Der Kasten kommt
+aus `worker/src/kasten.js`; `newsletter.js` nimmt auf Seiten ohne Sprachmodul die Sprache aus `<html lang>` und meldet damit
+bei der deutschen oder englischen Liste an. Der Kopf der Impuls-Seiten führt zusätzlich zu den Werkzeugen.
+Die Redaktion baut die Impuls-Seiten beim Veröffentlichen neu; ändert sich nur der Rahmen, baut
+`node tools/blog-seiten-bauen.mjs` sie lokal neu (wie `buildBlog`, ohne zu löschen).
 
 ## Newsletter: Impulse und Werkzeuge (15.10.2026, Brevo noch einzurichten)
 
 Inhalt (Robin, 15.10.2026): jeden Freitag der neue Impuls, dazu Neues zu den Werkzeugen (neue Werkzeuge und Fassungen).
-Anmeldung auf der Startseite (`#newsletter`) und auf der Downloadseite des Werkzeugs direkt unter dem Download, beide über
+Anmeldung auf der Startseite (`#newsletter`) und unter Impulsen und Werkzeugen (Abschnitt oben), alle über
 `newsletter.js` (Startseite in der Du-Form aus `language.js`, Downloadseite in der Sie-Form aus dem Skript selbst).
 Double-Opt-In über Brevo (Sendinblue SAS, Frankreich): Der Worker legt den Kontakt an (`POST /newsletter`,
 `worker/src/newsletter.js`), Brevo schickt die Bestätigungsmail. Der Endpunkt ist in `index.html` und `worker/src/werkzeug.js`

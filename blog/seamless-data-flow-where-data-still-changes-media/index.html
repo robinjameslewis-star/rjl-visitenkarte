@@ -66,13 +66,30 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 .list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
 .list .when span { margin-left: 8px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.top .home { margin-right: auto; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
 .foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 </style>
 </head>
-<body>
-<nav class="top" aria-label="Page"><a class="home" href="../../?lang=en">Robin James Lewis</a><a href="../en/">All posts</a></nav>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<nav class="top" aria-label="Page"><a class="home" href="../../?lang=en">Robin James Lewis</a><a href="../en/">All posts</a><a href="../../werkzeuge/en/">Tools</a></nav>
 <main>
 <article lang="en">
 <h1>Seamless data flow – where data still slips between paper and screen</h1>
@@ -95,7 +112,18 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
   });
 });
 </script>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">Food for Thought and tools by email</h2>
+<p>The new post every Friday, plus news of my tools. Unsubscribe at any time.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">Email address</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Email address"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Subscribe</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="../../?lang=en#privacy">Privacy</a>.</p>
+</form>
+</section>
 </main>
-<footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="../../blog/en/feed.xml">RSS</a></footer>
+<footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="#newsletter">Newsletter</a><a href="../../blog/en/feed.xml">RSS</a></footer>
+<script src="../../newsletter.js?v=20261016" defer></script>
 </body>
 </html>

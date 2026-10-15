@@ -176,7 +176,6 @@
   .message input:focus-visible, .message textarea:focus-visible { outline: 1px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
   .message .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .message .actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 6px 0 12px; }
-  .message a.werkzeug-link { display: inline-block; text-decoration: none; }
   .message .msg-status { font-size: 14px; color: var(--ink-soft); }
   .message .msg-status.ok { color: var(--green); }
   .message .msg-status.warn { color: var(--warning); }
@@ -366,7 +365,7 @@
 <body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
-<nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><a href="#blog" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><a href="#blog" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="#werkzeuge" data-i18n="navTools">Werkzeuge</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 <!-- Sprachwahl als Flaggen (Robin, 21.09.2026): links oben vor dem Menü, damit sie nicht in der Krone untergeht. Text bleibt für Vorlesen und Suchmaschinen. -->
 <nav class="language-nav" aria-label="Sprache">
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
@@ -455,6 +454,19 @@
   </section>
   <!-- /redaktion:blog-section -->
 
+  <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
+  <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
+    <h2 id="werkzeug-title" data-i18n="toolsTitle">Werkzeuge</h2>
+    <p class="lead" data-i18n="toolsLead">Kostenlose Werkzeuge für die Buchhaltung. Sie laufen offline im Browser, die Daten bleiben auf dem eigenen Rechner.</p>
+    <ul>
+<!-- werkzeuge:liste -->
+      <li lang="de"><span class="when">Kostenlos</span><a href="werkzeuge/buchungsstapel-generator/">Buchungsstapel-Generator</a><p>Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows.</p></li>
+      <li lang="en" hidden><span class="when">Free</span><a href="werkzeuge/posting-batch-generator/">Posting Batch Generator</a><p>Turns PDF bank statements, scanned ones included, into posting batches in the German DATEV format. Runs offline in your browser, Windows included.</p></li>
+<!-- /werkzeuge:liste -->
+    </ul>
+    <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge</a></p>
+  </section>
+
   <!-- Newsletter (Impulse und Werkzeuge, newsletter.js): sichtbar, sobald data-newsletter-endpoint am <body> gesetzt ist -->
   <section class="message newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
     <h2 id="newsletter-title" data-i18n="newsletterTitle">Impulse und Werkzeuge per E-Mail</h2>
@@ -465,12 +477,6 @@
       <p class="actions"><button type="submit" class="consent-button" id="nl-send" data-i18n="newsletterSend">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span></p>
       <p class="hint" data-i18n="newsletterNote">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach bist du angemeldet. Versand über Brevo, Abmeldung jederzeit über den Link in jeder Ausgabe. Einzelheiten unter Impressum · Datenschutz.</p>
     </form>
-  </section>
-
-  <section class="message werkzeug" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title" data-i18n="toolTitle">Werkzeug: Kontoauszug-Konverter</h2>
-    <p class="lead" data-i18n="toolLead">Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Kostenlos, offline im Browser, auch unter Windows.</p>
-    <p><a class="consent-button werkzeug-link" href="werkzeuge/kontoauszug-konverter/" data-i18n="toolLink">Zum Download</a></p>
   </section>
 
   <section class="message" id="nachricht" aria-labelledby="nachricht-title">
@@ -504,7 +510,7 @@
       <p data-i18n="privacyContact">Kontaktformular: Name, E-Mail-Adresse, freiwillig Telefonnummer und der Nachrichtentext werden beim Absenden über einen Cloudflare Worker (Cloudflare, Inc.) und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich zugestellt und ausschließlich zur Beantwortung verwendet (Art. 6 Abs. 1 lit. b und f DSGVO). Es werden keine Cookies gesetzt und keine Eingaben auf dem Server gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
       <p data-i18n="privacyYoutube">Eingebettete Videos von YouTube (Google Ireland Ltd.) werden erst geladen, wenn Sie auf den Platzhalter klicken (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Dabei verarbeitet Google Ihre IP-Adresse und Browserdaten, auch in den USA; es wird die Variante ohne Cookies zur Wiedergabeverfolgung („youtube-nocookie“) verwendet. Ohne Klick wird keine Verbindung zu YouTube aufgebaut.</p>
       <p data-i18n="privacyNewsletter">Newsletter: Er bringt die Impulse und Neues zu meinen Werkzeugen (neue Werkzeuge und Fassungen). Bei der Anmeldung geht die E-Mail-Adresse über einen Cloudflare Worker (Cloudflare, Inc.) an den Versanddienst Brevo (Sendinblue SAS, Paris, Frankreich). Brevo schickt eine Bestätigungsmail; erst nach dem Klick auf den Link ist die Adresse angemeldet (Double-Opt-In). Gespeichert werden die Adresse, die Sprache sowie Zeitpunkt und IP-Adresse von Anmeldung und Bestätigung, damit die Einwilligung nachweisbar ist. Grundlage ist die Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie lässt sich jederzeit über den Abmeldelink in jeder Ausgabe oder per E-Mail widerrufen; danach wird die Adresse gelöscht oder, soweit sie zum Nachweis nötig ist, gesperrt. Öffnungen und Klicks werden nicht personenbezogen ausgewertet. Brevo verarbeitet die Daten in meinem Auftrag. Die Ausgaben mit den Impulsen erstellt Brevo aus dem Blog-Feed mit dem Dienst Integry (USA), den Brevo als Unterauftragsverarbeiter einsetzt. Eine Verarbeitung in den USA ist dabei möglich; laut Brevo gelten dafür Standardvertragsklauseln.</p>
-      <p data-i18n="privacyTool">Werkzeug „Kontoauszug-Konverter“: Der Download ist ohne Anmeldung möglich. Das Werkzeug verarbeitet Kontoauszüge nur im Browser und überträgt sie nicht. Nur wenn Sie bei einem nicht erkannten Auszug ausdrücklich „Aufbau senden“ wählen, geht dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9, freiwillig der Name der Bank) über einen Cloudflare Worker und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich, damit ich das Layout nachrüsten kann (Art. 6 Abs. 1 lit. a DSGVO). Die IP-Adresse wird dabei technisch verarbeitet, aber nicht gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
+      <p data-i18n="privacyTool">Werkzeug „Buchungsstapel-Generator“ (englisch „Posting Batch Generator“): Der Download ist ohne Anmeldung möglich. Das Werkzeug verarbeitet Kontoauszüge nur im Browser und überträgt sie nicht. Nur wenn Sie bei einem nicht erkannten Auszug ausdrücklich „Aufbau senden“ wählen, geht dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9, freiwillig der Name der Bank) über einen Cloudflare Worker und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich, damit ich das Layout nachrüsten kann (Art. 6 Abs. 1 lit. a DSGVO). Die IP-Adresse wird dabei technisch verarbeitet, aber nicht gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
       <p><a href="https://www.cloudflare.com/privacypolicy/" data-i18n="cloudflarePrivacy">Datenschutz bei Cloudflare</a> · <a href="https://www.anthropic.com/privacy" data-i18n="anthropicPrivacy">Datenschutz bei Anthropic</a> · <a href="https://resend.com/legal/privacy-policy" data-i18n="resendPrivacy">Datenschutz bei Resend</a> · <a href="https://www.brevo.com/de/legal/privacypolicy/" data-i18n="brevoPrivacy">Datenschutz bei Brevo</a></p>
       <p data-i18n="privacyRetention">Kontakt- und Termindaten dienen der Bearbeitung der Anfrage und der Organisation des Gesprächs (Art. 6 Abs. 1 lit. f DSGVO; bei vertragsbezogenen Anfragen lit. b). Sie werden so lange aufbewahrt, wie dies für diesen Zweck oder gesetzliche Pflichten erforderlich ist. Die Speicherdauer technischer Daten bei den Anbietern richtet sich nach deren verlinkten Angaben.</p>
       <p data-i18n="privacyRights">Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.</p>
@@ -528,10 +534,10 @@
 
 <script>window.RJLLandscape?.init();</script>
 <script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
-<script src="language.js?v=20261015b" defer></script>
+<script src="language.js?v=20261016" defer></script>
 <script src="site.js?v=20260925" defer></script>
 <script src="goch.js?v=20260922" defer></script>
 <script src="contact.js?v=20260919" defer></script>
-<script src="newsletter.js?v=20261015b" defer></script>
+<script src="newsletter.js?v=20261016" defer></script>
 </body>
 </html>
