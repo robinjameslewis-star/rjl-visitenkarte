@@ -212,11 +212,12 @@
     }
     // Link aus Robins Liste (links.md im Worker): nur https, öffnet in neuem Tab. Der Verlauf merkt sich
     // „(Link: Text)“, damit der Worker denselben Link nicht noch einmal anbietet.
-    const l = data.link;
     let remembered = data.reply;
-    if (l && typeof l.url === 'string' && /^https:\/\//.test(l.url) && typeof l.label === 'string' && l.label) {
-      thinking.append(' ', link(l.url, l.label, true));
-      remembered += ' (Link: ' + l.label + ')';
+    for (const l of [data.link, data.link2]) { // link2 nur bei „Was gibt's Neues?“
+      if (l && typeof l.url === 'string' && /^https:\/\//.test(l.url) && typeof l.label === 'string' && l.label) {
+        thinking.append(' ', link(l.url, l.label, true));
+        remembered += ' (Link: ' + l.label + ')';
+      }
     }
     history.push({ role: 'assistant', content: remembered });
     const nl = data.action === 'newsletter' ? newsletterForm() : null;

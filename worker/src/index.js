@@ -2,7 +2,8 @@
 // POST /chat  { lang: "de"|"en", messages: [{role:"user"|"assistant", content:"…"}, …] }
 // Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message" | "newsletter", sent: true|false|undefined,
 //               (newsletter: die Seite zeigt unter der Antwort ein Feld zur Anmeldung, die Adresse geht nie an das Modell)
-//               link: null | { label: "…", url: "https://…" } }  – Links nur aus links.md, nie vom Modell erfunden
+//               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“) }
+//               – Links nur aus links.md, nie vom Modell erfunden
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
@@ -173,6 +174,9 @@ export default {
     // Link: das Modell nennt nur eine Kennung, die Adresse kommt aus links.md. Jeder Link einmal je Gespräch –
     // die Seite hängt „(Link: Text)“ an den Verlauf, daran erkennt der Worker, was schon angeboten wurde.
     out.link = resolveLink(out.link, lang, messages, content.links);
+    // Zweiter Link nur zusammen mit einem ersten und nicht derselbe (Antwort auf „Was gibt's Neues?“)
+    out.link2 = out.link && out.link2 ? resolveLink(out.link2, lang, messages, content.links) : null;
+    if (out.link2 && out.link2.url === out.link.url) out.link2 = null;
 
     // Der Draht: Nachricht an Robin. Das Protokoll gehört dem Worker, nicht dem Modell:
     // Felder notfalls aus dem Verlauf ergänzen, die Zusammenfassung selbst schreiben, und senden
@@ -306,6 +310,7 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
   oder Namen aus seinen Unterlagen. Name und E-Mail-Adresse nur, wenn er sie selbst genannt hat, sonst leer lassen.
   Zusammenfassung und Rückfrage schreibt der Worker.
 "link" ist null oder eine Kennung aus „Links, die du anbieten darfst“ (falls vorhanden).
+"link2" ist null – außer bei „Was gibt's Neues?“: dann die zweite Kennung (siehe Profil).
 "reply" ist immer dein Text an den Besucher, in dessen Sprache.`;
 
 const CONFIRM = /^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b/i;
@@ -489,6 +494,7 @@ const gochOutput = linkIds => z.object({
   action: z.enum(["calendar", "contact", "message", "newsletter", "feedback"]).nullable(),
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
+  link2: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
 });
 
 export async function complete(env, system, messages, linkIds = [], settings = null) {
@@ -590,7 +596,7 @@ function parse(text, linkIds = []) {
       const o = JSON.parse(m[0]);
       const action = ["calendar", "contact", "message", "newsletter", "feedback"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
-      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null };
+      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null };
       if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = o.message;
       return out;
     } catch {}

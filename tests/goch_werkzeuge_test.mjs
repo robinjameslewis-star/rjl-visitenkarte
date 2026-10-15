@@ -57,6 +57,22 @@ console.log("Wissen und Links");
   check(r.link && r.link.url === "https://robin.vision/werkzeuge/en/", "Übersicht auf Englisch");
 }
 
+console.log("Was gibt's Neues?");
+{
+  modell = { reply: "Neu ist der Buchungsstapel-Generator; jeden Freitag erscheint ein Impuls.", action: null, message: null, link: "buchungsstapel-generator", link2: "impulse" };
+  let r = await chat(env(), "de", [{ role: "user", content: "Was gibt's Neues?" }]);
+  check(/„Was gibt's Neues\?“/.test(prompts.at(-1)?.system?.[0]?.text || "") && /- impulse \(/.test(prompts.at(-1).system[0].text), "Profil und Links kennen die Frage und die Impulse");
+  check(r.link?.url === "https://robin.vision/werkzeuge/buchungsstapel-generator/" && r.link2?.url === "https://robin.vision/blog/" && r.link2.label === "Impulse", "zwei Links auf Deutsch");
+  r = await chat(env(), "en", [{ role: "user", content: "What's new?" }]);
+  check(r.link?.url === "https://robin.vision/werkzeuge/booking-batch-generator/" && r.link2?.url === "https://robin.vision/blog/en/" && r.link2.label === "Food for Thought", "zwei Links auf Englisch");
+  modell = { reply: "Nur ein Link.", action: null, message: null, link: null, link2: "impulse" };
+  r = await chat(env(), "de", [{ role: "user", content: "Was gibt's Neues?" }]);
+  check(r.link === null && r.link2 === null, "zweiter Link nie ohne ersten");
+  modell = { reply: "Doppelt.", action: null, message: null, link: "impulse", link2: "impulse" };
+  r = await chat(env(), "de", [{ role: "user", content: "Was gibt's Neues?" }]);
+  check(r.link?.url === "https://robin.vision/blog/" && r.link2 === null, "derselbe Link nicht zweimal");
+}
+
 console.log("Newsletter im Gespräch");
 {
   modell = { reply: "Gern – trag unten deine Adresse ein.", action: "newsletter", message: null, link: null };
