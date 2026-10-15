@@ -18,7 +18,7 @@ export const WERKZEUGE = [
     kurz: "Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows." },
   { id: "booking-batch-generator", lang: "en", titel: "Booking Batch Generator", datei: "Booking-Batch-Generator.html",
     gegenstueck: "buchungsstapel-generator",
-    kurz: "Turns PDF bank statements, scanned ones included, into booking batches in the German DATEV format. Runs offline in your browser, Windows included." },
+    kurz: "Turns PDF bank statements, scanned ones included, into booking batches: CSV files in the DATEV format (EXTF) for any accounting software with a DATEV import. Runs offline in your browser, Windows included." },
 ];
 export const werkzeug = id => WERKZEUGE.find(w => w.id === id);
 export const werkzeugPfad = id => `werkzeuge/${id}/index.html`;
