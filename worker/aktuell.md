@@ -16,7 +16,7 @@
    mit, ohne Cloud. Ein kleines Stream Deck zeigt den Verbrauch der KI-Werkzeuge an und
    hat eine Freigabetaste. Beides baut Robin für sich selbst, mit KI als Werkzeug.
 6. **Second Brain.** Robin baut ein persönliches Wissenssystem in Obsidian, aus dem Agenten
-   wie dieses Rotkehlchen ihren Kontext bekommen – kuratiert, nichts automatisch.
+   wie dieses Rotkehlchen ihren Kontext bekommen – kuratiert, nichts automatisch.^
 
 ## English
 
