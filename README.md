@@ -417,23 +417,28 @@ Quelle des Werkzeugs: Repository `buchungsstapel-lokal` (Browser-Variante, eine 
   prüft die Anonymisierung (keine Ziffern außer 9, nur x/X oder bekannte Wörter), höchstens 3 je Adresse und Stunde und
   `MAX_AUFBAU_PER_DAY` am Tag; Zustellung per Resend an `MAIL_TO`, der Aufbau als Anhang. Gespeichert wird nichts.
 
-## Newsletter „Impulse“ (15.10.2026, noch nicht eingerichtet)
+## Newsletter: Impulse und Werkzeuge (15.10.2026, Brevo noch einzurichten)
 
-Anmeldung auf der Startseite (`#newsletter`, `newsletter.js`), Double-Opt-In über Brevo (Sendinblue SAS, Frankreich).
-Der Worker legt den Kontakt an (`POST /newsletter`, `worker/src/newsletter.js`), Brevo schickt die Bestätigungsmail.
-Der Abschnitt bleibt verborgen, solange `data-newsletter-endpoint` am `<body>` leer ist; der Endpunkt antwortet ohne
-Einrichtung mit 503. Versand der Impulse: Brevo-RSS-Kampagne aus `blog/feed.xml` (Deutsch) und `blog/en/feed.xml`
-(Englisch) – eine Ausgabe entsteht also erst, wenn Robin einen Beitrag veröffentlicht hat.
+Inhalt (Robin, 15.10.2026): jeden Freitag der neue Impuls, dazu Neues zu den Werkzeugen (neue Werkzeuge und Fassungen).
+Anmeldung auf der Startseite (`#newsletter`) und auf der Downloadseite des Werkzeugs direkt unter dem Download, beide über
+`newsletter.js` (Startseite in der Du-Form aus `language.js`, Downloadseite in der Sie-Form aus dem Skript selbst).
+Double-Opt-In über Brevo (Sendinblue SAS, Frankreich): Der Worker legt den Kontakt an (`POST /newsletter`,
+`worker/src/newsletter.js`), Brevo schickt die Bestätigungsmail. Der Endpunkt ist in `index.html` und `worker/src/werkzeug.js`
+gesetzt; ohne Einrichtung antwortet er mit 503. Versand der Impulse: Brevo-RSS-Kampagne aus `blog/feed.xml` (Deutsch) und
+`blog/en/feed.xml` (Englisch) – eine Ausgabe entsteht erst, wenn Robin einen Beitrag veröffentlicht hat. Neues zu den Werkzeugen
+schickt Robin als eigene Kampagne an dieselben Listen.
 
-Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte):
+Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge:
 1. Brevo-Konto anlegen, Vertrag zur Auftragsverarbeitung in den Kontoeinstellungen annehmen.
-2. Absenderdomain `robin.vision` bei Brevo bestätigen (DNS-Einträge für Brevo-Code, DKIM; DMARC besteht schon).
-3. Listen „Impulse DE“ und „Impulse EN“ anlegen; je eine Vorlage vom Typ Double-Opt-In (Bestätigungslink `{{ params.DOIurl }}`).
+2. Absenderdomain `robin.vision` bei Brevo bestätigen (DNS-Einträge für Brevo-Code und DKIM; DMARC besteht schon).
+3. Listen „Newsletter DE“ und „Newsletter EN“ anlegen; je eine Vorlage vom Typ Double-Opt-In mit dem Bestätigungslink
+   `{{ params.DOIurl }}`. Vorschlag für die deutsche Vorlage – Betreff: „Bitte bestätigen: Newsletter von Robin James Lewis“;
+   Text: „Bitte bestätigen Sie Ihre Anmeldung zum Newsletter mit den Impulsen und Neuem zu meinen Werkzeugen: [Anmeldung
+   bestätigen]. Haben Sie sich nicht angemeldet, ignorieren Sie diese E-Mail; dann geschieht nichts.“ Dazu Impressum.
 4. In Brevo die Öffnungs- und Klickmessung abschalten oder nur anonym zulassen.
 5. RSS-Kampagne je Sprache: Feed wie oben, Prüfung wöchentlich am Freitag, Vorlage mit Impressum und Abmeldelink.
-6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`), dann per PR: IDs in `worker/wrangler.toml`
-   (`BREVO_LISTE_DE/EN`, `BREVO_DOI_VORLAGE_DE/EN`) und `data-newsletter-endpoint="https://goch.robin.vision/newsletter"`
-   in `index.html`; Worker deployen.
+6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`); die IDs von Listen und Vorlagen in `worker/wrangler.toml`
+   (`BREVO_LISTE_DE/EN`, `BREVO_DOI_VORLAGE_DE/EN`) trägt Claude in PR 5 ein.
 
 ## Mond: Sichtbarkeit und Verdeckung (10.10.2026)
 
