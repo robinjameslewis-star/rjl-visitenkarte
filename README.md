@@ -437,8 +437,10 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
    bestätigen]. Haben Sie sich nicht angemeldet, ignorieren Sie diese E-Mail; dann geschieht nichts.“ Dazu Impressum.
 4. In Brevo die Öffnungs- und Klickmessung abschalten oder nur anonym zulassen.
 5. RSS-Kampagne je Sprache: Feed wie oben, Prüfung wöchentlich am Freitag, Vorlage mit Impressum und Abmeldelink.
-6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`); die IDs von Listen und Vorlagen in `worker/wrangler.toml`
-   (`BREVO_LISTE_DE/EN`, `BREVO_DOI_VORLAGE_DE/EN`) trägt Claude in PR 5 ein.
+   Offen (15.10.2026): Die RSS-Kampagne ist in Brevo eine Integration des Brevo-Partners Integry, der dafür Zugriff auf
+   das Brevo-Konto bekäme. Erst nach Robins Entscheidung einrichten.
+6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`). Die IDs von Listen und Vorlagen stehen in
+   `worker/wrangler.toml` (`BREVO_LISTE_DE/EN` = 3/4, `BREVO_DOI_VORLAGE_DE/EN` = 1/2, eingetragen 15.10.2026).
 
 ## Mond: Sichtbarkeit und Verdeckung (10.10.2026)
 
