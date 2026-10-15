@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Werkzeuge – Robin James Lewis</title>
+<meta name="description" content="Kostenlose Werkzeuge für die Buchhaltung. Sie laufen offline im Browser; Ihre Daten verlassen den Rechner nicht.">
+<link rel="icon" href="../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/werkzeuge/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/">
+<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Werkzeuge">
+<meta property="og:description" content="Kostenlose Werkzeuge für die Buchhaltung. Sie laufen offline im Browser; Ihre Daten verlassen den Rechner nicht.">
+<meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://robin.vision/werkzeuge/">
+<meta name="twitter:card" content="summary">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
+.top a:hover { color: var(--green); }
+.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-right: auto; }
+main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
+h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
+.meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 32px; }
+.meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.download + .newsletter { margin-top: 18px; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.list { list-style: none; margin: 0 0 8px; padding: 0; }
+.list li { padding: 22px 0; border-top: 1px solid var(--line); }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.list a { color: var(--green); text-decoration: none; font: 400 clamp(21px, 2.4vw, 25px)/1.25 var(--serif); }
+.list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
+.list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+</style>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<nav class="top" aria-label="Seite"><a class="home" href="../">Robin James Lewis</a><a href="../blog/">Impulse</a><a href="../werkzeuge/">Werkzeuge</a></nav>
+<main>
+<h1>Werkzeuge</h1>
+<p class="intro">Kostenlose Werkzeuge für die Buchhaltung. Sie laufen offline im Browser; Ihre Daten verlassen den Rechner nicht.</p>
+<ul class="list">
+<li><span class="when">Kostenloses Werkzeug · Fassung a396da5 vom 15.10.2026</span><a href="../werkzeuge/buchungsstapel-generator/">Buchungsstapel-Generator</a><p>Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows.</p></li>
+</ul>
+<p class="meta"><a href="../werkzeuge/en/" lang="en" hreflang="en">English</a></p>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">Neue Werkzeuge per E-Mail</h2>
+<p>Der Newsletter informiert über neue Werkzeuge und Fassungen, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">E-Mail-Adresse</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="../#privacy">Datenschutz</a>.</p>
+</form>
+</section>
+</main>
+<footer class="foot"><a href="../#privacy">Impressum · Datenschutz</a><a href="#newsletter">Newsletter</a><a href="../blog/feed.xml">RSS</a></footer>
+<script src="../newsletter.js?v=20261016" defer></script>
+</body>
+</html>
