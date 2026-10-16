@@ -34,7 +34,8 @@ const TEXT = {
       ["Abschlüsse", "Fachhochschulreife (2007), Ausbildereignungsprüfung der IHK (2017), Vorbereitungskurs DATEV Kanzlei-Rechnungswesen mit Abschluss „sehr gut“ (2023)."],
     ],
     kenntnisseTitel: "Womit ich arbeite",
-    kenntnisse: "DATEV Kanzlei-Rechnungswesen, LODAS und Lohn und Gehalt, DATEV Unternehmen Online; ADDISON; Vorsysteme wie Finmatics, GetMyInvoices und Lexware Office; SAP ERP. Für Automatisierung und Schnittstellen Python, dazu Sprachmodelle wie Copilot und Claude – nach einer festen Regel: Die Modelle bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.",
+    marken: ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON", "Finmatics", "GetMyInvoices", "Lexware Office", "SAP ERP", "Python", "Copilot · Claude"],
+    kenntnisse: "Für Automatisierung und Schnittstellen Python, dazu Sprachmodelle wie Copilot und Claude – nach einer festen Regel: Die Modelle bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.",
     ehrenamtTitel: "Ehrenamt",
     ehrenamt: "Ehrenamtlicher Richter am Verwaltungsgericht Sigmaringen. Zwei Kulturvereine habe ich als Gründungsschatzmeister mit aufgebaut; ich unterstütze Vereine bei Satzung, Gemeinnützigkeit, Buchhaltung und Förderanträgen.",
     vogelTitel: "Warum ein Rotkehlchen",
@@ -62,7 +63,8 @@ const TEXT = {
       ["Qualifications", "Advanced technical college entrance qualification (2007), IHK trainer aptitude examination (2017), preparatory course DATEV Kanzlei-Rechnungswesen, passed with distinction (2023)."],
     ],
     kenntnisseTitel: "What I work with",
-    kenntnisse: "DATEV Kanzlei-Rechnungswesen, LODAS and Lohn und Gehalt, DATEV Unternehmen Online; ADDISON; upstream systems such as Finmatics, GetMyInvoices and Lexware Office; SAP ERP. Python for automation and interfaces, plus language models such as Copilot and Claude – under one fixed rule: the models prepare, I decide. I work in German and English.",
+    marken: ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON", "Finmatics", "GetMyInvoices", "Lexware Office", "SAP ERP", "Python", "Copilot · Claude"],
+    kenntnisse: "Python for automation and interfaces, plus language models such as Copilot and Claude – under one fixed rule: the models prepare, I decide. I work in German and English.",
     ehrenamtTitel: "Voluntary work",
     ehrenamt: "Lay judge at the Administrative Court of Sigmaringen. I helped set up two cultural associations as founding treasurer, and I support associations with statutes, charitable status, bookkeeping and funding applications.",
     vogelTitel: "Why a robin",
@@ -73,18 +75,37 @@ const TEXT = {
   },
 };
 
-// Foto links, der Text läuft daneben und darunter weiter (Robin, 16.10.2026); auf schmalen Bildschirmen steht das Foto über dem Text
+// Foto links, der Text läuft daneben und darunter weiter (Robin, 16.10.2026); auf schmalen Bildschirmen steht das Foto über dem Text.
+// Abschnitte heben sich ab (Robin, 16.10.2026, Vorbild anthropic.com): Stationen als Zeitleiste mit Jahreszahlen in Kupfer,
+// Kenntnisse als Marken, Ehrenamt und Rotkehlchen als zwei Karten, Kontakt als Knöpfe wie auf der Startseite.
 const CSS = `.portrait-row { margin: 0 0 12px; }
 .portrait-row::after { content: ""; display: block; clear: both; }
-.portrait { float: left; width: min(230px, 42%); height: auto; margin: 6px 32px 14px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.portrait { float: left; width: min(240px, 42%); height: auto; margin: 6px 36px 16px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.einleitung p { font-size: 18px; line-height: 1.65; }
 .portrait-row p:last-child { margin-bottom: 0; }
-.ueber-mich h2 { clear: both; }
-@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } }
-.stationen { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0 0 18px; }
-.stationen dt { color: var(--ink-muted); font-size: 14px; padding-top: 3px; }
+.ueber-mich > h2 { clear: both; }
+.stationen { margin: 0; }
+.stationen > div { display: grid; grid-template-columns: 128px 1fr; gap: 6px 24px; padding: 20px 0; border-top: 1px solid var(--line); }
+.stationen > div:last-child { border-bottom: 1px solid var(--line); }
+.stationen dt { margin: 0; padding-top: 5px; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
 .stationen dd { margin: 0; max-width: 60ch; }
-@media (max-width: 480px) { .stationen { grid-template-columns: 1fr; gap: 2px 0; } .stationen dd { margin-bottom: 12px; } }
-.wege { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 18px; padding: 0; list-style: none; }`;
+.marken { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.marken li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
+.karten { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 72px 0 0; }
+.karte { position: relative; padding: 26px 24px 22px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); }
+.karte h2 { margin: 0 0 12px; font: 400 23px/1.25 var(--serif); color: var(--green); }
+.karte p { margin: 0; font-size: 15.5px; max-width: none; }
+.karte.vogel img { position: absolute; right: 18px; top: 12px; width: 92px; height: auto; }
+.karte.vogel h2 { padding-right: 104px; }
+.wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 20px; padding: 0; list-style: none; }
+.wege li { margin: 0; max-width: none; }
+.wege .knopf { display: inline-block; padding: 11px 18px; border-radius: 3px; text-decoration: none; font-size: 15px; background: var(--green); color: var(--paper); border: 1px solid var(--green); }
+.wege .knopf:hover { background: #082d22; color: var(--paper); }
+.wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
+.wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
+.wege .mail { font-size: 15px; }
+@media (max-width: 720px) { .karten { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div { grid-template-columns: 1fr; gap: 4px; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }`;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -98,26 +119,29 @@ export function ueberMichSeite(lang) {
 <p class="meta">${t.meta} · <a href="${LINKEDIN}" rel="me noopener" target="_blank">LinkedIn</a></p>
 <div class="portrait-row">
 <img class="portrait" src="${up}${PORTRAIT.datei}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="${esc(t.alt)}" decoding="async">
-<div>
+<div class="einleitung">
 ${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/"))}</p>`).join("\n")}
 </div>
 </div>
 <h2 id="stationen">${t.stationenTitel}</h2>
 <dl class="stationen">
-${t.stationen.map(([wann, was]) => `<dt>${wann}</dt><dd>${was}</dd>`).join("\n")}
+${t.stationen.map(([wann, was]) => `<div><dt>${wann}</dt><dd>${was}</dd></div>`).join("\n")}
 </dl>
 <h2 id="kenntnisse">${t.kenntnisseTitel}</h2>
+<ul class="marken">
+${t.marken.map(m => `<li>${esc(m)}</li>`).join("\n")}
+</ul>
 <p>${t.kenntnisse}</p>
-<h2 id="ehrenamt">${t.ehrenamtTitel}</h2>
-<p>${t.ehrenamt}</p>
-<h2 id="rotkehlchen">${t.vogelTitel}</h2>
-<p>${t.vogel}</p>
+<div class="karten">
+<section class="karte"><h2 id="ehrenamt">${t.ehrenamtTitel}</h2><p class="frei">${t.ehrenamt}</p></section>
+<section class="karte vogel"><img src="${up}assets/signatur-rotkehlchen.png" alt="" width="240" height="146" decoding="async"><h2 id="rotkehlchen">${t.vogelTitel}</h2><p class="frei">${t.vogel}</p></section>
+</div>
 <h2 id="kontakt">${t.kontaktTitel}</h2>
 <ul class="wege">
-<li><a href="${LINKEDIN}" rel="me noopener" target="_blank">${t.linkedin}</a></li>
-<li><a href="${home}#kontakt">${t.termin}</a></li>
-<li><a href="${home}#nachricht">${t.nachricht}</a></li>
-<li><a href="mailto:robin@robin.vision">robin@robin.vision</a></li>
+<li><a class="knopf" href="${LINKEDIN}" rel="me noopener" target="_blank">${t.linkedin}</a></li>
+<li><a class="knopf zweit" href="${home}#kontakt">${t.termin}</a></li>
+<li><a class="knopf zweit" href="${home}#nachricht">${t.nachricht}</a></li>
+<li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
 </ul>
 <p class="meta"><a href="${up}${UEBER_MICH.find(s => s.lang === andere).adresse}" lang="${andere}" hreflang="${andere}">${t.andere}</a></p>
 ${newsletterKasten(lang, up, "impuls")}

@@ -516,6 +516,17 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   und Impulse. Nicht im Repository: Google Search Console und Bing Webmaster Tools (Robin bestätigt die Domain per DNS-TXT
   bei Cloudflare und reicht `sitemap.xml` ein).
 
+## Feinschliff der Unterseiten (16.10.2026, Vorbild anthropic.com)
+
+- Robin: Abschnitte sollen stärker hervortreten, Texte eher im Blocksatz, Stil erhalten. Rahmen (`werkzeug.js`, `rahmen`) und
+  Impulse (`blog.js`, `shell`): Spalte 780 px, Überschrift größer, Abschnitte mit Kupfer-Nummer (`article > h2::before`, CSS-
+  Zähler – Kupfer für Abschnittsnummern ist im Designsystem vorgesehen; Impulse ohne Nummern), 72 px Abstand, Blocksatz mit
+  Silbentrennung ab 720 px (`article p`, außer `.meta`, `.untertitel`, `.hinweis`, `.frei`).
+- „Über mich“ (`ueber_mich.js`): Foto links umflossen, Einleitung größer, Stationen als Zeitleiste (Jahre in Kupfer-Versalien,
+  Hairlines wie in den Listen), Kenntnisse als Marken (`marken`), Ehrenamt und „Warum ein Rotkehlchen“ als zwei Karten (mit
+  `assets/signatur-rotkehlchen.png`), Kontakt als Knöpfe (LinkedIn grün, Termin und Nachricht mit Kupferrand); unter 720 px eine
+  Spalte, unter 600 px Foto über dem Text. Kopf-Spalte in `kopf.js` und `index.html` ebenfalls 780 px.
+
 ## „Was ist neu“ und Newsletter-Feed (16.10.2026)
 
 - Robin: Jede neue Fassung des Buchungsstapel-Generators wird auf der Website angekündigt und beschrieben; der Newsletter soll

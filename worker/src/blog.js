@@ -193,7 +193,7 @@ ${jsonld ? `<script type="application/ld+json">${jsonld}</script>\n` : ""}<style
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
 ${KOPF_CSS}
-main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) 6vw clamp(56px, 10vh, 120px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 36px; }
 .intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
@@ -201,6 +201,7 @@ article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--
 article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
 article p, article li { max-width: 68ch; }
 article p { margin: 0 0 18px; }
+@media (min-width: 720px) { article p:not(.meta), article li { text-align: justify; hyphens: auto; } }
 article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 article blockquote { margin: 24px 0; padding: 2px 0 2px 18px; border-left: 2px solid var(--copper); color: var(--ink-soft); }
 article blockquote p:last-child { margin-bottom: 0; }
@@ -232,7 +233,7 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 .list .when span { margin-left: 8px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
 ${NEWSLETTER_CSS}
-.foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 6vw 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 </style>
