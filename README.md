@@ -526,6 +526,10 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   Hairlines wie in den Listen), Kenntnisse als Marken (`marken`), Ehrenamt und „Warum ein Rotkehlchen“ als zwei Karten (mit
   `assets/signatur-rotkehlchen.png`), Kontakt als Knöpfe (LinkedIn grün, Termin und Nachricht mit Kupferrand); unter 720 px eine
   Spalte, unter 600 px Foto über dem Text. Kopf-Spalte in `kopf.js` und `index.html` ebenfalls 780 px.
+- Startseite (Robin: „auf die gesamte Website übertragen“): dieselben Kupfer-Nummern vor jedem Abschnitt (`main` zählt
+  `.blog-teaser`, `.message`, `.contact`; der verborgene Newsletter-Abschnitt zählt erst, wenn er sichtbar ist), größere
+  Überschriften, mehr Abstand, Werkzeug-Eintrag als Karte, „Alle …“-Verweise als Knöpfe mit Kupferrand, „Über mich“-Absatz im
+  Blocksatz ab 720 px; der Termin-Titel ohne Inline-Stil.
 
 ## „Was ist neu“ und Newsletter-Feed (16.10.2026)
 

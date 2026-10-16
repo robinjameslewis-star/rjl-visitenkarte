@@ -191,14 +191,19 @@
   @media (prefers-reduced-motion: reduce) { .goch-log { scroll-behavior: auto; } }
 
   /* ---------- Terminbereich ---------- */
-  .contact { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
-  .stage + section { margin-top: clamp(24px, 6vh, 64px); }
-  .about p.lead { max-width: 68ch; color: var(--ink); }
-  .contact > h2, .contact > .lead { max-width: 560px; }
+  .contact { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
+  .stage + section { margin-top: clamp(40px, 8vh, 96px); }
+  /* Feinschliff (Robin, 16.10.2026, Vorbild anthropic.com): jeder Abschnitt mit kleiner Kupfer-Nummer, größerer Überschrift und mehr
+     Abstand; Blocksatz nur für längere Absätze ab 720 px. Gleiche Regeln wie im Rahmen der Unterseiten (worker/src/werkzeug.js). */
+  main { counter-reset: abschnitt; }
+  .blog-teaser > h2, .message > h2, .contact > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 0 0 10px; max-width: 680px; }
+  .blog-teaser > h2::before, .message > h2::before, .contact > h2::before { counter-increment: abschnitt; content: counter(abschnitt, decimal-leading-zero); display: block; font: 500 12px/1 var(--sans); letter-spacing: .22em; color: var(--copper); margin: 0 0 12px; }
+  .about p.lead { max-width: 68ch; color: var(--ink); font-size: clamp(16px, 1.3vw, 18px); line-height: 1.65; }
+  @media (min-width: 720px) { .about p.lead { text-align: justify; hyphens: auto; } }
+  .contact > .lead { max-width: 560px; }
   .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
   /* Nachricht: Kontaktformular ganz unten, zweiter Eingang neben Goch (contact.js) */
-  .message { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
-  .message > h2 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; max-width: 560px; }
+  .message { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
   .message p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
   .message form { max-width: 560px; }
   .message .field { margin: 0 0 14px; }
@@ -214,10 +219,13 @@
   .message .msg-status.warn { color: var(--warning); }
   .message .hint { color: var(--ink-soft); font-size: 14px; margin: 0; max-width: 60ch; }
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
-  .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
-  .blog-teaser > h2 { font: 400 clamp(22px, 2.6vw, 28px)/1.25 var(--serif); color: var(--green); margin: 0 0 6px; max-width: 560px; }
+  .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
   .blog-teaser p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
-  .blog-teaser ul { list-style: none; margin: 0; padding: 0; max-width: 560px; }
+  .blog-teaser ul { list-style: none; margin: 0; padding: 0; max-width: 680px; }
+  /* Das Werkzeug als Karte – es ist das Angebot der Seite; die Impulse bleiben eine Liste mit Hairlines */
+  #werkzeuge li { border: 1px solid var(--line); border-radius: 3px; padding: 20px 22px; background: rgba(255,255,255,.45); }
+  #werkzeuge li + li { margin-top: 12px; }
+  #werkzeuge li:last-child { border-bottom: 1px solid var(--line); }
   .blog-teaser li { padding: 16px 0; border-top: 1px solid var(--line); }
   .blog-teaser li:last-child { border-bottom: 1px solid var(--line); }
   .blog-teaser .when { display: block; font-size: 13px; color: var(--ink-muted); margin-bottom: 2px; }
@@ -225,9 +233,10 @@
   .blog-teaser li a { font: 400 clamp(19px, 2.2vw, 23px)/1.3 var(--serif); color: var(--green); text-decoration: none; }
   .blog-teaser li a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
   .blog-teaser li p { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; max-width: 60ch; }
-  .blog-teaser .all { margin: 18px 0 0; font-size: 15px; }
-  .blog-teaser .all a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 1px; }
-  .blog-teaser .all a:hover { border-bottom-width: 2px; }
+  .blog-teaser .all { margin: 22px 0 0; font-size: 15px; }
+  .blog-teaser .all a { display: inline-block; min-height: 44px; padding: 10px 16px; border: 1px solid var(--copper); border-radius: 3px; color: var(--ink); text-decoration: none; line-height: 1.4; }
+  .blog-teaser .all a:hover { background: var(--hover); }
+  .blog-teaser .all a:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
 
   /* Seitenkopf (Robin, 16.10.2026): Sprachwahl links, drei Seiten, Termin als Knopf, auf schmalen Bildschirmen ein Menü. Stile wie in
      worker/src/kopf.js (KOPF_CSS; tests/kopf_test.mjs hält beides gleich). Der Verweis auf die Impulse steht zwischen den Marken der Redaktion. */
@@ -545,7 +554,7 @@
   </section>
 
   <section class="contact" aria-labelledby="kontakt">
-    <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
+    <h2 id="kontakt" data-i18n="contactTitle">Termin vereinbaren</h2>
     <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
