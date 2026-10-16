@@ -18,8 +18,8 @@ const NAMEN = /FRISTO|Sudhaus|M\.A\.G\.|Paderborn|Yidishland|Heimatklang|DAA\b/;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner|bist du)\b/i;
 
 const T = {
-  de: { h1: "Über mich", nav: /<a href="\.\.\/ueber-mich\/" aria-current="page">Über mich<\/a>/, home: "../", stationen: "Stationen", ehrenamt: /Verwaltungsgericht Sigmaringen/, titel: "Über mich – Robin James Lewis" },
-  en: { h1: "About me", nav: /<a href="\.\.\/about\/" aria-current="page">About<\/a>/, home: "../?lang=en", stationen: "Career", ehrenamt: /Administrative Court of Sigmaringen/, titel: "About me – Robin James Lewis" },
+  de: { h1: "Über mich", nav: /<a href="\.\.\/ueber-mich\/" aria-current="page">Über mich<\/a>/, home: "../", stationen: "Stationen", ehrenamt: /Verwaltungsgericht Sigmaringen/, titel: "Über mich – robin.vision" },
+  en: { h1: "About me", nav: /<a href="\.\.\/about\/" aria-current="page">About<\/a>/, home: "../?lang=en", stationen: "Career", ehrenamt: /Administrative Court of Sigmaringen/, titel: "About me – robin.vision" },
 };
 for (const s of UEBER_MICH) {
   const t = T[s.lang], html = lesen(s.pfad);

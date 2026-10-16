@@ -553,6 +553,12 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   `{{ item.DESCRIPTION | safe }}`, der Knopf „Impuls lesen“ passt bei Fassungs-Einträgen nicht mehr („Auf robin.vision lesen“).
 - Prüfung: `node tests/newsletter_feed_test.mjs`.
 
+## Marke im Tab (16.10.2026)
+
+- Robin: Im Tab stand noch „Robin James Lewis“. Seitentitel enden jetzt auf „– robin.vision“ (Rahmen `werkzeug.js`,
+  Impulse `blog.js`, Startseite `index.html`/`language.js`, 404-Seite), `og:site_name` ist `robin.vision`, die Feed-Titel
+  „robin.vision – Impulse“ bzw. „robin.vision – Food for Thought“. Der Name bleibt in Beschreibung, JSON-LD und Texten.
+
 ## Seitenkopf und Navigation (16.10.2026)
 
 - Robin: oben zu voll auf dem iPhone; alle Verweise außer „Über mich“ sprangen nur an Stellen im Einseiter; sie sollen auf die

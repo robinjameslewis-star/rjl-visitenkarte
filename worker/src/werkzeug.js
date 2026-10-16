@@ -87,7 +87,7 @@ const T = {
     frei: "Kostenloses Werkzeug", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
-    kurz: "Werkzeuge", seitentitel: "Kostenlose Werkzeuge für Buchhaltung und Kanzlei – offline im Browser | Robin James Lewis", lead: "Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.",
+    kurz: "Werkzeuge", seitentitel: "Kostenlose Werkzeuge für Buchhaltung und Kanzlei – offline im Browser | robin.vision", lead: "Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.",
     andereUebersicht: "English", leer: "Noch keine Werkzeuge.",
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
@@ -96,7 +96,7 @@ const T = {
     frei: "Free tool", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
-    kurz: "Tools", seitentitel: "Free tools for bookkeeping and tax firms – offline in your browser | Robin James Lewis", lead: "For everyday work outside the perfect process, in the middle of the transformation: free tools that run offline in your browser. Your data never leaves your computer.",
+    kurz: "Tools", seitentitel: "Free tools for bookkeeping and tax firms – offline in your browser | robin.vision", lead: "For everyday work outside the perfect process, in the middle of the transformation: free tools that run offline in your browser. Your data never leaves your computer.",
     andereUebersicht: "Deutsch", leer: "No tools yet.",
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
@@ -116,13 +116,13 @@ export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, a
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(seitentitel || titel + " – Robin James Lewis")}</title>
+<title>${esc(seitentitel || titel + " – robin.vision")}</title>
 <meta name="description" content="${esc(beschr)}">
 <link rel="icon" href="${up}assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="${up}assets/apple-touch-icon.png">
 <link rel="canonical" href="${canonical}">
 ${alternates.map(a => `<link rel="alternate" hreflang="${a.lang}" href="${a.href}">`).join("\n")}
-<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(titel)}">
 <meta property="og:description" content="${esc(beschr)}">
@@ -277,7 +277,7 @@ export function weiterleitung(zielId) {
 <html lang="${w.lang}">
 <head>
 <meta charset="utf-8">
-<title>${esc(w.titel)} – Robin James Lewis</title>
+<title>${esc(w.titel)} – robin.vision</title>
 <link rel="canonical" href="${werkzeugUrl(zielId)}">
 <meta name="robots" content="noindex">
 <meta http-equiv="refresh" content="0; url=${ziel}">
