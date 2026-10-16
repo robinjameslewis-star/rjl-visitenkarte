@@ -48,7 +48,7 @@
       legalTitle: 'Impressum · Datenschutz',
       legalMstv: 'Verantwortlich für die Inhalte nach § 18 Abs. 2 MStV: Robin James Lewis, Anschrift wie oben.',
       description: 'Kostenlose Werkzeuge für die Buchhaltung, die offline im Browser laufen, und jeden Freitag ein Impuls zu Automatisierung und KI im Rechnungswesen. Robin James Lewis, Balingen.',
-      title: 'Robin James Lewis – Werkzeuge und Impulse für das Rechnungswesen',
+      title: 'robin.vision – Werkzeuge und Impulse für das Rechnungswesen',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
       claim: 'Werkzeuge für den Alltag im Rechnungswesen – für die Tage, an denen der Prozess hakt. Offline, kostenlos, aus der Praxis. Dazu jeden Freitag ein Impuls.',
       ctaTool: 'Werkzeug herunterladen', ctaPosts: 'Impulse lesen',
@@ -121,7 +121,7 @@
       legalTitle: 'Legal notice · Privacy',
       legalMstv: 'Responsible for content under § 18(2) MStV (German Interstate Media Treaty): Robin James Lewis, address as above.',
       description: 'Free bookkeeping tools that run offline in your browser, and a short post every Friday on automation and AI in accounting. Robin James Lewis, Balingen, Germany.',
-      title: 'Robin James Lewis – Tools and Food for Thought for accounting',
+      title: 'robin.vision – Tools and Food for Thought for accounting',
       claim: 'Tools for everyday accounting – for the days when the process stalls. Offline, free, from practice. Plus a short post every Friday.',
       ctaTool: 'Download the tool', ctaPosts: 'Read the posts',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',

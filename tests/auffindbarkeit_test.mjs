@@ -13,7 +13,7 @@ const lesen = p => readFileSync(root + p, "utf8");
 const html = lesen("index.html");
 
 console.log("Startseite: Kopfdaten");
-check(/<title>Robin James Lewis – Werkzeuge und Impulse für das Rechnungswesen<\/title>/.test(html), "Titel nennt Werkzeuge und Impulse");
+check(/<title>robin\.vision – Werkzeuge und Impulse für das Rechnungswesen<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt Werkzeuge und Impulse");
 check(/<link rel="canonical" href="https:\/\/robin\.vision\/">/.test(html), "canonical");
 check(["de", "en", "x-default"].every(l => html.includes(`hreflang="${l}"`)), "hreflang de, en, x-default");
 check(/property="og:title"/.test(html) && /property="og:image" content="https:\/\/robin\.vision\/assets\/teilen\.jpg"/.test(html) && existsSync(root + "assets/teilen.jpg"), "Open Graph mit Bild zum Teilen, Bild vorhanden");

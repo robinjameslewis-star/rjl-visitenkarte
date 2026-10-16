@@ -171,13 +171,13 @@ function shell({ lang, title, description, depth, main, siteUrl, canonical, base
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title)} – Robin James Lewis</title>
+<title>${esc(title)} – robin.vision</title>
 <meta name="description" content="${esc(description)}">
 <link rel="icon" href="${up}assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="${up}assets/apple-touch-icon.png">
-<link rel="alternate" type="application/rss+xml" title="Robin James Lewis – Blog" href="${feedHref}">
+<link rel="alternate" type="application/rss+xml" title="robin.vision – ${lang === "en" ? "Food for Thought" : "Impulse"}" href="${feedHref}">
 ${canonical ? `<link rel="canonical" href="${esc(canonical)}">` : ""}
-<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="${og.type || "website"}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
@@ -300,7 +300,7 @@ export function renderListPage(posts, settings, siteUrl, lang = "de") {
   const main = `<h1>${esc(title)}</h1>
 ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
 ${own.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.empty}</p>`}`;
-  return shell({ lang, title, description: intro || `${title} – Robin James Lewis`, depth: en ? 2 : 1, main, allHref: "./",
+  return shell({ lang, title, description: intro || `${title} – robin.vision`, depth: en ? 2 : 1, main, allHref: "./",
     siteUrl, canonical: siteUrl ? `${siteUrl}blog/${en ? EN_DIR + "/" : ""}` : "" });
 }
 
@@ -317,7 +317,7 @@ export function renderFeed(posts, settings, siteUrl, lang = "de") {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>Robin James Lewis – ${x(title)}</title>
+  <title>robin.vision – ${x(title)}</title>
   <link>${x(list)}</link>
   <description>${x(settings.intro[lang] || title)}</description>
   <language>${lang}</language>
