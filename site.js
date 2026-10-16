@@ -27,9 +27,13 @@
   window.addEventListener('site-languagechange', localizeCalendar);
   new MutationObserver(localizeCalendar).observe(document.getElementById('cal-embed'), { childList: true, subtree: true });
 
-  // ---------- Name: ein Klick lädt die Seite neu (Robin, 17.09.2026); Sprache und Einwilligung bleiben ----------
+  // ---------- Wortmarke: ein Klick lädt die Seite neu (Robin, 17.09.2026); Sprache und Einwilligung bleiben ----------
+  // Ohne Sprungmarke und am Seitenanfang (Robin, 16.10.2026): Nach „Termin“ stand #kontakt in der Adresse, und der Browser
+  // sprang beim Neuladen wieder dorthin – der Anflug des Rotkehlchens war nicht zu sehen.
   document.getElementById('name-link').addEventListener('click', function (event) {
     event.preventDefault();
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    window.scrollTo(0, 0);
     location.reload();
   });
 
