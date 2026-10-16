@@ -29,7 +29,7 @@ const TEXT = {
     stationen: [
       ["2007–2016", "Einzelhandel: Verkäufer, später stellvertretender Marktleiter in einem Getränkefachmarkt."],
       ["2016–2020", "Assistent der Niederlassungsleitung derselben Kette: Personalbudget und Mietaufwand für bis zu 56 Filialen, Personalverwaltung, Verträge im Bereich Expansion."],
-      ["2020–2023", "Verwaltungsleiter eines soziokulturellen Zentrums: Finanz- und Lohnbuchhaltung, Personal, Immobilien und Drittmittel, Jahreshaushalt von 1,2 Mio. €, kaufmännische Begleitung eines Umbaus mit 10 Mio. € Volumen, Einführung einer Software zur Selbstverwaltung von Personaldaten, Krisenmanagement in der Pandemie."],
+      ["2020–2023", "Verwaltungsleiter eines soziokulturellen Zentrums: Finanz- und Lohnbuchhaltung, Personal, Immobilien und Drittmittel, kaufmännische Begleitung eines Umbaus mit 10 Mio. € Volumen, Einführung einer Software zur Selbstverwaltung von Personaldaten, Krisenmanagement in der Pandemie."],
       ["seit 2024", "Umschulung zum Steuerfachangestellten; seit 2025 Praxis in einer Kanzlei mit eigenem Mandantenkreis. Dort Umstellung der Kreditoren- und Debitorenbuchhaltung auf automatisierte Importe und Aufbau eines Controlling-Systems mit wöchentlichem Kennzahlenbericht (Python, Schnittstellen)."],
       ["Abschlüsse", "Fachhochschulreife (2007), Ausbildereignungsprüfung der IHK (2017), Vorbereitungskurs DATEV Kanzlei-Rechnungswesen mit Abschluss „sehr gut“ (2023)."],
     ],
@@ -57,7 +57,7 @@ const TEXT = {
     stationen: [
       ["2007–2016", "Retail: sales assistant, later deputy store manager at a beverage store."],
       ["2016–2020", "Assistant to the branch management of the same chain: staff budget and rent for up to 56 stores, HR administration, contracts for expansion."],
-      ["2020–2023", "Head of administration of a socio-cultural centre: bookkeeping and payroll, HR, property and third-party funding, an annual budget of €1.2 million, commercial management of a €10 million refurbishment, introduction of employee self-service software, crisis management during the pandemic."],
+      ["2020–2023", "Head of administration of a socio-cultural centre: bookkeeping and payroll, HR, property and third-party funding, commercial management of a €10 million refurbishment, introduction of employee self-service software, crisis management during the pandemic."],
       ["since 2024", "Retraining as a certified tax clerk; since 2025 in practice at a tax firm with my own set of clients. There I moved accounts payable and receivable from manual entry to automated imports and built a controlling system with a weekly KPI report (Python, APIs)."],
       ["Qualifications", "Advanced technical college entrance qualification (2007), IHK trainer aptitude examination (2017), preparatory course DATEV Kanzlei-Rechnungswesen, passed with distinction (2023)."],
     ],
