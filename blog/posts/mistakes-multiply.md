@@ -2,7 +2,7 @@
 title: "Mistakes multiply – why ARP starts with getting your house in order"
 date: 2026-10-16
 lang: en
-status: draft
+status: published
 summary: "A faulty booking rule or flawed prior-year data repeats itself with every transaction – so before bringing in agents, take a hard look at the old rules."
 ---
 

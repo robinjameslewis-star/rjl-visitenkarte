@@ -9,25 +9,25 @@
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/en/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/buchungsstapel-generator/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/booking-batch-generator/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/booking-batch-generator/</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/booking-batch-generator/"/>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
   </url>
@@ -51,9 +51,13 @@
   </url>
   <url>
     <loc>https://robin.vision/blog/en/</loc>
-    <lastmod>2026-10-09</lastmod>
+    <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/blog/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/blog/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/mistakes-multiply/</loc>
+    <lastmod>2026-10-16</lastmod>
   </url>
   <url>
     <loc>https://robin.vision/blog/das-ende-des-erp/</loc>
