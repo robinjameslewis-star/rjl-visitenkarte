@@ -23,7 +23,7 @@
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.kopf { position: relative; z-index: 5; max-width: 680px; margin: 0 auto; padding: 16px 6vw 0; display: flex; align-items: center; gap: 18px; }
+.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px 6vw 0; display: flex; align-items: center; gap: 18px; }
 .kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
 .kopf .marke .punkt { color: var(--copper); }
 .kopf .hauptnav { display: flex; gap: 18px; }
@@ -45,16 +45,20 @@ body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper)
 .kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
 .kopf .menue nav a[aria-current="page"] { color: var(--green); }
 @media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
-main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
-h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) 6vw clamp(56px, 10vh, 120px); }
+h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
-.meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 32px; }
+.meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
 .meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article { counter-reset: abschnitt; }
+article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 72px 0 16px; }
+article > h2::before { counter-increment: abschnitt; content: counter(abschnitt, decimal-leading-zero); display: block; font: 500 12px/1 var(--sans); letter-spacing: .22em; color: var(--copper); margin: 0 0 12px; }
 article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
 article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
 article p, article li { max-width: 68ch; }
 article p { margin: 0 0 18px; }
+@media (min-width: 720px) { article p:not(.meta):not(.untertitel):not(.hinweis):not(.frei), article li { text-align: justify; hyphens: auto; } }
 article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 article li { margin-bottom: 6px; }
@@ -95,20 +99,37 @@ article li { margin-bottom: 6px; }
 .list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
-.foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 6vw 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 .portrait-row { margin: 0 0 12px; }
 .portrait-row::after { content: ""; display: block; clear: both; }
-.portrait { float: left; width: min(230px, 42%); height: auto; margin: 6px 32px 14px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.portrait { float: left; width: min(240px, 42%); height: auto; margin: 6px 36px 16px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.einleitung p { font-size: 18px; line-height: 1.65; }
 .portrait-row p:last-child { margin-bottom: 0; }
-.ueber-mich h2 { clear: both; }
-@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } }
-.stationen { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0 0 18px; }
-.stationen dt { color: var(--ink-muted); font-size: 14px; padding-top: 3px; }
+.ueber-mich > h2 { clear: both; }
+.stationen { margin: 0; }
+.stationen > div { display: grid; grid-template-columns: 128px 1fr; gap: 6px 24px; padding: 20px 0; border-top: 1px solid var(--line); }
+.stationen > div:last-child { border-bottom: 1px solid var(--line); }
+.stationen dt { margin: 0; padding-top: 5px; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
 .stationen dd { margin: 0; max-width: 60ch; }
-@media (max-width: 480px) { .stationen { grid-template-columns: 1fr; gap: 2px 0; } .stationen dd { margin-bottom: 12px; } }
-.wege { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 18px; padding: 0; list-style: none; }</style>
+.marken { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.marken li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
+.karten { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 72px 0 0; }
+.karte { position: relative; padding: 26px 24px 22px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); }
+.karte h2 { margin: 0 0 12px; font: 400 23px/1.25 var(--serif); color: var(--green); }
+.karte p { margin: 0; font-size: 15.5px; max-width: none; }
+.karte.vogel img { position: absolute; right: 18px; top: 12px; width: 92px; height: auto; }
+.karte.vogel h2 { padding-right: 104px; }
+.wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 20px; padding: 0; list-style: none; }
+.wege li { margin: 0; max-width: none; }
+.wege .knopf { display: inline-block; padding: 11px 18px; border-radius: 3px; text-decoration: none; font-size: 15px; background: var(--green); color: var(--paper); border: 1px solid var(--green); }
+.wege .knopf:hover { background: #082d22; color: var(--paper); }
+.wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
+.wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
+.wege .mail { font-size: 15px; }
+@media (max-width: 720px) { .karten { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div { grid-template-columns: 1fr; gap: 4px; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }</style>
 <meta property="og:image" content="https://robin.vision/assets/robin-james-lewis.jpg">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfilePage","url":"https://robin.vision/about/","inLanguage":"en","mainEntity":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/","image":"https://robin.vision/assets/robin-james-lewis.jpg","jobTitle":"Trainee tax clerk","address":{"@type":"PostalAddress","addressLocality":"Balingen","addressCountry":"DE"},"email":"mailto:robin@robin.vision","knowsLanguage":["de","en"],"sameAs":["https://www.linkedin.com/in/robin-james-lewis-688945283/"]}}</script>
 </head>
@@ -127,31 +148,43 @@ article li { margin-bottom: 6px; }
 <p class="meta">Robin James Lewis · Balingen, Germany · <a href="https://www.linkedin.com/in/robin-james-lewis-688945283/" rel="me noopener" target="_blank">LinkedIn</a></p>
 <div class="portrait-row">
 <img class="portrait" src="../assets/robin-james-lewis.jpg" width="720" height="900" alt="Robin James Lewis, portrait" decoding="async">
-<div>
+<div class="einleitung">
 <p>I am Robin James Lewis from Balingen at the foot of the Swabian Alb in southern Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. The final examinations take place in the winter of 2026/27.</p>
 <p>Alongside, I digitise the firm's processes: documents and bank transactions reach the books through imports instead of by hand, upstream systems are connected, reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the middle of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work. I make <a href="../werkzeuge/en/">these tools</a> available here free of charge, and every Friday I write a <a href="../blog/en/">short piece</a> on automation and AI in accounting.</p>
 </div>
 </div>
 <h2 id="stationen">Career</h2>
 <dl class="stationen">
-<dt>2007–2016</dt><dd>Retail: sales assistant, later deputy store manager at a beverage store.</dd>
-<dt>2016–2020</dt><dd>Assistant to the branch management of the same chain: staff budget and rent for up to 56 stores, HR administration, contracts for expansion.</dd>
-<dt>2020–2023</dt><dd>Head of administration of a socio-cultural centre: bookkeeping and payroll, HR, property and third-party funding, commercial management of a €10 million refurbishment, introduction of employee self-service software, crisis management during the pandemic.</dd>
-<dt>since 2024</dt><dd>Retraining as a certified tax clerk; since 2025 in practice at a tax firm with my own set of clients. There I moved accounts payable and receivable from manual entry to automated imports and built a controlling system with a weekly KPI report (Python, APIs).</dd>
-<dt>Qualifications</dt><dd>Advanced technical college entrance qualification (2007), IHK trainer aptitude examination (2017), preparatory course DATEV Kanzlei-Rechnungswesen, passed with distinction (2023).</dd>
+<div><dt>2007–2016</dt><dd>Retail: sales assistant, later deputy store manager at a beverage store.</dd></div>
+<div><dt>2016–2020</dt><dd>Assistant to the branch management of the same chain: staff budget and rent for up to 56 stores, HR administration, contracts for expansion.</dd></div>
+<div><dt>2020–2023</dt><dd>Head of administration of a socio-cultural centre: bookkeeping and payroll, HR, property and third-party funding, commercial management of a €10 million refurbishment, introduction of employee self-service software, crisis management during the pandemic.</dd></div>
+<div><dt>since 2024</dt><dd>Retraining as a certified tax clerk; since 2025 in practice at a tax firm with my own set of clients. There I moved accounts payable and receivable from manual entry to automated imports and built a controlling system with a weekly KPI report (Python, APIs).</dd></div>
+<div><dt>Qualifications</dt><dd>Advanced technical college entrance qualification (2007), IHK trainer aptitude examination (2017), preparatory course DATEV Kanzlei-Rechnungswesen, passed with distinction (2023).</dd></div>
 </dl>
 <h2 id="kenntnisse">What I work with</h2>
-<p>DATEV Kanzlei-Rechnungswesen, LODAS and Lohn und Gehalt, DATEV Unternehmen Online; ADDISON; upstream systems such as Finmatics, GetMyInvoices and Lexware Office; SAP ERP. Python for automation and interfaces, plus language models such as Copilot and Claude – under one fixed rule: the models prepare, I decide. I work in German and English.</p>
-<h2 id="ehrenamt">Voluntary work</h2>
-<p>Lay judge at the Administrative Court of Sigmaringen. I helped set up two cultural associations as founding treasurer, and I support associations with statutes, charitable status, bookkeeping and funding applications.</p>
-<h2 id="rotkehlchen">Why a robin</h2>
-<p>In the year I was born, a pair of robins nested at my parents' house and the chicks hatched – that is how I got my name. In Welsh a robin is a robin goch; my father is from Wales. That is why a robin sits on the home page, and why my assistant there is called Goch.</p>
+<ul class="marken">
+<li>DATEV Kanzlei-Rechnungswesen</li>
+<li>DATEV LODAS · Lohn und Gehalt</li>
+<li>DATEV Unternehmen Online</li>
+<li>ADDISON</li>
+<li>Finmatics</li>
+<li>GetMyInvoices</li>
+<li>Lexware Office</li>
+<li>SAP ERP</li>
+<li>Python</li>
+<li>Copilot · Claude</li>
+</ul>
+<p>Python for automation and interfaces, plus language models such as Copilot and Claude – under one fixed rule: the models prepare, I decide. I work in German and English.</p>
+<div class="karten">
+<section class="karte"><h2 id="ehrenamt">Voluntary work</h2><p class="frei">Lay judge at the Administrative Court of Sigmaringen. I helped set up two cultural associations as founding treasurer, and I support associations with statutes, charitable status, bookkeeping and funding applications.</p></section>
+<section class="karte vogel"><img src="../assets/signatur-rotkehlchen.png" alt="" width="240" height="146" decoding="async"><h2 id="rotkehlchen">Why a robin</h2><p class="frei">In the year I was born, a pair of robins nested at my parents' house and the chicks hatched – that is how I got my name. In Welsh a robin is a robin goch; my father is from Wales. That is why a robin sits on the home page, and why my assistant there is called Goch.</p></section>
+</div>
 <h2 id="kontakt">Contact</h2>
 <ul class="wege">
-<li><a href="https://www.linkedin.com/in/robin-james-lewis-688945283/" rel="me noopener" target="_blank">Profile on LinkedIn</a></li>
-<li><a href="../?lang=en#kontakt">Book an appointment</a></li>
-<li><a href="../?lang=en#nachricht">Write a message</a></li>
-<li><a href="mailto:robin@robin.vision">robin@robin.vision</a></li>
+<li><a class="knopf" href="https://www.linkedin.com/in/robin-james-lewis-688945283/" rel="me noopener" target="_blank">Profile on LinkedIn</a></li>
+<li><a class="knopf zweit" href="../?lang=en#kontakt">Book an appointment</a></li>
+<li><a class="knopf zweit" href="../?lang=en#nachricht">Write a message</a></li>
+<li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
 </ul>
 <p class="meta"><a href="../ueber-mich/" lang="de" hreflang="de">Diese Seite auf Deutsch</a></p>
 <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
