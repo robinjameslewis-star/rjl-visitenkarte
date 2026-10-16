@@ -1,10 +1,16 @@
 // sitemap.xml der Website (Robin, 16.10.2026, Auffindbarkeit): Startseite in beiden Sprachen, Werkzeuge mit Übersichten,
-// Impulse mit Listen. Geschrieben von der Redaktion beim Veröffentlichen (blog.js, buildBlog), lokal von
+// Impulse mit Listen, feste Seiten wie „Über mich“. Geschrieben von der Redaktion beim Veröffentlichen (blog.js, buildBlog), lokal von
 // tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten, damit kein Importkreis entsteht.
+// Feste Seiten je Sprache (ueber_mich.js baut sie): Adresse unter der Wurzel, Stand des Textes für lastmod
+export const SEITEN = [
+  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-16" },
+  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-16" },
+];
+
 const x = s => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 // posts: veröffentlichte Beiträge {slug, lang, date}; werkzeuge: {id, lang, gegenstueck, datum?} (worker/src/werkzeug.js)
-export function renderSitemap({ siteUrl, posts = [], werkzeuge = [], heute = new Date().toISOString().slice(0, 10) }) {
+export function renderSitemap({ siteUrl, posts = [], werkzeuge = [], seiten = SEITEN, heute = new Date().toISOString().slice(0, 10) }) {
   const eintraege = [];
   const eintrag = (loc, lastmod, alternates = []) => eintraege.push({ loc, lastmod, alternates });
   const alt = (lang, href) => ({ lang, href });
@@ -17,6 +23,7 @@ export function renderSitemap({ siteUrl, posts = [], werkzeuge = [], heute = new
     eintrag(`${siteUrl}werkzeuge/${w.id}/`, w.datum || neuestesWerkzeug,
       [alt(w.lang, `${siteUrl}werkzeuge/${w.id}/`), ...(anderes ? [alt(anderes.lang, `${siteUrl}werkzeuge/${anderes.id}/`)] : [])]);
   }
+  for (const s of seiten) eintrag(siteUrl + s.adresse, s.stand || heute, seiten.filter(a => a.id === s.id).map(a => alt(a.lang, siteUrl + a.adresse)));
   const listen = { de: siteUrl + "blog/", en: siteUrl + "blog/en/" };
   for (const lang of ["de", "en"]) {
     const eigene = posts.filter(p => p.lang === lang);

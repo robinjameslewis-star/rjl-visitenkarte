@@ -510,6 +510,20 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   (Ablauf 16.10.2027 – vorher erneuern).
 - Prüfung: `node tests/auffindbarkeit_test.mjs`.
 
+## Seite „Über mich“ (16.10.2026)
+
+- Eigene Seite im Rahmen der Werkzeugseiten: `ueber-mich/` (deutsch) und `about/` (englisch), Text fest in
+  `worker/src/ueber_mich.js` (keine Redaktion): Foto `assets/robin-james-lewis.jpg` (720 × 900, aus dem Bewerbungsbild, ohne
+  Metadaten), Einleitung, Stationen mit Jahren, Kenntnisse, Ehrenamt, „Warum ein Rotkehlchen“, Kontakt mit LinkedIn
+  (`LINKEDIN`, `rel="me"`), Termin, Nachricht und öffentlicher E-Mail; darunter der Newsletter-Kasten. Auf Robins Wunsch ohne
+  Arbeitgeber- und Vereinsnamen und ohne private Daten; JSON-LD `ProfilePage` mit `Person`, Foto und `sameAs` LinkedIn.
+- Menüpunkt „Über mich“/„About“ in allen Rahmen: Startseite (`navAbout`, Ziel je Sprache über `data-href-de/en`; im Abschnitt
+  „Über mich“ der Verweis `aboutMore`), Werkzeugseiten und Übersichten (`rahmen` in `werkzeug.js`, jetzt exportiert, mit
+  Parameter `css`), Impulse und Listen (`shell` in `blog.js`). `sitemap.xml` kennt beide Fassungen (`SEITEN` in `sitemap.js`,
+  Stand des Textes als `lastmod`). Goch kennt die Seite (`links.md` Kennung `ueber-mich`; dort auch die aktuelle LinkedIn-Adresse).
+- Bauen: `node tools/ueber-mich-bauen.mjs`, danach `node tools/werkzeug-uebernehmen.mjs` und `node tools/blog-seiten-bauen.mjs`
+  (gleicher Kopf überall, Sitemap). Prüfung: `node tests/ueber_mich_test.mjs`.
+
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 
 GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy

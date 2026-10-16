@@ -155,8 +155,8 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
-  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
+  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
+  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
 
 function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
@@ -240,7 +240,7 @@ ${NEWSLETTER_CSS}
 </style>
 </head>
 <body${newsletter ? ` data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}"` : ""}>
-<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${homeHref}">${t.back}</a><a href="${allHref}">${t.all}</a><a href="${up}werkzeuge/${lang === "en" ? "en/" : ""}">${t.tools}</a></nav>
+<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${homeHref}">${t.back}</a><a href="${allHref}">${t.all}</a><a href="${up}werkzeuge/${lang === "en" ? "en/" : ""}">${t.tools}</a><a href="${up}${lang === "en" ? "about/" : "ueber-mich/"}">${t.about}</a></nav>
 <main>
 ${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
 </main>

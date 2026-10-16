@@ -32,6 +32,18 @@
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
   </url>
   <url>
+    <loc>https://robin.vision/ueber-mich/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/ueber-mich/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/about/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/about/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/ueber-mich/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/about/"/>
+  </url>
+  <url>
     <loc>https://robin.vision/blog/</loc>
     <lastmod>2026-10-09</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/blog/"/>
