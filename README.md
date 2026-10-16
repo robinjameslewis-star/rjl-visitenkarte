@@ -589,6 +589,19 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 - Bauen: `node tools/ueber-mich-bauen.mjs`, danach `node tools/werkzeug-uebernehmen.mjs` und `node tools/blog-seiten-bauen.mjs`
   (gleicher Kopf überall, Sitemap). Prüfung: `node tests/ueber_mich_test.mjs`.
 
+## Seite „Schulung“ (16.10.2026)
+
+Unterweisung KI-Kompetenz nach Art. 4 KI-Verordnung als eigene Seite `schulung/` (englisch `training/`), gebaut aus
+`worker/src/schulung.js` mit `node tools/schulung-bauen.mjs`. Inhalt: für wen, sieben Kapitel, drei Formate mit Preisen (Vorschlag
+aus dem Konzept im Vault, netto), Ablauf in sieben Schritten, Nachweis und Zertifikat (prüfbar unter member.robin.vision/zertifikat),
+Rechtsrahmen ohne „Pflichtschulung“-Werbung (Art. 4 verlangt seit dem Digital Omnibus 2026 Maßnahmen, kein Zertifikat), Fragen und
+Antworten als FAQPage, ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder zu einer Nachricht
+zusammengesetzt, Bot-Falle `website`, Ladezeitpunkt `t`), strukturierte Daten als `Course` mit drei Durchführungen. Vierter
+Menüpunkt „Schulung“ im Seitenkopf (`worker/src/kopf.js`) vor „Über mich“, Abschnitt auf der Startseite zwischen Werkzeugen und
+Über mich, Einträge in `sitemap.xml` (`worker/src/sitemap.js`, SEITEN) und in Gochs Linkliste (`worker/links.md`, Kennung
+`schulung`). Die Durchführung läuft im Memberbereich (Repository `robin-vision-member`, App `schulung`, Issue #105). Prüfung:
+`node tests/schulung_seite_test.mjs`.
+
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 
 GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy

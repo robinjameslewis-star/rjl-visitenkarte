@@ -44,6 +44,18 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/about/"/>
   </url>
   <url>
+    <loc>https://robin.vision/schulung/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/schulung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/training/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/training/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/schulung/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/training/"/>
+  </url>
+  <url>
     <loc>https://robin.vision/blog/</loc>
     <lastmod>2026-10-16</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/blog/"/>

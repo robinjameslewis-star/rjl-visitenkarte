@@ -1,26 +1,26 @@
 // Gemeinsamer Seitenkopf (Robin, 16.10.2026: oben zu voll auf dem iPhone, Verweise sollen auf die Unterseiten führen, Termin
 // bleibt): Wortmarke robin.vision, drei Seiten (Werkzeuge, Impulse, Über mich), Termin als Knopf, auf schmalen Bildschirmen ein
-// Menü (details/summary, ohne Skript) mit denselben Seiten, Nachricht und der anderen Sprache. Genutzt von werkzeug.js (rahmen)
+// Menü (details/summary, ohne Skript) mit denselben Seiten, Nachricht und der anderen Sprache. Vierte Seite „Schulung“ seit 16.10.2026. Genutzt von werkzeug.js (rahmen)
 // und blog.js (shell); die Startseite trägt denselben Aufbau von Hand (index.html: Sprachwahl statt Wortmarke, Texte je Sprache
 // über language.js), tests/kopf_test.mjs hält beides zusammen.
 const T = {
-  de: { tools: "Werkzeuge", posts: "Impulse", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
-  en: { tools: "Tools", posts: "Food for Thought", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
+  de: { tools: "Werkzeuge", posts: "Impulse", schulung: "Schulung", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
+  en: { tools: "Tools", posts: "Food for Thought", schulung: "Training", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
 };
 // Ziele je Sprache, relativ zur Wurzel der Website
 export const ZIELE = {
-  de: { home: "", tools: "werkzeuge/", posts: "blog/", about: "ueber-mich/" },
-  en: { home: "?lang=en", tools: "werkzeuge/en/", posts: "blog/en/", about: "about/" },
+  de: { home: "", tools: "werkzeuge/", posts: "blog/", schulung: "schulung/", about: "ueber-mich/" },
+  en: { home: "?lang=en", tools: "werkzeuge/en/", posts: "blog/en/", schulung: "training/", about: "about/" },
 };
 export const MARKE = `robin<span class="punkt">.</span>vision`;
 
-// lang; up: Weg zur Wurzel („../“); aktiv: "tools" | "posts" | "about" | null; andere: Adresse der anderen Sprachfassung dieser
+// lang; up: Weg zur Wurzel („../“); aktiv: "tools" | "posts" | "schulung" | "about" | null; andere: Adresse der anderen Sprachfassung dieser
 // Seite (sonst die Startseite in der anderen Sprache)
 export function kopf(lang, up, { aktiv = null, andere = "" } = {}) {
   const l = lang === "en" ? "en" : "de", t = T[l], z = ZIELE[l], andereLang = l === "en" ? "de" : "en";
   const home = up + z.home;
   const link = k => `<a href="${up}${z[k]}"${aktiv === k ? ' aria-current="page"' : ""}>${t[k]}</a>`;
-  const seiten = ["tools", "posts", "about"].map(link).join("");
+  const seiten = ["tools", "posts", "schulung", "about"].map(link).join("");
   return `<header class="kopf">
 <a class="marke" href="${home}">${MARKE}</a>
 <nav class="hauptnav" aria-label="${t.seiten}">${seiten}</nav>
