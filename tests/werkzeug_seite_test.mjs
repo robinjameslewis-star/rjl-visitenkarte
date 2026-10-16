@@ -33,7 +33,10 @@ for (const w of WERKZEUGE) {
   check(text.includes(`${s.fassung} <span class="mono">${f.datei.fassung}</span>`), "Fassung stimmt mit dem Fuß der Datei überein");
   check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.titel}</title>`), "Datei in der Sprache der Seite");
   check(text.includes(`robin.vision/werkzeuge/${w.id}/`), "Fuß der Datei verweist auf diese Seite");
-  check(html.includes(`<html lang="${w.lang}">`) && html.includes(`<title>${w.titel} – `) && html.includes(`<h1>${w.titel}</h1>`), "Titel und Sprache");
+  check(html.includes(`<html lang="${w.lang}">`) && html.includes(`<title>${w.seitentitel}</title>`) && html.includes(`<h1>${w.titel}</h1>`), "Titel (mit Suchbegriffen) und Sprache");
+  check(html.includes(`<p class="untertitel">${w.untertitel}</p>`) && html.includes(`<meta name="description" content="${w.meta}">`) && /DATEV/.test(w.seitentitel) && /DATEV/.test(w.meta), "Untertitel und Beschreibung mit Suchbegriffen");
+  const faq = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1])).find(d => d["@type"] === "FAQPage");
+  check(faq && faq.mainEntity.length >= 5 && faq.mainEntity.every(q => html.includes(`<h3>${q.name.replace(/&/g, "&amp;")}</h3>`)) && html.indexOf('id="fragen"') < html.indexOf('id="nutzungsbedingungen"'), "Fragen und Antworten sichtbar und als FAQPage, vor den Nutzungsbedingungen");
   check(html.includes(`href="${f.datei.name}" download="${f.datei.name}"`), "Download-Knopf mit download-Attribut");
   check(html.includes(`<h2 id="nutzungsbedingungen">${s.nutzung}</h2>`) && s.haftung.test(html), "Nutzungsbedingungen auf der Seite");
   check(s.marke.test(html), "Markenhinweis");
