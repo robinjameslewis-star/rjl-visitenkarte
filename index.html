@@ -3,8 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Robin James Lewis</title>
-<meta name="description" content="Robin James Lewis – Termin vereinbaren.">
+<title>Robin James Lewis – Werkzeuge und Impulse für das Rechnungswesen</title>
+<meta name="description" content="Kostenlose Werkzeuge für die Buchhaltung, die offline im Browser laufen, und jeden Freitag ein Impuls zu Automatisierung und KI im Rechnungswesen. Robin James Lewis, Balingen.">
+<link rel="canonical" href="https://robin.vision/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://robin.vision/">
+<link rel="alternate" type="application/rss+xml" title="Robin James Lewis – Impulse" href="https://robin.vision/blog/feed.xml">
+<link rel="alternate" type="application/rss+xml" title="Robin James Lewis – Food for Thought" href="https://robin.vision/blog/en/feed.xml">
+<meta property="og:site_name" content="Robin James Lewis">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Robin James Lewis – Werkzeuge und Impulse für das Rechnungswesen">
+<meta property="og:description" content="Kostenlose Werkzeuge für die Buchhaltung, die offline im Browser laufen, und jeden Freitag ein Impuls zu Automatisierung und KI im Rechnungswesen.">
+<meta property="og:url" content="https://robin.vision/">
+<meta property="og:image" content="https://robin.vision/assets/teilen.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/","image":"https://robin.vision/assets/teilen.jpg","email":"mailto:robin@robin.vision","address":{"@type":"PostalAddress","addressLocality":"Balingen","postalCode":"72336","addressCountry":"DE"},"sameAs":["https://www.linkedin.com/in/robin-lewis-688945283"],"knowsAbout":["Rechnungswesen","Finanzbuchhaltung","DATEV","Automatisierung im Rechnungswesen"]},{"@type":"WebSite","@id":"https://robin.vision/#website","url":"https://robin.vision/","name":"Robin James Lewis","inLanguage":["de","en"],"publisher":{"@id":"https://robin.vision/#person"}}]}</script>
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -22,9 +40,8 @@
 <style>
   @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
   [hidden] { display: none !important; }
-  body { padding-bottom: var(--consent-height, 0px); }
-  .consent-banner { position: fixed; inset: auto 0 0; z-index: 10; max-height: 65dvh; overflow-y: auto; background: var(--paper) url("assets/papier.jpg") repeat; background-size: 512px; border-top: 1px solid var(--accent); padding: 18px max(6vw, calc((100vw - var(--text)) / 2)) max(18px, env(safe-area-inset-bottom)); color: var(--ink); }
-  .consent-banner h2 { margin: 0 0 5px; font: 400 23px/1.25 var(--serif); }
+  .consent-banner { margin: 0 0 18px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: var(--surface); }
+  .consent-banner h3 { margin: 0 0 5px; font: 400 21px/1.25 var(--serif); color: var(--green); }
   .consent-banner p { max-width: 76ch; margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
   .consent-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
   .consent-button { min-height: 44px; border: 1px solid var(--accent); border-radius: 3px; padding: 9px 14px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
@@ -72,9 +89,17 @@
   .name {
     font-family: var(--serif); text-transform: uppercase; letter-spacing: .28em; color: var(--green);
     font-size: clamp(15px, 2.1vw, 24px); line-height: 1.5; font-weight: 400;
-    padding-bottom: 9%; /* auf Höhe des Vogelkörpers */
     margin: 0;
   }
+  .intro { padding-bottom: 7%; /* Name, Zeile und Knöpfe enden auf Höhe des Vogelkörpers */ }
+  .claim { margin: 14px 0 0; color: var(--ink-soft); font-size: clamp(15px, 1.35vw, 17px); line-height: 1.5; max-width: 36ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
+  .cta a { display: inline-block; min-height: 44px; padding: 10px 16px; border-radius: 3px; font-size: 15px; line-height: 1.4; text-decoration: none; }
+  .cta-primary { background: var(--green); color: var(--paper); border: 1px solid var(--green); }
+  .cta-primary:hover { background: color-mix(in srgb, var(--green) 85%, black); }
+  .cta-secondary { border: 1px solid var(--copper); color: var(--ink); }
+  .cta-secondary:hover { background: var(--hover); }
+  .cta a:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
   .name a { color: inherit; text-decoration: none; }
   .name a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-decoration-thickness: 1px; text-underline-offset: .4em; }
   .name a:focus-visible { outline: 1px solid var(--copper); outline-offset: 8px; border-radius: 2px; }
@@ -164,7 +189,9 @@
   @media (prefers-reduced-motion: reduce) { .goch-log { scroll-behavior: auto; } }
 
   /* ---------- Terminbereich ---------- */
-  .contact { max-width: var(--text); margin: clamp(24px, 6vh, 64px) auto 0; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .contact { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(40px, 8vh, 96px); }
+  .stage + section { margin-top: clamp(24px, 6vh, 64px); }
+  .about p.lead { max-width: 68ch; color: var(--ink); }
   .contact > h2, .contact > .lead { max-width: 560px; }
   .contact p.lead { margin: 0 0 28px; color: var(--ink-soft); max-width: 44ch; }
   /* Nachricht: Kontaktformular ganz unten, zweiter Eingang neben Goch (contact.js) */
@@ -235,9 +262,11 @@
 
   @media (max-width: 720px) {
     .stage { grid-template-columns: 1fr; row-gap: 12px; padding-top: clamp(105px, 17vh, 145px); }
-    .name { padding-bottom: 0; order: 2; text-align: center; }
+    .intro { order: 2; text-align: center; padding-bottom: 0; }
+    .claim { margin: 10px auto 0; }
+    .cta { justify-content: center; }
     .perch { order: 1; }
-    .contact { margin-top: 32px; }
+    .stage + section { margin-top: 32px; }
   }
 
   /* ---------- Landschaft: zwei Ebenen, unveränderte Vogelgeometrie ---------- */
@@ -369,7 +398,7 @@
 <body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
-<nav class="site-nav" aria-label="Abschnitte"><a href="#kontakt" data-i18n="navContact">Termin</a><!-- redaktion:blog-link --><a href="#blog" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="#werkzeuge" data-i18n="navTools">Werkzeuge</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav class="site-nav" aria-label="Abschnitte"><a href="#werkzeuge" data-i18n="navTools">Werkzeuge</a><!-- redaktion:blog-link --><a href="#blog" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="#kontakt" data-i18n="navContact">Termin</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 <!-- Sprachwahl als Flaggen (Robin, 21.09.2026): links oben vor dem Menü, damit sie nicht in der Krone untergeht. Text bleibt für Vorlesen und Suchmaschinen. -->
 <nav class="language-nav" aria-label="Sprache">
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
@@ -383,7 +412,11 @@
 </script>
 <main>
   <section class="stage" aria-label="Robin James Lewis">
-    <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">Robin James Lewis</a></h1>
+    <div class="intro">
+      <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">Robin James Lewis</a></h1>
+      <p class="claim" data-i18n="claim">Werkzeuge für den Alltag im Rechnungswesen – für die Tage, an denen der Prozess hakt. Offline, kostenlos, aus der Praxis. Dazu jeden Freitag ein Impuls.</p>
+      <p class="cta"><a class="cta-primary" href="werkzeuge/buchungsstapel-generator/" data-href-de="werkzeuge/buchungsstapel-generator/" data-href-en="werkzeuge/booking-batch-generator/" data-i18n="ctaTool">Werkzeug herunterladen</a><a class="cta-secondary" href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-i18n="ctaPosts">Impulse lesen</a></p>
+    </div>
     <div class="perch">
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
       <span class="bird-move" aria-hidden="true"><span class="bird-tilt">
@@ -406,7 +439,7 @@
       </div>
       <div class="goch-log" id="goch-log" role="log" aria-live="polite"></div>
       <div class="goch-consent" id="goch-consent" hidden>
-        <p data-i18n="gochConsentText">Goch antwortet mit einem Sprachmodell. Was du hier schreibst, geht an einen Cloudflare-Server und an das Modell, auch in die USA. Gespeichert wird nichts; die Entscheidung gilt 180 Tage. Einverstanden?</p>
+        <p data-i18n="gochConsentText">Goch antwortet mit einem Sprachmodell. Was Sie hier schreiben, geht an einen Cloudflare-Server und an das Modell, auch in die USA. Gespeichert wird nichts; die Entscheidung gilt 180 Tage. Einverstanden?</p>
         <div class="consent-actions">
           <button class="consent-button" id="goch-allow" type="button" data-i18n="gochAllow">Gespräch erlauben</button>
           <button class="consent-link" id="goch-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
@@ -419,8 +452,8 @@
         <button class="goch-starter" type="button" data-i18n="gochQ4">Was gibt's Neues?</button>
       </div>
       <form class="goch-form" id="goch-form">
-        <label class="visually-hidden" for="goch-input" data-i18n="gochLabel">Deine Nachricht an Goch</label>
-        <textarea id="goch-input" rows="2" maxlength="600" placeholder="Schreib Goch …" data-i18n-placeholder="gochPlaceholder" autocomplete="off"></textarea>
+        <label class="visually-hidden" for="goch-input" data-i18n="gochLabel">Ihre Nachricht an Goch</label>
+        <textarea id="goch-input" rows="2" maxlength="600" placeholder="Schreiben Sie Goch …" data-i18n-placeholder="gochPlaceholder" autocomplete="off"></textarea>
         <button class="goch-send" id="goch-send" type="submit" data-i18n="gochSend">Senden</button>
       </form>
       <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button></p>
@@ -429,19 +462,25 @@
   </section>
 
 
-  <section class="contact" aria-labelledby="kontakt">
-    <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
-
-    <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
-         Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
-    <div class="booking" id="booking" data-booking-link="robin-james-lewis-ebbpnk/robin-james-lewis" data-booking-link-en="robin-james-lewis-ebbpnk/robin-james-lewis-en">
-      <p class="booking-notice" id="booking-notice" data-i18n="bookingNotice" hidden>Der eingebettete Kalender ist ausgeschaltet. Die Terminbuchung bleibt über den externen Link erreichbar.</p>
-      <div class="cal-embed" id="cal-embed"></div>
-      <p class="cal-fallback" id="cal-fallback"><a id="cal-link" data-i18n="book" href="https://cal.com/robin-james-lewis-ebbpnk/robin-james-lewis" target="_blank" rel="noopener">Termin vorschlagen</a><span class="hint" data-i18n="bookHint"> – öffnet den Kalender in einem neuen Tab.</span></p>
-    </div>
-
+  <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
+  <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
+    <h2 id="werkzeug-title" data-i18n="toolsTitle">Werkzeuge</h2>
+    <p class="lead" data-i18n="toolsLead">Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Die Daten bleiben auf dem eigenen Rechner.</p>
+    <ul>
+<!-- werkzeuge:liste -->
+      <li lang="de"><span class="when">Kostenlos</span><a href="werkzeuge/buchungsstapel-generator/">Buchungsstapel-Generator</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p></li>
+      <li lang="en" hidden><span class="when">Free</span><a href="werkzeuge/booking-batch-generator/">Booking Batch Generator</a><p>It is the 10th, the bank feed is down or not set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.</p></li>
+<!-- /werkzeuge:liste -->
+    </ul>
+    <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge</a></p>
   </section>
+
+  <!-- Über mich (Robin, 16.10.2026): drei Sätze, Fakten aus Gochs Profil, ohne Charakterurteile -->
+  <section class="blog-teaser about" id="ueber-mich" aria-labelledby="about-title">
+    <h2 id="about-title" data-i18n="aboutTitle">Über mich</h2>
+    <p class="lead" data-i18n="aboutText">Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Nebenher digitalisiere ich Kanzleiprozesse und baue Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation: für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.</p>
+  </section>
+
   <!-- redaktion:blog-section -->
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="de en">
     <h2 id="blog-title" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</h2>
@@ -458,19 +497,6 @@
   </section>
   <!-- /redaktion:blog-section -->
 
-  <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
-  <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title" data-i18n="toolsTitle">Werkzeuge</h2>
-    <p class="lead" data-i18n="toolsLead">Kostenlose Werkzeuge für die Buchhaltung. Sie laufen offline im Browser, die Daten bleiben auf dem eigenen Rechner.</p>
-    <ul>
-<!-- werkzeuge:liste -->
-      <li lang="de"><span class="when">Kostenlos</span><a href="werkzeuge/buchungsstapel-generator/">Buchungsstapel-Generator</a><p>Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows.</p></li>
-      <li lang="en" hidden><span class="when">Free</span><a href="werkzeuge/booking-batch-generator/">Booking Batch Generator</a><p>Turns PDF bank statements, scanned ones included, into booking batches: CSV files in the DATEV format (EXTF) for any accounting software with a DATEV import. Runs offline in your browser, Windows included.</p></li>
-<!-- /werkzeuge:liste -->
-    </ul>
-    <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge</a></p>
-  </section>
-
   <!-- Newsletter (Impulse und Werkzeuge, newsletter.js): sichtbar, sobald data-newsletter-endpoint am <body> gesetzt ist -->
   <section class="message newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
     <h2 id="newsletter-title" data-i18n="newsletterTitle">Impulse und Werkzeuge per E-Mail</h2>
@@ -479,8 +505,32 @@
       <div class="field"><label for="nl-email" data-i18n="fieldEmail">E-Mail-Adresse</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email"></div>
       <div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
       <p class="actions"><button type="submit" class="consent-button" id="nl-send" data-i18n="newsletterSend">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span></p>
-      <p class="hint" data-i18n="newsletterNote">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach bist du angemeldet. Versand über Brevo, Abmeldung jederzeit über den Link in jeder Ausgabe. Einzelheiten unter Impressum · Datenschutz.</p>
+      <p class="hint" data-i18n="newsletterNote">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, Abmeldung jederzeit über den Link in jeder Ausgabe. Einzelheiten unter Impressum · Datenschutz.</p>
     </form>
+  </section>
+
+  <section class="contact" aria-labelledby="kontakt">
+    <h2 id="kontakt" data-i18n="contactTitle" style="font:400 clamp(22px,2.6vw,28px)/1.25 var(--serif);color:var(--green);margin:0 0 6px">Termin vereinbaren</h2>
+    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
+
+    <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
+         Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
+    <div class="booking" id="booking" data-booking-link="robin-james-lewis-ebbpnk/robin-james-lewis" data-booking-link-en="robin-james-lewis-ebbpnk/robin-james-lewis-en">
+      <div class="consent-banner" id="consent-banner" role="region" aria-labelledby="consent-title" hidden>
+  <h3 id="consent-title" tabindex="-1" data-i18n="consentTitle">Ein Kalender, eine Entscheidung</h3>
+  <p data-i18n="consentText">Für die eingebettete Terminbuchung lädt Cal.com nach Zustimmung externe Inhalte und verwendet Cookies, unter anderem zum Schutz vor Missbrauch. Dabei werden IP-Adresse und Browserdaten auch in den USA verarbeitet. Die Auswahl gilt für 180 Tage und lässt sich jederzeit in den Datenschutzeinstellungen ändern.</p>
+  <div class="consent-actions">
+    <button class="consent-button" id="consent-allow" type="button" data-i18n="consentAllow">Terminbuchung erlauben</button>
+    <button class="consent-button" id="consent-deny" type="button" data-i18n="consentDeny">Ohne Terminbuchung fortfahren</button>
+    <a class="consent-link" href="#privacy" id="consent-privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a>
+    <button class="consent-link" id="consent-close" type="button" data-i18n="consentClose" hidden>Schließen</button>
+  </div>
+      </div>
+      <p class="booking-notice" id="booking-notice" data-i18n="bookingNotice" hidden>Der eingebettete Kalender ist ausgeschaltet. Die Terminbuchung bleibt über den externen Link erreichbar.</p>
+      <div class="cal-embed" id="cal-embed"></div>
+      <p class="cal-fallback" id="cal-fallback"><a id="cal-link" data-i18n="book" href="https://cal.com/robin-james-lewis-ebbpnk/robin-james-lewis" target="_blank" rel="noopener">Termin vorschlagen</a><span class="hint" data-i18n="bookHint"> – öffnet den Kalender in einem neuen Tab.</span></p>
+    </div>
+
   </section>
 
   <section class="message" id="nachricht" aria-labelledby="nachricht-title">
@@ -493,7 +543,7 @@
       <div class="field"><label for="msg-text" data-i18n="fieldMessage">Nachricht</label><textarea id="msg-text" name="message" required maxlength="3000" rows="6"></textarea></div>
       <div class="field hp" aria-hidden="true"><label for="msg-website">Website</label><input id="msg-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
       <p class="actions"><button type="submit" class="consent-button" id="msg-send" data-i18n="send">Senden</button><span class="msg-status" id="msg-status" role="status" aria-live="polite"></span></p>
-      <p class="hint" data-i18n="messageNote">Deine Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.</p>
+      <p class="hint" data-i18n="messageNote">Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.</p>
     </form>
   </section>
 </main>
@@ -524,23 +574,13 @@
   <button class="consent-link" id="consent-settings" type="button" aria-controls="consent-banner" aria-expanded="false" data-i18n="consentSettings" hidden>Datenschutzeinstellungen</button>
 </footer>
 
-<section class="consent-banner" id="consent-banner" aria-labelledby="consent-title" hidden>
-  <h2 id="consent-title" tabindex="-1" data-i18n="consentTitle">Ein Kalender, eine Entscheidung</h2>
-  <p data-i18n="consentText">Für die eingebettete Terminbuchung lädt Cal.com nach Zustimmung externe Inhalte und verwendet Cookies, unter anderem zum Schutz vor Missbrauch. Dabei werden IP-Adresse und Browserdaten auch in den USA verarbeitet. Die Auswahl gilt für 180 Tage und lässt sich jederzeit in den Datenschutzeinstellungen ändern.</p>
-  <div class="consent-actions">
-    <button class="consent-button" id="consent-allow" type="button" data-i18n="consentAllow">Terminbuchung erlauben</button>
-    <button class="consent-button" id="consent-deny" type="button" data-i18n="consentDeny">Ohne Terminbuchung fortfahren</button>
-    <a class="consent-link" href="#privacy" id="consent-privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a>
-    <button class="consent-link" id="consent-close" type="button" data-i18n="consentClose" hidden>Schließen</button>
-  </div>
-</section>
 
 
 <script>window.RJLLandscape?.init();</script>
 <script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
-<script src="language.js?v=20261016b" defer></script>
-<script src="site.js?v=20260925" defer></script>
-<script src="goch.js?v=20261016b" defer></script>
+<script src="language.js?v=20261016c" defer></script>
+<script src="site.js?v=20261016" defer></script>
+<script src="goch.js?v=20261016c" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
 </body>

@@ -15,10 +15,10 @@ const SITE = "https://robin.vision/";
 export const WERKZEUGE = [
   { id: "buchungsstapel-generator", lang: "de", titel: "Buchungsstapel-Generator", datei: "Buchungsstapel-Generator.html",
     gegenstueck: "booking-batch-generator",
-    kurz: "Macht aus PDF-Kontoauszügen Buchungsstapel im DATEV-Format, auch aus gescannten. Läuft offline im Browser, auch unter Windows." },
+    kurz: "Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows." },
   { id: "booking-batch-generator", lang: "en", titel: "Booking Batch Generator", datei: "Booking-Batch-Generator.html",
     gegenstueck: "buchungsstapel-generator",
-    kurz: "Turns PDF bank statements, scanned ones included, into booking batches: CSV files in the DATEV format (EXTF) for any accounting software with a DATEV import. Runs offline in your browser, Windows included." },
+    kurz: "It is the 10th, the bank feed is down or not set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included." },
 ];
 export const werkzeug = id => WERKZEUGE.find(w => w.id === id);
 export const werkzeugPfad = id => `werkzeuge/${id}/index.html`;
@@ -56,7 +56,7 @@ const T = {
     frei: "Kostenloses Werkzeug", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz",
-    kurz: "Werkzeuge", lead: "Kostenlose Werkzeuge für die Buchhaltung. Sie laufen offline im Browser; Ihre Daten verlassen den Rechner nicht.",
+    kurz: "Werkzeuge", lead: "Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.",
     andereUebersicht: "English", leer: "Noch keine Werkzeuge.",
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
@@ -65,7 +65,7 @@ const T = {
     frei: "Free tool", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy",
-    kurz: "Tools", lead: "Free tools for bookkeeping. They run offline in your browser; your data never leaves your computer.",
+    kurz: "Tools", lead: "For everyday work outside the perfect process, in the middle of the transformation: free tools that run offline in your browser. Your data never leaves your computer.",
     andereUebersicht: "Deutsch", leer: "No tools yet.",
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
@@ -200,9 +200,15 @@ ${renderMarkdown(nutzung, "", lang)}
 ${renderMarkdown(hinweis, "", andereLang)}
 </div>
 </article>`;
+  // Strukturierte Daten für Suchmaschinen: kostenlose Browser-Anwendung mit Fassung, Datum, Größe und Nutzungsbedingungen
+  const jsonld = JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: w.titel, description: w.kurz, url: werkzeugUrl(id),
+    applicationCategory: "BusinessApplication", operatingSystem: "Windows, macOS, Linux (Browser: Edge, Chrome)", inLanguage: lang,
+    softwareVersion: datei.fassung, datePublished: datei.datum, fileSize: `${(datei.bytes / 1e6).toFixed(1)} MB`, downloadUrl: werkzeugUrl(id) + datei.name,
+    isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" }, license: werkzeugUrl(id) + "#nutzungsbedingungen",
+    author: { "@type": "Person", name: "Robin James Lewis", url: SITE } }).replace(/</g, "\\u003c");
   return rahmen({ lang, up, titel: w.titel, beschr: (lang === "en" ? "Free tool: " : "Kostenloses Werkzeug: ") + w.kurz, canonical: werkzeugUrl(id),
     alternates: anderes ? [{ lang, href: werkzeugUrl(id) }, { lang: anderes.lang, href: werkzeugUrl(anderes.id) }] : [],
-    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n`, main });
+    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n`, main });
 }
 
 // Übersicht je Sprache: alle Werkzeuge dieser Sprache mit Stand der Datei (felder: id → Felder der Seite)

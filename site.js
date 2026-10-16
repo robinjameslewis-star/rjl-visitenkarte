@@ -35,6 +35,8 @@
 
   // ---------- Einwilligung: Cal.com wird erst nach Zustimmung geladen ----------
   // Gespeichert wird nur die Entscheidung mit Zeitpunkt, Ablauf und Textversion, lokal im Browser.
+  // Seit 16.10.2026 steht die Karte im Termin-Abschnitt an der Stelle des Kalenders statt fest am unteren Rand (Robin:
+  // sie verdeckte am Handy die halbe Seite). „Datenschutzeinstellungen“ in der Fußzeile öffnet sie wieder und rollt hin.
   var storeKey = 'rjl-calendar-consent';
   var version = '2026-09-14.1'; // bei geändertem Einwilligungstext hochzählen: alle müssen neu entscheiden
   var maxAge = 180 * 24 * 60 * 60 * 1000;
@@ -63,7 +65,7 @@
     close.hidden = !choice;
     settings.setAttribute('aria-expanded', 'true');
     resizeBanner();
-    if (focus) { returnFocus = document.activeElement; document.getElementById('consent-title').focus(); }
+    if (focus) { returnFocus = document.activeElement; banner.scrollIntoView({ block: 'center' }); document.getElementById('consent-title').focus({ preventScroll: true }); }
   }
   function hideBanner() {
     banner.hidden = true;
@@ -108,6 +110,7 @@
     if (Date.now() >= choice.expires) {
       choice = null;
       if (started) { location.reload(); return; }
+      notice.hidden = true;
       showBanner(false);
       return;
     }
@@ -154,7 +157,8 @@
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(resizeBanner).observe(banner);
 
   settings.hidden = false;
-  notice.hidden = !!(choice && choice.allowed);
+  // Der Hinweis „Kalender ist ausgeschaltet“ erst nach einer Ablehnung; vor der Entscheidung erklärt die Karte selbst (16.10.2026)
+  notice.hidden = !(choice && !choice.allowed);
   if (!choice) showBanner(false);
   else if (choice.allowed) startCalendar();
   checkExpiry();

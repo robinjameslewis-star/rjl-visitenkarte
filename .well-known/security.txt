@@ -1,0 +1,5 @@
+# Sicherheitshinweise zu robin.vision bitte an diese Adresse (Deutsch oder Englisch).
+Contact: mailto:robin@robin.vision
+Expires: 2027-10-16T00:00:00.000Z
+Preferred-Languages: de, en
+Canonical: https://robin.vision/.well-known/security.txt

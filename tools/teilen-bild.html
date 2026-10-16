@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- Bild zum Teilen der Startseite (og:image, 1200 × 630). Erzeugen mit Chrome ohne Fenster, dann als JPEG speichern:
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --window-size=1200,630 --screenshot=/tmp/teilen.png tools/teilen-bild.html
+     sips -s format jpeg -s formatOptions 85 /tmp/teilen.png --out assets/teilen.jpg -->
+<html lang="de"><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "EB Garamond"; font-weight: 400 500; src: url("../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+body { background: #F3EFE5 url("../assets/papier.jpg") repeat; background-size: 512px; font-family: "EB Garamond", Georgia, serif; color: #0B3D2E; position: relative; }
+.text { position: absolute; left: 80px; top: 150px; width: 560px; }
+.name { font-size: 40px; letter-spacing: .22em; text-transform: uppercase; margin: 0 0 28px; }
+.claim { font-size: 34px; line-height: 1.3; color: #1F1F1F; margin: 0 0 24px; }
+.url { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 22px; color: #5C5C5C; letter-spacing: .04em; }
+.vogel { position: absolute; right: 40px; bottom: 30px; width: 560px; }
+.linie { position: absolute; left: 80px; top: 120px; width: 70px; height: 2px; background: #B8724F; }
+</style></head>
+<body>
+<div class="linie"></div>
+<div class="text">
+  <p class="name">Robin James Lewis</p>
+  <p class="claim">Werkzeuge und Impulse für das Rechnungswesen – offline, kostenlos, aus der Praxis.</p>
+  <p class="url">robin.vision</p>
+</div>
+<img class="vogel" src="../assets/vogel.webp" alt="">
+</body></html>

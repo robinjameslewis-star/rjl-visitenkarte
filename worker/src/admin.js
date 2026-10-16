@@ -11,7 +11,7 @@ import * as pk from "./passkey.js";
 import * as blog from "./blog.js";
 import * as land from "./landscapes.js";
 import * as cfg from "./settings.js";
-import { werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -509,7 +509,7 @@ async function rebuild(env, { settings, posts }, sourceChanges, message, extraIm
   const home = await gh.getFile(env, "index.html");
   if (!home) throw new Error("Startseite (index.html) nicht im Repository gefunden.");
   const [entries, images] = await Promise.all([gh.listDir(env, "blog"), listImages(env)]);
-  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "", images: [...images.map(i => i.name), ...extraImages],
+  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "", images: [...images.map(i => i.name), ...extraImages], werkzeuge: WERKZEUGE,
     existingDirs: entries.filter(e => e.type === "dir").map(e => e.name), existingFiles: entries.filter(e => e.type === "file").map(e => e.name) });
   const changes = [...sourceChanges, ...built.changes];
   const commit = changes.length ? await gh.commitFiles(env, changes, message) : null;

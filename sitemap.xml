@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://robin.vision/</loc>
+    <lastmod>2026-10-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://robin.vision/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/en/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/buchungsstapel-generator/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/booking-batch-generator/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/booking-batch-generator/</loc>
+    <lastmod>2026-10-15</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/booking-batch-generator/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/</loc>
+    <lastmod>2026-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/blog/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/blog/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/en/</loc>
+    <lastmod>2026-10-09</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/blog/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/blog/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/das-ende-des-erp/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/the-end-of-erp/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/</loc>
+    <lastmod>2026-10-02</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/</loc>
+    <lastmod>2026-10-02</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/</loc>
+    <lastmod>2026-09-25</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/</loc>
+    <lastmod>2026-09-25</lastmod>
+  </url>
+</urlset>
