@@ -8,6 +8,7 @@
 import { renderMarkdown } from "./blog.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { kopf, KOPF_CSS } from "./kopf.js";
+import { neuigkeiten } from "./neuigkeiten.js";
 
 export { NEWSLETTER_ENDPUNKT };
 const SITE = "https://robin.vision/";
@@ -62,6 +63,7 @@ export const WERKZEUG_STANDARD = {
   beschreibung: "",
   nutzung: "",
   hinweis: "",
+  neuigkeiten: "", // „Was ist neu“ je Fassung (neuigkeiten.js); der neueste Eintrag steht auch im Newsletter
   datei: { name: "", fassung: "", datum: "", bytes: 0, sha256: "" },
 };
 
@@ -74,6 +76,7 @@ export function werkzeugFelder(html) {
     const f = { ...structuredClone(WERKZEUG_STANDARD), ...d, datei: { ...WERKZEUG_STANDARD.datei, ...(d.datei || {}) } };
     if (!f.hinweis && d.en) f.hinweis = d.en;
     delete f.en;
+    f.neuigkeiten = String(f.neuigkeiten || "");
     return f;
   } catch { return structuredClone(WERKZEUG_STANDARD); }
 }
@@ -83,7 +86,7 @@ const T = {
     home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeuge", toolsHref: "werkzeuge/", about: "Über mich", aboutHref: "ueber-mich/",
     frei: "Kostenloses Werkzeug", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
-    nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten",
+    nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
     kurz: "Werkzeuge", seitentitel: "Kostenlose Werkzeuge für Buchhaltung und Kanzlei – offline im Browser | Robin James Lewis", lead: "Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.",
     andereUebersicht: "English", leer: "Noch keine Werkzeuge.",
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
@@ -92,7 +95,7 @@ const T = {
     home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Tools", toolsHref: "werkzeuge/en/", about: "About", aboutHref: "about/",
     frei: "Free tool", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
-    nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers",
+    nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
     kurz: "Tools", seitentitel: "Free tools for bookkeeping and tax firms – offline in your browser | Robin James Lewis", lead: "For everyday work outside the perfect process, in the middle of the transformation: free tools that run offline in your browser. Your data never leaves your computer.",
     andereUebersicht: "Deutsch", leer: "No tools yet.",
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
@@ -159,7 +162,7 @@ article li { margin-bottom: 6px; }
 ${NEWSLETTER_CSS}
 .nutzung { font-size: 15px; color: var(--ink-soft); }
 .nutzung strong { color: var(--ink); font-weight: 500; }
-.fragen h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
+.fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
 .fragen p { color: var(--ink-soft); }
 .list { list-style: none; margin: 0 0 8px; padding: 0; }
 .list li { padding: 22px 0; border-top: 1px solid var(--line); }
@@ -191,11 +194,11 @@ export function werkzeugSeite(f, id = "buchungsstapel-generator") {
   if (!w) throw new Error("Unbekanntes Werkzeug: " + id);
   const lang = w.lang, t = T[lang], up = "../../";
   const text = k => String(f[k] || "").replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").trim();
-  const beschreibung = text("beschreibung"), nutzung = text("nutzung"), hinweis = text("hinweis") || text("en");
+  const beschreibung = text("beschreibung"), nutzung = text("nutzung"), hinweis = text("hinweis") || text("en"), neu = text("neuigkeiten");
   if (beschreibung.length < 80) throw new Error("Die Beschreibung ist zu kurz.");
   if (nutzung.length < 200) throw new Error("Die Nutzungsbedingungen fehlen oder sind zu kurz.");
   if (hinweis.length < 40) throw new Error(`Der Hinweis auf ${lang === "en" ? "Deutsch" : "Englisch"} fehlt.`);
-  if ([beschreibung, nutzung, hinweis].some(x => x.length > 12000)) throw new Error(t.zuLang);
+  if ([beschreibung, nutzung, hinweis, neu].some(x => x.length > 12000)) throw new Error(t.zuLang);
   const d = f.datei || {};
   if (!DATEINAME.test(d.name || "")) throw new Error("Dateiname der Werkzeug-Datei ungültig.");
   if (!/^[0-9a-f]{7}$/.test(d.fassung || "")) throw new Error("Fassung fehlt (7 Zeichen aus dem Git-Stand).");
@@ -203,7 +206,7 @@ export function werkzeugSeite(f, id = "buchungsstapel-generator") {
   if (!(+d.bytes > 100000)) throw new Error("Größe der Datei fehlt.");
   if (!/^[0-9a-f]{64}$/.test(d.sha256 || "")) throw new Error("SHA-256 der Datei fehlt.");
   const datei = { name: d.name, fassung: d.fassung, datum: d.datum, bytes: +d.bytes, sha256: d.sha256 };
-  const daten = JSON.stringify({ beschreibung, nutzung, hinweis, datei }).replace(/</g, "\\u003c");
+  const daten = JSON.stringify({ beschreibung, nutzung, hinweis, neuigkeiten: neu, datei }).replace(/</g, "\\u003c");
   const mb = (datei.bytes / 1e6).toLocaleString(lang === "en" ? "en-GB" : "de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const stand = `${t.fassung} ${esc(datei.fassung)} ${t.vom} ${datumText(datei.datum, lang)}`;
   const anderes = werkzeug(w.gegenstueck), andereLang = lang === "en" ? "de" : "en";
@@ -222,6 +225,7 @@ ${renderMarkdown(einleitung, "", lang)}
 </div>
 ${newsletterKasten(lang, up, "werkzeug")}
 ${rest.length ? renderMarkdown(rest.join("\n"), "", lang) : ""}
+${neu ? `<h2 id="neu">${t.neu}</h2>\n<div class="neuigkeiten">\n${neuigkeiten(neu).map(e => `<h3 id="fassung-${esc(e.fassung || e.datum)}">${esc(e.titel)}</h3>\n${renderMarkdown(e.text, "", lang)}`).join("\n")}\n</div>` : ""}
 ${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}
 <h2 id="nutzungsbedingungen">${t.nutzung}</h2>
 <div class="nutzung">

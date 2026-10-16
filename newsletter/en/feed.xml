@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>robin.vision – Newsletter (English)</title>
+  <link>https://robin.vision/?lang=en#newsletter</link>
+  <description>Food for Thought and tools by email</description>
+  <language>en</language>
+  <item>
+    <title>Mistakes multiply – why ARP starts with getting your house in order</title>
+    <link>https://robin.vision/blog/mistakes-multiply/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/mistakes-multiply/</guid>
+    <pubDate>Fri, 16 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>A faulty booking rule or flawed prior-year data repeats itself with every transaction – so before bringing in agents, take a hard look at the old rules.</strong></p>
+<p>I have watched automated bank rules get it wrong. One rule books the health insurer&#39;s reimbursement of sick pay as revenue, complete with VAT. Another books revenue already recorded in accounts receivable a second time – again with VAT. And a supplier account hard-wired to an expense account and a tax code claims input VAT at the wrong rate. A mistake in a rule never stays a one-off. It multiplies.</p>
+<p>An ERP system is an excellent archive. It tells you what happened. Since 2025, a term has been doing the rounds that promises rather more: ARP, agentic resource planning. Agents keep constant watch, work out the consequences and act within guardrails set by a person – or put the decision forward for approval. That is how the software company SHAKE describes it; in 2026, it declared ARP a category of its own.</p>
+<p><a href="https://robin.vision/blog/mistakes-multiply/">Read the whole post</a></p>
+<h3>New in the Booking Batch Generator</h3>
+<p><em>Version a396da5 of 15 October 2026</em></p>
+<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: Booking Batch Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>Booking Batch Generator: Version a396da5</title>
+    <link>https://robin.vision/werkzeuge/booking-batch-generator/#fassung-a396da5</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/booking-batch-generator/#fassung-a396da5</guid>
+    <pubDate>Thu, 15 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: Booking Batch Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>The end of ERP as we know it – why internal interfaces are only a stopgap</title>
+    <link>https://robin.vision/blog/the-end-of-erp/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/the-end-of-erp/</guid>
+    <pubDate>Fri, 09 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>AI is reshaping ERP rather than doing away with it – and internal interfaces are only needed for as long as a company&#39;s own systems stay apart.</strong></p>
+<p>Whether I look at the firm or at our clients, I see the same picture: an inventory system, an accounting package, a banking tool, a document inbox, payroll – and spreadsheets on top. Each system does its job well. Together, they are a patchwork held together by interfaces.</p>
+<p>My last piece was about breaks in the digital chain. An interface closes that break, but the transfer remains: the same data sits in two systems, has to be reconciled and matched, and every hand-off can go wrong. Sales invoices travel from the inventory system into accounting through an invoicing interface; payroll entries come across from the payroll system. These interfaces only exist because two systems within the same business are kept apart. They are bridges over a gap that a shared data model would never have had.</p>
+<p><a href="https://robin.vision/blog/the-end-of-erp/">Read the whole post</a></p>
+<h3>New in the Booking Batch Generator</h3>
+<p><em>Version a396da5 of 15 October 2026</em></p>
+<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: Booking Batch Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>Seamless data flow – where data still slips between paper and screen</title>
+    <link>https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/</guid>
+    <pubDate>Fri, 02 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Every time data has to switch format, mistakes creep in – along with extra steps that the procedural documentation required by the GoBD has to explain.</strong></p>
+<p>Accounting still lives between paper and screen. A client marks up a scanned invoice and sends it to us through the client portal, but the notes on the image do nothing to the underlying data. That is a break in the digital chain – and a common source of errors and hold-ups.</p>
+<p>So is it enough to leave the scanned invoice behind? Not quite. Data gets keyed in twice in plenty of other places. Copying figures by hand from one system into another, because nobody has set up an interface, is just as much a break in the chain. More on that in my next piece, on interfaces.</p>
+<p><a href="https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/">Read the whole post</a></p>
+<h3>New in the Booking Batch Generator</h3>
+<p><em>Version a396da5 of 15 October 2026</em></p>
+<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: Booking Batch Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>E-invoicing: when the data becomes the invoice</title>
+    <link>https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/</guid>
+    <pubDate>Fri, 25 Sep 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Since the changes to Section 14 of the German VAT Act and the GoBD, the structured data is the invoice – and the picture of it has lost its raison d&#39;être.</strong></p>
+<p>As a bookkeeper, I have spent more than enough time turning paper and PDF invoices into data. With e-invoicing, I no longer have to.</p>
+<p>The principle will be familiar from integrated business software (ERP) and from digital HR systems with an employee portal: master data and transactions are passed on for processing as soon as they arise, either in real time or at set intervals. ERP systems have done exactly this with sales invoicing for decades. The billing data goes straight to accounts receivable as structured data, and the printed invoice never played any part in the outcome. It was only ever needed by the customer and for the tax audit.</p>
+<p><a href="https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/">Read the whole post</a></p>
+<h3>New in the Booking Batch Generator</h3>
+<p><em>Version a396da5 of 15 October 2026</em></p>
+<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: Booking Batch Generator</a></p>]]></description>
+  </item>
+</channel>
+</rss>

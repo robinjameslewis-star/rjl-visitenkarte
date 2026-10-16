@@ -6,6 +6,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, werkzeugUebersicht, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
 import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
+import { neuigkeiten } from "../worker/src/neuigkeiten.js";
 import { CONTENT } from "../worker/src/admin.js";
 
 let fails = 0;
@@ -16,9 +17,9 @@ const lesen = p => readFileSync(root + p, "utf8");
 
 const SPRACHE = {
   de: { titel: "Buchungsstapel-Generator", fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
-    marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/ },
+    neu: "Was ist neu", marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/ },
   en: { titel: "Booking Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
-    marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/ },
+    neu: "What's new", marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/ },
 };
 const felder = {};
 for (const w of WERKZEUGE) {
@@ -46,6 +47,8 @@ for (const w of WERKZEUGE) {
   check(/data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html) && /<script src="\.\.\/\.\.\/newsletter\.js\?v=[^"]+" defer><\/script>/.test(html), "Anmeldung über den Worker");
   check(/name="website"/.test(html) && s.ohne.test(html), "Falle für Bots; Download ohne Anmeldung (Kopplungsverbot)");
   check(/Tesseract/.test(html), "Lizenzen nennen auch Tesseract");
+  const neu = neuigkeiten(f.neuigkeiten);
+  check(neu.length >= 1 && neu[0].fassung === f.datei.fassung && neu[0].datum === f.datei.datum && html.includes(`<h2 id="neu">${s.neu}</h2>`) && html.includes(`<h3 id="fassung-${f.datei.fassung}">`), "„Was ist neu“ mit Eintrag zur aktuellen Fassung (Fassung und Datum aus der Überschrift)");
   check(s.kopf.test(html), "Kopf führt zu den Werkzeugen dieser Sprache");
   const anderes = WERKZEUGE.find(x => x.id === w.gegenstueck);
   check(html.includes(`hreflang="${anderes.lang}" href="https://robin.vision/werkzeuge/${anderes.id}/"`) && html.includes(`robin.vision/werkzeuge/${anderes.id}/`), "Verweis auf die Fassung in der anderen Sprache");

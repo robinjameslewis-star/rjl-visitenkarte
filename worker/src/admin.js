@@ -352,6 +352,8 @@ async function save(key, request, env, deps, session) {
     const summary = c.summary(c.split(md, deps));
     await gh.putFile(env, c.path, md, `Dashboard: ${c.title} – ${summary}`, current && current.sha);
     await cache(env, key, md, session.email);
+    // Werkzeugseiten: „Was ist neu“ steht auch im Newsletter-Feed – Feeds (und Sitemap) gleich mit neu schreiben
+    if (key === "werkzeug" || key === "werkzeugEn") await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
   } catch (e) { return json({ error: e.message }, 502); }
   return json(await state(env, deps));
 }
@@ -508,8 +510,10 @@ async function loadBlog(env) {
 async function rebuild(env, { settings, posts }, sourceChanges, message, extraImages = []) {
   const home = await gh.getFile(env, "index.html");
   if (!home) throw new Error("Startseite (index.html) nicht im Repository gefunden.");
-  const [entries, images] = await Promise.all([gh.listDir(env, "blog"), listImages(env)]);
-  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "", images: [...images.map(i => i.name), ...extraImages], werkzeuge: WERKZEUGE,
+  const [entries, images, seiten] = await Promise.all([gh.listDir(env, "blog"), listImages(env), Promise.all(WERKZEUGE.map(w => gh.getFile(env, werkzeugPfad(w.id)).catch(() => null)))]);
+  // Felder der Werkzeugseiten (Datum der Fassung, „Was ist neu“) für Sitemap und Newsletter-Feeds
+  const felder = Object.fromEntries(WERKZEUGE.map((w, i) => [w.id, seiten[i] ? werkzeugFelder(seiten[i].content) : null]));
+  const built = blog.buildBlog({ settings, posts, homepage: home.content, siteUrl: env.SITE_URL || "", images: [...images.map(i => i.name), ...extraImages], werkzeuge: WERKZEUGE, werkzeugFelder: felder,
     existingDirs: entries.filter(e => e.type === "dir").map(e => e.name), existingFiles: entries.filter(e => e.type === "file").map(e => e.name) });
   const changes = [...sourceChanges, ...built.changes];
   const commit = changes.length ? await gh.commitFiles(env, changes, message) : null;
@@ -840,6 +844,7 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 ${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
 <p class="note" id="wdatei${x}"></p>
 <label for="wbeschr${x}">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr${x}" style="min-height:320px"></textarea>
+<label for="wneu${x}">Was ist neu <span class="note">(je Fassung eine Überschrift „### Fassung a1b2c3d vom 15.10.2026“ bzw. „### Version a1b2c3d, 15 October 2026“, darunter Stichpunkte; die neueste zuerst – sie steht auch im Newsletter)</span></label><textarea id="wneu${x}" style="min-height:160px"></textarea>
 <label for="wnutz${x}">Nutzungsbedingungen</label><textarea id="wnutz${x}" style="min-height:260px"></textarea>
 <label for="wen${x}">${andere}</label><textarea id="wen${x}" style="min-height:90px"></textarea>
 <div class="bar"><button id="saveW${x}">Veröffentlichen</button><button class="quiet" id="prevW${x}">Vorige Fassung</button><a class="note" id="histW${x}" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mW${x}"></span></div>
@@ -1156,7 +1161,7 @@ function render(s){S=s;
  if(P){$('psrc').innerHTML=src(P);if(document.activeElement!==$('ptext'))$('ptext').value=P.fields.text;$('prevP').disabled=!(P.meta&&P.meta.hasPrev);$('saveP').disabled=!s.github;$('histP').href=P.historyUrl;$('histP').hidden=!P.historyUrl;pwords();}
  $('asrc').innerHTML=src(A);$('stand').value=A.fields.stand;$('de').value=A.fields.de;$('en').value=A.fields.en;$('prevA').disabled=!(A.meta&&A.meta.hasPrev);$('saveA').disabled=!s.github;$('histA').href=A.historyUrl;$('histA').hidden=!A.historyUrl;
  for(const [x,key] of WK){const W=s.content[key];$('wsec'+x).hidden=!W;if(!W)continue;const D=WD[x]=W.fields.datei;$('wsrc'+x).innerHTML=src(W);$('wdatei'+x).textContent=D&&D.fassung?'Datei '+D.name+' · Fassung '+D.fassung+' vom '+D.datum+' · '+(D.bytes/1e6).toFixed(1).replace('.',',')+' MB':'Noch keine Datei eingespielt.';
-  for(const [id,k] of [['wbeschr','beschreibung'],['wnutz','nutzung'],['wen','hinweis']])if(document.activeElement!==$(id+x))$(id+x).value=W.fields[k]||'';
+  for(const [id,k] of [['wbeschr','beschreibung'],['wneu','neuigkeiten'],['wnutz','nutzung'],['wen','hinweis']])if(document.activeElement!==$(id+x))$(id+x).value=W.fields[k]||'';
   $('prevW'+x).disabled=!(W.meta&&W.meta.hasPrev);$('saveW'+x).disabled=!s.github||!(D&&D.fassung);$('histW'+x).href=W.historyUrl;$('histW'+x).hidden=!W.historyUrl;}
  $('lsrc').innerHTML=src(L);$('rows').innerHTML='';L.fields.rows.forEach(addRow);$('prevL').disabled=!(L.meta&&L.meta.hasPrev);$('saveL').disabled=!s.github;$('histL').href=L.historyUrl;$('histL').hidden=!L.historyUrl;}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1166,7 +1171,7 @@ $('addRow').onclick=()=>addRow();
 async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
 const WK=[['','werkzeug'],['E','werkzeugEn']],WD={};
 for(const [x,key] of WK){
- $('saveW'+x).onclick=()=>{if(confirm('Texte der Werkzeug-Seite jetzt veröffentlichen?'))publish(key,'mW'+x,{beschreibung:$('wbeschr'+x).value,nutzung:$('wnutz'+x).value,hinweis:$('wen'+x).value,datei:WD[x]});};
+ $('saveW'+x).onclick=()=>{if(confirm('Texte der Werkzeug-Seite jetzt veröffentlichen?'))publish(key,'mW'+x,{beschreibung:$('wbeschr'+x).value,neuigkeiten:$('wneu'+x).value,nutzung:$('wnutz'+x).value,hinweis:$('wen'+x).value,datei:WD[x]});};
  $('prevW'+x).onclick=async()=>{if(!confirm('Vorige Fassung der Werkzeug-Seite wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/'+key,'POST'));say('mW'+x,'Vorige Fassung ist live.',true);}catch(e){say('mW'+x,e.message);}};}
 $('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
 function pwords(){const n=$('ptext').value.split(/\\s+/).filter(Boolean).length;$('pwords').textContent=n+' Wörter (≈ '+Math.round(n*4.4/100)*100+' Tokens)';}

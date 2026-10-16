@@ -516,6 +516,26 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   und Impulse. Nicht im Repository: Google Search Console und Bing Webmaster Tools (Robin bestätigt die Domain per DNS-TXT
   bei Cloudflare und reicht `sitemap.xml` ein).
 
+## „Was ist neu“ und Newsletter-Feed (16.10.2026)
+
+- Robin: Jede neue Fassung des Buchungsstapel-Generators wird auf der Website angekündigt und beschrieben; der Newsletter soll
+  länger sein und immer das aktuellste Update des aktuellsten Werkzeugs enthalten, gefüttert über die Werkzeugseite.
+- **Feld `neuigkeiten`** der Werkzeugseiten (Redaktion: „Was ist neu“): Markdown, je Fassung eine Überschrift
+  „### Fassung a1b2c3d vom 15.10.2026“ (englisch „### Version a1b2c3d, 15 October 2026“), darunter Stichpunkte, neueste zuerst.
+  `worker/src/neuigkeiten.js` liest Fassung und Datum aus der Überschrift; die Seite zeigt den Abschnitt „Was ist neu“ mit
+  Ankern `#fassung-<id>` vor den Fragen. `tools/werkzeug-uebernehmen.mjs` belegt beim Einspielen einer neuen Fassung den
+  Eintrag mit den Commit-Zeilen seit der vorigen Fassung vor – in der Redaktion in Sätze bringen.
+- **Newsletter-Feeds** `newsletter/feed.xml` und `newsletter/en/feed.xml` (`renderNewsletterFeed` in `blog.js`): Brevo füllt
+  beim Versand nur die seit dem letzten Lauf neuen Einträge ein (Test-Mail 16.10.2026: ein Eintrag, Beschreibung mit
+  wörtlichem `<description>`-Tag bei reinem Text). Deshalb trägt jeder Eintrag die ganze Ausgabe als HTML in CDATA: Impuls mit
+  Zusammenfassung, Auszug (`auszug`, etwa 900 Zeichen Textabsätze) und Verweis, darunter „Neu im Buchungsstapel-Generator“ mit
+  der neuesten Fassung; jede Fassung ist zusätzlich ein eigener Eintrag (Ausgabe auch in einer Woche ohne Impuls). Die Feeds
+  schreiben `buildBlog` (Redaktion bei jedem Veröffentlichen; Felder der Werkzeugseiten liest `rebuild` aus dem Repository, das
+  Speichern einer Werkzeugseite baut sie mit), `tools/blog-seiten-bauen.mjs` und `tools/werkzeug-uebernehmen.mjs`.
+- **Brevo:** Die Integrationen „Impulse DE/EN“ müssen auf die neuen Feeds zeigen (statt `blog/feed.xml`); im Template genügt
+  `{{ item.DESCRIPTION | safe }}`, der Knopf „Impuls lesen“ passt bei Fassungs-Einträgen nicht mehr („Auf robin.vision lesen“).
+- Prüfung: `node tests/newsletter_feed_test.mjs`.
+
 ## Seitenkopf und Navigation (16.10.2026)
 
 - Robin: oben zu voll auf dem iPhone; alle Verweise außer „Über mich“ sprangen nur an Stellen im Einseiter; sie sollen auf die
