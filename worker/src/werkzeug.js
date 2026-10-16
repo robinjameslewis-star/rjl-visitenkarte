@@ -142,9 +142,7 @@ h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); mar
 .meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
 .meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
-article { counter-reset: abschnitt; }
-article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 72px 0 16px; }
-article > h2::before { counter-increment: abschnitt; content: counter(abschnitt, decimal-leading-zero); display: block; font: 500 12px/1 var(--sans); letter-spacing: .22em; color: var(--copper); margin: 0 0 12px; }
+article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 64px 0 16px; }
 article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
 article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
 article p, article li { max-width: 68ch; }
