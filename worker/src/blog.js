@@ -8,6 +8,7 @@
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { renderSitemap } from "./sitemap.js";
 import { kopf, KOPF_CSS } from "./kopf.js";
+import { neuigkeiten } from "./neuigkeiten.js";
 
 export const POSTS_DIR = "blog/posts";
 export const SETTINGS_PATH = "blog/blog.json";
@@ -325,6 +326,56 @@ ${items}
 `;
 }
 
+// Newsletter-Feed je Sprache (Robin, 16.10.2026) für die RSS-Kampagne bei Brevo: newsletter/feed.xml und newsletter/en/feed.xml.
+// Brevo füllt beim Versand nur die seit dem letzten Lauf neuen Einträge ein (beobachtet an der Test-Mail vom 16.10.2026), darum
+// trägt jeder Eintrag die ganze Ausgabe als HTML (CDATA): der Impuls mit längerem Auszug und Verweis, darunter „Neu im …“ mit
+// der neuesten Fassung des neuesten Werkzeugs (Feld „Was ist neu“ der Werkzeugseite). Jede Fassung ist zusätzlich ein eigener
+// Eintrag, damit auch in einer Woche ohne Impuls eine Ausgabe entsteht. werkzeuge: [{ id, lang, titel, datei, neuigkeiten: Text }].
+export const NEWSLETTER_DIR = "newsletter";
+const NL = {
+  de: { titel: "robin.vision – Newsletter", beschr: "Impulse und Werkzeuge per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom" },
+  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought and tools by email", ganz: "Read the whole post", neu: "New in the", laden: "Download", fassung: "Version", vom: "of" },
+};
+// Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen
+export function auszug(md, max = 900) {
+  const bloecke = String(md).replace(/\r\n?/g, "\n").split(/\n{2,}/).map(b => b.trim()).filter(b => b && !/^(#|!\[|>|[-*] |\d+\. |\||https?:\/\/(www\.)?youtu)/.test(b));
+  const out = []; let n = 0;
+  for (const b of bloecke) { if (n && n + b.length > max) break; out.push(b); n += b.length; if (n >= max) break; }
+  return out.join("\n\n");
+}
+export function renderNewsletterFeed({ posts, siteUrl, lang = "de", werkzeuge = [] }) {
+  const t = NL[lang === "en" ? "en" : "de"];
+  const x = s => String(s).replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
+  const cdata = s => `<![CDATA[${String(s).replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
+  const url = w => `${siteUrl}werkzeuge/${w.id}/`;
+  const fassungen = werkzeuge.filter(w => w.lang === lang).flatMap(w => neuigkeiten(w.neuigkeiten).map(e => ({ ...e, werkzeug: w, datum: e.datum || (w.datei && w.datei.datum) || "" })))
+    .filter(e => e.datum && e.fassung && e.text).sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0);
+  const neueste = fassungen[0];
+  const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p><a href="${url(neueste.werkzeug)}">${esc(t.laden)}: ${esc(neueste.werkzeug.titel)}</a></p>` : "";
+  const impulse = posts.filter(p => p.lang === lang).map(p => ({ datum: p.date, titel: p.title, link: `${siteUrl}blog/${p.slug}/`,
+    html: `${p.summary ? `<p><strong>${esc(p.summary)}</strong></p>\n` : ""}${renderMarkdown(auszug(p.body), "", lang)}\n<p><a href="${siteUrl}blog/${p.slug}/">${esc(t.ganz)}</a></p>${werkzeugBlock ? "\n" + werkzeugBlock : ""}` }));
+  const releases = fassungen.map(e => ({ datum: e.datum, titel: `${e.werkzeug.titel}: ${t.fassung} ${e.fassung}`, link: `${url(e.werkzeug)}#fassung-${e.fassung}`,
+    html: `${renderMarkdown(e.text, "", lang)}\n<p><a href="${url(e.werkzeug)}">${esc(t.laden)}: ${esc(e.werkzeug.titel)}</a></p>` }));
+  const items = [...impulse, ...releases].sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0).map(i => `  <item>
+    <title>${x(i.titel)}</title>
+    <link>${x(i.link)}</link>
+    <guid isPermaLink="true">${x(i.link)}</guid>
+    <pubDate>${new Date(i.datum + "T09:00:00Z").toUTCString()}</pubDate>
+    <description>${cdata(i.html)}</description>
+  </item>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>${x(t.titel)}</title>
+  <link>${x(siteUrl)}${lang === "en" ? "?lang=en" : ""}#newsletter</link>
+  <description>${x(t.beschr)}</description>
+  <language>${lang}</language>
+${items}
+</channel>
+</rss>
+`;
+}
+
 // Startseite: Verweis zwischen den Marken setzen oder leeren. Liefert null, wenn nichts zu ändern ist.
 function between(html, start, end, inner, what) {
   const i = html.indexOf(start), j = html.indexOf(end);
@@ -358,8 +409,9 @@ ${items}
 }
 
 // Alles zusammen: aus Einstellungen, Beiträgen und Startseite die Dateiänderungen für einen Commit.
-// werkzeuge (WERKZEUGE aus werkzeug.js, hier nur durchgereicht): dann entsteht auch sitemap.xml
-export function buildBlog({ settings, posts, homepage, existingDirs = [], existingFiles = [], siteUrl, images = [], werkzeuge = null }) {
+// werkzeuge (WERKZEUGE aus werkzeug.js, hier nur durchgereicht): dann entstehen auch sitemap.xml und die Newsletter-Feeds;
+// werkzeugFelder: id → Felder der Werkzeugseite (werkzeugFelder aus werkzeug.js) für Datum der Fassung und „Was ist neu“
+export function buildBlog({ settings, posts, homepage, existingDirs = [], existingFiles = [], siteUrl, images = [], werkzeuge = null, werkzeugFelder = null }) {
   const published = posts.filter(p => p.status === "published" && p.date).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
   const visible = settings.enabled && published.length > 0;
   const changes = [];
@@ -373,7 +425,11 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
     for (const f of ["index.html", "feed.xml"]) if (existingFiles.includes(f)) changes.push({ path: "blog/" + f, delete: true });
     if (existingDirs.includes(EN_DIR)) for (const f of ["index.html", "feed.xml"]) changes.push({ path: `blog/${EN_DIR}/${f}`, delete: true });
   }
-  if (werkzeuge && siteUrl) changes.push({ path: "sitemap.xml", content: renderSitemap({ siteUrl, posts: shown, werkzeuge }) });
+  if (werkzeuge && siteUrl) {
+    const mitFeldern = werkzeuge.map(w => { const f = werkzeugFelder && werkzeugFelder[w.id]; return f ? { ...w, datum: w.datum || (f.datei || {}).datum, datei: f.datei, neuigkeiten: f.neuigkeiten || "" } : { ...w, neuigkeiten: "" }; });
+    changes.push({ path: "sitemap.xml", content: renderSitemap({ siteUrl, posts: shown, werkzeuge: mitFeldern }) });
+    for (const lang of ["de", "en"]) changes.push({ path: `${NEWSLETTER_DIR}/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`, content: renderNewsletterFeed({ posts: shown, siteUrl, lang, werkzeuge: mitFeldern }) });
+  }
   const keep = new Set(shown.map(p => p.slug));
   for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl, undefined, images) });
   // Quellordner (Beiträge, Bilder) sind keine Beitragsseiten – nie deren index.html löschen wollen, die es nicht gibt

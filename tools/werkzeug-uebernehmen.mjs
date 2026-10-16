@@ -12,8 +12,9 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { dirname, basename, join } from "node:path";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, werkzeugUebersicht, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
-import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
+import { parsePost, parseSettings, POSTS_DIR, SETTINGS_PATH, renderNewsletterFeed, NEWSLETTER_DIR, EN_DIR } from "../worker/src/blog.js";
 import { renderSitemap } from "../worker/src/sitemap.js";
+import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
@@ -137,6 +138,15 @@ for (const quelle of process.argv.slice(2)) {
   mkdirSync(ordner, { recursive: true });
   copyFileSync(quelle, join(ordner, name));
   const felder = lesen(w.id) || { ...START[w.id] };
+  // „Was ist neu“ für die neue Fassung vorbelegen: Überschrift und die Commit-Zeilen seit der vorigen Fassung als Stichpunkte;
+  // Robin bringt sie in der Redaktion in Sätze (der neueste Eintrag steht auch im Newsletter)
+  const vorige = felder.datei && felder.datei.fassung;
+  if (!neuigkeiten(felder.neuigkeiten).some(e => e.fassung === fassung)) {
+    let zeilen = [];
+    if (vorige && vorige !== fassung) { try { zeilen = execFileSync("git", ["-C", dirname(quelle), "log", "--format=%s", `${vorige}..${fassung}`], { encoding: "utf8" }).trim().split("\n").filter(Boolean); } catch {} }
+    felder.neuigkeiten = `${neuigkeitKopf(fassung, datum, w.lang)}\n\n${(zeilen.length ? zeilen : ["…"]).map(z => `- ${z}`).join("\n")}${felder.neuigkeiten ? "\n\n" + felder.neuigkeiten : ""}`;
+    console.log(`${name}: „Was ist neu“ für Fassung ${fassung} vorbelegt (${zeilen.length} Commit-Zeilen) – in der Redaktion in Sätze bringen.`);
+  }
   felder.datei = { name, fassung, datum, bytes: daten.length, sha256: createHash("sha256").update(daten).digest("hex") };
   writeFileSync(werkzeugPfad(w.id), werkzeugSeite(felder, w.id));
   console.log(`${name}: Fassung ${fassung} vom ${datum}, ${daten.length} Bytes, SHA-256 ${felder.datei.sha256}`);
@@ -163,5 +173,12 @@ for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true })
 // sitemap.xml mit dem Datum der Fassungen (dieselbe Datei schreibt die Redaktion beim Veröffentlichen eines Impulses)
 const posts = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)))
   .filter(p => p.status === "published" && p.date);
-writeFileSync("sitemap.xml", renderSitemap({ siteUrl: "https://robin.vision/", posts, werkzeuge: WERKZEUGE.map(w => ({ ...w, datum: (alle[w.id].datei || {}).datum })) }));
-console.log("Übersichten, Liste auf der Startseite, Weiterleitungen und sitemap.xml neu gebaut.");
+const mitFeldern = WERKZEUGE.map(w => ({ ...w, datum: (alle[w.id].datei || {}).datum, datei: alle[w.id].datei, neuigkeiten: alle[w.id].neuigkeiten || "" }));
+writeFileSync("sitemap.xml", renderSitemap({ siteUrl: "https://robin.vision/", posts, werkzeuge: mitFeldern }));
+// Newsletter-Feeds (dieselbe Datei schreibt die Redaktion beim Veröffentlichen eines Impulses oder einer Werkzeugseite)
+for (const lang of ["de", "en"]) {
+  const pfad = `${NEWSLETTER_DIR}/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`;
+  mkdirSync(dirname(pfad), { recursive: true });
+  writeFileSync(pfad, renderNewsletterFeed({ posts, siteUrl: "https://robin.vision/", lang, werkzeuge: mitFeldern }));
+}
+console.log("Übersichten, Liste auf der Startseite, Weiterleitungen, sitemap.xml und Newsletter-Feeds neu gebaut.");

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>robin.vision – Newsletter</title>
+  <link>https://robin.vision/#newsletter</link>
+  <description>Impulse und Werkzeuge per E-Mail</description>
+  <language>de</language>
+  <item>
+    <title>Fehler skalieren – warum vor ARP die alten Regeln auf den Tisch gehören</title>
+    <link>https://robin.vision/blog/fehler-skalieren/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/fehler-skalieren/</guid>
+    <pubDate>Fri, 16 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Fehler in Buchungsregeln und Vorjahresdaten wiederholen sich bei jedem Vorgang – wer Agenten einführen will, prüft zuerst die alten Regeln.</strong></p>
+<p>Ich habe gesehen, wie automatische Regeln für Geldeingänge auf der Bank danebenliegen. Eine Regel bucht die Erstattung der Krankenkasse für die Lohnfortzahlung als Erlös mit Umsatzsteuer. Eine andere erfasst einen Erlös, der in der Debitorenbuchhaltung schon steht, ein zweites Mal, wieder mit Umsatzsteuer. Und ein Kreditorenkonto, fest verknüpft mit Aufwandskonto und Steuerschlüssel, zieht Vorsteuer mit dem falschen Steuersatz. Ein Fehler in einer Regel bleibt kein Einzelfall. Er skaliert.</p>
+<p>Ein ERP ist ein sehr gutes Archiv. Es sagt Ihnen, was war. Seit 2025 taucht ein Begriff auf, der mehr verspricht: ARP, Agentic Resource Planning. Agenten beobachten laufend, rechnen Folgen durch und handeln innerhalb von Leitplanken, die ein Mensch setzt – oder legen die Entscheidung zur Freigabe vor. So beschreibt es das Softwareunternehmen SHAKE, das daraus 2026 eine eigene Kategorie gemacht hat.</p>
+<p><a href="https://robin.vision/blog/fehler-skalieren/">Den ganzen Impuls lesen</a></p>
+<h3>Neu im Buchungsstapel-Generator</h3>
+<p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
+<ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: Buchungsstapel-Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>Buchungsstapel-Generator: Fassung a396da5</title>
+    <link>https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-a396da5</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-a396da5</guid>
+    <pubDate>Thu, 15 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: Buchungsstapel-Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>Das Ende des ERP, wie wir es kennen – warum interne Schnittstellen ein Zwischenschritt sind</title>
+    <link>https://robin.vision/blog/das-ende-des-erp/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/das-ende-des-erp/</guid>
+    <pubDate>Fri, 09 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>KI verändert das ERP, schafft es aber nicht ab – und interne Schnittstellen braucht es nur, solange die eigenen Systeme getrennt sind.</strong></p>
+<p>In der Kanzlei und beim Mandanten sehe ich dieselbe Landschaft: ein Warenwirtschaftssystem, eine Buchhaltung, ein Banking-Tool, ein Belegeingang, eine Lohnabrechnung, dazu Tabellen. Jedes System ist für sich gut. Zusammen sind sie ein Flickenteppich, den Schnittstellen zusammenhalten müssen.</p>
+<p>Im letzten Impuls ging es um Medienbrüche. Eine Schnittstelle beseitigt den Medienbruch, aber nicht die Übertragung: Dieselben Daten liegen in zwei Systemen, sie müssen abgeglichen und zugeordnet werden, und jede Übergabe kann scheitern. Ausgangsrechnungen gehen über die Fakturierungsschnittstelle aus der Warenwirtschaft in die Buchhaltung, Lohnbuchungen aus der Lohnabrechnung. Diese Schnittstellen gibt es nur, weil innerhalb desselben Unternehmens zwei Systeme getrennt sind. Sie sind Brücken über einen Graben, den ein gemeinsames Datenmodell nicht hätte.</p>
+<p><a href="https://robin.vision/blog/das-ende-des-erp/">Den ganzen Impuls lesen</a></p>
+<h3>Neu im Buchungsstapel-Generator</h3>
+<p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
+<ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: Buchungsstapel-Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>Medienbruchfreiheit – wo Daten heute noch das Medium wechseln</title>
+    <link>https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/</guid>
+    <pubDate>Fri, 02 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Wo Daten noch das Medium wechseln, entstehen Fehler – und Schritte, die die Verfahrensdokumentation nach den GoBD erklären muss.</strong></p>
+<p>In der Buchhaltung arbeiten wir zwischen den Medien. Ein Belegbild wird vom Mandanten bearbeitet und kommt über das Mandantenportal in die Kanzlei. Die Änderungen am Belegbild ändern den Datensatz nicht. Das ist ein Medienbruch und eine Ursache für Fehler und Stau im Datenfluss.</p>
+<p>Reicht es also, das Belegbild hinter sich zu lassen? Nein. Redundante Datenübertragung gibt es auch jenseits des Belegbildes. Ein Medienbruch ist auch der manuelle Übertrag beim Systemwechsel, weil keine Schnittstelle eingerichtet ist. Dazu mehr im nächsten Impuls über Schnittstellenintegration.</p>
+<p><a href="https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/">Den ganzen Impuls lesen</a></p>
+<h3>Neu im Buchungsstapel-Generator</h3>
+<p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
+<ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: Buchungsstapel-Generator</a></p>]]></description>
+  </item>
+  <item>
+    <title>E-Rechnung: vom Belegbild zum Datensatz</title>
+    <link>https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/</guid>
+    <pubDate>Fri, 25 Sep 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Die letzte Daseinsberechtigung für das Belegbild ist mit der Neufassung von § 14 Abs. 1 UStG zum 01.01.2025 und der Anpassung der GoBD (Rz. 76, 118 und 119) durch das BMF-Schreiben vom 14.07.2025 entfallen.</strong></p>
+<p>Als Buchhalter habe ich lange genug Belegbilder in Daten übersetzt. Mit der E-Rechnung ist das nicht mehr nötig.</p>
+<p>Das Prinzip kennen Sie bereits aus integrierter Unternehmenssoftware (ERP) und digitaler Personalverwaltung mit Mitarbeiterportal: Stamm- und Bewegungsdaten werden bei ihrer Entstehung in Echtzeit oder in einem definierten Turnus zur Weiterverarbeitung bereitgestellt. Im ERP passiert das auch schon seit Jahrzehnten bei der Fakturierung. Die Daten der Fakturierung stehen zum Beispiel der Debitorenbuchhaltung als Datensatz zur Verfügung. Bei diesem Prozess hat das Belegbild für das Ergebnis nie eine Rolle gespielt. Das Belegbild wurde nur für den Rechnungsempfänger und die Betriebsprüfung benötigt.</p>
+<p><a href="https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/">Den ganzen Impuls lesen</a></p>
+<h3>Neu im Buchungsstapel-Generator</h3>
+<p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
+<ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: Buchungsstapel-Generator</a></p>]]></description>
+  </item>
+</channel>
+</rss>

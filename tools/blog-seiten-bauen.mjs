@@ -12,9 +12,10 @@ const settings = parseSettings(readFileSync(SETTINGS_PATH, "utf8"));
 const posts = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)));
 const eintraege = readdirSync("blog");
 // Werkzeuge mit Datum ihrer Fassung (für lastmod in sitemap.xml)
-const werkzeuge = WERKZEUGE.map(w => { try { return { ...w, datum: werkzeugFelder(readFileSync(werkzeugPfad(w.id), "utf8")).datei.datum }; } catch { return w; } });
+const felder = Object.fromEntries(WERKZEUGE.map(w => { try { return [w.id, werkzeugFelder(readFileSync(werkzeugPfad(w.id), "utf8"))]; } catch { return [w.id, null]; } }));
+const werkzeuge = WERKZEUGE.map(w => ({ ...w, datum: (felder[w.id] && felder[w.id].datei || {}).datum }));
 const { changes } = buildBlog({
-  settings, posts, homepage: readFileSync("index.html", "utf8"), siteUrl: SITE_URL, images: readdirSync(IMAGES_DIR), werkzeuge,
+  settings, posts, homepage: readFileSync("index.html", "utf8"), siteUrl: SITE_URL, images: readdirSync(IMAGES_DIR), werkzeuge, werkzeugFelder: felder,
   existingDirs: eintraege.filter(n => statSync(join("blog", n)).isDirectory()), existingFiles: eintraege.filter(n => statSync(join("blog", n)).isFile()),
 });
 for (const c of changes) {
