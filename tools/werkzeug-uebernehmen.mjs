@@ -66,7 +66,7 @@ Es gilt deutsches Recht.`,
     hinweis: `An English version of this tool is available as the [Booking Batch Generator](https://robin.vision/werkzeuge/booking-batch-generator/): same functions, English user interface. The export file is the same in both: a CSV file in the DATEV format (EXTF).`,
   },
   "booking-batch-generator": {
-    beschreibung: `It is the 10th, the books have to go out, and right now the bank feed is down or not set up for this account. All you have is the PDF statement. Before hours go into typing it in: the Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. A tool for everyday work outside the perfect process. Any accounting software with a DATEV import can read them; more under “About the format” below.
+    beschreibung: `The filing deadline is tomorrow, and right now the bank feed is down or was never set up for this account. All you have is the PDF statement. Before you lose hours keying it in by hand: the Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. A tool for everyday work outside the perfect process. Any accounting software with a DATEV import can read them; more under “About the format” below.
 
 ## What it does
 

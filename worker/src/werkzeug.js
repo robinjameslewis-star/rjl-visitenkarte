@@ -18,7 +18,7 @@ export const WERKZEUGE = [
     kurz: "Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows." },
   { id: "booking-batch-generator", lang: "en", titel: "Booking Batch Generator", datei: "Booking-Batch-Generator.html",
     gegenstueck: "buchungsstapel-generator",
-    kurz: "It is the 10th, the bank feed is down or not set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included." },
+    kurz: "The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included." },
 ];
 export const werkzeug = id => WERKZEUGE.find(w => w.id === id);
 export const werkzeugPfad = id => `werkzeuge/${id}/index.html`;

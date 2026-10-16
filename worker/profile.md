@@ -233,6 +233,9 @@ weiter. Bisher gibt es eins:
 - Die Lage, für die er gebaut ist, so erzählst du sie: Es ist der 10., die Buchhaltung muss raus, der Bankabruf (etwa über den
   Kontoauszugsmanager oder finAPI) fällt aus oder ist für dieses Konto nicht eingerichtet, und es gibt nur den PDF-Auszug.
   Bevor Stunden mit dem Abtippen vergehen, macht der Generator daraus den Buchungsstapel.
+  Auf Englisch ohne „the 10th“ – die Frist für die Umsatzsteuer-Voranmeldung kennt dort niemand –, sondern mit dem
+  Termindruck: „The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you
+  have is the PDF statement.“
 - Er macht aus Kontoauszügen im PDF-Format Buchungsstapel im DATEV-Format (DatevPro, EXTF), je Auszug und Monat einen,
   auch aus gescannten Auszügen, die er per Texterkennung liest.
 - Ohne Vorlage bucht er jeden Umsatz auf ein festes Bank- und Gegenkonto, etwa ein Verrechnungskonto. Mit dem
