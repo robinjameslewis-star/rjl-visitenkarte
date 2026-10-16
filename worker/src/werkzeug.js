@@ -52,7 +52,7 @@ export function werkzeugFelder(html) {
 
 const T = {
   de: {
-    home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeuge", toolsHref: "werkzeuge/",
+    home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeuge", toolsHref: "werkzeuge/", about: "Über mich", aboutHref: "ueber-mich/",
     frei: "Kostenloses Werkzeug", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz",
@@ -61,7 +61,7 @@ const T = {
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
   en: {
-    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Tools", toolsHref: "werkzeuge/en/",
+    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Tools", toolsHref: "werkzeuge/en/", about: "About", aboutHref: "about/",
     frei: "Free tool", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy",
@@ -75,8 +75,9 @@ const datumText = (iso, lang) => {
   return lang === "en" ? new Date(Date.UTC(+j, +m - 1, +t)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : `${+t}.${+m}.${j}`;
 };
 
-// Gemeinsamer Rahmen der Werkzeugseiten: Kopf mit Startseite, Impulsen und Werkzeugen, Fuß, Newsletter-Skript
-function rahmen({ lang, up, titel, beschr, canonical, alternates = [], head = "", main }) {
+// Gemeinsamer Rahmen der Werkzeugseiten und der Seite „Über mich“ (ueber_mich.js): Kopf mit Startseite, Impulsen, Werkzeugen und
+// „Über mich“, Fuß, Newsletter-Skript; css ergänzt die Stile der Seite
+export function rahmen({ lang, up, titel, beschr, canonical, alternates = [], head = "", css = "", main }) {
   const t = T[lang];
   return `<!doctype html>
 <html lang="${lang}">
@@ -141,10 +142,10 @@ ${NEWSLETTER_CSS}
 .foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
-</style>
+${css}</style>
 ${head}</head>
 <body data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}">
-<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${up}${t.home}">Robin James Lewis</a><a href="${up}${t.blogHref}">${t.blog}</a><a href="${up}${t.toolsHref}">${t.tools}</a></nav>
+<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${up}${t.home}">Robin James Lewis</a><a href="${up}${t.blogHref}">${t.blog}</a><a href="${up}${t.toolsHref}">${t.tools}</a><a href="${up}${t.aboutHref}">${t.about}</a></nav>
 <main>
 ${main}
 </main>

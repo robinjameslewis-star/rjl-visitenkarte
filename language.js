@@ -52,7 +52,7 @@
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
       claim: 'Werkzeuge für den Alltag im Rechnungswesen – für die Tage, an denen der Prozess hakt. Offline, kostenlos, aus der Praxis. Dazu jeden Freitag ein Impuls.',
       ctaTool: 'Werkzeug herunterladen', ctaPosts: 'Impulse lesen',
-      aboutTitle: 'Über mich',
+      aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       aboutText: 'Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Nebenher digitalisiere ich Kanzleiprozesse und baue Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation: für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.',
       language: 'Sprache', replay: 'Rotkehlchen noch einmal anfliegen lassen', replayTitle: 'Noch einmal anfliegen lassen',
       reloadTitle: 'Seite neu laden',
@@ -124,7 +124,7 @@
       title: 'Robin James Lewis – Tools and Food for Thought for accounting',
       claim: 'Tools for everyday accounting – for the days when the process stalls. Offline, free, from practice. Plus a short post every Friday.',
       ctaTool: 'Download the tool', ctaPosts: 'Read the posts',
-      aboutTitle: 'About me',
+      aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       aboutText: "I'm Robin James Lewis from Balingen, Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. Alongside, I digitise the firm's processes and build tools for everyday work outside the perfect process, in the middle of the transformation: for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work.",
       language: 'Language', replay: 'Let the robin fly in again', replayTitle: 'Watch the robin fly in again',
       reloadTitle: 'Reload the page',
