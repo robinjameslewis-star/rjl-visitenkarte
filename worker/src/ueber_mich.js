@@ -23,7 +23,7 @@ const TEXT = {
     beruf: "Steuerfachangestellter in Ausbildung",
     einleitung: [
       "Ich bin Robin James Lewis aus Balingen am Fuß der Schwäbischen Alb. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Kanzlei in Balingen. Die Abschlussprüfung läuft im Winter 2026/27.",
-      "Nebenher digitalisiere ich Kanzleiprozesse: Belege und Bankumsätze kommen über Importe statt von Hand in die Buchhaltung, Vorsysteme werden angebunden, Auswertungen entstehen per Skript. Dabei entstehen Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun. Diese Werkzeuge stelle ich hier kostenlos bereit; dazu schreibe ich jeden Freitag einen Impuls zu Automatisierung und KI im Rechnungswesen.",
+      "Nebenher digitalisiere ich Kanzleiprozesse: Belege und Bankumsätze kommen über Importe statt von Hand in die Buchhaltung, Vorsysteme werden angebunden, Auswertungen entstehen per Skript. Dabei entstehen Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun. <a href=\"{werkzeuge}\">Diese Werkzeuge</a> stelle ich hier kostenlos bereit; dazu schreibe ich jeden Freitag einen <a href=\"{impulse}\">Impuls</a> zu Automatisierung und KI im Rechnungswesen.",
     ],
     stationenTitel: "Stationen",
     stationen: [
@@ -51,7 +51,7 @@ const TEXT = {
     beruf: "Trainee tax clerk",
     einleitung: [
       "I am Robin James Lewis from Balingen at the foot of the Swabian Alb in southern Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. The final examinations take place in the winter of 2026/27.",
-      "Alongside, I digitise the firm's processes: documents and bank transactions reach the books through imports instead of by hand, upstream systems are connected, reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the middle of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work. I make these tools available here free of charge, and every Friday I write a short piece on automation and AI in accounting.",
+      "Alongside, I digitise the firm's processes: documents and bank transactions reach the books through imports instead of by hand, upstream systems are connected, reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the middle of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work. I make <a href=\"{werkzeuge}\">these tools</a> available here free of charge, and every Friday I write a <a href=\"{impulse}\">short piece</a> on automation and AI in accounting.",
     ],
     stationenTitel: "Career",
     stationen: [
@@ -96,7 +96,7 @@ export function ueberMichSeite(lang) {
 <div class="portrait-row">
 <img class="portrait" src="${up}${PORTRAIT.datei}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="${esc(t.alt)}" decoding="async">
 <div>
-${t.einleitung.map(p => `<p>${p}</p>`).join("\n")}
+${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/"))}</p>`).join("\n")}
 </div>
 </div>
 <h2 id="stationen">${t.stationenTitel}</h2>

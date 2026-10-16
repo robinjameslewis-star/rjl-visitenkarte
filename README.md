@@ -509,6 +509,12 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 - `404.html` (GitHub Pages zeigt sie bei unbekannten Adressen), `favicon.ico` an der Wurzel, `.well-known/security.txt`
   (Ablauf 16.10.2027 – vorher erneuern).
 - Prüfung: `node tests/auffindbarkeit_test.mjs`.
+- Suchbegriffe (16.10.2026): Werkzeugseiten tragen in `WERKZEUGE` einen `seitentitel`, eine `meta`-Beschreibung und einen
+  `untertitel` mit den Begriffen, nach denen gesucht wird („Kontoauszug (PDF) in DATEV-Buchungsstapel“); `rahmen` nimmt
+  `seitentitel`. Dazu je Werkzeug „Fragen und Antworten“ (`FRAGEN` in `werkzeug.js`, fest im Code) sichtbar vor den
+  Nutzungsbedingungen und als `FAQPage`-JSON-LD; die Übersichten haben eigene Suchtitel; „Über mich“ verweist auf Werkzeuge
+  und Impulse. Nicht im Repository: Google Search Console und Bing Webmaster Tools (Robin bestätigt die Domain per DNS-TXT
+  bei Cloudflare und reicht `sitemap.xml` ein).
 
 ## Seite „Über mich“ (16.10.2026)
 

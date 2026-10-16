@@ -70,7 +70,11 @@ for (const w of WERKZEUGE) {
   const m = seite.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   let d = null; try { d = m && JSON.parse(m[1]); } catch {}
   check(d && d["@type"] === "SoftwareApplication" && d.name === w.titel && d.offers.price === "0" && /^[0-9a-f]{7}$/.test(d.softwareVersion), `${w.id}: SoftwareApplication mit Fassung und Preis 0`);
+  const alle = [...seite.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
+  check(alle.some(x => x && x["@type"] === "FAQPage" && x.mainEntity.length >= 5), `${w.id}: FAQPage mit Fragen und Antworten`);
+  check(/<title>[^<]*DATEV[^<]*<\/title>/.test(seite) && /<meta name="description" content="[^"]*(Kontoausz|bank statement)[^"]*DATEV/.test(seite), `${w.id}: Titel und Beschreibung tragen die Suchbegriffe`);
 }
+for (const [l, p] of Object.entries({ de: "werkzeuge/index.html", en: "werkzeuge/en/index.html" })) check(/<title>[^<]*(Buchhaltung|bookkeeping)[^<]*<\/title>/.test(lesen(p)), `${p}: Übersicht mit eigenem Suchtitel`);
 for (const p of published) {
   const seite = lesen(`blog/${p.slug}/index.html`);
   const m = seite.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
