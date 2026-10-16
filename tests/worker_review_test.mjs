@@ -93,7 +93,7 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
 {
   const e = env();
   const ask = "Gern, ich bin der Draht. Was soll ich Robin ausrichten? Und nenn mir bitte deinen Namen und deine E-Mail-Adresse, damit Robin dir persönlich antworten kann.";
-  const askWho = "Und wie heißt du, und unter welcher E-Mail-Adresse kann Robin dir persönlich antworten?";
+  const askWho = "Und wie heißen Sie, und unter welcher E-Mail-Adresse kann Robin Ihnen persönlich antworten?";
   const say = async (lang, ...turns) => (await (await chat(e, { lang, messages: turns.map((c, i) => ({ role: i % 2 ? "assistant" : "user", content: c })) }, "6.6.6." + Math.floor(Math.random() * 200))).json()).reply;
   const start = "Ich möchte Robin etwas ausrichten.";
 

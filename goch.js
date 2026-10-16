@@ -43,7 +43,7 @@
 
   // ---------- Einwilligung: wie beim Kalender, eigene Stufe, nur im Browser gespeichert ----------
   const storeKey = 'rjl-goch-consent';
-  const version = '2026-09-17.1'; // bei geändertem Einwilligungstext hochzählen
+  const version = '2026-10-16.1'; // bei geändertem Einwilligungstext hochzählen (16.10.2026: Sie-Form)
   const maxAge = 180 * 24 * 60 * 60 * 1000;
   function readChoice() {
     try {

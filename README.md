@@ -89,13 +89,15 @@ nach weitere Inhalte auf die Seite kommen.
 
 So verhält sich die Seite:
 
-- **Erster Besuch:** Banner am unteren Rand mit „Terminbuchung erlauben“ und „Ohne Terminbuchung
-  fortfahren“ (gleichwertig gestaltet) sowie Link zu Impressum & Datenschutz. Bis zur Entscheidung
-  geht **keine Anfrage** an cal.com; im Kalenderbereich steht ein Hinweis und der externe Link zum
-  Buchungskalender (öffnet cal.com erst beim Klick).
+- **Erster Besuch:** Karte im Abschnitt „Termin“ an der Stelle des Kalenders mit „Terminbuchung erlauben“
+  und „Ohne Terminbuchung fortfahren“ (gleichwertig gestaltet) sowie Link zu Impressum & Datenschutz. Bis
+  14.10.2026 klebte sie als Banner am unteren Rand und verdeckte am Handy die halbe Seite; seit 16.10.2026
+  (Robin, Review der Live-Seite) steht sie dort, wo sie hingehört, und stört beim Lesen nicht. Bis zur
+  Entscheidung geht **keine Anfrage** an cal.com; darunter steht der externe Link zum Buchungskalender
+  (öffnet cal.com erst beim Klick).
 - **Erlauben:** Cal.com-Skript und Iframe werden eingefügt, der Hinweis verschwindet.
 - **Ablehnen:** Banner schließt, Hinweis und externer Link bleiben.
-- **Widerruf:** Fußzeile → „Datenschutzeinstellungen“ öffnet das Banner erneut (mit „Schließen“
+- **Widerruf:** Fußzeile → „Datenschutzeinstellungen“ zeigt die Karte wieder, rollt hin (mit „Schließen“
   und Escape). Wird bei laufendem Kalender abgelehnt, lädt die Seite neu, damit Skript und Iframe
   des Anbieters vollständig verschwinden. Cookies, die Cal.com bereits gesetzt hat, kann die Seite
   nicht löschen; das steht so im Datenschutztext.
@@ -134,7 +136,18 @@ Die Auswahl „Deutsch / English“ steht oben rechts. Deutsch ist der Standard;
 ohne Cookies oder lokalen Speicher. Ein Wechsel übersetzt die Seitentexte, Bild-Bedienhinweise,
 Meta-Beschreibung, Banner und Datenschutzhinweise; die Animation wird nicht neu gestartet.
 
-Texte (Robin, 14.09.2026): schlicht — „Termin vereinbaren“ / „Arrange an appointment“, ohne Du/Sie.
+Texte (Robin, 14.09.2026): schlicht — „Termin vereinbaren“ / „Arrange an appointment“.
+
+**Anrede (Robin, 16.10.2026): überall Sie.** Startseite, Formulare, Hinweise, Newsletter, Werkzeugseiten, Impulse,
+Bestätigungsmails – und Goch. Goch duzte bis dahin („Ein Vogel siezt nicht“); seit 16.10.2026 siezt er und duzt nur
+zurück, wenn ein Besucher ihn duzt und erkennbar das Du möchte (`worker/profile.md`, „Wie du sprichst“; die festen Sätze
+des Drahts in `worker/src/index.js`). `tests/auffindbarkeit_test.mjs` prüft die deutschen Texte auf Du-Formen.
+
+**Über der Falz (16.10.2026):** unter dem Namen eine Zeile zur Positionierung und zwei Knöpfe („Werkzeug herunterladen“,
+„Impulse lesen“, Ziele je Sprache). Reihenfolge der Abschnitte: Werkzeuge → Über mich → Impulse → Newsletter → Termin →
+Nachricht; das Menü: Werkzeuge · Impulse · Termin · Nachricht. Robins Positionierung (16.10.2026): Werkzeuge für den
+Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – „Es ist der 10., der Bankabruf
+fällt aus, es gibt nur den PDF-Auszug.“
 Der Einleitungssatz nennt Orte (auch ein Ort nach Wunsch des Gastes) und dass jede
 Buchung erst ein Vorschlag ist, den Robin persönlich bestätigt.
 
@@ -483,6 +496,26 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
      Auftragsverarbeitung als optionalen Unterauftragnehmer, mit Standardvertragsklauseln. Die Datenschutzerklärung nennt das.
 6. `npx wrangler secret put BREVO_API_KEY` (im Ordner `worker`). Die IDs von Listen und Vorlagen stehen in
    `worker/wrangler.toml` (`BREVO_LISTE_DE/EN` = 3/4, `BREVO_DOI_VORLAGE_DE/EN` = 1/2, eingetragen 15.10.2026).
+
+## Auffindbarkeit und Standarddateien (16.10.2026)
+
+- Startseite: aussagekräftiger Titel und Beschreibung (`language.js` setzt beide je Sprache), `canonical`, `hreflang`
+  (de, en, x-default), Open Graph mit Bild zum Teilen `assets/teilen.jpg` (1200 × 630; Vorlage `tools/teilen-bild.html`,
+  Anleitung darin), Feeds im Kopf, JSON-LD `Person` und `WebSite`.
+- Werkzeugseiten: JSON-LD `SoftwareApplication` (kostenlos, Fassung, Datum, Größe, Nutzungsbedingungen). Impulse: `BlogPosting`.
+- `sitemap.xml` entsteht aus Beiträgen und Werkzeugen (`worker/src/sitemap.js`): die Redaktion schreibt sie bei jedem
+  Veröffentlichen mit (`buildBlog`, Parameter `werkzeuge`), lokal `tools/blog-seiten-bauen.mjs` und
+  `tools/werkzeug-uebernehmen.mjs`. `robots.txt` verweist darauf.
+- `404.html` (GitHub Pages zeigt sie bei unbekannten Adressen), `favicon.ico` an der Wurzel, `.well-known/security.txt`
+  (Ablauf 16.10.2027 – vorher erneuern).
+- Prüfung: `node tests/auffindbarkeit_test.mjs`.
+
+## Sicherheit der Auslieferung (Stand 16.10.2026)
+
+GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy
+vor der Seite (Review 16.10.2026, Paket B, noch nicht gebaut). Umgesetzt am 16.10.2026: Dependabot-Warnungen und
+Sicherheits-Updates im Repository, `security.txt`, DNSSEC und CAA-Einträge bei Cloudflare (siehe Vault-Notiz zum Review).
+Offen: Zweigschutz auf `main` und ein eigenes Repository für die Werkzeugdateien (Paket F).
 
 ## Mond: Sichtbarkeit und Verdeckung (10.10.2026)
 

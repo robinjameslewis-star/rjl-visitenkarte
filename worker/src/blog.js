@@ -6,6 +6,7 @@
 // Markdown ist bewusst eine kleine, sichere Teilmenge: alles wird maskiert, kein HTML aus dem Text.
 
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
+import { renderSitemap } from "./sitemap.js";
 
 export const POSTS_DIR = "blog/posts";
 export const SETTINGS_PATH = "blog/blog.json";
@@ -158,7 +159,7 @@ const T = {
   en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
 
-function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true }) {
+function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
   const up = base || "../".repeat(depth), t = T[lang];
   // Jede Sprache bleibt unter sich: Startseite, Liste und Feed in der Sprache der Seite
   const homeHref = up + (lang === "en" ? "?lang=en" : ""), feedHref = `${up}blog/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`;
@@ -183,7 +184,7 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}">` : ""}
 ${og.image ? `<meta property="og:image" content="${esc(og.image)}">` : ""}
 ${og.published ? `<meta property="article:published_time" content="${og.published}">` : ""}
 <meta name="twitter:card" content="${og.image ? "summary_large_image" : "summary"}">
-<style>
+${jsonld ? `<script type="application/ld+json">${jsonld}</script>\n` : ""}<style>
 @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("${up}assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
 :root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
@@ -280,9 +281,16 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
   });
 });
 </script>`;
-  return shell({ lang: post.lang, title: post.title, description: post.summary || plainText(post.body).slice(0, 160), depth: 2, main,
-    siteUrl, canonical: siteUrl ? `${siteUrl}blog/${post.slug}/` : "", base, allHref: post.lang === "en" ? `../${EN_DIR}/` : "../",
-    og: { type: "article", image: shareImage(post, siteUrl, images), published: post.date } });
+  const description = post.summary || plainText(post.body).slice(0, 160), image = shareImage(post, siteUrl, images);
+  const canonical = siteUrl ? `${siteUrl}blog/${post.slug}/` : "";
+  // Strukturierte Daten für Suchmaschinen (Auffindbarkeit, 16.10.2026)
+  const jsonld = JSON.stringify({ "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description, datePublished: post.date,
+    inLanguage: post.lang, ...(canonical ? { mainEntityOfPage: canonical, url: canonical } : {}), ...(image ? { image } : {}),
+    author: { "@type": "Person", name: "Robin James Lewis", ...(siteUrl ? { url: siteUrl } : {}) },
+    publisher: { "@type": "Person", name: "Robin James Lewis", ...(siteUrl ? { url: siteUrl } : {}) } }).replace(/</g, "\\u003c");
+  return shell({ lang: post.lang, title: post.title, description, depth: 2, main,
+    siteUrl, canonical, base, allHref: post.lang === "en" ? `../${EN_DIR}/` : "../",
+    og: { type: "article", image, published: post.date }, jsonld });
 }
 
 // Liste einer Sprache: Deutsch unter blog/, Englisch unter blog/en/ – jeweils nur Beiträge dieser Sprache.
@@ -352,7 +360,8 @@ ${items}
 }
 
 // Alles zusammen: aus Einstellungen, Beiträgen und Startseite die Dateiänderungen für einen Commit.
-export function buildBlog({ settings, posts, homepage, existingDirs = [], existingFiles = [], siteUrl, images = [] }) {
+// werkzeuge (WERKZEUGE aus werkzeug.js, hier nur durchgereicht): dann entsteht auch sitemap.xml
+export function buildBlog({ settings, posts, homepage, existingDirs = [], existingFiles = [], siteUrl, images = [], werkzeuge = null }) {
   const published = posts.filter(p => p.status === "published" && p.date).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
   const visible = settings.enabled && published.length > 0;
   const changes = [];
@@ -366,6 +375,7 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
     for (const f of ["index.html", "feed.xml"]) if (existingFiles.includes(f)) changes.push({ path: "blog/" + f, delete: true });
     if (existingDirs.includes(EN_DIR)) for (const f of ["index.html", "feed.xml"]) changes.push({ path: `blog/${EN_DIR}/${f}`, delete: true });
   }
+  if (werkzeuge && siteUrl) changes.push({ path: "sitemap.xml", content: renderSitemap({ siteUrl, posts: shown, werkzeuge }) });
   const keep = new Set(shown.map(p => p.slug));
   for (const p of shown) changes.push({ path: `blog/${p.slug}/index.html`, content: renderPostPage(p, settings, siteUrl, undefined, images) });
   // Quellordner (Beiträge, Bilder) sind keine Beitragsseiten – nie deren index.html löschen wollen, die es nicht gibt

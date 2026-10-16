@@ -75,7 +75,7 @@ console.log("Was gibt's Neues?");
 
 console.log("Newsletter im Gespräch");
 {
-  modell = { reply: "Gern – trag unten deine Adresse ein.", action: "newsletter", message: null, link: null };
+  modell = { reply: "Gern – tragen Sie unten Ihre Adresse ein.", action: "newsletter", message: null, link: null };
   const r = await chat(env(), "de", [{ role: "user", content: "Wie erfahre ich von neuen Werkzeugen?" }]);
   check(r.action === "newsletter" && !("message" in r), "action newsletter geht an die Seite, ohne Felder des Modells");
   check(!/@/.test(JSON.stringify(prompts.at(-1).messages)), "keine Adresse im Gespräch nötig");

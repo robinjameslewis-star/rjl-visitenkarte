@@ -5,13 +5,16 @@
 import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parseSettings, parsePost, buildBlog, POSTS_DIR, SETTINGS_PATH, IMAGES_DIR } from "../worker/src/blog.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder } from "../worker/src/werkzeug.js";
 
 const SITE_URL = "https://robin.vision/"; // wie SITE_URL in worker/wrangler.toml
 const settings = parseSettings(readFileSync(SETTINGS_PATH, "utf8"));
 const posts = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)));
 const eintraege = readdirSync("blog");
+// Werkzeuge mit Datum ihrer Fassung (für lastmod in sitemap.xml)
+const werkzeuge = WERKZEUGE.map(w => { try { return { ...w, datum: werkzeugFelder(readFileSync(werkzeugPfad(w.id), "utf8")).datei.datum }; } catch { return w; } });
 const { changes } = buildBlog({
-  settings, posts, homepage: readFileSync("index.html", "utf8"), siteUrl: SITE_URL, images: readdirSync(IMAGES_DIR),
+  settings, posts, homepage: readFileSync("index.html", "utf8"), siteUrl: SITE_URL, images: readdirSync(IMAGES_DIR), werkzeuge,
   existingDirs: eintraege.filter(n => statSync(join("blog", n)).isDirectory()), existingFiles: eintraege.filter(n => statSync(join("blog", n)).isFile()),
 });
 for (const c of changes) {

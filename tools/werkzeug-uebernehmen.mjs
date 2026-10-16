@@ -7,16 +7,18 @@
 // (werkzeuge/, werkzeuge/en/), alle Werkzeugseiten, Liste auf der Startseite und Weiterleitungen alter Adressen neu bauen.
 // Ohne Datei („node tools/werkzeug-uebernehmen.mjs“) wird nur dieser zweite Teil neu gebaut.
 // Danach: node tests/werkzeug_seite_test.mjs, committen, PR.
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { dirname, basename, join } from "node:path";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, werkzeugUebersicht, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
+import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
+import { renderSitemap } from "../worker/src/sitemap.js";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
   "buchungsstapel-generator": {
-    beschreibung: `Der Buchungsstapel-Generator macht aus Kontoauszügen im PDF-Format Buchungsstapel im DATEV-Format (DatevPro, EXTF), je Auszug und Monat einen, auch aus gescannten Auszügen. Er läuft vollständig in Ihrem Browser, ohne Installation und ohne Konto, auch unter Windows.
+    beschreibung: `Es ist der 10., die Buchhaltung muss raus, und ausgerechnet jetzt fällt der Bankabruf aus oder ist für dieses Konto nicht eingerichtet. Es gibt nur den PDF-Kontoauszug. Bevor Stunden mit dem Abtippen vergehen: Der Buchungsstapel-Generator macht aus Kontoauszügen im PDF-Format Buchungsstapel im DATEV-Format (DatevPro, EXTF), je Auszug und Monat einen, auch aus gescannten Auszügen. Er läuft vollständig in Ihrem Browser, ohne Installation und ohne Konto, auch unter Windows. Ein Werkzeug für den Alltag außerhalb des perfekten Prozesses.
 
 ## Was er kann
 
@@ -64,7 +66,7 @@ Es gilt deutsches Recht.`,
     hinweis: `An English version of this tool is available as the [Booking Batch Generator](https://robin.vision/werkzeuge/booking-batch-generator/): same functions, English user interface. The export file is the same in both: a CSV file in the DATEV format (EXTF).`,
   },
   "booking-batch-generator": {
-    beschreibung: `The Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. Any accounting software with a DATEV import can read them; more under “About the format” below.
+    beschreibung: `It is the 10th, the books have to go out, and right now the bank feed is down or not set up for this account. All you have is the PDF statement. Before hours go into typing it in: the Booking Batch Generator turns bank statements in PDF format into booking batches in the DATEV format (DatevPro, EXTF), one per statement and month, scanned statements included. It runs entirely in your browser, with no installation and no account, Windows included. A tool for everyday work outside the perfect process. Any accounting software with a DATEV import can read them; more under “About the format” below.
 
 ## What it does
 
@@ -158,4 +160,8 @@ const liste = WERKZEUGE.map(w => `      <li lang="${w.lang}"${w.lang === "de" ? 
 writeFileSync("index.html", start.slice(0, i + START_MARKE.length) + "\n" + liste + "\n" + start.slice(j));
 // Weiterleitungen alter Adressen
 for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true }); writeFileSync(a.pfad, weiterleitung(a.ziel)); }
-console.log("Übersichten, Liste auf der Startseite und Weiterleitungen neu gebaut.");
+// sitemap.xml mit dem Datum der Fassungen (dieselbe Datei schreibt die Redaktion beim Veröffentlichen eines Impulses)
+const posts = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)))
+  .filter(p => p.status === "published" && p.date);
+writeFileSync("sitemap.xml", renderSitemap({ siteUrl: "https://robin.vision/", posts, werkzeuge: WERKZEUGE.map(w => ({ ...w, datum: (alle[w.id].datei || {}).datum })) }));
+console.log("Übersichten, Liste auf der Startseite, Weiterleitungen und sitemap.xml neu gebaut.");
