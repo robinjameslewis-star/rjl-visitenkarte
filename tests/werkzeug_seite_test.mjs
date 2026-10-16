@@ -16,9 +16,9 @@ const lesen = p => readFileSync(root + p, "utf8");
 
 const SPRACHE = {
   de: { titel: "Buchungsstapel-Generator", fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
-    marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/">Werkzeuge<\/a>/ },
+    marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/ },
   en: { titel: "Booking Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
-    marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/">Tools<\/a>/ },
+    marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/ },
 };
 const felder = {};
 for (const w of WERKZEUGE) {
@@ -83,7 +83,7 @@ for (const a of ALTE_ADRESSEN) {
   check(readdirSync(root + a.pfad.replace(/index\.html$/, "")).length === 1, `${a.pfad}: keine alte Datei mehr daneben`);
 }
 const start = lesen("index.html");
-check(/<a href="#werkzeuge" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“");
+check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
 check(WERKZEUGE.every(w => start.includes(`<li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"}><span class="when">`) && start.includes(`href="werkzeuge/${w.id}/">${w.titel}</a>`)), "Startseite: Werkzeugliste je Sprache");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");

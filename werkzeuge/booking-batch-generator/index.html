@@ -23,10 +23,28 @@
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
-.top a:hover { color: var(--green); }
-.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-right: auto; }
+.kopf { position: relative; z-index: 5; max-width: 680px; margin: 0 auto; padding: 16px 6vw 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
 main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
@@ -86,7 +104,14 @@ article li { margin-bottom: 6px; }
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"en","mainEntity":[{"@type":"Question","name":"Which banks does the Booking Batch Generator recognise?","acceptedAnswer":{"@type":"Answer","text":"It recognises the layout of a statement by itself. It has been tested with statements in the style of Sparkasse, Volks- und Raiffeisenbanken, Deutsche Bank, Commerzbank, Postbank, ING, DKB, N26, Wise and Revolut. If it cannot read a statement, you can send its layout without content and support for the layout is added."}},{"@type":"Question","name":"Does it work with scanned bank statements?","acceptedAnswer":{"@type":"Answer","text":"Yes. It reads scanned statements, black and white ones included, using text recognition, also offline, in a few seconds per page. The balance check for each statement shows whether every transaction was read; amounts can be corrected in the table."}},{"@type":"Question","name":"What is a booking batch in the DATEV format (EXTF)?","acceptedAnswer":{"@type":"Answer","text":"A CSV file in the DATEV format, also known as EXTF or DatevPro format: semicolons between the fields, a header line that marks the file as a booking batch, then one line per posting with amount, debit or credit, account, contra account, BU key, date and posting text. Accounting software with a DATEV import reads these files."}},{"@type":"Question","name":"Are my bank statements uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Bank statements, template and postings are processed only in your browser window. The file does not connect to the internet, with one exception that you trigger yourself: voluntarily sending the layout of a statement without content."}},{"@type":"Question","name":"How do I import the booking batch into DATEV?","acceptedAnswer":{"@type":"Answer","text":"Through the import for booking batches in the DATEV format (in DATEV Kanzlei-Rechnungswesen under Bestand → Importieren). Other accounting software with a DATEV import reads the file as well. Test it with a test client first and check every batch before finalising it."}},{"@type":"Question","name":"What does the Booking Batch Generator cost?","acceptedAnswer":{"@type":"Answer","text":"Nothing. Download without sign-up, use in your firm or company permitted; the terms of use on this page apply. There is no entitlement to updates or support."}}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
-<nav class="top" aria-label="Page"><a class="home" href="../../?lang=en">Robin James Lewis</a><a href="../../blog/en/">Food for Thought</a><a href="../../werkzeuge/en/">Tools</a><a href="../../about/">About</a></nav>
+<header class="kopf">
+<a class="marke" href="../../?lang=en">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Pages"><a href="../../werkzeuge/en/" aria-current="page">Tools</a><a href="../../blog/en/">Food for Thought</a><a href="../../about/">About</a></nav>
+<a class="termin" href="../../?lang=en#kontakt">Appointment</a>
+<details class="menue"><summary aria-label="Menu"><span></span></summary>
+<nav aria-label="Pages"><a href="../../werkzeuge/en/" aria-current="page">Tools</a><a href="../../blog/en/">Food for Thought</a><a href="../../about/">About</a><a href="../../?lang=en#nachricht">Message</a><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/" lang="de" hreflang="de">Deutsch</a></nav>
+</details>
+</header>
 <main>
 <article>
 <h1>Booking Batch Generator</h1>

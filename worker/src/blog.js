@@ -7,6 +7,7 @@
 
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { renderSitemap } from "./sitemap.js";
+import { kopf, KOPF_CSS } from "./kopf.js";
 
 export const POSTS_DIR = "blog/posts";
 export const SETTINGS_PATH = "blog/blog.json";
@@ -190,10 +191,7 @@ ${jsonld ? `<script type="application/ld+json">${jsonld}</script>\n` : ""}<style
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
-.top a:hover { color: var(--green); }
-.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); }
+${KOPF_CSS}
 main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 36px; }
@@ -232,7 +230,6 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 .list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
 .list .when span { margin-left: 8px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
-.top .home { margin-right: auto; }
 ${NEWSLETTER_CSS}
 .foot { max-width: 680px; margin: 0 auto; padding: 0 6vw 40px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
@@ -240,7 +237,7 @@ ${NEWSLETTER_CSS}
 </style>
 </head>
 <body${newsletter ? ` data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}"` : ""}>
-<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${homeHref}">${t.back}</a><a href="${allHref}">${t.all}</a><a href="${up}werkzeuge/${lang === "en" ? "en/" : ""}">${t.tools}</a><a href="${up}${lang === "en" ? "about/" : "ueber-mich/"}">${t.about}</a></nav>
+${kopf(lang, up, { aktiv: "posts" })}
 <main>
 ${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
 </main>
@@ -337,7 +334,8 @@ function between(html, start, end, inner, what) {
 export function updateHomepage(html, settings, posts) {
   const visible = !!posts;
   const langs = visible ? [...new Set(posts.map(p => p.lang))].sort().join(" ") : "";
-  const link = visible ? `<a href="#blog" data-langs="${langs}"${langs.includes("de") ? "" : " hidden"} data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a>` : "";
+  // Der Verweis führt auf die Liste der Impulse (Robin, 16.10.2026: Menü führt auf Unterseiten); language.js setzt Ziel und Text je Sprache
+  const link = visible ? `<a href="blog/" data-href-de="blog/" data-href-en="blog/${EN_DIR}/" data-langs="${langs}"${langs.includes("de") ? "" : " hidden"} data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a>` : "";
   let next = between(html, LINK_START, LINK_END, link, "den Blog-Verweis");
   next = between(next, SECTION_START, SECTION_END, visible ? teaser(settings, posts) : "", "den Blog-Abschnitt");
   return next === html ? null : next;

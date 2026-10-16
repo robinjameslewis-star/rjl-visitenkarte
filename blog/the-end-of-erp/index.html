@@ -25,10 +25,28 @@
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
-.top a:hover { color: var(--green); }
-.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); }
+.kopf { position: relative; z-index: 5; max-width: 680px; margin: 0 auto; padding: 16px 6vw 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
 main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 36px; }
@@ -67,7 +85,6 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 .list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
 .list .when span { margin-left: 8px; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
-.top .home { margin-right: auto; }
 .newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
 .newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
 .newsletter p { margin: 0 0 12px; max-width: 68ch; }
@@ -90,7 +107,14 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 </style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
-<nav class="top" aria-label="Page"><a class="home" href="../../?lang=en">Robin James Lewis</a><a href="../en/">All posts</a><a href="../../werkzeuge/en/">Tools</a><a href="../../about/">About</a></nav>
+<header class="kopf">
+<a class="marke" href="../../?lang=en">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Pages"><a href="../../werkzeuge/en/">Tools</a><a href="../../blog/en/" aria-current="page">Food for Thought</a><a href="../../about/">About</a></nav>
+<a class="termin" href="../../?lang=en#kontakt">Appointment</a>
+<details class="menue"><summary aria-label="Menu"><span></span></summary>
+<nav aria-label="Pages"><a href="../../werkzeuge/en/">Tools</a><a href="../../blog/en/" aria-current="page">Food for Thought</a><a href="../../about/">About</a><a href="../../?lang=en#nachricht">Message</a><a href="../../" lang="de" hreflang="de">Deutsch</a></nav>
+</details>
+</header>
 <main>
 <article lang="en">
 <h1>The end of ERP as we know it – why internal interfaces are only a stopgap</h1>

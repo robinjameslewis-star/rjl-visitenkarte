@@ -29,7 +29,7 @@ check(/<p class="claim" data-i18n="claim">/.test(html) && /class="cta-primary"[^
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");
-check(/<nav class="site-nav"[^>]*><a href="#werkzeuge"/.test(html), "Menü beginnt mit Werkzeugen");
+check(/<nav class="hauptnav"[^>]*><a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/"/.test(html), "Menü beginnt mit Werkzeugen und führt auf die Unterseite");
 
 console.log("Anrede Sie");
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner|bist du|schreib|trag|frag)\b/i;

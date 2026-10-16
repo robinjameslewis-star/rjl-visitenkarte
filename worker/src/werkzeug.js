@@ -7,6 +7,7 @@
 // steht die Anmeldung zum Newsletter (kasten.js); der Download braucht keine Anmeldung.
 import { renderMarkdown } from "./blog.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
+import { kopf, KOPF_CSS } from "./kopf.js";
 
 export { NEWSLETTER_ENDPUNKT };
 const SITE = "https://robin.vision/";
@@ -102,9 +103,10 @@ const datumText = (iso, lang) => {
   return lang === "en" ? new Date(Date.UTC(+j, +m - 1, +t)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : `${+t}.${+m}.${j}`;
 };
 
-// Gemeinsamer Rahmen der Werkzeugseiten und der Seite „Über mich“ (ueber_mich.js): Kopf mit Startseite, Impulsen, Werkzeugen und
-// „Über mich“, Fuß, Newsletter-Skript; css ergänzt die Stile der Seite
-export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, alternates = [], head = "", css = "", main }) {
+// Gemeinsamer Rahmen der Werkzeugseiten und der Seite „Über mich“ (ueber_mich.js): Seitenkopf (kopf.js) mit Wortmarke, Seiten,
+// Termin und Menü, Fuß, Newsletter-Skript; css ergänzt die Stile der Seite, aktiv markiert den Menüpunkt dieser Seite
+export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, alternates = [], head = "", css = "", main, aktiv = null }) {
+  const andere = (alternates.find(a => a.lang !== lang) || {}).href || "";
   const t = T[lang];
   return `<!doctype html>
 <html lang="${lang}">
@@ -130,10 +132,7 @@ ${alternates.map(a => `<link rel="alternate" hreflang="${a.lang}" href="${a.href
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
-.top a:hover { color: var(--green); }
-.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-right: auto; }
+${KOPF_CSS}
 main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
@@ -175,7 +174,7 @@ ${NEWSLETTER_CSS}
 ${css}</style>
 ${head}</head>
 <body data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}">
-<nav class="top" aria-label="${lang === "en" ? "Page" : "Seite"}"><a class="home" href="${up}${t.home}">Robin James Lewis</a><a href="${up}${t.blogHref}">${t.blog}</a><a href="${up}${t.toolsHref}">${t.tools}</a><a href="${up}${t.aboutHref}">${t.about}</a></nav>
+${kopf(lang, up, { aktiv, andere })}
 <main>
 ${main}
 </main>
@@ -243,7 +242,7 @@ ${renderMarkdown(hinweis, "", andereLang)}
     mainEntity: fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c") : "";
   return rahmen({ lang, up, titel: w.titel, seitentitel: w.seitentitel, beschr: w.meta || (lang === "en" ? "Free tool: " : "Kostenloses Werkzeug: ") + w.kurz, canonical: werkzeugUrl(id),
     alternates: anderes ? [{ lang, href: werkzeugUrl(id) }, { lang: anderes.lang, href: werkzeugUrl(anderes.id) }] : [],
-    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main });
+    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main, aktiv: "tools" });
 }
 
 // Übersicht je Sprache: alle Werkzeuge dieser Sprache mit Stand der Datei (felder: id → Felder der Seite)
@@ -262,7 +261,7 @@ ${eigene.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.l
 <p class="meta"><a href="${up}${T[andere].toolsHref}" lang="${andere}" hreflang="${andere}">${t.andereUebersicht}</a></p>
 ${newsletterKasten(lang, up, "werkzeug")}`;
   return rahmen({ lang, up, titel: t.kurz, seitentitel: t.seitentitel, beschr: t.lead, canonical,
-    alternates: [{ lang, href: canonical }, { lang: andere, href: `${SITE}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}` }], main });
+    alternates: [{ lang, href: canonical }, { lang: andere, href: `${SITE}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}` }], main, aktiv: "tools" });
 }
 
 // Weiterleitung für eine alte Adresse (GitHub Pages kennt keine Weiterleitungen auf dem Server)
