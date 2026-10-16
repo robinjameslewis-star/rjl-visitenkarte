@@ -48,9 +48,9 @@ check(t["og:image"] === site + "blog/bilder/foto.jpg", "Bild im Beitrag hat Vorr
   const feedEn = blog.renderFeed([de, en], settings, site, "en");
   check(feedEn.includes("English post") && !feedEn.includes("Deutscher Beitrag") && feedEn.includes("<language>en</language>"), "englischer Feed nur englisch");
   const pageEn = blog.renderPostPage(en, settings, site, undefined);
-  check(pageEn.includes('class="home" href="../../?lang=en"') && pageEn.includes('href="../en/">All posts') && pageEn.includes('href="../../blog/en/feed.xml"'), "englischer Beitrag verweist auf englische Startseite, Liste und Feed");
+  check(pageEn.includes('class="marke" href="../../?lang=en"') && pageEn.includes('href="../../blog/en/" aria-current="page">Food for Thought') && pageEn.includes('href="../../blog/en/feed.xml"'), "englischer Beitrag verweist auf englische Startseite, Liste und Feed (Seitenkopf aus kopf.js)");
   const pageDe = blog.renderPostPage(de, settings, site, undefined);
-  check(pageDe.includes('class="home" href="../../"') && pageDe.includes('href="../">Alle Beiträge'), "deutscher Beitrag verweist auf deutsche Startseite und Liste");
+  check(pageDe.includes('class="marke" href="../../"') && pageDe.includes('href="../../blog/" aria-current="page">Impulse') && pageDe.includes('href="../../#kontakt">Termin'), "deutscher Beitrag verweist auf deutsche Startseite, Liste und Termin");
   const home = (await import("node:fs")).readFileSync(new URL("../index.html", import.meta.url), "utf8");
   const b = blog.buildBlog({ settings, posts: [de, en], homepage: home, existingDirs: [], existingFiles: [], siteUrl: site });
   const paths = b.changes.map(c => c.path);

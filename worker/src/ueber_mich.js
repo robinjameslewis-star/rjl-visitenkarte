@@ -126,5 +126,5 @@ ${newsletterKasten(lang, up, "impuls")}
       knowsLanguage: ["de", "en"], sameAs: [LINKEDIN] } }).replace(/</g, "\\u003c");
   return rahmen({ lang, up, titel: t.titel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: ueberMichUrl(andere) }],
-    head: `<meta property="og:image" content="${SITE}${PORTRAIT.datei}">\n<script type="application/ld+json">${jsonld}</script>\n`, css: CSS, main });
+    head: `<meta property="og:image" content="${SITE}${PORTRAIT.datei}">\n<script type="application/ld+json">${jsonld}</script>\n`, css: CSS, main, aktiv: "about" });
 }

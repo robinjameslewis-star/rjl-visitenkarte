@@ -21,7 +21,7 @@
       privacyRights: "Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.",
       privacyAuthority: "Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg",
 
-      navContact: 'Termin', navTools: 'Werkzeuge',
+      navContact: 'Termin', navTools: 'Werkzeuge', navPages: 'Seiten', menuLabel: 'Menü', byline: 'Robin James Lewis · Balingen',
       navMessage: 'Nachricht', messageTitle: 'Nachricht schreiben',
       messageLead: 'Ich antworte persönlich per E-Mail.',
       fieldName: 'Name', fieldEmail: 'E-Mail-Adresse', fieldPhone: 'Telefon', optional: '(freiwillig)', fieldMessage: 'Nachricht',
@@ -94,7 +94,7 @@
       privacyRights: "Subject to the GDPR, rights include access, rectification, erasure, restriction, data portability and objection, especially to processing based on legitimate interests. Requests can be sent to the email address above. There is also a right to complain to a data protection authority.",
       privacyAuthority: "Data protection authority for Baden-Württemberg",
 
-      navContact: 'Appointment', navTools: 'Tools',
+      navContact: 'Appointment', navTools: 'Tools', navPages: 'Pages', menuLabel: 'Menu', byline: 'Robin James Lewis · Balingen, Germany',
       navMessage: 'Message', messageTitle: 'Write a message',
       messageLead: 'I reply personally by email.',
       fieldName: 'Name', fieldEmail: 'Email address', fieldPhone: 'Phone', optional: '(optional)', fieldMessage: 'Message',

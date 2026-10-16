@@ -23,10 +23,28 @@
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
-.top a:hover { color: var(--green); }
-.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-right: auto; }
+.kopf { position: relative; z-index: 5; max-width: 680px; margin: 0 auto; padding: 16px 6vw 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
 main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
@@ -93,7 +111,14 @@ article li { margin-bottom: 6px; }
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfilePage","url":"https://robin.vision/ueber-mich/","inLanguage":"de","mainEntity":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/","image":"https://robin.vision/assets/robin-james-lewis.jpg","jobTitle":"Steuerfachangestellter in Ausbildung","address":{"@type":"PostalAddress","addressLocality":"Balingen","addressCountry":"DE"},"email":"mailto:robin@robin.vision","knowsLanguage":["de","en"],"sameAs":["https://www.linkedin.com/in/robin-james-lewis-688945283/"]}}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
-<nav class="top" aria-label="Seite"><a class="home" href="../">Robin James Lewis</a><a href="../blog/">Impulse</a><a href="../werkzeuge/">Werkzeuge</a><a href="../ueber-mich/">Über mich</a></nav>
+<header class="kopf">
+<a class="marke" href="../">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../ueber-mich/" aria-current="page">Über mich</a></nav>
+<a class="termin" href="../#kontakt">Termin</a>
+<details class="menue"><summary aria-label="Menü"><span></span></summary>
+<nav aria-label="Seiten"><a href="../werkzeuge/">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../ueber-mich/" aria-current="page">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/about/" lang="en" hreflang="en">English</a></nav>
+</details>
+</header>
 <main>
 <article class="ueber-mich">
 <h1>Über mich</h1>

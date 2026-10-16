@@ -18,8 +18,8 @@ const NAMEN = /FRISTO|Sudhaus|M\.A\.G\.|Paderborn|Yidishland|Heimatklang|DAA\b/;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner|bist du)\b/i;
 
 const T = {
-  de: { h1: "Über mich", nav: /<a href="\.\.\/ueber-mich\/">Über mich<\/a>/, home: "../", stationen: "Stationen", ehrenamt: /Verwaltungsgericht Sigmaringen/, titel: "Über mich – Robin James Lewis" },
-  en: { h1: "About me", nav: /<a href="\.\.\/about\/">About<\/a>/, home: "../?lang=en", stationen: "Career", ehrenamt: /Administrative Court of Sigmaringen/, titel: "About me – Robin James Lewis" },
+  de: { h1: "Über mich", nav: /<a href="\.\.\/ueber-mich\/" aria-current="page">Über mich<\/a>/, home: "../", stationen: "Stationen", ehrenamt: /Verwaltungsgericht Sigmaringen/, titel: "Über mich – Robin James Lewis" },
+  en: { h1: "About me", nav: /<a href="\.\.\/about\/" aria-current="page">About<\/a>/, home: "../?lang=en", stationen: "Career", ehrenamt: /Administrative Court of Sigmaringen/, titel: "About me – Robin James Lewis" },
 };
 for (const s of UEBER_MICH) {
   const t = T[s.lang], html = lesen(s.pfad);
@@ -53,7 +53,7 @@ check(!/ICC_PROFILE|http:\/\/ns\.adobe\.com\/xap/.test(readFileSync(foto, "latin
 
 console.log("\nMenüpunkt in allen Rahmen");
 const start = lesen("index.html");
-check(/<a href="ueber-mich\/" data-href-de="ueber-mich\/" data-href-en="about\/" data-i18n="navAbout">Über mich<\/a><a href="#kontakt"/.test(start), "Startseite: Menüpunkt vor „Termin“, Ziel je Sprache");
+check(/<a href="ueber-mich\/" data-href-de="ueber-mich\/" data-href-en="about\/" data-i18n="navAbout">Über mich<\/a><\/nav>\n<a class="termin" href="#kontakt"/.test(start), "Startseite: Menüpunkt vor „Termin“, Ziel je Sprache");
 check(/data-i18n="aboutMore">Mehr über mich<\/a>/.test(start) && start.indexOf('data-i18n="aboutMore"') > start.indexOf('id="ueber-mich"'), "Startseite: Verweis „Mehr über mich“ im Abschnitt");
 const ld = JSON.parse((start.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/) || [])[1]);
 const person = ld["@graph"].find(e => e["@type"] === "Person");

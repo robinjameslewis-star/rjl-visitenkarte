@@ -23,10 +23,28 @@
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-.top { max-width: 680px; margin: 0 auto; padding: 28px 6vw 0; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-.top a { color: var(--ink-soft); text-decoration: none; font-size: 12px; letter-spacing: .03em; }
-.top a:hover { color: var(--green); }
-.top .home { font: 500 15px/1 var(--serif); letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-right: auto; }
+.kopf { position: relative; z-index: 5; max-width: 680px; margin: 0 auto; padding: 16px 6vw 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
 main { max-width: 680px; margin: 0 auto; padding: clamp(36px, 8vh, 80px) 6vw clamp(48px, 10vh, 110px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
@@ -86,7 +104,14 @@ article li { margin-bottom: 6px; }
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"de","mainEntity":[{"@type":"Question","name":"Welche Banken erkennt der Buchungsstapel-Generator?","acceptedAnswer":{"@type":"Answer","text":"Das Layout eines Auszugs erkennt er selbst. Geprüft ist er mit Kontoauszügen im Stil von Sparkasse, Volks- und Raiffeisenbanken, Deutscher Bank, Commerzbank, Postbank, ING, DKB, N26, Wise und Revolut. Liest er einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt senden; das Layout wird dann nachgerüstet."}},{"@type":"Question","name":"Funktioniert er auch mit gescannten Kontoauszügen?","acceptedAnswer":{"@type":"Answer","text":"Ja. Gescannte Auszüge, auch in Schwarz-Weiß, liest er per Texterkennung, ebenfalls offline, in einigen Sekunden je Seite. Die Summenprüfung je Auszug zeigt, ob alle Umsätze gelesen wurden; Beträge lassen sich in der Tabelle korrigieren."}},{"@type":"Question","name":"Was ist ein Buchungsstapel im DATEV-Format (EXTF)?","acceptedAnswer":{"@type":"Answer","text":"Eine CSV-Datei im DATEV-Format, auch EXTF- oder DatevPro-Format genannt: Semikolon zwischen den Feldern, eine Kopfzeile, die die Datei als Buchungsstapel kennzeichnet, dann eine Zeile je Buchung mit Betrag, Soll/Haben, Konto, Gegenkonto, BU-Schlüssel, Datum und Buchungstext. Buchhaltungsprogramme mit DATEV-Import lesen diese Dateien."}},{"@type":"Question","name":"Werden meine Kontoauszüge hochgeladen?","acceptedAnswer":{"@type":"Answer","text":"Nein. Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei baut keine Verbindung ins Internet auf, mit einer Ausnahme, die Sie selbst auslösen: das freiwillige Senden eines Auszug-Aufbaus ohne Inhalt."}},{"@type":"Question","name":"Wie kommt der Buchungsstapel in DATEV Kanzlei-Rechnungswesen?","acceptedAnswer":{"@type":"Answer","text":"Über den Import für Buchungsstapel im DATEV-Format (in DATEV Kanzlei-Rechnungswesen unter Bestand → Importieren). Andere Buchhaltungsprogramme mit DATEV-Import lesen die Datei ebenso. Vor dem ersten Einsatz mit einem Testmandanten prüfen, jeden Stapel vor der Festschreibung kontrollieren."}},{"@type":"Question","name":"Was kostet der Buchungsstapel-Generator?","acceptedAnswer":{"@type":"Answer","text":"Nichts. Download ohne Anmeldung, Nutzung in Kanzlei und Unternehmen erlaubt; es gelten die Nutzungsbedingungen auf dieser Seite. Ein Anspruch auf Aktualisierungen oder Unterstützung besteht nicht."}}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
-<nav class="top" aria-label="Seite"><a class="home" href="../../">Robin James Lewis</a><a href="../../blog/">Impulse</a><a href="../../werkzeuge/">Werkzeuge</a><a href="../../ueber-mich/">Über mich</a></nav>
+<header class="kopf">
+<a class="marke" href="../../">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Seiten"><a href="../../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../../blog/">Impulse</a><a href="../../ueber-mich/">Über mich</a></nav>
+<a class="termin" href="../../#kontakt">Termin</a>
+<details class="menue"><summary aria-label="Menü"><span></span></summary>
+<nav aria-label="Seiten"><a href="../../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../../blog/">Impulse</a><a href="../../ueber-mich/">Über mich</a><a href="../../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/booking-batch-generator/" lang="en" hreflang="en">English</a></nav>
+</details>
+</header>
 <main>
 <article>
 <h1>Buchungsstapel-Generator</h1>

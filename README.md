@@ -516,6 +516,22 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   und Impulse. Nicht im Repository: Google Search Console und Bing Webmaster Tools (Robin bestätigt die Domain per DNS-TXT
   bei Cloudflare und reicht `sitemap.xml` ein).
 
+## Seitenkopf und Navigation (16.10.2026)
+
+- Robin: oben zu voll auf dem iPhone; alle Verweise außer „Über mich“ sprangen nur an Stellen im Einseiter; sie sollen auf die
+  Unterseiten führen, Termin bleibt; „Robin James Lewis“ als Logo der Startseite durch „robin.vision“ ersetzen.
+- Ein gemeinsamer Kopf für alle Seiten (`worker/src/kopf.js`, `kopf(lang, up, { aktiv, andere })` und `KOPF_CSS`): Wortmarke
+  `robin.vision` (Punkt in Kupfer), drei Seiten Werkzeuge · Impulse · Über mich (aktive Seite mit Kupferlinie), „Termin“ als
+  Knopf zum Termin-Abschnitt der Startseite, ab 720 px Breite ein Menü aus `details/summary` (ohne Skript) mit denselben
+  Seiten, „Nachricht“ und der anderen Sprache. Werkzeugseiten und Übersichten (`rahmen`), Impulse und Listen (`shell`) nutzen
+  ihn; „Nachricht“ steht nur noch im Menü (und im Termin-Abschnitt darunter).
+- Startseite: derselbe Aufbau von Hand (`<header class="kopf start">`, über der Bühne, links die Sprachwahl statt der
+  Wortmarke); Ziele je Sprache über `data-href-de/en`, Texte über `language.js` (`navTools`, `navAbout`, `navContact`,
+  `navMessage`, `menuLabel`, `navPages`). Der Verweis auf die Impulse bleibt zwischen den Marken der Redaktion
+  (`updateHomepage` schreibt ihn mit Ziel `blog/`). Die Überschrift der Bühne ist jetzt die Wortmarke `robin.vision`, darunter
+  die Zeile „Robin James Lewis · Balingen“ (`byline`); Titel, Beschreibung und JSON-LD nennen den Namen weiter.
+- Prüfung: `node tests/kopf_test.mjs` (Modul, alle gebauten Seiten, Startseite inklusive Stilgleichheit mit `KOPF_CSS`).
+
 ## Seite „Über mich“ (16.10.2026)
 
 - Eigene Seite im Rahmen der Werkzeugseiten: `ueber-mich/` (deutsch) und `about/` (englisch), Text fest in
