@@ -519,8 +519,7 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 ## Feinschliff der Unterseiten (16.10.2026, Vorbild anthropic.com)
 
 - Robin: Abschnitte sollen stärker hervortreten, Texte eher im Blocksatz, Stil erhalten. Rahmen (`werkzeug.js`, `rahmen`) und
-  Impulse (`blog.js`, `shell`): Spalte 780 px, Überschrift größer, Abschnitte mit Kupfer-Nummer (`article > h2::before`, CSS-
-  Zähler – Kupfer für Abschnittsnummern ist im Designsystem vorgesehen; Impulse ohne Nummern), 72 px Abstand, Blocksatz mit
+  Impulse (`blog.js`, `shell`): Spalte 780 px, Überschrift größer, 64 px Abstand zwischen den Abschnitten, Blocksatz mit
   Silbentrennung ab 720 px (`article p`, außer `.meta`, `.untertitel`, `.hinweis`, `.frei`).
 - „Über mich“ (`ueber_mich.js`): Foto links umflossen, Einleitung größer, Stationen als Zeitleiste (Jahre in Kupfer-Versalien,
   Hairlines wie in den Listen), Kenntnisse als Marken (`marken`), Ehrenamt und „Warum ein Rotkehlchen“ als zwei Karten (mit
@@ -530,6 +529,9 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
   `.blog-teaser`, `.message`, `.contact`; der verborgene Newsletter-Abschnitt zählt erst, wenn er sichtbar ist), größere
   Überschriften, mehr Abstand, Werkzeug-Eintrag als Karte, „Alle …“-Verweise als Knöpfe mit Kupferrand, „Über mich“-Absatz im
   Blocksatz ab 720 px; der Termin-Titel ohne Inline-Stil.
+- Nachtrag (Robin, 16.10.2026): die Kupfer-Nummern sind wieder weg (gefielen nicht); die Überschriften „Werkzeuge“, „Über mich“
+  und „Impulse“ auf der Startseite verweisen auf ihre Unterseiten (Ziel je Sprache; den Impuls-Titel schreibt die Redaktion in
+  `blog.js`, `teaser`).
 
 ## „Was ist neu“ und Newsletter-Feed (16.10.2026)
 

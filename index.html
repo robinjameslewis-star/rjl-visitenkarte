@@ -193,11 +193,13 @@
   /* ---------- Terminbereich ---------- */
   .contact { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
   .stage + section { margin-top: clamp(40px, 8vh, 96px); }
-  /* Feinschliff (Robin, 16.10.2026, Vorbild anthropic.com): jeder Abschnitt mit kleiner Kupfer-Nummer, größerer Überschrift und mehr
-     Abstand; Blocksatz nur für längere Absätze ab 720 px. Gleiche Regeln wie im Rahmen der Unterseiten (worker/src/werkzeug.js). */
-  main { counter-reset: abschnitt; }
+  /* Feinschliff (Robin, 16.10.2026, Vorbild anthropic.com): größere Überschriften, mehr Abstand; Blocksatz nur für längere Absätze
+     ab 720 px. Gleiche Regeln wie im Rahmen der Unterseiten (worker/src/werkzeug.js). Überschriften der Abschnitte mit eigener
+     Unterseite (Werkzeuge, Über mich, Impulse) sind Verweise dorthin (Robin, 16.10.2026); language.js setzt das Ziel je Sprache. */
   .blog-teaser > h2, .message > h2, .contact > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 0 0 10px; max-width: 680px; }
-  .blog-teaser > h2::before, .message > h2::before, .contact > h2::before { counter-increment: abschnitt; content: counter(abschnitt, decimal-leading-zero); display: block; font: 500 12px/1 var(--sans); letter-spacing: .22em; color: var(--copper); margin: 0 0 12px; }
+  .blog-teaser > h2 a { color: inherit; text-decoration: none; }
+  .blog-teaser > h2 a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-decoration-thickness: 1px; text-underline-offset: .18em; }
+  .blog-teaser > h2 a:focus-visible { outline: 1px solid var(--copper); outline-offset: 4px; border-radius: 2px; }
   .about p.lead { max-width: 68ch; color: var(--ink); font-size: clamp(16px, 1.3vw, 18px); line-height: 1.65; }
   @media (min-width: 720px) { .about p.lead { text-align: justify; hyphens: auto; } }
   .contact > .lead { max-width: 560px; }
@@ -505,7 +507,7 @@
 
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title" data-i18n="toolsTitle">Werkzeuge</h2>
+    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeuge</a></h2>
     <p class="lead" data-i18n="toolsLead">Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Die Daten bleiben auf dem eigenen Rechner.</p>
     <ul>
 <!-- werkzeuge:liste -->
@@ -518,14 +520,14 @@
 
   <!-- Über mich (Robin, 16.10.2026): drei Sätze, Fakten aus Gochs Profil, ohne Charakterurteile; die ganze Seite baut tools/ueber-mich-bauen.mjs (ueber-mich/, about/) -->
   <section class="blog-teaser about" id="ueber-mich" aria-labelledby="about-title">
-    <h2 id="about-title" data-i18n="aboutTitle">Über mich</h2>
+    <h2 id="about-title"><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="aboutTitle">Über mich</a></h2>
     <p class="lead" data-i18n="aboutText">Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Nebenher digitalisiere ich Kanzleiprozesse und baue Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation: für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.</p>
     <p class="all"><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="aboutMore">Mehr über mich</a></p>
   </section>
 
   <!-- redaktion:blog-section -->
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="de en">
-    <h2 id="blog-title" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</h2>
+    <h2 id="blog-title"><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a></h2>
     <p class="lead" data-title-de="Auf dem Datenfluss der Wertschöpfung surfen" data-title-en="Riding the data flow of value creation">Auf dem Datenfluss der Wertschöpfung surfen</p>
     <ul>
       <li lang="de"><span class="when"><time datetime="2026-10-16">16. Oktober 2026</time></span><a href="blog/fehler-skalieren/">Fehler skalieren – warum vor ARP die alten Regeln auf den Tisch gehören</a><p>Fehler in Buchungsregeln und Vorjahresdaten wiederholen sich bei jedem Vorgang – wer Agenten einführen will, prüft zuerst die alten Regeln.</p></li>

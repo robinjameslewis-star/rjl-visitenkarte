@@ -400,7 +400,7 @@ function teaser(settings, posts) {
   const intro = settings.intro.de || settings.intro.en ? `\n    <p class="lead" data-title-de="${esc(settings.intro.de || settings.intro.en)}" data-title-en="${esc(settings.intro.en || settings.intro.de)}">${esc(settings.intro.de || settings.intro.en)}</p>` : "";
   return `
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="${langs}"${langs.includes("de") ? "" : " hidden"}>
-    <h2 id="blog-title" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</h2>${intro}
+    <h2 id="blog-title"><a href="blog/" data-href-de="blog/" data-href-en="blog/${EN_DIR}/" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a></h2>${intro}
     <ul>
 ${items}
     </ul>
