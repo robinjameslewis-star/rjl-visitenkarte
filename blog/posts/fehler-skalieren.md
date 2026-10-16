@@ -2,7 +2,7 @@
 title: "Fehler skalieren – warum vor ARP die alten Regeln auf den Tisch gehören"
 date: 2026-10-16
 lang: de
-status: draft
+status: published
 summary: "Fehler in Buchungsregeln und Vorjahresdaten wiederholen sich bei jedem Vorgang – wer Agenten einführen will, prüft zuerst die alten Regeln."
 ---
 
