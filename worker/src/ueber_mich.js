@@ -73,10 +73,13 @@ const TEXT = {
   },
 };
 
-const CSS = `.portrait-row { display: grid; grid-template-columns: minmax(170px, 230px) 1fr; gap: 24px 32px; align-items: start; margin: 0 0 12px; }
-.portrait { width: 100%; height: auto; display: block; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+// Foto links, der Text läuft daneben und darunter weiter (Robin, 16.10.2026); auf schmalen Bildschirmen steht das Foto über dem Text
+const CSS = `.portrait-row { margin: 0 0 12px; }
+.portrait-row::after { content: ""; display: block; clear: both; }
+.portrait { float: left; width: min(230px, 42%); height: auto; margin: 6px 32px 14px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 .portrait-row p:last-child { margin-bottom: 0; }
-@media (max-width: 600px) { .portrait-row { grid-template-columns: 1fr; } .portrait { max-width: 200px; } }
+.ueber-mich h2 { clear: both; }
+@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } }
 .stationen { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0 0 18px; }
 .stationen dt { color: var(--ink-muted); font-size: 14px; padding-top: 3px; }
 .stationen dd { margin: 0; max-width: 60ch; }
