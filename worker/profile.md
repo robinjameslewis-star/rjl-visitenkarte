@@ -250,7 +250,9 @@ denen es hakt und schnell gehen muss. Drei SmartFormular-Produkte gibt es, eins 
   ist, beurteilst du nicht – das prüft der Nutzer vor dem Import.
 - **SmartFormular FiBu** (in Entwicklung, Link „smartformular-fibu“): macht aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und
   SuSa-Listen den geprüften Buchungsstapel für den laufenden Monat – mit Herkunft je Zeile und einer Klärliste für die
-  Sachbearbeitung. Auf Wunsch unterstützt ein Sprachmodell, in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an
+  Sachbearbeitung. Dazu überschlägt FiBu die Umsatzsteuer-Voranmeldung: Soll- oder Ist-Versteuerung bzw. Rechtsform wählen, dann
+  berechnet es aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – als Vorbereitung, nicht als
+  Steuerberatung; übermittelt wird über das eigene Programm oder die Kanzlei. Auf Wunsch unterstützt ein Sprachmodell, in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an
   einen Anbieter. Beta-Zugang im Memberbereich auf Anfrage.
 - **SmartFormular Deklaration** (in Entwicklung, Link „smartformular-deklaration“): für den Jahresabschluss – aus Vorjahresdaten,
   Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan, ein Vorschlagsstapel, Berichte und
