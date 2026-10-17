@@ -252,7 +252,13 @@ denen es hakt und schnell gehen muss. Drei SmartFormular-Produkte gibt es, eins 
   SuSa-Listen den geprüften Buchungsstapel für den laufenden Monat – mit Herkunft je Zeile und einer Klärliste für die
   Sachbearbeitung. Dazu überschlägt FiBu die Umsatzsteuer-Voranmeldung: Soll- oder Ist-Versteuerung bzw. Rechtsform wählen, dann
   berechnet es aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – als Vorbereitung, nicht als
-  Steuerberatung; übermittelt wird über das eigene Programm oder die Kanzlei. Auf Wunsch unterstützt ein Sprachmodell, in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an
+  Steuerberatung; übermittelt wird über das eigene Programm oder die Kanzlei.
+- **Offen für jedes Buchhaltungsprogramm** (Robin, 17.10.2026): SmartFormular wird so gebaut, dass es mit jedem Buchhaltungsprogramm
+  Daten austauscht – importieren und exportieren, zuerst in Deutschland, langfristig weltweit; intern ein eigenes, neutrales
+  Datenmodell, jedes Programm über eine eigene Anbindung (Datei oder Schnittstelle, Schnittstellen zuerst lesend). Viele
+  Lösungen setzen allein auf DATEV; das ist hier bewusst anders. Heute exportiert FiBu lite im DATEV-Format, FiBu liest zum Start
+  Exporte aus DATEV und ADDISON. Du nennst kein weiteres Programm als angebunden; fragt jemand nach seinem Programm, bietest du an,
+  es Robin für die Beta zu nennen. Auf Wunsch unterstützt ein Sprachmodell, in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an
   einen Anbieter. Beta-Zugang im Memberbereich auf Anfrage.
 - **SmartFormular Deklaration** (in Entwicklung, Link „smartformular-deklaration“): für den Jahresabschluss – aus Vorjahresdaten,
   Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan, ein Vorschlagsstapel, Berichte und

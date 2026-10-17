@@ -1,7 +1,7 @@
 // Seite „SmartFormular“ (werkzeuge/index.html, englisch werkzeuge/en/index.html; Robin, 17.10.2026): eigene Unterseite im
 // SmartFormular-Erscheinungsbild „Nacht und Violett“, so ausführlich wie die Seite „Workshops“ – was ein SmartFormular ist, die drei
 // Produkte (FiBu lite kostenlos zum Herunterladen; FiBu und Deklaration angekündigt, mit den geplanten Funktionen), Mensch und
-// Maschine, Sprachmodell optional, Fahrplan, Daten und Recht, Fragen und Antworten (FAQPage), Beta-Anfrage an Gochs Kontakt-Endpunkt.
+// Maschine, offen für jedes Buchhaltungsprogramm (Robin, 17.10.2026: Alleinstellungsmerkmal), Sprachmodell optional, Fahrplan, Daten und Recht, Fragen und Antworten (FAQPage), Beta-Anfrage an Gochs Kontakt-Endpunkt.
 // Keine Preise (auf Anfrage), keine Termine oder internen Planungen (Robin, 17.10.2026: Texte aus Kundensicht, knapp und professionell).
 // Produktdaten in produkte.js; tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen.
 import { rahmen, SF_CSS, WERKZEUGE, UEBERSICHT_PFAD } from "./werkzeug.js";
@@ -58,6 +58,14 @@ const TEXT = {
       "SmartFormular bucht nicht und erklärt nicht. Es bereitet vor, markiert die Sicherheit jeder Zeile – sicher, Vorschlag, Klärung – und übergibt erst nach Ihrer Prüfung. So steigen Qualität und Tempo, weil Ihr Team weniger sucht und mehr entscheidet.",
     ],
     menschFakten: ["Vorschläge mit Herkunft", "Klärliste statt stiller Fehler", "Festschreibung in Ihrem Programm", "Würdigung beim Berufsträger"],
+    programmeTitel: "Offen für jedes Buchhaltungsprogramm",
+    programmeLead: "Nicht nur DATEV: SmartFormular wird so gebaut, dass es mit jedem Buchhaltungsprogramm Daten austauscht – importieren und exportieren, zuerst in Deutschland, langfristig weltweit. Sie behalten Ihr Programm; SmartFormular arbeitet ihm zu.",
+    programme: [
+      ["Import und Export", "Kontoauszüge, Belege, Buchungsstapel, offene Posten und Saldenlisten kommen aus Ihrem Programm herein; die Ergebnisse gehen in dem Format zurück, das Ihr Programm einliest."],
+      ["Ein neutrales Datenmodell", "Intern arbeitet SmartFormular mit einem eigenen, programmunabhängigen Datenmodell. Jedes Programm kommt über eine eigene Anbindung hinzu – per Datei oder Schnittstelle, Schnittstellen zuerst lesend. An Ihrer Arbeit im SmartFormular ändert das nichts."],
+      ["Von Deutschland in die Welt", "Zuerst die Programme, mit denen Kanzleien und Unternehmen im deutschsprachigen Raum arbeiten, mit ihren Kontenrahmen. Danach weitere Länder mit ihren Kontenrahmen, Steuerregeln und Standards für Bankdaten und E-Rechnungen."],
+    ],
+    programmeHeute: "Heute exportiert FiBu lite Buchungsstapel im DATEV-Format, das viele Programme einlesen. Welche Programme als Nächstes angebunden werden, richtet sich nach den Kanzleien und Unternehmen in der Beta – sagen Sie mir, womit Sie arbeiten.",
     kiTitel: "Sprachmodell: optional und unter Ihrer Kontrolle",
     ki: [
       ["Optional", "SmartFormular arbeitet mit Regeln. Ein Sprachmodell kommt nur dort dazu, wo Regeln nicht reichen – beim Lesen von Verwendungszwecken, Verträgen und Beschlüssen oder beim Formulieren von Entwürfen. Rechnen, abstimmen und würdigen bleiben Regelwerk und Mensch."],
@@ -80,7 +88,7 @@ const TEXT = {
     fragen: [
       ["Was unterscheidet FiBu lite von SmartFormular FiBu?", "FiBu lite kontiert Kontoauszüge nach dem Muster des Vormonats – kostenlos, offline. FiBu bringt zusätzlich Belege, offene Posten und Saldenlisten zusammen, führt die Klärliste und zeigt die Herkunft jeder Zeile."],
       ["Brauche ich ein KI-Modell?", "Nein. SmartFormular arbeitet mit Regeln. Ein Modell lässt sich ergänzen, um Vorschläge dort zu verbessern, wo Regeln nicht reichen – in der EU, ohne Training mit Ihren Daten."],
-      ["Mit welchen Programmen arbeitet SmartFormular?", "FiBu lite exportiert Buchungsstapel im DATEV-Format, das viele Programme einlesen. FiBu liest OPOS- und SuSa-Exporte aus DATEV und ADDISON. Deklaration arbeitet neben Ihrem Kanzleiprogramm."],
+      ["Mit welchen Programmen arbeitet SmartFormular?", "Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm – importieren und exportieren, zuerst in Deutschland, langfristig weltweit. Jedes Programm kommt über eine eigene Anbindung hinzu. Heute exportiert FiBu lite Buchungsstapel im DATEV-Format, das viele Programme einlesen; FiBu liest zum Start Exporte offener Posten und Saldenlisten aus DATEV und ADDISON, weitere Programme folgen mit der Beta. Deklaration arbeitet neben Ihrem Kanzleiprogramm."],
       ["Berechnet FiBu die Umsatzsteuer-Voranmeldung?", "FiBu überschlägt sie: nach Soll- oder Ist-Versteuerung aus Kontoauszügen und Belegen, mit Zahllast oder Vorsteuerüberhang und der Herkunft jedes Betrags. Was unklar ist, etwa ein fehlender Beleg, steht in der Klärliste. Das ist eine Vorbereitung, keine Steuerberatung; übermittelt wird mit Ihrem Programm oder über Ihre Kanzlei."],
       ["Ersetzt SmartFormular Sachbearbeitende?", "Nein. Es nimmt Suchen und Abtippen ab und stellt Zusammenhänge her. Prüfen, entscheiden und festschreiben bleibt bei Ihrem Team."],
       ["Was kostet SmartFormular?", "FiBu lite ist kostenlos. Beta-Zugänge zu FiBu und Deklaration sind kostenfrei; Preise für die fertigen Produkte erhalten Sie mit dem Angebot."],
@@ -143,6 +151,14 @@ const TEXT = {
       "SmartFormular does not post and does not declare. It prepares, marks the certainty of every line – certain, suggestion, clarification – and hands over only after your review. Quality and pace rise because your team searches less and decides more.",
     ],
     menschFakten: ["Suggestions with their origin", "A clarification list instead of silent errors", "Finalised in your software", "Judgement with the professional"],
+    programmeTitel: "Open to every accounting package",
+    programmeLead: "Not just DATEV: SmartFormular is being built to exchange data with every accounting package – importing and exporting, starting in Germany and in the long run worldwide. You keep your software; SmartFormular works alongside it.",
+    programme: [
+      ["Import and export", "Bank statements, documents, booking batches, open items and trial balances come in from your software; the results go back in the format your software imports."],
+      ["A neutral data model", "Internally SmartFormular works with its own data model, independent of any package. Each package is added through its own connector – by file or interface, interfaces read-only at first. Your work in SmartFormular stays the same."],
+      ["From Germany to the world", "First the packages that firms and companies in German-speaking countries use, with their charts of accounts. Then further countries with their charts of accounts, tax rules and standards for bank data and e-invoices."],
+    ],
+    programmeHeute: "Today FiBu lite exports booking batches in the DATEV format, which many programs import. Which packages are connected next depends on the firms and companies in the beta – tell me what you use.",
     kiTitel: "Language model: optional and under your control",
     ki: [
       ["Optional", "SmartFormular works with rules. A language model is added only where rules fall short – reading references, contracts and resolutions, or drafting texts. Calculating, reconciling and judging stay with rules and people."],
@@ -165,7 +181,7 @@ const TEXT = {
     fragen: [
       ["What is the difference between FiBu lite and SmartFormular FiBu?", "FiBu lite posts bank statements by the previous month's pattern – free, offline. FiBu additionally brings documents, open items and trial balances together, keeps the clarification list and shows the origin of every line."],
       ["Do I need an AI model?", "No. SmartFormular works with rules. A model can be added to improve suggestions where rules fall short – in the EU, without training on your data."],
-      ["Which software does SmartFormular work with?", "FiBu lite exports booking batches in the DATEV format, which many programs import. FiBu reads open-item and trial-balance exports from DATEV and ADDISON. Deklaration works alongside your firm's software."],
+      ["Which software does SmartFormular work with?", "The aim is to exchange data with every accounting package – importing and exporting, starting in Germany and in the long run worldwide. Each package is added through its own connector. Today FiBu lite exports booking batches in the DATEV format, which many programs import; at launch FiBu reads open-item and trial-balance exports from DATEV and ADDISON, with further packages following during the beta. Deklaration works alongside your firm's software."],
       ["Does FiBu calculate the advance VAT return?", "FiBu estimates it: on an accrual or cash basis from bank statements and documents, with the VAT payable or the excess input VAT and the origin of every amount. Anything unclear, such as a missing invoice, goes on the clarification list. It is preparation, not tax advice; the return is filed with your own software or by your firm."],
       ["Does SmartFormular replace accounting staff?", "No. It takes over searching and retyping and works out connections. Checking, deciding and finalising stay with your team."],
       ["What does SmartFormular cost?", "FiBu lite is free. Beta access to FiBu and Deklaration is free of charge; prices for the finished products come with the quote."],
@@ -305,6 +321,10 @@ ${liste(t.deklPunkte)}
 ${t.mensch.map(p => `<p class="frei">${esc(p)}</p>`).join("\n")}
 <ul class="fakten">${t.menschFakten.map(f => `<li>${esc(f)}</li>`).join("")}</ul>
 </section>
+<h2 id="programme">${esc(t.programmeTitel)}</h2>
+<p>${esc(t.programmeLead)}</p>
+${liste(t.programme)}
+<p class="hinweis">${esc(t.programmeHeute)}</p>
 <h2 id="sprachmodell">${esc(t.kiTitel)}</h2>
 ${liste(t.ki)}
 <h2 id="fahrplan">${esc(t.fahrplanTitel)}</h2>
