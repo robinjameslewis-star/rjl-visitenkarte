@@ -6,6 +6,20 @@
   <description>Food for Thought, SmartFormular and workshops by email</description>
   <language>en</language>
   <item>
+    <title>SmartFormular FiBu lite: Version 78c5224</title>
+    <link>https://robin.vision/werkzeuge/booking-batch-generator/#fassung-78c5224</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/booking-batch-generator/#fassung-78c5224</guid>
+    <pubDate>Sat, 17 Oct 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<ul><li>SmartFormular FiBu lite: neuer Name in Titel und Kopf, Erscheinungsbild „Nacht und Violett“; Funktion unverändert</li></ul>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>SmartFormular</h3>
+<p>FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All SmartFormular products</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">To the workshop with EU AI Act training</a></p>]]></description>
+  </item>
+  <item>
     <title>Mistakes multiply – why ARP starts with getting your house in order</title>
     <link>https://robin.vision/blog/mistakes-multiply/</link>
     <guid isPermaLink="true">https://robin.vision/blog/mistakes-multiply/</guid>
@@ -15,8 +29,8 @@
 <p>An ERP system is an excellent archive. It tells you what happened. Since 2025, a term has been doing the rounds that promises rather more: ARP, agentic resource planning. Agents keep constant watch, work out the consequences and act within guardrails set by a person – or put the decision forward for approval. That is how the software company SHAKE describes it; in 2026, it declared ARP a category of its own.</p>
 <p><a href="https://robin.vision/blog/mistakes-multiply/">Read the whole post</a></p>
 <h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version a396da5 of 15 October 2026</em></p>
-<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><em>Version 78c5224 of 17 October 2026</em></p>
+<ul><li>SmartFormular FiBu lite: neuer Name in Titel und Kopf, Erscheinungsbild „Nacht und Violett“; Funktion unverändert</li></ul>
 <p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
 <h3>SmartFormular</h3>
 <p>FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
@@ -49,8 +63,8 @@
 <p>My last piece was about breaks in the digital chain. An interface closes that break, but the transfer remains: the same data sits in two systems, has to be reconciled and matched, and every hand-off can go wrong. Sales invoices travel from the inventory system into accounting through an invoicing interface; payroll entries come across from the payroll system. These interfaces only exist because two systems within the same business are kept apart. They are bridges over a gap that a shared data model would never have had.</p>
 <p><a href="https://robin.vision/blog/the-end-of-erp/">Read the whole post</a></p>
 <h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version a396da5 of 15 October 2026</em></p>
-<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><em>Version 78c5224 of 17 October 2026</em></p>
+<ul><li>SmartFormular FiBu lite: neuer Name in Titel und Kopf, Erscheinungsbild „Nacht und Violett“; Funktion unverändert</li></ul>
 <p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
 <h3>SmartFormular</h3>
 <p>FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
@@ -69,8 +83,8 @@
 <p>So is it enough to leave the scanned invoice behind? Not quite. Data gets keyed in twice in plenty of other places. Copying figures by hand from one system into another, because nobody has set up an interface, is just as much a break in the chain. More on that in my next piece, on interfaces.</p>
 <p><a href="https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/">Read the whole post</a></p>
 <h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version a396da5 of 15 October 2026</em></p>
-<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><em>Version 78c5224 of 17 October 2026</em></p>
+<ul><li>SmartFormular FiBu lite: neuer Name in Titel und Kopf, Erscheinungsbild „Nacht und Violett“; Funktion unverändert</li></ul>
 <p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
 <h3>SmartFormular</h3>
 <p>FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
@@ -89,8 +103,8 @@
 <p>The principle will be familiar from integrated business software (ERP) and from digital HR systems with an employee portal: master data and transactions are passed on for processing as soon as they arise, either in real time or at set intervals. ERP systems have done exactly this with sales invoicing for decades. The billing data goes straight to accounts receivable as structured data, and the printed invoice never played any part in the outcome. It was only ever needed by the customer and for the tax audit.</p>
 <p><a href="https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/">Read the whole post</a></p>
 <h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version a396da5 of 15 October 2026</em></p>
-<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
+<p><em>Version 78c5224 of 17 October 2026</em></p>
+<ul><li>SmartFormular FiBu lite: neuer Name in Titel und Kopf, Erscheinungsbild „Nacht und Violett“; Funktion unverändert</li></ul>
 <p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
 <h3>SmartFormular</h3>
 <p>FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
