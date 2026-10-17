@@ -15,19 +15,19 @@ const SITE = "https://robin.vision/";
 
 // Werkzeuge mit ihren Sprachfassungen. „gegenstueck“ ist dieselbe Datei in der anderen Sprache.
 export const WERKZEUGE = [
-  { id: "buchungsstapel-generator", lang: "de", titel: "Buchungsstapel-Generator", datei: "Buchungsstapel-Generator.html",
+  { id: "buchungsstapel-generator", lang: "de", titel: "SmartFormular Fibu lite", datei: "Buchungsstapel-Generator.html", dateiTitel: "Buchungsstapel-Generator",
     gegenstueck: "booking-batch-generator",
     kurz: "Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.",
     // Für Suchmaschinen (16.10.2026): Seitentitel und Beschreibung mit den Begriffen, nach denen gesucht wird; Untertitel unter der Überschrift
-    seitentitel: "Buchungsstapel-Generator: Kontoauszug (PDF) in DATEV-Buchungsstapel umwandeln – kostenlos, offline",
+    seitentitel: "SmartFormular Fibu lite (Buchungsstapel-Generator): Kontoauszug (PDF) in DATEV-Buchungsstapel umwandeln – kostenlos, offline",
     meta: "Kostenloses Werkzeug: Kontoauszüge als PDF, auch Scans, in Buchungsstapel im DATEV-Format (EXTF) umwandeln. Läuft offline im Browser, ohne Upload und ohne Anmeldung – für die Tage, an denen der Bankabruf ausfällt.",
-    untertitel: "Kontoauszug als PDF → Buchungsstapel im DATEV-Format (EXTF), offline im Browser" },
-  { id: "booking-batch-generator", lang: "en", titel: "Booking Batch Generator", datei: "Booking-Batch-Generator.html",
+    untertitel: "Der Buchungsstapel-Generator: Kontoauszug als PDF → Buchungsstapel im DATEV-Format (EXTF), offline im Browser" },
+  { id: "booking-batch-generator", lang: "en", titel: "SmartFormular Fibu lite", datei: "Booking-Batch-Generator.html", dateiTitel: "Booking Batch Generator",
     gegenstueck: "buchungsstapel-generator",
     kurz: "The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.",
-    seitentitel: "Booking Batch Generator: convert bank statement PDFs into DATEV booking batches – free, offline",
+    seitentitel: "SmartFormular Fibu lite (Booking Batch Generator): convert bank statement PDFs into DATEV booking batches – free, offline",
     meta: "Free tool: convert bank statements in PDF format, scans included, into booking batches in the DATEV format (EXTF). Runs offline in your browser, no upload, no sign-up – for the days when the bank feed is down.",
-    untertitel: "Bank statement PDF → booking batch in the DATEV format (EXTF), offline in your browser" },
+    untertitel: "The Booking Batch Generator: bank statement PDF → booking batch in the DATEV format (EXTF), offline in your browser" },
 ];
 export const werkzeug = id => WERKZEUGE.find(w => w.id === id);
 
@@ -53,6 +53,7 @@ export const FRAGEN = {
 export const werkzeugPfad = id => `werkzeuge/${id}/index.html`;
 export const werkzeugUrl = id => `${SITE}werkzeuge/${id}/`;
 export const UEBERSICHT_PFAD = { de: "werkzeuge/index.html", en: "werkzeuge/en/index.html" };
+const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
 // Bis 15.10.2026 hieß das Werkzeug „Kontoauszug-Konverter“; die alte Adresse leitet weiter.
 export const ALTE_ADRESSEN = [{ pfad: "werkzeuge/kontoauszug-konverter/index.html", ziel: "buchungsstapel-generator" }];
 
@@ -83,21 +84,35 @@ export function werkzeugFelder(html) {
 
 const T = {
   de: {
-    home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeuge", toolsHref: "werkzeuge/", about: "Über mich", aboutHref: "ueber-mich/",
-    frei: "Kostenloses Werkzeug", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
+    home: "", blog: "Impulse", blogHref: "blog/", tools: "SmartFormular", toolsHref: "werkzeuge/", about: "Über mich", aboutHref: "ueber-mich/",
+    frei: "Kostenlos", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
-    kurz: "Werkzeuge", seitentitel: "Kostenlose Werkzeuge für Buchhaltung und Kanzlei – offline im Browser | robin.vision", lead: "Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.",
-    andereUebersicht: "English", leer: "Noch keine Werkzeuge.",
+    kurz: "SmartFormular", seitentitel: "SmartFormular von robin.vision: Fibu lite kostenlos, Fibu und Deklaration als Beta – Buchhaltung und Jahresabschluss mit KI, human in the loop | robin.vision",
+    lead: "Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.",
+    andereUebersicht: "English", leer: "Noch kein SmartFormular.", ausblick: "Was kommt", beta: "Beta-Zugang anfragen", betaLead: "Fibu und Deklaration werden im Memberbereich von robin.vision erprobt – mit Testdaten, mit Ihrer Rückmeldung, bevor sie fertig sind. Ich antworte persönlich per E-Mail.",
+    lite: "Kostenlos herunterladen", inEntwicklung: "In Entwicklung · Beta 2027", fertig: "Kostenlos · fertig", ki: "Ein Sprachmodell kann, muss aber nicht eingebunden sein: in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an einen Anbieter – das Programm gibt dem Modell feste Vorgaben als Skills, Rechnen und Prüfen bleiben Regelwerk und Mensch.",
+    produkte: [
+      { id: "fibu-lite", name: "SmartFormular Fibu lite", stand: "fertig", text: "Der Buchungsstapel-Generator: Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zu Buchungsstapeln im DATEV-Format, je Auszug und Monat einer – nach dem Muster des Vormonats, mit Summenprüfung. Eine Datei, läuft offline im Browser, kostenlos.", href: "buchungsstapel-generator/", knopf: "Zur Seite und zum Download" },
+      { id: "fibu", name: "SmartFormular Fibu", stand: "beta", text: "Aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und SuSa-Listen stellt Fibu die Zusammenhänge her – Zahlung zu Posten zu Beleg, wiederkehrende Buchungen, Lücken und Dubletten – und erstellt den geprüften Buchungsstapel für den laufenden Monat: mit Herkunft je Zeile und einer Klärliste für die Sachbearbeitung. Festgeschrieben wird im Buchhaltungsprogramm, nach Ihrer Prüfung.", punkte: ["Belege lesen (PDF, E-Rechnung) und Zahlungen zuordnen, Skonto und Teilzahlungen", "OPOS ausziffern, SuSa abstimmen, fehlende wiederkehrende Buchungen finden", "Muster der letzten zwölf Monate je Mandant – als Datei bei Ihnen, kein Modelltraining", "Klärliste statt Rätselraten; Herkunft je Zeile als Prüfprotokoll (GoBD)"] },
+      { id: "deklaration", name: "SmartFormular Deklaration", stand: "beta", text: "Für den Jahresabschluss in der Kanzlei: Aus Vorjahresdaten, Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan aus dem Vorjahr, Rechenmodule mit Rechenspur, ein gestufter Prüfkatalog, der Vorschlagsstapel der Abschlussbuchungen, Berichte und die Vorbereitung der E-Bilanz – jeder Vorschlag mit Herleitung. Wahlrechte und Würdigung bleiben beim Berufsträger.", punkte: ["Abschlussplan: welche Abschlussbuchungen fehlen, welche Abgrenzungen aufzulösen sind", "AfA, Rückstellungen, Abgrenzungen, § 7g und Überleitung mit Rechenspur", "Werte aus Darlehensverträgen, Policen und Beschlüssen mit Pflichtzitat", "Abschlussmappe, Unterlagenanforderung, E-Bilanz-Vorbereitung, Entscheidungsvorlagen"] },
+    ],
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
   en: {
-    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Tools", toolsHref: "werkzeuge/en/", about: "About", aboutHref: "about/",
-    frei: "Free tool", fassung: "Version", vom: "of", laden: "Download", datei: "File",
+    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "SmartFormular", toolsHref: "werkzeuge/en/", about: "About", aboutHref: "about/",
+    frei: "Free", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
-    kurz: "Tools", seitentitel: "Free tools for bookkeeping and tax firms – offline in your browser | robin.vision", lead: "For everyday work outside the perfect process, in the middle of the transformation: free tools that run offline in your browser. Your data never leaves your computer.",
-    andereUebersicht: "Deutsch", leer: "No tools yet.",
+    kurz: "SmartFormular", seitentitel: "SmartFormular by robin.vision: Fibu lite free, Fibu and Deklaration in beta – bookkeeping and year-end accounts with AI, human in the loop | robin.vision",
+    lead: "A SmartFormular looks like a familiar form, helps you fill it in, guarantees completeness and starts the actual casework while you type. It supports accounting staff and does not replace them: every suggestion carries its origin, and people do the checking. Fibu lite is free today; Fibu and Deklaration are in the making – beta access in the member area on request.",
+    andereUebersicht: "Deutsch", leer: "No SmartFormular yet.", ausblick: "What's next", beta: "Request beta access", betaLead: "Fibu and Deklaration are being tested in the robin.vision member area – with test data and your feedback, before they are finished. I reply personally by email.",
+    lite: "Download for free", inEntwicklung: "In development · beta 2027", fertig: "Free · ready", ki: "A language model can, but need not, be involved: hosted in the EU, no training on customer data, no vendor lock-in – the program gives the model fixed instructions as skills, while calculating and checking stay with rules and people.",
+    produkte: [
+      { id: "fibu-lite", name: "SmartFormular Fibu lite", stand: "fertig", text: "The Booking Batch Generator: bank statements as PDF, scan, CAMT, MT940 or CSV become booking batches in the DATEV format, one per statement and month – following the pattern of the previous month, with a totals check. One file, runs offline in your browser, free.", href: "booking-batch-generator/", knopf: "To the page and download" },
+      { id: "fibu", name: "SmartFormular Fibu", stand: "beta", text: "From bank statements, documents, booking batches, open-item and trial-balance lists, Fibu works out the connections – payment to item to document, recurring postings, gaps and duplicates – and produces the checked booking batch for the current month, with the origin of every line and a clarification list for the clerk. Postings are finalised in your accounting software, after your review.", punkte: ["Read documents (PDF, e-invoice) and match payments, including discounts and part payments", "Clear open items, reconcile the trial balance, find missing recurring postings", "Twelve-month pattern per client – a file on your side, no model training", "Clarification list instead of guesswork; origin per line as an audit trail (GoBD)"] },
+      { id: "deklaration", name: "SmartFormular Deklaration", stand: "beta", text: "For year-end accounts in the firm: from prior-year data, contracts, resolutions, the year's postings and bank movements come the closing plan derived from the prior year, calculation modules with a trace, a graded check list, the proposed batch of closing entries, reports and the preparation of the German e-balance sheet – every suggestion with its derivation. Elections and judgement stay with the professional.", punkte: ["Closing plan: which closing entries are missing, which accruals are to be reversed", "Depreciation, provisions, accruals, Section 7g and reconciliation with a trace", "Values from loan agreements, policies and resolutions with a mandatory citation", "Closing file, document requests, e-balance preparation, decision memos"] },
+    ],
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
 };
@@ -229,6 +244,9 @@ ${newsletterKasten(lang, up, "werkzeug")}
 ${rest.length ? renderMarkdown(rest.join("\n"), "", lang) : ""}
 ${neu ? `<h2 id="neu">${t.neu}</h2>\n<div class="neuigkeiten">\n${neuigkeiten(neu).map(e => `<h3 id="fassung-${esc(e.fassung || e.datum)}">${esc(e.titel)}</h3>\n${renderMarkdown(e.text, "", lang)}`).join("\n")}\n</div>` : ""}
 ${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}
+<h2 id="ausblick">${t.ausblick}</h2>
+<p>${lang === "en" ? "Fibu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular Fibu</strong> turns statements, documents, open-item and trial-balance lists into the checked booking batch of the month, with the origin of every line; <strong>SmartFormular Deklaration</strong> prepares year-end accounts with a closing plan, a calculation trace and the e-balance. Beta access in the member area on request." : "Fibu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular Fibu</strong> macht aus Kontoauszügen, Belegen, OPOS- und SuSa-Listen den geprüften Buchungsstapel des Monats mit Herkunft je Zeile; <strong>SmartFormular Deklaration</strong> bereitet den Jahresabschluss vor – Abschlussplan, Rechenspur, E-Bilanz. Beta-Zugang im Memberbereich auf Anfrage."}
+<a href="${up}${T[lang].toolsHref}#beta">${lang === "en" ? "Request beta access" : "Beta-Zugang anfragen"}</a>.</p>
 <h2 id="nutzungsbedingungen">${t.nutzung}</h2>
 <div class="nutzung">
 ${renderMarkdown(nutzung, "", lang)}
@@ -248,7 +266,7 @@ ${renderMarkdown(hinweis, "", andereLang)}
     mainEntity: fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c") : "";
   return rahmen({ lang, up, titel: w.titel, seitentitel: w.seitentitel, beschr: w.meta || (lang === "en" ? "Free tool: " : "Kostenloses Werkzeug: ") + w.kurz, canonical: werkzeugUrl(id),
     alternates: anderes ? [{ lang, href: werkzeugUrl(id) }, { lang: anderes.lang, href: werkzeugUrl(anderes.id) }] : [],
-    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main, aktiv: "tools" });
+    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main: `<p class="sf-marke">Smart<span>Formular</span></p>` + main, aktiv: "tools", css: SF_CSS });
 }
 
 // Übersicht je Sprache: alle Werkzeuge dieser Sprache mit Stand der Datei (felder: id → Felder der Seite)
@@ -261,14 +279,94 @@ export function werkzeugUebersicht(lang, felder = {}) {
     return `<li><span class="when">${t.frei}${stand ? " · " + stand : ""}</span><a href="${up}werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p></li>`;
   }).join("\n");
   const andere = lang === "en" ? "de" : "en", canonical = `${SITE}${UEBERSICHT_PFAD[lang].replace(/index\.html$/, "")}`;
-  const main = `<h1>${t.kurz}</h1>
+  const kachel = p => `<section class="sf-kachel${p.stand === "beta" ? " beta" : ""}" id="${p.id}"><p class="sf-stand">${p.stand === "beta" ? t.inEntwicklung : t.fertig}</p><h2>${esc(p.name)}</h2><p class="frei">${esc(p.text)}</p>
+${p.punkte ? `<ul>${p.punkte.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+<p class="sf-wege">${p.href ? `<a class="sf-knopf" href="${up}werkzeuge/${p.href}">${esc(p.knopf)}</a>` : `<a class="sf-knopf" href="#beta">${esc(t.beta)}</a>`}</p></section>`;
+  const main = `<article class="smartformulare"><h1 class="sf-wortmarke" aria-label="${t.kurz}">Smart<span>Formular</span></h1>
 <p class="intro">${t.lead}</p>
-${eigene.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.leer}</p>`}
+<div class="sf-kacheln">${t.produkte.map(kachel).join("\n")}</div>
+<p class="sf-ki frei">${esc(t.ki)}</p>
+<h2 id="beta">${t.beta}</h2>
+<p>${esc(t.betaLead)}</p>
+<form class="beta" id="beta-anfrage" novalidate>
+<div class="reihe">
+<div><label for="b-firma">${lang === "en" ? "Firm or company" : "Kanzlei oder Unternehmen"}</label><input type="text" id="b-firma" name="firma" maxlength="120" autocomplete="organization"></div>
+<div><label for="b-name">${lang === "en" ? "Your name" : "Ihr Name"}</label><input type="text" id="b-name" name="name" maxlength="80" required autocomplete="name"></div>
+<div><label for="b-email">${lang === "en" ? "Email address" : "E-Mail-Adresse"}</label><input type="email" id="b-email" name="email" maxlength="120" required autocomplete="email"></div>
+<div><label for="b-produkt">${lang === "en" ? "Interested in" : "Interesse an"}</label><select id="b-produkt" name="produkt"><option value="fibu">SmartFormular Fibu</option><option value="deklaration">SmartFormular Deklaration</option><option value="beide">${lang === "en" ? "Both" : "Beiden"}</option></select></div>
+</div>
+<label for="b-nachricht">${lang === "en" ? "Your situation or question" : "Ihre Lage oder Frage"} <span>${lang === "en" ? "(optional)" : "(freiwillig)"}</span></label><textarea id="b-nachricht" name="nachricht" maxlength="2000"></textarea>
+<div class="falle" aria-hidden="true"><label for="b-website">Website</label><input type="text" id="b-website" name="website" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="beta-senden">${t.beta}</button>
+<p class="status" id="beta-status" role="status" aria-live="polite"></p>
+<p class="meta hinweis">${lang === "en" ? "Your details are emailed to me and used only to reply. Details are under Legal notice · Privacy." : "Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz."}</p>
+</form>
+${eigene.length ? `<h2 id="downloads">${lang === "en" ? "Downloads" : "Zum Herunterladen"}</h2><ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.leer}</p>`}
 <p class="meta"><a href="${up}${T[andere].toolsHref}" lang="${andere}" hreflang="${andere}">${t.andereUebersicht}</a></p>
-${newsletterKasten(lang, up, "werkzeug")}`;
+${newsletterKasten(lang, up, "werkzeug")}</article>
+${BETA_SKRIPT(lang)}`;
   return rahmen({ lang, up, titel: t.kurz, seitentitel: t.seitentitel, beschr: t.lead, canonical,
-    alternates: [{ lang, href: canonical }, { lang: andere, href: `${SITE}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}` }], main, aktiv: "tools" });
+    alternates: [{ lang, href: canonical }, { lang: andere, href: `${SITE}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}` }], main, aktiv: "tools", css: SF_CSS });
 }
+
+// Beta-Anfrage: wie das Kontaktformular der Startseite an Gochs Worker (contact.js); Falle „website“, Ladezeitpunkt t
+const BETA_SKRIPT = lang => `<script>
+(() => {
+  'use strict';
+  const form = document.getElementById('beta-anfrage'); if (!form) return;
+  const status = document.getElementById('beta-status'), knopf = document.getElementById('beta-senden'), geladen = Date.now();
+  const T = ${JSON.stringify(lang === "en" ? { betreff: "Beta access request: SmartFormular", produkt: "Interested in", firma: "Firm or company", sendet: "Sending …", gesendet: "Thank you – your request has arrived. I will get back to you by email.", ungueltig: "Please give your name and a valid email address.", fehler: "Sending did not work. Please email me directly at robin@robin.vision." }
+    : { betreff: "Anfrage Beta-Zugang SmartFormular", produkt: "Interesse an", firma: "Kanzlei oder Unternehmen", sendet: "Wird gesendet …", gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.", ungueltig: "Bitte Name und eine gültige E-Mail-Adresse angeben.", fehler: "Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision." })};
+  const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const name = (d.name || '').trim(), email = (d.email || '').trim();
+    if (name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) { say(T.ungueltig, 'warn'); return; }
+    const message = [T.betreff, '', T.produkt + ': ' + (d.produkt || ''), d.firma ? T.firma + ': ' + d.firma.trim() : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\\n').trim();
+    knopf.disabled = true; say(T.sendet);
+    try {
+      const r = await fetch(${JSON.stringify(KONTAKT_ENDPUNKT)}, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang: ${JSON.stringify(lang)}, name, email, phone: '', message, website: d.website || '', t: geladen }) });
+      const out = await r.json().catch(() => ({}));
+      if (r.ok && out.ok) { say(T.gesendet, 'ok'); form.reset(); } else say(out.error || T.fehler, 'warn');
+    } catch (_) { say(T.fehler, 'warn'); }
+    knopf.disabled = false;
+  });
+})();
+</script>`;
+
+// Erscheinungsbild SmartFormular „Nacht und Violett“ (Robin 29.09.2026, #77 im Member-Repo; seit 17.10.2026 auch der Bereich auf der Website)
+export const SF_CSS = `:root { --green: #EDE9FE; --copper: #A78BFA; --ink: #EDE9FE; --ink-soft: #C4B5FD; --ink-muted: #8B83A8; --line: #2A2340; --paper: #0E0B14; }
+body { background: #0E0B14; color: #EDE9FE; }
+.kopf .termin { border-color: #A78BFA; color: #EDE9FE; } .kopf .termin:hover { background: #7C3AED; color: #fff; }
+.kopf .menue nav { background: #1C1726; box-shadow: 0 10px 30px rgba(0,0,0,.5); } .kopf .menue nav a:hover { background: rgba(255,255,255,.06); }
+.sf-marke { margin: 0 0 6px; font: 500 15px/1.2 var(--sans); letter-spacing: .02em; color: #fff; } .sf-marke span, .sf-wortmarke span { color: #A78BFA; }
+.sf-kacheln { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 28px 0 18px; }
+.sf-kachel { padding: 24px 24px 20px; border: 1px solid #2A2340; border-radius: 6px; background: #1C1726; }
+.sf-kachel.beta { background: #16121f; }
+.sf-kachel h2 { margin: 0 0 10px; font: 500 24px/1.25 var(--serif); color: #fff; }
+.sf-kachel p { color: #C4B5FD; max-width: none; text-align: left; }
+.sf-kachel ul { margin: 0 0 14px; padding-left: 20px; } .sf-kachel li { color: #C4B5FD; font-size: 15px; margin-bottom: 4px; text-align: left; max-width: none; }
+.sf-stand { margin: 0 0 8px; font: 500 12px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
+.sf-kachel.beta .sf-stand { color: #D4C8FF; }
+.sf-wege { margin: 10px 0 0; }
+.sf-knopf { display: inline-block; padding: 10px 18px; border-radius: 4px; background: #7C3AED; color: #fff; text-decoration: none; font-size: 15px; } .sf-knopf:hover { background: #6D28D9; }
+.sf-ki { color: #C4B5FD; font-size: 15px; border-left: 2px solid #7C3AED; padding-left: 14px; }
+.beta { position: relative; margin: 8px 0 8px; padding: 22px 24px 20px; border: 1px solid #2A2340; border-left: 2px solid #7C3AED; border-radius: 6px; background: #1C1726; }
+.beta .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.beta label { display: block; font-size: 14px; color: #C4B5FD; margin: 12px 0 4px; }
+.beta input, .beta select, .beta textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid #2A2340; border-radius: 4px; background: #0E0B14; color: #EDE9FE; }
+.beta textarea { min-height: 100px; resize: vertical; }
+.beta button { margin-top: 18px; padding: 11px 20px; border: 1px solid #7C3AED; border-radius: 4px; background: #7C3AED; color: #fff; font: inherit; font-size: 15px; cursor: pointer; } .beta button:hover { background: #6D28D9; } .beta button:disabled { opacity: .6; }
+.beta .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; } .beta .status.ok { color: #A7F3D0; } .beta .status.warn { color: #FCA5A5; }
+.beta .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.list li { border-color: #2A2340; } .list a { color: #fff; } .list .when { color: #8B83A8; } .list p { color: #C4B5FD; }
+.download { background: #1C1726; border-color: #2A2340; border-left-color: #7C3AED; } .download a.knopf { background: #7C3AED; border-color: #7C3AED; color: #fff; } .download a.knopf:hover { background: #6D28D9; }
+.newsletter { background: #1C1726; border-color: #2A2340; border-left-color: #A78BFA; }
+.newsletter input { background: #0E0B14; color: #EDE9FE; border-color: #2A2340; } .newsletter button { background: #7C3AED; border-color: #7C3AED; color: #fff; }
+.foot a:hover { color: #EDE9FE; }
+@media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }`;
 
 // Weiterleitung für eine alte Adresse (GitHub Pages kennt keine Weiterleitungen auf dem Server)
 export function weiterleitung(zielId) {

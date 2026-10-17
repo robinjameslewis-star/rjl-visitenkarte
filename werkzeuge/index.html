@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kostenlose Werkzeuge für Buchhaltung und Kanzlei – offline im Browser | robin.vision</title>
-<meta name="description" content="Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.">
+<title>SmartFormular von robin.vision: Fibu lite kostenlos, Fibu und Deklaration als Beta – Buchhaltung und Jahresabschluss mit KI, human in the loop | robin.vision</title>
+<meta name="description" content="Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.">
 <link rel="icon" href="../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/werkzeuge/">
@@ -12,8 +12,8 @@
 <link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/">
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Werkzeuge">
-<meta property="og:description" content="Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.">
+<meta property="og:title" content="SmartFormular">
+<meta property="og:description" content="Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://robin.vision/werkzeuge/">
 <meta name="twitter:card" content="summary">
@@ -100,22 +100,76 @@ article li { margin-bottom: 6px; }
 .foot { max-width: 780px; margin: 0 auto; padding: 0 6vw 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
-</style>
+:root { --green: #EDE9FE; --copper: #A78BFA; --ink: #EDE9FE; --ink-soft: #C4B5FD; --ink-muted: #8B83A8; --line: #2A2340; --paper: #0E0B14; }
+body { background: #0E0B14; color: #EDE9FE; }
+.kopf .termin { border-color: #A78BFA; color: #EDE9FE; } .kopf .termin:hover { background: #7C3AED; color: #fff; }
+.kopf .menue nav { background: #1C1726; box-shadow: 0 10px 30px rgba(0,0,0,.5); } .kopf .menue nav a:hover { background: rgba(255,255,255,.06); }
+.sf-marke { margin: 0 0 6px; font: 500 15px/1.2 var(--sans); letter-spacing: .02em; color: #fff; } .sf-marke span, .sf-wortmarke span { color: #A78BFA; }
+.sf-kacheln { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 28px 0 18px; }
+.sf-kachel { padding: 24px 24px 20px; border: 1px solid #2A2340; border-radius: 6px; background: #1C1726; }
+.sf-kachel.beta { background: #16121f; }
+.sf-kachel h2 { margin: 0 0 10px; font: 500 24px/1.25 var(--serif); color: #fff; }
+.sf-kachel p { color: #C4B5FD; max-width: none; text-align: left; }
+.sf-kachel ul { margin: 0 0 14px; padding-left: 20px; } .sf-kachel li { color: #C4B5FD; font-size: 15px; margin-bottom: 4px; text-align: left; max-width: none; }
+.sf-stand { margin: 0 0 8px; font: 500 12px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
+.sf-kachel.beta .sf-stand { color: #D4C8FF; }
+.sf-wege { margin: 10px 0 0; }
+.sf-knopf { display: inline-block; padding: 10px 18px; border-radius: 4px; background: #7C3AED; color: #fff; text-decoration: none; font-size: 15px; } .sf-knopf:hover { background: #6D28D9; }
+.sf-ki { color: #C4B5FD; font-size: 15px; border-left: 2px solid #7C3AED; padding-left: 14px; }
+.beta { position: relative; margin: 8px 0 8px; padding: 22px 24px 20px; border: 1px solid #2A2340; border-left: 2px solid #7C3AED; border-radius: 6px; background: #1C1726; }
+.beta .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.beta label { display: block; font-size: 14px; color: #C4B5FD; margin: 12px 0 4px; }
+.beta input, .beta select, .beta textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid #2A2340; border-radius: 4px; background: #0E0B14; color: #EDE9FE; }
+.beta textarea { min-height: 100px; resize: vertical; }
+.beta button { margin-top: 18px; padding: 11px 20px; border: 1px solid #7C3AED; border-radius: 4px; background: #7C3AED; color: #fff; font: inherit; font-size: 15px; cursor: pointer; } .beta button:hover { background: #6D28D9; } .beta button:disabled { opacity: .6; }
+.beta .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; } .beta .status.ok { color: #A7F3D0; } .beta .status.warn { color: #FCA5A5; }
+.beta .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.list li { border-color: #2A2340; } .list a { color: #fff; } .list .when { color: #8B83A8; } .list p { color: #C4B5FD; }
+.download { background: #1C1726; border-color: #2A2340; border-left-color: #7C3AED; } .download a.knopf { background: #7C3AED; border-color: #7C3AED; color: #fff; } .download a.knopf:hover { background: #6D28D9; }
+.newsletter { background: #1C1726; border-color: #2A2340; border-left-color: #A78BFA; }
+.newsletter input { background: #0E0B14; color: #EDE9FE; border-color: #2A2340; } .newsletter button { background: #7C3AED; border-color: #7C3AED; color: #fff; }
+.foot a:hover { color: #EDE9FE; }
+@media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }</style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
 <a class="marke" href="../">robin<span class="punkt">.</span>vision</a>
-<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../schulung/">Schulung</a><a href="../ueber-mich/">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">SmartFormular</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
 <a class="termin" href="../#kontakt">Termin</a>
 <details class="menue"><summary aria-label="Menü"><span></span></summary>
-<nav aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../schulung/">Schulung</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/en/" lang="en" hreflang="en">English</a></nav>
+<nav aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">SmartFormular</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/en/" lang="en" hreflang="en">English</a></nav>
 </details>
 </header>
 <main>
-<h1>Werkzeuge</h1>
-<p class="intro">Für den Alltag außerhalb des perfekten Prozesses, mitten in der Transformation: kostenlose Werkzeuge, die offline im Browser laufen. Ihre Daten verlassen den Rechner nicht.</p>
-<ul class="list">
-<li><span class="when">Kostenloses Werkzeug · Fassung a396da5 vom 15.10.2026</span><a href="../werkzeuge/buchungsstapel-generator/">Buchungsstapel-Generator</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p></li>
+<article class="smartformulare"><h1 class="sf-wortmarke" aria-label="SmartFormular">Smart<span>Formular</span></h1>
+<p class="intro">Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
+<div class="sf-kacheln"><section class="sf-kachel" id="fibu-lite"><p class="sf-stand">Kostenlos · fertig</p><h2>SmartFormular Fibu lite</h2><p class="frei">Der Buchungsstapel-Generator: Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zu Buchungsstapeln im DATEV-Format, je Auszug und Monat einer – nach dem Muster des Vormonats, mit Summenprüfung. Eine Datei, läuft offline im Browser, kostenlos.</p>
+
+<p class="sf-wege"><a class="sf-knopf" href="../werkzeuge/buchungsstapel-generator/">Zur Seite und zum Download</a></p></section>
+<section class="sf-kachel beta" id="fibu"><p class="sf-stand">In Entwicklung · Beta 2027</p><h2>SmartFormular Fibu</h2><p class="frei">Aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und SuSa-Listen stellt Fibu die Zusammenhänge her – Zahlung zu Posten zu Beleg, wiederkehrende Buchungen, Lücken und Dubletten – und erstellt den geprüften Buchungsstapel für den laufenden Monat: mit Herkunft je Zeile und einer Klärliste für die Sachbearbeitung. Festgeschrieben wird im Buchhaltungsprogramm, nach Ihrer Prüfung.</p>
+<ul><li>Belege lesen (PDF, E-Rechnung) und Zahlungen zuordnen, Skonto und Teilzahlungen</li><li>OPOS ausziffern, SuSa abstimmen, fehlende wiederkehrende Buchungen finden</li><li>Muster der letzten zwölf Monate je Mandant – als Datei bei Ihnen, kein Modelltraining</li><li>Klärliste statt Rätselraten; Herkunft je Zeile als Prüfprotokoll (GoBD)</li></ul>
+<p class="sf-wege"><a class="sf-knopf" href="#beta">Beta-Zugang anfragen</a></p></section>
+<section class="sf-kachel beta" id="deklaration"><p class="sf-stand">In Entwicklung · Beta 2027</p><h2>SmartFormular Deklaration</h2><p class="frei">Für den Jahresabschluss in der Kanzlei: Aus Vorjahresdaten, Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan aus dem Vorjahr, Rechenmodule mit Rechenspur, ein gestufter Prüfkatalog, der Vorschlagsstapel der Abschlussbuchungen, Berichte und die Vorbereitung der E-Bilanz – jeder Vorschlag mit Herleitung. Wahlrechte und Würdigung bleiben beim Berufsträger.</p>
+<ul><li>Abschlussplan: welche Abschlussbuchungen fehlen, welche Abgrenzungen aufzulösen sind</li><li>AfA, Rückstellungen, Abgrenzungen, § 7g und Überleitung mit Rechenspur</li><li>Werte aus Darlehensverträgen, Policen und Beschlüssen mit Pflichtzitat</li><li>Abschlussmappe, Unterlagenanforderung, E-Bilanz-Vorbereitung, Entscheidungsvorlagen</li></ul>
+<p class="sf-wege"><a class="sf-knopf" href="#beta">Beta-Zugang anfragen</a></p></section></div>
+<p class="sf-ki frei">Ein Sprachmodell kann, muss aber nicht eingebunden sein: in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an einen Anbieter – das Programm gibt dem Modell feste Vorgaben als Skills, Rechnen und Prüfen bleiben Regelwerk und Mensch.</p>
+<h2 id="beta">Beta-Zugang anfragen</h2>
+<p>Fibu und Deklaration werden im Memberbereich von robin.vision erprobt – mit Testdaten, mit Ihrer Rückmeldung, bevor sie fertig sind. Ich antworte persönlich per E-Mail.</p>
+<form class="beta" id="beta-anfrage" novalidate>
+<div class="reihe">
+<div><label for="b-firma">Kanzlei oder Unternehmen</label><input type="text" id="b-firma" name="firma" maxlength="120" autocomplete="organization"></div>
+<div><label for="b-name">Ihr Name</label><input type="text" id="b-name" name="name" maxlength="80" required autocomplete="name"></div>
+<div><label for="b-email">E-Mail-Adresse</label><input type="email" id="b-email" name="email" maxlength="120" required autocomplete="email"></div>
+<div><label for="b-produkt">Interesse an</label><select id="b-produkt" name="produkt"><option value="fibu">SmartFormular Fibu</option><option value="deklaration">SmartFormular Deklaration</option><option value="beide">Beiden</option></select></div>
+</div>
+<label for="b-nachricht">Ihre Lage oder Frage <span>(freiwillig)</span></label><textarea id="b-nachricht" name="nachricht" maxlength="2000"></textarea>
+<div class="falle" aria-hidden="true"><label for="b-website">Website</label><input type="text" id="b-website" name="website" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="beta-senden">Beta-Zugang anfragen</button>
+<p class="status" id="beta-status" role="status" aria-live="polite"></p>
+<p class="meta hinweis">Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.</p>
+</form>
+<h2 id="downloads">Zum Herunterladen</h2><ul class="list">
+<li><span class="when">Kostenlos · Fassung a396da5 vom 15.10.2026</span><a href="../werkzeuge/buchungsstapel-generator/">SmartFormular Fibu lite</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p></li>
 </ul>
 <p class="meta"><a href="../werkzeuge/en/" lang="en" hreflang="en">English</a></p>
 <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
@@ -127,7 +181,31 @@ article li { margin-bottom: 6px; }
 <button type="submit" id="nl-send">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
 <p class="hint">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="../#privacy">Datenschutz</a>.</p>
 </form>
-</section>
+</section></article>
+<script>
+(() => {
+  'use strict';
+  const form = document.getElementById('beta-anfrage'); if (!form) return;
+  const status = document.getElementById('beta-status'), knopf = document.getElementById('beta-senden'), geladen = Date.now();
+  const T = {"betreff":"Anfrage Beta-Zugang SmartFormular","produkt":"Interesse an","firma":"Kanzlei oder Unternehmen","sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Name und eine gültige E-Mail-Adresse angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision."};
+  const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const name = (d.name || '').trim(), email = (d.email || '').trim();
+    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { say(T.ungueltig, 'warn'); return; }
+    const message = [T.betreff, '', T.produkt + ': ' + (d.produkt || ''), d.firma ? T.firma + ': ' + d.firma.trim() : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\n').trim();
+    knopf.disabled = true; say(T.sendet);
+    try {
+      const r = await fetch("https://goch.robin.vision/contact", { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang: "de", name, email, phone: '', message, website: d.website || '', t: geladen }) });
+      const out = await r.json().catch(() => ({}));
+      if (r.ok && out.ok) { say(T.gesendet, 'ok'); form.reset(); } else say(out.error || T.fehler, 'warn');
+    } catch (_) { say(T.fehler, 'warn'); }
+    knopf.disabled = false;
+  });
+})();
+</script>
 </main>
 <footer class="foot"><a href="../#privacy">Impressum · Datenschutz</a><a href="#newsletter">Newsletter</a><a href="../blog/feed.xml">RSS</a></footer>
 <script src="../newsletter.js?v=20261016" defer></script>

@@ -17,9 +17,9 @@ const lesen = p => readFileSync(root + p, "utf8");
 
 const SPRACHE = {
   de: { titel: "Buchungsstapel-Generator", fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
-    neu: "Was ist neu", marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/ },
+    neu: "Was ist neu", marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">SmartFormular<\/a>/ },
   en: { titel: "Booking Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
-    neu: "What's new", marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/ },
+    neu: "What's new", marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">SmartFormular<\/a>/ },
 };
 const felder = {};
 for (const w of WERKZEUGE) {
@@ -32,7 +32,7 @@ for (const w of WERKZEUGE) {
   check(createHash("sha256").update(roh).digest("hex") === f.datei.sha256 && roh.length === f.datei.bytes, "Größe und SHA-256 stimmen mit der Datei überein");
   const text = roh.toString("utf8");
   check(text.includes(`${s.fassung} <span class="mono">${f.datei.fassung}</span>`), "Fassung stimmt mit dem Fuß der Datei überein");
-  check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.titel}</title>`), "Datei in der Sprache der Seite");
+  check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.dateiTitel || w.titel}</title>`), "Datei in der Sprache der Seite, mit ihrem eigenen Titel");
   check(text.includes(`robin.vision/werkzeuge/${w.id}/`), "Fuß der Datei verweist auf diese Seite");
   check(html.includes(`<html lang="${w.lang}">`) && html.includes(`<title>${w.seitentitel}</title>`) && html.includes(`<h1>${w.titel}</h1>`), "Titel (mit Suchbegriffen) und Sprache");
   check(html.includes(`<p class="untertitel">${w.untertitel}</p>`) && html.includes(`<meta name="description" content="${w.meta}">`) && /DATEV/.test(w.seitentitel) && /DATEV/.test(w.meta), "Untertitel und Beschreibung mit Suchbegriffen");
@@ -77,7 +77,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
   check(html === werkzeugUebersicht(lang, felder), `${pfad} ist aktuell`);
   const eigene = WERKZEUGE.filter(w => w.lang === lang), fremde = WERKZEUGE.filter(w => w.lang !== lang);
-  check(eigene.every(w => html.includes(`werkzeuge/${w.id}/">${w.titel}</a>`)) && fremde.every(w => !html.includes(`>${w.titel}</a>`)), `${pfad}: nur Werkzeuge dieser Sprache`);
+  check(eigene.every(w => html.includes(`werkzeuge/${w.id}/">${w.titel}</a>`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`)), `${pfad}: nur Werkzeuge dieser Sprache`);
   check(html.includes('id="newsletter"') && html.includes(`<html lang="${lang}">`), `${pfad}: Newsletter und Sprache`);
 }
 for (const a of ALTE_ADRESSEN) {
@@ -86,7 +86,7 @@ for (const a of ALTE_ADRESSEN) {
   check(readdirSync(root + a.pfad.replace(/index\.html$/, "")).length === 1, `${a.pfad}: keine alte Datei mehr daneben`);
 }
 const start = lesen("index.html");
-check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
+check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">SmartFormular<\/a>/.test(start), "Startseite: Menüpunkt „SmartFormular“ führt auf die Übersicht");
 check(WERKZEUGE.every(w => start.includes(`<li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"}><span class="when">`) && start.includes(`href="werkzeuge/${w.id}/">${w.titel}</a>`)), "Startseite: Werkzeugliste je Sprache");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");

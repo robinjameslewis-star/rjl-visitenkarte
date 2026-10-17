@@ -5,8 +5,8 @@
 export const SEITEN = [
   { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-16" },
   { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-16" },
-  { id: "schulung", lang: "de", adresse: "schulung/", stand: "2026-10-16" },
-  { id: "schulung", lang: "en", adresse: "training/", stand: "2026-10-16" },
+  { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-17" },
+  { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-17" },
 ];
 
 const x = s => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
