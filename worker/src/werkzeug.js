@@ -16,17 +16,17 @@ const SITE = "https://robin.vision/";
 
 // Werkzeuge mit ihren Sprachfassungen. „gegenstueck“ ist dieselbe Datei in der anderen Sprache.
 export const WERKZEUGE = [
-  { id: "buchungsstapel-generator", lang: "de", titel: "SmartFormular Fibu lite", datei: "Buchungsstapel-Generator.html", dateiTitel: "Buchungsstapel-Generator",
+  { id: "buchungsstapel-generator", lang: "de", titel: "SmartFormular FiBu lite", datei: "Buchungsstapel-Generator.html", dateiTitel: "Buchungsstapel-Generator",
     gegenstueck: "booking-batch-generator",
     kurz: "Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.",
     // Für Suchmaschinen (16.10.2026): Seitentitel und Beschreibung mit den Begriffen, nach denen gesucht wird; Untertitel unter der Überschrift
-    seitentitel: "SmartFormular Fibu lite (Buchungsstapel-Generator): Kontoauszug (PDF) in DATEV-Buchungsstapel umwandeln – kostenlos, offline",
+    seitentitel: "SmartFormular FiBu lite (Buchungsstapel-Generator): Kontoauszug (PDF) in DATEV-Buchungsstapel umwandeln – kostenlos, offline",
     meta: "Kostenloses Werkzeug: Kontoauszüge als PDF, auch Scans, in Buchungsstapel im DATEV-Format (EXTF) umwandeln. Läuft offline im Browser, ohne Upload und ohne Anmeldung – für die Tage, an denen der Bankabruf ausfällt.",
     untertitel: "Der Buchungsstapel-Generator: Kontoauszug als PDF → Buchungsstapel im DATEV-Format (EXTF), offline im Browser" },
-  { id: "booking-batch-generator", lang: "en", titel: "SmartFormular Fibu lite", datei: "Booking-Batch-Generator.html", dateiTitel: "Booking Batch Generator",
+  { id: "booking-batch-generator", lang: "en", titel: "SmartFormular FiBu lite", datei: "Booking-Batch-Generator.html", dateiTitel: "Booking Batch Generator",
     gegenstueck: "buchungsstapel-generator",
     kurz: "The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.",
-    seitentitel: "SmartFormular Fibu lite (Booking Batch Generator): convert bank statement PDFs into DATEV booking batches – free, offline",
+    seitentitel: "SmartFormular FiBu lite (Booking Batch Generator): convert bank statement PDFs into DATEV booking batches – free, offline",
     meta: "Free tool: convert bank statements in PDF format, scans included, into booking batches in the DATEV format (EXTF). Runs offline in your browser, no upload, no sign-up – for the days when the bank feed is down.",
     untertitel: "The Booking Batch Generator: bank statement PDF → booking batch in the DATEV format (EXTF), offline in your browser" },
 ];
@@ -89,9 +89,9 @@ const T = {
     frei: "Kostenlos", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
-    kurz: "SmartFormular", seitentitel: "SmartFormular von robin.vision: Fibu lite kostenlos, Fibu und Deklaration als Beta – Buchhaltung und Jahresabschluss mit KI, human in the loop | robin.vision",
-    lead: "Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.",
-    andereUebersicht: "English", leer: "Noch kein SmartFormular.", ausblick: "Was kommt", beta: "Beta-Zugang anfragen", betaLead: "Fibu und Deklaration werden im Memberbereich von robin.vision erprobt – mit Testdaten, mit Ihrer Rückmeldung, bevor sie fertig sind. Ich antworte persönlich per E-Mail.",
+    kurz: "SmartFormular", seitentitel: "SmartFormular von robin.vision: FiBu lite kostenlos, FiBu und Deklaration als Beta – Buchhaltung und Jahresabschluss mit KI, human in the loop | robin.vision",
+    lead: "Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. FiBu lite gibt es heute kostenlos; FiBu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.",
+    andereUebersicht: "English", leer: "Noch kein SmartFormular.", ausblick: "Was kommt", beta: "Beta-Zugang anfragen", betaLead: "FiBu und Deklaration werden im Memberbereich von robin.vision erprobt – mit Testdaten, mit Ihrer Rückmeldung, bevor sie fertig sind. Ich antworte persönlich per E-Mail.",
     lite: "Kostenlos herunterladen", inEntwicklung: "In Entwicklung · Beta 2027", fertig: "Kostenlos · fertig", ki: "Ein Sprachmodell kann, muss aber nicht eingebunden sein: in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an einen Anbieter – das Programm gibt dem Modell feste Vorgaben als Skills, Rechnen und Prüfen bleiben Regelwerk und Mensch.",
     produkte: PRODUKTE.de,
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
@@ -101,9 +101,9 @@ const T = {
     frei: "Free", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
-    kurz: "SmartFormular", seitentitel: "SmartFormular by robin.vision: Fibu lite free, Fibu and Deklaration in beta – bookkeeping and year-end accounts with AI, human in the loop | robin.vision",
-    lead: "A SmartFormular looks like a familiar form, helps you fill it in, guarantees completeness and starts the actual casework while you type. It supports accounting staff and does not replace them: every suggestion carries its origin, and people do the checking. Fibu lite is free today; Fibu and Deklaration are in the making – beta access in the member area on request.",
-    andereUebersicht: "Deutsch", leer: "No SmartFormular yet.", ausblick: "What's next", beta: "Request beta access", betaLead: "Fibu and Deklaration are being tested in the robin.vision member area – with test data and your feedback, before they are finished. I reply personally by email.",
+    kurz: "SmartFormular", seitentitel: "SmartFormular by robin.vision: FiBu lite free, FiBu and Deklaration in beta – bookkeeping and year-end accounts with AI, human in the loop | robin.vision",
+    lead: "A SmartFormular looks like a familiar form, helps you fill it in, guarantees completeness and starts the actual casework while you type. It supports accounting staff and does not replace them: every suggestion carries its origin, and people do the checking. FiBu lite is free today; FiBu and Deklaration are in the making – beta access in the member area on request.",
+    andereUebersicht: "Deutsch", leer: "No SmartFormular yet.", ausblick: "What's next", beta: "Request beta access", betaLead: "FiBu and Deklaration are being tested in the robin.vision member area – with test data and your feedback, before they are finished. I reply personally by email.",
     lite: "Download for free", inEntwicklung: "In development · beta 2027", fertig: "Free · ready", ki: "A language model can, but need not, be involved: hosted in the EU, no training on customer data, no vendor lock-in – the program gives the model fixed instructions as skills, while calculating and checking stay with rules and people.",
     produkte: PRODUKTE.en,
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
@@ -238,7 +238,7 @@ ${rest.length ? renderMarkdown(rest.join("\n"), "", lang) : ""}
 ${neu ? `<h2 id="neu">${t.neu}</h2>\n<div class="neuigkeiten">\n${neuigkeiten(neu).map(e => `<h3 id="fassung-${esc(e.fassung || e.datum)}">${esc(e.titel)}</h3>\n${renderMarkdown(e.text, "", lang)}`).join("\n")}\n</div>` : ""}
 ${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}
 <h2 id="ausblick">${t.ausblick}</h2>
-<p>${lang === "en" ? "Fibu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular Fibu</strong> turns statements, documents, open-item and trial-balance lists into the checked booking batch of the month, with the origin of every line; <strong>SmartFormular Deklaration</strong> prepares year-end accounts with a closing plan, a calculation trace and the e-balance. Beta access in the member area on request." : "Fibu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular Fibu</strong> macht aus Kontoauszügen, Belegen, OPOS- und SuSa-Listen den geprüften Buchungsstapel des Monats mit Herkunft je Zeile; <strong>SmartFormular Deklaration</strong> bereitet den Jahresabschluss vor – Abschlussplan, Rechenspur, E-Bilanz. Beta-Zugang im Memberbereich auf Anfrage."}
+<p>${lang === "en" ? "FiBu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular FiBu</strong> turns statements, documents, open-item and trial-balance lists into the checked booking batch of the month, with the origin of every line; <strong>SmartFormular Deklaration</strong> prepares year-end accounts with a closing plan, a calculation trace and the e-balance. Beta access in the member area on request." : "FiBu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen, Belegen, OPOS- und SuSa-Listen den geprüften Buchungsstapel des Monats mit Herkunft je Zeile; <strong>SmartFormular Deklaration</strong> bereitet den Jahresabschluss vor – Abschlussplan, Rechenspur, E-Bilanz. Beta-Zugang im Memberbereich auf Anfrage."}
 <a href="${up}${T[lang].toolsHref}#beta">${lang === "en" ? "Request beta access" : "Beta-Zugang anfragen"}</a>.</p>
 <h2 id="nutzungsbedingungen">${t.nutzung}</h2>
 <div class="nutzung">

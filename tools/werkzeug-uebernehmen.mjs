@@ -167,9 +167,9 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const START_MARKE = "<!-- werkzeuge:liste -->", ENDE_MARKE = "<!-- /werkzeuge:liste -->";
 const start = readFileSync("index.html", "utf8"), i = start.indexOf(START_MARKE), j = start.indexOf(ENDE_MARKE);
 if (i < 0 || j < i) { console.error("index.html: Marken für die Werkzeugliste fehlen."); process.exit(1); }
-// Karte im SmartFormular-Erscheinungsbild (Robin, 17.10.2026): Fibu lite mit Knopf zum Werkzeug, darunter die Ankündigungen Fibu und Deklaration
-const SF = { de: { fertig: "Kostenlos · fertig", beta: "In Entwicklung · Beta 2027", laden: "Kostenlos herunterladen", alle: "Alle SmartFormular-Produkte", uebersicht: "werkzeuge/" },
-  en: { fertig: "Free · ready", beta: "In development · beta 2027", laden: "Download for free", alle: "All SmartFormular products", uebersicht: "werkzeuge/en/" } };
+// Karte im SmartFormular-Erscheinungsbild (Robin, 17.10.2026): FiBu lite mit Knopf zum Werkzeug, darunter die Ankündigungen FiBu und Deklaration
+const SF = { de: { fertig: "Kostenlos · verfügbar", beta: "Beta · auf Anfrage", laden: "Kostenlos herunterladen", alle: "Alle SmartFormular-Produkte", uebersicht: "werkzeuge/" },
+  en: { fertig: "Free · available", beta: "Beta · on request", laden: "Download for free", alle: "All SmartFormular products", uebersicht: "werkzeuge/en/" } };
 const liste = WERKZEUGE.map(w => {
   const s = SF[w.lang], bald = PRODUKTE[w.lang].filter(p => p.stand === "beta");
   return `      <li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"} class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">${s.fertig}</span><a class="sf-titel" href="werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/${w.id}/">${s.laden}</a><a class="sf-mehr" href="${s.uebersicht}">${s.alle}</a></p>

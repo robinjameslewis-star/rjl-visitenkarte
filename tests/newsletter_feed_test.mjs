@@ -33,7 +33,7 @@ for (const lang of ["de", "en"]) {
   check((xml.match(/<item>/g) || []).length === eigene.length + fassungen.length && (xml.match(/<\/item>/g) || []).length === eigene.length + fassungen.length, `${pfad}: ein Eintrag je Impuls und je Fassung (${eigene.length} + ${fassungen.length})`);
   check(eigene.every(p => xml.includes(`<guid isPermaLink="true">${SITE}blog/${p.slug}/</guid>`)) && fremde.every(p => !xml.includes(`blog/${p.slug}/`)), `${pfad}: nur Impulse dieser Sprache`);
   check(fassungen.every(n => xml.includes(`<guid isPermaLink="true">${SITE}werkzeuge/${n.w.id}/#fassung-${n.fassung}</guid>`)), `${pfad}: jede Fassung als eigener Eintrag`);
-  const neuBlock = lang === "en" ? "<h3>New in SmartFormular Fibu lite</h3>" : "<h3>Neu im SmartFormular Fibu lite</h3>";
+  const neuBlock = lang === "en" ? "<h3>New in SmartFormular FiBu lite</h3>" : "<h3>Neu im SmartFormular FiBu lite</h3>";
   check((xml.match(new RegExp(neuBlock.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length === eigene.length, `${pfad}: „Neu im Werkzeug“ in jedem Impuls-Eintrag`);
   check((xml.match(/<h3>SmartFormular<\/h3>/g) || []).length === eigene.length + fassungen.length && (xml.match(/<h3>Workshops<\/h3>/g) || []).length === eigene.length + fassungen.length && xml.includes(`${SITE}workshops/${lang === "en" ? "en/" : ""}`), `${pfad}: Angebote SmartFormular und Workshops in jedem Eintrag`);
   check((xml.match(/<description><!\[CDATA\[</g) || []).length === eigene.length + fassungen.length && !/undefined|\[object/.test(xml), `${pfad}: Beschreibungen der Einträge als HTML in CDATA, nichts Undefiniertes`);

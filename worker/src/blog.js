@@ -331,16 +331,16 @@ ${items}
 // Brevo füllt beim Versand nur die seit dem letzten Lauf neuen Einträge ein (beobachtet an der Test-Mail vom 16.10.2026), darum
 // trägt jeder Eintrag die ganze Ausgabe als HTML (CDATA): der Impuls mit längerem Auszug und Verweis, darunter „Neu im …“ mit
 // der neuesten Fassung des neuesten Werkzeugs (Feld „Was ist neu“ der Werkzeugseite), dann die Angebote (Robin, 17.10.2026):
-// „SmartFormular“ (Fibu lite kostenlos, Fibu und Deklaration als Beta) und „Workshops“ (Unterweisung nach EU AI Act), je mit Link.
+// „SmartFormular“ (FiBu lite kostenlos, FiBu und Deklaration als Beta) und „Workshops“ (Unterweisung nach EU AI Act), je mit Link.
 // Jede Fassung ist zusätzlich ein eigener Eintrag, damit auch in einer Woche ohne Impuls eine Ausgabe entsteht.
 // werkzeuge: [{ id, lang, titel, datei, neuigkeiten: Text }].
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
   de: { titel: "robin.vision – Newsletter", beschr: "Impulse, SmartFormular und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom",
-    sf: "SmartFormular", sfText: "Fibu lite ist kostenlos; SmartFormular Fibu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.", sfLink: "Alle SmartFormular-Produkte",
+    sf: "SmartFormular", sfText: "FiBu lite ist kostenlos; SmartFormular FiBu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.", sfLink: "Alle SmartFormular-Produkte",
     ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Zum Workshop mit Unterweisung nach EU AI Act" },
   en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, SmartFormular and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of",
-    sf: "SmartFormular", sfText: "Fibu lite is free; SmartFormular Fibu and SmartFormular Deklaration are in the making – beta access in the member area on request.", sfLink: "All SmartFormular products",
+    sf: "SmartFormular", sfText: "FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.", sfLink: "All SmartFormular products",
     ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "To the workshop with EU AI Act training" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen
