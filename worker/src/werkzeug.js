@@ -6,6 +6,7 @@
 // Redaktion und Skript sie zurücklesen können. Die Datei liegt daneben und wird mit „download“ ausgeliefert. Unter dem Download
 // steht die Anmeldung zum Newsletter (kasten.js); der Download braucht keine Anmeldung.
 import { renderMarkdown } from "./blog.js";
+import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { kopf, KOPF_CSS } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
@@ -92,11 +93,7 @@ const T = {
     lead: "Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.",
     andereUebersicht: "English", leer: "Noch kein SmartFormular.", ausblick: "Was kommt", beta: "Beta-Zugang anfragen", betaLead: "Fibu und Deklaration werden im Memberbereich von robin.vision erprobt – mit Testdaten, mit Ihrer Rückmeldung, bevor sie fertig sind. Ich antworte persönlich per E-Mail.",
     lite: "Kostenlos herunterladen", inEntwicklung: "In Entwicklung · Beta 2027", fertig: "Kostenlos · fertig", ki: "Ein Sprachmodell kann, muss aber nicht eingebunden sein: in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an einen Anbieter – das Programm gibt dem Modell feste Vorgaben als Skills, Rechnen und Prüfen bleiben Regelwerk und Mensch.",
-    produkte: [
-      { id: "fibu-lite", name: "SmartFormular Fibu lite", stand: "fertig", text: "Der Buchungsstapel-Generator: Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zu Buchungsstapeln im DATEV-Format, je Auszug und Monat einer – nach dem Muster des Vormonats, mit Summenprüfung. Eine Datei, läuft offline im Browser, kostenlos.", href: "buchungsstapel-generator/", knopf: "Zur Seite und zum Download" },
-      { id: "fibu", name: "SmartFormular Fibu", stand: "beta", text: "Aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und SuSa-Listen stellt Fibu die Zusammenhänge her – Zahlung zu Posten zu Beleg, wiederkehrende Buchungen, Lücken und Dubletten – und erstellt den geprüften Buchungsstapel für den laufenden Monat: mit Herkunft je Zeile und einer Klärliste für die Sachbearbeitung. Festgeschrieben wird im Buchhaltungsprogramm, nach Ihrer Prüfung.", punkte: ["Belege lesen (PDF, E-Rechnung) und Zahlungen zuordnen, Skonto und Teilzahlungen", "OPOS ausziffern, SuSa abstimmen, fehlende wiederkehrende Buchungen finden", "Muster der letzten zwölf Monate je Mandant – als Datei bei Ihnen, kein Modelltraining", "Klärliste statt Rätselraten; Herkunft je Zeile als Prüfprotokoll (GoBD)"] },
-      { id: "deklaration", name: "SmartFormular Deklaration", stand: "beta", text: "Für den Jahresabschluss in der Kanzlei: Aus Vorjahresdaten, Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan aus dem Vorjahr, Rechenmodule mit Rechenspur, ein gestufter Prüfkatalog, der Vorschlagsstapel der Abschlussbuchungen, Berichte und die Vorbereitung der E-Bilanz – jeder Vorschlag mit Herleitung. Wahlrechte und Würdigung bleiben beim Berufsträger.", punkte: ["Abschlussplan: welche Abschlussbuchungen fehlen, welche Abgrenzungen aufzulösen sind", "AfA, Rückstellungen, Abgrenzungen, § 7g und Überleitung mit Rechenspur", "Werte aus Darlehensverträgen, Policen und Beschlüssen mit Pflichtzitat", "Abschlussmappe, Unterlagenanforderung, E-Bilanz-Vorbereitung, Entscheidungsvorlagen"] },
-    ],
+    produkte: PRODUKTE.de,
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
   en: {
@@ -108,11 +105,7 @@ const T = {
     lead: "A SmartFormular looks like a familiar form, helps you fill it in, guarantees completeness and starts the actual casework while you type. It supports accounting staff and does not replace them: every suggestion carries its origin, and people do the checking. Fibu lite is free today; Fibu and Deklaration are in the making – beta access in the member area on request.",
     andereUebersicht: "Deutsch", leer: "No SmartFormular yet.", ausblick: "What's next", beta: "Request beta access", betaLead: "Fibu and Deklaration are being tested in the robin.vision member area – with test data and your feedback, before they are finished. I reply personally by email.",
     lite: "Download for free", inEntwicklung: "In development · beta 2027", fertig: "Free · ready", ki: "A language model can, but need not, be involved: hosted in the EU, no training on customer data, no vendor lock-in – the program gives the model fixed instructions as skills, while calculating and checking stay with rules and people.",
-    produkte: [
-      { id: "fibu-lite", name: "SmartFormular Fibu lite", stand: "fertig", text: "The Booking Batch Generator: bank statements as PDF, scan, CAMT, MT940 or CSV become booking batches in the DATEV format, one per statement and month – following the pattern of the previous month, with a totals check. One file, runs offline in your browser, free.", href: "booking-batch-generator/", knopf: "To the page and download" },
-      { id: "fibu", name: "SmartFormular Fibu", stand: "beta", text: "From bank statements, documents, booking batches, open-item and trial-balance lists, Fibu works out the connections – payment to item to document, recurring postings, gaps and duplicates – and produces the checked booking batch for the current month, with the origin of every line and a clarification list for the clerk. Postings are finalised in your accounting software, after your review.", punkte: ["Read documents (PDF, e-invoice) and match payments, including discounts and part payments", "Clear open items, reconcile the trial balance, find missing recurring postings", "Twelve-month pattern per client – a file on your side, no model training", "Clarification list instead of guesswork; origin per line as an audit trail (GoBD)"] },
-      { id: "deklaration", name: "SmartFormular Deklaration", stand: "beta", text: "For year-end accounts in the firm: from prior-year data, contracts, resolutions, the year's postings and bank movements come the closing plan derived from the prior year, calculation modules with a trace, a graded check list, the proposed batch of closing entries, reports and the preparation of the German e-balance sheet – every suggestion with its derivation. Elections and judgement stay with the professional.", punkte: ["Closing plan: which closing entries are missing, which accruals are to be reversed", "Depreciation, provisions, accruals, Section 7g and reconciliation with a trace", "Values from loan agreements, policies and resolutions with a mandatory citation", "Closing file, document requests, e-balance preparation, decision memos"] },
-    ],
+    produkte: PRODUKTE.en,
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
 };
@@ -270,72 +263,6 @@ ${renderMarkdown(hinweis, "", andereLang)}
 }
 
 // Übersicht je Sprache: alle Werkzeuge dieser Sprache mit Stand der Datei (felder: id → Felder der Seite)
-export function werkzeugUebersicht(lang, felder = {}) {
-  const t = T[lang], up = lang === "en" ? "../../" : "../";
-  const eigene = WERKZEUGE.filter(w => w.lang === lang);
-  const items = eigene.map(w => {
-    const d = (felder[w.id] || {}).datei || {};
-    const stand = d.fassung && d.datum ? `${t.fassung} ${esc(d.fassung)} ${t.vom} ${datumText(d.datum, lang)}` : "";
-    return `<li><span class="when">${t.frei}${stand ? " · " + stand : ""}</span><a href="${up}werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p></li>`;
-  }).join("\n");
-  const andere = lang === "en" ? "de" : "en", canonical = `${SITE}${UEBERSICHT_PFAD[lang].replace(/index\.html$/, "")}`;
-  const kachel = p => `<section class="sf-kachel${p.stand === "beta" ? " beta" : ""}" id="${p.id}"><p class="sf-stand">${p.stand === "beta" ? t.inEntwicklung : t.fertig}</p><h2>${esc(p.name)}</h2><p class="frei">${esc(p.text)}</p>
-${p.punkte ? `<ul>${p.punkte.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
-<p class="sf-wege">${p.href ? `<a class="sf-knopf" href="${up}werkzeuge/${p.href}">${esc(p.knopf)}</a>` : `<a class="sf-knopf" href="#beta">${esc(t.beta)}</a>`}</p></section>`;
-  const main = `<article class="smartformulare"><h1 class="sf-wortmarke" aria-label="${t.kurz}">Smart<span>Formular</span></h1>
-<p class="intro">${t.lead}</p>
-<div class="sf-kacheln">${t.produkte.map(kachel).join("\n")}</div>
-<p class="sf-ki frei">${esc(t.ki)}</p>
-<h2 id="beta">${t.beta}</h2>
-<p>${esc(t.betaLead)}</p>
-<form class="beta" id="beta-anfrage" novalidate>
-<div class="reihe">
-<div><label for="b-firma">${lang === "en" ? "Firm or company" : "Kanzlei oder Unternehmen"}</label><input type="text" id="b-firma" name="firma" maxlength="120" autocomplete="organization"></div>
-<div><label for="b-name">${lang === "en" ? "Your name" : "Ihr Name"}</label><input type="text" id="b-name" name="name" maxlength="80" required autocomplete="name"></div>
-<div><label for="b-email">${lang === "en" ? "Email address" : "E-Mail-Adresse"}</label><input type="email" id="b-email" name="email" maxlength="120" required autocomplete="email"></div>
-<div><label for="b-produkt">${lang === "en" ? "Interested in" : "Interesse an"}</label><select id="b-produkt" name="produkt"><option value="fibu">SmartFormular Fibu</option><option value="deklaration">SmartFormular Deklaration</option><option value="beide">${lang === "en" ? "Both" : "Beiden"}</option></select></div>
-</div>
-<label for="b-nachricht">${lang === "en" ? "Your situation or question" : "Ihre Lage oder Frage"} <span>${lang === "en" ? "(optional)" : "(freiwillig)"}</span></label><textarea id="b-nachricht" name="nachricht" maxlength="2000"></textarea>
-<div class="falle" aria-hidden="true"><label for="b-website">Website</label><input type="text" id="b-website" name="website" tabindex="-1" autocomplete="off"></div>
-<button type="submit" id="beta-senden">${t.beta}</button>
-<p class="status" id="beta-status" role="status" aria-live="polite"></p>
-<p class="meta hinweis">${lang === "en" ? "Your details are emailed to me and used only to reply. Details are under Legal notice · Privacy." : "Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz."}</p>
-</form>
-${eigene.length ? `<h2 id="downloads">${lang === "en" ? "Downloads" : "Zum Herunterladen"}</h2><ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.leer}</p>`}
-<p class="meta"><a href="${up}${T[andere].toolsHref}" lang="${andere}" hreflang="${andere}">${t.andereUebersicht}</a></p>
-${newsletterKasten(lang, up, "werkzeug")}</article>
-${BETA_SKRIPT(lang)}`;
-  return rahmen({ lang, up, titel: t.kurz, seitentitel: t.seitentitel, beschr: t.lead, canonical,
-    alternates: [{ lang, href: canonical }, { lang: andere, href: `${SITE}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}` }], main, aktiv: "tools", css: SF_CSS });
-}
-
-// Beta-Anfrage: wie das Kontaktformular der Startseite an Gochs Worker (contact.js); Falle „website“, Ladezeitpunkt t
-const BETA_SKRIPT = lang => `<script>
-(() => {
-  'use strict';
-  const form = document.getElementById('beta-anfrage'); if (!form) return;
-  const status = document.getElementById('beta-status'), knopf = document.getElementById('beta-senden'), geladen = Date.now();
-  const T = ${JSON.stringify(lang === "en" ? { betreff: "Beta access request: SmartFormular", produkt: "Interested in", firma: "Firm or company", sendet: "Sending …", gesendet: "Thank you – your request has arrived. I will get back to you by email.", ungueltig: "Please give your name and a valid email address.", fehler: "Sending did not work. Please email me directly at robin@robin.vision." }
-    : { betreff: "Anfrage Beta-Zugang SmartFormular", produkt: "Interesse an", firma: "Kanzlei oder Unternehmen", sendet: "Wird gesendet …", gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.", ungueltig: "Bitte Name und eine gültige E-Mail-Adresse angeben.", fehler: "Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision." })};
-  const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
-  form.addEventListener('submit', async event => {
-    event.preventDefault();
-    const d = Object.fromEntries(new FormData(form));
-    const name = (d.name || '').trim(), email = (d.email || '').trim();
-    if (name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) { say(T.ungueltig, 'warn'); return; }
-    const message = [T.betreff, '', T.produkt + ': ' + (d.produkt || ''), d.firma ? T.firma + ': ' + d.firma.trim() : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\\n').trim();
-    knopf.disabled = true; say(T.sendet);
-    try {
-      const r = await fetch(${JSON.stringify(KONTAKT_ENDPUNKT)}, { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ lang: ${JSON.stringify(lang)}, name, email, phone: '', message, website: d.website || '', t: geladen }) });
-      const out = await r.json().catch(() => ({}));
-      if (r.ok && out.ok) { say(T.gesendet, 'ok'); form.reset(); } else say(out.error || T.fehler, 'warn');
-    } catch (_) { say(T.fehler, 'warn'); }
-    knopf.disabled = false;
-  });
-})();
-</script>`;
-
 // Erscheinungsbild SmartFormular „Nacht und Violett“ (Robin 29.09.2026, #77 im Member-Repo; seit 17.10.2026 auch der Bereich auf der Website)
 export const SF_CSS = `:root { --green: #EDE9FE; --copper: #A78BFA; --ink: #EDE9FE; --ink-soft: #C4B5FD; --ink-muted: #8B83A8; --line: #2A2340; --paper: #0E0B14; }
 body { background: #0E0B14; color: #EDE9FE; }

@@ -535,6 +535,11 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 
 ## „Was ist neu“ und Newsletter-Feed (16.10.2026)
 
+*Ergänzt 17.10.2026:* Jede Ausgabe im Feed hat jetzt den Aufbau Impuls → „Neu im SmartFormular Fibu lite“ (neueste Fassung) →
+„SmartFormular“ (Fibu lite kostenlos, Fibu und Deklaration als Beta, Link zur Seite) → „Workshops“ (Unterweisung nach EU AI Act,
+Termine 2027 auf Anfrage, Link); Kanalbeschreibung „Impulse, SmartFormular und Workshops per E-Mail“. Prüfung:
+`node tests/newsletter_feed_test.mjs`. Die Brevo-Vorlage muss nichts wissen – sie nimmt die Beschreibung des Eintrags als HTML.
+
 - Robin: Jede neue Fassung des Buchungsstapel-Generators wird auf der Website angekündigt und beschrieben; der Newsletter soll
   länger sein und immer das aktuellste Update des aktuellsten Werkzeugs enthalten, gefüttert über die Werkzeugseite.
 - **Feld `neuigkeiten`** der Werkzeugseiten (Redaktion: „Was ist neu“): Markdown, je Fassung eine Überschrift
@@ -609,8 +614,15 @@ Memberbereichs regeln die Produktplatzierung in § 8). Gochs
 Profil (`worker/profile.md`) kennt das Angebot und bietet es aktiv an. Die Durchführung läuft im Memberbereich (Repository
 `robin-vision-member`, App `schulung`, dort im Portal „Coachings“). Prüfung: `node tests/workshops_seite_test.mjs`.
 
-**SmartFormular.** Der Bereich „Werkzeuge“ heißt im Menü und auf der Übersicht `werkzeuge/` jetzt „SmartFormular“ (Bezeichnung
-im Singular, Robin 17.10.2026) und trägt das SmartFormular-Erscheinungsbild (Nacht und Violett, `SF_CSS` in `werkzeug.js`): drei
+**SmartFormular.** Der Bereich „Werkzeuge“ heißt im Menü jetzt „SmartFormular“ (Bezeichnung im Singular, Robin 17.10.2026); die
+Seite `werkzeuge/` (englisch `werkzeuge/en/`) ist eine eigene, ausführliche Unterseite aus `worker/src/smartformular.js` im
+SmartFormular-Erscheinungsbild (Nacht und Violett, `SF_CSS` in `werkzeug.js`), so umfangreich wie die Seite „Workshops“: Einleitung,
+drei Produktkacheln, „Fibu lite heute“ mit Download, „Was SmartFormular Fibu dazulernt“ (sieben geplante Funktionen), „SmartFormular
+Deklaration“ (sechs Punkte), Kasten „Mensch und Maschine“, Sprachmodell optional, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
+dazu SoftwareApplication für Fibu lite), Beta-Anfrage, Downloads. Keine Preise (auf Anfrage). Die Produktdaten liegen in
+`worker/src/produkte.js` (auch für die Werkzeugseite und die Startseite). Startseite: Fibu lite als Karte im
+SmartFormular-Erscheinungsbild mit Knopf zum Werkzeug, darunter die Ankündigungen Fibu und Deklaration (`tools/werkzeug-uebernehmen.mjs`).
+Alter Stand der Übersicht: drei
 Kacheln – SmartFormular Fibu lite (bisher Buchungsstapel-Generator, kostenlos, fertig), SmartFormular Fibu und SmartFormular
 Deklaration (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
 kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von Fibu lite trägt den Abschnitt „Was kommt“ mit dem Ausblick.

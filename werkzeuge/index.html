@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SmartFormular von robin.vision: Fibu lite kostenlos, Fibu und Deklaration als Beta – Buchhaltung und Jahresabschluss mit KI, human in the loop | robin.vision</title>
-<meta name="description" content="Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.">
+<title>SmartFormular von robin.vision: Fibu lite kostenlos herunterladen, SmartFormular Fibu und Deklaration angekündigt – Buchhaltung und Jahresabschluss, human in the loop | robin.vision</title>
+<meta name="description" content="SmartFormular von robin.vision: Fibu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, kostenlos und offline. SmartFormular Fibu (Belege, OPOS, SuSa, Klärliste) und SmartFormular Deklaration (Jahresabschluss mit Rechenspur und E-Bilanz-Vorbereitung) entstehen gerade – Beta-Zugang auf Anfrage.">
 <link rel="icon" href="../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/werkzeuge/">
@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="SmartFormular">
-<meta property="og:description" content="Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.">
+<meta property="og:description" content="SmartFormular von robin.vision: Fibu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, kostenlos und offline. SmartFormular Fibu (Belege, OPOS, SuSa, Klärliste) und SmartFormular Deklaration (Jahresabschluss mit Rechenspur und E-Bilanz-Vorbereitung) entstehen gerade – Beta-Zugang auf Anfrage.">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://robin.vision/werkzeuge/">
 <meta name="twitter:card" content="summary">
@@ -129,7 +129,41 @@ body { background: #0E0B14; color: #EDE9FE; }
 .newsletter { background: #1C1726; border-color: #2A2340; border-left-color: #A78BFA; }
 .newsletter input { background: #0E0B14; color: #EDE9FE; border-color: #2A2340; } .newsletter button { background: #7C3AED; border-color: #7C3AED; color: #fff; }
 .foot a:hover { color: #EDE9FE; }
-@media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }</style>
+@media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }
+.abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 14px; border: 1px solid #A78BFA; border-radius: 999px; font: 500 12px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
+.sf-wortmarke { margin: 0 0 14px; }
+.einleitung p { font-size: 18px; line-height: 1.65; }
+.wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 20px; padding: 0; list-style: none; }
+.wege li { margin: 0; max-width: none; }
+.wege .knopf { display: inline-block; padding: 10px 18px; border-radius: 4px; text-decoration: none; font-size: 15px; background: #7C3AED; color: #fff; border: 1px solid #7C3AED; }
+.wege .knopf:hover { background: #6D28D9; color: #fff; }
+.wege .zweit { background: transparent; color: #EDE9FE; border-color: #A78BFA; }
+.wege .zweit:hover { background: rgba(167,139,250,.12); color: #fff; }
+.wege .mail { font-size: 15px; }
+.sf-kacheln { margin: 18px 0 8px; }
+.sf-kachel h3 { margin: 0 0 10px; font: 500 24px/1.25 var(--serif); color: #fff; }
+.fakten { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.fakten li { margin: 0; max-width: none; padding: 6px 12px; border: 1px solid #2A2340; border-radius: 4px; background: #1C1726; font-size: 14px; color: #C4B5FD; }
+.download-zeile { margin: 16px 0 6px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.download-zeile .stand { color: #8B83A8; font-size: 14px; }
+.sf-liste { list-style: none; margin: 0 0 8px; padding: 0; counter-reset: punkt; }
+.sf-liste li { display: grid; grid-template-columns: 40px 1fr; gap: 4px 16px; padding: 14px 0; border-top: 1px solid #2A2340; max-width: none; text-align: left; }
+.sf-liste li:last-child { border-bottom: 1px solid #2A2340; }
+.sf-liste .nr { font: 500 12px/1.9 var(--sans); letter-spacing: .18em; color: #A78BFA; }
+.sf-liste strong { display: block; font-weight: 500; color: #fff; }
+.sf-liste span.was { display: block; color: #C4B5FD; font-size: 15px; }
+.sf-kasten { margin: 28px 0 8px; padding: 24px 26px 22px; border: 1px solid #2A2340; border-left: 3px solid #A78BFA; border-radius: 6px; background: #1C1726; }
+.sf-kasten .kicker { margin: 0 0 4px; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: #A78BFA; }
+.sf-kasten h2 { margin: 0 0 10px; }
+.sf-kasten p { max-width: none; text-align: left; margin: 0 0 10px; }
+.ablauf { counter-reset: schritt; list-style: none; padding: 0; margin: 0 0 12px; }
+.ablauf li { position: relative; padding: 0 0 16px 46px; margin: 0; max-width: none; text-align: left; }
+.ablauf li::before { counter-increment: schritt; content: counter(schritt); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: #7C3AED; color: #fff; display: grid; place-items: center; font: 500 13px/1 var(--sans); }
+.fragen h3 { color: #fff; }
+.beta .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+@media (max-width: 720px) { .sf-liste li { grid-template-columns: 32px 1fr; } }</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SmartFormular Fibu lite","applicationCategory":"BusinessApplication","operatingSystem":"Web browser","url":"https://robin.vision/werkzeuge/buchungsstapel-generator/","description":"Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.","inLanguage":"de","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"publisher":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"de","mainEntity":[{"@type":"Question","name":"Was unterscheidet SmartFormular Fibu lite von SmartFormular Fibu?","acceptedAnswer":{"@type":"Answer","text":"Fibu lite kontiert Kontoauszüge nach dem Muster des Vormonats und erstellt Buchungsstapel im DATEV-Format – kostenlos, offline. Fibu stellt zusätzlich Zusammenhänge zu Belegen, offenen Posten und Saldenlisten her, führt eine Klärliste und zeigt die Herkunft jeder Zeile. Fibu lite bleibt kostenlos."}},{"@type":"Question","name":"Brauche ich ein KI-Modell?","acceptedAnswer":{"@type":"Answer","text":"Nein. Fibu lite arbeitet ohne Modell, Fibu und Deklaration ebenfalls in ihrer Grundform. Ein Modell lässt sich einbinden, um Vorschläge dort zu verbessern, wo Regeln nicht reichen – in der EU gehostet, ohne Training mit Ihren Daten, bei einem Anbieter Ihrer Wahl."}},{"@type":"Question","name":"Mit welchen Programmen arbeitet SmartFormular?","acceptedAnswer":{"@type":"Answer","text":"Fibu lite exportiert Buchungsstapel im DATEV-Format (EXTF), das viele Programme einlesen. Fibu liest OPOS- und SuSa-Exporte aus DATEV und ADDISON; Deklaration ist für die Arbeit neben dem Kanzleiprogramm gedacht. Lesende Anbindungen sind geplant."}},{"@type":"Question","name":"Ersetzt SmartFormular Sachbearbeitende?","acceptedAnswer":{"@type":"Answer","text":"Nein. Es nimmt Suchen und Abtippen ab und stellt Zusammenhänge her; prüfen, entscheiden und festschreiben bleibt bei Menschen. Das ist das Prinzip, nicht ein Zwischenschritt."}},{"@type":"Question","name":"Was kostet SmartFormular?","acceptedAnswer":{"@type":"Answer","text":"Fibu lite ist kostenlos. Für Fibu und Deklaration nenne ich Preise mit dem Angebot, nach Ihrer Anfrage; Beta-Zugänge sind kostenfrei und laufen mit Testdaten."}},{"@type":"Question","name":"Wie bekomme ich Beta-Zugang?","acceptedAnswer":{"@type":"Answer","text":"Über das Formular unten. Sie erhalten einen Zugang zum Memberbereich von robin.vision, dort die Beta-Fassung mit Testdaten und einen kurzen Weg für Rückmeldungen. Ihre Rückmeldung fließt in die nächste Fassung ein."}},{"@type":"Question","name":"Wohin gehen meine Daten?","acceptedAnswer":{"@type":"Answer","text":"Bei Fibu lite nirgendwohin – alles läuft im Browser auf Ihrem Rechner. Im Memberbereich liegen Beta-Daten in Rechenzentren in der EU; echte Mandantendaten nur nach ausdrücklicher Vereinbarung."}},{"@type":"Question","name":"Fibu lite erkennt meinen Kontoauszug nicht – was dann?","acceptedAnswer":{"@type":"Answer","text":"Senden Sie den Aufbau des Auszugs ohne Inhalt aus dem Werkzeug heraus (Buchstaben als x, Ziffern als 9); dann rüste ich das Layout in einer neuen Fassung nach. Der Newsletter kündigt jede Fassung an."}}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
@@ -141,18 +175,102 @@ body { background: #0E0B14; color: #EDE9FE; }
 </details>
 </header>
 <main>
-<article class="smartformulare"><h1 class="sf-wortmarke" aria-label="SmartFormular">Smart<span>Formular</span></h1>
-<p class="intro">Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft, geprüft wird von Menschen. Fibu lite gibt es heute kostenlos; Fibu und Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
-<div class="sf-kacheln"><section class="sf-kachel" id="fibu-lite"><p class="sf-stand">Kostenlos · fertig</p><h2>SmartFormular Fibu lite</h2><p class="frei">Der Buchungsstapel-Generator: Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zu Buchungsstapeln im DATEV-Format, je Auszug und Monat einer – nach dem Muster des Vormonats, mit Summenprüfung. Eine Datei, läuft offline im Browser, kostenlos.</p>
+<article class="smartformular">
+<h1 class="sf-wortmarke" aria-label="SmartFormular">Smart<span>Formular</span></h1>
+<p class="abzeichen">Formulare, die mitarbeiten</p>
+<p class="untertitel">Werkzeuge für Buchhaltung und Jahresabschluss, die beim Ausfüllen schon mit der Sachbearbeitung beginnen – prüfen, entscheiden und festschreiben bleibt bei Menschen.</p>
+<p class="meta">Fibu lite kostenlos · Fibu und Deklaration in Entwicklung, Beta 2027 · Stand 17. Oktober 2026</p>
+<div class="einleitung">
+<p>Ein SmartFormular sieht aus wie ein gewohntes Formular. Es hilft beim Ausfüllen, sichert die Vollständigkeit und beginnt schon beim Ausfüllen mit der Sachbearbeitung oder erstellt Bearbeitungshinweise. Es begleitet Sachbearbeitende und ersetzt sie nicht: Jeder Vorschlag trägt seine Herkunft – Beleg, Regel, Vormonat oder Modell –, geprüft und festgeschrieben wird von Menschen im Buchhaltungsprogramm.</p>
+<p>Drei Produkte: SmartFormular Fibu lite, der kostenlose Buchungsstapel-Generator, den Sie heute herunterladen. SmartFormular Fibu, das aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und SuSa-Listen den geprüften Buchungsstapel für den laufenden Monat erstellt. SmartFormular Deklaration, das den Jahresabschluss in der Kanzlei vorbereitet. Fibu und Deklaration entstehen gerade; Beta-Zugang im Memberbereich auf Anfrage.</p>
+</div>
+<ul class="wege">
+<li><a class="knopf" href="../werkzeuge/buchungsstapel-generator/">Fibu lite kostenlos herunterladen</a></li>
+<li><a class="knopf zweit" href="#beta">Beta-Zugang anfragen</a></li>
+<li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
+</ul>
+<h2 id="produkte">Drei Produkte</h2>
+<div class="sf-kacheln"><section class="sf-kachel" id="fibu-lite"><p class="sf-stand">Kostenlos · fertig</p><h3>SmartFormular Fibu lite</h3><p class="frei">Der Buchungsstapel-Generator: Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zu Buchungsstapeln im DATEV-Format, je Auszug und Monat einer – nach dem Muster des Vormonats, mit Summenprüfung. Eine Datei, läuft offline im Browser, kostenlos.</p>
 
 <p class="sf-wege"><a class="sf-knopf" href="../werkzeuge/buchungsstapel-generator/">Zur Seite und zum Download</a></p></section>
-<section class="sf-kachel beta" id="fibu"><p class="sf-stand">In Entwicklung · Beta 2027</p><h2>SmartFormular Fibu</h2><p class="frei">Aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und SuSa-Listen stellt Fibu die Zusammenhänge her – Zahlung zu Posten zu Beleg, wiederkehrende Buchungen, Lücken und Dubletten – und erstellt den geprüften Buchungsstapel für den laufenden Monat: mit Herkunft je Zeile und einer Klärliste für die Sachbearbeitung. Festgeschrieben wird im Buchhaltungsprogramm, nach Ihrer Prüfung.</p>
+<section class="sf-kachel beta" id="fibu"><p class="sf-stand">In Entwicklung · Beta 2027</p><h3>SmartFormular Fibu</h3><p class="frei">Aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und SuSa-Listen stellt Fibu die Zusammenhänge her – Zahlung zu Posten zu Beleg, wiederkehrende Buchungen, Lücken und Dubletten – und erstellt den geprüften Buchungsstapel für den laufenden Monat: mit Herkunft je Zeile und einer Klärliste für die Sachbearbeitung. Festgeschrieben wird im Buchhaltungsprogramm, nach Ihrer Prüfung.</p>
 <ul><li>Belege lesen (PDF, E-Rechnung) und Zahlungen zuordnen, Skonto und Teilzahlungen</li><li>OPOS ausziffern, SuSa abstimmen, fehlende wiederkehrende Buchungen finden</li><li>Muster der letzten zwölf Monate je Mandant – als Datei bei Ihnen, kein Modelltraining</li><li>Klärliste statt Rätselraten; Herkunft je Zeile als Prüfprotokoll (GoBD)</li></ul>
 <p class="sf-wege"><a class="sf-knopf" href="#beta">Beta-Zugang anfragen</a></p></section>
-<section class="sf-kachel beta" id="deklaration"><p class="sf-stand">In Entwicklung · Beta 2027</p><h2>SmartFormular Deklaration</h2><p class="frei">Für den Jahresabschluss in der Kanzlei: Aus Vorjahresdaten, Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan aus dem Vorjahr, Rechenmodule mit Rechenspur, ein gestufter Prüfkatalog, der Vorschlagsstapel der Abschlussbuchungen, Berichte und die Vorbereitung der E-Bilanz – jeder Vorschlag mit Herleitung. Wahlrechte und Würdigung bleiben beim Berufsträger.</p>
+<section class="sf-kachel beta" id="deklaration"><p class="sf-stand">In Entwicklung · Beta 2027</p><h3>SmartFormular Deklaration</h3><p class="frei">Für den Jahresabschluss in der Kanzlei: Aus Vorjahresdaten, Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen entstehen der Abschlussplan aus dem Vorjahr, Rechenmodule mit Rechenspur, ein gestufter Prüfkatalog, der Vorschlagsstapel der Abschlussbuchungen, Berichte und die Vorbereitung der E-Bilanz – jeder Vorschlag mit Herleitung. Wahlrechte und Würdigung bleiben beim Berufsträger.</p>
 <ul><li>Abschlussplan: welche Abschlussbuchungen fehlen, welche Abgrenzungen aufzulösen sind</li><li>AfA, Rückstellungen, Abgrenzungen, § 7g und Überleitung mit Rechenspur</li><li>Werte aus Darlehensverträgen, Policen und Beschlüssen mit Pflichtzitat</li><li>Abschlussmappe, Unterlagenanforderung, E-Bilanz-Vorbereitung, Entscheidungsvorlagen</li></ul>
 <p class="sf-wege"><a class="sf-knopf" href="#beta">Beta-Zugang anfragen</a></p></section></div>
-<p class="sf-ki frei">Ein Sprachmodell kann, muss aber nicht eingebunden sein: in der EU gehostet, ohne Training mit Kundendaten, ohne Bindung an einen Anbieter – das Programm gibt dem Modell feste Vorgaben als Skills, Rechnen und Prüfen bleiben Regelwerk und Mensch.</p>
+<h2 id="fibu-lite">SmartFormular Fibu lite heute</h2>
+<p>Es ist der 10., die Buchhaltung muss raus, der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet – es gibt nur den Kontoauszug als PDF. Fibu lite liest den Auszug (PDF mit Layout-Erkennung, Scan mit Texterkennung, CAMT.053, MT940, CSV), nimmt den Buchungsstapel des Vormonats als Vorlage – Berater, Mandant, Kontenrahmen, Gegenkonten – und erstellt je Auszug und Monat einen Buchungsstapel im DATEV-Format (EXTF), mit Summenprüfung.</p>
+<p>Eine einzige HTML-Datei, die im Browser läuft, auch unter Windows: Auszüge und Buchungen verlassen den Rechner nicht, nichts wird hochgeladen, keine Anmeldung. Kostenlos; es gelten die Nutzungsbedingungen auf der Werkzeugseite, dort stehen auch Prüfsumme, Fassung und „Was ist neu“.</p>
+<ul class="fakten"><li>PDF, Scan, CAMT, MT940, CSV</li><li>Buchungsstapel im DATEV-Format (EXTF)</li><li>Offline im Browser, ohne Upload</li><li>Kostenlos, ohne Anmeldung</li></ul>
+<p class="download-zeile"><a class="sf-knopf" href="../werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a><span class="stand">Fassung a396da5 vom 15.10.2026</span></p>
+<p class="meta"><a href="../werkzeuge/buchungsstapel-generator/">Zur Werkzeugseite: Nutzungsbedingungen, Prüfsumme, Was ist neu</a></p>
+<h2 id="fibu">Was SmartFormular Fibu dazulernt</h2>
+<p>Fibu lite kontiert nach Muster. SmartFormular Fibu stellt Zusammenhänge her – zwischen Zahlung, Posten und Beleg – und erstellt den geprüften Stapel für den laufenden Monat. Geplant sind:</p>
+<ol class="sf-liste">
+<li><span class="nr">01</span><div><strong>Belege lesen und zuordnen</strong><span class="was">Rechnungen und Gutschriften als PDF oder E-Rechnung (XRechnung, ZUGFeRD) lesen, Zahlungen über Betrag, Datum, Verwendungszweck, Rechnungsnummer und IBAN zuordnen, Skonto und Teilzahlungen erkennen; Gegenkonto, Steuerschlüssel und Kostenstelle aus dem Beleg ableiten, Pflichtangaben nach § 14 UStG als feste Prüfung.</span></div></li>
+<li><span class="nr">02</span><div><strong>OPOS ausziffern</strong><span class="was">Offene Posten aus DATEV- oder ADDISON-Export einlesen, Zahlungen ausziffern, Restposten erklären, Mahnstufen und Dubletten erkennen; Debitoren und Kreditoren statt Sammelkonto, wenn die Vorlage sie führt.</span></div></li>
+<li><span class="nr">03</span><div><strong>SuSa abstimmen</strong><span class="was">Summen- und Saldenliste gegen den Stapel halten: fehlende wiederkehrende Buchungen, Vorzeichen- und Kontenwechsel, Saldensprünge; Abstimmung von Bank und Kasse nach dem Import.</span></div></li>
+<li><span class="nr">04</span><div><strong>Zwölf Monate Muster je Mandant</strong><span class="was">Nicht nur der Vormonat: das Muster der letzten zwölf Monate je Zahlungspartner – Gegenkonto, Steuerschlüssel, Text. Das Muster ist eine Datei des Mandanten bei Ihnen, kein Modelltraining.</span></div></li>
+<li><span class="nr">05</span><div><strong>Klärliste statt Rätselraten</strong><span class="was">Alles, was die Regeln nicht sicher zuordnen, kommt als Frage an die Sachbearbeitung – etwa „Zahlung 1.190,00 an Muster GmbH: Rechnung 4711 oder 4712?“ –, mit einem Klick zu entscheiden.</span></div></li>
+<li><span class="nr">06</span><div><strong>Herkunft je Zeile</strong><span class="was">Beleg, Regel, Vormonat oder Modell – sichtbar im Stapel, exportierbar als Prüfprotokoll. Automatische Buchungen bleiben nachvollziehbar (GoBD); ein Vorschlag ist kein Beleg.</span></div></li>
+<li><span class="nr">07</span><div><strong>Sprachmodell nur, wo Regeln nicht reichen</strong><span class="was">Unklarer Verwendungszweck, Beleg ohne Rechnungsnummer, Freitext: Hier schlägt ein Modell vor – mit festen Vorgaben und immer ohne Häkchen. Festgeschrieben wird im Buchhaltungsprogramm, nach Ihrer Prüfung.</span></div></li>
+</ol>
+<h2 id="deklaration">SmartFormular Deklaration: der Jahresabschluss</h2>
+<p>Für Kanzleien. Aus Vorjahresdaten, Verträgen, Beschlüssen, Buchungen des Jahres und Kontobewegungen stellt Deklaration die Zusammenhänge für den Abschluss her – als Buchungsstapel, Berichte und Vorbereitung der E-Bilanz, jeder Vorschlag mit Herleitung. Geplant sind:</p>
+<ol class="sf-liste">
+<li><span class="nr">01</span><div><strong>Eingaben</strong><span class="was">Vorjahresjournale und -abschlüsse mit Vorträgen, Anlagenverzeichnis, Lohnauswertungen, Verträge (Darlehen, Miete, Leasing, Versicherungen, Gesellschafter), Gesellschafterbeschlüsse, Buchungen oder Belege des Jahres, Kontobewegungen, Mandats- und Auftragsdaten.</span></div></li>
+<li><span class="nr">02</span><div><strong>Abschlussplan aus dem Vorjahr</strong><span class="was">Welche Abschlussbuchungen fehlen, welche Abgrenzungen aufzulösen sind, welche Rückstellungen fortzuschreiben – der größte Hebel für die wiederkehrenden Aufgaben.</span></div></li>
+<li><span class="nr">03</span><div><strong>Rechenmodule mit Rechenspur</strong><span class="was">AfA je Zugang, § 7g EStG, Rechnungsabgrenzung, Rückstellungen für Personal, Archiv und Abschluss, Gewerbe- und Körperschaftsteuer, nicht abziehbare Betriebsausgaben, Überleitung von der Handels- zur Steuerbilanz – jede Zahl mit ihrem Rechenweg.</span></div></li>
+<li><span class="nr">04</span><div><strong>Gestufter Prüfkatalog und Dokumentenstufe</strong><span class="was">Standardprüfungen nach Fehler, Fehlergefahr und Auffälligkeit; Werte aus Darlehensvertrag, Police und Beschluss mit Pflichtzitat aus Seite und Zeile.</span></div></li>
+<li><span class="nr">05</span><div><strong>Ergebnisse</strong><span class="was">Vorschlagsstapel der Abschlussbuchungen im DATEV-Format mit Herleitung, Abschlussmappe mit Kontennachweis je Bilanzposten, Berichte (Vorjahresvergleich, Abweichungserklärungen als Entwurf, Unterlagenanforderung mit Status), Vorbereitung der E-Bilanz (Taxonomie-Zuordnung, Plausibilitäten, Übergabe an das übermittelnde Programm).</span></div></li>
+<li><span class="nr">06</span><div><strong>Entscheidungsvorlagen</strong><span class="was">Wahlrechte, Wesentlichkeit, Einzelwertberichtigung, Rückstellungen mit Ermessen: Rechtsfolge, Wahlrecht und Entscheidung getrennt aufbereitet – die Würdigung bleibt beim Berufsträger.</span></div></li>
+</ol>
+<p class="hinweis">Deklaration erstellt keine Steuererklärung für Mandanten von robin.vision. Es ist Software, die die Kanzlei im Rahmen ihrer Befugnis nach dem Steuerberatungsgesetz einsetzt; Akte, Fristen, Abzeichnung und Übermittlung bleiben im Kanzleiprogramm.</p>
+<section class="sf-kasten" aria-labelledby="mensch">
+<p class="kicker">Das Prinzip</p>
+<h2 id="mensch">Mensch und Maschine</h2>
+<p class="frei">SmartFormular bucht nicht und erklärt nicht. Es erstellt Stapel, markiert die Sicherheit je Zeile – sicher, Vorschlag, Klärung –, führt die Klärliste und übergibt erst nach der Prüfung durch die Sachbearbeitung. Festgeschrieben wird im Buchhaltungsprogramm, die steuerliche Würdigung bleibt beim Berufsträger.</p>
+<p class="frei">Das ist kein Zwischenschritt bis zur Vollautomatik, sondern das Prinzip: Qualität und Tempo steigen, weil Menschen weniger suchen und mehr entscheiden.</p>
+<ul class="fakten"><li>Vorschläge mit Herkunft</li><li>Klärliste statt stiller Fehler</li><li>Festschreibung im Buchhaltungsprogramm</li><li>Würdigung beim Berufsträger</li></ul>
+</section>
+<h2 id="sprachmodell">Sprachmodell: optional, ohne Training, in der EU, ohne Bindung</h2>
+<ol class="sf-liste">
+<li><span class="nr">01</span><div><strong>Optional</strong><span class="was">Fibu lite arbeitet heute vollständig mit Regeln, Deklaration in der ersten Stufe ebenso. Ein Modell verbessert Vorschläge dort, wo Regeln nicht reichen: Texte lesen (Verwendungszwecke, Verträge, Beschlüsse), Entwürfe formulieren (Klärfrage, Anforderungsschreiben), Zuordnungen vorschlagen. Rechnen, abstimmen und würdigen bleiben Code und Mensch.</span></div></li>
+<li><span class="nr">02</span><div><strong>Kein Training</strong><span class="was">Ihre Daten trainieren kein Modell. Das Muster eines Mandanten ist eine Datei bei Ihnen, kein Modellgewicht.</span></div></li>
+<li><span class="nr">03</span><div><strong>Skills statt freier Agenten</strong><span class="was">Das Programm gibt dem Modell je Aufgabe feste Vorgaben: Eingabe, erlaubte Ausgaben, Pflichtzitat, Verbote – keine Beträge erfinden, keine Konten außerhalb des Kontenrahmens. Ausgaben werden deterministisch geprüft: Schema, Summen, Konten.</span></div></li>
+<li><span class="nr">04</span><div><strong>EU-Hosting, anbieterneutral</strong><span class="was">Zwei Schnittstellen-Dialekte hinter einer Abstraktion, Profile je Anbieter – Bedrock EU, Azure EU, STACKIT oder IONOS mit offenen Modellen, lokal mit Ollama. Das Programm zeigt, welcher Anbieter konfiguriert ist; Daten gehen pseudonymisiert oder gar nicht hinaus.</span></div></li>
+</ol>
+<h2 id="fahrplan">Fahrplan</h2>
+<ol class="ablauf">
+<li>Heute: SmartFormular Fibu lite, kostenlos zum Herunterladen; neue Fassungen kündigt der Newsletter an.</li>
+<li>Anfang 2027: SmartFormular Fibu als Beta im Memberbereich von robin.vision – mit Testdaten, mit Ihrer Rückmeldung.</li>
+<li>Im Laufe des ersten Halbjahrs 2027: SmartFormular Deklaration als Beta für Kanzleien.</li>
+<li>Danach: Fibu lite im SmartFormular-Erscheinungsbild, lesende Anbindungen an Buchhaltungsprogramme, ein eigener Bereich im Memberbereich.</li>
+</ol>
+<p class="hinweis">Termine sind Planung, keine Zusage. Preise für Fibu und Deklaration nenne ich mit dem Angebot, nach Ihrer Anfrage.</p>
+<h2 id="recht">Daten und Recht</h2>
+<p>Fibu lite verarbeitet alles im Browser auf Ihrem Rechner und überträgt nichts. Beta-Fassungen von Fibu und Deklaration laufen im Memberbereich von robin.vision mit Testdaten; echte Mandanten- oder Personendaten setzen eine ausdrückliche Vereinbarung voraus (AGB des Memberbereichs, § 3 Abs. 3). Kanzleien beachten § 203 StGB und § 62a StBerG; ist ein Modellanbieter eingebunden, zeigt das Programm, welcher – der Vertrag nach § 62a StBerG läuft zwischen Kanzlei und Anbieter.</p>
+<p>SmartFormular erbringt keine Steuerberatung und keine Rechtsberatung. Ergebnisse sind Vorschläge; die Prüfung und jede Entscheidung bleiben bei Ihnen und Ihren Beraterinnen und Beratern. Anbieter ist Robin James Lewis, handelnd unter robin.vision; die robin.vision UG (haftungsbeschränkt) wird im Januar 2027 gegründet und übernimmt die Verträge nach ihrer Eintragung. DATEV ist eine eingetragene Marke der DATEV eG; SmartFormular steht in keiner Verbindung zur DATEV eG.</p>
+<h2 id="fragen">Fragen und Antworten</h2>
+<div class="fragen">
+<h3>Was unterscheidet SmartFormular Fibu lite von SmartFormular Fibu?</h3>
+<p>Fibu lite kontiert Kontoauszüge nach dem Muster des Vormonats und erstellt Buchungsstapel im DATEV-Format – kostenlos, offline. Fibu stellt zusätzlich Zusammenhänge zu Belegen, offenen Posten und Saldenlisten her, führt eine Klärliste und zeigt die Herkunft jeder Zeile. Fibu lite bleibt kostenlos.</p>
+<h3>Brauche ich ein KI-Modell?</h3>
+<p>Nein. Fibu lite arbeitet ohne Modell, Fibu und Deklaration ebenfalls in ihrer Grundform. Ein Modell lässt sich einbinden, um Vorschläge dort zu verbessern, wo Regeln nicht reichen – in der EU gehostet, ohne Training mit Ihren Daten, bei einem Anbieter Ihrer Wahl.</p>
+<h3>Mit welchen Programmen arbeitet SmartFormular?</h3>
+<p>Fibu lite exportiert Buchungsstapel im DATEV-Format (EXTF), das viele Programme einlesen. Fibu liest OPOS- und SuSa-Exporte aus DATEV und ADDISON; Deklaration ist für die Arbeit neben dem Kanzleiprogramm gedacht. Lesende Anbindungen sind geplant.</p>
+<h3>Ersetzt SmartFormular Sachbearbeitende?</h3>
+<p>Nein. Es nimmt Suchen und Abtippen ab und stellt Zusammenhänge her; prüfen, entscheiden und festschreiben bleibt bei Menschen. Das ist das Prinzip, nicht ein Zwischenschritt.</p>
+<h3>Was kostet SmartFormular?</h3>
+<p>Fibu lite ist kostenlos. Für Fibu und Deklaration nenne ich Preise mit dem Angebot, nach Ihrer Anfrage; Beta-Zugänge sind kostenfrei und laufen mit Testdaten.</p>
+<h3>Wie bekomme ich Beta-Zugang?</h3>
+<p>Über das Formular unten. Sie erhalten einen Zugang zum Memberbereich von robin.vision, dort die Beta-Fassung mit Testdaten und einen kurzen Weg für Rückmeldungen. Ihre Rückmeldung fließt in die nächste Fassung ein.</p>
+<h3>Wohin gehen meine Daten?</h3>
+<p>Bei Fibu lite nirgendwohin – alles läuft im Browser auf Ihrem Rechner. Im Memberbereich liegen Beta-Daten in Rechenzentren in der EU; echte Mandantendaten nur nach ausdrücklicher Vereinbarung.</p>
+<h3>Fibu lite erkennt meinen Kontoauszug nicht – was dann?</h3>
+<p>Senden Sie den Aufbau des Auszugs ohne Inhalt aus dem Werkzeug heraus (Buchstaben als x, Ziffern als 9); dann rüste ich das Layout in einer neuen Fassung nach. Der Newsletter kündigt jede Fassung an.</p>
+</div>
 <h2 id="beta">Beta-Zugang anfragen</h2>
 <p>Fibu und Deklaration werden im Memberbereich von robin.vision erprobt – mit Testdaten, mit Ihrer Rückmeldung, bevor sie fertig sind. Ich antworte persönlich per E-Mail.</p>
 <form class="beta" id="beta-anfrage" novalidate>
@@ -169,9 +287,9 @@ body { background: #0E0B14; color: #EDE9FE; }
 <p class="meta hinweis">Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.</p>
 </form>
 <h2 id="downloads">Zum Herunterladen</h2><ul class="list">
-<li><span class="when">Kostenlos · Fassung a396da5 vom 15.10.2026</span><a href="../werkzeuge/buchungsstapel-generator/">SmartFormular Fibu lite</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p></li>
+<li><span class="when">Kostenlos · fertig · Fassung a396da5 vom 15.10.2026</span><a href="../werkzeuge/buchungsstapel-generator/">SmartFormular Fibu lite</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p></li>
 </ul>
-<p class="meta"><a href="../werkzeuge/en/" lang="en" hreflang="en">English</a></p>
+<p class="meta"><a href="../werkzeuge/en/" lang="en" hreflang="en">This page in English</a></p>
 <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
 <h2 id="newsletter-title">Neue Werkzeuge per E-Mail</h2>
 <p>Der Newsletter informiert über neue Werkzeuge und Fassungen, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig.</p>
@@ -181,7 +299,8 @@ body { background: #0E0B14; color: #EDE9FE; }
 <button type="submit" id="nl-send">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
 <p class="hint">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="../#privacy">Datenschutz</a>.</p>
 </form>
-</section></article>
+</section>
+</article>
 <script>
 (() => {
   'use strict';

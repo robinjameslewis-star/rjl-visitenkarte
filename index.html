@@ -228,6 +228,21 @@
   #werkzeuge li { border: 1px solid var(--line); border-radius: 3px; padding: 20px 22px; background: rgba(255,255,255,.45); }
   #werkzeuge li + li { margin-top: 12px; }
   #werkzeuge li:last-child { border-bottom: 1px solid var(--line); }
+  /* SmartFormular-Karte (Robin, 17.10.2026): Fibu lite im Erscheinungsbild „Nacht und Violett“ mit Knopf zum Werkzeug, darunter Fibu und Deklaration */
+  #werkzeuge li.sf-karte { background: #0E0B14; border-color: #2A2340; color: #EDE9FE; padding: 24px 26px 22px; border-radius: 6px; }
+  .sf-karte .sf-wortmarke { margin: 0 0 12px; font: 500 15px/1.2 var(--sans); letter-spacing: .02em; color: #fff; } .sf-karte .sf-wortmarke span { color: #A78BFA; }
+  .sf-karte .sf-stand { display: block; margin: 0 0 6px; font: 500 12px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
+  #werkzeuge .sf-karte a.sf-titel { color: #fff; font: 400 clamp(21px, 2.4vw, 26px)/1.25 var(--serif); }
+  #werkzeuge .sf-karte > p { color: #C4B5FD; max-width: 60ch; }
+  .sf-karte .sf-wege { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  #werkzeuge .sf-karte .sf-knopf { display: inline-block; padding: 10px 18px; border-radius: 4px; background: #7C3AED; color: #fff; text-decoration: none; font: 400 15px/1.4 var(--sans); } #werkzeuge .sf-karte .sf-knopf:hover { background: #6D28D9; text-decoration: none; }
+  #werkzeuge .sf-karte .sf-mehr { color: #C4B5FD; font: 400 15px/1.4 var(--sans); text-decoration: underline; text-decoration-color: #7C3AED; text-underline-offset: .2em; } #werkzeuge .sf-karte .sf-mehr:hover { color: #fff; }
+  .sf-karte .sf-bald { list-style: none; margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid #2A2340; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; max-width: none; }
+  #werkzeuge .sf-bald li { border: 0; padding: 0; background: none; margin: 0; }
+  #werkzeuge .sf-bald li a { color: #fff; font: 400 17px/1.3 var(--serif); }
+  .sf-karte .sf-bald .sf-stand { color: #D4C8FF; margin-bottom: 2px; }
+  .sf-bald .sf-kurz { display: block; color: #C4B5FD; font-size: 14px; margin-top: 2px; }
+  @media (max-width: 720px) { .sf-karte .sf-bald { grid-template-columns: 1fr; } }
   .blog-teaser li { padding: 16px 0; border-top: 1px solid var(--line); }
   .blog-teaser li:last-child { border-bottom: 1px solid var(--line); }
   .blog-teaser .when { display: block; font-size: 13px; color: var(--ink-muted); margin-bottom: 2px; }
@@ -511,8 +526,10 @@
     <p class="lead" data-i18n="toolsLead">Ein SmartFormular sieht aus wie ein gewohntes Formular, hilft beim Ausfüllen und beginnt schon dabei mit der Sachbearbeitung – für Buchhaltung und Jahresabschluss, mit Menschen in der Prüfung. Fibu lite gibt es heute kostenlos, Fibu und Deklaration kommen als Beta.</p>
     <ul>
 <!-- werkzeuge:liste -->
-      <li lang="de"><span class="when">Kostenlos</span><a href="werkzeuge/buchungsstapel-generator/">SmartFormular Fibu lite</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p></li>
-      <li lang="en" hidden><span class="when">Free</span><a href="werkzeuge/booking-batch-generator/">SmartFormular Fibu lite</a><p>The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.</p></li>
+      <li lang="de" class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">Kostenlos · fertig</span><a class="sf-titel" href="werkzeuge/buchungsstapel-generator/">SmartFormular Fibu lite</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/buchungsstapel-generator/">Kostenlos herunterladen</a><a class="sf-mehr" href="werkzeuge/">Alle SmartFormular-Produkte</a></p>
+      <ul class="sf-bald"><li><span class="sf-stand">In Entwicklung · Beta 2027</span><a href="werkzeuge/#fibu">SmartFormular Fibu</a><span class="sf-kurz">Belege, OPOS und SuSa zum geprüften Buchungsstapel – mit Klärliste und Herkunft je Zeile.</span></li><li><span class="sf-stand">In Entwicklung · Beta 2027</span><a href="werkzeuge/#deklaration">SmartFormular Deklaration</a><span class="sf-kurz">Der Jahresabschluss mit Abschlussplan, Rechenspur und E-Bilanz-Vorbereitung – für Kanzleien.</span></li></ul></li>
+      <li lang="en" hidden class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">Free · ready</span><a class="sf-titel" href="werkzeuge/booking-batch-generator/">SmartFormular Fibu lite</a><p>The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/booking-batch-generator/">Download for free</a><a class="sf-mehr" href="werkzeuge/en/">All SmartFormular products</a></p>
+      <ul class="sf-bald"><li><span class="sf-stand">In development · beta 2027</span><a href="werkzeuge/en/#fibu">SmartFormular Fibu</a><span class="sf-kurz">Documents, open items and trial balance into a checked booking batch – with a clarification list and the origin of every line.</span></li><li><span class="sf-stand">In development · beta 2027</span><a href="werkzeuge/en/#deklaration">SmartFormular Deklaration</a><span class="sf-kurz">Year-end accounts with a closing plan, calculation trace and e-balance preparation – for accounting firms.</span></li></ul></li>
 <!-- /werkzeuge:liste -->
     </ul>
     <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Zur Übersicht SmartFormular</a></p>
@@ -521,7 +538,7 @@
   <!-- Workshops (Robin, 17.10.2026): KI-Workshop für Teams mit Unterweisung nach EU AI Act; die ganze Seite baut tools/workshops-bauen.mjs (workshops/, workshops/en/) -->
   <section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">
     <h2 id="workshops-title"><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsTitle">Workshops</a></h2>
-    <p class="lead" data-i18n="workshopsLead">KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: ein Workshop mit mir, der Hemmschwellen nimmt und in dem Ihr Team ein eigenes Werkzeug baut, dann der Online-Lehrgang zum Durchklicken, dann der Test mit Zertifikat nach Art. 4 KI-Verordnung. Europaweit, auf Deutsch oder Englisch. Termine für 2027 jetzt buchbar.</p>
+    <p class="lead" data-i18n="workshopsLead">KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: ein Workshop mit mir, der Hemmschwellen nimmt und in dem Ihr Team ein eigenes Werkzeug baut, dann der Online-Lehrgang zum Durchklicken, dann der Test mit Zertifikat nach Art. 4 KI-Verordnung. Europaweit, auf Deutsch oder Englisch. Termine für 2027 jetzt anfragen.</p>
     <p class="all"><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsMore">Zum Workshop mit Unterweisung nach EU AI Act</a></p>
   </section>
 

@@ -11,10 +11,12 @@ import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readd
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { dirname, basename, join } from "node:path";
-import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, werkzeugUebersicht, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
 import { parsePost, parseSettings, POSTS_DIR, SETTINGS_PATH, renderNewsletterFeed, NEWSLETTER_DIR, EN_DIR } from "../worker/src/blog.js";
 import { renderSitemap } from "../worker/src/sitemap.js";
 import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
+import { werkzeugUebersicht } from "../worker/src/smartformular.js";
+import { PRODUKTE } from "../worker/src/produkte.js";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
@@ -165,8 +167,14 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const START_MARKE = "<!-- werkzeuge:liste -->", ENDE_MARKE = "<!-- /werkzeuge:liste -->";
 const start = readFileSync("index.html", "utf8"), i = start.indexOf(START_MARKE), j = start.indexOf(ENDE_MARKE);
 if (i < 0 || j < i) { console.error("index.html: Marken für die Werkzeugliste fehlen."); process.exit(1); }
-const frei = { de: "Kostenlos", en: "Free" };
-const liste = WERKZEUGE.map(w => `      <li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"}><span class="when">${frei[w.lang]}</span><a href="werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p></li>`).join("\n");
+// Karte im SmartFormular-Erscheinungsbild (Robin, 17.10.2026): Fibu lite mit Knopf zum Werkzeug, darunter die Ankündigungen Fibu und Deklaration
+const SF = { de: { fertig: "Kostenlos · fertig", beta: "In Entwicklung · Beta 2027", laden: "Kostenlos herunterladen", alle: "Alle SmartFormular-Produkte", uebersicht: "werkzeuge/" },
+  en: { fertig: "Free · ready", beta: "In development · beta 2027", laden: "Download for free", alle: "All SmartFormular products", uebersicht: "werkzeuge/en/" } };
+const liste = WERKZEUGE.map(w => {
+  const s = SF[w.lang], bald = PRODUKTE[w.lang].filter(p => p.stand === "beta");
+  return `      <li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"} class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">${s.fertig}</span><a class="sf-titel" href="werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/${w.id}/">${s.laden}</a><a class="sf-mehr" href="${s.uebersicht}">${s.alle}</a></p>
+      <ul class="sf-bald">${bald.map(p => `<li><span class="sf-stand">${s.beta}</span><a href="${s.uebersicht}#${p.id}">${esc(p.name)}</a><span class="sf-kurz">${esc(p.kurz)}</span></li>`).join("")}</ul></li>`;
+}).join("\n");
 writeFileSync("index.html", start.slice(0, i + START_MARKE.length) + "\n" + liste + "\n" + start.slice(j));
 // Weiterleitungen alter Adressen
 for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true }); writeFileSync(a.pfad, weiterleitung(a.ziel)); }
