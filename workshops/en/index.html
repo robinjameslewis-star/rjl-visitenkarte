@@ -130,27 +130,19 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .format { padding: 22px 20px 18px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); display: flex; flex-direction: column; }
 .format h3 { margin: 0 0 8px; font: 500 20px/1.25 var(--serif); color: var(--green); }
 .format p { font-size: 15px; color: var(--ink-soft); margin: 0 0 12px; max-width: none; text-align: left; flex: 1; }
-.format .preis { font: 400 clamp(26px, 3vw, 32px)/1.1 var(--serif); color: var(--ink); margin: 0 0 4px; }
+.format .preis { font: 400 clamp(19px, 2.2vw, 23px)/1.2 var(--serif); color: var(--ink); margin: 0 0 4px; }
 .format .klein { font: 400 13px/1.45 var(--sans); color: var(--ink-muted); margin: 0; flex: 0; }
 .ablauf { counter-reset: schritt; list-style: none; padding: 0; margin: 0 0 18px; }
 .ablauf li { position: relative; padding: 0 0 16px 46px; margin: 0; }
 .ablauf li::before { counter-increment: schritt; content: counter(schritt); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--green); color: var(--paper); display: grid; place-items: center; font: 500 13px/1 var(--sans); }
-.kalender { margin: 8px 0 12px; padding: 22px 24px 20px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.45); }
-.kalender .hinweis { margin: 0 0 14px; }
-.kalender button { padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper); font: inherit; font-size: 15px; cursor: pointer; }
-.kalender button:hover { background: #082d22; }
-.kalender .extern { margin-left: 14px; font-size: 15px; }
-#cal-inline { margin-top: 16px; min-height: 0; }
-#cal-inline iframe { border-radius: 3px; }
 .anfrage { position: relative; margin: 8px 0 8px; padding: 22px 24px 20px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.45); }
 .anfrage .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 .anfrage label { display: block; font-size: 14px; color: var(--ink-soft); margin: 12px 0 4px; }
 .anfrage input, .anfrage select, .anfrage textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.7); color: var(--ink); }
-.anfrage textarea { min-height: 110px; resize: vertical; }
 .anfrage button { margin-top: 18px; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper); font: inherit; font-size: 15px; cursor: pointer; }
 .anfrage button:hover { background: #082d22; }
 .anfrage button:disabled { opacity: .6; cursor: default; }
-.anfrage button:focus-visible, .anfrage input:focus-visible, .anfrage select:focus-visible, .anfrage textarea:focus-visible, .kalender button:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.anfrage button:focus-visible, .anfrage input:focus-visible, .anfrage select:focus-visible, .anfrage textarea:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
 .anfrage .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; }
 .anfrage .status.ok { color: var(--green); }
 .anfrage .status.warn { color: #A63D2F; }
@@ -164,7 +156,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
 @media (max-width: 720px) { .teile, .formate { grid-template-columns: 1fr; } .anfrage .reihe { grid-template-columns: 1fr; } .kapitel li { grid-template-columns: 40px 1fr; } .kapitel .min { grid-column: 2; padding-top: 0; } }</style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"AI literacy workshop for your team – With EU AI Act training","description":"AI literacy for your team: a workshop with Robin James Lewis (online or on site), a click-through online course, a test and a certificate as evidence under Article 4 of the EU AI Act. For firms and companies, dates bookable from 2027.","url":"https://robin.vision/workshops/en/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT2H30M","teaches":["What AI is today – and what it is not","The EU AI Act in ten minutes","Data that must never go in","Checking results","Asking well, working well","Everyday risks","House rules"],"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT2H30M","name":"Online workshop","offers":{"@type":"Offer","price":"690","priceCurrency":"EUR","category":"per session, up to 12 people"}},{"@type":"CourseInstance","courseMode":"Onsite","courseWorkload":"PT4H","name":"On-site workshop","offers":{"@type":"Offer","price":"1490","priceCurrency":"EUR","category":"per session, up to 15 people"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"AI literacy workshop for your team – With EU AI Act training","description":"AI literacy for your team: a workshop with Robin James Lewis (online or on site), a click-through online course, a test and a certificate as evidence under Article 4 of the EU AI Act. For firms and companies, dates bookable from 2027.","url":"https://robin.vision/workshops/en/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT2H30M","teaches":["What AI is today – and what it is not","The EU AI Act in ten minutes","Data that must never go in","Checking results","Asking well, working well","Everyday risks","House rules"],"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT2H30M","name":"Online workshop"},{"@type":"CourseInstance","courseMode":"Onsite","courseWorkload":"PT4H","name":"On-site workshop"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"en","mainEntity":[{"@type":"Question","name":"Is this training mandatory?","acceptedAnswer":{"@type":"Answer","text":"No. Article 4 of the EU AI Act obliges organisations that use AI to take measures that promote the AI literacy of their staff. Which measures is for the organisation to decide; the law prescribes neither a certificate nor an exam. The workshop is one such measure, with evidence so that you can show what you have done."}},{"@type":"Question","name":"What is the EU AI Act training?","acceptedAnswer":{"@type":"Answer","text":"The documented part of the workshop: each person clicks through the online course and takes the test; on passing, the certificate for the training under Article 4 of the EU AI Act is issued, verifiable online. The participant list serves as evidence for your training records. The workshop beforehand lowers the barriers and supplies the examples from your daily work."}},{"@type":"Question","name":"Why does it all start with the workshop and not with the course?","acceptedAnswer":{"@type":"Answer","text":"Because questions from your own daily work are what help most – and because barriers fall in conversation, not while reading. In the workshop your team develops its own use cases and builds a small tool with me for a real pain point. The course afterwards consolidates the material in small steps, and the test completes it."}},{"@type":"Question","name":"What is the tool we build in the workshop?","acceptedAnswer":{"@type":"Answer","text":"A single HTML file that runs in the browser and eases one concrete task of your team – checking a list, building a text by fixed rules, summarising figures from a table. No installation, no data in the cloud. The team experiences how to instruct AI and how to check its results."}},{"@type":"Question","name":"What does the employer see?","acceptedAnswer":{"@type":"Answer","text":"Each person's status – invited, started, course completed, passed – and the certificate number, as a list for the training records. Scores and the number of attempts are not shown."}},{"@type":"Question","name":"How long is the certificate valid?","acceptedAnswer":{"@type":"Answer","text":"It states the edition and legal position of the training and can be verified online for three years. Because tools and rules change, there is an annual refresher with a new edition."}},{"@type":"Question","name":"What if someone fails the test?","acceptedAnswer":{"@type":"Answer","text":"After every submission the correct answer and an explanation are shown for each question. The test can be repeated as often as needed, with freshly drawn questions. Failed attempts are visible only to the person."}},{"@type":"Question","name":"What do participants need?","acceptedAnswer":{"@type":"Answer","text":"A browser and an email address. Access is set up with a passkey, for example fingerprint or face recognition, without a password. The online course runs in the browser, on a phone too; nothing is installed."}},{"@type":"Question","name":"Is the workshop legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It explains obligations in general terms, with the legal position stated for each edition, and refers to tax advisers, lawyers and data protection officers for individual cases."}},{"@type":"Question","name":"Are products shown in the workshop?","acceptedAnswer":{"@type":"Answer","text":"Yes. I demonstrate tools on real cases: SmartFormular Fibu lite, Fibu and Deklaration by robin.vision – and, over time, products from partner companies that may pay me a fee or a commission for the presentation. Partner offers are labelled as such; the content of the training does not change because of them. What you use is your decision; contracts are made directly with the provider. The terms cover this in Section 8, and the notes for participants mention it too."}}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
@@ -187,8 +179,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <p>Three parts: a workshop with me that lowers the barriers to AI and in which your team develops its own use cases and builds a small tool for a real pain point; then the click-through online course in the member area, where each person consolidates what matters at their own pace; then the test with a certificate per person and the participant list as evidence for your training records.</p>
 </div>
 <ul class="wege">
-<li><a class="knopf" href="#termin">Book a date for 2027</a></li>
-<li><a class="knopf zweit" href="#anfrage">Or send an enquiry</a></li>
+<li><a class="knopf" href="#anfrage">Enquire about a workshop in 2027</a></li>
 <li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
 </ul>
 <h2 id="teile">The workshop in three parts</h2>
@@ -227,14 +218,14 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <h2 id="formate">Two formats</h2>
 <p>Both start with the workshop and end with the same access per person: online course, handout, test and certificate for 90 days.</p>
 <div class="formate">
-<section class="format"><h3>Online workshop</h3><p class="frei">A 90-minute video call with your team: lowering barriers, developing use cases, building a small tool together. Then access for everyone: online course, handout, test and certificate.</p><p class="preis frei">€690 per session</p><p class="klein frei">up to 12 people, then €29 per additional person</p></section>
-<section class="format"><h3>On-site workshop</h3><p class="frei">Half a day at your premises: three hours with exercises on your own cases and a tool for your pain point. Then access for everyone: online course, handout, test and certificate.</p><p class="preis frei">€1,490 per session</p><p class="klein frei">up to 15 people plus travel costs, then €29 per additional person</p></section>
+<section class="format"><h3>Online workshop</h3><p class="frei">A 90-minute video call with your team: lowering barriers, developing use cases, building a small tool together. Then access for everyone: online course, handout, test and certificate.</p><p class="preis frei">Price on request</p><p class="klein frei">for teams of up to about 12 people, larger groups by arrangement</p></section>
+<section class="format"><h3>On-site workshop</h3><p class="frei">Half a day at your premises: three hours with exercises on your own cases and a tool for your pain point. Then access for everyone: online course, handout, test and certificate.</p><p class="preis frei">Price on request</p><p class="klein frei">for teams of up to about 15 people plus travel costs, larger groups by arrangement</p></section>
 </div>
-<p class="hinweis">Online course and test without a workshop (€49 per person) will follow once the licence under the German Distance Learning Protection Act is in place. Annual refresher with a new edition (legal position, new tools), test and certificate: €19 per person. Prices exclude VAT. Dates from January 2027. Workshops are held in German or English, across Europe; the online course is in German, an English edition follows.</p>
+<p class="hinweis">Online course and test without a workshop will follow once the licence under the German Distance Learning Protection Act is in place. Each year there is a refresher with a new edition (legal position, new tools), test and certificate. I state prices in the quote, after your enquiry. Dates from January 2027. Workshops are held in German or English, across Europe; the online course is in German, an English edition follows.</p>
 <h2 id="ablauf">How it works</h2>
 <ol class="ablauf">
-<li>You book a date in the calendar below or send an enquiry with format, number of people and preferred period. I confirm the date personally and send a quote and order confirmation.</li>
-<li>You receive an e-invoice. Once payment arrives, your workshop is unlocked in the member area (under “Coachings” there); you accept the terms as the person in charge.</li>
+<li>You send the enquiry below: company, contact person, number of participants, preferred date, online or on site. I reply personally with a quote and proposed dates and send the order confirmation once you accept.</li>
+<li>You receive an e-invoice. Once payment arrives, your workshop is unlocked in the member area (under “Workshops” there); you accept the terms as the person in charge.</li>
 <li>You enter the names and email addresses of your staff. Each person receives an invitation and their own access that shows only the course – with a passkey instead of a password.</li>
 <li>Part 1: the workshop with me, online or at your premises. Part 2: participants click through the online course whenever it suits them, in stages if they like; the handout is available as a PDF.</li>
 <li>Part 3, the test: 15 questions drawn at random from a pool of 30, passed from 12 correct answers. Every answer is explained; repeating is possible at any time.</li>
@@ -271,25 +262,17 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <h3>Are products shown in the workshop?</h3>
 <p>Yes. I demonstrate tools on real cases: SmartFormular Fibu lite, Fibu and Deklaration by robin.vision – and, over time, products from partner companies that may pay me a fee or a commission for the presentation. Partner offers are labelled as such; the content of the training does not change because of them. What you use is your decision; contracts are made directly with the provider. The terms cover this in Section 8, and the notes for participants mention it too.</p>
 </div>
-<h2 id="termin">Book a date for 2027</h2>
-<p>Pick a date in the calendar for your workshop or a short preliminary call. Every booking is a proposal at first; I confirm the date personally and send a quote and order confirmation.</p>
-<div class="kalender" id="kalender" data-cal-link="robin-james-lewis-ebbpnk/workshop-eu-ai-act-en">
-<p class="meta hinweis">Clicking loads the calendar from Cal.com (Cal.com, Inc., USA). Your IP address and browser data are transmitted and cookies are set. If you prefer not to, use the enquiry below or open the calendar in a new window.</p>
-<button type="button" id="kalender-laden">Load calendar (Cal.com)</button><a class="extern" href="https://cal.com/robin-james-lewis-ebbpnk/workshop-eu-ai-act-en" target="_blank" rel="noopener">Open the calendar in a new window</a>
-<div id="cal-inline"></div>
-</div>
-<h2 id="anfrage">Or send an enquiry</h2>
-<p>I reply personally by email, usually within two working days, with a quote and proposed dates.</p>
+<h2 id="anfrage">Enquire about a workshop in 2027</h2>
+<p>Five details are enough. I reply personally by email, usually within two working days, with a quote and proposed dates.</p>
 <form class="anfrage" id="anfrage" novalidate>
 <div class="reihe">
-<div><label for="a-firma">Firm or company</label><input type="text" id="a-firma" name="firma" maxlength="120" autocomplete="organization"></div>
-<div><label for="a-name">Your name</label><input type="text" id="a-name" name="name" maxlength="80" required autocomplete="name"></div>
+<div><label for="a-firma">Company or firm</label><input type="text" id="a-firma" name="firma" maxlength="120" required autocomplete="organization"></div>
+<div><label for="a-name">Contact person</label><input type="text" id="a-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="a-email">Email address</label><input type="email" id="a-email" name="email" maxlength="120" required autocomplete="email"></div>
-<div><label for="a-format">Format</label><select id="a-format" name="format"><option value="live">Online workshop</option><option value="praesenz">On-site workshop</option><option value="offen">Not decided yet</option></select></div>
-<div><label for="a-personen">People</label><input type="number" id="a-personen" name="personen" min="1" max="500" value="10" required></div>
-<div><label for="a-zeitraum">Preferred date or period in 2027 <span>(optional)</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80"></div>
+<div><label for="a-format">Online or on site</label><select id="a-format" name="format"><option value="live">Online (video call)</option><option value="praesenz">On site at our premises</option><option value="offen">Not decided yet</option></select></div>
+<div><label for="a-personen">Number of participants</label><input type="number" id="a-personen" name="personen" min="1" max="500" value="10" required></div>
+<div><label for="a-zeitraum">Preferred date in 2027 <span>(optional)</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="z. B. Februar 2027"></div>
 </div>
-<label for="a-nachricht">Your pain point or question <span>(optional)</span></label><textarea id="a-nachricht" name="nachricht" maxlength="2000"></textarea>
 <div class="falle" aria-hidden="true"><label for="a-website">Website</label><input type="text" id="a-website" name="website" tabindex="-1" autocomplete="off"></div>
 <button type="submit" id="anfrage-senden">Send enquiry</button>
 <p class="status" id="anfrage-status" role="status" aria-live="polite"></p>
@@ -298,8 +281,8 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <p class="meta">Or directly: <a href="../../?lang=en#nachricht">Write a message</a> · <a href="mailto:robin@robin.vision">robin@robin.vision</a></p>
 <p class="meta"><a href="../../workshops/" lang="de" hreflang="de">Diese Seite auf Deutsch</a></p>
 <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
-<h2 id="newsletter-title">Food for Thought and tools by email</h2>
-<p>The new post every Friday, plus news of my tools. Unsubscribe at any time.</p>
+<h2 id="newsletter-title">Food for Thought, SmartFormular and workshops by email</h2>
+<p>The new post every Friday, plus news of SmartFormular and the workshops. Unsubscribe at any time.</p>
 <form id="newsletter-form" novalidate>
 <div class="field"><label for="nl-email">Email address</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Email address"></div>
 <div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
@@ -311,26 +294,17 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <script>
 (() => {
   'use strict';
-  const T = {"felder":{"firma":"Firm or company","name":"Your name","email":"Email address","format":"Format","personen":"People","zeitraum":"Preferred date or period in 2027","nachricht":"Your pain point or question","optional":"(optional)"},"formate":{"live":"Online workshop","praesenz":"On-site workshop","offen":"Not decided yet"},"sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your name, a valid email address and at least one person.","fehler":"Sending did not work. Please email me directly at robin@robin.vision.","betreff":"Enquiry: AI literacy workshop"};
-  const kalender = document.getElementById('kalender-laden');
-  if (kalender) kalender.addEventListener('click', () => {
-    kalender.disabled = true; kalender.textContent = '…';
-    (function (C, A, L) { var p = function (a, ar) { a.q.push(ar); }; var d = C.document; C.Cal = C.Cal || function () { var cal = C.Cal, ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; var s = d.createElement('script'); s.src = A; s.async = true; d.head.appendChild(s); cal.loaded = true; } if (ar[0] === L) { var api = function () { p(api, arguments); }; var namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
-    Cal('init', 'workshops', { origin: 'https://app.cal.com' });
-    Cal.ns.workshops('inline', { elementOrSelector: '#cal-inline', calLink: "robin-james-lewis-ebbpnk/workshop-eu-ai-act-en", config: { layout: 'month_view', theme: 'light' } });
-    Cal.ns.workshops('ui', { hideEventTypeDetails: false, layout: 'month_view' });
-    kalender.hidden = true;
-  });
+  const T = {"felder":{"firma":"Company or firm","name":"Contact person","email":"Email address","format":"Online or on site","personen":"Number of participants","zeitraum":"Preferred date in 2027","optional":"(optional)"},"formate":{"live":"Online (video call)","praesenz":"On site at our premises","offen":"Not decided yet"},"sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your company, a contact person, a valid email address and the number of participants.","fehler":"Sending did not work. Please email me directly at robin@robin.vision.","betreff":"Enquiry: AI literacy workshop"};
   const form = document.getElementById('anfrage'); if (!form) return;
   const status = document.getElementById('anfrage-status'), knopf = document.getElementById('anfrage-senden'), geladen = Date.now();
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const d = Object.fromEntries(new FormData(form));
-    const name = (d.name || '').trim(), email = (d.email || '').trim(), personen = parseInt(d.personen, 10);
-    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || !(personen > 0)) { say(T.ungueltig, 'warn'); return; }
+    const firma = (d.firma || '').trim(), name = (d.name || '').trim(), email = (d.email || '').trim(), personen = parseInt(d.personen, 10);
+    if (firma.length < 2 || name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || !(personen > 0)) { say(T.ungueltig, 'warn'); return; }
     const zeile = (k, v) => v ? T.felder[k] + ': ' + String(v).trim() : null;
-    const message = [T.betreff, '', zeile('firma', d.firma), zeile('format', T.formate[d.format] || d.format), zeile('personen', personen), zeile('zeitraum', d.zeitraum), '', (d.nachricht || '').trim()]
+    const message = [T.betreff, '', zeile('firma', d.firma), zeile('format', T.formate[d.format] || d.format), zeile('personen', personen), zeile('zeitraum', d.zeitraum)]
       .filter(x => x !== null).join('\n').trim();
     knopf.disabled = true; say(T.sendet);
     try {

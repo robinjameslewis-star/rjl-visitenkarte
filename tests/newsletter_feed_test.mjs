@@ -35,6 +35,7 @@ for (const lang of ["de", "en"]) {
   check(fassungen.every(n => xml.includes(`<guid isPermaLink="true">${SITE}werkzeuge/${n.w.id}/#fassung-${n.fassung}</guid>`)), `${pfad}: jede Fassung als eigener Eintrag`);
   const neuBlock = lang === "en" ? "<h3>New in SmartFormular Fibu lite</h3>" : "<h3>Neu im SmartFormular Fibu lite</h3>";
   check((xml.match(new RegExp(neuBlock.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length === eigene.length, `${pfad}: „Neu im Werkzeug“ in jedem Impuls-Eintrag`);
+  check((xml.match(/<h3>SmartFormular<\/h3>/g) || []).length === eigene.length + fassungen.length && (xml.match(/<h3>Workshops<\/h3>/g) || []).length === eigene.length + fassungen.length && xml.includes(`${SITE}workshops/${lang === "en" ? "en/" : ""}`), `${pfad}: Angebote SmartFormular und Workshops in jedem Eintrag`);
   check((xml.match(/<description><!\[CDATA\[</g) || []).length === eigene.length + fassungen.length && !/undefined|\[object/.test(xml), `${pfad}: Beschreibungen der Einträge als HTML in CDATA, nichts Undefiniertes`);
   const daten = [...xml.matchAll(/<pubDate>([^<]+)<\/pubDate>/g)].map(m => Date.parse(m[1]));
   check(daten.every((d, i) => !i || d <= daten[i - 1]), `${pfad}: neueste zuerst`);

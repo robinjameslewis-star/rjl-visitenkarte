@@ -1,9 +1,11 @@
 // Seite „Workshops“ (workshops/index.html, englisch workshops/en/index.html; Robin, 17.10.2026): der Workshop KI-Kompetenz für Teams,
 // mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem Teil (Badge unter der Überschrift, eigener Kasten) – Workshop mit Robin
 // (Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Werkzeug im Browser bauen), Online-Lehrgang im
-// Memberbereich, Test mit Zertifikat. Termine für 2027 buchbar über Cal.com (eigener Kalender, geladen erst nach Klick) oder als
-// Anfrage über Gochs Kontakt-Endpunkt. Rechtsrahmen ohne Übertreibung, Fragen und Antworten (FAQPage), Course-Daten. Der Text steht
-// hier fest (keine Redaktion); tools/workshops-bauen.mjs schreibt beide Seiten. Preise sind Robins Vorschlag aus dem Konzept (Vault).
+// Memberbereich, Test mit Zertifikat. Termine für 2027 auf Anfrage über ein kurzes Formular (Unternehmen, Ansprechperson, E-Mail,
+// Teilnehmerzahl, Wunschtermin, online oder vor Ort) an Gochs Kontakt-Endpunkt; kein Kalender (Robin, 17.10.2026: Cal.com zeigte
+// Termine in 2026 – vorerst weg), keine Preise (auf Anfrage; Robins Vorschlag steht im Konzept im Vault). Rechtsrahmen ohne
+// Übertreibung, Fragen und Antworten (FAQPage), Course-Daten. Der Text steht hier fest (keine Redaktion); tools/workshops-bauen.mjs
+// schreibt beide Seiten.
 import { rahmen } from "./werkzeug.js";
 import { newsletterKasten } from "./kasten.js";
 import { SEITEN } from "./sitemap.js";
@@ -12,15 +14,9 @@ import { partnerListe } from "./partner.js";
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
 export const MEMBER_PRUEFUNG = "https://member.robin.vision/zertifikat";
-// Cal.com-Termine (Robins Ereignistypen unter „Links“, 17.10.2026): deutsch „Workshop und Unterweisung nach EU-AI Act“, englisch die
-// Kopie davon; beide 180 Minuten, Bestätigung durch Robin.
-export const CAL = { de: "robin-james-lewis-ebbpnk/coaching-nach-eu-ai-act", en: "robin-james-lewis-ebbpnk/workshop-eu-ai-act-en" };
 export const WORKSHOPS = SEITEN.filter(s => s.id === "workshops").map(s => ({ ...s, pfad: s.adresse + "index.html" }));
 export const workshopsPfad = lang => WORKSHOPS.find(s => s.lang === lang).pfad;
 export const workshopsUrl = lang => SITE + WORKSHOPS.find(s => s.lang === lang).adresse;
-export const PREISE = { online: 49, online10: 39, online25: 29, live: 690, liveWeitere: 29, praesenz: 1490, praesenzWeitere: 29, auffrischung: 19 };
-
-const eur = (n, lang) => lang === "en" ? `€${n.toLocaleString("en-GB")}` : `${n.toLocaleString("de-DE")} €`;
 
 const TEXT = {
   de: {
@@ -75,15 +71,15 @@ const TEXT = {
     formateLead: "Beide beginnen mit dem Workshop und enden mit demselben Zugang je Person: Online-Lehrgang, Skript, Test und Zertifikat für 90 Tage.",
     formate: [
       { name: "Workshop online", text: "Videokonferenz von 90 Minuten mit Ihrem Team: Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Werkzeug bauen. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
-        preis: `${eur(PREISE.live, "de")} je Termin`, klein: `bis 12 Personen, darüber ${eur(PREISE.liveWeitere, "de")} je weitere Person` },
+        preis: "Preis auf Anfrage", klein: "für Teams bis etwa 12 Personen, größere Gruppen nach Absprache" },
       { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen: drei Stunden mit Übungen an eigenen Fällen und einem Werkzeug für Ihren Schmerzpunkt. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
-        preis: `${eur(PREISE.praesenz, "de")} je Termin`, klein: `bis 15 Personen zuzüglich Fahrtkosten, darüber ${eur(PREISE.praesenzWeitere, "de")} je weitere Person` },
+        preis: "Preis auf Anfrage", klein: "für Teams bis etwa 15 Personen zuzüglich Fahrtkosten, größere Gruppen nach Absprache" },
     ],
-    auffrischung: `Online-Lehrgang und Test ohne Workshop (${eur(PREISE.online, "de")} je Person) folgen, sobald die Zulassung nach dem Fernunterrichtsschutzgesetz vorliegt. Jährliche Auffrischung mit neuer Fassung (Rechtsstand, neue Werkzeuge), Test und Zertifikat: ${eur(PREISE.auffrischung, "de")} je Person. Preise netto. Termine ab Januar 2027.`,
+    auffrischung: "Online-Lehrgang und Test ohne Workshop folgen, sobald die Zulassung nach dem Fernunterrichtsschutzgesetz vorliegt. Jährlich gibt es eine Auffrischung mit neuer Fassung (Rechtsstand, neue Werkzeuge), Test und Zertifikat. Preise nenne ich im Angebot, nach Ihrer Anfrage. Termine ab Januar 2027.",
     ablaufTitel: "So läuft es",
     ablauf: [
-      "Sie buchen einen Termin im Kalender unten oder schicken eine Anfrage mit Format, Personenzahl und Wunschzeitraum. Ich bestätige den Termin persönlich und schicke Angebot und Auftragsbestätigung.",
-      "Sie erhalten eine E-Rechnung. Mit dem Zahlungseingang wird Ihr Workshop im Memberbereich freigeschaltet (dort unter „Coachings“); Sie nehmen als Leitung die AGB an.",
+      "Sie schicken die Anfrage unten: Unternehmen, Ansprechperson, Teilnehmerzahl, Wunschtermin, online oder vor Ort. Ich antworte persönlich mit Angebot und Terminvorschlägen und schicke nach Ihrer Zusage die Auftragsbestätigung.",
+      "Sie erhalten eine E-Rechnung. Mit dem Zahlungseingang wird Ihr Workshop im Memberbereich freigeschaltet (dort unter „Workshops“); Sie nehmen als Leitung die AGB an.",
       "Sie tragen Namen und E-Mail-Adressen Ihrer Mitarbeitenden ein. Jede Person bekommt eine Einladung und einen eigenen Zugang, der nur den Lehrgang zeigt – mit Passkey statt Passwort.",
       "Teil 1: der Workshop mit mir, online oder bei Ihnen. Teil 2: Die Teilnehmenden klicken den Online-Lehrgang durch, wann es passt, auch in Etappen; das Skript steht als PDF bereit.",
       "Teil 3, der Test: 15 Fragen, zufällig aus einem Vorrat von 30, bestanden ab 12 richtigen Antworten. Jede Antwort wird erklärt; Wiederholen ist jederzeit möglich.",
@@ -114,18 +110,13 @@ const TEXT = {
       ["Ist der Workshop Rechtsberatung?", "Nein. Er erklärt Pflichten allgemein, mit Rechtsstand je Fassung, und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."],
       ["Werden im Workshop Produkte gezeigt?", "Ja. Ich zeige Werkzeuge an echten Fällen: SmartFormular Fibu lite, Fibu und Deklaration von robin.vision – und nach und nach Produkte von Partnerunternehmen, für deren Vorstellung ich eine Gebühr oder Provision erhalten kann. Partnerangebote sind als solche gekennzeichnet; die Inhalte der Unterweisung ändern sich dadurch nicht. Was Sie einsetzen, entscheiden Sie; Verträge schließen Sie direkt mit dem Anbieter. Die AGB regeln das in § 8, die Hinweise für Teilnehmende nennen es ebenfalls."],
     ],
-    terminTitel: "Termin für 2027 buchen",
-    terminLead: "Wählen Sie im Kalender einen Termin für Ihren Workshop oder ein kurzes Vorgespräch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich und schicke Angebot und Auftragsbestätigung.",
-    kalenderLaden: "Kalender laden (Cal.com)",
-    kalenderHinweis: "Mit dem Klick laden Sie den Kalender von Cal.com (Cal.com, Inc., USA). Dabei werden IP-Adresse und Browserdaten übertragen und Cookies gesetzt. Wenn Sie das nicht möchten, nutzen Sie die Anfrage unten oder den Kalender in einem neuen Fenster.",
-    kalenderExtern: "Kalender in neuem Fenster öffnen",
-    anfrageTitel: "Oder anfragen",
-    anfrageLead: "Ich antworte persönlich per E-Mail, in der Regel innerhalb von zwei Werktagen, mit Angebot und Terminvorschlägen.",
-    felder: { firma: "Kanzlei oder Unternehmen", name: "Ihr Name", email: "E-Mail-Adresse", format: "Format", personen: "Personen", zeitraum: "Wunschtermin oder Zeitraum 2027", nachricht: "Ihr Schmerzpunkt oder Ihre Frage", optional: "(freiwillig)" },
-    formatOptionen: [["live", "Workshop online"], ["praesenz", "Workshop vor Ort"], ["offen", "Noch offen"]],
+    anfrageTitel: "Workshop für 2027 anfragen",
+    anfrageLead: "Fünf Angaben genügen. Ich antworte persönlich per E-Mail, in der Regel innerhalb von zwei Werktagen, mit Angebot und Terminvorschlägen.",
+    felder: { firma: "Unternehmen oder Kanzlei", name: "Ansprechpartnerin oder Ansprechpartner", email: "E-Mail-Adresse", format: "Online oder vor Ort", personen: "Teilnehmerzahl", zeitraum: "Wunschtermin 2027", optional: "(freiwillig)" },
+    formatOptionen: [["live", "Online (Videokonferenz)"], ["praesenz", "Vor Ort bei uns"], ["offen", "Noch offen"]],
     senden: "Anfrage senden", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
-    ungueltig: "Bitte Name, eine gültige E-Mail-Adresse und mindestens eine Person angeben.",
+    ungueltig: "Bitte Unternehmen, Ansprechperson, eine gültige E-Mail-Adresse und die Teilnehmerzahl angeben.",
     fehler: "Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision.",
     datenschutz: "Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.",
     betreff: "Anfrage Workshop KI-Kompetenz",
@@ -184,15 +175,15 @@ const TEXT = {
     formateLead: "Both start with the workshop and end with the same access per person: online course, handout, test and certificate for 90 days.",
     formate: [
       { name: "Online workshop", text: "A 90-minute video call with your team: lowering barriers, developing use cases, building a small tool together. Then access for everyone: online course, handout, test and certificate.",
-        preis: `${eur(PREISE.live, "en")} per session`, klein: `up to 12 people, then ${eur(PREISE.liveWeitere, "en")} per additional person` },
+        preis: "Price on request", klein: "for teams of up to about 12 people, larger groups by arrangement" },
       { name: "On-site workshop", text: "Half a day at your premises: three hours with exercises on your own cases and a tool for your pain point. Then access for everyone: online course, handout, test and certificate.",
-        preis: `${eur(PREISE.praesenz, "en")} per session`, klein: `up to 15 people plus travel costs, then ${eur(PREISE.praesenzWeitere, "en")} per additional person` },
+        preis: "Price on request", klein: "for teams of up to about 15 people plus travel costs, larger groups by arrangement" },
     ],
-    auffrischung: `Online course and test without a workshop (${eur(PREISE.online, "en")} per person) will follow once the licence under the German Distance Learning Protection Act is in place. Annual refresher with a new edition (legal position, new tools), test and certificate: ${eur(PREISE.auffrischung, "en")} per person. Prices exclude VAT. Dates from January 2027. Workshops are held in German or English, across Europe; the online course is in German, an English edition follows.`,
+    auffrischung: "Online course and test without a workshop will follow once the licence under the German Distance Learning Protection Act is in place. Each year there is a refresher with a new edition (legal position, new tools), test and certificate. I state prices in the quote, after your enquiry. Dates from January 2027. Workshops are held in German or English, across Europe; the online course is in German, an English edition follows.",
     ablaufTitel: "How it works",
     ablauf: [
-      "You book a date in the calendar below or send an enquiry with format, number of people and preferred period. I confirm the date personally and send a quote and order confirmation.",
-      "You receive an e-invoice. Once payment arrives, your workshop is unlocked in the member area (under “Coachings” there); you accept the terms as the person in charge.",
+      "You send the enquiry below: company, contact person, number of participants, preferred date, online or on site. I reply personally with a quote and proposed dates and send the order confirmation once you accept.",
+      "You receive an e-invoice. Once payment arrives, your workshop is unlocked in the member area (under “Workshops” there); you accept the terms as the person in charge.",
       "You enter the names and email addresses of your staff. Each person receives an invitation and their own access that shows only the course – with a passkey instead of a password.",
       "Part 1: the workshop with me, online or at your premises. Part 2: participants click through the online course whenever it suits them, in stages if they like; the handout is available as a PDF.",
       "Part 3, the test: 15 questions drawn at random from a pool of 30, passed from 12 correct answers. Every answer is explained; repeating is possible at any time.",
@@ -223,18 +214,13 @@ const TEXT = {
       ["Is the workshop legal advice?", "No. It explains obligations in general terms, with the legal position stated for each edition, and refers to tax advisers, lawyers and data protection officers for individual cases."],
       ["Are products shown in the workshop?", "Yes. I demonstrate tools on real cases: SmartFormular Fibu lite, Fibu and Deklaration by robin.vision – and, over time, products from partner companies that may pay me a fee or a commission for the presentation. Partner offers are labelled as such; the content of the training does not change because of them. What you use is your decision; contracts are made directly with the provider. The terms cover this in Section 8, and the notes for participants mention it too."],
     ],
-    terminTitel: "Book a date for 2027",
-    terminLead: "Pick a date in the calendar for your workshop or a short preliminary call. Every booking is a proposal at first; I confirm the date personally and send a quote and order confirmation.",
-    kalenderLaden: "Load calendar (Cal.com)",
-    kalenderHinweis: "Clicking loads the calendar from Cal.com (Cal.com, Inc., USA). Your IP address and browser data are transmitted and cookies are set. If you prefer not to, use the enquiry below or open the calendar in a new window.",
-    kalenderExtern: "Open the calendar in a new window",
-    anfrageTitel: "Or send an enquiry",
-    anfrageLead: "I reply personally by email, usually within two working days, with a quote and proposed dates.",
-    felder: { firma: "Firm or company", name: "Your name", email: "Email address", format: "Format", personen: "People", zeitraum: "Preferred date or period in 2027", nachricht: "Your pain point or question", optional: "(optional)" },
-    formatOptionen: [["live", "Online workshop"], ["praesenz", "On-site workshop"], ["offen", "Not decided yet"]],
+    anfrageTitel: "Enquire about a workshop in 2027",
+    anfrageLead: "Five details are enough. I reply personally by email, usually within two working days, with a quote and proposed dates.",
+    felder: { firma: "Company or firm", name: "Contact person", email: "Email address", format: "Online or on site", personen: "Number of participants", zeitraum: "Preferred date in 2027", optional: "(optional)" },
+    formatOptionen: [["live", "Online (video call)"], ["praesenz", "On site at our premises"], ["offen", "Not decided yet"]],
     senden: "Send enquiry", sendet: "Sending …",
     gesendet: "Thank you – your enquiry has arrived. I will get back to you by email.",
-    ungueltig: "Please give your name, a valid email address and at least one person.",
+    ungueltig: "Please give your company, a contact person, a valid email address and the number of participants.",
     fehler: "Sending did not work. Please email me directly at robin@robin.vision.",
     datenschutz: "Your details are emailed to me and used only to reply. Details are under Legal notice · Privacy.",
     betreff: "Enquiry: AI literacy workshop",
@@ -273,27 +259,19 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .format { padding: 22px 20px 18px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); display: flex; flex-direction: column; }
 .format h3 { margin: 0 0 8px; font: 500 20px/1.25 var(--serif); color: var(--green); }
 .format p { font-size: 15px; color: var(--ink-soft); margin: 0 0 12px; max-width: none; text-align: left; flex: 1; }
-.format .preis { font: 400 clamp(26px, 3vw, 32px)/1.1 var(--serif); color: var(--ink); margin: 0 0 4px; }
+.format .preis { font: 400 clamp(19px, 2.2vw, 23px)/1.2 var(--serif); color: var(--ink); margin: 0 0 4px; }
 .format .klein { font: 400 13px/1.45 var(--sans); color: var(--ink-muted); margin: 0; flex: 0; }
 .ablauf { counter-reset: schritt; list-style: none; padding: 0; margin: 0 0 18px; }
 .ablauf li { position: relative; padding: 0 0 16px 46px; margin: 0; }
 .ablauf li::before { counter-increment: schritt; content: counter(schritt); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--green); color: var(--paper); display: grid; place-items: center; font: 500 13px/1 var(--sans); }
-.kalender { margin: 8px 0 12px; padding: 22px 24px 20px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.45); }
-.kalender .hinweis { margin: 0 0 14px; }
-.kalender button { padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper); font: inherit; font-size: 15px; cursor: pointer; }
-.kalender button:hover { background: #082d22; }
-.kalender .extern { margin-left: 14px; font-size: 15px; }
-#cal-inline { margin-top: 16px; min-height: 0; }
-#cal-inline iframe { border-radius: 3px; }
 .anfrage { position: relative; margin: 8px 0 8px; padding: 22px 24px 20px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.45); }
 .anfrage .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 .anfrage label { display: block; font-size: 14px; color: var(--ink-soft); margin: 12px 0 4px; }
 .anfrage input, .anfrage select, .anfrage textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.7); color: var(--ink); }
-.anfrage textarea { min-height: 110px; resize: vertical; }
 .anfrage button { margin-top: 18px; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper); font: inherit; font-size: 15px; cursor: pointer; }
 .anfrage button:hover { background: #082d22; }
 .anfrage button:disabled { opacity: .6; cursor: default; }
-.anfrage button:focus-visible, .anfrage input:focus-visible, .anfrage select:focus-visible, .anfrage textarea:focus-visible, .kalender button:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.anfrage button:focus-visible, .anfrage input:focus-visible, .anfrage select:focus-visible, .anfrage textarea:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
 .anfrage .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; }
 .anfrage .status.ok { color: var(--green); }
 .anfrage .status.warn { color: #A63D2F; }
@@ -310,31 +288,22 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-// Browser-Teil: Cal.com erst nach Klick laden (Einwilligung durch Handlung, nichts wird gespeichert) und die Anfrage an Gochs Worker
+// Browser-Teil: die Anfrage an Gochs Worker
 // senden – wie das Kontaktformular der Startseite (contact.js): Felder zu einer Nachricht, Falle „website“, Ladezeitpunkt t.
 const SKRIPT = (lang, t) => `<script>
 (() => {
   'use strict';
   const T = ${JSON.stringify({ felder: t.felder, formate: Object.fromEntries(t.formatOptionen), sendet: t.sendet, gesendet: t.gesendet, ungueltig: t.ungueltig, fehler: t.fehler, betreff: t.betreff })};
-  const kalender = document.getElementById('kalender-laden');
-  if (kalender) kalender.addEventListener('click', () => {
-    kalender.disabled = true; kalender.textContent = '…';
-    (function (C, A, L) { var p = function (a, ar) { a.q.push(ar); }; var d = C.document; C.Cal = C.Cal || function () { var cal = C.Cal, ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; var s = d.createElement('script'); s.src = A; s.async = true; d.head.appendChild(s); cal.loaded = true; } if (ar[0] === L) { var api = function () { p(api, arguments); }; var namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
-    Cal('init', 'workshops', { origin: 'https://app.cal.com' });
-    Cal.ns.workshops('inline', { elementOrSelector: '#cal-inline', calLink: ${JSON.stringify(CAL[lang])}, config: { layout: 'month_view', theme: 'light' } });
-    Cal.ns.workshops('ui', { hideEventTypeDetails: false, layout: 'month_view' });
-    kalender.hidden = true;
-  });
   const form = document.getElementById('anfrage'); if (!form) return;
   const status = document.getElementById('anfrage-status'), knopf = document.getElementById('anfrage-senden'), geladen = Date.now();
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const d = Object.fromEntries(new FormData(form));
-    const name = (d.name || '').trim(), email = (d.email || '').trim(), personen = parseInt(d.personen, 10);
-    if (name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email) || !(personen > 0)) { say(T.ungueltig, 'warn'); return; }
+    const firma = (d.firma || '').trim(), name = (d.name || '').trim(), email = (d.email || '').trim(), personen = parseInt(d.personen, 10);
+    if (firma.length < 2 || name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email) || !(personen > 0)) { say(T.ungueltig, 'warn'); return; }
     const zeile = (k, v) => v ? T.felder[k] + ': ' + String(v).trim() : null;
-    const message = [T.betreff, '', zeile('firma', d.firma), zeile('format', T.formate[d.format] || d.format), zeile('personen', personen), zeile('zeitraum', d.zeitraum), '', (d.nachricht || '').trim()]
+    const message = [T.betreff, '', zeile('firma', d.firma), zeile('format', T.formate[d.format] || d.format), zeile('personen', personen), zeile('zeitraum', d.zeitraum)]
       .filter(x => x !== null).join('\\n').trim();
     knopf.disabled = true; say(T.sendet);
     try {
@@ -362,8 +331,7 @@ export function workshopsSeite(lang) {
 ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 </div>
 <ul class="wege">
-<li><a class="knopf" href="#termin">${esc(t.terminTitel)}</a></li>
-<li><a class="knopf zweit" href="#anfrage">${esc(t.anfrageTitel)}</a></li>
+<li><a class="knopf" href="#anfrage">${esc(t.anfrageTitel)}</a></li>
 <li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
 </ul>
 <h2 id="teile">${esc(t.teileTitel)}</h2>
@@ -406,25 +374,17 @@ ${t.recht.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <div class="fragen">
 ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 </div>
-<h2 id="termin">${esc(t.terminTitel)}</h2>
-<p>${esc(t.terminLead)}</p>
-<div class="kalender" id="kalender" data-cal-link="${esc(CAL[lang])}">
-<p class="meta hinweis">${esc(t.kalenderHinweis)}</p>
-<button type="button" id="kalender-laden">${esc(t.kalenderLaden)}</button><a class="extern" href="https://cal.com/${esc(CAL[lang])}" target="_blank" rel="noopener">${esc(t.kalenderExtern)}</a>
-<div id="cal-inline"></div>
-</div>
 <h2 id="anfrage">${esc(t.anfrageTitel)}</h2>
 <p>${esc(t.anfrageLead)}</p>
 <form class="anfrage" id="anfrage" novalidate>
 <div class="reihe">
-<div><label for="a-firma">${esc(t.felder.firma)}</label><input type="text" id="a-firma" name="firma" maxlength="120" autocomplete="organization"></div>
+<div><label for="a-firma">${esc(t.felder.firma)}</label><input type="text" id="a-firma" name="firma" maxlength="120" required autocomplete="organization"></div>
 <div><label for="a-name">${esc(t.felder.name)}</label><input type="text" id="a-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="a-email">${esc(t.felder.email)}</label><input type="email" id="a-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="a-format">${esc(t.felder.format)}</label><select id="a-format" name="format">${t.formatOptionen.map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}</select></div>
 <div><label for="a-personen">${esc(t.felder.personen)}</label><input type="number" id="a-personen" name="personen" min="1" max="500" value="10" required></div>
-<div><label for="a-zeitraum">${esc(t.felder.zeitraum)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80"></div>
+<div><label for="a-zeitraum">${esc(t.felder.zeitraum)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="z. B. Februar 2027"></div>
 </div>
-<label for="a-nachricht">${esc(t.felder.nachricht)} <span>${esc(t.felder.optional)}</span></label><textarea id="a-nachricht" name="nachricht" maxlength="2000"></textarea>
 <div class="falle" aria-hidden="true"><label for="a-website">Website</label><input type="text" id="a-website" name="website" tabindex="-1" autocomplete="off"></div>
 <button type="submit" id="anfrage-senden">${esc(t.senden)}</button>
 <p class="status" id="anfrage-status" role="status" aria-live="polite"></p>
@@ -439,8 +399,8 @@ ${SKRIPT(lang, t)}`;
     provider: { "@type": "Person", "@id": SITE + "#person", name: "Robin James Lewis", url: SITE },
     educationalLevel: "Beginner", timeRequired: "PT2H30M", teaches: t.kapitel.map(k => k[0]),
     hasCourseInstance: [
-      { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT2H30M", name: t.formate[0].name, offers: { "@type": "Offer", price: String(PREISE.live), priceCurrency: "EUR", category: "per session, up to 12 people" } },
-      { "@type": "CourseInstance", courseMode: "Onsite", courseWorkload: "PT4H", name: t.formate[1].name, offers: { "@type": "Offer", price: String(PREISE.praesenz), priceCurrency: "EUR", category: "per session, up to 15 people" } },
+      { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT2H30M", name: t.formate[0].name },
+      { "@type": "CourseInstance", courseMode: "Onsite", courseWorkload: "PT4H", name: t.formate[1].name },
     ] }).replace(/</g, "\\u003c");
   const faq = JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", inLanguage: lang,
     mainEntity: t.fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c");

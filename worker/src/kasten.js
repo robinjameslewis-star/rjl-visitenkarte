@@ -8,14 +8,14 @@ export const NEWSLETTER_SKRIPT = "newsletter.js?v=20261016";
 
 const TEXT = {
   de: {
-    impuls: ["Impulse und Werkzeuge per E-Mail", "Jeden Freitag der neue Impuls, dazu Neues zu meinen Werkzeugen. Jederzeit abbestellbar."],
-    werkzeug: ["Neue Werkzeuge per E-Mail", "Der Newsletter informiert über neue Werkzeuge und Fassungen, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig."],
+    impuls: ["Impulse, SmartFormular und Workshops per E-Mail", "Jeden Freitag der neue Impuls, dazu Neues zu SmartFormular und zu den Workshops. Jederzeit abbestellbar."],
+    werkzeug: ["Neues zu SmartFormular per E-Mail", "Der Newsletter informiert über neue Fassungen von Fibu lite, den Beta-Start von Fibu und Deklaration und die Workshops, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig."],
     email: "E-Mail-Adresse", senden: "Anmelden",
     hinweis: privacy => `Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="${privacy}">Datenschutz</a>.`,
   },
   en: {
-    impuls: ["Food for Thought and tools by email", "The new post every Friday, plus news of my tools. Unsubscribe at any time."],
-    werkzeug: ["New tools by email", "The newsletter reports on new tools and versions, plus the new post every Friday. No sign-up is needed for the download."],
+    impuls: ["Food for Thought, SmartFormular and workshops by email", "The new post every Friday, plus news of SmartFormular and the workshops. Unsubscribe at any time."],
+    werkzeug: ["News of SmartFormular by email", "The newsletter reports on new versions of Fibu lite, the beta start of Fibu and Deklaration and the workshops, plus the new post every Friday. No sign-up is needed for the download."],
     email: "Email address", senden: "Subscribe",
     hinweis: privacy => `After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="${privacy}">Privacy</a>.`,
   },

@@ -3,7 +3,7 @@
 <channel>
   <title>robin.vision – Newsletter (English)</title>
   <link>https://robin.vision/?lang=en#newsletter</link>
-  <description>Food for Thought and tools by email</description>
+  <description>Food for Thought, SmartFormular and workshops by email</description>
   <language>en</language>
   <item>
     <title>Mistakes multiply – why ARP starts with getting your house in order</title>
@@ -17,7 +17,13 @@
 <h3>New in SmartFormular Fibu lite</h3>
 <p><em>Version a396da5 of 15 October 2026</em></p>
 <ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite is free; SmartFormular Fibu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All SmartFormular products</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">To the workshop with EU AI Act training</a></p>]]></description>
   </item>
   <item>
     <title>SmartFormular Fibu lite: Version a396da5</title>
@@ -25,7 +31,13 @@
     <guid isPermaLink="true">https://robin.vision/werkzeuge/booking-batch-generator/#fassung-a396da5</guid>
     <pubDate>Thu, 15 Oct 2026 09:00:00 GMT</pubDate>
     <description><![CDATA[<ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite is free; SmartFormular Fibu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All SmartFormular products</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">To the workshop with EU AI Act training</a></p>]]></description>
   </item>
   <item>
     <title>The end of ERP as we know it – why internal interfaces are only a stopgap</title>
@@ -39,7 +51,13 @@
 <h3>New in SmartFormular Fibu lite</h3>
 <p><em>Version a396da5 of 15 October 2026</em></p>
 <ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite is free; SmartFormular Fibu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All SmartFormular products</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">To the workshop with EU AI Act training</a></p>]]></description>
   </item>
   <item>
     <title>Seamless data flow – where data still slips between paper and screen</title>
@@ -53,7 +71,13 @@
 <h3>New in SmartFormular Fibu lite</h3>
 <p><em>Version a396da5 of 15 October 2026</em></p>
 <ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite is free; SmartFormular Fibu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All SmartFormular products</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">To the workshop with EU AI Act training</a></p>]]></description>
   </item>
   <item>
     <title>E-invoicing: when the data becomes the invoice</title>
@@ -67,7 +91,13 @@
 <h3>New in SmartFormular Fibu lite</h3>
 <p><em>Version a396da5 of 15 October 2026</em></p>
 <ul><li>New name: Booking Batch Generator – the English edition of the Buchungsstapel-Generator, built from the same source with an English user interface.</li><li>Scanned statements: text recognition offline in the browser; image preparation, split amounts and date groups are reassembled, a second pass follows when the balance check finds a difference; an unreadable date no longer costs a transaction.</li><li>Layout without content: all letters are masked, including é, ô and ñ; sent at the click of a button.</li><li>PDF reader: Wise and other English-language statements (date below the transaction, 1,234.56, balance column); date format 01-10-2026; “balance” in the purpose line is recognised.</li><li>Security: protection against CSRF, XSS and CSV injection, strict checks of local model servers, Content Security Policy with checksums.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite is free; SmartFormular Fibu and SmartFormular Deklaration are in the making – beta access in the member area on request.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All SmartFormular products</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">To the workshop with EU AI Act training</a></p>]]></description>
   </item>
 </channel>
 </rss>

@@ -3,7 +3,7 @@
 <channel>
   <title>robin.vision – Newsletter</title>
   <link>https://robin.vision/#newsletter</link>
-  <description>Impulse und Werkzeuge per E-Mail</description>
+  <description>Impulse, SmartFormular und Workshops per E-Mail</description>
   <language>de</language>
   <item>
     <title>Fehler skalieren – warum vor ARP die alten Regeln auf den Tisch gehören</title>
@@ -17,7 +17,13 @@
 <h3>Neu im SmartFormular Fibu lite</h3>
 <p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
 <ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite ist kostenlos; SmartFormular Fibu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle SmartFormular-Produkte</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Zum Workshop mit Unterweisung nach EU AI Act</a></p>]]></description>
   </item>
   <item>
     <title>SmartFormular Fibu lite: Fassung a396da5</title>
@@ -25,7 +31,13 @@
     <guid isPermaLink="true">https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-a396da5</guid>
     <pubDate>Thu, 15 Oct 2026 09:00:00 GMT</pubDate>
     <description><![CDATA[<ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite ist kostenlos; SmartFormular Fibu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle SmartFormular-Produkte</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Zum Workshop mit Unterweisung nach EU AI Act</a></p>]]></description>
   </item>
   <item>
     <title>Das Ende des ERP, wie wir es kennen – warum interne Schnittstellen ein Zwischenschritt sind</title>
@@ -39,7 +51,13 @@
 <h3>Neu im SmartFormular Fibu lite</h3>
 <p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
 <ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite ist kostenlos; SmartFormular Fibu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle SmartFormular-Produkte</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Zum Workshop mit Unterweisung nach EU AI Act</a></p>]]></description>
   </item>
   <item>
     <title>Medienbruchfreiheit – wo Daten heute noch das Medium wechseln</title>
@@ -53,7 +71,13 @@
 <h3>Neu im SmartFormular Fibu lite</h3>
 <p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
 <ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite ist kostenlos; SmartFormular Fibu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle SmartFormular-Produkte</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Zum Workshop mit Unterweisung nach EU AI Act</a></p>]]></description>
   </item>
   <item>
     <title>E-Rechnung: vom Belegbild zum Datensatz</title>
@@ -67,7 +91,13 @@
 <h3>Neu im SmartFormular Fibu lite</h3>
 <p><em>Fassung a396da5 vom 15. Oktober 2026</em></p>
 <ul><li>Neuer Name: Buchungsstapel-Generator – die bisherige Adresse leitet weiter; dazu die englische Fassung „Booking Batch Generator“ mit englischer Oberfläche aus derselben Quelle.</li><li>Gescannte Kontoauszüge: Texterkennung offline im Browser; Bildaufbereitung, zerlegte Beträge und Datumsgruppen werden zusammengesetzt, bei einer Abweichung folgt ein zweiter Durchgang; ein unleserliches Datum kostet keinen Umsatz mehr.</li><li>Aufbau ohne Inhalt: alle Buchstaben werden maskiert, auch é, ô und ñ; Senden auf Knopfdruck.</li><li>PDF-Leser: Wise und andere englischsprachige Auszüge (Datum unter dem Umsatz, 1,234.56, Saldospalte); Datumsschreibweise 01-10-2026; „Saldo“ im Verwendungszweck wird erkannt.</li><li>Sicherheit: Schutz vor CSRF, XSS und CSV-Injection, strenge Prüfung lokaler Modellserver, Content Security Policy mit Prüfsummen.</li></ul>
-<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>]]></description>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular Fibu lite</a></p>
+<h3>SmartFormular</h3>
+<p>Fibu lite ist kostenlos; SmartFormular Fibu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle SmartFormular-Produkte</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Zum Workshop mit Unterweisung nach EU AI Act</a></p>]]></description>
   </item>
 </channel>
 </rss>

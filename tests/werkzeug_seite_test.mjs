@@ -4,10 +4,11 @@
 //   node tests/werkzeug_seite_test.mjs
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, werkzeugUebersicht, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
 import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
 import { neuigkeiten } from "../worker/src/neuigkeiten.js";
 import { CONTENT } from "../worker/src/admin.js";
+import { werkzeugUebersicht } from "../worker/src/smartformular.js";
 
 let fails = 0;
 const check = (ok, label) => { console.log((ok ? "  ok   " : "  FEHLT ") + label); if (!ok) fails++; };
@@ -87,7 +88,8 @@ for (const a of ALTE_ADRESSEN) {
 }
 const start = lesen("index.html");
 check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">SmartFormular<\/a>/.test(start), "Startseite: Menüpunkt „SmartFormular“ führt auf die Übersicht");
-check(WERKZEUGE.every(w => start.includes(`<li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"}><span class="when">`) && start.includes(`href="werkzeuge/${w.id}/">${w.titel}</a>`)), "Startseite: Werkzeugliste je Sprache");
+check(WERKZEUGE.every(w => start.includes(`<li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"} class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p>`) && start.includes(`href="werkzeuge/${w.id}/">${w.titel}</a>`) && start.includes(`<a class="sf-knopf" href="werkzeuge/${w.id}/">`)), "Startseite: SmartFormular-Karte je Sprache mit Knopf zum Werkzeug");
+check((start.match(/<ul class="sf-bald">/g) || []).length === 2 && /werkzeuge\/#fibu">SmartFormular Fibu<\/a>/.test(start) && /werkzeuge\/#deklaration">SmartFormular Deklaration<\/a>/.test(start) && /werkzeuge\/en\/#deklaration">SmartFormular Deklaration<\/a>/.test(start), "Startseite: Ankündigungen Fibu und Deklaration in beiden Sprachen");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
 
@@ -96,7 +98,7 @@ for (const n of readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md"))) {
   const p = parsePost(lesen(`${POSTS_DIR}/${n}`), n.slice(0, -3));
   if (p.status !== "published") continue;
   const html = lesen(`blog/${p.slug}/index.html`);
-  const titel = p.lang === "en" ? "Food for Thought and tools by email" : "Impulse und Werkzeuge per E-Mail";
+  const titel = p.lang === "en" ? "Food for Thought, SmartFormular and workshops by email" : "Impulse, SmartFormular und Workshops per E-Mail";
   check(html.includes(`<h2 id="newsletter-title">${titel}</h2>`) && html.indexOf('id="newsletter"') > html.indexOf("</article>")
     && /data-newsletter-endpoint=/.test(html) && /newsletter\.js\?v=/.test(html) && html.includes(`werkzeuge/${p.lang === "en" ? "en/" : ""}"`), `blog/${p.slug}/: Kasten unter dem Beitrag, Werkzeuge im Kopf`);
 }
