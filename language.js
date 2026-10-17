@@ -48,10 +48,10 @@
       legalTitle: 'Impressum · Datenschutz',
       legalMstv: 'Verantwortlich für die Inhalte nach § 18 Abs. 2 MStV: Robin James Lewis, Anschrift wie oben.',
       description: 'Kostenlose Werkzeuge für die Buchhaltung, die offline im Browser laufen, und jeden Freitag ein Impuls zu Automatisierung und KI im Rechnungswesen. Robin James Lewis, Balingen.',
-      title: 'robin.vision – Werkzeuge und Impulse für das Rechnungswesen',
+      title: 'robin.vision – SmartFormular und Workshops zur KI-Kompetenz',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
-      claim: 'Werkzeuge für den Alltag im Rechnungswesen – für die Tage, an denen der Prozess hakt. Offline, kostenlos, aus der Praxis. Dazu jeden Freitag ein Impuls.',
-      ctaTool: 'FiBu lite herunterladen', ctaPosts: 'Impulse lesen',
+      claim: 'Mitten in der Transformation: SmartFormular für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.',
+      ctaTool: 'SmartFormular', ctaWorkshops: 'Workshops',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
       navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'Zum Workshop mit Unterweisung nach EU AI Act',
@@ -124,9 +124,9 @@
       legalTitle: 'Legal notice · Privacy',
       legalMstv: 'Responsible for content under § 18(2) MStV (German Interstate Media Treaty): Robin James Lewis, address as above.',
       description: 'Free bookkeeping tools that run offline in your browser, and a short post every Friday on automation and AI in accounting. Robin James Lewis, Balingen, Germany.',
-      title: 'robin.vision – Tools and Food for Thought for accounting',
-      claim: 'Tools for everyday accounting – for the days when the process stalls. Offline, free, from practice. Plus a short post every Friday.',
-      ctaTool: 'Download FiBu lite', ctaPosts: 'Read the posts',
+      title: 'robin.vision – SmartFormular and AI literacy workshops',
+      claim: 'In the middle of the transformation: SmartFormular for the days when the process stalls, and workshops for teams that want to use AI safely – with EU AI Act training.',
+      ctaTool: 'SmartFormular', ctaWorkshops: 'Workshops',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
       navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'To the workshop with EU AI Act training',
