@@ -1,8 +1,9 @@
 // Seite „Schulung“ (schulung/index.html, englisch training/index.html; Robin, 16.10.2026, Member-Repo #105): die Unterweisung
 // KI-Kompetenz nach Art. 4 KI-Verordnung im Rahmen der Werkzeugseiten (werkzeug.js, rahmen) – Inhalt, Formate und Preise, Ablauf,
 // Nachweis, Rechtsrahmen ohne Übertreibung (Art. 4 verlangt Maßnahmen, kein Zertifikat), Fragen und Antworten (FAQPage) und ein
-// Anfrageformular über Gochs Kontakt-Endpunkt. Der Text steht hier fest (keine Redaktion); tools/schulung-bauen.mjs schreibt beide
-// Seiten. Preise sind Robins Vorschlag aus dem Konzept (Vault); vor dem Verkauf: FernUSG-Weg und Rechnungsstellung (Konzept, 7).
+// Anfrageformular. Ablauf seit 17.10.2026: Workshop mit Robin (online oder vor Ort), dann Online-Lehrgang zum Durchklicken, dann Test;
+// ein Lehrgang ohne Workshop erst nach der Zulassung nach dem FernUSG. Der Text steht hier fest (keine Redaktion); tools/schulung-bauen.mjs
+// schreibt beide Seiten. Preise sind Robins Vorschlag aus dem Konzept (Vault); vor dem Verkauf: FernUSG-Weg und Rechnungsstellung (Konzept, 7).
 import { rahmen } from "./werkzeug.js";
 import { newsletterKasten } from "./kasten.js";
 import { SEITEN } from "./sitemap.js";
@@ -24,11 +25,11 @@ const TEXT = {
     titel: "Unterweisung KI-Kompetenz",
     seitentitel: "Unterweisung KI-Kompetenz nach Art. 4 KI-Verordnung: Schulung für Kanzlei und Rechnungswesen – online oder vor Ort | robin.vision",
     beschr: "Schulung Ihrer Mitarbeitenden zur KI-Kompetenz nach Art. 4 KI-Verordnung, geschrieben für Kanzlei und Rechnungswesen: 90 Minuten mit Video, Skript, Test und Zertifikat. Online zum Selbstlernen, mit Live-Unterricht oder als Präsenzveranstaltung.",
-    untertitel: "Für Mitarbeitende in Kanzleien und Unternehmen, die mit KI arbeiten – 90 Minuten, mit Test und Zertifikat.",
+    untertitel: "Für Mitarbeitende in Kanzleien und Unternehmen, die mit KI arbeiten – Workshop, Online-Lehrgang und Test, mit Zertifikat.",
     meta: "Maßnahme nach Art. 4 KI-Verordnung · Rechtsstand 16. Oktober 2026 · Termine ab Januar 2027",
     intro: [
       "Die KI-Verordnung verlangt von jedem Betrieb, der KI einsetzt, Maßnahmen zur KI-Kompetenz seines Personals (Art. 4). Welche Maßnahmen das sind, bestimmt der Betrieb; ein Zertifikat oder eine Prüfung schreibt das Gesetz nicht vor. Diese Unterweisung ist eine solche Maßnahme, zugeschnitten auf das Rechnungswesen: Was KI kann und wo sie sicher scheitert, welche Daten nie in ein öffentliches Werkzeug gehören, wie man ein Ergebnis prüft, bevor es in eine Buchung oder ein Schreiben wandert.",
-      "Jede Person bekommt einen eigenen Zugang zum Schulungsbereich auf member.robin.vision: das Video des Vortrags, das Skript zum Nachlesen, die Folien, ein Test mit 15 Fragen und nach dem Bestehen automatisch ein Zertifikat. Sie als Arbeitgeber sehen, wer teilgenommen und bestanden hat, und bekommen die Teilnehmerliste als Nachweis für Ihr Schulungsverzeichnis.",
+      "Jede Person bekommt einen eigenen Zugang zum Schulungsbereich auf member.robin.vision: den Online-Lehrgang zum Durchklicken in sieben Lektionen mit Beispielen, Merksätzen und Selbstchecks, das Skript als PDF, einen Test mit 15 Fragen und nach dem Bestehen automatisch ein Zertifikat. Sie als Arbeitgeber sehen, wer teilgenommen und bestanden hat, und bekommen die Teilnehmerliste als Nachweis für Ihr Schulungsverzeichnis.",
     ],
     fuerWenTitel: "Für wen",
     fuerWen: [
@@ -37,7 +38,7 @@ const TEXT = {
       "Keine Vorkenntnisse nötig. Die Beispiele kommen aus dem Alltag in Kanzlei und Buchhaltung: Buchungsvorschläge, Mandantenschreiben, Kontoauszüge, Zusammenfassungen.",
     ],
     inhaltTitel: "Inhalt",
-    inhaltLead: "Etwa 60 Minuten Vortrag, dazu Skript und Folien, am Ende der Test. Sieben Kapitel:",
+    inhaltLead: "Teil 1 ist der Workshop mit mir, Teil 2 der Online-Lehrgang zum Durchklicken (etwa 50 Minuten), Teil 3 der Test. Sieben Kapitel:",
     kapitel: [
       ["Was KI heute ist – und was nicht", "Sprachmodelle, Agenten, Automatisierung; Wahrscheinlichkeit statt Wahrheit; Halluzination", 10],
       ["Die KI-Verordnung in zehn Minuten", "Risikoklassen, Zeitplan, Art. 4 (Maßnahmen zur Kompetenz), Art. 50 (Kennzeichnung), was Betreiber sind", 10],
@@ -48,24 +49,22 @@ const TEXT = {
       ["Regeln im Haus", "KI-Richtlinie, erlaubte Werkzeuge, Freigaben, KI-Verzeichnis, Ansprechperson; die Rolle der Beschäftigten", 5],
     ],
     min: "Min.",
-    formateTitel: "Drei Formate",
-    formateLead: "Alle drei enden mit demselben Zugang je Person: Video, Skript, Folien, Test und Zertifikat für 90 Tage.",
+    formateTitel: "Zwei Formate",
+    formateLead: "Beide beginnen mit einem Workshop, in dem ich frei referiere und Ihre Fälle aufgreife. Danach bekommt jede Person denselben Zugang: Online-Lehrgang, Skript, Test und Zertifikat für 90 Tage.",
     formate: [
-      { name: "Online – Selbstlernen", text: "Zugang je Person: Video (etwa 60 Minuten), Skript, Folien, Test und Zertifikat. Fragen stellen die Teilnehmenden im Memberbereich; ich antworte dort.",
-        preis: `${eur(PREISE.online, "de")} je Person`, klein: `ab 10 Personen ${eur(PREISE.online10, "de")}, ab 25 Personen ${eur(PREISE.online25, "de")} je Person` },
-      { name: "Online – mit Live-Unterricht", text: "Videokonferenz von 90 Minuten mit mir: der Vortrag mit den Beispielen Ihres Hauses und Zeit für Fragen. Danach der Zugang für alle, mit Test und Zertifikat.",
+      { name: "Workshop online", text: "Videokonferenz von 90 Minuten mit mir: Vortrag mit den Beispielen Ihres Hauses und Zeit für Fragen. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
         preis: `${eur(PREISE.live, "de")} je Termin`, klein: `bis 12 Personen, darüber ${eur(PREISE.liveWeitere, "de")} je weitere Person` },
-      { name: "Präsenz", text: "Ein halber Tag bei Ihnen: drei Stunden mit Übungen an eigenen Fällen. Danach der Zugang für alle, mit Test und Zertifikat.",
+      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen: drei Stunden mit Übungen an eigenen Fällen. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
         preis: `${eur(PREISE.praesenz, "de")} je Termin`, klein: `bis 15 Personen zuzüglich Fahrtkosten, darüber ${eur(PREISE.praesenzWeitere, "de")} je weitere Person` },
     ],
-    auffrischung: `Jährliche Auffrischung mit neuer Fassung (Rechtsstand, neue Werkzeuge), Test und Zertifikat: ${eur(PREISE.auffrischung, "de")} je Person. Preise netto. Termine ab Januar 2027.`,
+    auffrischung: `Online-Lehrgang und Test ohne Workshop (${eur(PREISE.online, "de")} je Person) folgen, sobald die Zulassung nach dem Fernunterrichtsschutzgesetz vorliegt. Jährliche Auffrischung mit neuer Fassung (Rechtsstand, neue Werkzeuge), Test und Zertifikat: ${eur(PREISE.auffrischung, "de")} je Person. Preise netto. Termine ab Januar 2027.`,
     ablaufTitel: "So läuft es",
     ablauf: [
       "Sie fragen an – mit Format, Personenzahl und Wunschzeitraum. Ich antworte mit einem Angebot und, bei Live und Präsenz, mit Terminvorschlägen.",
       "Nach Ihrer Bestätigung bekommen Sie eine E-Rechnung. Mit dem Zahlungseingang wird die Schulung im Memberbereich freigeschaltet.",
       "Sie tragen Namen und E-Mail-Adressen Ihrer Mitarbeitenden ein. Jede Person bekommt eine Einladung und einen eigenen Zugang, der nur die Schulung zeigt – mit Passkey statt Passwort.",
-      "Die Teilnehmenden sehen das Video und lesen Skript und Folien, wann es passt, auch in Etappen. Live und Präsenz: der Termin mit mir, danach derselbe Zugang zum Nachlesen.",
-      "Der Test: 15 Fragen, zufällig aus einem Vorrat von 30, bestanden ab 12 richtigen Antworten. Jede Antwort wird erklärt; Wiederholen ist jederzeit möglich.",
+      "Teil 1: der Workshop mit mir, online per Videokonferenz oder bei Ihnen vor Ort – ich referiere frei und greife Ihre Fälle auf. Teil 2: Die Teilnehmenden klicken den Online-Lehrgang durch, wann es passt, auch in Etappen; das Skript steht als PDF bereit.",
+      "Teil 3, der Test: 15 Fragen, zufällig aus einem Vorrat von 30, bestanden ab 12 richtigen Antworten. Jede Antwort wird erklärt; Wiederholen ist jederzeit möglich.",
       "Mit dem Bestehen entsteht das Zertifikat als PDF – mit Nummer und Prüfcode, drei Jahre online prüfbar.",
       "Sie laden die Teilnehmerliste als Nachweis für Ihr Schulungsverzeichnis herunter. Der Zugang gilt 90 Tage; danach werden die Konten gelöscht, die Zertifikate bleiben.",
     ],
@@ -87,7 +86,8 @@ const TEXT = {
       ["Was sieht der Arbeitgeber?", "Je Person den Stand – eingeladen, begonnen, bestanden – und die Zertifikatsnummer, als Liste für das Schulungsverzeichnis. Punkte und Zahl der Versuche sieht er nicht."],
       ["Wie lange gilt das Zertifikat?", "Es trägt Fassung und Rechtsstand der Unterweisung und bleibt drei Jahre online prüfbar. Weil sich Werkzeuge und Regeln ändern, gibt es jährlich eine Auffrischung mit neuer Fassung."],
       ["Was ist, wenn jemand den Test nicht besteht?", "Nach jeder Abgabe steht zu jeder Frage die richtige Antwort mit Erklärung. Der Test lässt sich beliebig wiederholen, mit neu gezogenen Fragen. Nicht bestandene Versuche sieht nur die Person selbst."],
-      ["Welche Technik brauchen die Teilnehmenden?", "Einen Browser und eine E-Mail-Adresse. Der Zugang wird mit einem Passkey eingerichtet, zum Beispiel per Fingerabdruck oder Gesichtserkennung, ohne Passwort. Video und Skript laufen im Browser; installiert wird nichts."],
+      ["Welche Technik brauchen die Teilnehmenden?", "Einen Browser und eine E-Mail-Adresse. Der Zugang wird mit einem Passkey eingerichtet, zum Beispiel per Fingerabdruck oder Gesichtserkennung, ohne Passwort. Der Online-Lehrgang läuft im Browser, auch auf dem Handy; installiert wird nichts."],
+      ["Warum beginnt die Unterweisung mit einem Workshop?", "Weil Fragen aus dem eigenen Alltag am meisten bringen: Im Workshop referiere ich frei und greife Ihre Fälle auf. Der Online-Lehrgang danach festigt den Stoff in kleinen Schritten, der Test schließt ab. Ein Online-Lehrgang ohne Workshop folgt, sobald die Zulassung nach dem Fernunterrichtsschutzgesetz vorliegt."],
       ["Ist die Unterweisung Rechtsberatung?", "Nein. Sie erklärt Pflichten allgemein, mit Rechtsstand je Fassung, und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."],
     ],
     anfrageTitel: "Anfrage",
@@ -107,11 +107,11 @@ const TEXT = {
     titel: "AI literacy training",
     seitentitel: "AI literacy training under Article 4 of the EU AI Act: for accounting firms and finance teams – online or on site | robin.vision",
     beschr: "Train your staff in AI literacy as required by Article 4 of the EU AI Act, written for accounting firms and finance teams: 90 minutes with video, handout, test and certificate. Self-paced online, online with live teaching, or on site.",
-    untertitel: "For staff in accounting firms and companies who work with AI – 90 minutes, with a test and a certificate.",
+    untertitel: "For staff in accounting firms and companies who work with AI – workshop, online course and test, with a certificate.",
     meta: "A measure under Article 4 of the EU AI Act · legal position as of 16 October 2026 · dates from January 2027 · taught in German",
     intro: [
       "The EU AI Act requires every organisation that uses AI to take measures to ensure the AI literacy of its staff (Article 4). What those measures are is for the organisation to decide; the law prescribes neither a certificate nor an exam. This training is one such measure, tailored to accounting: what AI can do and where it reliably fails, which data must never go into a public tool, and how to check a result before it ends up in a posting or a letter.",
-      "Each participant gets their own access to the training area on member.robin.vision: the recorded lecture, the handout, the slides, a 15-question test and, on passing, a certificate issued automatically. As the employer you see who has taken part and passed, and you download the participant list as evidence for your training records.",
+      "Each participant gets their own access to the training area on member.robin.vision: a click-through online course in seven lessons with examples, key takeaways and self-checks, the handout as a PDF, a 15-question test and, on passing, a certificate issued automatically. As the employer you see who has taken part and passed, and you download the participant list as evidence for your training records.",
     ],
     fuerWenTitel: "Who it is for",
     fuerWen: [
@@ -120,7 +120,7 @@ const TEXT = {
       "No prior knowledge needed. The examples come from everyday work in firms and finance departments: posting suggestions, client letters, bank statements, summaries.",
     ],
     inhaltTitel: "Content",
-    inhaltLead: "About 60 minutes of lecture, plus handout and slides, with the test at the end. Seven chapters:",
+    inhaltLead: "Part 1 is a workshop with me, part 2 the click-through online course (about 50 minutes), part 3 the test. Seven chapters:",
     kapitel: [
       ["What AI is today – and what it is not", "Language models, agents, automation; probability rather than truth; hallucination", 10],
       ["The EU AI Act in ten minutes", "Risk classes, timeline, Article 4 (literacy measures), Article 50 (labelling), what a deployer is", 10],
@@ -131,24 +131,22 @@ const TEXT = {
       ["House rules", "AI policy, approved tools, approvals, AI register, contact person; the employee's role", 5],
     ],
     min: "min",
-    formateTitel: "Three formats",
-    formateLead: "All three end with the same access per person: video, handout, slides, test and certificate for 90 days.",
+    formateTitel: "Two formats",
+    formateLead: "Both start with a workshop in which I speak freely and pick up your own cases. Afterwards every participant gets the same access: online course, handout, test and certificate for 90 days.",
     formate: [
-      { name: "Online – self-paced", text: "Access per person: video (about 60 minutes), handout, slides, test and certificate. Participants ask questions in the member area; I answer there.",
-        preis: `${eur(PREISE.online, "en")} per person`, klein: `from 10 people ${eur(PREISE.online10, "en")}, from 25 people ${eur(PREISE.online25, "en")} per person` },
-      { name: "Online – with live teaching", text: "A 90-minute video call with me: the lecture with examples from your firm and time for questions. Then access for everyone, with test and certificate.",
+      { name: "Online workshop", text: "A 90-minute video call with me: the lecture with examples from your firm and time for questions. Then access for everyone: online course, handout, test and certificate.",
         preis: `${eur(PREISE.live, "en")} per session`, klein: `up to 12 people, then ${eur(PREISE.liveWeitere, "en")} per additional person` },
-      { name: "On site", text: "Half a day at your premises: three hours with exercises on your own cases. Then access for everyone, with test and certificate.",
+      { name: "On-site workshop", text: "Half a day at your premises: three hours with exercises on your own cases. Then access for everyone: online course, handout, test and certificate.",
         preis: `${eur(PREISE.praesenz, "en")} per session`, klein: `up to 15 people plus travel costs, then ${eur(PREISE.praesenzWeitere, "en")} per additional person` },
     ],
-    auffrischung: `Annual refresher with a new edition (legal position, new tools), test and certificate: ${eur(PREISE.auffrischung, "en")} per person. Prices exclude VAT. Dates from January 2027. The training is taught in German; an English edition is available on request.`,
+    auffrischung: `Online course and test without a workshop (${eur(PREISE.online, "en")} per person) will follow once the licence under the German Distance Learning Protection Act is in place. Annual refresher with a new edition (legal position, new tools), test and certificate: ${eur(PREISE.auffrischung, "en")} per person. Prices exclude VAT. Dates from January 2027. The training is taught in German; an English edition is available on request.`,
     ablaufTitel: "How it works",
     ablauf: [
       "You send an enquiry with format, number of people and preferred period. I reply with a quote and, for live and on-site sessions, proposed dates.",
       "After your confirmation you receive an e-invoice. Once payment arrives, the training is unlocked in the member area.",
       "You enter the names and email addresses of your staff. Each person receives an invitation and their own access that shows only the training – with a passkey instead of a password.",
-      "Participants watch the video and read the handout and slides whenever it suits them, in stages if they like. Live and on site: the session with me, then the same access for reading up.",
-      "The test: 15 questions drawn at random from a pool of 30, passed from 12 correct answers. Every answer is explained; repeating is possible at any time.",
+      "Part 1: the workshop with me, online by video call or on your premises – I speak freely and pick up your cases. Part 2: participants click through the online course whenever it suits them, in stages if they like; the handout is available as a PDF.",
+      "Part 3, the test: 15 questions drawn at random from a pool of 30, passed from 12 correct answers. Every answer is explained; repeating is possible at any time.",
       "On passing, the certificate is issued as a PDF – with a number and a verification code, verifiable online for three years.",
       "You download the participant list as evidence for your training records. Access lasts 90 days; the accounts are then deleted, the certificates remain.",
     ],
@@ -170,7 +168,8 @@ const TEXT = {
       ["What does the employer see?", "Each person's status – invited, started, passed – and the certificate number, as a list for the training records. Scores and the number of attempts are not shown."],
       ["How long is the certificate valid?", "It states the edition and legal position of the training and can be verified online for three years. Because tools and rules change, there is an annual refresher with a new edition."],
       ["What if someone fails the test?", "After every submission the correct answer and an explanation are shown for each question. The test can be repeated as often as needed, with freshly drawn questions. Failed attempts are visible only to the person."],
-      ["What do participants need?", "A browser and an email address. Access is set up with a passkey, for example fingerprint or face recognition, without a password. Video and handout run in the browser; nothing is installed."],
+      ["What do participants need?", "A browser and an email address. Access is set up with a passkey, for example fingerprint or face recognition, without a password. The online course runs in the browser, on a phone too; nothing is installed."],
+      ["Why does the training start with a workshop?", "Because questions from your own daily work are what help most: in the workshop I speak freely and pick up your cases. The online course afterwards consolidates the material in small steps, and the test completes it. An online course without a workshop will follow once the licence under the German Distance Learning Protection Act is in place."],
       ["Is the training legal advice?", "No. It explains obligations in general terms, with the legal position stated for each edition, and refers to tax advisers, lawyers and data protection officers for individual cases."],
     ],
     anfrageTitel: "Enquiry",
@@ -326,11 +325,10 @@ ${SKRIPT(lang, t)}`;
   // Strukturierte Daten: Kurs mit drei Durchführungsarten und Preisen, dazu die Fragen als FAQPage
   const kurs = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: t.titel, description: t.beschr, url: canonical, inLanguage: "de",
     provider: { "@type": "Person", "@id": SITE + "#person", name: "Robin James Lewis", url: SITE },
-    educationalLevel: "Beginner", timeRequired: "PT1H30M", teaches: t.kapitel.map(k => k[0]),
+    educationalLevel: "Beginner", timeRequired: "PT2H30M", teaches: t.kapitel.map(k => k[0]),
     hasCourseInstance: [
-      { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT1H30M", name: t.formate[0].name, offers: { "@type": "Offer", price: String(PREISE.online), priceCurrency: "EUR", category: "per person" } },
-      { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT1H30M", name: t.formate[1].name, offers: { "@type": "Offer", price: String(PREISE.live), priceCurrency: "EUR", category: "per session, up to 12 people" } },
-      { "@type": "CourseInstance", courseMode: "Onsite", courseWorkload: "PT3H", name: t.formate[2].name, offers: { "@type": "Offer", price: String(PREISE.praesenz), priceCurrency: "EUR", category: "per session, up to 15 people" } },
+      { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT2H30M", name: t.formate[0].name, offers: { "@type": "Offer", price: String(PREISE.live), priceCurrency: "EUR", category: "per session, up to 12 people" } },
+      { "@type": "CourseInstance", courseMode: "Onsite", courseWorkload: "PT4H", name: t.formate[1].name, offers: { "@type": "Offer", price: String(PREISE.praesenz), priceCurrency: "EUR", category: "per session, up to 15 people" } },
     ] }).replace(/</g, "\\u003c");
   const faq = JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", inLanguage: lang,
     mainEntity: t.fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c");

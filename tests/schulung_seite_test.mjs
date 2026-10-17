@@ -15,8 +15,8 @@ const PRIVAT = /0151|684660|gmail|googlemail|Höchststr|1988|Hechingen/i;
 const UEBERTRIEBEN = /(?<![„“"])Pflichtschulung|zertifizierungspflichtig|sonst droht|Bußgeld droht|(?<![“"])mandatory course|or face a fine|!/;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const T = {
-  de: { h1: "Unterweisung KI-Kompetenz", nav: /<a href="\.\.\/schulung\/" aria-current="page">Schulung<\/a>/, home: "../", formate: ["Online – Selbstlernen", "Online – mit Live-Unterricht", "Präsenz"], preis: `${PREISE.online} € je Person`, recht: /Verordnung \(EU\) 2026\/1744/, titel: "Unterweisung KI-Kompetenz nach Art. 4 KI-Verordnung" },
-  en: { h1: "AI literacy training", nav: /<a href="\.\.\/training\/" aria-current="page">Training<\/a>/, home: "../?lang=en", formate: ["Online – self-paced", "Online – with live teaching", "On site"], preis: `€${PREISE.online} per person`, recht: /Regulation \(EU\) 2026\/1744/, titel: "AI literacy training under Article 4 of the EU AI Act" },
+  de: { h1: "Unterweisung KI-Kompetenz", nav: /<a href="\.\.\/schulung\/" aria-current="page">Schulung<\/a>/, home: "../", formate: ["Workshop online", "Workshop vor Ort"], preis: `${PREISE.live} € je Termin`, recht: /Verordnung \(EU\) 2026\/1744/, titel: "Unterweisung KI-Kompetenz nach Art. 4 KI-Verordnung" },
+  en: { h1: "AI literacy training", nav: /<a href="\.\.\/training\/" aria-current="page">Training<\/a>/, home: "../?lang=en", formate: ["Online workshop", "On-site workshop"], preis: `€${PREISE.live} per session`, recht: /Regulation \(EU\) 2026\/1744/, titel: "AI literacy training under Article 4 of the EU AI Act" },
 };
 for (const s of SCHULUNG) {
   const t = T[s.lang], html = lesen(s.pfad);
@@ -26,8 +26,9 @@ for (const s of SCHULUNG) {
   check(html.includes(`<link rel="canonical" href="${schulungUrl(s.lang)}">`) && SCHULUNG.every(a => html.includes(`hreflang="${a.lang}" href="${schulungUrl(a.lang)}"`)), "canonical und hreflang beider Fassungen");
   check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: Schulung aktiv, Termin bleibt");
   check((html.match(/<li><span class="nr">0\d<\/span>/g) || []).length === 7, "sieben Kapitel");
-  check(t.formate.every(f => html.includes(`<h3>${f}</h3>`)) && html.includes(t.preis) && (html.match(/<section class="format">/g) || []).length === 3, "drei Formate mit Preisen");
+  check(t.formate.every(f => html.includes(`<h3>${f}</h3>`)) && html.includes(t.preis) && (html.match(/<section class="format">/g) || []).length === 2, "zwei Formate mit Preisen");
   check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 7, "Ablauf in sieben Schritten");
+  check(/Online-Lehrgang|online course/.test(html) && !/Folien|slides/.test(html.replace(/<script[\s\S]*?<\/script>/g, "")), "Online-Lehrgang statt Folien");
   check(html.includes(`href="${MEMBER_PRUEFUNG}"`) && /keine amtliche oder akkreditierte Bescheinigung|not an official or accredited attestation/.test(html), "Nachweis: Prüfseite verlinkt, Zertifikat ehrlich eingeordnet");
   check(t.recht.test(html) && /2\. Februar 2025|2 February 2025/.test(html), "Rechtsrahmen mit Omnibus und Geltung seit Februar 2025");
   const sichtbar = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
@@ -38,8 +39,8 @@ for (const s of SCHULUNG) {
   check(form.includes('name="firma"') && form.includes('name="email"') && form.includes('name="format"') && form.includes('name="personen"') && form.includes('name="website"') && form.includes('id="anfrage-status"'), "Anfrageformular mit Feldern, Falle und Statuszeile");
   check(html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes(`lang: ${JSON.stringify(s.lang)}`) && /t: geladen/.test(html), "Skript sendet an Gochs Kontakt-Endpunkt mit Sprache und Ladezeitpunkt");
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
-  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "Course" && ld[0].hasCourseInstance.length === 3 && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 7, "JSON-LD: Course mit drei Durchführungen und FAQPage mit sieben Fragen");
-  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 7, "sieben Fragen sichtbar");
+  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "Course" && ld[0].hasCourseInstance.length === 2 && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 8, "JSON-LD: Course mit zwei Durchführungen und FAQPage mit acht Fragen");
+  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 8, "acht Fragen sichtbar");
   check(html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html), "Newsletter-Kasten");
   const andere = SCHULUNG.find(a => a.lang !== s.lang);
   check(html.includes(`<a href="../${andere.adresse}" lang="${andere.lang}" hreflang="${andere.lang}">`), "Verweis auf die andere Sprachfassung");

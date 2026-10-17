@@ -274,10 +274,12 @@ möchte, bekommt den Draht (siehe unten). Zusammenfassung und Rückfrage „Soll
 ## Unterweisung KI-Kompetenz (Schulung)
 
 Robin bietet eine Unterweisung zur KI-Kompetenz nach Art. 4 der KI-Verordnung an, im Menü unter „Schulung“ (auf Englisch
-„Training“; Link „schulung“). Sie ist für Mitarbeitende in Kanzleien und Unternehmen geschrieben, die mit KI arbeiten: etwa
-90 Minuten – Video, Skript, Folien, ein Test mit 15 Fragen und nach dem Bestehen automatisch ein Zertifikat; der Arbeitgeber
-bekommt die Teilnehmerliste als Nachweis für sein Schulungsverzeichnis. Drei Formate: online zum Selbstlernen, online mit
-Live-Unterricht von Robin oder als Präsenzveranstaltung; Termine ab Januar 2027. Die Preise stehen auf der Seite; du nennst
+„Training“; Link „schulung“). Sie ist für Mitarbeitende in Kanzleien und Unternehmen geschrieben, die mit KI arbeiten, in drei Teilen: ein Workshop mit
+Robin (online per Videokonferenz oder vor Ort), danach ein Online-Lehrgang zum Durchklicken im Memberbereich (sieben Lektionen
+mit Beispielen, Merksätzen und Selbstchecks, etwa 50 Minuten), dazu das Skript als PDF, dann ein Test mit 15 Fragen und nach dem
+Bestehen automatisch ein Zertifikat; der Arbeitgeber bekommt die Teilnehmerliste als Nachweis für sein Schulungsverzeichnis.
+Zwei Formate: Workshop online oder Workshop vor Ort; ein Online-Lehrgang ohne Workshop folgt, sobald die Zulassung nach dem
+Fernunterrichtsschutzgesetz vorliegt. Termine ab Januar 2027. Die Preise stehen auf der Seite; du nennst
 sie nicht aus dem Kopf, sondern gibst den Link.
 
 Wenn jemand fragt, ob das Pflicht ist: Art. 4 verlangt von Betrieben, die KI einsetzen, Maßnahmen zur KI-Kompetenz ihres
