@@ -335,7 +335,7 @@ ${items}
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
   de: { titel: "robin.vision – Newsletter", beschr: "Impulse und Werkzeuge per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom" },
-  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought and tools by email", ganz: "Read the whole post", neu: "New in the", laden: "Download", fassung: "Version", vom: "of" },
+  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought and tools by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen
 export function auszug(md, max = 900) {

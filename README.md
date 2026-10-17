@@ -589,6 +589,34 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 - Bauen: `node tools/ueber-mich-bauen.mjs`, danach `node tools/werkzeug-uebernehmen.mjs` und `node tools/blog-seiten-bauen.mjs`
   (gleicher Kopf überall, Sitemap). Prüfung: `node tests/ueber_mich_test.mjs`.
 
+## Seite „Workshops“ und Bereich „SmartFormular“ (17.10.2026)
+
+**Workshops.** Der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem
+Teil (Abzeichen unter der Überschrift, eigener Kasten „Teil dieses Workshops“), als eigene Seite `workshops/` (englisch
+`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt: drei Teile (Workshop mit Robin –
+Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Browser-Werkzeug bauen –, Online-Lehrgang im Memberbereich,
+Test mit Zertifikat), für wen, sieben Kapitel, zwei Formate mit Preisen (Vorschlag aus dem Konzept im Vault, netto; Lehrgang ohne
+Workshop erst nach FernUSG-Zulassung), Ablauf in sieben Schritten, Nachweis und Zertifikat (prüfbar unter
+member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der robin.vision UG als „in Gründung, Januar
+2027“, neun Fragen als FAQPage, Terminbuchung über Cal.com (Robins Ereignistypen, `CAL` in workshops.js; das Einbettungsskript lädt
+erst nach Klick, mit Hinweis auf Cal.com, Inc.), ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
+zu einer Nachricht, Bot-Falle `website`, Ladezeitpunkt `t`), strukturierte Daten als `Course` mit zwei Durchführungen. Menüpunkt
+„Workshops“ im Seitenkopf (`worker/src/kopf.js`) vor „Über mich“, Abschnitt auf der Startseite zwischen SmartFormular und Über mich,
+Einträge in `sitemap.xml` (`worker/src/sitemap.js`, SEITEN) und in Gochs Linkliste (`worker/links.md`, Kennung `workshops`); Abschnitt „Werkzeuge im Workshop“ mit
+Partnerangeboten aus `worker/src/partner.js` (Produkte befreundeter Unternehmen gegen Gebühr oder Provision; Liste leer bis zur
+ersten Vereinbarung; jede Vorstellung als „Partnerangebot · Anzeige“ gekennzeichnet, Verweise mit `rel="sponsored"`; die AGB des
+Memberbereichs regeln die Produktplatzierung in § 8). Gochs
+Profil (`worker/profile.md`) kennt das Angebot und bietet es aktiv an. Die Durchführung läuft im Memberbereich (Repository
+`robin-vision-member`, App `schulung`, dort im Portal „Coachings“). Prüfung: `node tests/workshops_seite_test.mjs`.
+
+**SmartFormular.** Der Bereich „Werkzeuge“ heißt im Menü und auf der Übersicht `werkzeuge/` jetzt „SmartFormular“ (Bezeichnung
+im Singular, Robin 17.10.2026) und trägt das SmartFormular-Erscheinungsbild (Nacht und Violett, `SF_CSS` in `werkzeug.js`): drei
+Kacheln – SmartFormular Fibu lite (bisher Buchungsstapel-Generator, kostenlos, fertig), SmartFormular Fibu und SmartFormular
+Deklaration (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
+kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von Fibu lite trägt den Abschnitt „Was kommt“ mit dem Ausblick.
+Gochs Linkliste kennt `smartformular-fibu` und `smartformular-deklaration` (Anker auf der Übersicht). Prüfung:
+`node tests/werkzeug_seite_test.mjs`, `node tests/goch_werkzeuge_test.mjs`.
+
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 
 GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy
