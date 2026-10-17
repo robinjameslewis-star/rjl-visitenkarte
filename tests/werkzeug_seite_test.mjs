@@ -89,7 +89,7 @@ for (const a of ALTE_ADRESSEN) {
 const start = lesen("index.html");
 check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">SmartFormular<\/a>/.test(start), "Startseite: Menüpunkt „SmartFormular“ führt auf die Übersicht");
 check(WERKZEUGE.every(w => start.includes(`<li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"} class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p>`) && start.includes(`href="werkzeuge/${w.id}/">${w.titel}</a>`) && start.includes(`<a class="sf-knopf" href="werkzeuge/${w.id}/">`)), "Startseite: SmartFormular-Karte je Sprache mit Knopf zum Werkzeug");
-check((start.match(/<ul class="sf-bald">/g) || []).length === 2 && /werkzeuge\/#fibu">SmartFormular Fibu<\/a>/.test(start) && /werkzeuge\/#deklaration">SmartFormular Deklaration<\/a>/.test(start) && /werkzeuge\/en\/#deklaration">SmartFormular Deklaration<\/a>/.test(start), "Startseite: Ankündigungen Fibu und Deklaration in beiden Sprachen");
+check((start.match(/<ul class="sf-bald">/g) || []).length === 2 && /werkzeuge\/#fibu">SmartFormular FiBu<\/a>/.test(start) && /werkzeuge\/#deklaration">SmartFormular Deklaration<\/a>/.test(start) && /werkzeuge\/en\/#deklaration">SmartFormular Deklaration<\/a>/.test(start), "Startseite: Ankündigungen FiBu und Deklaration in beiden Sprachen");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
 

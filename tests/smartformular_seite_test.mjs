@@ -1,6 +1,6 @@
 // Seite „SmartFormular“ (worker/src/smartformular.js; Robin, 17.10.2026): beide Sprachfassungen entstehen genau aus dem Modul und den
-// Feldern der Werkzeugseiten, tragen Wortmarke, Abzeichen, drei Produktkacheln, Fibu lite mit Download und Fassung, die geplanten
-// Funktionen von Fibu und Deklaration, Mensch und Maschine, Sprachmodell, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
+// Feldern der Werkzeugseiten, tragen Wortmarke, Abzeichen, drei Produktkacheln, FiBu lite mit Download und Fassung, die geplanten
+// Funktionen von FiBu und Deklaration, Mensch und Maschine, Sprachmodell, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
 // SoftwareApplication), die Beta-Anfrage an Gochs Kontakt-Endpunkt und den Kopf mit aktivem Menüpunkt; keine Preise. Kein Netz.
 //   node tests/smartformular_seite_test.mjs
 import { readFileSync } from "node:fs";
@@ -18,8 +18,8 @@ const UEBERTRIEBEN = /revolution|einzigartig|unique|best in class|!/i;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
 const T = {
-  de: { up: "../", nav: /<a href="\.\.\/werkzeuge\/" aria-current="page">SmartFormular<\/a>/, home: "../", abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular von robin.vision", kasten: "Mensch und Maschine", knopf: "Fibu lite kostenlos herunterladen" },
-  en: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">SmartFormular<\/a>/, home: "../../?lang=en", abzeichen: "Forms that work with you", titel: "SmartFormular by robin.vision", kasten: "People and machine", knopf: "Download Fibu lite for free" },
+  de: { up: "../", nav: /<a href="\.\.\/werkzeuge\/" aria-current="page">SmartFormular<\/a>/, home: "../", abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
+  en: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">SmartFormular<\/a>/, home: "../../?lang=en", abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
 };
 for (const lang of ["de", "en"]) {
   const t = T[lang], pfad = UEBERSICHT_PFAD[lang], html = lesen(pfad), P = PRODUKTE[lang];
@@ -31,11 +31,11 @@ for (const lang of ["de", "en"]) {
   check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: SmartFormular aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
   check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 3 && (html.match(/class="sf-stand">/g) || []).length >= 3, "drei Produktkacheln mit Stand und Anker");
   const lite = WERKZEUGE.find(w => w.lang === lang), d = felder[lite.id].datei;
-  check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "Fibu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
-  check((html.match(/<ol class="sf-liste">/g) || []).length === 3 && (html.match(/<span class="nr">0\d<\/span>/g) || []).length === 7 + 6 + 4, "Listen: sieben Funktionen Fibu, sechs Punkte Deklaration, vier zum Sprachmodell");
+  check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "FiBu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
+  check((html.match(/<ol class="sf-liste">/g) || []).length === 3 && (html.match(/<span class="nr">0\d<\/span>/g) || []).length === 5 + 5 + 3, "Listen: fünf Punkte FiBu, fünf Punkte Deklaration, drei zum Sprachmodell");
   check(html.includes(`<h2 id="mensch">${t.kasten}</h2>`) && (html.match(/<ul class="fakten">/g) || []).length === 2, "Kasten „Mensch und Maschine“ und zwei Faktenleisten");
-  check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 4, "Fahrplan in vier Schritten");
-  check(/Januar 2027|January 2027/.test(html) && /DATEV eG/.test(html) && /§ 62a StBerG|Section 62a StBerG|Sections 203 StGB and 62a StBerG/.test(html), "Daten und Recht: UG in Gründung, Marke, Berufsrecht");
+  check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 3 && !/2027|Q1|Stufe|stage/.test((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0]), "„So geht es weiter“ in drei Schritten, ohne Termine");
+  check(/DATEV eG/.test(html) && /Mandanten- oder Personendaten|client or personal data/.test(html) && !/UG \(haftungsbeschränkt\)|Bedrock|Azure|Ollama/.test(html), "Daten und Recht: Marke, Testdaten-Regel, ohne interne Planung und Anbieterlisten");
   const sichtbar = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
   check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b/.test(sichtbar), "keine Preise auf der Seite (auf Anfrage)", (sichtbar.match(/.{0,30}(?:\d ?€|€ ?\d|EUR).{0,30}/) || [""])[0]);
   check(!UEBERTRIEBEN.test(sichtbar), "keine Superlative, keine Ausrufezeichen", (sichtbar.match(UEBERTRIEBEN) || [""])[0]);
@@ -46,8 +46,8 @@ for (const lang of ["de", "en"]) {
   check(form.includes('name="firma"') && form.includes('name="name" maxlength="80" required') && form.includes('name="email" maxlength="120" required') && form.includes('name="produkt"') && form.includes('name="website"') && form.includes('id="beta-status"'), "Beta-Anfrage mit Feldern, Falle und Statuszeile");
   check(html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes(`lang: ${JSON.stringify(lang)}`) && /t: geladen/.test(html), "Skript sendet an Gochs Kontakt-Endpunkt mit Sprache und Ladezeitpunkt");
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
-  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "SoftwareApplication" && ld[0].isAccessibleForFree === true && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 8, "JSON-LD: SoftwareApplication für Fibu lite und FAQPage mit acht Fragen");
-  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 8, "acht Fragen sichtbar");
+  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "SoftwareApplication" && ld[0].isAccessibleForFree === true && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 6, "JSON-LD: SoftwareApplication für FiBu lite und FAQPage mit sechs Fragen");
+  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 6, "sechs Fragen sichtbar");
   check(html.includes('id="downloads"') && html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html), "Downloads und Newsletter-Kasten");
   const andere = lang === "en" ? "de" : "en";
   check(html.includes(`<a href="${t.up}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}" lang="${andere}" hreflang="${andere}">`), "Verweis auf die andere Sprachfassung");
@@ -57,7 +57,7 @@ console.log("\nProduktdaten");
 for (const lang of ["de", "en"]) {
   const P = PRODUKTE[lang];
   check(P.length === 3 && P.map(p => p.id).join() === "fibu-lite,fibu,deklaration" && P.every(p => p.name && p.text && p.kurz && ["fertig", "beta"].includes(p.stand)), `${lang}: drei Produkte mit Name, Text, Kurztext und Stand`);
-  check(P[0].stand === "fertig" && P[0].href && P.slice(1).every(p => p.stand === "beta" && Array.isArray(p.punkte) && p.punkte.length === 4), `${lang}: Fibu lite fertig mit Verweis, Fibu und Deklaration als Beta mit vier Punkten`);
+  check(P[0].stand === "fertig" && P[0].href && P.slice(1).every(p => p.stand === "beta" && Array.isArray(p.punkte) && p.punkte.length === 4), `${lang}: FiBu lite fertig mit Verweis, FiBu und Deklaration als Beta mit vier Punkten`);
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nSeite „SmartFormular“ in Ordnung.");
