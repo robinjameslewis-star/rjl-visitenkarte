@@ -33,7 +33,7 @@ for (const w of WERKZEUGE) {
   check(createHash("sha256").update(roh).digest("hex") === f.datei.sha256 && roh.length === f.datei.bytes, "Größe und SHA-256 stimmen mit der Datei überein");
   const text = roh.toString("utf8");
   check(text.includes(`${s.fassung} <span class="mono">${f.datei.fassung}</span>`), "Fassung stimmt mit dem Fuß der Datei überein");
-  check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.dateiTitel || w.titel}</title>`), "Datei in der Sprache der Seite, mit ihrem eigenen Titel");
+  check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.titel}</title>`) && text.includes("Smart<span>Formular</span>"), "Datei in der Sprache der Seite, Titel und Wortmarke SmartFormular FiBu lite");
   check(text.includes(`robin.vision/werkzeuge/${w.id}/`), "Fuß der Datei verweist auf diese Seite");
   check(html.includes(`<html lang="${w.lang}">`) && html.includes(`<title>${w.seitentitel}</title>`) && html.includes(`<h1>${w.titel}</h1>`), "Titel (mit Suchbegriffen) und Sprache");
   check(html.includes(`<p class="untertitel">${w.untertitel}</p>`) && html.includes(`<meta name="description" content="${w.meta}">`) && /DATEV/.test(w.seitentitel) && /DATEV/.test(w.meta), "Untertitel und Beschreibung mit Suchbegriffen");

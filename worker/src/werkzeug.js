@@ -16,14 +16,14 @@ const SITE = "https://robin.vision/";
 
 // Werkzeuge mit ihren Sprachfassungen. „gegenstueck“ ist dieselbe Datei in der anderen Sprache.
 export const WERKZEUGE = [
-  { id: "buchungsstapel-generator", lang: "de", titel: "SmartFormular FiBu lite", datei: "Buchungsstapel-Generator.html", dateiTitel: "Buchungsstapel-Generator",
+  { id: "buchungsstapel-generator", lang: "de", titel: "SmartFormular FiBu lite", datei: "Buchungsstapel-Generator.html",
     gegenstueck: "booking-batch-generator",
     kurz: "Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.",
     // Für Suchmaschinen (16.10.2026): Seitentitel und Beschreibung mit den Begriffen, nach denen gesucht wird; Untertitel unter der Überschrift
     seitentitel: "SmartFormular FiBu lite (Buchungsstapel-Generator): Kontoauszug (PDF) in DATEV-Buchungsstapel umwandeln – kostenlos, offline",
     meta: "Kostenloses Werkzeug: Kontoauszüge als PDF, auch Scans, in Buchungsstapel im DATEV-Format (EXTF) umwandeln. Läuft offline im Browser, ohne Upload und ohne Anmeldung – für die Tage, an denen der Bankabruf ausfällt.",
     untertitel: "Der Buchungsstapel-Generator: Kontoauszug als PDF → Buchungsstapel im DATEV-Format (EXTF), offline im Browser" },
-  { id: "booking-batch-generator", lang: "en", titel: "SmartFormular FiBu lite", datei: "Booking-Batch-Generator.html", dateiTitel: "Booking Batch Generator",
+  { id: "booking-batch-generator", lang: "en", titel: "SmartFormular FiBu lite", datei: "Booking-Batch-Generator.html",
     gegenstueck: "buchungsstapel-generator",
     kurz: "The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.",
     seitentitel: "SmartFormular FiBu lite (Booking Batch Generator): convert bank statement PDFs into DATEV booking batches – free, offline",
