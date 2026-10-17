@@ -13,7 +13,7 @@ const lesen = p => readFileSync(root + p, "utf8");
 const html = lesen("index.html");
 
 console.log("Startseite: Kopfdaten");
-check(/<title>robin\.vision – Werkzeuge und Impulse für das Rechnungswesen<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt Werkzeuge und Impulse");
+check(/<title>robin\.vision – SmartFormular und Workshops zur KI-Kompetenz<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt SmartFormular und Workshops");
 check(/<link rel="canonical" href="https:\/\/robin\.vision\/">/.test(html), "canonical");
 check(["de", "en", "x-default"].every(l => html.includes(`hreflang="${l}"`)), "hreflang de, en, x-default");
 check(/property="og:title"/.test(html) && /property="og:image" content="https:\/\/robin\.vision\/assets\/teilen\.jpg"/.test(html) && existsSync(root + "assets/teilen.jpg"), "Open Graph mit Bild zum Teilen, Bild vorhanden");
@@ -25,7 +25,7 @@ console.log("Startseite: Aufbau");
 const pos = id => html.indexOf(`id="${id}"`);
 check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("ueber-mich") && pos("ueber-mich") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("kontakt") && pos("kontakt") < pos("nachricht"),
   "Reihenfolge: Werkzeuge, Über mich, Impulse, Newsletter, Termin, Nachricht");
-check(/<p class="claim" data-i18n="claim">/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/booking-batch-generator\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="blog\/en\/"/.test(html), "Zeile und zwei Knöpfe über der Falz, Ziele je Sprache");
+check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: SmartFormular für die Tage, an denen der Prozess hakt/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit SmartFormular und Workshops über der Falz, Ziele je Sprache");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");
