@@ -265,8 +265,9 @@ Ziffern als 9); dann rüstet Robin das Layout nach.
 der KI-Verordnung (EU AI Act) als Teil davon – für Mitarbeitende in Kanzleien und Unternehmen, in drei Teilen: Zuerst ein
 Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen bei KI nimmt – das Team entwickelt gemeinsam eigene
 Anwendungsfälle und baut mit Robin ein kleines Werkzeug im Browser für einen eigenen Schmerzpunkt. Dann die Unterweisung: der
-Online-Lehrgang zum Durchklicken im Memberbereich (sieben Lektionen mit Beispielen, Merksätzen und Selbstchecks, etwa 50 Minuten;
-Skript als PDF) und der Test mit 15 Fragen; nach dem Bestehen ein Zertifikat über die Unterweisung nach EU AI Act je Person, online
+Online-Lehrgang im Memberbereich, der die Mitarbeitenden schult und weiterentwickelt (sieben Lektionen mit Lernzielen, Fällen aus
+dem Rechnungswesen, Selbstchecks und je einer Praxisaufgabe für den eigenen Arbeitsplatz, etwa 70 Minuten Lernzeit; Skript als PDF)
+und der Test mit 15 Fragen; Auftraggeber und Teilnehmende melden sich per Link aus der E-Mail an, auf Wunsch mit Passkey; nach dem Bestehen ein Zertifikat über die Unterweisung nach EU AI Act je Person, online
 prüfbar; der Arbeitgeber bekommt die Teilnehmerliste als Nachweis für sein Schulungsverzeichnis. Zwei Formate: Workshop online oder
 vor Ort, europaweit, auf Deutsch oder Englisch; Termine ab Januar 2027 auf Anfrage über das
 kurze Formular auf der Seite (Unternehmen, Ansprechperson, Teilnehmerzahl, Wunschtermin, online oder vor Ort); Preise auf Anfrage.
