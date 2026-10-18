@@ -1,16 +1,20 @@
-// Seite „SmartFormular“ (werkzeuge/index.html, englisch werkzeuge/en/index.html; Robin, 17.10.2026): eigene Unterseite im
+// Produktseite „SmartFormular“ (werkzeuge/smartformular/index.html, englisch werkzeuge/smartformular/en/index.html; bis 18.10.2026
+// unter werkzeuge/, seitdem ist dort die Übersicht aller Werkzeuge, uebersicht.js; Robin, 17./18.10.2026): eigene Unterseite im
 // SmartFormular-Erscheinungsbild „Nacht und Violett“, so ausführlich wie die Seite „Workshops“ – was ein SmartFormular ist, die drei
 // Produkte (FiBu lite kostenlos zum Herunterladen; FiBu und Deklaration angekündigt, mit den geplanten Funktionen), Mensch und
 // Maschine, offen für jedes Buchhaltungsprogramm (Robin, 17.10.2026: Alleinstellungsmerkmal), Sprachmodell optional, Fahrplan, Daten und Recht, Fragen und Antworten (FAQPage), Beta-Anfrage an Gochs Kontakt-Endpunkt.
 // Keine Preise (auf Anfrage), keine Termine oder internen Planungen (Robin, 17.10.2026: Texte aus Kundensicht, knapp und professionell).
 // Produktdaten in produkte.js; tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen.
-import { rahmen, SF_CSS, WERKZEUGE, UEBERSICHT_PFAD } from "./werkzeug.js";
+import { rahmen, SF_CSS, WERKZEUGE } from "./werkzeug.js";
 import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten } from "./kasten.js";
 
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
-export const smartformularUrl = lang => `${SITE}${UEBERSICHT_PFAD[lang].replace(/index\.html$/, "")}`;
+export const SMARTFORMULAR_PFAD = { de: "werkzeuge/smartformular/index.html", en: "werkzeuge/smartformular/en/index.html" };
+export const smartformularUrl = lang => `${SITE}${SMARTFORMULAR_PFAD[lang].replace(/index\.html$/, "")}`;
+// Brotkrume zurück zur Übersicht der Werkzeuge
+const BROTKRUME = { de: { text: "Werkzeuge", href: "werkzeuge/" }, en: { text: "Tools", href: "werkzeuge/en/" } };
 
 const TEXT = {
   de: {
@@ -19,7 +23,7 @@ const TEXT = {
     seitentitel: "SmartFormular: Buchhaltung und Jahresabschluss mit Werkzeugen, die mitarbeiten – FiBu lite kostenlos | robin.vision",
     beschr: "SmartFormular von robin.vision: FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format – kostenlos, offline im Browser. SmartFormular FiBu und Deklaration bringen Belege, offene Posten und den Jahresabschluss zusammen. Beta-Zugang auf Anfrage.",
     untertitel: "Werkzeuge für Buchhaltung und Jahresabschluss, die schon beim Ausfüllen mit der Sachbearbeitung beginnen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
-    meta: "FiBu lite kostenlos · FiBu und Deklaration als Beta · für Kanzleien und Rechnungswesen",
+    meta: "Ein Produkt von robin.vision · FiBu lite kostenlos · FiBu und Deklaration als Beta · für Kanzleien und Rechnungswesen",
     intro: [
       "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Jeder Vorschlag trägt seine Herkunft: Beleg, Regel, Vormonat oder Modell. Geprüft und festgeschrieben wird von Ihnen, in Ihrem Buchhaltungsprogramm.",
       "Heute steht SmartFormular FiBu lite bereit, der kostenlose Buchungsstapel-Generator. SmartFormular FiBu und SmartFormular Deklaration folgen – für den laufenden Monat und für den Jahresabschluss. Beide erprobe ich mit ausgewählten Kanzleien im Memberbereich; Beta-Zugang auf Anfrage.",
@@ -115,7 +119,7 @@ const TEXT = {
     seitentitel: "SmartFormular: bookkeeping and year-end accounts with tools that work with you – FiBu lite free | robin.vision",
     beschr: "SmartFormular by robin.vision: FiBu lite turns bank statements into booking batches in the DATEV format – free, offline in your browser. SmartFormular FiBu and Deklaration bring documents, open items and year-end accounts together. Beta access on request.",
     untertitel: "Tools for bookkeeping and year-end accounts that start the casework while you fill them in. Checking, deciding and finalising stay with you.",
-    meta: "FiBu lite free · FiBu and Deklaration as a beta · for accounting firms and finance teams",
+    meta: "A product by robin.vision · FiBu lite free · FiBu and Deklaration as a beta · for accounting firms and finance teams",
     intro: [
       "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, guarantees completeness and takes the first steps of the casework while you are still typing. Every suggestion carries its origin: document, rule, previous month or model. You check and finalise it in your accounting software.",
       "SmartFormular FiBu lite, the free Booking Batch Generator, is available today. SmartFormular FiBu and SmartFormular Deklaration follow – for the current month and for year-end accounts. I am testing both with selected firms in the member area; beta access on request.",
@@ -217,6 +221,8 @@ const datumText = (iso, lang) => {
 const CSS = `${SF_CSS}
 .abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 14px; border: 1px solid #A78BFA; border-radius: 999px; font: 500 12px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
 .sf-wortmarke { margin: 0 0 14px; }
+.brotkrume { margin: 0 0 18px; font-size: 13px; letter-spacing: .02em; color: #8B83A8; }
+.brotkrume a { color: #C4B5FD; text-decoration: underline; text-decoration-color: #7C3AED; text-underline-offset: .2em; }
 .einleitung p { font-size: 18px; line-height: 1.65; }
 .wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 20px; padding: 0; list-style: none; }
 .wege li { margin: 0; max-width: none; }
@@ -279,7 +285,7 @@ const SKRIPT = (lang, t) => `<script>
 export function smartformularSeite(lang, felder = {}) {
   const t = TEXT[lang];
   if (!t) throw new Error("Unbekannte Sprache: " + lang);
-  const andere = lang === "en" ? "de" : "en", up = lang === "en" ? "../../" : "../";
+  const andere = lang === "en" ? "de" : "en", up = lang === "en" ? "../../../" : "../../";
   const canonical = smartformularUrl(lang);
   const eigene = WERKZEUGE.filter(w => w.lang === lang), lite = eigene.find(w => w.id.includes("buchungsstapel") || w.id.includes("booking")) || eigene[0];
   const liteHref = lite ? `${up}werkzeuge/${lite.id}/` : "#produkte";
@@ -295,6 +301,7 @@ ${p.punkte ? `<ul>${p.punkte.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""
     return `<li><span class="when">${t.fertig}${st ? " · " + st : ""}</span><a href="${up}werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p></li>`;
   }).join("\n");
   const main = `<article class="smartformular">
+<p class="brotkrume"><a href="${up}${BROTKRUME[lang].href}">${BROTKRUME[lang].text}</a> › SmartFormular</p>
 <h1 class="sf-wortmarke" aria-label="${esc(t.titel)}">Smart<span>Formular</span></h1>
 <p class="abzeichen">${esc(t.abzeichen)}</p>
 <p class="untertitel">${esc(t.untertitel)}</p>
@@ -361,7 +368,7 @@ ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 <p class="meta hinweis">${esc(t.datenschutz)}</p>
 </form>
 ${eigene.length ? `<h2 id="downloads">${esc(t.downloadsTitel)}</h2><ul class="list">\n${downloads}\n</ul>` : `<p class="intro">${esc(t.leer)}</p>`}
-<p class="meta"><a href="${up}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}" lang="${andere}" hreflang="${andere}">${esc(t.andere)}</a></p>
+<p class="meta"><a href="${up}${SMARTFORMULAR_PFAD[andere].replace(/index\.html$/, "")}" lang="${andere}" hreflang="${andere}">${esc(t.andere)}</a></p>
 ${newsletterKasten(lang, up, "werkzeug")}
 </article>
 ${SKRIPT(lang, t)}`;
@@ -375,5 +382,3 @@ ${SKRIPT(lang, t)}`;
     head: `${software ? `<script type="application/ld+json">${software}</script>\n` : ""}<script type="application/ld+json">${faq}</script>\n`, css: CSS, main, aktiv: "tools" });
 }
 
-// Bisheriger Name der Übersicht (tools/werkzeug-uebernehmen.mjs, Tests)
-export const werkzeugUebersicht = smartformularSeite;

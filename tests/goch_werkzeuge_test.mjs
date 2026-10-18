@@ -55,6 +55,12 @@ console.log("Wissen und Links");
   modell = { reply: "Hier sind alle Werkzeuge.", action: null, message: null, link: "werkzeuge" };
   r = await chat(env(), "en", [{ role: "user", content: "Show me the tools" }]);
   check(r.link && r.link.url === "https://robin.vision/werkzeuge/en/", "Übersicht auf Englisch");
+  modell = { reply: "SmartFormular hat eine eigene Seite.", action: null, message: null, link: "smartformular" };
+  r = await chat(env(), "de", [{ role: "user", content: "Was ist SmartFormular?" }]);
+  check(r.link && r.link.url === "https://robin.vision/werkzeuge/smartformular/" && r.link.label === "SmartFormular" && /Link „smartformular“/.test(prompts.at(-1)?.system?.[0]?.text || ""), "Produktseite SmartFormular unter den Werkzeugen");
+  modell = { reply: "Dafür gibt es ein kurzes Formular.", action: null, message: null, link: "partner" };
+  r = await chat(env(), "en", [{ role: "user", content: "I sell accounting software. Can you present it?" }]);
+  check(r.link && r.link.url === "https://robin.vision/werkzeuge/en/#partner" && r.link.label === "Become a partner", "Partner werden auf Englisch");
 }
 
 console.log("Was gibt's Neues?");

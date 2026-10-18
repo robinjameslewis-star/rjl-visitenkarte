@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>robin.vision – SmartFormular und Workshops zur KI-Kompetenz</title>
-<meta name="description" content="SmartFormular für die Tage, an denen der Prozess hakt – FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
+<title>robin.vision – Werkzeuge und Workshops zur KI-Kompetenz</title>
+<meta name="description" content="Werkzeuge für die Tage, an denen der Prozess hakt – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
 <link rel="canonical" href="https://robin.vision/">
 <link rel="alternate" hreflang="de" href="https://robin.vision/">
 <link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en">
@@ -13,8 +13,8 @@
 <link rel="alternate" type="application/rss+xml" title="robin.vision – Food for Thought" href="https://robin.vision/blog/en/feed.xml">
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
-<meta property="og:title" content="robin.vision – SmartFormular und Workshops zur KI-Kompetenz">
-<meta property="og:description" content="SmartFormular für die Tage, an denen der Prozess hakt – FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
+<meta property="og:title" content="robin.vision – Werkzeuge und Workshops zur KI-Kompetenz">
+<meta property="og:description" content="Werkzeuge für die Tage, an denen der Prozess hakt – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
 <meta property="og:url" content="https://robin.vision/">
 <meta property="og:image" content="https://robin.vision/assets/teilen.jpg">
 <meta property="og:image:width" content="1200">
@@ -442,6 +442,25 @@
     .landscape-particles { display: none; }
   }
 
+  /* Werkzeug-Slider (Robin, 18.10.2026; worker/src/slider.js baut die Karten) */
+  .wzs { margin: 18px 0 6px; }
+  .wzs-spur { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 300px); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 2px 14px; scrollbar-width: none; }
+  .wzs-spur::-webkit-scrollbar { display: none; }
+  .wzs-karte { scroll-snap-align: start; display: flex; flex-direction: column; margin: 0; padding: 20px 20px 16px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.6); }
+  .wzs-karte h3 { margin: 0 0 6px; font: 500 21px/1.25 var(--serif); color: var(--green); }
+  .wzs-karte p { margin: 0 0 12px; font-size: 15px; line-height: 1.5; color: var(--ink-soft); max-width: none; text-align: left; }
+  .wzs-karte .wzs-kennz { margin: 0 0 12px; font: 500 11px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
+  .wzs-logo { width: max-content; height: 38px; padding: 0 14px; display: flex; align-items: center; margin: 0 0 14px; border: 1px dashed var(--line); border-radius: 4px; font: 500 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,.7); }
+  .wzs-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 14px; letter-spacing: .01em; text-transform: none; } .wzs-logo-sf span { color: #A78BFA; }
+  .wzs-karte .wzs-fuss { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 10px; }
+  .wzs-bereich { font: 500 11px/1.6 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--copper); }
+  .wzs-fuss a { white-space: nowrap; font-size: 15px; color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .25em; }
+  .wzs-platzhalter { border: 1.5px dashed var(--copper); background: rgba(255,255,255,.4); }
+  .wzs-steuerung { display: flex; align-items: center; gap: 14px; margin: 4px 0 0; }
+  .wzs-pfeil { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,255,255,.7); color: var(--green); font: 400 17px/1 var(--sans); cursor: pointer; }
+  .wzs-pfeil:hover { border-color: var(--green); }
+  .wzs-punkte { display: flex; gap: 6px; } .wzs-punkte i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); } .wzs-punkte i.an { background: var(--green); }
+  .wzs[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
 <script src="landscape.js?v=20261010"></script>
@@ -455,10 +474,10 @@
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
   <a href="?lang=en" data-language="en" lang="en" hreflang="en" title="English"><svg class="flag" viewBox="0 0 60 30" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><clipPath id="flag-uk-quarters"><path d="M30 15h30v15zv15H30zH0V15zV0h30z"/></clipPath><rect width="60" height="30" fill="#1B3A73"/><path d="M0 0l60 30m0-30L0 30" stroke="#F6F1E8" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-quarters)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#F6F1E8" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg><span class="visually-hidden">English</span></a>
 </nav>
-<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">SmartFormular</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
 <a class="termin" href="#kontakt" data-i18n="navContact">Termin</a>
 <details class="menue"><summary aria-label="Menü" data-i18n-aria="menuLabel"><span></span></summary>
-<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">SmartFormular</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 </details>
 </header>
 
@@ -472,8 +491,8 @@
     <div class="intro">
       <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a></h1>
       <p class="byline" data-i18n="byline">Robin James Lewis · Balingen</p>
-      <p class="claim" data-i18n="claim">Mitten in der Transformation: SmartFormular für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
-      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">SmartFormular</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshops</a></p>
+      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
+      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshops</a></p>
     </div>
     <div class="perch">
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
@@ -522,17 +541,79 @@
 
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">SmartFormular</a></h2>
-    <p class="lead" data-i18n="toolsLead">Werkzeuge für Buchhaltung und Jahresabschluss, die schon beim Ausfüllen mit der Sachbearbeitung beginnen – geprüft und festgeschrieben wird von Ihnen. FiBu lite ist kostenlos; FiBu und Deklaration gibt es als Beta auf Anfrage.</p>
-    <ul>
+    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeuge</a></h2>
+    <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT – ausgewählt, eingeführt und geschult von robin.vision.</p>
+    <div class="wzs-rahmen">
 <!-- werkzeuge:liste -->
-      <li lang="de" class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">Kostenlos · verfügbar</span><a class="sf-titel" href="werkzeuge/buchungsstapel-generator/">SmartFormular FiBu lite</a><p>Es ist der 10., der Bankabruf fällt aus oder ist für dieses Konto nicht eingerichtet, es gibt nur den PDF-Auszug: Der Generator macht daraus Buchungsstapel im DATEV-Format, auch aus Scans. Offline im Browser, auch unter Windows.</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/buchungsstapel-generator/">Kostenlos herunterladen</a><a class="sf-mehr" href="werkzeuge/">Alle SmartFormular-Produkte</a></p>
-      <ul class="sf-bald"><li><span class="sf-stand">Beta · auf Anfrage</span><a href="werkzeuge/#fibu">SmartFormular FiBu</a><span class="sf-kurz">Kontoauszüge und Belege zum geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten.</span></li><li><span class="sf-stand">Beta · auf Anfrage</span><a href="werkzeuge/#deklaration">SmartFormular Deklaration</a><span class="sf-kurz">Das Arbeitspapier, das mitdenkt und vorarbeitet – für den Jahresabschluss in der Kanzlei.</span></li></ul></li>
-      <li lang="en" hidden class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">Free · available</span><a class="sf-titel" href="werkzeuge/booking-batch-generator/">SmartFormular FiBu lite</a><p>The filing deadline is tomorrow, the bank feed is down or was never set up for this account, and all you have is the PDF statement: the generator turns it into booking batches in the DATEV format (EXTF), scans included. Offline in your browser, Windows included.</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/booking-batch-generator/">Download for free</a><a class="sf-mehr" href="werkzeuge/en/">All SmartFormular products</a></p>
-      <ul class="sf-bald"><li><span class="sf-stand">Beta · on request</span><a href="werkzeuge/en/#fibu">SmartFormular FiBu</a><span class="sf-kurz">Bank statements and documents into a checked booking batch – for bank, payables and receivables, linked to your open items.</span></li><li><span class="sf-stand">Beta · on request</span><a href="werkzeuge/en/#deklaration">SmartFormular Deklaration</a><span class="sf-kurz">The working paper that thinks ahead and does the groundwork – for year-end accounts in the firm.</span></li></ul></li>
+    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeuge">
+      <div class="wzs-spur" tabindex="0">
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Produkt von robin.vision</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>FiBu lite</h3>
+          <p>Kontoauszüge zu Buchungsstapeln – kostenlos, offline im Browser.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Rechnungswesen</span><a href="werkzeuge/buchungsstapel-generator/">Zum Produkt</a></p>
+        </article>
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Produkt von robin.vision</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>FiBu</h3>
+          <p>Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Rechnungswesen</span><a href="werkzeuge/smartformular/#fibu">Zum Produkt</a></p>
+        </article>
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Produkt von robin.vision</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>Deklaration</h3>
+          <p>Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Jahresabschluss</span><a href="werkzeuge/smartformular/#deklaration">Zum Produkt</a></p>
+        </article>
+        <article class="wzs-karte wzs-platzhalter">
+          <p class="wzs-kennz">Partnerangebot · Anzeige</p>
+          <div class="wzs-logo" aria-hidden="true">Ihr Logo</div>
+          <h3>Hier könnte Ihr Produkt stehen</h3>
+          <p>Ihre Lösung für Rechnungswesen, Verwaltung oder Business-IT – vorgestellt, eingeführt und in Workshops gezeigt.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Partner</span><a href="werkzeuge/#partner">Partner werden</a></p>
+        </article>
+      </div>
+      <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
+    </div>
+    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Tools">
+      <div class="wzs-spur" tabindex="0">
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Product by robin.vision</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>FiBu lite</h3>
+          <p>Bank statements into booking batches – free, offline in your browser.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Accounting</span><a href="werkzeuge/booking-batch-generator/">To the product</a></p>
+        </article>
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Product by robin.vision</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>FiBu</h3>
+          <p>Post bank, payables and receivables – linked to your open items.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Accounting</span><a href="werkzeuge/smartformular/en/#fibu">To the product</a></p>
+        </article>
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Product by robin.vision</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>Deklaration</h3>
+          <p>The working paper for year-end accounts that thinks ahead and does the groundwork.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Year-end accounts</span><a href="werkzeuge/smartformular/en/#deklaration">To the product</a></p>
+        </article>
+        <article class="wzs-karte wzs-platzhalter">
+          <p class="wzs-kennz">Partner offer · Advertisement</p>
+          <div class="wzs-logo" aria-hidden="true">Your logo</div>
+          <h3>Your product could be here</h3>
+          <p>Your solution for accounting, administration or business IT – presented, implemented and shown in workshops.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Partner</span><a href="werkzeuge/en/#partner">Become a partner</a></p>
+        </article>
+      </div>
+      <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Previous">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Next">→</button></div>
+    </div>
 <!-- /werkzeuge:liste -->
-    </ul>
-    <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Zur Übersicht SmartFormular</a></p>
+    </div>
+    <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge im Überblick und im Vergleich</a></p>
   </section>
 
   <!-- Workshops (Robin, 17.10.2026): KI-Workshop für Teams mit Unterweisung nach EU AI Act; die ganze Seite baut tools/workshops-bauen.mjs (workshops/, workshops/en/) -->
@@ -648,7 +729,16 @@
 
 <script>window.RJLLandscape?.init();</script>
 <script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
-<script src="language.js?v=20261017a" defer></script>
+<script>
+  // Werkzeug-Slider: Pfeile blättern um eine Karte, die Punkte zeigen die Stelle; ohne Skript lässt sich wischen und scrollen
+  document.querySelectorAll('.wzs').forEach(function (box) {
+    var spur = box.querySelector('.wzs-spur'), punkte = box.querySelectorAll('.wzs-punkte i');
+    var schritt = function () { var k = spur.querySelector('.wzs-karte'); return k ? k.getBoundingClientRect().width + 16 : 300; };
+    box.querySelectorAll('.wzs-pfeil').forEach(function (b) { b.addEventListener('click', function () { spur.scrollBy({ left: schritt() * Number(b.dataset.richtung), behavior: 'smooth' }); }); });
+    spur.addEventListener('scroll', function () { var n = Math.round(spur.scrollLeft / schritt()); punkte.forEach(function (p, i) { p.classList.toggle('an', i === Math.min(n, punkte.length - 1)); }); }, { passive: true });
+  });
+</script>
+<script src="language.js?v=20261018a" defer></script>
 <script src="site.js?v=20261016b" defer></script>
 <script src="goch.js?v=20261016c" defer></script>
 <script src="contact.js?v=20260919" defer></script>
