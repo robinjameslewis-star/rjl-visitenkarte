@@ -1,6 +1,6 @@
 // Seite „Workshops“ (workshops/index.html, englisch workshops/en/index.html; Robin, 17.10.2026): der Workshop KI-Kompetenz für Teams,
 // mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem Teil (Badge unter der Überschrift, eigener Kasten) – Workshop mit Robin
-// (Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Werkzeug im Browser bauen), Online-Lehrgang im
+// (Hemmschwellen überwinden, Anwendungsfälle entwickeln, gemeinsam ein kleines Werkzeug im Browser bauen), Online-Lehrgang im
 // Memberbereich, Test mit Zertifikat. Termine für 2027 auf Anfrage über ein kurzes Formular (Unternehmen, Ansprechperson, E-Mail,
 // Teilnehmerzahl, Wunschtermin, online oder vor Ort) an Gochs Kontakt-Endpunkt; kein Kalender (Robin, 17.10.2026: Cal.com zeigte
 // Termine in 2026 – vorerst weg), keine Preise (auf Anfrage; Robins Vorschlag steht im Konzept im Vault). Rechtsrahmen ohne
@@ -23,8 +23,8 @@ const TEXT = {
     titel: "Workshop KI-Kompetenz für Ihr Team",
     abzeichen: "Mit Unterweisung nach EU AI Act",
     seitentitel: "Workshop KI-Kompetenz mit Unterweisung nach EU AI Act für Kanzleien und Unternehmen | robin.vision",
-    beschr: "KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen nimmt, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.",
-    untertitel: "Ein Workshop, der Hemmschwellen nimmt. Ein Online-Lehrgang, der Ihr Team schult und weiterentwickelt. Ein Zertifikat, das Ihre Maßnahme nach Art. 4 KI-Verordnung belegt.",
+    beschr: "KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.",
+    untertitel: "Ein Workshop, der Hemmschwellen überwindet. Ein Online-Lehrgang, der Ihr Team schult und weiterentwickelt. Ein Zertifikat, das Ihre Maßnahme nach Art. 4 KI-Verordnung belegt.",
     meta: "Für Kanzleien und Unternehmen · online oder vor Ort, europaweit · auf Deutsch oder Englisch · Termine ab Januar 2027",
     intro: [
       "Künstliche Intelligenz ist in Ihrem Team angekommen – im Posteingang, in der Buchhaltung, im Alltag. Die KI-Verordnung verlangt deshalb von jedem Betrieb, der KI einsetzt, Maßnahmen zur KI-Kompetenz seines Personals. Dieser Workshop ist eine solche Maßnahme: praxisnah, auf Kanzlei und Rechnungswesen zugeschnitten, mit Nachweis.",
@@ -121,8 +121,8 @@ const TEXT = {
     titel: "AI literacy workshop for your team",
     abzeichen: "With EU AI Act training",
     seitentitel: "AI literacy workshop with EU AI Act training for accounting firms and companies | robin.vision",
-    beschr: "AI literacy for your team: a workshop that lowers barriers, an online course that trains your staff and builds their skills, and a test with a certificate under Article 4 of the EU AI Act. For accounting firms and companies, online or on site, in German or English.",
-    untertitel: "A workshop that lowers barriers. An online course that trains your team and builds their skills. A certificate that documents your measure under Article 4 of the EU AI Act.",
+    beschr: "AI literacy for your team: a workshop that breaks down barriers, an online course that trains your staff and builds their skills, and a test with a certificate under Article 4 of the EU AI Act. For accounting firms and companies, online or on site, in German or English.",
+    untertitel: "A workshop that breaks down barriers. An online course that trains your team and builds their skills. A certificate that documents your measure under Article 4 of the EU AI Act.",
     meta: "For accounting firms and companies · online or on site, across Europe · in German or English · dates from January 2027",
     intro: [
       "Artificial intelligence has arrived in your team – in the inbox, in bookkeeping, in everyday work. The EU AI Act therefore requires every organisation that uses AI to take measures to ensure the AI literacy of its staff. This workshop is one such measure: practical, tailored to accounting and finance, with evidence.",

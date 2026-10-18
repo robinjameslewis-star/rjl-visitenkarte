@@ -55,7 +55,7 @@
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
       navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'Zum Workshop mit Unterweisung nach EU AI Act',
-      workshopsLead: 'KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: ein Workshop, der Hemmschwellen nimmt, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch. Termine ab Januar 2027.',
+      workshopsLead: 'KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch. Termine ab Januar 2027.',
       aboutText: 'Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Nebenher digitalisiere ich Kanzleiprozesse und baue Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation: für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.',
       language: 'Sprache', replay: 'Rotkehlchen noch einmal anfliegen lassen', replayTitle: 'Noch einmal anfliegen lassen',
       reloadTitle: 'Seite neu laden',
@@ -130,7 +130,7 @@
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
       navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'To the workshop with EU AI Act training',
-      workshopsLead: 'AI literacy for your team, with EU AI Act training: a workshop that lowers barriers, an online course that trains your staff and builds their skills, and a test with a certificate. For accounting firms and companies, online or on site, in German or English. Dates from January 2027.',
+      workshopsLead: 'AI literacy for your team, with EU AI Act training: a workshop that breaks down barriers, an online course that trains your staff and builds their skills, and a test with a certificate. For accounting firms and companies, online or on site, in German or English. Dates from January 2027.',
       aboutText: "I'm Robin James Lewis from Balingen, Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. Alongside, I digitise the firm's processes and build tools for everyday work outside the perfect process, in the middle of the transformation: for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work.",
       language: 'Language', replay: 'Let the robin fly in again', replayTitle: 'Watch the robin fly in again',
       reloadTitle: 'Reload the page',

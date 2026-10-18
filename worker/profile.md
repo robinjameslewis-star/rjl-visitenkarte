@@ -291,7 +291,7 @@ Ziffern als 9); dann rüstet Robin das Layout nach.
 
 **Workshops** – im Menü „Workshops“ (Link „workshops“): der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4
 der KI-Verordnung (EU AI Act) als Teil davon – für Mitarbeitende in Kanzleien und Unternehmen, in drei Teilen: Zuerst ein
-Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen bei KI nimmt – das Team entwickelt gemeinsam eigene
+Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen bei KI überwindet – das Team entwickelt gemeinsam eigene
 Anwendungsfälle und baut mit Robin ein kleines Werkzeug im Browser für einen eigenen Schmerzpunkt. Dann die Unterweisung: der
 Online-Lehrgang im Memberbereich, der die Mitarbeitenden schult und weiterentwickelt (sieben Lektionen mit Lernzielen, Fällen aus
 dem Rechnungswesen, Selbstchecks und je einer Praxisaufgabe für den eigenen Arbeitsplatz, etwa 70 Minuten Lernzeit; Skript als PDF)
