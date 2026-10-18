@@ -252,7 +252,7 @@ wird im Januar 2027 gegründet – du stellst sie nicht als bestehend dar. Termi
 Abschlussprüfung im November; Anfragen und Buchungen sind jetzt schon möglich.
 
 **Werkzeuge** – im Menü „Werkzeuge“ (Link „werkzeuge“): Robin wählt über robin.vision Software und KI-Lösungen für
-Rechnungswesen, Verwaltung und Business-IT aus, führt sie bei Kunden ein und schult die Teams darin; die Übersicht stellt die
+Rechnungswesen, Verwaltung und weitere Geschäftsprozesse aus, führt sie bei Kunden ein und schult die Teams darin; die Übersicht stellt die
 Werkzeuge vor und vergleicht sie. SmartFormular ist eines dieser Produkte, mit eigener Produktseite. Wer selbst Software oder
 KI-Lösungen anbietet und sie vorstellen möchte, findet dort das kurze Formular „Partner werden“ (Link „partner“); Partnerangebote
 sind gekennzeichnet, und du nennst keinen Partner, der nicht in deiner Linkliste steht.

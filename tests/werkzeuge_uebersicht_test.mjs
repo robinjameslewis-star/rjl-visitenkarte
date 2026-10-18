@@ -1,6 +1,6 @@
 // Übersicht „Werkzeuge“ (worker/src/uebersicht.js) und Werkzeug-Slider der Startseite (worker/src/slider.js; Robin, 18.10.2026):
 // gebaute Seiten entsprechen den Modulen; gleichrangige Karten mit Kennzeichnung, Filter nach Bereichen (Rechnungswesen, Verwaltung,
-// Business-IT), Platzhalter und freie Plätze, Vergleich, Workshops, Formular „Partner werden“ an Gochs Kontakt-Endpunkt, Weiterleitung
+// weitere Geschäftsprozesse), Platzhalter und freie Plätze, Vergleich, Workshops, Formular „Partner werden“ an Gochs Kontakt-Endpunkt, Weiterleitung
 // alter Sprungmarken zur SmartFormular-Produktseite; Slider je Sprache; ein Probe-Partner erscheint als Anzeige mit rel="sponsored".
 // Kein Netz.
 //   node tests/werkzeuge_uebersicht_test.mjs
@@ -17,10 +17,10 @@ const lesen = p => readFileSync(root + p, "utf8");
 const anzahl = (s, re) => (s.match(re) || []).length;
 
 const T = {
-  de: { titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und Business-IT", bereiche: ["Rechnungswesen", "Verwaltung", "Business-IT"],
+  de: { titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse", bereiche: ["Rechnungswesen", "Verwaltung", "Weitere Geschäftsprozesse"],
     partner: "Partnerangebot · Anzeige", platz: "Hier könnte Ihr Produkt stehen", knopf: "Partner werden",
     sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>' },
-  en: { titel: "Efficient tools for accounting, administration and business IT", bereiche: ["Accounting", "Administration", "Business IT"],
+  en: { titel: "Efficient tools for accounting, administration and other business processes", bereiche: ["Accounting", "Administration", "Other business processes"],
     partner: "Partner offer · Advertisement", platz: "Your product could be here", knopf: "Become a partner",
     sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>' },
 };
@@ -29,18 +29,18 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const t = T[lang], html = lesen(pfad);
   console.log(`\n${pfad}`);
   check(html === werkzeugeUebersicht(lang), "Seite im Repository entsteht genau aus dem Modul");
-  check(html.includes(`<html lang="${lang}">`) && html.includes(`<h1>${t.titel.replace(/Business[- ]IT/, m => `<span class="wz-nb">${m}</span>`)}</h1>`) && html.includes(`<link rel="canonical" href="${uebersichtUrl(lang)}">`), "Sprache, Überschrift, canonical");
+  check(html.includes(`<html lang="${lang}">`) && html.includes(`<h1>${t.titel}</h1>`) && html.includes(`<link rel="canonical" href="${uebersichtUrl(lang)}">`), "Sprache, Überschrift, canonical");
   check(html.includes(t.nav), "Kopf: Menüpunkt Werkzeuge aktiv");
   check(!html.includes('class="abzeichen"') && html.indexOf("<h1>") < html.indexOf('class="untertitel"') && html.indexOf('<article class="wz">\n<h1>') > 0, "Seite beginnt mit der Überschrift, ohne Abzeichen (Robin, 18.10.2026)");
   check(anzahl(html.match(/<ol class="wz-rolle">[\s\S]*?<\/ol>/)?.[0] || "", /<li>/g) === 3, "Drei Schritte: Auswählen, Einführen, Schulen");
-  check(BEREICHE.join() === "rechnungswesen,verwaltung,business-it" && BEREICHE.every((b, i) => html.includes(`<button type="button" data-bereich="${b}" aria-pressed="false">${t.bereiche[i]}</button>`))
-    && html.includes('data-bereich="alle" aria-pressed="true"'), "Filter: Alle, Rechnungswesen, Verwaltung, Business-IT");
+  check(BEREICHE.join() === "rechnungswesen,verwaltung,geschaeftsprozesse" && BEREICHE.every((b, i) => html.includes(`<button type="button" data-bereich="${b}" aria-pressed="false">${t.bereiche[i]}</button>`))
+    && html.includes('data-bereich="alle" aria-pressed="true"'), "Filter: Alle, Rechnungswesen, Verwaltung, Weitere Geschäftsprozesse");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");
   const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<h2/)?.[0] || "";
   check(raster.includes('data-bereiche="rechnungswesen"') && raster.includes('<article class="wz-karte" data-bereiche="rechnungswesen">\n<p class="wz-kennz frei" aria-hidden="true">&nbsp;</p>') && raster.includes(t.sf), "Karte SmartFormular: ohne Kennzeichnung, Knopf zur Produktseite");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
   check(raster.includes('class="wz-karte wz-platzhalter" data-bereiche="alle"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes(`<p class="wz-kennz frei">${t.partner}</p>`) && raster.includes('href="#partner"'), "Platzhalter „Hier könnte Ihr Produkt stehen“ mit Kennzeichnung und Weg zum Formular");
-  check(raster.includes('wz-frei" data-bereiche="verwaltung"') && raster.includes('wz-frei" data-bereiche="business-it"') && !raster.includes('wz-frei" data-bereiche="rechnungswesen"'), "freie Plätze für Verwaltung und Business-IT");
+  check(raster.includes('wz-frei" data-bereiche="verwaltung"') && raster.includes('wz-frei" data-bereiche="geschaeftsprozesse"') && !raster.includes('wz-frei" data-bereiche="rechnungswesen"'), "freie Plätze für Verwaltung und weitere Geschäftsprozesse");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Anzeigen-Verweis");
   const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
   check(anzahl(tabelle, /<th scope="col"/g) === 5 && anzahl(tabelle, /<tr><th scope="row">/g) === 6 && !/>(Stand|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: drei Werkzeuge, „Ihr Produkt“, sechs Kriterien (ohne Stand, Einführung und Schulung), Weg zum Formular");
@@ -61,7 +61,7 @@ try {
     const t = T[lang], html = werkzeugeUebersicht(lang), s = slider(lang);
     const karte = html.match(/<article class="wz-karte" data-bereiche="verwaltung">[\s\S]*?<\/article>/)?.[0] || "";
     check(karte.includes(`<p class="wz-kennz frei">${t.partner}</p>`) && karte.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"'), `${lang}: Partnerkarte als Anzeige, Verweis mit rel="sponsored"`);
-    check(!html.includes('wz-frei" data-bereiche="verwaltung"') && html.includes('wz-frei" data-bereiche="business-it"'), `${lang}: belegter Bereich verliert den freien Platz`);
+    check(!html.includes('wz-frei" data-bereiche="verwaltung"') && html.includes('wz-frei" data-bereiche="geschaeftsprozesse"'), `${lang}: belegter Bereich verliert den freien Platz`);
     check(s.includes("<h3>Probe-Werkzeug</h3>") && s.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"') && s.indexOf("Probe-Werkzeug") < s.indexOf(t.platz), `${lang}: Slider zeigt den Partner vor dem Platzhalter`);
   }
 } finally { PARTNER.pop(); }
@@ -80,7 +80,8 @@ for (const lang of ["de", "en"]) {
 }
 check(start.includes("document.querySelectorAll('.wzs')") && /\.wzs\[hidden\] \{ display: none; \}/.test(start) && /\.wzs-spur \{[^}]*scroll-snap-type: x mandatory/.test(start), "Slider: Stile mit scroll-snap, kleines Skript für Pfeile und Punkte");
 check(start.includes('href="werkzeuge/" data-i18n="toolsAll"') || /data-i18n="toolsAll"/.test(start), "Startseite: Verweis auf die Übersicht mit Vergleich");
-check(/Rechnungswesen, Verwaltung und Business-IT/.test(start) && /accounting, administration and business IT/.test(lesen("language.js")), "Startseite und Sprachdatei: Business-IT");
+check(/Rechnungswesen, Verwaltung und weitere Geschäftsprozesse/.test(start) && /accounting, administration and other business processes/.test(lesen("language.js")), "Startseite und Sprachdatei: weitere Geschäftsprozesse");
+check(![start, lesen("language.js"), lesen("werkzeuge/index.html"), lesen("werkzeuge/en/index.html"), lesen("worker/profile.md"), lesen("worker/links.md")].some(h => /Business[- ]IT/i.test(h)), "nirgends mehr „Business-IT“ (Robin, 18.10.2026)");
 check([start, lesen("language.js"), lesen("werkzeuge/index.html")].every(h => h.includes("geschult mit robin.vision") && !h.includes("geschult von robin.vision")) && /learned with robin\.vision/.test(lesen("werkzeuge/en/index.html")) && !/taught by robin\.vision/.test(lesen("language.js") + lesen("werkzeuge/en/index.html")), "„ausgewählt, eingeführt und geschult mit robin.vision“ (Robin, 18.10.2026)");
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");
