@@ -23,7 +23,7 @@ const TEXT = {
     seitentitel: "SmartFormular: Buchhaltung und Jahresabschluss mit Werkzeugen, die mitarbeiten – FiBu lite kostenlos | robin.vision",
     beschr: "SmartFormular von robin.vision: FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format – kostenlos, offline im Browser. SmartFormular FiBu und Deklaration bringen Belege, offene Posten und den Jahresabschluss zusammen. Beta-Zugang auf Anfrage.",
     untertitel: "Werkzeuge für Buchhaltung und Jahresabschluss, die schon beim Ausfüllen mit der Sachbearbeitung beginnen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
-    meta: "Ein Produkt von robin.vision · FiBu lite kostenlos · FiBu und Deklaration als Beta · für Kanzleien und Rechnungswesen",
+    meta: "FiBu lite kostenlos · FiBu und Deklaration als Beta · für Kanzleien und Rechnungswesen",
     intro: [
       "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Jeder Vorschlag trägt seine Herkunft: Beleg, Regel, Vormonat oder Modell. Geprüft und festgeschrieben wird von Ihnen, in Ihrem Buchhaltungsprogramm.",
       "Heute steht SmartFormular FiBu lite bereit, der kostenlose Buchungsstapel-Generator. SmartFormular FiBu und SmartFormular Deklaration folgen – für den laufenden Monat und für den Jahresabschluss. Beide erprobe ich mit ausgewählten Kanzleien im Memberbereich; Beta-Zugang auf Anfrage.",
@@ -119,7 +119,7 @@ const TEXT = {
     seitentitel: "SmartFormular: bookkeeping and year-end accounts with tools that work with you – FiBu lite free | robin.vision",
     beschr: "SmartFormular by robin.vision: FiBu lite turns bank statements into booking batches in the DATEV format – free, offline in your browser. SmartFormular FiBu and Deklaration bring documents, open items and year-end accounts together. Beta access on request.",
     untertitel: "Tools for bookkeeping and year-end accounts that start the casework while you fill them in. Checking, deciding and finalising stay with you.",
-    meta: "A product by robin.vision · FiBu lite free · FiBu and Deklaration as a beta · for accounting firms and finance teams",
+    meta: "FiBu lite free · FiBu and Deklaration as a beta · for accounting firms and finance teams",
     intro: [
       "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, guarantees completeness and takes the first steps of the casework while you are still typing. Every suggestion carries its origin: document, rule, previous month or model. You check and finalise it in your accounting software.",
       "SmartFormular FiBu lite, the free Booking Batch Generator, is available today. SmartFormular FiBu and SmartFormular Deklaration follow – for the current month and for year-end accounts. I am testing both with selected firms in the member area; beta access on request.",

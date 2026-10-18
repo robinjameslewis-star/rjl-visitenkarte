@@ -1,4 +1,5 @@
-// Werkzeug-Slider auf der Startseite (index.html, Abschnitt #werkzeuge; Robin, 18.10.2026): je Produkt eine Karte mit Kennzeichnung,
+// Werkzeug-Slider auf der Startseite (index.html, Abschnitt #werkzeuge; Robin, 18.10.2026): je Produkt eine Karte mit Kennzeichnung
+// (nur Partnerangebote; „Produkt von robin.vision“ entfällt seit 18.10.2026, die Zeile bleibt leer, damit die Karten fluchten),
 // Logo, Name, einem Satz, Bereich und „Zum Produkt“ – heute die drei SmartFormular-Produkte, danach die Partnerangebote (partner.js),
 // am Ende „Hier könnte Ihr Produkt stehen“. Je Sprache ein Slider; language.js blendet den der anderen Sprache über data-langs aus.
 // Ohne Skript lässt er sich wischen und scrollen, das kleine Skript in index.html ergänzt Pfeile und Punkte. Stile in index.html (.wzs).
@@ -8,7 +9,7 @@ import { PARTNER } from "./partner.js";
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const TEXT = {
-  de: { label: "Werkzeuge", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter", eigen: "Produkt von robin.vision", partner: "Partnerangebot · Anzeige",
+  de: { label: "Werkzeuge", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter", partner: "Partnerangebot · Anzeige",
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     produkte: [
       { name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – kostenlos, offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
@@ -17,7 +18,7 @@ const TEXT = {
     ],
     platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen", text: "Ihre Lösung für Rechnungswesen, Verwaltung oder Business-IT – vorgestellt, eingeführt und in Workshops gezeigt.",
       bereich: "Partner", knopf: "Partner werden", href: "werkzeuge/#partner" } },
-  en: { label: "Tools", rolle: "Carousel", zurueck: "Previous", weiter: "Next", eigen: "Product by robin.vision", partner: "Partner offer · Advertisement",
+  en: { label: "Tools", rolle: "Carousel", zurueck: "Previous", weiter: "Next", partner: "Partner offer · Advertisement",
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     produkte: [
       { name: "FiBu lite", text: "Bank statements into booking batches – free, offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
@@ -31,7 +32,7 @@ const BEREICH = { de: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltun
   en: { rechnungswesen: "Accounting", verwaltung: "Administration", "business-it": "Business IT" } };
 
 const karte = ({ kennz, logo, name, text, bereich, href, link, platzhalter = false, sponsored = false }) => `        <article class="wzs-karte${platzhalter ? " wzs-platzhalter" : ""}">
-          <p class="wzs-kennz">${esc(kennz)}</p>
+          <p class="wzs-kennz"${kennz ? "" : ' aria-hidden="true"'}>${kennz ? esc(kennz) : "&nbsp;"}</p>
           ${logo}
           <h3>${esc(name)}</h3>
           <p>${esc(text)}</p>
@@ -42,7 +43,7 @@ const karte = ({ kennz, logo, name, text, bereich, href, link, platzhalter = fal
 export function slider(lang) {
   const t = TEXT[lang];
   const sfLogo = `<div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>`;
-  const eigene = t.produkte.map(p => karte({ kennz: t.eigen, logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
+  const eigene = t.produkte.map(p => karte({ kennz: "", logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
   const partner = PARTNER.map(p => karte({ kennz: t.partner, logo: `<div class="wzs-logo" aria-hidden="true">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : esc(p.name)}</div>`,
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: BEREICH[lang][(p.bereiche || [])[0]] || "Partner",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));
