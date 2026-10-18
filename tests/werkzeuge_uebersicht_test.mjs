@@ -32,7 +32,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(html.includes(`<html lang="${lang}">`) && html.includes(`<h1>${t.titel}</h1>`) && html.includes(`<link rel="canonical" href="${uebersichtUrl(lang)}">`), "Sprache, Überschrift, canonical");
   check(html.includes(t.nav), "Kopf: Menüpunkt Werkzeuge aktiv");
   check(!html.includes('class="abzeichen"') && html.indexOf("<h1>") < html.indexOf('class="untertitel"') && html.indexOf('<article class="wz">\n<h1>') > 0, "Seite beginnt mit der Überschrift, ohne Abzeichen (Robin, 18.10.2026)");
-  check(anzahl(html.match(/<ol class="wz-rolle">[\s\S]*?<\/ol>/)?.[0] || "", /<li>/g) === 3, "Drei Schritte: Auswählen, Einführen, Schulen");
+  check(anzahl(html.match(/<ol class="wz-rolle">[\s\S]*?<\/ol>/)?.[0] || "", /<li>/g) === 3 && (lang === "en" ? ["Analyse", "Train", "Develop"] : ["Analysieren", "Schulen", "Weiterentwickeln"]).every((w, i) => html.includes(`<span class="nr">0${i + 1}</span><strong>${w}</strong>`)), "Drei Schritte: Analysieren, Schulen, Weiterentwickeln (Robin, 18.10.2026)");
   check(BEREICHE.join() === "rechnungswesen,verwaltung,geschaeftsprozesse" && BEREICHE.every((b, i) => html.includes(`<button type="button" data-bereich="${b}" aria-pressed="false">${t.bereiche[i]}</button>`))
     && html.includes('data-bereich="alle" aria-pressed="true"'), "Filter: Alle, Rechnungswesen, Verwaltung, Weitere Geschäftsprozesse");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");

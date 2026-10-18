@@ -26,9 +26,10 @@ const TEXT = {
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – ausgewählt, eingeführt und geschult mit robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
     untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult mit robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
     rolle: [
-      ["Auswählen", "Ich prüfe Werkzeuge an Ihren Abläufen und empfehle, was passt – eigene Produkte und Lösungen von Partnern."],
-      ["Einführen", "Einrichtung, Anbindung an Ihr Buchhaltungsprogramm, Regeln und Vorlagen für Ihr Team."],
-      ["Schulen", "Ihr Team lernt das Werkzeug im Workshop und setzt es sicher im Alltag ein."],
+      // Drei Schritte (Robin, 18.10.2026): Analysieren · Schulen · Weiterentwickeln statt Auswählen · Einführen · Schulen
+      ["Analysieren", "Ich schaue mir Ihre Abläufe an und zeige, wo Werkzeuge entlasten – eigene Produkte und Lösungen von Partnern."],
+      ["Schulen", "Ihr Team lernt die Werkzeuge im Workshop und setzt sie sicher im Alltag ein."],
+      ["Weiterentwickeln", "Abläufe, Regeln und Vorlagen entwickeln wir gemeinsam weiter – Schritt für Schritt, mit dem, was sich im Alltag bewährt."],
     ],
     filterLabel: "Bereiche", alle: "Alle",
     bereiche: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltung", geschaeftsprozesse: "Weitere Geschäftsprozesse" },
@@ -74,9 +75,9 @@ const TEXT = {
     beschr: "Software and AI solutions for accounting, administration and other business processes – selected, implemented and learned with robin.vision. With SmartFormular, a comparison and a partner programme.",
     untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and learned with robin.vision. I show many of them in the workshops using real cases.",
     rolle: [
-      ["Select", "I test tools against your processes and recommend what fits – my own products and partner solutions."],
-      ["Implement", "Set-up, connection to your accounting software, rules and templates for your team."],
-      ["Train", "Your team learns the tool in the workshop and uses it confidently in daily work."],
+      ["Analyse", "I look at your processes and show where tools can take the load off – my own products and partner solutions."],
+      ["Train", "Your team learns the tools in a workshop and uses them confidently day to day."],
+      ["Develop", "Together we refine processes, rules and templates step by step, building on what works in daily practice."],
     ],
     filterLabel: "Areas", alle: "All",
     bereiche: { rechnungswesen: "Accounting", verwaltung: "Administration", geschaeftsprozesse: "Other business processes" },
