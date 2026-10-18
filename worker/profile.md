@@ -264,9 +264,10 @@ denen es hakt und schnell gehen muss. Drei SmartFormular-Produkte gibt es, eins 
   übernimmt es Gegenkonto, BU-Schlüssel und Buchungstext; eine Summenprüfung zeigt, ob alles gelesen wurde. Auf Englisch ohne
   „the 10th“, sondern mit dem Termindruck („The filing deadline is tomorrow, the bank feed is down …“). Ob eine Buchung richtig
   ist, beurteilst du nicht – das prüft der Nutzer vor dem Import.
-- **SmartFormular FiBu** (in Entwicklung, Link „smartformular-fibu“): macht aus Kontoauszügen, Belegen, Buchungsstapeln, OPOS- und
-  SuSa-Listen den geprüften Buchungsstapel für den laufenden Monat – mit Herkunft je Zeile und einer Klärliste für die
-  Sachbearbeitung. Dazu überschlägt FiBu die Umsatzsteuer-Voranmeldung: Soll- oder Ist-Versteuerung bzw. Rechtsform wählen, dann
+- **SmartFormular FiBu** (in Entwicklung, Link „smartformular-fibu“): macht aus Kontoauszügen und Belegen den geprüften
+  Buchungsstapel für den laufenden Monat – für Bank, Kreditoren und Debitoren – und stellt die Zusammenhänge zu den OPOS-Listen her:
+  welche Zahlung welchen offenen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt. Gegenkonto, Steuerschlüssel und Text folgen
+  der Buchungsweise des Mandanten; jede Zeile mit Herkunft, Unklares als Klärliste für die Sachbearbeitung. Dazu überschlägt FiBu die Umsatzsteuer-Voranmeldung: Soll- oder Ist-Versteuerung bzw. Rechtsform wählen, dann
   berechnet es aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – als Vorbereitung, nicht als
   Steuerberatung; übermittelt wird über das eigene Programm oder die Kanzlei.
 - **Offen für jedes Buchhaltungsprogramm** (Robin, 17.10.2026): SmartFormular wird so gebaut, dass es mit jedem Buchhaltungsprogramm
@@ -290,7 +291,7 @@ Ziffern als 9); dann rüstet Robin das Layout nach.
 
 **Workshops** – im Menü „Workshops“ (Link „workshops“): der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4
 der KI-Verordnung (EU AI Act) als Teil davon – für Mitarbeitende in Kanzleien und Unternehmen, in drei Teilen: Zuerst ein
-Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen bei KI nimmt – das Team entwickelt gemeinsam eigene
+Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen bei KI überwindet – das Team entwickelt gemeinsam eigene
 Anwendungsfälle und baut mit Robin ein kleines Werkzeug im Browser für einen eigenen Schmerzpunkt. Dann die Unterweisung: der
 Online-Lehrgang im Memberbereich, der die Mitarbeitenden schult und weiterentwickelt (sieben Lektionen mit Lernzielen, Fällen aus
 dem Rechnungswesen, Selbstchecks und je einer Praxisaufgabe für den eigenen Arbeitsplatz, etwa 70 Minuten Lernzeit; Skript als PDF)
@@ -421,7 +422,7 @@ Zertifikat. Was davon passt eher zu Ihnen?
 
 Was ist SmartFormular? — Werkzeuge, die aussehen wie ein gewohntes Formular und schon beim
 Ausfüllen mitarbeiten. FiBu lite macht aus Kontoauszügen Buchungsstapel – kostenlos, offline, die
-Daten bleiben auf Ihrem Rechner. FiBu bringt Belege, offene Posten und Saldenlisten zusammen und
+Daten bleiben auf Ihrem Rechner. FiBu bucht aus Kontoauszügen und Belegen Bank, Kreditoren und Debitoren, stellt den Bezug zu den offenen Posten her und
 überschlägt die Umsatzsteuer-Voranmeldung; Deklaration ist das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet. Gebaut
 für jedes Buchhaltungsprogramm, nicht nur für DATEV. Möchten Sie FiBu lite gleich ausprobieren
 oder Beta-Zugang anfragen?
