@@ -31,6 +31,13 @@ const TEXT = {
       "Ihr Team lernt, was KI heute kann und wo sie scheitert, welche Daten nie in ein öffentliches Werkzeug gehören und wie man Ergebnisse prüft, bevor sie zählen. Am Ende steht ein Zertifikat je Person – und die Sicherheit, KI im Alltag richtig einzusetzen.",
     ],
     anfrageTitel: "Workshop anfragen",
+    // Drei Schritte der Zusammenarbeit (Robin, 18.10.2026): bei den Workshops, nicht bei den Werkzeugen – die Hemmschwelle soll gering sein
+    schritteTitel: "Wie wir zusammenarbeiten",
+    schritte: [
+      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen."],
+      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Ihren eigenen Fällen. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
+      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter."],
+    ],
     teileTitel: "Drei Teile, ein Ergebnis",
     teile: [
       ["Workshop", "90 Minuten online oder ein halber Tag vor Ort. Ich greife die Fälle Ihres Teams auf, nehme Berührungsängste und entwickle mit Ihnen Anwendungsfälle für Ihren Alltag. Gemeinsam bauen wir ein kleines Werkzeug im Browser für einen echten Schmerzpunkt – so erlebt jede Person, was KI kann und wo sie sicher scheitert."],
@@ -128,6 +135,12 @@ const TEXT = {
       "Your team learns what AI can do today and where it fails, which data must never go into a public tool and how to check results before they count. At the end there is a certificate for each person – and the confidence to use AI properly in daily work.",
     ],
     anfrageTitel: "Enquire about a workshop",
+    schritteTitel: "How we work together",
+    schritte: [
+      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes and of the software and AI you already use."],
+      ["Train", "In the workshop we develop ways to improve your processes together, using your own cases – and overcome any hesitation about working with AI."],
+      ["Develop", "We build step by step on what works in practice – your processes, rules and templates evolve with your team."],
+    ],
     teileTitel: "Three parts, one result",
     teile: [
       ["Workshop", "90 minutes online or half a day on site. I pick up your team's cases, take away the apprehension and develop use cases for your daily work with you. Together we build a small browser tool for a real pain point – so everyone experiences what AI can do and where it reliably fails."],
@@ -223,6 +236,12 @@ const CSS = `.abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 
 .unterweisung p { max-width: none; text-align: left; margin: 0 0 10px; }
 .fakten { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
 .fakten li { margin: 0; max-width: none; padding: 6px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.6); font-size: 14px; color: var(--ink-soft); }
+.schritte { list-style: none; margin: 0 0 8px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.schritte li { margin: 0; max-width: none; padding: 16px 18px 16px 0; text-align: left; }
+.schritte li + li { padding-left: 18px; border-left: 1px solid var(--line); }
+.schritte .nr { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; color: var(--copper); }
+.schritte strong { display: block; font: 500 20px/1.3 var(--serif); color: var(--green); margin: 2px 0 4px; }
+.schritte .was { display: block; font-size: 15px; color: var(--ink-soft); hyphens: manual; }
 .teile { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0 0 14px; counter-reset: teil; }
 .teil { position: relative; padding: 26px 20px 20px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); }
 .teil::before { counter-increment: teil; content: "Teil " counter(teil); display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); margin: 0 0 6px; }
@@ -270,7 +289,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
-@media (max-width: 720px) { .teile, .formate { grid-template-columns: 1fr; } .anfrage .reihe { grid-template-columns: 1fr; } .kapitel li { grid-template-columns: 40px 1fr; } .kapitel .min { grid-column: 2; padding-top: 0; } }`;
+@media (max-width: 720px) { .schritte { grid-template-columns: 1fr; } .schritte li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } .teile, .formate { grid-template-columns: 1fr; } .anfrage .reihe { grid-template-columns: 1fr; } .kapitel li { grid-template-columns: 40px 1fr; } .kapitel .min { grid-column: 2; padding-top: 0; } }`;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -320,6 +339,10 @@ ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <li><a class="knopf" href="#anfrage">${esc(t.anfrageTitel)}</a></li>
 <li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
 </ul>
+<h2 id="zusammenarbeit">${esc(t.schritteTitel)}</h2>
+<ol class="schritte">
+${t.schritte.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
+</ol>
 <h2 id="teile">${esc(t.teileTitel)}</h2>
 <div class="teile">
 ${t.teile.map(([titel, text]) => `<section class="teil"><h3>${esc(titel)}</h3><p class="frei">${esc(text)}</p></section>`).join("\n")}
