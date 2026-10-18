@@ -69,7 +69,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(['<select id="p-fuer" name="fuer"><option value="">', '<select id="p-standort" name="standort"><option value="">'].every(x => form.includes(x)) && !/<select[^>]*required/.test(form) && anzahl(form, /<option>/g) === 9 && html.includes("d.fuer ? T.fuer") && html.includes("d.standort ? T.standort"), "Formular: zwei freiwillige Auswahlfelder (Für wen, Datenstandort), in der Nachricht an Robin");
   check(html.includes(`<h2 id="partner">${t.knopf}</h2>`) && html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes("'content-type': 'application/json'"), "Formular sendet an Gochs Kontakt-Endpunkt");
   check(html.includes(JSON.stringify(ALTE_MARKEN)) && html.includes(`location.replace(${t.ziel}`) && ["fibu", "deklaration", "beta"].every(m => ALTE_MARKEN.includes(m)), "alte Sprungmarken (#fibu, #deklaration, #beta …) leiten zur Produktseite");
-  check(html.includes('id="newsletter"'), "Newsletter-Kasten");
+  check(html.includes('id="newsletter"') && !/etwa von FiBu lite|such as FiBu lite|Beta-Start von FiBu|beta start of FiBu/.test(html), "Newsletter-Kasten ohne FiBu lite und Beta-Start (Robin, 18.10.2026)");
   check(!/kleines Werkzeug|Schmerzpunkt|small tool|pain point/i.test(html) && /Hemmschwellen beim Umgang mit KI und neuer Software|hesitation about AI and new software/.test(html), "Workshop-Kasten: Hemmschwellen statt selbst gebautem Werkzeug (Robin, 18.10.2026)");
 }
 
