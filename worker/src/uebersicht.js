@@ -26,10 +26,11 @@ const TEXT = {
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – ausgewählt, eingeführt und geschult mit robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
     untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult mit robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
     rolle: [
-      // Drei Schritte (Robin, 18.10.2026): Analysieren · Schulen · Weiterentwickeln statt Auswählen · Einführen · Schulen
-      ["Analysieren", "Ich schaue mir Ihre Abläufe an und zeige, wo Werkzeuge entlasten – eigene Produkte und Lösungen von Partnern."],
-      ["Schulen", "Ihr Team lernt die Werkzeuge im Workshop und setzt sie sicher im Alltag ein."],
-      ["Weiterentwickeln", "Abläufe, Regeln und Vorlagen entwickeln wir gemeinsam weiter – Schritt für Schritt, mit dem, was sich im Alltag bewährt."],
+      // Drei Schritte (Robin, 18.10.2026): Analysieren · Schulen · Weiterentwickeln statt Auswählen · Einführen · Schulen; die
+      // Hemmschwelle soll gering sein – die Analyse kann ein Gespräch sein, im Workshop entstehen Ansätze und Hemmschwellen fallen
+      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen."],
+      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Ihren eigenen Fällen. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
+      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter."],
     ],
     filterLabel: "Bereiche", alle: "Alle",
     bereiche: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltung", geschaeftsprozesse: "Weitere Geschäftsprozesse" },
@@ -75,9 +76,9 @@ const TEXT = {
     beschr: "Software and AI solutions for accounting, administration and other business processes – selected, implemented and learned with robin.vision. With SmartFormular, a comparison and a partner programme.",
     untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and learned with robin.vision. I show many of them in the workshops using real cases.",
     rolle: [
-      ["Analyse", "I look at your processes and show where tools can take the load off – my own products and partner solutions."],
-      ["Train", "Your team learns the tools in a workshop and uses them confidently day to day."],
-      ["Develop", "Together we refine processes, rules and templates step by step, building on what works in daily practice."],
+      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes and of the software and AI you already use."],
+      ["Train", "In the workshop we develop ways to improve your processes together, using your own cases – and overcome any hesitation about working with AI."],
+      ["Develop", "We build step by step on what works in practice – your processes, rules and templates evolve with your team."],
     ],
     filterLabel: "Areas", alle: "All",
     bereiche: { rechnungswesen: "Accounting", verwaltung: "Administration", geschaeftsprozesse: "Other business processes" },
