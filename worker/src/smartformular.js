@@ -44,13 +44,16 @@ const TEXT = {
       ["Umsatzsteuer überschlagen", "Für die Umsatzsteuer-Voranmeldung: Sie wählen Soll- oder Ist-Versteuerung oder Ihre Rechtsform, FiBu berechnet aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – je Steuersatz, mit Herkunft jedes Betrags. Ein Überschlag zur Vorbereitung; die Voranmeldung erstellen und übermitteln Sie oder Ihre Kanzlei."],
     ],
     deklTitel: "SmartFormular Deklaration",
-    deklLead: "Für den Jahresabschluss in der Kanzlei. Aus Vorjahresdaten, Verträgen, Beschlüssen und den Buchungen des Jahres entsteht der Abschluss Schritt für Schritt – jeder Vorschlag mit Herleitung, jede Entscheidung bei Ihnen.",
+    deklClaim: "Das Arbeitspapier, das mitdenkt und vorarbeitet.",
+    deklLead: "Für den Jahresabschluss in der Kanzlei. Deklaration erledigt die Vorarbeit, die jeder Abschluss braucht – vom Vorjahresvergleich bis zur Unterlage für das Abschlussgespräch. Jeder Vorschlag kommt mit Herleitung, jede Entscheidung bleibt bei Ihnen. Am Ende stehen ein Vorschlagsstapel für die Abschlussbuchungen und die Vorbereitung der E-Bilanz.",
     deklPunkte: [
-      ["Abschlussplan aus dem Vorjahr", "Welche Abschlussbuchungen anstehen, welche Abgrenzungen aufzulösen und welche Rückstellungen fortzuschreiben sind."],
-      ["Rechenmodule mit Rechenspur", "AfA, Rechnungsabgrenzung, Rückstellungen, Gewerbe- und Körperschaftsteuer, Überleitung zur Steuerbilanz – jede Zahl mit ihrem Rechenweg."],
-      ["Werte aus Unterlagen", "Zinssatz und Restschuld aus dem Darlehensvertrag, Beiträge aus der Police, Beschlusswerte – jeweils mit Zitat aus Seite und Zeile."],
-      ["Vorschlagsstapel und Berichte", "Abschlussbuchungen im DATEV-Format mit Herleitung, Abschlussmappe mit Kontennachweis, Unterlagenanforderung mit Status, Vorbereitung der E-Bilanz."],
-      ["Entscheidungsvorlagen", "Wahlrechte, Wesentlichkeit und Ermessen getrennt aufbereitet – die Würdigung bleibt beim Berufsträger."],
+      ["Vorjahreswerte und Entwicklungen", "Jede Position im Vorjahresvergleich, dazu die Entwicklungsübersichten – Anlagen, Rückstellungen, Darlehen, Eigenkapital – aus Saldenliste und Buchungen."],
+      ["Darlehen abstimmen", "Zinsen und Tilgung gegen den Tilgungsplan, Anfangs- und Endbestand gegen Vertrag und Saldenbestätigung. Abweichungen stehen als Klärpunkt bereit."],
+      ["Offene Posten prüfen", "Offene Debitoren und Kreditoren gegen die Saldenliste, Ausgleich nach dem Stichtag, Dubletten und falsch gebuchte Posten."],
+      ["Alte Forderungen und Verbindlichkeiten", "Was seit Jahren offen steht, wird gefunden und für die Bewertung aufbereitet: Alter, letzte Bewegung, Vorschlag für Wertberichtigung oder Ausbuchung. Die Entscheidung trifft der Berufsträger."],
+      ["Rückstellungen berechnen", "Abschluss- und Prüfungskosten, Aufbewahrung, Urlaub und Überstunden, Steuern – mit Rechenweg und Fortschreibung aus dem Vorjahr."],
+      ["Zahlen ins Verhältnis setzen", "Umsatz, Rohertrag, Wareneinsatz, Personalkosten, Gewinn und weitere wichtige Positionen als Quoten, im Vergleich zum Vorjahr und mit den Auffälligkeiten, über die zu sprechen ist."],
+      ["Abschlussgespräch vorbereiten", "Eine Gesprächsunterlage für den Mandanten: die wichtigsten Zahlen, Veränderungen zum Vorjahr, offene Fragen und die Entscheidungen, die beim Mandanten liegen."],
     ],
     deklGrenze: "Deklaration ist Software für Ihre Kanzlei, keine Steuerberatung. Akte, Fristen, Abzeichnung und Übermittlung bleiben in Ihrem Kanzleiprogramm.",
     menschKicker: "Das Prinzip", menschTitel: "Mensch und Maschine",
@@ -137,13 +140,16 @@ const TEXT = {
       ["Estimate VAT", "For the German advance VAT return: you choose accrual or cash accounting, or your legal form, and FiBu works out from bank statements and documents the expected VAT payable or the excess input VAT to be refunded – by rate, with the origin of every amount. An estimate to prepare the return; you or your firm still prepare and file it."],
     ],
     deklTitel: "SmartFormular Deklaration",
-    deklLead: "For year-end accounts in the firm. From prior-year data, contracts, resolutions and the year's postings, the closing takes shape step by step – every suggestion with its derivation, every decision with you.",
+    deklClaim: "The working paper that thinks ahead and does the groundwork.",
+    deklLead: "For year-end accounts in the firm. Deklaration does the groundwork every set of accounts needs – from the prior-year comparison to the briefing for the year-end meeting. Every suggestion comes with its derivation, every decision stays with you. The result is a set of proposed closing entries and the preparation of the German e-balance sheet.",
     deklPunkte: [
-      ["Closing plan from the prior year", "Which closing entries are due, which accruals are to be reversed and which provisions to roll forward."],
-      ["Calculation modules with a trace", "Depreciation, prepayments and accruals, provisions, trade and corporation tax, reconciliation to the tax balance sheet – every figure with its calculation path."],
-      ["Values from documents", "Interest rate and outstanding balance from the loan agreement, premiums from the policy, resolution values – each with a citation of page and line."],
-      ["Proposed entries and reports", "Closing entries in the DATEV format with derivation, a closing file with account evidence, a document request with status, preparation of the German e-balance sheet."],
-      ["Decision templates", "Elections, materiality and judgement prepared separately – the judgement stays with the professional."],
+      ["Prior-year figures and movements", "Every item compared with the prior year, plus movement schedules – fixed assets, provisions, loans, equity – from the trial balance and postings."],
+      ["Reconcile loans", "Interest and repayments against the repayment schedule, opening and closing balances against the agreement and the bank confirmation. Differences are ready as clarification points."],
+      ["Review open items", "Open receivables and payables against the trial balance, settlements after the balance sheet date, duplicates and items posted to the wrong account."],
+      ["Long-outstanding receivables and payables", "Whatever has been open for years is found and prepared for valuation: age, last movement, a proposal for a write-down or write-off. The decision stays with the professional."],
+      ["Calculate provisions", "Year-end and audit costs, document retention, holiday and overtime, taxes – with the calculation path and the roll-forward from the prior year."],
+      ["Put the figures in proportion", "Revenue, gross profit, cost of materials, staff costs, profit and other key items as ratios, compared with the prior year and with the anomalies worth discussing."],
+      ["Prepare the year-end meeting", "A briefing for the client: the key figures, changes on the prior year, open questions and the decisions that rest with the client."],
     ],
     deklGrenze: "Deklaration is software for your firm, not tax advice. File, deadlines, sign-off and transmission stay in your firm's software.",
     menschKicker: "The principle", menschTitel: "People and machine",
@@ -312,6 +318,7 @@ ${t.lite.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <p>${esc(t.fibuLead)}</p>
 ${liste(t.fibuPunkte)}
 <h2 id="deklaration">${esc(t.deklTitel)}</h2>
+<p class="untertitel">${esc(t.deklClaim)}</p>
 <p>${esc(t.deklLead)}</p>
 ${liste(t.deklPunkte)}
 <p class="hinweis">${esc(t.deklGrenze)}</p>
