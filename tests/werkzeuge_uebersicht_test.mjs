@@ -18,10 +18,10 @@ const anzahl = (s, re) => (s.match(re) || []).length;
 
 const T = {
   de: { titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und Business-IT", bereiche: ["Rechnungswesen", "Verwaltung", "Business-IT"],
-    eigen: "Produkt von robin.vision", partner: "Partnerangebot · Anzeige", platz: "Hier könnte Ihr Produkt stehen", knopf: "Partner werden",
+    partner: "Partnerangebot · Anzeige", platz: "Hier könnte Ihr Produkt stehen", knopf: "Partner werden",
     sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>' },
   en: { titel: "Efficient tools for accounting, administration and business IT", bereiche: ["Accounting", "Administration", "Business IT"],
-    eigen: "Product by robin.vision", partner: "Partner offer · Advertisement", platz: "Your product could be here", knopf: "Become a partner",
+    partner: "Partner offer · Advertisement", platz: "Your product could be here", knopf: "Become a partner",
     sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>' },
 };
 
@@ -36,7 +36,8 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
     && html.includes('data-bereich="alle" aria-pressed="true"'), "Filter: Alle, Rechnungswesen, Verwaltung, Business-IT");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");
   const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<h2/)?.[0] || "";
-  check(raster.includes('data-bereiche="rechnungswesen"') && raster.includes(`<p class="wz-kennz frei">${t.eigen}</p>`) && raster.includes(t.sf), "Karte SmartFormular: Kennzeichnung, Knopf zur Produktseite");
+  check(raster.includes('data-bereiche="rechnungswesen"') && raster.includes('<article class="wz-karte" data-bereiche="rechnungswesen">\n<p class="wz-kennz frei" aria-hidden="true">&nbsp;</p>') && raster.includes(t.sf), "Karte SmartFormular: ohne Kennzeichnung, Knopf zur Produktseite");
+  check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
   check(raster.includes('class="wz-karte wz-platzhalter" data-bereiche="alle"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes(`<p class="wz-kennz frei">${t.partner}</p>`) && raster.includes('href="#partner"'), "Platzhalter „Hier könnte Ihr Produkt stehen“ mit Kennzeichnung und Weg zum Formular");
   check(raster.includes('wz-frei" data-bereiche="verwaltung"') && raster.includes('wz-frei" data-bereiche="business-it"') && !raster.includes('wz-frei" data-bereiche="rechnungswesen"'), "freie Plätze für Verwaltung und Business-IT");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Anzeigen-Verweis");
@@ -72,7 +73,7 @@ for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
   check(anzahl(s, /<article class="wzs-karte/g) === 4 && anzahl(s, /<i( class="an")?><\/i>/g) === 4 && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: vier Karten, vier Punkte, zwei Pfeile`);
-  check(anzahl(s, new RegExp(`<p class="wzs-kennz">${t.eigen}</p>`, "g")) === 3 && s.includes(`<h3>${t.platz}</h3>`) && s.includes(`href="werkzeuge/${lang === "en" ? "en/" : ""}#partner"`), `${lang}: drei SmartFormular-Produkte und Platzhalter zu „Partner werden“`);
+  check(anzahl(s, /<p class="wzs-kennz" aria-hidden="true">&nbsp;<\/p>/g) === 3 && !/Produkt von robin\.vision|product by robin\.vision/i.test(s) && anzahl(s, new RegExp(`<p class="wzs-kennz">${t.partner}</p>`, "g")) === 1 && s.includes(`<h3>${t.platz}</h3>`) && s.includes(`href="werkzeuge/${lang === "en" ? "en/" : ""}#partner"`), `${lang}: drei SmartFormular-Produkte ohne Kennzeichnung, Platzhalter als Partnerangebot zu „Partner werden“`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
   check(s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#deklaration"`), `${lang}: FiBu und Deklaration führen zur Produktseite`);
 }

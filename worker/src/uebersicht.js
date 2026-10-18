@@ -35,7 +35,7 @@ const TEXT = {
     bereiche: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltung", "business-it": "Business-IT" },
     ueberblickTitel: "Werkzeuge im Überblick",
     ueberblickLead: "Eigene Produkte und ausgewählte Lösungen anderer Anbieter – von robin.vision geprüft, eingeführt und in den Workshops gezeigt. Partnerangebote sind als Anzeige gekennzeichnet.",
-    eigen: "Produkt von robin.vision", partner: "Partnerangebot · Anzeige",
+    partner: "Partnerangebot · Anzeige",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Einführung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen",
@@ -84,7 +84,7 @@ const TEXT = {
     bereiche: { rechnungswesen: "Accounting", verwaltung: "Administration", "business-it": "Business IT" },
     ueberblickTitel: "Tools at a glance",
     ueberblickLead: "Own products and selected solutions from other providers – tested, implemented and shown in the workshops by robin.vision. Partner offers are labelled as advertisements.",
-    eigen: "Product by robin.vision", partner: "Partner offer · Advertisement",
+    partner: "Partner offer · Advertisement",
     sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite is free; FiBu and Deklaration are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Implementation"], knopf: "To SmartFormular" },
     platzhalter: { logo: "Your logo", titel: "Your product could be here",
@@ -227,8 +227,9 @@ const SKRIPT = (lang, t, sfZiel) => `<script>
 function karten(lang, t, up) {
   const sfHref = up + SMARTFORMULAR_PFAD[lang].replace(/index\.html$/, "");
   const chips = liste => `<ul class="wz-chips">${liste.map(c => `<li>${esc(c)}</li>`).join("")}</ul>`;
+  // SmartFormular ohne Kennzeichnung („Produkt von robin.vision“ entfällt, Robin 18.10.2026); die leere Zeile hält die Karten in einer Flucht
   const sf = `<article class="wz-karte" data-bereiche="rechnungswesen">
-<p class="wz-kennz frei">${esc(t.eigen)}</p>
+<p class="wz-kennz frei" aria-hidden="true">&nbsp;</p>
 ${SF_LOGO}
 <h3>SmartFormular</h3>
 <p class="frei">${esc(t.sf.text)}</p>

@@ -31,7 +31,7 @@ for (const lang of ["de", "en"]) {
   check(html.includes(`<link rel="canonical" href="${smartformularUrl(lang)}">`) && ["de", "en"].every(l => html.includes(`hreflang="${l}" href="${smartformularUrl(l)}"`)), "canonical und hreflang beider Fassungen");
   check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: Werkzeuge aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
   check(html.includes(t.brotkrume) && html.indexOf(t.brotkrume) < html.indexOf("<h1"), "Brotkrume „Werkzeuge › SmartFormular“ über der Wortmarke");
-  check(/Ein Produkt von robin\.vision|A product by robin\.vision/.test(html), "Kennzeichnung: Produkt von robin.vision");
+  check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "ohne „Produkt von robin.vision“ (Robin, 18.10.2026)");
   check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 3 && (html.match(/class="sf-stand">/g) || []).length >= 3, "drei Produktkacheln mit Stand und Anker");
   const lite = WERKZEUGE.find(w => w.lang === lang), d = felder[lite.id].datei;
   check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "FiBu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
