@@ -24,7 +24,6 @@ const TEXT = {
     titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und Business-IT",
     seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT | robin.vision",
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT – ausgewählt, eingeführt und geschult von robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    abzeichen: "robin.vision · Auswahl · Einführung · Schulung",
     untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult von robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
     rolle: [
       ["Auswählen", "Ich prüfe Werkzeuge an Ihren Abläufen und empfehle, was passt – eigene Produkte und Lösungen von Partnern."],
@@ -45,14 +44,14 @@ const TEXT = {
     vergleichTitel: "Im Vergleich",
     vergleichLead: "Was die Werkzeuge leisten, wo die Daten liegen und wie sie sich an Ihr Programm anschließen.",
     ihrProdukt: "Ihr Produkt",
-    kriterien: { bereich: "Bereich", aufgabe: "Aufgabe", fuer: "Für wen", daten: "Daten", programme: "Programme", modell: "Sprach\u00ADmodell", stand: "Stand", einfuehrung: "Einführung und Schulung" },
+    kriterien: { bereich: "Bereich", aufgabe: "Aufgabe", fuer: "Für wen", daten: "Daten", programme: "Programme", modell: "Sprach\u00ADmodell" },
     vergleich: [
       { name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", bereich: "Rechnungswesen", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
-        daten: "Bleiben auf Ihrem Rechner", programme: "DATEV-Format", modell: "Nein", stand: "Kostenlos · verfügbar", einfuehrung: "Im Workshop gezeigt" },
+        daten: "Bleiben auf Ihrem Rechner", programme: "DATEV-Format", modell: "Nein" },
       { name: "FiBu", href: "werkzeuge/smartformular/#fibu", bereich: "Rechnungswesen", aufgabe: "Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten", fuer: "Sachbearbeitung in Kanzlei und Unternehmen",
-        daten: "Rechenzentren in der EU", programme: "DATEV und ADDISON zum Start, weitere folgen", modell: "Optional, EU, ohne Training", stand: "Beta · auf Anfrage", einfuehrung: "Einführung und Workshop" },
+        daten: "Rechenzentren in der EU", programme: "DATEV und ADDISON zum Start, weitere folgen", modell: "Optional, EU, ohne Training" },
       { name: "Deklaration", href: "werkzeuge/smartformular/#deklaration", bereich: "Jahresabschluss", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
-        daten: "Rechenzentren in der EU", programme: "Neben Ihrem Kanzleiprogramm", modell: "Optional, EU, ohne Training", stand: "Beta · auf Anfrage", einfuehrung: "Einführung und Workshop" },
+        daten: "Rechenzentren in der EU", programme: "Neben Ihrem Kanzleiprogramm", modell: "Optional, EU, ohne Training" },
     ],
     ihrBereich: "Verwaltung, Business-IT …",
     formTitel: "Partner werden",
@@ -73,7 +72,6 @@ const TEXT = {
     titel: "Efficient tools for accounting, administration and business IT",
     seitentitel: "Efficient tools and AI solutions for accounting, administration and business IT | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and business IT – selected, implemented and taught by robin.vision. With SmartFormular, a comparison and a partner programme.",
-    abzeichen: "robin.vision · Selection · Implementation · Training",
     untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and taught by robin.vision. I show many of them in the workshops using real cases.",
     rolle: [
       ["Select", "I test tools against your processes and recommend what fits – my own products and partner solutions."],
@@ -94,14 +92,14 @@ const TEXT = {
     vergleichTitel: "Comparison",
     vergleichLead: "What the tools do, where the data is kept and how they connect to your software.",
     ihrProdukt: "Your product",
-    kriterien: { bereich: "Area", aufgabe: "Task", fuer: "For whom", daten: "Data", programme: "Software", modell: "Language model", stand: "Status", einfuehrung: "Implementation and training" },
+    kriterien: { bereich: "Area", aufgabe: "Task", fuer: "For whom", daten: "Data", programme: "Software", modell: "Language model" },
     vergleich: [
       { name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", bereich: "Accounting", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
-        daten: "Stays on your computer", programme: "DATEV format", modell: "No", stand: "Free · available", einfuehrung: "Shown in the workshop" },
+        daten: "Stays on your computer", programme: "DATEV format", modell: "No" },
       { name: "FiBu", href: "werkzeuge/smartformular/en/#fibu", bereich: "Accounting", aufgabe: "Post bank, payables and receivables, linked to open items", fuer: "Accounting staff in firms and companies",
-        daten: "Data centres in the EU", programme: "DATEV and ADDISON at launch, more to follow", modell: "Optional, EU, no training", stand: "Beta · on request", einfuehrung: "Implementation and workshop" },
+        daten: "Data centres in the EU", programme: "DATEV and ADDISON at launch, more to follow", modell: "Optional, EU, no training" },
       { name: "Deklaration", href: "werkzeuge/smartformular/en/#deklaration", bereich: "Year-end accounts", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
-        daten: "Data centres in the EU", programme: "Alongside your firm's software", modell: "Optional, EU, no training", stand: "Beta · on request", einfuehrung: "Implementation and workshop" },
+        daten: "Data centres in the EU", programme: "Alongside your firm's software", modell: "Optional, EU, no training" },
     ],
     ihrBereich: "Administration, business IT …",
     formTitel: "Become a partner",
@@ -123,8 +121,7 @@ const TEXT = {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const SF_LOGO = `<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>`;
 
-const CSS = `.abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 14px; border: 1px solid var(--copper); border-radius: 999px; font: 500 12px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--copper); }
-.wz .frei { text-align: left; hyphens: manual; }
+const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-rolle { list-style: none; margin: 26px 0 30px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .wz-rolle li { margin: 0; max-width: none; padding: 16px 18px 16px 0; text-align: left; }
 .wz-rolle li + li { padding-left: 18px; border-left: 1px solid var(--line); }
@@ -261,7 +258,8 @@ ${chips(t.platzhalter.chips)}
   return [sf, ...partner, platz, ...freie].join("\n");
 }
 
-// Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“
+// Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“;
+// Zeilen „Stand“ und „Einführung und Schulung“ entfallen seit 18.10.2026 (Robin)
 function vergleich(lang, t, up) {
   const spalten = [...t.vergleich.map(v => ({ ...v, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
     ...PARTNER.filter(p => p.vergleich && p.vergleich[lang]).map(p => ({ ...p.vergleich[lang], name: p.name, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
@@ -287,7 +285,6 @@ export function werkzeugeUebersicht(lang) {
   const sfZiel = lang === "en" ? "../smartformular/en/" : "smartformular/";
   const filter = `<div class="wz-filter" role="group" aria-label="${esc(t.filterLabel)}"><button type="button" data-bereich="alle" aria-pressed="true">${esc(t.alle)}</button>${BEREICHE.map(b => `<button type="button" data-bereich="${b}" aria-pressed="false">${esc(t.bereiche[b])}</button>`).join("")}</div>`;
   const main = `<article class="wz">
-<p class="abzeichen">${esc(t.abzeichen)}</p>
 <h1>${esc(t.titel).replace(/Business[- ]IT/, m => `<span class="wz-nb">${m}</span>`)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
 <ol class="wz-rolle">

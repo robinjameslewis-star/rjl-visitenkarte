@@ -31,6 +31,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(html === werkzeugeUebersicht(lang), "Seite im Repository entsteht genau aus dem Modul");
   check(html.includes(`<html lang="${lang}">`) && html.includes(`<h1>${t.titel.replace(/Business[- ]IT/, m => `<span class="wz-nb">${m}</span>`)}</h1>`) && html.includes(`<link rel="canonical" href="${uebersichtUrl(lang)}">`), "Sprache, Überschrift, canonical");
   check(html.includes(t.nav), "Kopf: Menüpunkt Werkzeuge aktiv");
+  check(!html.includes('class="abzeichen"') && html.indexOf("<h1>") < html.indexOf('class="untertitel"') && html.indexOf('<article class="wz">\n<h1>') > 0, "Seite beginnt mit der Überschrift, ohne Abzeichen (Robin, 18.10.2026)");
   check(anzahl(html.match(/<ol class="wz-rolle">[\s\S]*?<\/ol>/)?.[0] || "", /<li>/g) === 3, "Drei Schritte: Auswählen, Einführen, Schulen");
   check(BEREICHE.join() === "rechnungswesen,verwaltung,business-it" && BEREICHE.every((b, i) => html.includes(`<button type="button" data-bereich="${b}" aria-pressed="false">${t.bereiche[i]}</button>`))
     && html.includes('data-bereich="alle" aria-pressed="true"'), "Filter: Alle, Rechnungswesen, Verwaltung, Business-IT");
@@ -42,7 +43,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(raster.includes('wz-frei" data-bereiche="verwaltung"') && raster.includes('wz-frei" data-bereiche="business-it"') && !raster.includes('wz-frei" data-bereiche="rechnungswesen"'), "freie Plätze für Verwaltung und Business-IT");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Anzeigen-Verweis");
   const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
-  check(anzahl(tabelle, /<th scope="col"/g) === 5 && anzahl(tabelle, /<tr><th scope="row">/g) === 8 && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: drei Werkzeuge, „Ihr Produkt“, acht Kriterien, Weg zum Formular");
+  check(anzahl(tabelle, /<th scope="col"/g) === 5 && anzahl(tabelle, /<tr><th scope="row">/g) === 6 && !/>(Stand|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: drei Werkzeuge, „Ihr Produkt“, sechs Kriterien (ohne Stand, Einführung und Schulung), Weg zum Formular");
   check(html.indexOf('id="ueberblick"') < html.indexOf('id="vergleich"') && html.indexOf('id="vergleich"') < html.indexOf('id="workshops-hinweis"') && html.indexOf('id="workshops-hinweis"') < html.indexOf('id="partner"'), "Reihenfolge: Überblick, Vergleich, Workshops, Partner werden");
   const form = html.match(/<form class="wz-form wz-kasten" id="partner-anfrage"[\s\S]*?<\/form>/)?.[0] || "";
   check(["firma", "name", "email", "produkt", "bereich", "nachricht", "website"].every(n => form.includes(`name="${n}"`)) && form.includes('tabindex="-1"') && form.includes('role="status"'), "Formular „Partner werden“: Felder, Falle, Statuszeile");
