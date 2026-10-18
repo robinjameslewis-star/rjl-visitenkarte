@@ -1,5 +1,6 @@
 // Übersicht „Werkzeuge“ (werkzeuge/index.html, englisch werkzeuge/en/index.html; Robin, 18.10.2026): die Sparte von robin.vision als
-// Berater, Coach und Vertriebspartner von Softwarelösungen – Analysieren, Schulen, Weiterentwickeln –, alle Werkzeuge als gleichrangige
+// Berater, Coach und Vertriebspartner von Softwarelösungen (die drei Schritte stehen seit 18.10.2026 bei den Workshops: Partner sollen
+// nicht den Eindruck bekommen, jede Anfrage zu ihren Produkten laufe über robin.vision), alle Werkzeuge als gleichrangige
 // Karten ohne Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026: SmartFormular ist ein Beispiel unter vielen
 // Lösungen; rechtliche Fragen regeln die AGB, auf der Seite keine Kennzeichnung; Partnerverweise tragen rel="sponsored"), ohne Aufteilung nach
 // Bereichen (Robin, 18.10.2026: viele Partner bieten alles aus einer Hand; die Bereiche beschreiben nur das Angebot), ein
@@ -22,15 +23,8 @@ const TEXT = {
   de: {
     titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
     seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse | robin.vision",
-    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – mit robin.vision Abläufe analysieren, Teams schulen und Bewährtes weiterentwickeln. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    untertitel: "Software und KI-Lösungen, die im Alltag tragen – mit robin.vision Abläufe analysieren, Teams schulen und Bewährtes weiterentwickeln. Viele davon zeige ich in den Workshops an echten Fällen.",
-    rolle: [
-      // Drei Schritte (Robin, 18.10.2026): Analysieren · Schulen · Weiterentwickeln statt Auswählen · Einführen · Schulen; die
-      // Hemmschwelle soll gering sein – die Analyse kann ein Gespräch sein, im Workshop entstehen Ansätze und Hemmschwellen fallen
-      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen."],
-      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Ihren eigenen Fällen. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
-      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter."],
-    ],
+    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
+    untertitel: "Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
     ueberblickTitel: "Werkzeuge im Überblick",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
@@ -85,13 +79,8 @@ const TEXT = {
   en: {
     titel: "Efficient tools for accounting, administration and other business processes",
     seitentitel: "Efficient tools and AI solutions for accounting, administration and other business processes | robin.vision",
-    beschr: "Software and AI solutions for accounting, administration and other business processes – analyse your processes, train your team and build on what works, with robin.vision. With SmartFormular, a comparison and a partner programme.",
-    untertitel: "Software and AI solutions that hold up in daily work – analyse your processes, train your team and build on what works, with robin.vision. I show many of them in the workshops using real cases.",
-    rolle: [
-      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes and of the software and AI you already use."],
-      ["Train", "In the workshop we develop ways to improve your processes together, using your own cases – and overcome any hesitation about working with AI."],
-      ["Develop", "We build step by step on what works in practice – your processes, rules and templates evolve with your team."],
-    ],
+    beschr: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision. With SmartFormular, a comparison and a partner programme.",
+    untertitel: "Software and AI solutions that hold up in daily work – presented and compared on robin.vision. I show many of them in the workshops using real cases.",
     ueberblickTitel: "Tools at a glance",
     sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite is free; FiBu and Deklaration are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
@@ -147,13 +136,6 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const SF_LOGO = `<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>`;
 
 const CSS = `.wz .frei { text-align: left; hyphens: manual; }
-.wz-rolle { list-style: none; margin: 26px 0 30px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.wz-rolle li { margin: 0; max-width: none; padding: 16px 18px 16px 0; text-align: left; }
-.wz-rolle li + li { padding-left: 18px; border-left: 1px solid var(--line); }
-.wz-rolle .nr { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; color: var(--copper); }
-.wz-rolle strong { display: block; font: 500 20px/1.3 var(--serif); color: var(--green); margin: 2px 0 4px; }
-.wz-rolle .was { display: block; font-size: 15px; color: var(--ink-soft); }
-.wz-filter button { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; font: 400 14px/1.4 var(--sans); color: var(--ink-soft); background: rgba(255,255,255,.5); cursor: pointer; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
 .wz-raster { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 10px 0 18px; }
 .wz-karte { margin: 0; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.55); display: flex; flex-direction: column; }
@@ -194,8 +176,6 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-form .status.ok { color: var(--green); } .wz-form .status.warn { color: #A63D2F; }
 .wz-form .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 @media (max-width: 720px) {
-  .wz-rolle { grid-template-columns: 1fr; }
-  .wz-rolle li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
   .wz-raster, .wz-form .reihe { grid-template-columns: 1fr; }
   .wz-tabelle { min-width: 620px; }
 }
@@ -297,9 +277,6 @@ export function werkzeugeUebersicht(lang) {
   const main = `<article class="wz">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
-<ol class="wz-rolle">
-${t.rolle.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
-</ol>
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 <div class="wz-raster">
 ${karten(lang, t, up)}

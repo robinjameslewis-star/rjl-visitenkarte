@@ -31,7 +31,7 @@ for (const s of WORKSHOPS) {
   check(html.includes(`<link rel="canonical" href="${workshopsUrl(s.lang)}">`) && WORKSHOPS.every(a => html.includes(`hreflang="${a.lang}" href="${workshopsUrl(a.lang)}"`)), "canonical und hreflang beider Fassungen");
   check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: Workshops aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
   check((html.match(/<section class="teil">/g) || []).length === 3, "drei Teile");
-  check((html.match(/<li><span class="nr">0\d<\/span>/g) || []).length === 7, "sieben Kapitel");
+  check((((html.match(/<ol class="kapitel">[\s\S]*?<\/ol>/) || [""])[0]).match(/<li><span class="nr">0\d<\/span>/g) || []).length === 7, "sieben Kapitel");
   check(t.formate.every(f => html.includes(`<h3>${f}</h3>`)) && (html.match(new RegExp(`<p class="preis frei">${t.preis}</p>`, "g")) || []).length === 2 && (html.match(/<section class="format">/g) || []).length === 2, "zwei Formate, Preis auf Anfrage");
   check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b|"price"/.test(html), "keine Preise auf der Seite (auf Anfrage)", (html.match(/.{0,30}(?:\d ?€|€ ?\d|EUR|"price").{0,30}/) || [""])[0]);
   check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 5, "Ablauf in fünf Schritten");
@@ -50,6 +50,8 @@ for (const s of WORKSHOPS) {
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
   check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "Course" && ld[0].hasCourseInstance.length === 2 && ld[0].hasCourseInstance.every(c => !c.offers) && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 8, "JSON-LD: Course mit zwei Durchführungen und FAQPage mit acht Fragen");
   check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 8, "acht Fragen sichtbar");
+  const schritte = (html.match(/<ol class="schritte">[\s\S]*?<\/ol>/) || [""])[0];
+  check((schritte.match(/<li>/g) || []).length === 3 && (s.lang === "en" ? ["Analyse", "Train", "Develop"] : ["Analysieren", "Schulen", "Weiterentwickeln"]).every((w, i) => schritte.includes(`<span class="nr">0${i + 1}</span><strong>${w}</strong>`)) && /unverbindliches Gespräch|no-obligation call/.test(schritte) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="teile"'), "Drei Schritte der Zusammenarbeit vor den drei Teilen, Einstieg mit unverbindlichem Gespräch (Robin, 18.10.2026)");
   const werkzeuge = (html.match(/<h2 id="werkzeuge">[\s\S]*?<h2 id="formate">/) || [""])[0];
   check(!/Partnerangebot|partner offer|Anzeige|Advertisement|eigene Produkte|own products/i.test(werkzeuge) && /SmartFormular FiBu lite/.test(werkzeuge) && (PARTNER.length ? (werkzeuge.match(/rel="sponsored noopener"/g) || []).length === PARTNER.length : /stelle ich hier vor|present further tools here/.test(werkzeuge)), "Werkzeuge im Workshop: verschiedene Anbieter ohne Unterscheidung und ohne Kennzeichnung, Partnerverweise mit rel=sponsored (Robin, 18.10.2026)");
   check(PARTNER.every(p => p.id && p.name && p.anbieter && /^https:\/\//.test(p.url) && ["gebuehr", "provision", "beides"].includes(p.verguetung) && p.text && p.text.de), "Partnerliste vollständig (Name, Anbieter, https-Adresse, Vergütungsart, Text)");
