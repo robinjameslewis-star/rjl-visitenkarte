@@ -260,6 +260,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .partner li { padding: 14px 0; border-top: 1px solid var(--line); max-width: none; text-align: left; }
 .partner li:last-child { border-bottom: 1px solid var(--line); }
 .partner .kennzeichnung { display: inline-block; margin: 0 10px 4px 0; padding: 2px 8px; border: 1px solid var(--line); border-radius: 3px; font: 500 11px/1.6 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); }
+.partner .kennzeichnung a { color: inherit; text-decoration: underline dotted; text-underline-offset: .2em; } .partner .kennzeichnung span { text-transform: none; letter-spacing: .02em; }
 .partner p { margin: 4px 0 0; font-size: 15px; color: var(--ink-soft); max-width: none; text-align: left; }
 .formate { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 0 0 14px; }
 .format { padding: 22px 20px 18px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); display: flex; flex-direction: column; }
@@ -365,7 +366,7 @@ ${t.kapitel.map(([titel, was, min], i) => `<li><span class="nr">0${i + 1}</span>
 </ol>
 <h2 id="werkzeuge">${esc(t.werkzeugeTitel)}</h2>
 ${t.werkzeuge.map(p => `<p>${esc(p)}</p>`).join("\n")}
-${partnerListe(lang, t)}
+${partnerListe(lang, t, up)}
 <h2 id="formate">${esc(t.formateTitel)}</h2>
 <p>${esc(t.formateLead)}</p>
 <div class="formate">

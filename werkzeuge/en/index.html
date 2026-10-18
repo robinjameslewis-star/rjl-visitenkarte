@@ -109,6 +109,11 @@ article li { margin-bottom: 6px; }
 .wz-karte > p:last-child { margin-top: auto; margin-bottom: 0; }
 .wz-logo { width: max-content; height: 44px; padding: 0 16px; display: flex; align-items: center; margin: 0 0 14px; border: 1px dashed var(--line); border-radius: 4px; font: 500 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,.6); }
 .wz-logo img { max-height: 32px; width: auto; }
+.wz-karte .wz-kennz { margin: 0 0 12px; font: 500 11px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
+.wz-th-kennz { display: block; margin: 0 0 8px; font: 500 10.5px/1.5 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); }
+.wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: underline dotted; text-underline-offset: .2em; }
+.wz-kennz span, .wz-th-kennz span { text-transform: none; letter-spacing: .02em; }
+.wz-th-kennz { hyphens: manual; } .wz-th-kennz span { white-space: nowrap; }
 .wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 15px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
 .wz-platzhalter { border: 1.5px dashed var(--copper); }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
@@ -163,6 +168,7 @@ article li { margin-bottom: 6px; }
 <h2 id="ueberblick">Tools at a glance</h2>
 <div class="wz-raster">
 <article class="wz-karte">
+<p class="wz-kennz"><a href="../../?lang=en#anzeigen">Ad</a> · <span>robin.vision</span></p>
 <span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
 <h3>SmartFormular</h3>
 <p class="frei">Forms that work with you – for the days when the process stalls. FiBu lite is free; FiBu and Deklaration are coming as a beta.</p>
@@ -182,7 +188,7 @@ article li { margin-bottom: 6px; }
 <div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
 <colgroup><col class="wz-kriterium"><col><col><col><col></colgroup>
-<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite<span class="wz-th-stand">As of 10/2026</span></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu<span class="wz-th-stand">As of 10/2026</span></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration<span class="wz-th-stand">As of 10/2026</span></th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Your logo</span>Your product</th></tr></thead>
+<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-kennz"><a href="../../?lang=en#anzeigen">Ad</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite<span class="wz-th-stand">As of 10/2026</span></th><th scope="col"><span class="wz-th-kennz"><a href="../../?lang=en#anzeigen">Ad</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu<span class="wz-th-stand">As of 10/2026</span></th><th scope="col"><span class="wz-th-kennz"><a href="../../?lang=en#anzeigen">Ad</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration<span class="wz-th-stand">As of 10/2026</span></th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Your logo</span>Your product</th></tr></thead>
 <tbody>
 <tr><th scope="row">Task</th><td>Bank statements into booking batches</td><td>Post bank, payables and receivables, linked to open items</td><td>Working paper that thinks ahead and does the groundwork</td><td class="wz-frei-spalte">Your solution – including all-in-one suites</td></tr>
 <tr><th scope="row">For whom</th><td>Firms and companies</td><td>Accounting staff in firms and companies</td><td>Accounting firms</td><td class="wz-frei-spalte"></td></tr>

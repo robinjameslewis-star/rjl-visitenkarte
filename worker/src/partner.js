@@ -1,11 +1,13 @@
 // Partnerangebote (Robin, 17.10.2026): Produkte befreundeter Unternehmen und Geschäftspartner, die robin.vision gegen eine
 // monatliche Gebühr und/oder Umsatzprovision auf der Website vorstellt und – sobald eine Partnervereinbarung geschlossen ist – in
-// Workshops und Schulungsunterlagen als Beispiele für KI-Werkzeuge zeigt. Auf der Website keine sichtbare Kennzeichnung und keine
-// Unterscheidung zu eigenen Produkten; rechtliche Fragen regeln die AGB (Robin, 18.10.2026). Verweise tragen rel="sponsored".
-// Offen: Vor dem ersten bezahlten Partner prüfen, ob gegenüber Besuchern eine Kennzeichnung nötig ist (§ 5a Abs. 4 UWG, § 6 DDG). Die Liste bleibt leer, bis die erste
-// Vereinbarung steht; dann je Partner ein Eintrag, und die Seiten werden neu gebaut (tools/workshops-bauen.mjs).
+// Workshops und Schulungsunterlagen als Beispiele für KI-Werkzeuge zeigt. Keine Unterscheidung zu eigenen Produkten (Robin, 18.10.2026).
+// Kennzeichnung (Robin, 18.10.2026, Option C): jedes Werkzeug – SmartFormular wie Partner – trägt dasselbe kleine „Anzeige · Anbieter“
+// (kennzeichen unten), das zur Erläuterung im Impressum führt (index.html, #anzeigen); Verweise zu Anbietern tragen rel="sponsored".
+// Deshalb stehen unter „Werkzeuge“ nur Werkzeuge, die robin.vision selbst anbietet oder für deren Vorstellung es vergütet wird.
+// Die Liste bleibt leer, bis die erste Vereinbarung steht; dann je Partner ein Eintrag, und die Seiten werden neu gebaut
+// (tools/werkzeug-uebernehmen.mjs, tools/workshops-bauen.mjs).
 export const PARTNER = [
-  // { id: "beispiel", name: "Produktname", anbieter: "Firma GmbH, Ort", url: "https://…", verguetung: "gebuehr" | "provision" | "beides", seit: "2027-01-01",
+  // { id: "beispiel", name: "Produktname", anbieter: "Firma GmbH" (kurz, steht am Kennzeichen), url: "https://…", verguetung: "gebuehr" | "provision" | "beides", seit: "2027-01-01",
   //   logo: "assets/partner/….svg", seite: "produkt" (eigene Produktseite unter werkzeuge/<seite>/), vergleich: { de: {…}, en: {…} } (Spalte im Vergleich,
   //   je Sprache die Felder aus dem Vergleichsbogen: stand "MM/JJJJ", aufgabe, fuer, daten (Betrieb und Datenstandort), sitz, ki (wofür, Modell
   //   und Ort, Training mit Kundendaten), schnittstellen, preis (Preismodell, „ab“, Test), nachweise – kurze Tatsachen, keine Werbesätze),
@@ -14,8 +16,17 @@ export const PARTNER = [
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// Kennzeichen an jedem Werkzeug: „Anzeige“ (Verweis auf die Erläuterung) und der Anbieter
+export const ROBIN_VISION = "robin.vision";
+export const ANZEIGE = { de: "Anzeige", en: "Ad" };
+export const KENNZ_CSS = `.kennz { margin: 0 0 12px; font: 500 11px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
+.kennz a { color: inherit; text-decoration: underline dotted; text-underline-offset: .2em; } .kennz span { text-transform: none; letter-spacing: .02em; }`;
+export const anzeigeHref = (lang, up) => `${up}${lang === "en" ? "?lang=en" : ""}#anzeigen`;
+export const kennzeichen = (lang, href, anbieter, klasse) =>
+  `<p class="${klasse}"><a href="${esc(href)}">${ANZEIGE[lang]}</a> · <span>${esc(anbieter)}</span></p>`;
+
 // Liste der Partnerangebote für eine Seite – leer: der Hinweis, dass Partnerangebote folgen
-export function partnerListe(lang, t) {
+export function partnerListe(lang, t, up) {
   if (!PARTNER.length) return `<p class="hinweis">${esc(t.partnerHinweis)}</p>`;
-  return `<ul class="partner">${PARTNER.map(p => `<li><a href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(p.name)}</a> · ${esc(p.anbieter)}<p>${esc(p.text[lang] || p.text.de)}</p></li>`).join("\n")}</ul>`;
+  return `<ul class="partner">${PARTNER.map(p => `<li>${kennzeichen(lang, anzeigeHref(lang, up), p.anbieter, "kennzeichnung")}<a href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(p.name)}</a><p>${esc(p.text[lang] || p.text.de)}</p></li>`).join("\n")}</ul>`;
 }

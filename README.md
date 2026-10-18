@@ -609,8 +609,8 @@ zu einer Nachricht, Bot-Falle `website`, Ladezeitpunkt `t`), strukturierte Daten
 „Workshops“ im Seitenkopf (`worker/src/kopf.js`) vor „Über mich“, Abschnitt auf der Startseite zwischen SmartFormular und Über mich,
 Einträge in `sitemap.xml` (`worker/src/sitemap.js`, SEITEN) und in Gochs Linkliste (`worker/links.md`, Kennung `workshops`); Abschnitt „Werkzeuge im Workshop“ mit
 Partnerangeboten aus `worker/src/partner.js` (Produkte befreundeter Unternehmen gegen Gebühr oder Provision; Liste leer bis zur
-ersten Vereinbarung; jede Vorstellung als „Partnerangebot · Anzeige“ gekennzeichnet, Verweise mit `rel="sponsored"`; die AGB des
-Memberbereichs regeln die Produktplatzierung in § 8). Gochs
+ersten Vereinbarung; Kennzeichnung wie alle Werkzeuge, siehe unten, Verweise mit `rel="sponsored"`; die AGB des
+Memberbereichs regeln Vorstellungen in Workshops und Unterlagen in § 8). Gochs
 Profil (`worker/profile.md`) kennt das Angebot und bietet es aktiv an. Die Durchführung läuft im Memberbereich (Repository
 `robin-vision-member`, App `schulung`, dort im Portal „Coachings“). Prüfung: `node tests/workshops_seite_test.mjs`.
 
@@ -628,6 +628,17 @@ Deklaration (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `
 kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von FiBu lite trägt den Abschnitt „Was kommt“ mit dem Ausblick.
 Gochs Linkliste kennt `smartformular-fibu` und `smartformular-deklaration` (Anker auf der Übersicht). Prüfung:
 `node tests/werkzeug_seite_test.mjs`, `node tests/goch_werkzeuge_test.mjs`.
+
+## Kennzeichen „Anzeige“ an allen Werkzeugen (18.10.2026)
+
+Robin, 18.10.2026 (Option C aus der Vault-Notiz „Partnerangebote und Produktplatzierung“, Abschnitt 6): Jedes Werkzeug trägt dasselbe
+kleine Kennzeichen „Anzeige · Anbieter“ (englisch „Ad“) – SmartFormular („Anzeige · robin.vision“) wie jeder Partner, ohne
+Unterscheidung. Es steht auf den Karten der Übersicht und des Startseiten-Sliders, im Kopf jeder Spalte des Vergleichs, auf den
+Produktseiten (SmartFormular, FiBu lite) und an Partnerangeboten der Seite „Workshops“; der Platzhalter „Hier könnte Ihr Produkt
+stehen“ und die Spalte „Ihr Produkt“ tragen keins. „Anzeige“ verweist auf den Absatz `#anzeigen` im Impressum (index.html, DE und
+`legalAds` in language.js), ein kleines Skript in index.html klappt das Impressum dabei auf. Bausteine in `worker/src/partner.js`
+(`kennzeichen`, `anzeigeHref`, `KENNZ_CSS`). Deshalb stehen unter „Werkzeuge“ nur Werkzeuge, die robin.vision selbst anbietet oder für
+deren Vorstellung es vergütet wird. Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
 
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 

@@ -47,6 +47,7 @@
       book: 'Termin vorschlagen', bookHint: ' – öffnet den Kalender in einem neuen Tab.',
       legalTitle: 'Impressum · Datenschutz',
       legalMstv: 'Verantwortlich für die Inhalte nach § 18 Abs. 2 MStV: Robin James Lewis, Anschrift wie oben.',
+      legalAds: 'Anzeigen: Werkzeuge mit dem Kennzeichen „Anzeige“ stellt robin.vision zu Werbezwecken vor. Anbieter ist robin.vision selbst, ein Unternehmen, an dem Robin James Lewis beteiligt ist, oder ein anderes Unternehmen, das robin.vision für die Vorstellung vergütet (Gebühr oder Provision aus vermittelten Umsätzen). Der Anbieter steht jeweils neben dem Kennzeichen; Verträge über ein Werkzeug schließen Sie mit dem Anbieter.',
       description: 'Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.',
       title: 'robin.vision – Werkzeuge und Workshops zur KI-Kompetenz',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
@@ -123,6 +124,7 @@
       book: 'Suggest a time', bookHint: ' — opens the calendar in a new tab.',
       legalTitle: 'Legal notice · Privacy',
       legalMstv: 'Responsible for content under § 18(2) MStV (German Interstate Media Treaty): Robin James Lewis, address as above.',
+      legalAds: 'Advertising: tools marked “Ad” are presented by robin.vision for advertising purposes. The provider is robin.vision itself, a company in which Robin James Lewis has a stake, or another company that pays robin.vision to present its tool (a fee or a commission on sales referred). The provider is named next to the label; any contract for a tool is made with its provider.',
       description: 'Tools for everyday work in accounting, administration and other business processes – including SmartFormular, FiBu lite free. Workshops with EU AI Act training for companies, accounting firms and organisations. A new post every Friday.',
       title: 'robin.vision – Tools and AI literacy workshops',
       claim: 'In the middle of the transformation: tools for everyday work in accounting, administration and other business processes, and workshops for teams that want to use AI safely – with EU AI Act training.',
