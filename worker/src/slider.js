@@ -16,7 +16,7 @@ const TEXT = {
       { name: "FiBu", text: "Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.", bereich: "Rechnungswesen", href: "werkzeuge/smartformular/#fibu" },
       { name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#deklaration" },
     ],
-    platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen", text: "Ihre Lösung für Rechnungswesen, Verwaltung oder Business-IT – vorgestellt, eingeführt und in Workshops gezeigt.",
+    platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen", text: "Ihre Lösung für Rechnungswesen, Verwaltung oder Business-IT – vorgestellt auf der Website, in Workshops und auf Fachmessen.",
       bereich: "Partner", knopf: "Partner werden", href: "werkzeuge/#partner" } },
   en: { label: "Tools", rolle: "Carousel", zurueck: "Previous", weiter: "Next", partner: "Partner offer · Advertisement",
     zumProdukt: "To the product", zumAnbieter: "To the provider",
@@ -25,7 +25,7 @@ const TEXT = {
       { name: "FiBu", text: "Post bank, payables and receivables – linked to your open items.", bereich: "Accounting", href: "werkzeuge/smartformular/en/#fibu" },
       { name: "Deklaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#deklaration" },
     ],
-    platzhalter: { logo: "Your logo", titel: "Your product could be here", text: "Your solution for accounting, administration or business IT – presented, implemented and shown in workshops.",
+    platzhalter: { logo: "Your logo", titel: "Your product could be here", text: "Your solution for accounting, administration or business IT – presented on the website, in workshops and at trade fairs.",
       bereich: "Partner", knopf: "Become a partner", href: "werkzeuge/en/#partner" } },
 };
 const BEREICH = { de: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltung", "business-it": "Business-IT" },
