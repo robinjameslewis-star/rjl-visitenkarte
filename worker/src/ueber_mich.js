@@ -17,13 +17,14 @@ export const ueberMichUrl = lang => SITE + UEBER_MICH.find(s => s.lang === lang)
 const TEXT = {
   de: {
     titel: "Über mich",
-    beschr: "Robin James Lewis aus Balingen: vom Handel über die Verwaltungsleitung eines Kulturzentrums zum Steuerfachangestellten. Werkzeuge für den Alltag im Rechnungswesen, Ehrenamt, LinkedIn.",
+    beschr: "Robin James Lewis aus Balingen: vom Handel über die Verwaltungsleitung eines Kulturzentrums zum Steuerfachangestellten. Werkzeuge und Workshops unter robin.vision, Ehrenamt, LinkedIn.",
     meta: "Robin James Lewis · Balingen",
     alt: "Robin James Lewis, Porträt",
     beruf: "Steuerfachangestellter in Ausbildung",
     einleitung: [
       "Ich bin Robin James Lewis aus Balingen am Fuß der Schwäbischen Alb. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Kanzlei in Balingen. Die Abschlussprüfung läuft im Winter 2026/27.",
-      "Nebenher digitalisiere ich Kanzleiprozesse: Belege und Bankumsätze kommen über Importe statt von Hand in die Buchhaltung, Vorsysteme werden angebunden, Auswertungen entstehen per Skript. Dabei entstehen Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun. <a href=\"{werkzeuge}\">Diese Werkzeuge</a> stelle ich hier kostenlos bereit; dazu schreibe ich jeden Freitag einen <a href=\"{impulse}\">Impuls</a> zu Automatisierung und KI im Rechnungswesen.",
+      "Nebenher digitalisiere ich Kanzleiprozesse: Belege und Bankumsätze kommen über Importe statt von Hand in die Buchhaltung, Vorsysteme werden angebunden, Auswertungen entstehen per Skript. Dabei entstehen Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.",
+      "Unter robin.vision stelle ich solche <a href=\"{werkzeuge}\">Werkzeuge</a> vor – eigene wie SmartFormular, dessen FiBu lite kostenlos ist, und ausgewählte Lösungen anderer Anbieter. Ab 2027 wähle ich mit Kanzleien und Unternehmen das Passende aus, führe es ein und schule die Teams, auch in <a href=\"{workshops}\">Workshops</a> zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag schreibe ich einen <a href=\"{impulse}\">Impuls</a> zu Automatisierung und KI im Rechnungswesen.",
     ],
     stationenTitel: "Stationen",
     stationen: [
@@ -34,8 +35,15 @@ const TEXT = {
       ["Abschlüsse", "Fachhochschulreife (2007), Ausbildereignungsprüfung der IHK (2017), Vorbereitungskurs DATEV Kanzlei-Rechnungswesen mit Abschluss „sehr gut“ (2023)."],
     ],
     kenntnisseTitel: "Womit ich arbeite",
-    marken: ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON", "Finmatics", "GetMyInvoices", "Lexware Office", "SAP ERP", "Python", "Copilot · Claude"],
-    kenntnisse: "Für Automatisierung und Schnittstellen Python, dazu Sprachmodelle wie Copilot und Claude – nach einer festen Regel: Die Modelle bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.",
+    // Gruppen statt einzelner Marken (Robin, 18.10.2026): Vorsysteme allgemein statt einzelner Anbieter; die Sprachmodelle, die Robin
+    // nutzt, alphabetisch und ohne Rangfolge (Giotto.ai aus Lausanne)
+    gruppen: [
+      ["Rechnungswesen und Lohn", ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON"]],
+      ["Vorsysteme", ["Automatische Belegerfassung", "Belegabruf aus Portalen (Autofetching)", "Importe und Schnittstellen"]],
+      ["Im Unternehmen", ["SAP ERP", "Lexware Office"]],
+      ["Automatisierung und KI", ["Python", "ChatGPT", "Claude", "Copilot", "Gemini", "Giotto.ai"]],
+    ],
+    kenntnisse: "Python nutze ich für Automatisierung und Schnittstellen, Sprachmodelle je nach Aufgabe und nach einer festen Regel: Sie bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.",
     ehrenamtTitel: "Ehrenamt",
     ehrenamt: "Ehrenamtlicher Richter am Verwaltungsgericht Sigmaringen. Zwei Kulturvereine habe ich als Gründungsschatzmeister mit aufgebaut; ich unterstütze Vereine bei Satzung, Gemeinnützigkeit, Buchhaltung und Förderanträgen.",
     vogelTitel: "Warum ein Rotkehlchen",
@@ -46,13 +54,14 @@ const TEXT = {
   },
   en: {
     titel: "About me",
-    beschr: "Robin James Lewis from Balingen, Germany: from retail via running the administration of a cultural centre to certified tax clerk. Tools for everyday accounting work, voluntary work, LinkedIn.",
+    beschr: "Robin James Lewis from Balingen, Germany: from retail via running the administration of a cultural centre to certified tax clerk. Tools and workshops under robin.vision, voluntary work, LinkedIn.",
     meta: "Robin James Lewis · Balingen, Germany",
     alt: "Robin James Lewis, portrait",
     beruf: "Trainee tax clerk",
     einleitung: [
       "I am Robin James Lewis from Balingen at the foot of the Swabian Alb in southern Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. The final examinations take place in the winter of 2026/27.",
-      "Alongside, I digitise the firm's processes: documents and bank transactions reach the books through imports instead of by hand, upstream systems are connected, reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the middle of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work. I make <a href=\"{werkzeuge}\">these tools</a> available here free of charge, and every Friday I write a <a href=\"{impulse}\">short piece</a> on automation and AI in accounting.",
+      "Alongside this, I digitise the firm's processes: receipts and bank transactions reach the books through imports rather than by hand, upstream systems are connected, and reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the thick of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work.",
+      "Under robin.vision I present such <a href=\"{werkzeuge}\">tools</a> – my own, such as SmartFormular, whose FiBu lite is free, and selected solutions from other providers. From 2027 I will help firms and companies choose what fits, implement it and train their teams, including in <a href=\"{workshops}\">workshops</a> on AI literacy with EU AI Act training. Every Friday I write a <a href=\"{impulse}\">Food for Thought</a> post on automation and AI in accounting.",
     ],
     stationenTitel: "Career",
     stationen: [
@@ -63,8 +72,13 @@ const TEXT = {
       ["Qualifications", "Advanced technical college entrance qualification (2007), IHK trainer aptitude examination (2017), preparatory course DATEV Kanzlei-Rechnungswesen, passed with distinction (2023)."],
     ],
     kenntnisseTitel: "What I work with",
-    marken: ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON", "Finmatics", "GetMyInvoices", "Lexware Office", "SAP ERP", "Python", "Copilot · Claude"],
-    kenntnisse: "Python for automation and interfaces, plus language models such as Copilot and Claude – under one fixed rule: the models prepare, I decide. I work in German and English.",
+    gruppen: [
+      ["Accounting and payroll", ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON"]],
+      ["Upstream systems", ["Automated document capture", "Invoice auto-fetching from portals", "Imports and interfaces"]],
+      ["In the business", ["SAP ERP", "Lexware Office"]],
+      ["Automation and AI", ["Python", "ChatGPT", "Claude", "Copilot", "Gemini", "Giotto.ai"]],
+    ],
+    kenntnisse: "I use Python for automation and interfaces, and language models as the task requires, under one fixed rule: they prepare, I decide. I work in German and English.",
     ehrenamtTitel: "Voluntary work",
     ehrenamt: "Lay judge at the Administrative Court of Sigmaringen. I helped set up two cultural associations as founding treasurer, and I support associations with statutes, charitable status, bookkeeping and funding applications.",
     vogelTitel: "Why a robin",
@@ -77,7 +91,7 @@ const TEXT = {
 
 // Foto links, der Text läuft daneben und darunter weiter (Robin, 16.10.2026); auf schmalen Bildschirmen steht das Foto über dem Text.
 // Abschnitte heben sich ab (Robin, 16.10.2026, Vorbild anthropic.com): Stationen als Zeitleiste mit Jahreszahlen in Kupfer,
-// Kenntnisse als Marken, Ehrenamt und Rotkehlchen als zwei Karten, Kontakt als Knöpfe wie auf der Startseite.
+// Kenntnisse als Marken in vier Gruppen (Robin, 18.10.2026), Ehrenamt und Rotkehlchen als zwei Karten, Kontakt als Knöpfe wie auf der Startseite.
 const CSS = `.portrait-row { margin: 0 0 12px; }
 .portrait-row::after { content: ""; display: block; clear: both; }
 .portrait { float: left; width: min(240px, 42%); height: auto; margin: 6px 36px 16px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
@@ -89,6 +103,12 @@ const CSS = `.portrait-row { margin: 0 0 12px; }
 .stationen > div:last-child { border-bottom: 1px solid var(--line); }
 .stationen dt { margin: 0; padding-top: 5px; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
 .stationen dd { margin: 0; max-width: 60ch; }
+.kenntnisse { margin: 0 0 20px; }
+.kenntnisse > div { display: grid; grid-template-columns: 160px 1fr; gap: 8px 24px; padding: 16px 0; border-top: 1px solid var(--line); }
+.kenntnisse > div:last-child { border-bottom: 1px solid var(--line); }
+.kenntnisse dt { margin: 0; padding-top: 9px; font: 500 12px/1.4 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--copper); }
+.kenntnisse dd { margin: 0; }
+.kenntnisse .marken { margin: 0; }
 .marken { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .marken li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
 .karten { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 72px 0 0; }
@@ -105,7 +125,7 @@ const CSS = `.portrait-row { margin: 0 0 12px; }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
 @media (max-width: 720px) { .karten { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div { grid-template-columns: 1fr; gap: 4px; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }`;
+@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div, .kenntnisse > div { grid-template-columns: 1fr; gap: 4px; } .kenntnisse dt { padding-top: 0; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }`;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -120,7 +140,7 @@ export function ueberMichSeite(lang) {
 <div class="portrait-row">
 <img class="portrait" src="${up}${PORTRAIT.datei}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="${esc(t.alt)}" decoding="async">
 <div class="einleitung">
-${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/"))}</p>`).join("\n")}
+${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/")).replace("{workshops}", up + (lang === "en" ? "workshops/en/" : "workshops/"))}</p>`).join("\n")}
 </div>
 </div>
 <h2 id="stationen">${t.stationenTitel}</h2>
@@ -128,9 +148,9 @@ ${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "we
 ${t.stationen.map(([wann, was]) => `<div><dt>${wann}</dt><dd>${was}</dd></div>`).join("\n")}
 </dl>
 <h2 id="kenntnisse">${t.kenntnisseTitel}</h2>
-<ul class="marken">
-${t.marken.map(m => `<li>${esc(m)}</li>`).join("\n")}
-</ul>
+<dl class="kenntnisse">
+${t.gruppen.map(([gruppe, liste]) => `<div><dt>${esc(gruppe)}</dt><dd><ul class="marken">${liste.map(m => `<li>${esc(m)}</li>`).join("")}</ul></dd></div>`).join("\n")}
+</dl>
 <p>${t.kenntnisse}</p>
 <div class="karten">
 <section class="karte"><h2 id="ehrenamt">${t.ehrenamtTitel}</h2><p class="frei">${t.ehrenamt}</p></section>

@@ -61,6 +61,9 @@ console.log("Wissen und Links");
   modell = { reply: "Dafür gibt es ein kurzes Formular.", action: null, message: null, link: "partner" };
   r = await chat(env(), "en", [{ role: "user", content: "I sell accounting software. Can you present it?" }]);
   check(r.link && r.link.url === "https://robin.vision/werkzeuge/en/#partner" && r.link.label === "Become a partner", "Partner werden auf Englisch");
+  const sys2 = prompts.at(-1)?.system?.[0]?.text || "";
+  check(/Für Anbieter \*\*„Partner werden“\*\*, wenn jemand erzählt, dass er Software oder KI-Lösungen entwickelt/.test(sys2) && /Auftritten auf Fachmessen und Netzwerkveranstaltungen/.test(sys2)
+    && /für eine Partneranfrage nach Unternehmen,\s+Produkt oder Website und Bereich/.test(sys2) && /\*\*Werkzeuge und Partner\.\*\*/.test(sys2) && /- partner \(„Partner werden“\): wenn jemand erzählt, dass er Software/.test(sys2), "Profil: „Partner werden“ aktiv anbieten, Zusagen und Draht für Anbieter (Robin, 18.10.2026)");
 }
 
 console.log("Was gibt's Neues?");

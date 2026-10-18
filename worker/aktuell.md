@@ -1,4 +1,4 @@
-# Woran Robin gerade arbeitet – Stand 17.10.2026. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.
+# Woran Robin gerade arbeitet – Stand 18.10.2026. Von Robin freigegeben (Dashboard); alle 4–6 Wochen erneuern.
 # Wird dem Systemprompt angehängt.
 
 ## Deutsch
@@ -14,12 +14,15 @@
    (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
    Deklaration für den Jahresabschluss. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
-4. **Impulse.** Jeden Freitag erscheint ein neuer Impuls zu Automatisierung und KI im Rechnungswesen,
+4. **Werkzeuge und Partner.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
+   Verwaltung und weitere Geschäftsprozesse vor und vergleicht sie – SmartFormular und nach und nach
+   Lösungen anderer Anbieter. Anbieter können sich über „Partner werden“ melden.
+5. **Impulse.** Jeden Freitag erscheint ein neuer Impuls zu Automatisierung und KI im Rechnungswesen,
    auf der Seite und im Newsletter.
-5. **Prozesse im Rechnungswesen mit KI und Automation.** In der Kanzlei optimiert Robin wiederkehrende
+6. **Prozesse im Rechnungswesen mit KI und Automation.** In der Kanzlei optimiert Robin wiederkehrende
    Abläufe – Belegfluss, Buchungsvorbereitung, Abstimmungen – und hat sich in die Pflichten zur
    E-Rechnung eingearbeitet. Nicht als Angebot, als Praxis.
-6. **Second Brain.** Robin baut ein persönliches Wissenssystem in Obsidian, aus dem Agenten wie dieses
+7. **Second Brain.** Robin baut ein persönliches Wissenssystem in Obsidian, aus dem Agenten wie dieses
    Rotkehlchen ihren Kontext bekommen – kuratiert, nichts automatisch.
 
 ## English
@@ -36,10 +39,13 @@
    SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and
    SmartFormular Deklaration for year-end accounts. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
-4. **Food for Thought.** Every Friday a new post on automation and AI in accounting, on the site and in
+4. **Tools and partners.** Under "Tools" Robin presents and compares software and AI solutions for
+   accounting, administration and other business processes – SmartFormular and, step by step, solutions
+   from other providers. Providers can get in touch via "Become a partner".
+5. **Food for Thought.** Every Friday a new post on automation and AI in accounting, on the site and in
    the newsletter.
-5. **Accounting processes with AI and automation.** At the practice, Robin streamlines recurring
+6. **Accounting processes with AI and automation.** At the practice, Robin streamlines recurring
    workflows – document flow, booking preparation, reconciliations – and has worked through Germany's
    e-invoicing obligations. Not an offer; daily practice.
-6. **Second brain.** A personal knowledge system in Obsidian that gives agents like this robin their
+7. **Second brain.** A personal knowledge system in Obsidian that gives agents like this robin their
    context – curated, never automatic.

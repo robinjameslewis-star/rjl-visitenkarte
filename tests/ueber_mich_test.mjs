@@ -29,7 +29,9 @@ for (const s of UEBER_MICH) {
   check(html.includes(`<link rel="canonical" href="${ueberMichUrl(s.lang)}">`) && UEBER_MICH.every(a => html.includes(`hreflang="${a.lang}" href="${ueberMichUrl(a.lang)}"`)), "canonical und hreflang beider Fassungen");
   check(new RegExp(`<img class="portrait" src="\\.\\./${PORTRAIT.datei.replace(/[./]/g, "\\$&")}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="[^"]+"`).test(html), "Foto mit Maßen und Alternativtext");
   check((html.match(new RegExp(`href="${LINKEDIN.replace(/[./]/g, "\\$&")}" rel="me noopener" target="_blank">`, "g")) || []).length === 2, "LinkedIn zweimal verlinkt (Kopfzeile, Kontakt als Knopf), rel=me");
-  check(html.includes(`<h2 id="stationen">${t.stationen}</h2>`) && (html.match(/<dt>/g) || []).length === 5 && /2007–2016/.test(html) && /2020–2023/.test(html), "fünf Stationen");
+  check(html.includes(`<h2 id="stationen">${t.stationen}</h2>`) && ((html.match(/<dl class="stationen">[\s\S]*?<\/dl>/) || [""])[0].match(/<dt>/g) || []).length === 5 && /2007–2016/.test(html) && /2020–2023/.test(html), "fünf Stationen");
+  const kenntnisse = (html.match(/<dl class="kenntnisse">[\s\S]*?<\/dl>/) || [""])[0];
+  check((kenntnisse.match(/<dt>/g) || []).length === 4 && ["DATEV Kanzlei-Rechnungswesen", "ADDISON", "SAP ERP", "Python", "ChatGPT", "Claude", "Copilot", "Gemini", "Giotto.ai"].every(m => kenntnisse.includes(`<li>${m}</li>`)) && !/Finmatics|GetMyInvoices/.test(html), "Womit ich arbeite: vier Gruppen, Vorsysteme allgemein, ChatGPT, Claude, Copilot, Gemini und Giotto.ai (Robin, 18.10.2026)");
   check(/DATEV Kanzlei-Rechnungswesen/.test(html) && /Python/.test(html) && t.ehrenamt.test(html), "Kenntnisse und Ehrenamt");
   check(html.includes(`href="${t.home}#kontakt"`) && html.includes(`href="${t.home}#nachricht"`) && html.includes('href="mailto:robin@robin.vision"'), "Wege zu Termin, Nachricht und öffentlicher E-Mail");
   const sichtbar = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
@@ -42,6 +44,8 @@ for (const s of UEBER_MICH) {
   check(html.includes(`<meta property="og:image" content="https://robin.vision/${PORTRAIT.datei}">`), "Bild zum Teilen ist das Foto");
   check(html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html) && /newsletter\.js\?v=/.test(html), "Newsletter-Kasten und Anmeldung über den Worker");
   check(t.nav.test(html) && html.includes(`href="../${s.lang === "en" ? "werkzeuge/en/" : "werkzeuge/"}"`), "Kopf: Werkzeuge und Über mich dieser Sprache");
+  const einl = (html.match(/<div class="einleitung">([\s\S]*?)<\/div>/) || ["", ""])[1], ws = s.lang === "en" ? "workshops/en/" : "workshops/";
+  check((einl.match(/<p>/g) || []).length === 3 && einl.includes(`href="../${ws}"`) && /SmartFormular/.test(einl) && /EU AI Act/.test(einl) && !/kostenlos bereit|free of charge/.test(einl), "Einleitung: drei Absätze, robin.vision mit Werkzeugen, SmartFormular und Workshops (Robin, 18.10.2026)");
   const andere = UEBER_MICH.find(a => a.lang !== s.lang);
   check(html.includes(`<a href="../${andere.adresse}" lang="${andere.lang}" hreflang="${andere.lang}">`), "Verweis auf die andere Sprachfassung");
 }

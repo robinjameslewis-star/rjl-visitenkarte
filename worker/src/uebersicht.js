@@ -16,47 +16,46 @@ export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
 export const uebersichtUrl = lang => `${SITE}${UEBERSICHT_PFAD[lang].replace(/index\.html$/, "")}`;
 // Sprungmarken der früheren SmartFormular-Seite unter werkzeuge/ (bis 18.10.2026)
 export const ALTE_MARKEN = ["produkte", "fibu-lite", "fibu", "deklaration", "mensch", "programme", "sprachmodell", "fahrplan", "recht", "fragen", "beta", "downloads"];
-// Bereiche der Sparte (Robin, 18.10.2026: „Business-IT“ statt „Unternehmensführung“)
-export const BEREICHE = ["rechnungswesen", "verwaltung", "business-it"];
+// Bereiche der Sparte (Robin, 18.10.2026: erst „Unternehmensführung“, dann „Business-IT“, jetzt „weitere Geschäftsprozesse“)
+export const BEREICHE = ["rechnungswesen", "verwaltung", "geschaeftsprozesse"];
 
 const TEXT = {
   de: {
-    titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und Business-IT",
-    seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT | robin.vision",
-    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT – ausgewählt, eingeführt und geschult von robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    abzeichen: "robin.vision · Auswahl · Einführung · Schulung",
-    untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult von robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
+    titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
+    seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse | robin.vision",
+    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – ausgewählt, eingeführt und geschult mit robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
+    untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult mit robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
     rolle: [
       ["Auswählen", "Ich prüfe Werkzeuge an Ihren Abläufen und empfehle, was passt – eigene Produkte und Lösungen von Partnern."],
       ["Einführen", "Einrichtung, Anbindung an Ihr Buchhaltungsprogramm, Regeln und Vorlagen für Ihr Team."],
       ["Schulen", "Ihr Team lernt das Werkzeug im Workshop und setzt es sicher im Alltag ein."],
     ],
     filterLabel: "Bereiche", alle: "Alle",
-    bereiche: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltung", "business-it": "Business-IT" },
+    bereiche: { rechnungswesen: "Rechnungswesen", verwaltung: "Verwaltung", geschaeftsprozesse: "Weitere Geschäftsprozesse" },
     ueberblickTitel: "Werkzeuge im Überblick",
     ueberblickLead: "Eigene Produkte und ausgewählte Lösungen anderer Anbieter – von robin.vision geprüft, eingeführt und in den Workshops gezeigt. Partnerangebote sind als Anzeige gekennzeichnet.",
     partner: "Partnerangebot · Anzeige",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Einführung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen",
-      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder Business-IT? Ich stelle ausgewählte Lösungen hier vor, zeige sie in meinen Workshops und begleite die Einführung bei Kunden.",
-      chips: ["Website", "Workshops", "Einführung"], knopf: "Partner werden" },
+      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, zeige sie in meinen Workshops und auf Fachmessen.",
+      chips: ["Website", "Workshops", "Fachmessen"], knopf: "Partner werden" },
     frei: "Platz frei", zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     vergleichTitel: "Im Vergleich",
     vergleichLead: "Was die Werkzeuge leisten, wo die Daten liegen und wie sie sich an Ihr Programm anschließen.",
     ihrProdukt: "Ihr Produkt",
-    kriterien: { bereich: "Bereich", aufgabe: "Aufgabe", fuer: "Für wen", daten: "Daten", programme: "Programme", modell: "Sprach\u00ADmodell", stand: "Stand", einfuehrung: "Einführung und Schulung" },
+    kriterien: { bereich: "Bereich", aufgabe: "Aufgabe", fuer: "Für wen", daten: "Daten", programme: "Programme", modell: "Sprach\u00ADmodell" },
     vergleich: [
       { name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", bereich: "Rechnungswesen", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
-        daten: "Bleiben auf Ihrem Rechner", programme: "DATEV-Format", modell: "Nein", stand: "Kostenlos · verfügbar", einfuehrung: "Im Workshop gezeigt" },
+        daten: "Bleiben auf Ihrem Rechner", programme: "DATEV-Format", modell: "Nein" },
       { name: "FiBu", href: "werkzeuge/smartformular/#fibu", bereich: "Rechnungswesen", aufgabe: "Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten", fuer: "Sachbearbeitung in Kanzlei und Unternehmen",
-        daten: "Rechenzentren in der EU", programme: "DATEV und ADDISON zum Start, weitere folgen", modell: "Optional, EU, ohne Training", stand: "Beta · auf Anfrage", einfuehrung: "Einführung und Workshop" },
+        daten: "Rechenzentren in der EU", programme: "DATEV und ADDISON zum Start, weitere folgen", modell: "Optional, EU, ohne Training" },
       { name: "Deklaration", href: "werkzeuge/smartformular/#deklaration", bereich: "Jahresabschluss", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
-        daten: "Rechenzentren in der EU", programme: "Neben Ihrem Kanzleiprogramm", modell: "Optional, EU, ohne Training", stand: "Beta · auf Anfrage", einfuehrung: "Einführung und Workshop" },
+        daten: "Rechenzentren in der EU", programme: "Neben Ihrem Kanzleiprogramm", modell: "Optional, EU, ohne Training" },
     ],
-    ihrBereich: "Verwaltung, Business-IT …",
+    ihrBereich: "Verwaltung, weitere Geschäftsprozesse …",
     formTitel: "Partner werden",
-    formLead: "Stellen Sie Ihre Lösung hier, in meinen Workshops und in Einführungsprojekten vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
+    formLead: "Stellen Sie Ihre Lösung hier, in meinen Workshops und bei meinen Auftritten auf Fachmessen und Netzwerkveranstaltungen vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
     felder: { firma: "Unternehmen", name: "Ansprechperson", email: "E-Mail-Adresse", produkt: "Produkt oder Website", bereich: "Bereich", nachricht: "Worum geht es?", optional: "(freiwillig)", mehrere: "Mehrere" },
     senden: "Anfrage senden", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
@@ -70,42 +69,41 @@ const TEXT = {
     andere: "This page in English",
   },
   en: {
-    titel: "Efficient tools for accounting, administration and business IT",
-    seitentitel: "Efficient tools and AI solutions for accounting, administration and business IT | robin.vision",
-    beschr: "Software and AI solutions for accounting, administration and business IT – selected, implemented and taught by robin.vision. With SmartFormular, a comparison and a partner programme.",
-    abzeichen: "robin.vision · Selection · Implementation · Training",
-    untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and taught by robin.vision. I show many of them in the workshops using real cases.",
+    titel: "Efficient tools for accounting, administration and other business processes",
+    seitentitel: "Efficient tools and AI solutions for accounting, administration and other business processes | robin.vision",
+    beschr: "Software and AI solutions for accounting, administration and other business processes – selected, implemented and learned with robin.vision. With SmartFormular, a comparison and a partner programme.",
+    untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and learned with robin.vision. I show many of them in the workshops using real cases.",
     rolle: [
       ["Select", "I test tools against your processes and recommend what fits – my own products and partner solutions."],
       ["Implement", "Set-up, connection to your accounting software, rules and templates for your team."],
       ["Train", "Your team learns the tool in the workshop and uses it confidently in daily work."],
     ],
     filterLabel: "Areas", alle: "All",
-    bereiche: { rechnungswesen: "Accounting", verwaltung: "Administration", "business-it": "Business IT" },
+    bereiche: { rechnungswesen: "Accounting", verwaltung: "Administration", geschaeftsprozesse: "Other business processes" },
     ueberblickTitel: "Tools at a glance",
     ueberblickLead: "Own products and selected solutions from other providers – tested, implemented and shown in the workshops by robin.vision. Partner offers are labelled as advertisements.",
     partner: "Partner offer · Advertisement",
     sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite is free; FiBu and Deklaration are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Implementation"], knopf: "To SmartFormular" },
     platzhalter: { logo: "Your logo", titel: "Your product could be here",
-      text: "You develop software or AI solutions for accounting, administration or business IT? I present selected solutions here, show them in my workshops and support their implementation with clients.",
-      chips: ["Website", "Workshops", "Implementation"], knopf: "Become a partner" },
+      text: "You develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here and show them in my workshops and at trade fairs.",
+      chips: ["Website", "Workshops", "Trade fairs"], knopf: "Become a partner" },
     frei: "Space available", zumProdukt: "To the product", zumAnbieter: "To the provider",
     vergleichTitel: "Comparison",
     vergleichLead: "What the tools do, where the data is kept and how they connect to your software.",
     ihrProdukt: "Your product",
-    kriterien: { bereich: "Area", aufgabe: "Task", fuer: "For whom", daten: "Data", programme: "Software", modell: "Language model", stand: "Status", einfuehrung: "Implementation and training" },
+    kriterien: { bereich: "Area", aufgabe: "Task", fuer: "For whom", daten: "Data", programme: "Software", modell: "Language model" },
     vergleich: [
       { name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", bereich: "Accounting", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
-        daten: "Stays on your computer", programme: "DATEV format", modell: "No", stand: "Free · available", einfuehrung: "Shown in the workshop" },
+        daten: "Stays on your computer", programme: "DATEV format", modell: "No" },
       { name: "FiBu", href: "werkzeuge/smartformular/en/#fibu", bereich: "Accounting", aufgabe: "Post bank, payables and receivables, linked to open items", fuer: "Accounting staff in firms and companies",
-        daten: "Data centres in the EU", programme: "DATEV and ADDISON at launch, more to follow", modell: "Optional, EU, no training", stand: "Beta · on request", einfuehrung: "Implementation and workshop" },
+        daten: "Data centres in the EU", programme: "DATEV and ADDISON at launch, more to follow", modell: "Optional, EU, no training" },
       { name: "Deklaration", href: "werkzeuge/smartformular/en/#deklaration", bereich: "Year-end accounts", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
-        daten: "Data centres in the EU", programme: "Alongside your firm's software", modell: "Optional, EU, no training", stand: "Beta · on request", einfuehrung: "Implementation and workshop" },
+        daten: "Data centres in the EU", programme: "Alongside your firm's software", modell: "Optional, EU, no training" },
     ],
-    ihrBereich: "Administration, business IT …",
+    ihrBereich: "Administration, other business processes …",
     formTitel: "Become a partner",
-    formLead: "Present your solution here, in my workshops and in implementation projects. Tell me briefly about your product; I will get back to you personally by email.",
+    formLead: "Present your solution here, in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
     felder: { firma: "Company", name: "Contact person", email: "Email address", produkt: "Product or website", bereich: "Area", nachricht: "What is it about?", optional: "(optional)", mehrere: "Several" },
     senden: "Send enquiry", sendet: "Sending …",
     gesendet: "Thank you – your enquiry has arrived. I will get back to you by email.",
@@ -123,8 +121,7 @@ const TEXT = {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const SF_LOGO = `<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>`;
 
-const CSS = `.abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 14px; border: 1px solid var(--copper); border-radius: 999px; font: 500 12px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--copper); }
-.wz .frei { text-align: left; hyphens: manual; }
+const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-rolle { list-style: none; margin: 26px 0 30px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .wz-rolle li { margin: 0; max-width: none; padding: 16px 18px 16px 0; text-align: left; }
 .wz-rolle li + li { padding-left: 18px; border-left: 1px solid var(--line); }
@@ -161,7 +158,6 @@ const CSS = `.abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 
 .wz-tabelle th, .wz-tabelle td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; color: var(--ink-soft); line-height: 1.45; overflow-wrap: break-word; hyphens: auto; }
 .wz-tabelle thead th { font: 500 17px/1.25 var(--serif); color: var(--green); vertical-align: bottom; padding-top: 16px; }
 .wz-tabelle tbody th { hyphens: manual; overflow-wrap: normal; font: 500 11px/1.6 var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--copper); }
-.wz-nb { white-space: nowrap; }
 .wz-tabelle col.wz-kriterium { width: 108px; }
 .wz-tabelle tr:last-child th, .wz-tabelle tr:last-child td { border-bottom: 0; }
 .wz-th-logo { display: block; width: max-content; margin: 0 0 8px; padding: 5px 10px; border-radius: 3px; background: #0E0B14; color: #fff; font: 500 12px/1 var(--sans); } .wz-th-logo span { color: #A78BFA; }
@@ -261,7 +257,8 @@ ${chips(t.platzhalter.chips)}
   return [sf, ...partner, platz, ...freie].join("\n");
 }
 
-// Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“
+// Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“;
+// Zeilen „Stand“ und „Einführung und Schulung“ entfallen seit 18.10.2026 (Robin)
 function vergleich(lang, t, up) {
   const spalten = [...t.vergleich.map(v => ({ ...v, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
     ...PARTNER.filter(p => p.vergleich && p.vergleich[lang]).map(p => ({ ...p.vergleich[lang], name: p.name, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
@@ -287,8 +284,7 @@ export function werkzeugeUebersicht(lang) {
   const sfZiel = lang === "en" ? "../smartformular/en/" : "smartformular/";
   const filter = `<div class="wz-filter" role="group" aria-label="${esc(t.filterLabel)}"><button type="button" data-bereich="alle" aria-pressed="true">${esc(t.alle)}</button>${BEREICHE.map(b => `<button type="button" data-bereich="${b}" aria-pressed="false">${esc(t.bereiche[b])}</button>`).join("")}</div>`;
   const main = `<article class="wz">
-<p class="abzeichen">${esc(t.abzeichen)}</p>
-<h1>${esc(t.titel).replace(/Business[- ]IT/, m => `<span class="wz-nb">${m}</span>`)}</h1>
+<h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
 <ol class="wz-rolle">
 ${t.rolle.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
