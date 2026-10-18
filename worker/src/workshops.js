@@ -63,10 +63,9 @@ const TEXT = {
     min: "Min.",
     werkzeugeTitel: "Werkzeuge im Workshop",
     werkzeuge: [
-      "Der Workshop lebt von Vorführungen an echten Fällen. Dafür nutze ich eigene Produkte – SmartFormular FiBu lite, FiBu und Deklaration – und ausgewählte Werkzeuge von Partnerunternehmen. Partnerangebote sind als solche gekennzeichnet; was Sie einsetzen, entscheiden Sie.",
+      "Der Workshop lebt von Vorführungen an echten Fällen. Dafür zeige ich ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular FiBu lite, FiBu und Deklaration. Was Sie einsetzen, entscheiden Sie.",
     ],
-    partnerHinweis: "Partnerangebote werden hier vorgestellt, sobald sie Teil des Workshops sind.",
-    partnerKennzeichnung: "Partnerangebot · Anzeige",
+    partnerHinweis: "Weitere Werkzeuge stelle ich hier vor, sobald sie Teil des Workshops sind.",
     formateTitel: "Zwei Formate",
     formateLead: "Beide beginnen mit dem Workshop und enden mit demselben Zugang je Person: Online-Lehrgang, Skript, Test und Zertifikat für 90 Tage.",
     formate: [
@@ -102,7 +101,7 @@ const TEXT = {
       ["Was sehe ich als Arbeitgeber?", "Je Person den Stand – eingeladen, begonnen, Lehrgang abgeschlossen, bestanden – und die Zertifikatsnummer, als Liste für Ihr Schulungsverzeichnis. Punkte und Versuche sehen Sie nicht."],
       ["Was passiert, wenn jemand den Test nicht besteht?", "Nach jeder Abgabe steht zu jeder Frage die richtige Antwort mit Erklärung. Der Test lässt sich beliebig wiederholen, mit neu gezogenen Fragen."],
       ["Welche Technik brauchen wir?", "Einen Browser und eine E-Mail-Adresse je Person. Angemeldet wird mit einem Link aus der E-Mail; wer möchte, richtet einen Passkey ein, zum Beispiel per Fingerabdruck. Ein Passwort gibt es nicht. Der Lehrgang läuft im Browser, auch auf dem Handy."],
-      ["Werden im Workshop Produkte gezeigt?", "Ja, an echten Fällen: eigene Produkte von robin.vision und ausgewählte Werkzeuge von Partnerunternehmen, als Partnerangebot gekennzeichnet. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie."],
+      ["Werden im Workshop Produkte gezeigt?", "Ja, an echten Fällen: ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie."],
       ["Ist der Workshop Rechtsberatung?", "Nein. Er erklärt Pflichten allgemein und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."],
     ],
     anfrageLead: "Fünf Angaben genügen. Sie erhalten Angebot und Terminvorschläge persönlich per E-Mail, in der Regel innerhalb von zwei Werktagen.",
@@ -161,10 +160,9 @@ const TEXT = {
     min: "min",
     werkzeugeTitel: "Tools in the workshop",
     werkzeuge: [
-      "The workshop thrives on demonstrations with real cases. For that I use my own products – SmartFormular FiBu lite, FiBu and Deklaration – and selected tools from partner companies. Partner offers are labelled as such; what you use is your decision.",
+      "The workshop thrives on demonstrations with real cases. For that I show selected tools from various providers, such as SmartFormular FiBu lite, FiBu and Deklaration. What you use is your decision.",
     ],
-    partnerHinweis: "Partner offers will be presented here as soon as they are part of the workshop.",
-    partnerKennzeichnung: "Partner offer · Advertisement",
+    partnerHinweis: "I will present further tools here as soon as they are part of the workshop.",
     formateTitel: "Two formats",
     formateLead: "Both start with the workshop and end with the same access per person: online course, handout, test and certificate for 90 days.",
     formate: [
@@ -200,7 +198,7 @@ const TEXT = {
       ["What do I see as the employer?", "Each person's status – invited, started, course completed, passed – and the certificate number, as a list for your training records. Scores and attempts are not shown."],
       ["What happens if someone fails the test?", "After every submission the correct answer and an explanation are shown for each question. The test can be repeated as often as needed, with freshly drawn questions."],
       ["What do we need technically?", "A browser and an email address per person. Participants sign in with a link sent by email; anyone who prefers can set up a passkey, for example by fingerprint. There is no password. The course runs in the browser, on a phone too."],
-      ["Are products shown in the workshop?", "Yes, on real cases: robin.vision's own products and selected tools from partner companies, labelled as partner offers. The content of the training is not affected; what you use is your decision."],
+      ["Are products shown in the workshop?", "Yes, on real cases: selected tools from various providers, such as SmartFormular. The content of the training is not affected; what you use is your decision."],
       ["Is the workshop legal advice?", "No. It explains obligations in general terms and refers to tax advisers, lawyers and data protection officers for individual cases."],
     ],
     anfrageLead: "Five details are enough. You receive a quote and proposed dates personally by email, usually within two working days.",
