@@ -36,8 +36,9 @@ const TEXT = {
     fibuTitel: "SmartFormular FiBu",
     fibuLead: "Für den laufenden Monat: FiBu macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren – und stellt die Zusammenhänge zu Ihren offenen Posten her. FiBu nimmt Ihnen das Suchen und Abtippen ab; Sie prüfen und entscheiden.",
     fibuPunkte: [
+      ["Bank buchen", "Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zum Buchungsstapel für das Bankkonto – nach Ihrer Buchungsweise. FiBu stellt den Bezug zu Ihren OPOS-Listen her: welche Zahlung welchen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt."],
       ["Belege lesen und zuordnen", "Rechnungen und Gutschriften als PDF oder E-Rechnung: FiBu liest Betrag, Datum, Steuersatz und Rechnungsnummer und ordnet die Zahlung zu – auch bei Skonto und Teilzahlungen."],
-      ["Kreditoren und Debitoren buchen", "Aus Eingangs- und Ausgangsrechnungen entsteht der Buchungsstapel auf den Personenkonten. FiBu stellt den Bezug zu Ihren OPOS-Listen her: welche Zahlung welchen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt."],
+      ["Kreditoren und Debitoren buchen", "Aus Eingangs- und Ausgangsrechnungen entsteht der Buchungsstapel auf den Personenkonten – mit Steuersatz und Kostenstelle aus dem Beleg und dem Gegenkonto nach Ihrer Buchungsweise."],
       ["Ihre Buchungsweise je Mandant", "Gegenkonto, Steuerschlüssel, Kostenstelle und Buchungstext folgen den letzten zwölf Monaten je Geschäftspartner – als Datei bei Ihnen, ohne Modelltraining."],
       ["Klärliste statt Rätselraten", "Was nicht eindeutig ist, wird zur Frage, die Sie mit einem Klick beantworten. Jede Zeile zeigt ihre Herkunft – nachvollziehbar und prüfbar nach GoBD."],
       ["Umsatzsteuer überschlagen", "Für die Umsatzsteuer-Voranmeldung: Sie wählen Soll- oder Ist-Versteuerung oder Ihre Rechtsform, FiBu errechnet aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – je Steuersatz, mit Herkunft jedes Betrags. Ein Überschlag zur Vorbereitung; die Voranmeldung erstellen und übermitteln Sie oder Ihre Kanzlei."],
@@ -131,8 +132,9 @@ const TEXT = {
     fibuTitel: "SmartFormular FiBu",
     fibuLead: "For the current month: FiBu turns bank statements and documents into the checked booking batch – for bank, payables and receivables – and links it to your open items. FiBu takes the searching and retyping off your hands; you check and decide.",
     fibuPunkte: [
+      ["Post the bank account", "Bank statements as PDF, scan, CAMT, MT940 or CSV become the booking batch for the bank account – following your posting style. FiBu links them to your open-item lists: which payment settles which item, what remains open, where an invoice is missing."],
       ["Read and match documents", "Invoices and credit notes as PDF or e-invoice: FiBu reads amount, date, tax rate and invoice number and matches the payment – including early-payment discounts and part payments."],
-      ["Post payables and receivables", "Purchase and sales invoices become the booking batch on the supplier and customer accounts. FiBu links them to your open-item lists: which payment settles which item, what remains open, where an invoice is missing."],
+      ["Post payables and receivables", "Purchase and sales invoices become the booking batch on the supplier and customer accounts – with tax rate and cost centre taken from the document and the contra account following your posting style."],
       ["Your posting style per client", "Contra account, tax key, cost centre and posting text follow the last twelve months per business partner – as a file kept with you, no model training."],
       ["A clarification list instead of guesswork", "Anything ambiguous becomes a question you answer with one click. Every line shows its origin – traceable and auditable under the German GoBD."],
       ["Estimate VAT", "For the German advance VAT return: you choose accrual or cash accounting, or your legal form, and FiBu works out from bank statements and documents the expected VAT payable or the excess input VAT to be refunded – by rate, with the origin of every amount. An estimate to prepare the return; you or your firm still prepare and file it."],
