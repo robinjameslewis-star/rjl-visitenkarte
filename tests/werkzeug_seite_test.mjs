@@ -97,7 +97,7 @@ for (const n of readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md"))) {
   const p = parsePost(lesen(`${POSTS_DIR}/${n}`), n.slice(0, -3));
   if (p.status !== "published") continue;
   const html = lesen(`blog/${p.slug}/index.html`);
-  const titel = p.lang === "en" ? "Food for Thought, SmartFormular and workshops by email" : "Impulse, SmartFormular und Workshops per E-Mail";
+  const titel = p.lang === "en" ? "Food for Thought, tools and workshops by email" : "Impulse, Werkzeuge und Workshops per E-Mail";
   check(html.includes(`<h2 id="newsletter-title">${titel}</h2>`) && html.indexOf('id="newsletter"') > html.indexOf("</article>")
     && /data-newsletter-endpoint=/.test(html) && /newsletter\.js\?v=/.test(html) && html.includes(`werkzeuge/${p.lang === "en" ? "en/" : ""}"`), `blog/${p.slug}/: Kasten unter dem Beitrag, Werkzeuge im Kopf`);
 }

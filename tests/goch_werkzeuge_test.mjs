@@ -46,7 +46,7 @@ console.log("Wissen und Links");
   modell = { reply: "Robin hat einen Buchungsstapel-Generator gebaut.", action: null, message: null, link: "buchungsstapel-generator" };
   let r = await chat(env(), "de", [{ role: "user", content: "Was für Werkzeuge hat Robin?" }]);
   const system = prompts.at(-1)?.system?.[0]?.text || "";
-  check(/## Robins Angebote: SmartFormular und Workshops \(ab 2027\), Newsletter/.test(system) && /SmartFormular FiBu lite/.test(system) && /Booking Batch Generator/.test(system), "Profil kennt SmartFormular, FiBu lite und Newsletter");
+  check(/## Robins Angebote: Werkzeuge und Workshops \(ab 2027\), Newsletter/.test(system) && /SmartFormular FiBu lite/.test(system) && /Booking Batch Generator/.test(system), "Profil kennt SmartFormular, FiBu lite und Newsletter");
   check(/- werkzeuge \(/.test(system) && /- buchungsstapel-generator \(/.test(system) && /- newsletter \(/.test(system), "Links im Prompt");
   check(/"newsletter"/.test(system) && /"feedback"/.test(system), "Antwortformat kennt newsletter und feedback");
   check(r.link && r.link.url === "https://robin.vision/werkzeuge/buchungsstapel-generator/" && r.link.label === "SmartFormular FiBu lite (Buchungsstapel-Generator)", "Link auf Deutsch");
@@ -63,7 +63,7 @@ console.log("Wissen und Links");
   check(r.link && r.link.url === "https://robin.vision/werkzeuge/en/#partner" && r.link.label === "Become a partner", "Partner werden auf Englisch");
   const sys2 = prompts.at(-1)?.system?.[0]?.text || "";
   check(/Für Anbieter \*\*„Partner werden“\*\*, wenn jemand erzählt, dass er Software oder KI-Lösungen entwickelt/.test(sys2) && /Auftritten auf Fachmessen und Netzwerkveranstaltungen/.test(sys2)
-    && /für eine Partneranfrage nach Unternehmen,\s+Produkt oder Website und Bereich/.test(sys2) && /\*\*Werkzeuge und Partner\.\*\*/.test(sys2) && /- partner \(„Partner werden“\): wenn jemand erzählt, dass er Software/.test(sys2), "Profil: „Partner werden“ aktiv anbieten, Zusagen und Draht für Anbieter (Robin, 18.10.2026)");
+    && /für eine Partneranfrage nach Unternehmen\s+und Produkt oder Website – dann/.test(sys2) && /\*\*Werkzeuge und Partner\.\*\*/.test(sys2) && /- partner \(„Partner werden“\): wenn jemand erzählt, dass er Software/.test(sys2), "Profil: „Partner werden“ aktiv anbieten, Zusagen und Draht für Anbieter (Robin, 18.10.2026)");
 }
 
 console.log("Was gibt's Neues?");
