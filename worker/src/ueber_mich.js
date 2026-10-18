@@ -35,8 +35,15 @@ const TEXT = {
       ["Abschlüsse", "Fachhochschulreife (2007), Ausbildereignungsprüfung der IHK (2017), Vorbereitungskurs DATEV Kanzlei-Rechnungswesen mit Abschluss „sehr gut“ (2023)."],
     ],
     kenntnisseTitel: "Womit ich arbeite",
-    marken: ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON", "Finmatics", "GetMyInvoices", "Lexware Office", "SAP ERP", "Python", "Copilot · Claude"],
-    kenntnisse: "Für Automatisierung und Schnittstellen Python, dazu Sprachmodelle wie Copilot und Claude – nach einer festen Regel: Die Modelle bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.",
+    // Gruppen statt einzelner Marken (Robin, 18.10.2026): Vorsysteme allgemein statt einzelner Anbieter; die Sprachmodelle, die Robin
+    // nutzt, alphabetisch und ohne Rangfolge (Giotto.ai aus Lausanne)
+    gruppen: [
+      ["Rechnungswesen und Lohn", ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON"]],
+      ["Vorsysteme", ["Automatische Belegerfassung", "Belegabruf aus Portalen (Autofetching)", "Importe und Schnittstellen"]],
+      ["Im Unternehmen", ["SAP ERP", "Lexware Office"]],
+      ["Automatisierung und KI", ["Python", "ChatGPT", "Claude", "Copilot", "Gemini", "Giotto.ai"]],
+    ],
+    kenntnisse: "Python nutze ich für Automatisierung und Schnittstellen, Sprachmodelle je nach Aufgabe und nach einer festen Regel: Sie bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.",
     ehrenamtTitel: "Ehrenamt",
     ehrenamt: "Ehrenamtlicher Richter am Verwaltungsgericht Sigmaringen. Zwei Kulturvereine habe ich als Gründungsschatzmeister mit aufgebaut; ich unterstütze Vereine bei Satzung, Gemeinnützigkeit, Buchhaltung und Förderanträgen.",
     vogelTitel: "Warum ein Rotkehlchen",
@@ -65,8 +72,13 @@ const TEXT = {
       ["Qualifications", "Advanced technical college entrance qualification (2007), IHK trainer aptitude examination (2017), preparatory course DATEV Kanzlei-Rechnungswesen, passed with distinction (2023)."],
     ],
     kenntnisseTitel: "What I work with",
-    marken: ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON", "Finmatics", "GetMyInvoices", "Lexware Office", "SAP ERP", "Python", "Copilot · Claude"],
-    kenntnisse: "Python for automation and interfaces, plus language models such as Copilot and Claude – under one fixed rule: the models prepare, I decide. I work in German and English.",
+    gruppen: [
+      ["Accounting and payroll", ["DATEV Kanzlei-Rechnungswesen", "DATEV LODAS · Lohn und Gehalt", "DATEV Unternehmen Online", "ADDISON"]],
+      ["Upstream systems", ["Automated document capture", "Invoice auto-fetching from portals", "Imports and interfaces"]],
+      ["In the business", ["SAP ERP", "Lexware Office"]],
+      ["Automation and AI", ["Python", "ChatGPT", "Claude", "Copilot", "Gemini", "Giotto.ai"]],
+    ],
+    kenntnisse: "I use Python for automation and interfaces, and language models as the task requires, under one fixed rule: they prepare, I decide. I work in German and English.",
     ehrenamtTitel: "Voluntary work",
     ehrenamt: "Lay judge at the Administrative Court of Sigmaringen. I helped set up two cultural associations as founding treasurer, and I support associations with statutes, charitable status, bookkeeping and funding applications.",
     vogelTitel: "Why a robin",
@@ -79,7 +91,7 @@ const TEXT = {
 
 // Foto links, der Text läuft daneben und darunter weiter (Robin, 16.10.2026); auf schmalen Bildschirmen steht das Foto über dem Text.
 // Abschnitte heben sich ab (Robin, 16.10.2026, Vorbild anthropic.com): Stationen als Zeitleiste mit Jahreszahlen in Kupfer,
-// Kenntnisse als Marken, Ehrenamt und Rotkehlchen als zwei Karten, Kontakt als Knöpfe wie auf der Startseite.
+// Kenntnisse als Marken in vier Gruppen (Robin, 18.10.2026), Ehrenamt und Rotkehlchen als zwei Karten, Kontakt als Knöpfe wie auf der Startseite.
 const CSS = `.portrait-row { margin: 0 0 12px; }
 .portrait-row::after { content: ""; display: block; clear: both; }
 .portrait { float: left; width: min(240px, 42%); height: auto; margin: 6px 36px 16px 0; border-radius: 3px; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
@@ -91,6 +103,12 @@ const CSS = `.portrait-row { margin: 0 0 12px; }
 .stationen > div:last-child { border-bottom: 1px solid var(--line); }
 .stationen dt { margin: 0; padding-top: 5px; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
 .stationen dd { margin: 0; max-width: 60ch; }
+.kenntnisse { margin: 0 0 20px; }
+.kenntnisse > div { display: grid; grid-template-columns: 160px 1fr; gap: 8px 24px; padding: 16px 0; border-top: 1px solid var(--line); }
+.kenntnisse > div:last-child { border-bottom: 1px solid var(--line); }
+.kenntnisse dt { margin: 0; padding-top: 9px; font: 500 12px/1.4 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--copper); }
+.kenntnisse dd { margin: 0; }
+.kenntnisse .marken { margin: 0; }
 .marken { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .marken li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
 .karten { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 72px 0 0; }
@@ -107,7 +125,7 @@ const CSS = `.portrait-row { margin: 0 0 12px; }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
 @media (max-width: 720px) { .karten { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div { grid-template-columns: 1fr; gap: 4px; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }`;
+@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div, .kenntnisse > div { grid-template-columns: 1fr; gap: 4px; } .kenntnisse dt { padding-top: 0; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }`;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -130,9 +148,9 @@ ${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "we
 ${t.stationen.map(([wann, was]) => `<div><dt>${wann}</dt><dd>${was}</dd></div>`).join("\n")}
 </dl>
 <h2 id="kenntnisse">${t.kenntnisseTitel}</h2>
-<ul class="marken">
-${t.marken.map(m => `<li>${esc(m)}</li>`).join("\n")}
-</ul>
+<dl class="kenntnisse">
+${t.gruppen.map(([gruppe, liste]) => `<div><dt>${esc(gruppe)}</dt><dd><ul class="marken">${liste.map(m => `<li>${esc(m)}</li>`).join("")}</ul></dd></div>`).join("\n")}
+</dl>
 <p>${t.kenntnisse}</p>
 <div class="karten">
 <section class="karte"><h2 id="ehrenamt">${t.ehrenamtTitel}</h2><p class="frei">${t.ehrenamt}</p></section>

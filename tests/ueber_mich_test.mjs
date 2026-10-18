@@ -29,7 +29,9 @@ for (const s of UEBER_MICH) {
   check(html.includes(`<link rel="canonical" href="${ueberMichUrl(s.lang)}">`) && UEBER_MICH.every(a => html.includes(`hreflang="${a.lang}" href="${ueberMichUrl(a.lang)}"`)), "canonical und hreflang beider Fassungen");
   check(new RegExp(`<img class="portrait" src="\\.\\./${PORTRAIT.datei.replace(/[./]/g, "\\$&")}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="[^"]+"`).test(html), "Foto mit Maßen und Alternativtext");
   check((html.match(new RegExp(`href="${LINKEDIN.replace(/[./]/g, "\\$&")}" rel="me noopener" target="_blank">`, "g")) || []).length === 2, "LinkedIn zweimal verlinkt (Kopfzeile, Kontakt als Knopf), rel=me");
-  check(html.includes(`<h2 id="stationen">${t.stationen}</h2>`) && (html.match(/<dt>/g) || []).length === 5 && /2007–2016/.test(html) && /2020–2023/.test(html), "fünf Stationen");
+  check(html.includes(`<h2 id="stationen">${t.stationen}</h2>`) && ((html.match(/<dl class="stationen">[\s\S]*?<\/dl>/) || [""])[0].match(/<dt>/g) || []).length === 5 && /2007–2016/.test(html) && /2020–2023/.test(html), "fünf Stationen");
+  const kenntnisse = (html.match(/<dl class="kenntnisse">[\s\S]*?<\/dl>/) || [""])[0];
+  check((kenntnisse.match(/<dt>/g) || []).length === 4 && ["DATEV Kanzlei-Rechnungswesen", "ADDISON", "SAP ERP", "Python", "ChatGPT", "Claude", "Copilot", "Gemini", "Giotto.ai"].every(m => kenntnisse.includes(`<li>${m}</li>`)) && !/Finmatics|GetMyInvoices/.test(html), "Womit ich arbeite: vier Gruppen, Vorsysteme allgemein, ChatGPT, Claude, Copilot, Gemini und Giotto.ai (Robin, 18.10.2026)");
   check(/DATEV Kanzlei-Rechnungswesen/.test(html) && /Python/.test(html) && t.ehrenamt.test(html), "Kenntnisse und Ehrenamt");
   check(html.includes(`href="${t.home}#kontakt"`) && html.includes(`href="${t.home}#nachricht"`) && html.includes('href="mailto:robin@robin.vision"'), "Wege zu Termin, Nachricht und öffentlicher E-Mail");
   const sichtbar = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");

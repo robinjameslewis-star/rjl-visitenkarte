@@ -111,6 +111,12 @@ article li { margin-bottom: 6px; }
 .stationen > div:last-child { border-bottom: 1px solid var(--line); }
 .stationen dt { margin: 0; padding-top: 5px; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
 .stationen dd { margin: 0; max-width: 60ch; }
+.kenntnisse { margin: 0 0 20px; }
+.kenntnisse > div { display: grid; grid-template-columns: 160px 1fr; gap: 8px 24px; padding: 16px 0; border-top: 1px solid var(--line); }
+.kenntnisse > div:last-child { border-bottom: 1px solid var(--line); }
+.kenntnisse dt { margin: 0; padding-top: 9px; font: 500 12px/1.4 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--copper); }
+.kenntnisse dd { margin: 0; }
+.kenntnisse .marken { margin: 0; }
 .marken { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .marken li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
 .karten { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 72px 0 0; }
@@ -127,7 +133,7 @@ article li { margin-bottom: 6px; }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
 @media (max-width: 720px) { .karten { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div { grid-template-columns: 1fr; gap: 4px; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }</style>
+@media (max-width: 600px) { .portrait { float: none; display: block; width: auto; max-width: 200px; margin: 0 0 20px; } .stationen > div, .kenntnisse > div { grid-template-columns: 1fr; gap: 4px; } .kenntnisse dt { padding-top: 0; } .karte.vogel img { position: static; display: block; margin: 0 0 10px; width: 80px; } .karte.vogel h2 { padding-right: 0; } }</style>
 <meta property="og:image" content="https://robin.vision/assets/robin-james-lewis.jpg">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfilePage","url":"https://robin.vision/ueber-mich/","inLanguage":"de","mainEntity":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/","image":"https://robin.vision/assets/robin-james-lewis.jpg","jobTitle":"Steuerfachangestellter in Ausbildung","address":{"@type":"PostalAddress","addressLocality":"Balingen","addressCountry":"DE"},"email":"mailto:robin@robin.vision","knowsLanguage":["de","en"],"sameAs":["https://www.linkedin.com/in/robin-james-lewis-688945283/"]}}</script>
 </head>
@@ -161,19 +167,13 @@ article li { margin-bottom: 6px; }
 <div><dt>Abschlüsse</dt><dd>Fachhochschulreife (2007), Ausbildereignungsprüfung der IHK (2017), Vorbereitungskurs DATEV Kanzlei-Rechnungswesen mit Abschluss „sehr gut“ (2023).</dd></div>
 </dl>
 <h2 id="kenntnisse">Womit ich arbeite</h2>
-<ul class="marken">
-<li>DATEV Kanzlei-Rechnungswesen</li>
-<li>DATEV LODAS · Lohn und Gehalt</li>
-<li>DATEV Unternehmen Online</li>
-<li>ADDISON</li>
-<li>Finmatics</li>
-<li>GetMyInvoices</li>
-<li>Lexware Office</li>
-<li>SAP ERP</li>
-<li>Python</li>
-<li>Copilot · Claude</li>
-</ul>
-<p>Für Automatisierung und Schnittstellen Python, dazu Sprachmodelle wie Copilot und Claude – nach einer festen Regel: Die Modelle bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.</p>
+<dl class="kenntnisse">
+<div><dt>Rechnungswesen und Lohn</dt><dd><ul class="marken"><li>DATEV Kanzlei-Rechnungswesen</li><li>DATEV LODAS · Lohn und Gehalt</li><li>DATEV Unternehmen Online</li><li>ADDISON</li></ul></dd></div>
+<div><dt>Vorsysteme</dt><dd><ul class="marken"><li>Automatische Belegerfassung</li><li>Belegabruf aus Portalen (Autofetching)</li><li>Importe und Schnittstellen</li></ul></dd></div>
+<div><dt>Im Unternehmen</dt><dd><ul class="marken"><li>SAP ERP</li><li>Lexware Office</li></ul></dd></div>
+<div><dt>Automatisierung und KI</dt><dd><ul class="marken"><li>Python</li><li>ChatGPT</li><li>Claude</li><li>Copilot</li><li>Gemini</li><li>Giotto.ai</li></ul></dd></div>
+</dl>
+<p>Python nutze ich für Automatisierung und Schnittstellen, Sprachmodelle je nach Aufgabe und nach einer festen Regel: Sie bereiten vor, ich entscheide. Ich arbeite auf Deutsch und Englisch.</p>
 <div class="karten">
 <section class="karte"><h2 id="ehrenamt">Ehrenamt</h2><p class="frei">Ehrenamtlicher Richter am Verwaltungsgericht Sigmaringen. Zwei Kulturvereine habe ich als Gründungsschatzmeister mit aufgebaut; ich unterstütze Vereine bei Satzung, Gemeinnützigkeit, Buchhaltung und Förderanträgen.</p></section>
 <section class="karte vogel"><img src="../assets/signatur-rotkehlchen.png" alt="" width="240" height="146" decoding="async"><h2 id="rotkehlchen">Warum ein Rotkehlchen</h2><p class="frei">In meinem Geburtsjahr brütete ein Rotkehlchenpaar am Haus meiner Eltern, und die Jungen schlüpften – so kam ich zu meinem Namen. Auf Englisch heißt das Rotkehlchen robin, auf Walisisch robin goch; mein Vater stammt aus Wales. Deshalb sitzt auf der Startseite ein Rotkehlchen, und deshalb heißt mein Assistent dort Goch.</p></section>
