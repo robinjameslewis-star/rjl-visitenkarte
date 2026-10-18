@@ -9,3 +9,8 @@ für Rechnungswesen, Verwaltung und Unternehmensführung zeigen, mit einem Platz
   Fassung 2 vom 18.10.2026 nach Robins Nachsteuerung: keine Trennung zwischen eigenen Produkten und Partnerlösungen.
 - Vorschau: Inhalt in `workshops/index.html` an Stelle des Artikels einsetzen und die Stile in den Kopf übernehmen (so ist der Entwurf
   entstanden). Begründung, Bildschirmfotos und offene Entscheidungen: Vault, `10_Projects/robin_vision/Unterlagen/2026-10-18_robin_vision_Markenarchitektur_Werkzeuge.md`.
+
+Fassung 3 vom 18.10.2026 (Robin: Slider auf der Startseite, Übersicht mit Vergleich): `start-abschnitt.html` und `start-stil.css` ersetzen
+den Abschnitt `#werkzeuge` der Startseite (Slider mit Karten je Produkt und Platzhalter); `inhalt.html` hat zusätzlich die
+Vergleichstabelle. Drei Ebenen: Startseite → Übersicht `werkzeuge/` → Produktseite (bei Partnern weiter zur Website des Anbieters).
+
