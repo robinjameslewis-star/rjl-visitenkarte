@@ -36,6 +36,7 @@ for (const lang of ["de", "en"]) {
   const neuBlock = lang === "en" ? "<h3>New in SmartFormular FiBu lite</h3>" : "<h3>Neu im SmartFormular FiBu lite</h3>";
   check((xml.match(new RegExp(neuBlock.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length === eigene.length, `${pfad}: „Neu im Werkzeug“ in jedem Impuls-Eintrag`);
   check((xml.match(lang === "en" ? /<h3>Tools<\/h3>/g : /<h3>Werkzeuge<\/h3>/g) || []).length === eigene.length + fassungen.length && !xml.includes("<h3>SmartFormular</h3>") && xml.includes(`${SITE}werkzeuge/${lang === "en" ? "en/" : ""}"`) && (xml.match(/<h3>Workshops<\/h3>/g) || []).length === eigene.length + fassungen.length && xml.includes(`${SITE}workshops/${lang === "en" ? "en/" : ""}`), `${pfad}: Angebote Werkzeuge und Workshops in jedem Eintrag`);
+  check(!/FiBu und Deklaration entstehen|FiBu and Deklaration are in the making|Beta-Zugang auf Anfrage|beta access on request/.test(xml), `${pfad}: Angebotsblock ohne einzelne Produkte (Robin, 18.10.2026)`);
   check((xml.match(/<description><!\[CDATA\[</g) || []).length === eigene.length + fassungen.length && !/undefined|\[object/.test(xml), `${pfad}: Beschreibungen der Einträge als HTML in CDATA, nichts Undefiniertes`);
   const daten = [...xml.matchAll(/<pubDate>([^<]+)<\/pubDate>/g)].map(m => Date.parse(m[1]));
   check(daten.every((d, i) => !i || d <= daten[i - 1]), `${pfad}: neueste zuerst`);
