@@ -39,21 +39,38 @@ const TEXT = {
       chips: ["Website", "Workshops", "Fachmessen"], knopf: "Partner werden" },
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     vergleichTitel: "Im Vergleich",
-    vergleichLead: "Was die Werkzeuge leisten, für wen sie gedacht sind und wo die Daten liegen.",
+    vergleichLead: "Für jede Lösung dieselben Angaben: was sie leistet, wo die Daten liegen, wie KI eingesetzt wird und wie sie sich anbinden lässt.",
+    vergleichQuelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.",
+    vergleichPartner: "Partner zahlen für die Vorstellung.",
+    stand: "Stand",
     ihrProdukt: "Ihr Produkt",
-    kriterien: { aufgabe: "Aufgabe", fuer: "Für wen", daten: "Daten", modell: "Sprach\u00ADmodell" },
+    kriterien: { aufgabe: "Aufgabe", fuer: "Für wen", daten: "Betrieb und Daten", sitz: "Sitz des Anbieters", ki: "KI",
+      schnittstellen: "Schnitt­stellen", preis: "Preis und Test", nachweise: "Nachweise" },
     vergleich: [
-      { name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
-        daten: "Bleiben auf Ihrem Rechner", modell: "Nein" },
-      { name: "FiBu", href: "werkzeuge/smartformular/#fibu", aufgabe: "Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten", fuer: "Sachbearbeitung in Kanzlei und Unternehmen",
-        daten: "Rechenzentren in der EU", modell: "Optional, EU, ohne Training" },
-      { name: "Deklaration", href: "werkzeuge/smartformular/#deklaration", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
-        daten: "Rechenzentren in der EU", modell: "Optional, EU, ohne Training" },
+      { name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
+        daten: "Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner", sitz: "Deutschland", ki: "Nein, arbeitet mit Regeln",
+        schnittstellen: "Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format", preis: "Kostenlos, ohne Anmeldung",
+        nachweise: "Prüfsumme je Fassung; nichts wird hochgeladen" },
+      { name: "FiBu", href: "werkzeuge/smartformular/#fibu", stand: "10/2026", aufgabe: "Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten", fuer: "Sachbearbeitung in Kanzlei und Unternehmen",
+        daten: "Im Browser über den Memberbereich; Rechenzentren in der EU", sitz: "Deutschland",
+        ki: "Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten",
+        schnittstellen: "Offen für jedes Buchhaltungsprogramm, per Datei oder Schnittstelle", preis: "Beta kostenfrei; Preis mit dem Angebot",
+        nachweise: "Beta mit Testdaten; echte Daten nur mit Vereinbarung" },
+      { name: "Deklaration", href: "werkzeuge/smartformular/#deklaration", stand: "10/2026", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
+        daten: "Im Browser über den Memberbereich; Rechenzentren in der EU", sitz: "Deutschland",
+        ki: "Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten",
+        schnittstellen: "Neben Ihrem Kanzleiprogramm, per Datei oder Schnittstelle", preis: "Beta kostenfrei; Preis mit dem Angebot",
+        nachweise: "Beta mit Testdaten; echte Daten nur mit Vereinbarung" },
     ],
     ihrProduktText: "Ihre Lösung – auch als Komplettlösung aus einer Hand",
     formTitel: "Partner werden",
     formLead: "Stellen Sie Ihre Lösung hier, in meinen Workshops und bei meinen Auftritten auf Fachmessen und Netzwerkveranstaltungen vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
-    felder: { firma: "Unternehmen", name: "Ansprechperson", email: "E-Mail-Adresse", produkt: "Produkt oder Website", nachricht: "Worum geht es?", optional: "(freiwillig)" },
+    felder: { firma: "Unternehmen", name: "Ansprechperson", email: "E-Mail-Adresse", produkt: "Produkt oder Website", nachricht: "Worum geht es?", optional: "(freiwillig)",
+      fuer: "Für wen", standort: "Wo liegen die Daten?", waehlen: "Bitte wählen" },
+    // Zwei freiwillige Auswahlfelder für die erste Einschätzung (Recherche Vergleich, 18.10.2026); die übrigen Angaben folgen nach der
+    // Zusage im Vergleichsbogen (partner.js, Feld vergleich)
+    fuerWerte: ["Kanzleien", "Unternehmen", "Organisationen", "Mehrere davon"],
+    standortWerte: ["Deutschland", "EU", "Schweiz", "Beim Kunden (lokal)", "Anderswo"],
     senden: "Anfrage senden", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
     ungueltig: "Bitte Unternehmen, Ansprechperson und eine gültige E-Mail-Adresse angeben.",
@@ -83,21 +100,36 @@ const TEXT = {
       chips: ["Website", "Workshops", "Trade fairs"], knopf: "Become a partner" },
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     vergleichTitel: "Comparison",
-    vergleichLead: "What the tools do, who they are for and where the data is kept.",
+    vergleichLead: "The same details for every solution: what it does, where the data is kept, how AI is used and how it connects to your software.",
+    vergleichQuelle: "Details supplied by the providers, dated per column; listed in the order they joined.",
+    vergleichPartner: "Partners pay to be presented.",
+    stand: "As of",
     ihrProdukt: "Your product",
-    kriterien: { aufgabe: "Task", fuer: "For whom", daten: "Data", modell: "Language model" },
+    kriterien: { aufgabe: "Task", fuer: "For whom", daten: "Operation and data", sitz: "Provider based in", ki: "AI",
+      schnittstellen: "Interfaces", preis: "Price and trial", nachweise: "Assurance" },
     vergleich: [
-      { name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
-        daten: "Stays on your computer", modell: "No" },
-      { name: "FiBu", href: "werkzeuge/smartformular/en/#fibu", aufgabe: "Post bank, payables and receivables, linked to open items", fuer: "Accounting staff in firms and companies",
-        daten: "Data centres in the EU", modell: "Optional, EU, no training" },
-      { name: "Deklaration", href: "werkzeuge/smartformular/en/#deklaration", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
-        daten: "Data centres in the EU", modell: "Optional, EU, no training" },
+      { name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
+        daten: "A single file in your browser, offline; the data stays on your computer", sitz: "Germany", ki: "No, works with rules",
+        schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free, no sign-up",
+        nachweise: "Checksum for every version; nothing is uploaded" },
+      { name: "FiBu", href: "werkzeuge/smartformular/en/#fibu", stand: "10/2026", aufgabe: "Post bank, payables and receivables, linked to open items", fuer: "Accounting staff in firms and companies",
+        daten: "In the browser via the member area; data centres in the EU", sitz: "Germany",
+        ki: "Optional: language model in the EU or on your own systems, no training on your data",
+        schnittstellen: "Open to any accounting package, by file or interface", preis: "Beta free of charge; prices come with the quote",
+        nachweise: "Beta with test data; real data only by agreement" },
+      { name: "Deklaration", href: "werkzeuge/smartformular/en/#deklaration", stand: "10/2026", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
+        daten: "In the browser via the member area; data centres in the EU", sitz: "Germany",
+        ki: "Optional: language model in the EU or on your own systems, no training on your data",
+        schnittstellen: "Alongside your firm's software, by file or interface", preis: "Beta free of charge; prices come with the quote",
+        nachweise: "Beta with test data; real data only by agreement" },
     ],
     ihrProduktText: "Your solution – including all-in-one suites",
     formTitel: "Become a partner",
     formLead: "Present your solution here, in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
-    felder: { firma: "Company", name: "Contact person", email: "Email address", produkt: "Product or website", nachricht: "What is it about?", optional: "(optional)" },
+    felder: { firma: "Company", name: "Contact person", email: "Email address", produkt: "Product or website", nachricht: "What is it about?", optional: "(optional)",
+      fuer: "For whom", standort: "Where is the data kept?", waehlen: "Please choose" },
+    fuerWerte: ["Accounting firms", "Companies", "Organisations", "Several of these"],
+    standortWerte: ["Germany", "EU", "Switzerland", "With the customer (on premises)", "Elsewhere"],
     senden: "Send enquiry", sendet: "Sending …",
     gesendet: "Thank you – your enquiry has arrived. I will get back to you by email.",
     ungueltig: "Please give your company, a contact person and a valid email address.",
@@ -166,7 +198,9 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
   .wz-rolle li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
   .wz-raster, .wz-form .reihe { grid-template-columns: 1fr; }
   .wz-tabelle { min-width: 620px; }
-}`;
+}
+.wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
+.wz .wz-quelle { margin: -8px 0 26px; }`;
 
 // Browser-Teil: „Partner werden“ an Gochs Kontakt-Endpunkt (wie die Beta-Anfrage auf der SmartFormular-Seite:
 // Felder zu einer Nachricht, Falle „website“, Ladezeitpunkt t) und Weiterleitung alter Sprungmarken zur SmartFormular-Produktseite
@@ -177,14 +211,15 @@ const SKRIPT = (lang, t, sfZiel) => `<script>
   if (alt.includes(marke)) { location.replace(${JSON.stringify(sfZiel)} + '#' + marke); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
-  const T = ${JSON.stringify({ betreff: t.betreff, firma: t.felder.firma, produkt: t.felder.produkt, sendet: t.sendet, gesendet: t.gesendet, ungueltig: t.ungueltig, fehler: t.fehler })};
+  const T = ${JSON.stringify({ betreff: t.betreff, firma: t.felder.firma, produkt: t.felder.produkt, fuer: t.felder.fuer, standort: t.felder.standort, sendet: t.sendet, gesendet: t.gesendet, ungueltig: t.ungueltig, fehler: t.fehler })};
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const d = Object.fromEntries(new FormData(form));
     const firma = (d.firma || '').trim(), name = (d.name || '').trim(), email = (d.email || '').trim();
     if (firma.length < 2 || name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) { say(T.ungueltig, 'warn'); return; }
-    const message = [T.betreff, '', T.firma + ': ' + firma, d.produkt ? T.produkt + ': ' + d.produkt.trim() : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\\n').trim();
+    const message = [T.betreff, '', T.firma + ': ' + firma, d.produkt ? T.produkt + ': ' + d.produkt.trim() : null,
+      d.fuer ? T.fuer + ': ' + d.fuer : null, d.standort ? T.standort + ': ' + d.standort : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\\n').trim();
     knopf.disabled = true; say(T.sendet);
     try {
       const r = await fetch(${JSON.stringify(KONTAKT_ENDPUNKT)}, { method: 'POST', headers: { 'content-type': 'application/json' },
@@ -227,23 +262,29 @@ ${chips(t.platzhalter.chips)}
   return [sf, ...partner, platz].join("\n");
 }
 
-// Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“;
-// Zeilen „Bereich“, „Programme“, „Stand“ und „Einführung und Schulung“ entfallen seit 18.10.2026 (Robin); die Kriterien sollen später
-// mit einer Recherche festgelegt werden – die SmartFormular-Spalten dienen bis dahin als Beispiel für Partner
+// Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“.
+// Acht Zeilen nach der Recherche vom 18.10.2026 (Vault: 2026-10-18_Werkzeuge_Vergleich_Kriterien_Recherche, Option A, von Robin
+// gewählt): Aufgabe, Für wen, Betrieb und Daten, Sitz des Anbieters, KI, Schnittstellen, Preis und Test, Nachweise – Tatsachen, die
+// jeder Anbieter für Komplettlösung wie Einzelwerkzeug liefern kann, keine Noten. Im Kopf je Spalte der Stand der Angaben. Darunter
+// eine Zeile zur Herkunft der Angaben und zur Reihenfolge; der Satz, dass Partner für die Vorstellung zahlen, erscheint nur, wenn ein
+// Partner im Vergleich steht (Robin, 18.10.2026: möglichst wenig sichtbare Kennzeichnung). Steckbriefe mit Filter folgen später (Option B).
 function vergleich(lang, t, up) {
+  const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
   const spalten = [...t.vergleich.map(v => ({ ...v, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
-    ...PARTNER.filter(p => p.vergleich && p.vergleich[lang]).map(p => ({ ...p.vergleich[lang], name: p.name, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
+    ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
+  const mitPartner = partner.length > 0;
   const zeilen = Object.entries(t.kriterien).map(([k, label]) => `<tr><th scope="row">${esc(label)}</th>${spalten.map(s => `<td>${esc(s[k] || "")}</td>`).join("")}<td class="wz-frei-spalte">${k === "aufgabe" ? esc(t.ihrProduktText) : ""}</td></tr>`).join("\n");
   return `<div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
 <colgroup><col class="wz-kriterium">${spalten.map(() => "<col>").join("")}<col></colgroup>
-<thead><tr><th scope="col"></th>${spalten.map(s => `<th scope="col">${s.logo}${esc(s.name)}</th>`).join("")}<th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">${esc(t.platzhalter.logo)}</span>${esc(t.ihrProdukt)}</th></tr></thead>
+<thead><tr><th scope="col"></th>${spalten.map(s => `<th scope="col">${s.logo}${esc(s.name)}${s.stand ? `<span class="wz-th-stand">${esc(t.stand)} ${esc(s.stand)}</span>` : ""}</th>`).join("")}<th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">${esc(t.platzhalter.logo)}</span>${esc(t.ihrProdukt)}</th></tr></thead>
 <tbody>
 ${zeilen}
 <tr class="wz-tabelle-wege"><th scope="row"></th>${spalten.map(s => `<td><a href="${esc(s.href)}"${s.sponsored ? ' rel="sponsored noopener" target="_blank"' : ""}>${esc(t.zumProdukt)}</a></td>`).join("")}<td class="wz-frei-spalte"><a href="#partner">${esc(t.platzhalter.knopf)}</a></td></tr>
 </tbody>
 </table>
-</div>`;
+</div>
+<p class="meta wz-quelle">${esc(t.vergleichQuelle)}${mitPartner ? " " + esc(t.vergleichPartner) : ""}</p>`;
 }
 
 // Die Übersicht einer Sprache
@@ -280,6 +321,8 @@ ${vergleich(lang, t, up)}
 <div><label for="p-name">${esc(t.felder.name)}</label><input type="text" id="p-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="p-email">${esc(t.felder.email)}</label><input type="email" id="p-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="p-produkt">${esc(t.felder.produkt)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="p-produkt" name="produkt" maxlength="200"></div>
+<div><label for="p-fuer">${esc(t.felder.fuer)} <span>${esc(t.felder.optional)}</span></label><select id="p-fuer" name="fuer"><option value="">${esc(t.felder.waehlen)}</option>${t.fuerWerte.map(w => `<option>${esc(w)}</option>`).join("")}</select></div>
+<div><label for="p-standort">${esc(t.felder.standort)} <span>${esc(t.felder.optional)}</span></label><select id="p-standort" name="standort"><option value="">${esc(t.felder.waehlen)}</option>${t.standortWerte.map(w => `<option>${esc(w)}</option>`).join("")}</select></div>
 </div>
 <label for="p-nachricht">${esc(t.felder.nachricht)} <span>${esc(t.felder.optional)}</span></label><textarea id="p-nachricht" name="nachricht" maxlength="2000"></textarea>
 <div class="falle" aria-hidden="true"><label for="p-website">Website</label><input type="text" id="p-website" name="website" tabindex="-1" autocomplete="off"></div>
