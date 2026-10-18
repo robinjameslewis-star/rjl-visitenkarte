@@ -638,7 +638,9 @@ Produktseiten (SmartFormular, FiBu lite) und an Partnerangeboten der Seite „Wo
 stehen“ und die Spalte „Ihr Produkt“ tragen keins. „Anzeige“ verweist auf den Absatz `#anzeigen` im Impressum (index.html, DE und
 `legalAds` in language.js), ein kleines Skript in index.html klappt das Impressum dabei auf. Bausteine in `worker/src/partner.js`
 (`kennzeichen`, `anzeigeHref`, `KENNZ_CSS`). Deshalb stehen unter „Werkzeuge“ nur Werkzeuge, die robin.vision selbst anbietet oder für
-deren Vorstellung es vergütet wird. Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
+deren Vorstellung es vergütet wird. Gestaltung dezent (Robin, 18.10.2026: „noch zu groß“): normale Schreibung, nicht fett, ohne
+Sperrung, Unterstreichung nur beim Darüberfahren, Grau #767676 auf Papier (lesbar bleiben – sonst verfehlt es den Zweck).
+Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
 
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 

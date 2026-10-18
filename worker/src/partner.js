@@ -19,8 +19,9 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 // Kennzeichen an jedem Werkzeug: „Anzeige“ (Verweis auf die Erläuterung) und der Anbieter
 export const ROBIN_VISION = "robin.vision";
 export const ANZEIGE = { de: "Anzeige", en: "Ad" };
-export const KENNZ_CSS = `.kennz { margin: 0 0 12px; font: 500 11px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
-.kennz a { color: inherit; text-decoration: underline dotted; text-underline-offset: .2em; } .kennz span { text-transform: none; letter-spacing: .02em; }`;
+// Dezent (Robin, 18.10.2026): normale Schreibung, nicht fett, ohne Sperrung, Unterstreichung nur beim Darüberfahren – aber lesbar
+export const KENNZ_CSS = `.kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--sans); color: var(--ink-muted); }
+.kennz a { color: inherit; text-decoration: none; } .kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }`;
 export const anzeigeHref = (lang, up) => `${up}${lang === "en" ? "?lang=en" : ""}#anzeigen`;
 export const kennzeichen = (lang, href, anbieter, klasse) =>
   `<p class="${klasse}"><a href="${esc(href)}">${ANZEIGE[lang]}</a> · <span>${esc(anbieter)}</span></p>`;
