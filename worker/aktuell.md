@@ -11,7 +11,7 @@
    Arbeitsplatz, ein Test und ein Zertifikat je Person. Anfragen für 2027 sind schon möglich.
 3. **SmartFormular.** SmartFormular FiBu lite steht kostenlos auf der Seite: Es macht aus Kontoauszügen
    Buchungsstapel im DATEV-Format, offline im Browser. Als Beta in Vorbereitung: SmartFormular FiBu
-   (Belege, offene Posten, Saldenlisten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
+   (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
    Deklaration für den Jahresabschluss. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
 4. **Impulse.** Jeden Freitag erscheint ein neuer Impuls zu Automatisierung und KI im Rechnungswesen,
@@ -33,7 +33,7 @@
    a test and a certificate per person. Enquiries for 2027 are already welcome.
 3. **SmartFormular.** SmartFormular FiBu lite is available free of charge on the site: it turns bank
    statements into booking batches in the DATEV format, offline in the browser. In preparation as a beta:
-   SmartFormular FiBu (documents, open items, trial balances, an estimate of the advance VAT return) and
+   SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and
    SmartFormular Deklaration for year-end accounts. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
 4. **Food for Thought.** Every Friday a new post on automation and AI in accounting, on the site and in
