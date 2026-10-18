@@ -8,6 +8,7 @@
 import { rahmen, SF_CSS, WERKZEUGE } from "./werkzeug.js";
 import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten } from "./kasten.js";
+import { ROBIN_VISION, kennzeichen, anzeigeHref, KENNZ_CSS } from "./partner.js";
 
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
@@ -219,6 +220,7 @@ const datumText = (iso, lang) => {
 
 // Stile der Seite – über dem Erscheinungsbild SmartFormular (SF_CSS aus werkzeug.js)
 const CSS = `${SF_CSS}
+${KENNZ_CSS}
 .abzeichen { display: inline-block; margin: 0 0 16px; padding: 7px 14px; border: 1px solid #A78BFA; border-radius: 999px; font: 500 12px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
 .sf-wortmarke { margin: 0 0 14px; }
 .brotkrume { margin: 0 0 18px; font-size: 13px; letter-spacing: .02em; color: #8B83A8; }
@@ -302,6 +304,7 @@ ${p.punkte ? `<ul>${p.punkte.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""
   }).join("\n");
   const main = `<article class="smartformular">
 <p class="brotkrume"><a href="${up}${BROTKRUME[lang].href}">${BROTKRUME[lang].text}</a> › SmartFormular</p>
+${kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "kennz")}
 <h1 class="sf-wortmarke" aria-label="${esc(t.titel)}">Smart<span>Formular</span></h1>
 <p class="abzeichen">${esc(t.abzeichen)}</p>
 <p class="untertitel">${esc(t.untertitel)}</p>

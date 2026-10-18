@@ -1,9 +1,10 @@
 // Übersicht „Werkzeuge“ (worker/src/uebersicht.js) und Werkzeug-Slider der Startseite (worker/src/slider.js; Robin, 18.10.2026):
-// gebaute Seiten entsprechen den Modulen; gleichrangige Karten mit Kennzeichnung, ohne Aufteilung nach Bereichen (Robin, 18.10.2026),
+// gebaute Seiten entsprechen den Modulen; gleichrangige Karten, ohne Aufteilung nach Bereichen (Robin, 18.10.2026),
 // Platzhalter, Vergleich, Workshops, Formular „Partner werden“ an Gochs Kontakt-Endpunkt, Weiterleitung
 // alter Sprungmarken zur SmartFormular-Produktseite; Slider je Sprache; ein Probe-Partner erscheint wie alle anderen, nur der Verweis trägt rel="sponsored";
-// nirgends eine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026). Vergleich mit acht Kriterien und Stand je
-// Spalte (Recherche 18.10.2026, Option A); der Satz, dass Partner für die Vorstellung zahlen, erscheint nur mit Partner im Vergleich.
+// nirgends eine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026). Jedes Werkzeug – Karte, Slider, Spalte im
+// Vergleich – trägt dasselbe Kennzeichen „Anzeige · Anbieter“ mit Verweis auf die Erläuterung im Impressum (Robin, 18.10.2026, Option C);
+// der Platzhalter nicht. Vergleich mit acht Kriterien und Stand je Spalte (Recherche 18.10.2026, Option A).
 // Kein Netz.
 //   node tests/werkzeuge_uebersicht_test.mjs
 import { readFileSync } from "node:fs";
@@ -23,13 +24,18 @@ const T = {
     platz: "Hier könnte Ihr Produkt stehen", knopf: "Partner werden",
     sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>',
     zeilen: ["Aufgabe", "Für wen", "Betrieb und Daten", "Sitz des Anbieters", "KI", "Schnittstellen", "Preis und Test", "Nachweise"], stand: "Stand",
-    quelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.", partnerSatz: "Partner zahlen für die Vorstellung." },
+    quelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.", partnerSatz: "Partner zahlen für die Vorstellung.",
+    anzeige: "Anzeige", erkl: "../#anzeigen" },
   en: { titel: "Efficient tools for accounting, administration and other business processes",
     platz: "Your product could be here", knopf: "Become a partner",
     sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>',
     zeilen: ["Task", "For whom", "Operation and data", "Provider based in", "AI", "Interfaces", "Price and trial", "Assurance"], stand: "As of",
-    quelle: "Details supplied by the providers, dated per column; listed in the order they joined.", partnerSatz: "Partners pay to be presented." },
+    quelle: "Details supplied by the providers, dated per column; listed in the order they joined.", partnerSatz: "Partners pay to be presented.",
+    anzeige: "Ad", erkl: "../../?lang=en#anzeigen" },
 };
+
+const kennz = (t, klasse, anbieter, href = t.erkl) => `<p class="${klasse}"><a href="${href}">${t.anzeige}</a> · <span>${anbieter}</span></p>`;
+const thKennz = (t, anbieter) => `<span class="wz-th-kennz"><a href="${t.erkl}">${t.anzeige}</a> · <span>${anbieter}</span></span>`;
 
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const t = T[lang], html = lesen(pfad);
@@ -42,8 +48,9 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(!html.includes('class="wz-filter"') && !html.includes("data-bereich") && !html.includes('wz-frei"'), "keine Aufteilung nach Bereichen: kein Filter, keine freien Plätze je Bereich (Robin, 18.10.2026)");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");
   const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<h2/)?.[0] || "";
-  check(raster.includes('<article class="wz-karte">\n<span class="wz-logo wz-logo-sf"') && raster.includes(t.sf), "Karte SmartFormular: ohne Kennzeichnung, Knopf zur Produktseite");
-  check(!/wz-kennz|Partnerangebot|Partner offer|Anzeige|Advertisement|Eigene Produkte|Own products|eigene Produkte|own products|Partnerlösungen|partner solutions/.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "keine Unterscheidung zwischen eigenen Produkten und Partnern, keine Kennzeichnung (Robin, 18.10.2026)");
+  check(raster.includes(`<article class="wz-karte">\n${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf"`) && raster.includes(t.sf), "Karte SmartFormular: Kennzeichen „Anzeige · robin.vision“ mit Verweis auf die Erläuterung, Knopf zur Produktseite (Option C)");
+  check(!/Partnerangebot|Partner offer|Advertisement|Eigene Produkte|Own products|eigene Produkte|own products|Partnerlösungen|partner solutions/.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "keine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026)");
+  check(!(raster.match(/<article class="wz-karte wz-platzhalter">[\s\S]*?<\/article>/)?.[0] || "wz-kennz").includes("wz-kennz"), "Platzhalter ohne Kennzeichen");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
   check(raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Platzhalter „Hier könnte Ihr Produkt stehen“ mit Weg zum Formular");
   check((raster.match(/<article class="wz-karte/g) || []).length === 2, "zwei Karten: SmartFormular und der Platzhalter");
@@ -52,6 +59,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const zeilen = [...tabelle.matchAll(/<tr><th scope="row">([^<]*)<\/th>/g)].map(m => m[1].replace(/\u00AD/g, ""));
   check(anzahl(tabelle, /<th scope="col"/g) === 5 && zeilen.join("|") === t.zeilen.join("|") && !/>(Bereich|Area|Programme|Software|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && /Komplettlösung aus einer Hand|all-in-one suites/.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: drei Werkzeuge, „Ihr Produkt“, acht Kriterien nach der Recherche vom 18.10.2026, Weg zum Formular");
   check(anzahl(tabelle, /<td><\/td>/g) === 0 && anzahl(tabelle, /<span class="wz-th-stand">/g) === 3 && tabelle.includes(`<span class="wz-th-stand">${t.stand} 10/2026</span>`), "jede SmartFormular-Zelle gefüllt, Stand der Angaben im Kopf je Spalte");
+  check(anzahl(tabelle, new RegExp(thKennz(t, "robin.vision").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 3 && !/wz-frei-spalte"><span class="wz-th-kennz/.test(tabelle), "Vergleich: jede Werkzeugspalte mit Kennzeichen „Anzeige · Anbieter“, die Spalte „Ihr Produkt“ ohne");
   check(!/Testsieger|empfohlen|recommended|★|\b[1-5],[0-9] \/ 5\b/.test(tabelle), "keine Noten, Sterne oder Empfehlungen im Vergleich (§ 6 UWG)");
   const quelle = html.match(/<\/table>\n<\/div>\n<p class="meta wz-quelle">([^<]*)<\/p>/)?.[1] || "";
   check(quelle === t.quelle, "unter dem Vergleich: Herkunft der Angaben und Reihenfolge, ohne Partner kein Satz zur Bezahlung");
@@ -74,11 +82,11 @@ try {
   for (const lang of ["de", "en"]) {
     const t = T[lang], html = werkzeugeUebersicht(lang), s = slider(lang);
     const karte = (html.match(/<article class="wz-karte">[\s\S]*?<\/article>/g) || []).find(k => k.includes("Probe-Werkzeug")) || "";
-    check(karte.includes("<h3>Probe-Werkzeug</h3>") && !karte.includes("wz-kennz") && karte.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"'), `${lang}: Partnerkarte wie alle anderen, nur der Verweis mit rel="sponsored"`);
-    check(s.includes("<h3>Probe-Werkzeug</h3>") && s.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"') && s.indexOf("Probe-Werkzeug") < s.indexOf(t.platz), `${lang}: Slider zeigt den Partner vor dem Platzhalter`);
+    check(karte.includes("<h3>Probe-Werkzeug</h3>") && karte.startsWith(`<article class="wz-karte">\n${kennz(t, "wz-kennz", "Probe GmbH")}`) && karte.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"'), `${lang}: Partnerkarte wie alle anderen – gleiches Kennzeichen mit dem Anbieter, Verweis mit rel="sponsored"`);
+    check(s.includes("<h3>Probe-Werkzeug</h3>") && s.includes(kennz(t, "wzs-kennz", "Probe GmbH", "#anzeigen")) && s.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"') && s.indexOf("Probe-Werkzeug") < s.indexOf(t.platz) && !/wzs-bereich">Partner</.test((s.match(/<article class="wzs-karte">(?:(?!<\/article>)[\s\S])*?Probe-Werkzeug[\s\S]*?<\/article>/) || ["wzs-bereich\">Partner<"])[0]), `${lang}: Slider zeigt den Partner vor dem Platzhalter, mit Kennzeichen, ohne Bereich „Partner“`);
     const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
     check(anzahl(tabelle, /<th scope="col"/g) === 6 && tabelle.includes(`Probe-Werkzeug<span class="wz-th-stand">${t.stand} 01/2027</span>`) && tabelle.indexOf("Probe-Werkzeug") < tabelle.indexOf('class="wz-frei-spalte"') && tabelle.includes('<td><a href="https://example.org/" rel="sponsored noopener" target="_blank">'), `${lang}: Partner als Spalte nach den SmartFormular-Produkten, mit Stand, Verweis mit rel="sponsored"`);
-    check(html.includes(`<p class="meta wz-quelle">${t.quelle} ${t.partnerSatz}</p>`) && anzahl(html, new RegExp(t.partnerSatz, "g")) === 1, `${lang}: mit Partner ein Satz unter dem Vergleich, dass Partner für die Vorstellung zahlen – sonst keine Kennzeichnung`);
+    check(tabelle.includes(`${thKennz(t, "Probe GmbH")}Probe-Werkzeug`) && html.includes(`<p class="meta wz-quelle">${t.quelle}</p>`) && !html.includes(t.partnerSatz), `${lang}: Partnerspalte mit demselben Kennzeichen; kein eigener Satz über Partner unter dem Vergleich`);
   }
 } finally { PARTNER.pop(); }
 
@@ -90,10 +98,11 @@ for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
   check(anzahl(s, /<article class="wzs-karte/g) === 4 && anzahl(s, /<i( class="an")?><\/i>/g) === 4 && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: vier Karten, vier Punkte, zwei Pfeile`);
-  check(!s.includes("wzs-kennz") && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer|Anzeige|Advertisement/i.test(s) && s.includes(`<h3>${t.platz}</h3>`) && s.includes(`href="werkzeuge/${lang === "en" ? "en/" : ""}#partner"`), `${lang}: drei SmartFormular-Produkte und Platzhalter ohne Kennzeichnung, Platzhalter führt zu „Partner werden“`);
+  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 3 && anzahl(s, /wzs-kennz/g) === 3 && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && s.includes(`<h3>${t.platz}</h3>`) && s.includes(`href="werkzeuge/${lang === "en" ? "en/" : ""}#partner"`), `${lang}: drei SmartFormular-Produkte mit Kennzeichen „Anzeige · robin.vision“, Platzhalter ohne, führt zu „Partner werden“`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
   check(s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#deklaration"`), `${lang}: FiBu und Deklaration führen zur Produktseite`);
 }
+check(start.includes('<p id="anzeigen" data-i18n="legalAds">Anzeigen: Werkzeuge mit dem Kennzeichen „Anzeige“') && /legalAds: 'Advertising: tools marked “Ad”/.test(lesen("language.js")) && /Gebühr oder Provision/.test(start) && /beteiligt ist/.test(start) && start.includes("location.hash === '#anzeigen'") && start.includes("impressum.open = true"), "Impressum: Erläuterung „Anzeigen“ (DE/EN) mit Sprungmarke #anzeigen, die das Impressum aufklappt");
 check(start.includes("document.querySelectorAll('.wzs')") && /\.wzs\[hidden\] \{ display: none; \}/.test(start) && /\.wzs-spur \{[^}]*scroll-snap-type: x mandatory/.test(start), "Slider: Stile mit scroll-snap, kleines Skript für Pfeile und Punkte");
 check(start.includes('href="werkzeuge/" data-i18n="toolsAll"') || /data-i18n="toolsAll"/.test(start), "Startseite: Verweis auf die Übersicht mit Vergleich");
 check(/Rechnungswesen, Verwaltung und weitere Geschäftsprozesse/.test(start) && /accounting, administration and other business processes/.test(lesen("language.js")), "Startseite und Sprachdatei: weitere Geschäftsprozesse");

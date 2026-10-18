@@ -10,6 +10,7 @@ import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { kopf, KOPF_CSS } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
+import { ROBIN_VISION, kennzeichen, anzeigeHref, KENNZ_CSS } from "./partner.js";
 
 export { NEWSLETTER_ENDPUNKT };
 const SITE = "https://robin.vision/";
@@ -224,6 +225,7 @@ export function werkzeugSeite(f, id = "buchungsstapel-generator") {
   const [einleitung, ...rest] = beschreibung.split(/\n(?=## )/);
   const fragen = FRAGEN[id] || [];
   const main = `<article>
+${kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "kennz")}
 <h1>${esc(w.titel)}</h1>
 ${w.untertitel ? `<p class="untertitel">${esc(w.untertitel)}</p>\n` : ""}<p class="meta">${t.frei} · ${stand}</p>
 ${renderMarkdown(einleitung, "", lang)}
@@ -259,7 +261,7 @@ ${renderMarkdown(hinweis, "", andereLang)}
     mainEntity: fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c") : "";
   return rahmen({ lang, up, titel: w.titel, seitentitel: w.seitentitel, beschr: w.meta || (lang === "en" ? "Free tool: " : "Kostenloses Werkzeug: ") + w.kurz, canonical: werkzeugUrl(id),
     alternates: anderes ? [{ lang, href: werkzeugUrl(id) }, { lang: anderes.lang, href: werkzeugUrl(anderes.id) }] : [],
-    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main: `<p class="sf-marke">Smart<span>Formular</span></p>` + main, aktiv: "tools", css: SF_CSS });
+    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main: `<p class="sf-marke">Smart<span>Formular</span></p>` + main, aktiv: "tools", css: SF_CSS + "\n" + KENNZ_CSS });
 }
 
 // Übersicht je Sprache: alle Werkzeuge dieser Sprache mit Stand der Datei (felder: id → Felder der Seite)

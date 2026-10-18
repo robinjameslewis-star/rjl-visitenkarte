@@ -2,7 +2,8 @@
 // Berater, Coach und Vertriebspartner von Softwarelösungen (die drei Schritte stehen seit 18.10.2026 bei den Workshops: Partner sollen
 // nicht den Eindruck bekommen, jede Anfrage zu ihren Produkten laufe über robin.vision), alle Werkzeuge als gleichrangige
 // Karten ohne Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026: SmartFormular ist ein Beispiel unter vielen
-// Lösungen; rechtliche Fragen regeln die AGB, auf der Seite keine Kennzeichnung; Partnerverweise tragen rel="sponsored"), ohne Aufteilung nach
+// Lösungen), jedes Werkzeug gleich gekennzeichnet (Robin, 18.10.2026, Option C: „Anzeige · Anbieter“ an Karte und Spalte, Verweis auf
+// die Erläuterung im Impressum; Partnerverweise tragen rel="sponsored"), ohne Aufteilung nach
 // Bereichen (Robin, 18.10.2026: viele Partner bieten alles aus einer Hand; die Bereiche beschreiben nur das Angebot), ein
 // Vergleich und das Formular „Partner werden“ an Gochs Kontakt-Endpunkt. Erscheinungsbild robin.vision (Papier, Grün, Kupfer); die
 // Produkte haben eigene Seiten unter werkzeuge/<produkt>/ (SmartFormular: smartformular.js). Weitere Lösungen kommen aus partner.js. Alte Sprungmarken der früheren SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Produktseite weiter.
@@ -10,7 +11,7 @@
 // (tools/entwuerfe/werkzeuge-2026-10-18/).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER } from "./partner.js";
+import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref } from "./partner.js";
 import { newsletterKasten } from "./kasten.js";
 
 const SITE = "https://robin.vision/";
@@ -35,7 +36,6 @@ const TEXT = {
     vergleichTitel: "Im Vergleich",
     vergleichLead: "Für jede Lösung dieselben Angaben: was sie leistet, wo die Daten liegen, wie KI eingesetzt wird und wie sie sich anbinden lässt.",
     vergleichQuelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.",
-    vergleichPartner: "Partner zahlen für die Vorstellung.",
     stand: "Stand",
     ihrProdukt: "Ihr Produkt",
     kriterien: { aufgabe: "Aufgabe", fuer: "Für wen", daten: "Betrieb und Daten", sitz: "Sitz des Anbieters", ki: "KI",
@@ -91,7 +91,6 @@ const TEXT = {
     vergleichTitel: "Comparison",
     vergleichLead: "The same details for every solution: what it does, where the data is kept, how AI is used and how it connects to your software.",
     vergleichQuelle: "Details supplied by the providers, dated per column; listed in the order they joined.",
-    vergleichPartner: "Partners pay to be presented.",
     stand: "As of",
     ihrProdukt: "Your product",
     kriterien: { aufgabe: "Task", fuer: "For whom", daten: "Operation and data", sitz: "Provider based in", ki: "AI",
@@ -144,6 +143,11 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-karte > p:last-child { margin-top: auto; margin-bottom: 0; }
 .wz-logo { width: max-content; height: 44px; padding: 0 16px; display: flex; align-items: center; margin: 0 0 14px; border: 1px dashed var(--line); border-radius: 4px; font: 500 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,.6); }
 .wz-logo img { max-height: 32px; width: auto; }
+.wz-karte .wz-kennz { margin: 0 0 12px; font: 500 11px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); }
+.wz-th-kennz { display: block; margin: 0 0 8px; font: 500 10.5px/1.5 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); }
+.wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: underline dotted; text-underline-offset: .2em; }
+.wz-kennz span, .wz-th-kennz span { text-transform: none; letter-spacing: .02em; }
+.wz-th-kennz { hyphens: manual; } .wz-th-kennz span { white-space: nowrap; }
 .wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 15px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
 .wz-platzhalter { border: 1.5px dashed var(--copper); }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
@@ -215,8 +219,10 @@ const SKRIPT = (lang, t, sfZiel) => `<script>
 // Karten aller Werkzeuge: SmartFormular, dann die Lösungen aus partner.js, zuletzt der Platzhalter
 function karten(lang, t, up) {
   const sfHref = up + SMARTFORMULAR_PFAD[lang].replace(/index\.html$/, "");
+  const kennz = anbieter => kennzeichen(lang, anzeigeHref(lang, up), anbieter, "wz-kennz");
   const chips = liste => `<ul class="wz-chips">${liste.map(c => `<li>${esc(c)}</li>`).join("")}</ul>`;
   const sf = `<article class="wz-karte">
+${kennz(ROBIN_VISION)}
 ${SF_LOGO}
 <h3>SmartFormular</h3>
 <p class="frei">${esc(t.sf.text)}</p>
@@ -226,6 +232,7 @@ ${chips(t.sf.chips)}
   const partner = PARTNER.map(p => {
     const seite = p.seite ? up + `werkzeuge/${p.seite}/` : null;
     return `<article class="wz-karte">
+${kennz(p.anbieter)}
 <span class="wz-logo" aria-hidden="true">${p.logo ? `<img src="${esc(up + p.logo)}" alt="">` : esc(p.name)}</span>
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc((p.text && (p.text[lang] || p.text.de)) || "")}</p>
@@ -246,25 +253,25 @@ ${chips(t.platzhalter.chips)}
 // Acht Zeilen nach der Recherche vom 18.10.2026 (Vault: 2026-10-18_Werkzeuge_Vergleich_Kriterien_Recherche, Option A, von Robin
 // gewählt): Aufgabe, Für wen, Betrieb und Daten, Sitz des Anbieters, KI, Schnittstellen, Preis und Test, Nachweise – Tatsachen, die
 // jeder Anbieter für Komplettlösung wie Einzelwerkzeug liefern kann, keine Noten. Im Kopf je Spalte der Stand der Angaben. Darunter
-// eine Zeile zur Herkunft der Angaben und zur Reihenfolge; der Satz, dass Partner für die Vorstellung zahlen, erscheint nur, wenn ein
-// Partner im Vergleich steht (Robin, 18.10.2026: möglichst wenig sichtbare Kennzeichnung). Steckbriefe mit Filter folgen später (Option B).
+// eine Zeile zur Herkunft der Angaben und zur Reihenfolge. Jede Spalte trägt im Kopf dasselbe Kennzeichen „Anzeige · Anbieter“ wie die
+// Karten (Robin, 18.10.2026, Option C). Steckbriefe mit Filter folgen später (Option B).
 function vergleich(lang, t, up) {
   const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
-  const spalten = [...t.vergleich.map(v => ({ ...v, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
-    ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
-  const mitPartner = partner.length > 0;
+  const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
+    ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, anbieter: p.anbieter, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
+  const kennz = s => kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");
   const zeilen = Object.entries(t.kriterien).map(([k, label]) => `<tr><th scope="row">${esc(label)}</th>${spalten.map(s => `<td>${esc(s[k] || "")}</td>`).join("")}<td class="wz-frei-spalte">${k === "aufgabe" ? esc(t.ihrProduktText) : ""}</td></tr>`).join("\n");
   return `<div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
 <colgroup><col class="wz-kriterium">${spalten.map(() => "<col>").join("")}<col></colgroup>
-<thead><tr><th scope="col"></th>${spalten.map(s => `<th scope="col">${s.logo}${esc(s.name)}${s.stand ? `<span class="wz-th-stand">${esc(t.stand)} ${esc(s.stand)}</span>` : ""}</th>`).join("")}<th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">${esc(t.platzhalter.logo)}</span>${esc(t.ihrProdukt)}</th></tr></thead>
+<thead><tr><th scope="col"></th>${spalten.map(s => `<th scope="col">${kennz(s)}${s.logo}${esc(s.name)}${s.stand ? `<span class="wz-th-stand">${esc(t.stand)} ${esc(s.stand)}</span>` : ""}</th>`).join("")}<th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">${esc(t.platzhalter.logo)}</span>${esc(t.ihrProdukt)}</th></tr></thead>
 <tbody>
 ${zeilen}
 <tr class="wz-tabelle-wege"><th scope="row"></th>${spalten.map(s => `<td><a href="${esc(s.href)}"${s.sponsored ? ' rel="sponsored noopener" target="_blank"' : ""}>${esc(t.zumProdukt)}</a></td>`).join("")}<td class="wz-frei-spalte"><a href="#partner">${esc(t.platzhalter.knopf)}</a></td></tr>
 </tbody>
 </table>
 </div>
-<p class="meta wz-quelle">${esc(t.vergleichQuelle)}${mitPartner ? " " + esc(t.vergleichPartner) : ""}</p>`;
+<p class="meta wz-quelle">${esc(t.vergleichQuelle)}</p>`;
 }
 
 // Die Übersicht einer Sprache
