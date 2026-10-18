@@ -17,13 +17,14 @@ export const ueberMichUrl = lang => SITE + UEBER_MICH.find(s => s.lang === lang)
 const TEXT = {
   de: {
     titel: "Über mich",
-    beschr: "Robin James Lewis aus Balingen: vom Handel über die Verwaltungsleitung eines Kulturzentrums zum Steuerfachangestellten. Werkzeuge für den Alltag im Rechnungswesen, Ehrenamt, LinkedIn.",
+    beschr: "Robin James Lewis aus Balingen: vom Handel über die Verwaltungsleitung eines Kulturzentrums zum Steuerfachangestellten. Werkzeuge und Workshops unter robin.vision, Ehrenamt, LinkedIn.",
     meta: "Robin James Lewis · Balingen",
     alt: "Robin James Lewis, Porträt",
     beruf: "Steuerfachangestellter in Ausbildung",
     einleitung: [
       "Ich bin Robin James Lewis aus Balingen am Fuß der Schwäbischen Alb. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Kanzlei in Balingen. Die Abschlussprüfung läuft im Winter 2026/27.",
-      "Nebenher digitalisiere ich Kanzleiprozesse: Belege und Bankumsätze kommen über Importe statt von Hand in die Buchhaltung, Vorsysteme werden angebunden, Auswertungen entstehen per Skript. Dabei entstehen Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun. <a href=\"{werkzeuge}\">Diese Werkzeuge</a> stelle ich hier kostenlos bereit; dazu schreibe ich jeden Freitag einen <a href=\"{impulse}\">Impuls</a> zu Automatisierung und KI im Rechnungswesen.",
+      "Nebenher digitalisiere ich Kanzleiprozesse: Belege und Bankumsätze kommen über Importe statt von Hand in die Buchhaltung, Vorsysteme werden angebunden, Auswertungen entstehen per Skript. Dabei entstehen Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation – für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.",
+      "Unter robin.vision stelle ich solche <a href=\"{werkzeuge}\">Werkzeuge</a> vor – eigene wie SmartFormular, dessen FiBu lite kostenlos ist, und ausgewählte Lösungen anderer Anbieter. Ab 2027 wähle ich mit Kanzleien und Unternehmen das Passende aus, führe es ein und schule die Teams, auch in <a href=\"{workshops}\">Workshops</a> zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag schreibe ich einen <a href=\"{impulse}\">Impuls</a> zu Automatisierung und KI im Rechnungswesen.",
     ],
     stationenTitel: "Stationen",
     stationen: [
@@ -46,13 +47,14 @@ const TEXT = {
   },
   en: {
     titel: "About me",
-    beschr: "Robin James Lewis from Balingen, Germany: from retail via running the administration of a cultural centre to certified tax clerk. Tools for everyday accounting work, voluntary work, LinkedIn.",
+    beschr: "Robin James Lewis from Balingen, Germany: from retail via running the administration of a cultural centre to certified tax clerk. Tools and workshops under robin.vision, voluntary work, LinkedIn.",
     meta: "Robin James Lewis · Balingen, Germany",
     alt: "Robin James Lewis, portrait",
     beruf: "Trainee tax clerk",
     einleitung: [
       "I am Robin James Lewis from Balingen at the foot of the Swabian Alb in southern Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. The final examinations take place in the winter of 2026/27.",
-      "Alongside, I digitise the firm's processes: documents and bank transactions reach the books through imports instead of by hand, upstream systems are connected, reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the middle of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work. I make <a href=\"{werkzeuge}\">these tools</a> available here free of charge, and every Friday I write a <a href=\"{impulse}\">short piece</a> on automation and AI in accounting.",
+      "Alongside this, I digitise the firm's processes: receipts and bank transactions reach the books through imports rather than by hand, upstream systems are connected, and reports are produced by script. Out of this come tools for everyday work outside the perfect process, in the thick of the transformation – for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work.",
+      "Under robin.vision I present such <a href=\"{werkzeuge}\">tools</a> – my own, such as SmartFormular, whose FiBu lite is free, and selected solutions from other providers. From 2027 I will help firms and companies choose what fits, implement it and train their teams, including in <a href=\"{workshops}\">workshops</a> on AI literacy with EU AI Act training. Every Friday I write a <a href=\"{impulse}\">Food for Thought</a> post on automation and AI in accounting.",
     ],
     stationenTitel: "Career",
     stationen: [
@@ -120,7 +122,7 @@ export function ueberMichSeite(lang) {
 <div class="portrait-row">
 <img class="portrait" src="${up}${PORTRAIT.datei}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="${esc(t.alt)}" decoding="async">
 <div class="einleitung">
-${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/"))}</p>`).join("\n")}
+${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/")).replace("{workshops}", up + (lang === "en" ? "workshops/en/" : "workshops/"))}</p>`).join("\n")}
 </div>
 </div>
 <h2 id="stationen">${t.stationenTitel}</h2>

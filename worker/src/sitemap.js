@@ -3,8 +3,8 @@
 // tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten, damit kein Importkreis entsteht.
 // Feste Seiten je Sprache (ueber_mich.js, workshops.js, smartformular.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
 export const SEITEN = [
-  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-16" },
-  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-16" },
+  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-18" },
+  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-18" },
   { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-17" },
   { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-17" },
   // Produktseite SmartFormular unter den Werkzeugen (smartformular.js, seit 18.10.2026)

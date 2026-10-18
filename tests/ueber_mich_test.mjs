@@ -42,6 +42,8 @@ for (const s of UEBER_MICH) {
   check(html.includes(`<meta property="og:image" content="https://robin.vision/${PORTRAIT.datei}">`), "Bild zum Teilen ist das Foto");
   check(html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html) && /newsletter\.js\?v=/.test(html), "Newsletter-Kasten und Anmeldung über den Worker");
   check(t.nav.test(html) && html.includes(`href="../${s.lang === "en" ? "werkzeuge/en/" : "werkzeuge/"}"`), "Kopf: Werkzeuge und Über mich dieser Sprache");
+  const einl = (html.match(/<div class="einleitung">([\s\S]*?)<\/div>/) || ["", ""])[1], ws = s.lang === "en" ? "workshops/en/" : "workshops/";
+  check((einl.match(/<p>/g) || []).length === 3 && einl.includes(`href="../${ws}"`) && /SmartFormular/.test(einl) && /EU AI Act/.test(einl) && !/kostenlos bereit|free of charge/.test(einl), "Einleitung: drei Absätze, robin.vision mit Werkzeugen, SmartFormular und Workshops (Robin, 18.10.2026)");
   const andere = UEBER_MICH.find(a => a.lang !== s.lang);
   check(html.includes(`<a href="../${andere.adresse}" lang="${andere.lang}" hreflang="${andere.lang}">`), "Verweis auf die andere Sprachfassung");
 }
