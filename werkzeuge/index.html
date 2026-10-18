@@ -143,7 +143,9 @@ article li { margin-bottom: 6px; }
 @media (max-width: 720px) {
   .wz-raster, .wz-form .reihe { grid-template-columns: 1fr; }
   .wz-tabelle { min-width: 620px; }
-}</style>
+}
+.wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
+.wz .wz-quelle { margin: -8px 0 26px; }</style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
@@ -176,20 +178,25 @@ article li { margin-bottom: 6px; }
 </article>
 </div>
 <h2 id="vergleich">Im Vergleich</h2>
-<p class="wz-hinweis frei">Was die Werkzeuge leisten, für wen sie gedacht sind und wo die Daten liegen.</p>
+<p class="wz-hinweis frei">Für jede Lösung dieselben Angaben: was sie leistet, wo die Daten liegen, wie KI eingesetzt wird und wie sie sich anbinden lässt.</p>
 <div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
 <colgroup><col class="wz-kriterium"><col><col><col><col></colgroup>
-<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite</th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu</th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration</th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Ihr Logo</span>Ihr Produkt</th></tr></thead>
+<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Ihr Logo</span>Ihr Produkt</th></tr></thead>
 <tbody>
 <tr><th scope="row">Aufgabe</th><td>Kontoauszüge zu Buchungsstapeln</td><td>Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten</td><td>Arbeitspapier, das mitdenkt und vorarbeitet</td><td class="wz-frei-spalte">Ihre Lösung – auch als Komplettlösung aus einer Hand</td></tr>
 <tr><th scope="row">Für wen</th><td>Kanzleien und Unternehmen</td><td>Sachbearbeitung in Kanzlei und Unternehmen</td><td>Kanzleien</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Daten</th><td>Bleiben auf Ihrem Rechner</td><td>Rechenzentren in der EU</td><td>Rechenzentren in der EU</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Sprach­modell</th><td>Nein</td><td>Optional, EU, ohne Training</td><td>Optional, EU, ohne Training</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Betrieb und Daten</th><td>Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner</td><td>Im Browser über den Memberbereich; Rechenzentren in der EU</td><td>Im Browser über den Memberbereich; Rechenzentren in der EU</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Sitz des Anbieters</th><td>Deutschland</td><td>Deutschland</td><td>Deutschland</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">KI</th><td>Nein, arbeitet mit Regeln</td><td>Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten</td><td>Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Schnitt­stellen</th><td>Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format</td><td>Offen für jedes Buchhaltungsprogramm, per Datei oder Schnittstelle</td><td>Neben Ihrem Kanzleiprogramm, per Datei oder Schnittstelle</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Preis und Test</th><td>Kostenlos, ohne Anmeldung</td><td>Beta kostenfrei; Preis mit dem Angebot</td><td>Beta kostenfrei; Preis mit dem Angebot</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Nachweise</th><td>Prüfsumme je Fassung; nichts wird hochgeladen</td><td>Beta mit Testdaten; echte Daten nur mit Vereinbarung</td><td>Beta mit Testdaten; echte Daten nur mit Vereinbarung</td><td class="wz-frei-spalte"></td></tr>
 <tr class="wz-tabelle-wege"><th scope="row"></th><td><a href="../werkzeuge/buchungsstapel-generator/">Zum Produkt</a></td><td><a href="../werkzeuge/smartformular/#fibu">Zum Produkt</a></td><td><a href="../werkzeuge/smartformular/#deklaration">Zum Produkt</a></td><td class="wz-frei-spalte"><a href="#partner">Partner werden</a></td></tr>
 </tbody>
 </table>
 </div>
+<p class="meta wz-quelle">Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.</p>
 <section class="wz-kasten" aria-labelledby="workshops-hinweis">
 <p class="kicker">In den Workshops</p>
 <h2 id="workshops-hinweis">Werkzeuge erleben, bevor Sie entscheiden</h2>
@@ -204,6 +211,8 @@ article li { margin-bottom: 6px; }
 <div><label for="p-name">Ansprechperson</label><input type="text" id="p-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="p-email">E-Mail-Adresse</label><input type="email" id="p-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="p-produkt">Produkt oder Website <span>(freiwillig)</span></label><input type="text" id="p-produkt" name="produkt" maxlength="200"></div>
+<div><label for="p-fuer">Für wen <span>(freiwillig)</span></label><select id="p-fuer" name="fuer"><option value="">Bitte wählen</option><option>Kanzleien</option><option>Unternehmen</option><option>Organisationen</option><option>Mehrere davon</option></select></div>
+<div><label for="p-standort">Wo liegen die Daten? <span>(freiwillig)</span></label><select id="p-standort" name="standort"><option value="">Bitte wählen</option><option>Deutschland</option><option>EU</option><option>Schweiz</option><option>Beim Kunden (lokal)</option><option>Anderswo</option></select></div>
 </div>
 <label for="p-nachricht">Worum geht es? <span>(freiwillig)</span></label><textarea id="p-nachricht" name="nachricht" maxlength="2000"></textarea>
 <div class="falle" aria-hidden="true"><label for="p-website">Website</label><input type="text" id="p-website" name="website" tabindex="-1" autocomplete="off"></div>
@@ -230,14 +239,15 @@ article li { margin-bottom: 6px; }
   if (alt.includes(marke)) { location.replace("smartformular/" + '#' + marke); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
-  const T = {"betreff":"Partneranfrage: Werkzeuge auf robin.vision","firma":"Unternehmen","produkt":"Produkt oder Website","sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson und eine gültige E-Mail-Adresse angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision."};
+  const T = {"betreff":"Partneranfrage: Werkzeuge auf robin.vision","firma":"Unternehmen","produkt":"Produkt oder Website","fuer":"Für wen","standort":"Wo liegen die Daten?","sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson und eine gültige E-Mail-Adresse angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision."};
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const d = Object.fromEntries(new FormData(form));
     const firma = (d.firma || '').trim(), name = (d.name || '').trim(), email = (d.email || '').trim();
     if (firma.length < 2 || name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { say(T.ungueltig, 'warn'); return; }
-    const message = [T.betreff, '', T.firma + ': ' + firma, d.produkt ? T.produkt + ': ' + d.produkt.trim() : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\n').trim();
+    const message = [T.betreff, '', T.firma + ': ' + firma, d.produkt ? T.produkt + ': ' + d.produkt.trim() : null,
+      d.fuer ? T.fuer + ': ' + d.fuer : null, d.standort ? T.standort + ': ' + d.standort : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\n').trim();
     knopf.disabled = true; say(T.sendet);
     try {
       const r = await fetch("https://goch.robin.vision/contact", { method: 'POST', headers: { 'content-type': 'application/json' },

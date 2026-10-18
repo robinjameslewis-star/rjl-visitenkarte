@@ -2,7 +2,8 @@
 // gebaute Seiten entsprechen den Modulen; gleichrangige Karten mit Kennzeichnung, ohne Aufteilung nach Bereichen (Robin, 18.10.2026),
 // Platzhalter, Vergleich, Workshops, Formular „Partner werden“ an Gochs Kontakt-Endpunkt, Weiterleitung
 // alter Sprungmarken zur SmartFormular-Produktseite; Slider je Sprache; ein Probe-Partner erscheint wie alle anderen, nur der Verweis trägt rel="sponsored";
-// nirgends eine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026).
+// nirgends eine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026). Vergleich mit acht Kriterien und Stand je
+// Spalte (Recherche 18.10.2026, Option A); der Satz, dass Partner für die Vorstellung zahlen, erscheint nur mit Partner im Vergleich.
 // Kein Netz.
 //   node tests/werkzeuge_uebersicht_test.mjs
 import { readFileSync } from "node:fs";
@@ -20,10 +21,14 @@ const anzahl = (s, re) => (s.match(re) || []).length;
 const T = {
   de: { titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
     platz: "Hier könnte Ihr Produkt stehen", knopf: "Partner werden",
-    sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>' },
+    sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>',
+    zeilen: ["Aufgabe", "Für wen", "Betrieb und Daten", "Sitz des Anbieters", "KI", "Schnittstellen", "Preis und Test", "Nachweise"], stand: "Stand",
+    quelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.", partnerSatz: "Partner zahlen für die Vorstellung." },
   en: { titel: "Efficient tools for accounting, administration and other business processes",
     platz: "Your product could be here", knopf: "Become a partner",
-    sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>' },
+    sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>',
+    zeilen: ["Task", "For whom", "Operation and data", "Provider based in", "AI", "Interfaces", "Price and trial", "Assurance"], stand: "As of",
+    quelle: "Details supplied by the providers, dated per column; listed in the order they joined.", partnerSatz: "Partners pay to be presented." },
 };
 
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
@@ -44,17 +49,25 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check((raster.match(/<article class="wz-karte/g) || []).length === 2, "zwei Karten: SmartFormular und der Platzhalter");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Verweis mit rel=sponsored");
   const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
-  check(anzahl(tabelle, /<th scope="col"/g) === 5 && anzahl(tabelle, /<tr><th scope="row">/g) === 4 && !/>(Bereich|Area|Programme|Software|Stand|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && /Komplettlösung aus einer Hand|all-in-one suites/.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: drei Werkzeuge, „Ihr Produkt“, vier Kriterien (Aufgabe, Für wen, Daten, Sprachmodell), Weg zum Formular");
+  const zeilen = [...tabelle.matchAll(/<tr><th scope="row">([^<]*)<\/th>/g)].map(m => m[1].replace(/\u00AD/g, ""));
+  check(anzahl(tabelle, /<th scope="col"/g) === 5 && zeilen.join("|") === t.zeilen.join("|") && !/>(Bereich|Area|Programme|Software|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && /Komplettlösung aus einer Hand|all-in-one suites/.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: drei Werkzeuge, „Ihr Produkt“, acht Kriterien nach der Recherche vom 18.10.2026, Weg zum Formular");
+  check(anzahl(tabelle, /<td><\/td>/g) === 0 && anzahl(tabelle, /<span class="wz-th-stand">/g) === 3 && tabelle.includes(`<span class="wz-th-stand">${t.stand} 10/2026</span>`), "jede SmartFormular-Zelle gefüllt, Stand der Angaben im Kopf je Spalte");
+  check(!/Testsieger|empfohlen|recommended|★|\b[1-5],[0-9] \/ 5\b/.test(tabelle), "keine Noten, Sterne oder Empfehlungen im Vergleich (§ 6 UWG)");
+  const quelle = html.match(/<\/table>\n<\/div>\n<p class="meta wz-quelle">([^<]*)<\/p>/)?.[1] || "";
+  check(quelle === t.quelle, "unter dem Vergleich: Herkunft der Angaben und Reihenfolge, ohne Partner kein Satz zur Bezahlung");
   check(html.indexOf('id="ueberblick"') < html.indexOf('id="vergleich"') && html.indexOf('id="vergleich"') < html.indexOf('id="workshops-hinweis"') && html.indexOf('id="workshops-hinweis"') < html.indexOf('id="partner"'), "Reihenfolge: Überblick, Vergleich, Workshops, Partner werden");
   const form = html.match(/<form class="wz-form wz-kasten" id="partner-anfrage"[\s\S]*?<\/form>/)?.[0] || "";
   check(["firma", "name", "email", "produkt", "nachricht", "website"].every(n => form.includes(`name="${n}"`)) && !form.includes('name="bereich"') && form.includes('tabindex="-1"') && form.includes('role="status"'), "Formular „Partner werden“: Felder, Falle, Statuszeile");
+  check(['<select id="p-fuer" name="fuer"><option value="">', '<select id="p-standort" name="standort"><option value="">'].every(x => form.includes(x)) && !/<select[^>]*required/.test(form) && anzahl(form, /<option>/g) === 9 && html.includes("d.fuer ? T.fuer") && html.includes("d.standort ? T.standort"), "Formular: zwei freiwillige Auswahlfelder (Für wen, Datenstandort), in der Nachricht an Robin");
   check(html.includes(`<h2 id="partner">${t.knopf}</h2>`) && html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes("'content-type': 'application/json'"), "Formular sendet an Gochs Kontakt-Endpunkt");
   check(html.includes(JSON.stringify(ALTE_MARKEN)) && html.includes(`location.replace(${t.ziel}`) && ["fibu", "deklaration", "beta"].every(m => ALTE_MARKEN.includes(m)), "alte Sprungmarken (#fibu, #deklaration, #beta …) leiten zur Produktseite");
   check(html.includes('id="newsletter"'), "Newsletter-Kasten");
 }
 
 console.log("\nProbe-Partner");
+const probeVergleich = { stand: "01/2027", aufgabe: "Probe-Aufgabe", fuer: "Probe", daten: "Probe", sitz: "Probe", ki: "Probe", schnittstellen: "Probe", preis: "Probe", nachweise: "Probe" };
 PARTNER.push({ id: "probe", name: "Probe-Werkzeug", anbieter: "Probe GmbH", url: "https://example.org/",
+  vergleich: { de: probeVergleich, en: probeVergleich },
   text: { de: "Ein Satz zum Werkzeug.", en: "One sentence on the tool." } });
 try {
   for (const lang of ["de", "en"]) {
@@ -62,6 +75,9 @@ try {
     const karte = (html.match(/<article class="wz-karte">[\s\S]*?<\/article>/g) || []).find(k => k.includes("Probe-Werkzeug")) || "";
     check(karte.includes("<h3>Probe-Werkzeug</h3>") && !karte.includes("wz-kennz") && karte.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"'), `${lang}: Partnerkarte wie alle anderen, nur der Verweis mit rel="sponsored"`);
     check(s.includes("<h3>Probe-Werkzeug</h3>") && s.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"') && s.indexOf("Probe-Werkzeug") < s.indexOf(t.platz), `${lang}: Slider zeigt den Partner vor dem Platzhalter`);
+    const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
+    check(anzahl(tabelle, /<th scope="col"/g) === 6 && tabelle.includes(`Probe-Werkzeug<span class="wz-th-stand">${t.stand} 01/2027</span>`) && tabelle.indexOf("Probe-Werkzeug") < tabelle.indexOf('class="wz-frei-spalte"') && tabelle.includes('<td><a href="https://example.org/" rel="sponsored noopener" target="_blank">'), `${lang}: Partner als Spalte nach den SmartFormular-Produkten, mit Stand, Verweis mit rel="sponsored"`);
+    check(html.includes(`<p class="meta wz-quelle">${t.quelle} ${t.partnerSatz}</p>`) && anzahl(html, new RegExp(t.partnerSatz, "g")) === 1, `${lang}: mit Partner ein Satz unter dem Vergleich, dass Partner für die Vorstellung zahlen – sonst keine Kennzeichnung`);
   }
 } finally { PARTNER.pop(); }
 

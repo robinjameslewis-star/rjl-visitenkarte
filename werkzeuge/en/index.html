@@ -143,7 +143,9 @@ article li { margin-bottom: 6px; }
 @media (max-width: 720px) {
   .wz-raster, .wz-form .reihe { grid-template-columns: 1fr; }
   .wz-tabelle { min-width: 620px; }
-}</style>
+}
+.wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
+.wz .wz-quelle { margin: -8px 0 26px; }</style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
@@ -176,20 +178,25 @@ article li { margin-bottom: 6px; }
 </article>
 </div>
 <h2 id="vergleich">Comparison</h2>
-<p class="wz-hinweis frei">What the tools do, who they are for and where the data is kept.</p>
+<p class="wz-hinweis frei">The same details for every solution: what it does, where the data is kept, how AI is used and how it connects to your software.</p>
 <div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
 <colgroup><col class="wz-kriterium"><col><col><col><col></colgroup>
-<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite</th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu</th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration</th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Your logo</span>Your product</th></tr></thead>
+<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite<span class="wz-th-stand">As of 10/2026</span></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu<span class="wz-th-stand">As of 10/2026</span></th><th scope="col"><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration<span class="wz-th-stand">As of 10/2026</span></th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Your logo</span>Your product</th></tr></thead>
 <tbody>
 <tr><th scope="row">Task</th><td>Bank statements into booking batches</td><td>Post bank, payables and receivables, linked to open items</td><td>Working paper that thinks ahead and does the groundwork</td><td class="wz-frei-spalte">Your solution – including all-in-one suites</td></tr>
 <tr><th scope="row">For whom</th><td>Firms and companies</td><td>Accounting staff in firms and companies</td><td>Accounting firms</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Data</th><td>Stays on your computer</td><td>Data centres in the EU</td><td>Data centres in the EU</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Language model</th><td>No</td><td>Optional, EU, no training</td><td>Optional, EU, no training</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Operation and data</th><td>A single file in your browser, offline; the data stays on your computer</td><td>In the browser via the member area; data centres in the EU</td><td>In the browser via the member area; data centres in the EU</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Provider based in</th><td>Germany</td><td>Germany</td><td>Germany</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">AI</th><td>No, works with rules</td><td>Optional: language model in the EU or on your own systems, no training on your data</td><td>Optional: language model in the EU or on your own systems, no training on your data</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Interfaces</th><td>Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format</td><td>Open to any accounting package, by file or interface</td><td>Alongside your firm&#39;s software, by file or interface</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Price and trial</th><td>Free, no sign-up</td><td>Beta free of charge; prices come with the quote</td><td>Beta free of charge; prices come with the quote</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Assurance</th><td>Checksum for every version; nothing is uploaded</td><td>Beta with test data; real data only by agreement</td><td>Beta with test data; real data only by agreement</td><td class="wz-frei-spalte"></td></tr>
 <tr class="wz-tabelle-wege"><th scope="row"></th><td><a href="../../werkzeuge/booking-batch-generator/">To the product</a></td><td><a href="../../werkzeuge/smartformular/en/#fibu">To the product</a></td><td><a href="../../werkzeuge/smartformular/en/#deklaration">To the product</a></td><td class="wz-frei-spalte"><a href="#partner">Become a partner</a></td></tr>
 </tbody>
 </table>
 </div>
+<p class="meta wz-quelle">Details supplied by the providers, dated per column; listed in the order they joined.</p>
 <section class="wz-kasten" aria-labelledby="workshops-hinweis">
 <p class="kicker">In the workshops</p>
 <h2 id="workshops-hinweis">Experience tools before you decide</h2>
@@ -204,6 +211,8 @@ article li { margin-bottom: 6px; }
 <div><label for="p-name">Contact person</label><input type="text" id="p-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="p-email">Email address</label><input type="email" id="p-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="p-produkt">Product or website <span>(optional)</span></label><input type="text" id="p-produkt" name="produkt" maxlength="200"></div>
+<div><label for="p-fuer">For whom <span>(optional)</span></label><select id="p-fuer" name="fuer"><option value="">Please choose</option><option>Accounting firms</option><option>Companies</option><option>Organisations</option><option>Several of these</option></select></div>
+<div><label for="p-standort">Where is the data kept? <span>(optional)</span></label><select id="p-standort" name="standort"><option value="">Please choose</option><option>Germany</option><option>EU</option><option>Switzerland</option><option>With the customer (on premises)</option><option>Elsewhere</option></select></div>
 </div>
 <label for="p-nachricht">What is it about? <span>(optional)</span></label><textarea id="p-nachricht" name="nachricht" maxlength="2000"></textarea>
 <div class="falle" aria-hidden="true"><label for="p-website">Website</label><input type="text" id="p-website" name="website" tabindex="-1" autocomplete="off"></div>
@@ -230,14 +239,15 @@ article li { margin-bottom: 6px; }
   if (alt.includes(marke)) { location.replace("../smartformular/en/" + '#' + marke); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
-  const T = {"betreff":"Partner enquiry: tools on robin.vision","firma":"Company","produkt":"Product or website","sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your company, a contact person and a valid email address.","fehler":"Sending did not work. Please email me directly at robin@robin.vision."};
+  const T = {"betreff":"Partner enquiry: tools on robin.vision","firma":"Company","produkt":"Product or website","fuer":"For whom","standort":"Where is the data kept?","sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your company, a contact person and a valid email address.","fehler":"Sending did not work. Please email me directly at robin@robin.vision."};
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const d = Object.fromEntries(new FormData(form));
     const firma = (d.firma || '').trim(), name = (d.name || '').trim(), email = (d.email || '').trim();
     if (firma.length < 2 || name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { say(T.ungueltig, 'warn'); return; }
-    const message = [T.betreff, '', T.firma + ': ' + firma, d.produkt ? T.produkt + ': ' + d.produkt.trim() : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\n').trim();
+    const message = [T.betreff, '', T.firma + ': ' + firma, d.produkt ? T.produkt + ': ' + d.produkt.trim() : null,
+      d.fuer ? T.fuer + ': ' + d.fuer : null, d.standort ? T.standort + ': ' + d.standort : null, '', (d.nachricht || '').trim()].filter(x => x !== null).join('\n').trim();
     knopf.disabled = true; say(T.sendet);
     try {
       const r = await fetch("https://goch.robin.vision/contact", { method: 'POST', headers: { 'content-type': 'application/json' },
