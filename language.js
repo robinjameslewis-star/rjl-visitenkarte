@@ -47,10 +47,10 @@
       book: 'Termin vorschlagen', bookHint: ' – öffnet den Kalender in einem neuen Tab.',
       legalTitle: 'Impressum · Datenschutz',
       legalMstv: 'Verantwortlich für die Inhalte nach § 18 Abs. 2 MStV: Robin James Lewis, Anschrift wie oben.',
-      description: 'Kostenlose Werkzeuge für die Buchhaltung, die offline im Browser laufen, und jeden Freitag ein Impuls zu Automatisierung und KI im Rechnungswesen. Robin James Lewis, Balingen.',
+      description: 'Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.',
       title: 'robin.vision – Werkzeuge und Workshops zur KI-Kompetenz',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
-      claim: 'Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.',
+      claim: 'Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.',
       ctaTool: 'Werkzeuge', ctaWorkshops: 'Workshops',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
@@ -123,9 +123,9 @@
       book: 'Suggest a time', bookHint: ' — opens the calendar in a new tab.',
       legalTitle: 'Legal notice · Privacy',
       legalMstv: 'Responsible for content under § 18(2) MStV (German Interstate Media Treaty): Robin James Lewis, address as above.',
-      description: 'Free bookkeeping tools that run offline in your browser, and a short post every Friday on automation and AI in accounting. Robin James Lewis, Balingen, Germany.',
+      description: 'Tools for everyday work in accounting, administration and other business processes – including SmartFormular, FiBu lite free. Workshops with EU AI Act training for companies, accounting firms and organisations. A new post every Friday.',
       title: 'robin.vision – Tools and AI literacy workshops',
-      claim: 'In the middle of the transformation: tools for the days when the process stalls, and workshops for teams that want to use AI safely – with EU AI Act training.',
+      claim: 'In the middle of the transformation: tools for everyday work in accounting, administration and other business processes, and workshops for teams that want to use AI safely – with EU AI Act training.',
       ctaTool: 'Tools', ctaWorkshops: 'Workshops',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
