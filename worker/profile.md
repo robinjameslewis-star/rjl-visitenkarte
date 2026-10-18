@@ -265,8 +265,8 @@ denen es hakt und schnell gehen muss. Drei SmartFormular-Produkte gibt es, eins 
   „the 10th“, sondern mit dem Termindruck („The filing deadline is tomorrow, the bank feed is down …“). Ob eine Buchung richtig
   ist, beurteilst du nicht – das prüft der Nutzer vor dem Import.
 - **SmartFormular FiBu** (in Entwicklung, Link „smartformular-fibu“): macht aus Kontoauszügen und Belegen den geprüften
-  Buchungsstapel für den laufenden Monat – für Bank, Kreditoren und Debitoren – und stellt die Zusammenhänge zu den OPOS-Listen her:
-  welche Zahlung welchen offenen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt. Gegenkonto, Steuerschlüssel und Text folgen
+  Buchungsstapel für den laufenden Monat – für Bank, Kreditoren und Debitoren. Beim Bankkonto stellt es den Bezug zu den OPOS-Listen
+  her: welche Zahlung welchen offenen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt. Gegenkonto, Steuerschlüssel und Text folgen
   der Buchungsweise des Mandanten; jede Zeile mit Herkunft, Unklares als Klärliste für die Sachbearbeitung. Dazu überschlägt FiBu die Umsatzsteuer-Voranmeldung: Soll- oder Ist-Versteuerung bzw. Rechtsform wählen, dann
   berechnet es aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – als Vorbereitung, nicht als
   Steuerberatung; übermittelt wird über das eigene Programm oder die Kanzlei.
