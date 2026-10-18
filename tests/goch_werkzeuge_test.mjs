@@ -46,7 +46,7 @@ console.log("Wissen und Links");
   modell = { reply: "Robin hat einen Buchungsstapel-Generator gebaut.", action: null, message: null, link: "buchungsstapel-generator" };
   let r = await chat(env(), "de", [{ role: "user", content: "Was für Werkzeuge hat Robin?" }]);
   const system = prompts.at(-1)?.system?.[0]?.text || "";
-  check(/## Robins Angebote: SmartFormular und Workshops \(ab 2027\), Newsletter/.test(system) && /SmartFormular FiBu lite/.test(system) && /Booking Batch Generator/.test(system), "Profil kennt SmartFormular, FiBu lite und Newsletter");
+  check(/## Robins Angebote: Werkzeuge und Workshops \(ab 2027\), Newsletter/.test(system) && /SmartFormular FiBu lite/.test(system) && /Booking Batch Generator/.test(system), "Profil kennt SmartFormular, FiBu lite und Newsletter");
   check(/- werkzeuge \(/.test(system) && /- buchungsstapel-generator \(/.test(system) && /- newsletter \(/.test(system), "Links im Prompt");
   check(/"newsletter"/.test(system) && /"feedback"/.test(system), "Antwortformat kennt newsletter und feedback");
   check(r.link && r.link.url === "https://robin.vision/werkzeuge/buchungsstapel-generator/" && r.link.label === "SmartFormular FiBu lite (Buchungsstapel-Generator)", "Link auf Deutsch");

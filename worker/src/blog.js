@@ -331,16 +331,16 @@ ${items}
 // Brevo füllt beim Versand nur die seit dem letzten Lauf neuen Einträge ein (beobachtet an der Test-Mail vom 16.10.2026), darum
 // trägt jeder Eintrag die ganze Ausgabe als HTML (CDATA): der Impuls mit längerem Auszug und Verweis, darunter „Neu im …“ mit
 // der neuesten Fassung des neuesten Werkzeugs (Feld „Was ist neu“ der Werkzeugseite), dann die Angebote (Robin, 17.10.2026):
-// „SmartFormular“ (FiBu lite kostenlos, FiBu und Deklaration als Beta) und „Workshops“ (Unterweisung nach EU AI Act), je mit Link.
+// „Werkzeuge“ (Übersicht, darunter SmartFormular mit FiBu lite kostenlos, FiBu und Deklaration als Beta; seit 18.10.2026) und „Workshops“ (Unterweisung nach EU AI Act), je mit Link.
 // Jede Fassung ist zusätzlich ein eigener Eintrag, damit auch in einer Woche ohne Impuls eine Ausgabe entsteht.
 // werkzeuge: [{ id, lang, titel, datei, neuigkeiten: Text }].
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
-  de: { titel: "robin.vision – Newsletter", beschr: "Impulse, SmartFormular und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom",
-    sf: "SmartFormular", sfText: "FiBu lite ist kostenlos; SmartFormular FiBu und SmartFormular Deklaration entstehen gerade – Beta-Zugang im Memberbereich auf Anfrage.", sfLink: "Alle SmartFormular-Produkte",
+  de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom",
+    sf: "Werkzeuge", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – darunter SmartFormular: FiBu lite ist kostenlos, FiBu und Deklaration entstehen gerade, Beta-Zugang auf Anfrage.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
     ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Zum Workshop mit Unterweisung nach EU AI Act" },
-  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, SmartFormular and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of",
-    sf: "SmartFormular", sfText: "FiBu lite is free; SmartFormular FiBu and SmartFormular Deklaration are in the making – beta access in the member area on request.", sfLink: "All SmartFormular products",
+  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of",
+    sf: "Tools", sfText: "Software and AI solutions for accounting, administration and other business processes – including SmartFormular: FiBu lite is free, FiBu and Deklaration are in the making, beta access on request.", sfLink: "All tools at a glance and compared",
     ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "To the workshop with EU AI Act training" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen
@@ -358,7 +358,7 @@ export function renderNewsletterFeed({ posts, siteUrl, lang = "de", werkzeuge = 
   const fassungen = werkzeuge.filter(w => w.lang === lang).flatMap(w => neuigkeiten(w.neuigkeiten).map(e => ({ ...e, werkzeug: w, datum: e.datum || (w.datei && w.datei.datum) || "" })))
     .filter(e => e.datum && e.fassung && e.text).sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0);
   const neueste = fassungen[0], pfad = lang === "en" ? "en/" : "";
-  const angebote = `<h3>${esc(t.sf)}</h3>\n<p>${esc(t.sfText)}</p>\n<p><a href="${siteUrl}werkzeuge/smartformular/${pfad}">${esc(t.sfLink)}</a></p>\n<h3>${esc(t.ws)}</h3>\n<p>${esc(t.wsText)}</p>\n<p><a href="${siteUrl}workshops/${pfad}">${esc(t.wsLink)}</a></p>`;
+  const angebote = `<h3>${esc(t.sf)}</h3>\n<p>${esc(t.sfText)}</p>\n<p><a href="${siteUrl}werkzeuge/${pfad}">${esc(t.sfLink)}</a></p>\n<h3>${esc(t.ws)}</h3>\n<p>${esc(t.wsText)}</p>\n<p><a href="${siteUrl}workshops/${pfad}">${esc(t.wsLink)}</a></p>`;
   const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p><a href="${url(neueste.werkzeug)}">${esc(t.laden)}: ${esc(neueste.werkzeug.titel)}</a></p>` : "";
   const impulse = posts.filter(p => p.lang === lang).map(p => ({ datum: p.date, titel: p.title, link: `${siteUrl}blog/${p.slug}/`,
     html: `${p.summary ? `<p><strong>${esc(p.summary)}</strong></p>\n` : ""}${renderMarkdown(auszug(p.body), "", lang)}\n<p><a href="${siteUrl}blog/${p.slug}/">${esc(t.ganz)}</a></p>${werkzeugBlock ? "\n" + werkzeugBlock : ""}\n${angebote}` }));
