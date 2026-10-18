@@ -23,8 +23,8 @@ const TEXT = {
   de: {
     titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und Business-IT",
     seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT | robin.vision",
-    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT – ausgewählt, eingeführt und geschult von robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult von robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
+    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und Business-IT – ausgewählt, eingeführt und geschult mit robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
+    untertitel: "Software und KI-Lösungen, die im Alltag tragen – ausgewählt, eingeführt und geschult mit robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
     rolle: [
       ["Auswählen", "Ich prüfe Werkzeuge an Ihren Abläufen und empfehle, was passt – eigene Produkte und Lösungen von Partnern."],
       ["Einführen", "Einrichtung, Anbindung an Ihr Buchhaltungsprogramm, Regeln und Vorlagen für Ihr Team."],
@@ -71,8 +71,8 @@ const TEXT = {
   en: {
     titel: "Efficient tools for accounting, administration and business IT",
     seitentitel: "Efficient tools and AI solutions for accounting, administration and business IT | robin.vision",
-    beschr: "Software and AI solutions for accounting, administration and business IT – selected, implemented and taught by robin.vision. With SmartFormular, a comparison and a partner programme.",
-    untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and taught by robin.vision. I show many of them in the workshops using real cases.",
+    beschr: "Software and AI solutions for accounting, administration and business IT – selected, implemented and learned with robin.vision. With SmartFormular, a comparison and a partner programme.",
+    untertitel: "Software and AI solutions that hold up in daily work – selected, implemented and learned with robin.vision. I show many of them in the workshops using real cases.",
     rolle: [
       ["Select", "I test tools against your processes and recommend what fits – my own products and partner solutions."],
       ["Implement", "Set-up, connection to your accounting software, rules and templates for your team."],

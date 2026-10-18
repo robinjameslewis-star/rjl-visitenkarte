@@ -81,6 +81,7 @@ for (const lang of ["de", "en"]) {
 check(start.includes("document.querySelectorAll('.wzs')") && /\.wzs\[hidden\] \{ display: none; \}/.test(start) && /\.wzs-spur \{[^}]*scroll-snap-type: x mandatory/.test(start), "Slider: Stile mit scroll-snap, kleines Skript für Pfeile und Punkte");
 check(start.includes('href="werkzeuge/" data-i18n="toolsAll"') || /data-i18n="toolsAll"/.test(start), "Startseite: Verweis auf die Übersicht mit Vergleich");
 check(/Rechnungswesen, Verwaltung und Business-IT/.test(start) && /accounting, administration and business IT/.test(lesen("language.js")), "Startseite und Sprachdatei: Business-IT");
+check([start, lesen("language.js"), lesen("werkzeuge/index.html")].every(h => h.includes("geschult mit robin.vision") && !h.includes("geschult von robin.vision")) && /learned with robin\.vision/.test(lesen("werkzeuge/en/index.html")) && !/taught by robin\.vision/.test(lesen("language.js") + lesen("werkzeuge/en/index.html")), "„ausgewählt, eingeführt und geschult mit robin.vision“ (Robin, 18.10.2026)");
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");
 process.exit(fails ? 1 : 0);
