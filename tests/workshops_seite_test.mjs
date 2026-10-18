@@ -50,6 +50,7 @@ for (const s of WORKSHOPS) {
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
   check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "Course" && ld[0].hasCourseInstance.length === 2 && ld[0].hasCourseInstance.every(c => !c.offers) && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 8, "JSON-LD: Course mit zwei Durchführungen und FAQPage mit acht Fragen");
   check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 8, "acht Fragen sichtbar");
+  check(!/kleines Werkzeug|Schmerzpunkt|small (browser )?tool|pain point/i.test(html), "kein selbst gebautes Werkzeug im Workshop (Robin, 18.10.2026: das wollen die Partner nicht sehen)");
   const schritte = (html.match(/<ol class="schritte">[\s\S]*?<\/ol>/) || [""])[0];
   check((schritte.match(/<li>/g) || []).length === 3 && (s.lang === "en" ? ["Analyse", "Train", "Develop"] : ["Analysieren", "Schulen", "Weiterentwickeln"]).every((w, i) => schritte.includes(`<span class="nr">0${i + 1}</span><strong>${w}</strong>`)) && /unverbindliches Gespräch|no-obligation call/.test(schritte) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="teile"'), "Drei Schritte der Zusammenarbeit vor den drei Teilen, Einstieg mit unverbindlichem Gespräch (Robin, 18.10.2026)");
   const werkzeuge = (html.match(/<h2 id="werkzeuge">[\s\S]*?<h2 id="formate">/) || [""])[0];
