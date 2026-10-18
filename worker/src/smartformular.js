@@ -38,7 +38,7 @@ const TEXT = {
     fibuPunkte: [
       ["Bank buchen", "Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zum Buchungsstapel für das Bankkonto – nach Ihrer Buchungsweise. FiBu stellt den Bezug zu Ihren OPOS-Listen her: welche Zahlung welchen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt."],
       ["Belege lesen und zuordnen", "Rechnungen und Gutschriften als PDF oder E-Rechnung: FiBu liest Betrag, Datum, Steuersatz und Rechnungsnummer und ordnet die Zahlung zu – auch bei Skonto und Teilzahlungen."],
-      ["Kreditoren und Debitoren buchen", "Aus Eingangs- und Ausgangsrechnungen entsteht der Buchungsstapel auf den Personenkonten – mit Steuersatz und Kostenstelle aus dem Beleg und dem Gegenkonto nach Ihrer Buchungsweise."],
+      ["Kreditoren und Debitoren buchen", "Aus Eingangs- und Ausgangsrechnungen entsteht der Buchungsstapel auf den Personenkonten. Über Ihre Stammdaten- und Kontenliste ordnet FiBu jeden Beleg dem richtigen Kreditor oder Debitor zu; für neue Geschäftspartner schlägt es ein neues Konto vor, über das Sie entscheiden."],
       ["Ihre Buchungsweise je Mandant", "Gegenkonto, Steuerschlüssel, Kostenstelle und Buchungstext folgen den letzten zwölf Monaten je Geschäftspartner – als Datei bei Ihnen, ohne Modelltraining."],
       ["Klärliste statt Rätselraten", "Was nicht eindeutig ist, wird zur Frage, die Sie mit einem Klick beantworten. Jede Zeile zeigt ihre Herkunft – nachvollziehbar und prüfbar nach GoBD."],
       ["Umsatzsteuer überschlagen", "Für die Umsatzsteuer-Voranmeldung: Sie wählen Soll- oder Ist-Versteuerung oder Ihre Rechtsform, FiBu errechnet aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – je Steuersatz, mit Herkunft jedes Betrags. Ein Überschlag zur Vorbereitung; die Voranmeldung erstellen und übermitteln Sie oder Ihre Kanzlei."],
@@ -64,7 +64,7 @@ const TEXT = {
     programmeTitel: "Offen für jedes Buchhaltungsprogramm",
     programmeLead: "Nicht nur DATEV: SmartFormular wird so gebaut, dass es mit jedem Buchhaltungsprogramm Daten austauscht – importieren und exportieren, zuerst in Deutschland, langfristig weltweit. Sie behalten Ihr Programm; SmartFormular arbeitet ihm zu.",
     programme: [
-      ["Import und Export", "Kontoauszüge, Belege, Buchungsstapel, offene Posten und Saldenlisten kommen aus Ihrem Programm herein; die Ergebnisse gehen in dem Format zurück, das Ihr Programm einliest."],
+      ["Import und Export", "Kontoauszüge, Belege, Stammdaten- und Kontenlisten, Buchungsstapel, offene Posten und Saldenlisten kommen aus Ihrem Programm herein; die Ergebnisse gehen in dem Format zurück, das Ihr Programm einliest."],
       ["Ein neutrales Datenmodell", "Intern arbeitet SmartFormular mit einem eigenen, programmunabhängigen Datenmodell. Jedes Programm kommt über eine eigene Anbindung hinzu – per Datei oder Schnittstelle, Schnittstellen zuerst lesend. An Ihrer Arbeit im SmartFormular ändert das nichts."],
       ["Von Deutschland in die Welt", "Zuerst die Programme, mit denen Kanzleien und Unternehmen im deutschsprachigen Raum arbeiten, mit ihren Kontenrahmen. Danach weitere Länder mit ihren Kontenrahmen, Steuerregeln und Standards für Bankdaten und E-Rechnungen."],
     ],
@@ -134,7 +134,7 @@ const TEXT = {
     fibuPunkte: [
       ["Post the bank account", "Bank statements as PDF, scan, CAMT, MT940 or CSV become the booking batch for the bank account – following your posting style. FiBu links them to your open-item lists: which payment settles which item, what remains open, where an invoice is missing."],
       ["Read and match documents", "Invoices and credit notes as PDF or e-invoice: FiBu reads amount, date, tax rate and invoice number and matches the payment – including early-payment discounts and part payments."],
-      ["Post payables and receivables", "Purchase and sales invoices become the booking batch on the supplier and customer accounts – with tax rate and cost centre taken from the document and the contra account following your posting style."],
+      ["Post payables and receivables", "Purchase and sales invoices become the booking batch on the supplier and customer accounts. Using your master data and account list, FiBu assigns each document to the right supplier or customer; for new business partners it proposes a new account for you to decide on."],
       ["Your posting style per client", "Contra account, tax key, cost centre and posting text follow the last twelve months per business partner – as a file kept with you, no model training."],
       ["A clarification list instead of guesswork", "Anything ambiguous becomes a question you answer with one click. Every line shows its origin – traceable and auditable under the German GoBD."],
       ["Estimate VAT", "For the German advance VAT return: you choose accrual or cash accounting, or your legal form, and FiBu works out from bank statements and documents the expected VAT payable or the excess input VAT to be refunded – by rate, with the origin of every amount. An estimate to prepare the return; you or your firm still prepare and file it."],
@@ -160,7 +160,7 @@ const TEXT = {
     programmeTitel: "Open to every accounting package",
     programmeLead: "Not just DATEV: SmartFormular is being built to exchange data with every accounting package – importing and exporting, starting in Germany and in the long run worldwide. You keep your software; SmartFormular works alongside it.",
     programme: [
-      ["Import and export", "Bank statements, documents, booking batches, open items and trial balances come in from your software; the results go back in the format your software imports."],
+      ["Import and export", "Bank statements, documents, master data and account lists, booking batches, open items and trial balances come in from your software; the results go back in the format your software imports."],
       ["A neutral data model", "Internally SmartFormular works with its own data model, independent of any package. Each package is added through its own connector – by file or interface, interfaces read-only at first. Your work in SmartFormular stays the same."],
       ["From Germany to the world", "First the packages that firms and companies in German-speaking countries use, with their charts of accounts. Then further countries with their charts of accounts, tax rules and standards for bank data and e-invoices."],
     ],
