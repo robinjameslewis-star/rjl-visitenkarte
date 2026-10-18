@@ -1,6 +1,7 @@
 // Seite „Workshops“ (workshops/index.html, englisch workshops/en/index.html; Robin, 17.10.2026): der Workshop KI-Kompetenz für Teams,
 // mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem Teil (Badge unter der Überschrift, eigener Kasten) – Workshop mit Robin
-// (Hemmschwellen überwinden, Anwendungsfälle entwickeln, gemeinsam ein kleines Werkzeug im Browser bauen), Online-Lehrgang im
+// (Hemmschwellen überwinden, Anwendungsfälle entwickeln, ausgewählte Werkzeuge kennenlernen; seit 18.10.2026 ohne selbst gebautes
+// Werkzeug – das wollen die Partner nicht sehen, Robin), Online-Lehrgang im
 // Memberbereich, Test mit Zertifikat. Termine für 2027 auf Anfrage über ein kurzes Formular (Unternehmen, Ansprechperson, E-Mail,
 // Teilnehmerzahl, Wunschtermin, online oder vor Ort) an Gochs Kontakt-Endpunkt; kein Kalender (Robin, 17.10.2026: Cal.com zeigte
 // Termine in 2026 – vorerst weg), keine Preise (auf Anfrage; Robins Vorschlag steht im Konzept im Vault). Rechtsrahmen ohne
@@ -40,7 +41,7 @@ const TEXT = {
     ],
     teileTitel: "Drei Teile, ein Ergebnis",
     teile: [
-      ["Workshop", "90 Minuten online oder ein halber Tag vor Ort. Ich greife die Fälle Ihres Teams auf, nehme Berührungsängste und entwickle mit Ihnen Anwendungsfälle für Ihren Alltag. Gemeinsam bauen wir ein kleines Werkzeug im Browser für einen echten Schmerzpunkt – so erlebt jede Person, was KI kann und wo sie sicher scheitert."],
+      ["Workshop", "90 Minuten online oder ein halber Tag vor Ort. Ich greife die Fälle Ihres Teams auf, nehme Berührungsängste und entwickle mit Ihnen Anwendungsfälle für Ihren Alltag. An ausgewählten Werkzeugen erlebt jede Person, was KI und neue Software leisten und wo ihre Grenzen liegen."],
       ["Online-Lehrgang", "Sieben Lektionen, die den Workshop vertiefen und in die tägliche Arbeit übertragen: Lernziele, Fälle aus dem Rechnungswesen, Selbstchecks und je Lektion eine Praxisaufgabe am eigenen Arbeitsplatz. Etwa 70 Minuten Lernzeit in Etappen, mit eigenem Zugang; das Skript dient zum Nachschlagen."],
       ["Test und Zertifikat", "15 Fragen, jede Antwort erklärt, Wiederholung jederzeit. Mit dem Bestehen erhält jede Person ihr Zertifikat über die Unterweisung nach EU AI Act – online prüfbar. Sie erhalten die Teilnehmerliste für Ihr Schulungsverzeichnis."],
     ],
@@ -78,7 +79,7 @@ const TEXT = {
     formate: [
       { name: "Workshop online", text: "90 Minuten per Videokonferenz mit Ihrem Team. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
         preis: "Preis auf Anfrage", klein: "für Teams bis etwa 12 Personen; größere Gruppen nach Absprache" },
-      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen, mit Übungen an eigenen Fällen und einem Werkzeug für Ihren Schmerzpunkt. Danach der Zugang für alle.",
+      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen, mit Übungen an eigenen Fällen und ausgewählten Werkzeugen. Danach der Zugang für alle.",
         preis: "Preis auf Anfrage", klein: "für Teams bis etwa 15 Personen, zuzüglich Fahrtkosten" },
     ],
     auffrischung: "Werkzeuge und Regeln ändern sich. Deshalb gibt es jährlich eine Auffrischung mit neuer Fassung, Test und Zertifikat – damit Ihr Nachweis aktuell bleibt.",
@@ -103,7 +104,7 @@ const TEXT = {
     fragenTitel: "Fragen und Antworten",
     fragen: [
       ["Ist diese Schulung Pflicht?", "Die KI-Verordnung verlangt von Betrieben, die KI einsetzen, Maßnahmen zur KI-Kompetenz ihres Personals – wie, entscheidet der Betrieb. Dieser Workshop ist eine solche Maßnahme, mit Nachweis."],
-      ["Warum ein Workshop und nicht nur ein Online-Kurs?", "Weil Hemmschwellen im Gespräch fallen und Fragen aus dem eigenen Alltag am meisten bringen. Im Workshop entwickelt Ihr Team eigene Anwendungsfälle und baut ein kleines Werkzeug; der Lehrgang vertieft das Wissen und überträgt es mit Praxisaufgaben in den Alltag, der Test schließt ab."],
+      ["Warum ein Workshop und nicht nur ein Online-Kurs?", "Weil Hemmschwellen im Gespräch fallen und Fragen aus dem eigenen Alltag am meisten bringen. Im Workshop entwickelt Ihr Team eigene Anwendungsfälle und lernt ausgewählte Werkzeuge kennen; der Lehrgang vertieft das Wissen und überträgt es mit Praxisaufgaben in den Alltag, der Test schließt ab."],
       ["Was ist das Werkzeug, das wir bauen?", "Eine einzelne HTML-Datei, die im Browser läuft und einen konkreten Handgriff Ihres Teams erleichtert – eine Liste prüfen, einen Text nach festen Regeln erzeugen, Zahlen zusammenfassen. Ohne Installation, ohne Daten in der Cloud."],
       ["Was sehe ich als Arbeitgeber?", "Je Person den Stand – eingeladen, begonnen, Lehrgang abgeschlossen, bestanden – und die Zertifikatsnummer, als Liste für Ihr Schulungsverzeichnis. Punkte und Versuche sehen Sie nicht."],
       ["Was passiert, wenn jemand den Test nicht besteht?", "Nach jeder Abgabe steht zu jeder Frage die richtige Antwort mit Erklärung. Der Test lässt sich beliebig wiederholen, mit neu gezogenen Fragen."],
@@ -143,7 +144,7 @@ const TEXT = {
     ],
     teileTitel: "Three parts, one result",
     teile: [
-      ["Workshop", "90 minutes online or half a day on site. I pick up your team's cases, take away the apprehension and develop use cases for your daily work with you. Together we build a small browser tool for a real pain point – so everyone experiences what AI can do and where it reliably fails."],
+      ["Workshop", "90 minutes online or half a day on site. I pick up your team's cases, take away the apprehension and develop use cases for your daily work with you. Using selected tools, everyone experiences what AI and new software can do – and where their limits lie."],
       ["Online course", "Seven lessons that deepen the workshop and carry it into day-to-day work: learning objectives, cases from accounting, self-checks and, in every lesson, a practical task at the participant's own desk. About 70 minutes of study in stages, with personal access; the handout serves as a reference."],
       ["Test and certificate", "15 questions, every answer explained, repeatable at any time. On passing, each person receives their certificate for the EU AI Act training – verifiable online. You receive the participant list for your training records."],
     ],
@@ -181,7 +182,7 @@ const TEXT = {
     formate: [
       { name: "Online workshop", text: "90 minutes by video call with your team. Then access for everyone: online course, handout, test and certificate.",
         preis: "Price on request", klein: "for teams of up to about 12 people; larger groups by arrangement" },
-      { name: "On-site workshop", text: "Half a day at your premises, with exercises on your own cases and a tool for your pain point. Then access for everyone.",
+      { name: "On-site workshop", text: "Half a day at your premises, with exercises on your own cases and selected tools. Then access for everyone.",
         preis: "Price on request", klein: "for teams of up to about 15 people, plus travel costs" },
     ],
     auffrischung: "Tools and rules change. That is why there is an annual refresher with a new edition, test and certificate – so that your evidence stays current.",
@@ -206,7 +207,7 @@ const TEXT = {
     fragenTitel: "Questions and answers",
     fragen: [
       ["Is this training mandatory?", "The EU AI Act requires organisations that use AI to take measures to ensure the AI literacy of their staff – how is for the organisation to decide. This workshop is one such measure, with evidence."],
-      ["Why a workshop and not just an online course?", "Because barriers fall in conversation and questions from your own daily work help most. In the workshop your team develops its own use cases and builds a small tool; the course deepens that knowledge and carries it into daily work with practical tasks, and the test completes it."],
+      ["Why a workshop and not just an online course?", "Because barriers fall in conversation and questions from your own daily work help most. In the workshop your team develops its own use cases and gets to know selected tools; the course deepens that knowledge and carries it into daily work with practical tasks, and the test completes it."],
       ["What is the tool we build?", "A single HTML file that runs in the browser and eases one concrete task of your team – checking a list, generating a text by fixed rules, summarising figures. No installation, no data in the cloud."],
       ["What do I see as the employer?", "Each person's status – invited, started, course completed, passed – and the certificate number, as a list for your training records. Scores and attempts are not shown."],
       ["What happens if someone fails the test?", "After every submission the correct answer and an explanation are shown for each question. The test can be repeated as often as needed, with freshly drawn questions."],
