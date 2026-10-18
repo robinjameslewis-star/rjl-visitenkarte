@@ -6,7 +6,9 @@
 // Vereinbarung steht; dann je Partner ein Eintrag, und die Seiten werden neu gebaut (tools/workshops-bauen.mjs).
 export const PARTNER = [
   // { id: "beispiel", name: "Produktname", anbieter: "Firma GmbH, Ort", url: "https://…", verguetung: "gebuehr" | "provision" | "beides", seit: "2027-01-01",
-  //   logo: "assets/partner/….svg", seite: "produkt" (eigene Produktseite unter werkzeuge/<seite>/), vergleich: { de: {…}, en: {…} } (Spalte im Vergleich),
+  //   logo: "assets/partner/….svg", seite: "produkt" (eigene Produktseite unter werkzeuge/<seite>/), vergleich: { de: {…}, en: {…} } (Spalte im Vergleich,
+  //   je Sprache die Felder aus dem Vergleichsbogen: stand "MM/JJJJ", aufgabe, fuer, daten (Betrieb und Datenstandort), sitz, ki (wofür, Modell
+  //   und Ort, Training mit Kundendaten), schnittstellen, preis (Preismodell, „ab“, Test), nachweise – kurze Tatsachen, keine Werbesätze),
   //   text: { de: "Ein Satz, was das Werkzeug tut und wo es im Workshop vorkommt.", en: "One sentence on what the tool does and where it appears in the workshop." } },
 ];
 
