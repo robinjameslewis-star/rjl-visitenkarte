@@ -62,7 +62,7 @@ const TEXT = {
     ],
     menschFakten: ["Vorschläge mit Herkunft", "Klärliste statt stiller Fehler", "Festschreibung in Ihrem Programm", "Würdigung beim Berufsträger"],
     programmeTitel: "Offen für jedes Buchhaltungsprogramm",
-    programmeLead: "Nicht nur DATEV: SmartFormular wird so gebaut, dass es mit jedem Buchhaltungsprogramm Daten austauscht – importieren und exportieren, zuerst in Deutschland, langfristig weltweit. Sie behalten Ihr Programm; SmartFormular arbeitet ihm zu.",
+    programmeLead: "Nicht nur DATEV: SmartFormular wird so gebaut, dass es mit jedem Buchhaltungsprogramm Daten austauscht. Sie können Ihr gewohntes Programm behalten; SmartFormular arbeitet ihm zu.",
     programme: [
       ["Import und Export", "Kontoauszüge, Belege, Stammdaten- und Kontenlisten, Buchungsstapel, offene Posten und Saldenlisten kommen aus Ihrem Programm herein; die Ergebnisse gehen in dem Format zurück, das Ihr Programm einliest."],
       ["Ein neutrales Datenmodell", "Intern arbeitet SmartFormular mit einem eigenen, programmunabhängigen Datenmodell. Jedes Programm kommt über eine eigene Anbindung hinzu – per Datei oder Schnittstelle, Schnittstellen zuerst lesend. An Ihrer Arbeit im SmartFormular ändert das nichts."],
@@ -158,7 +158,7 @@ const TEXT = {
     ],
     menschFakten: ["Suggestions with their origin", "A clarification list instead of silent errors", "Finalised in your software", "Judgement with the professional"],
     programmeTitel: "Open to every accounting package",
-    programmeLead: "Not just DATEV: SmartFormular is being built to exchange data with every accounting package – importing and exporting, starting in Germany and in the long run worldwide. You keep your software; SmartFormular works alongside it.",
+    programmeLead: "Not just DATEV: SmartFormular is being built to exchange data with every accounting package. You can keep the software you are used to; SmartFormular works alongside it.",
     programme: [
       ["Import and export", "Bank statements, documents, master data and account lists, booking batches, open items and trial balances come in from your software; the results go back in the format your software imports."],
       ["A neutral data model", "Internally SmartFormular works with its own data model, independent of any package. Each package is added through its own connector – by file or interface, interfaces read-only at first. Your work in SmartFormular stays the same."],
