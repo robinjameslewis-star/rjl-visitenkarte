@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://robin.vision/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robin.vision/"/>
@@ -54,6 +54,18 @@
     <lastmod>2026-10-17</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/smartformular/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/smartformular/en/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/blog/</loc>

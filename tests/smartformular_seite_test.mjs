@@ -1,11 +1,12 @@
-// Seite „SmartFormular“ (worker/src/smartformular.js; Robin, 17.10.2026): beide Sprachfassungen entstehen genau aus dem Modul und den
+// Produktseite „SmartFormular“ (worker/src/smartformular.js; Robin, 17.10.2026, seit 18.10.2026 unter werkzeuge/smartformular/): beide Sprachfassungen entstehen genau aus dem Modul und den
 // Feldern der Werkzeugseiten, tragen Wortmarke, Abzeichen, drei Produktkacheln, FiBu lite mit Download und Fassung, die geplanten
 // Funktionen von FiBu und Deklaration, Mensch und Maschine, Sprachmodell, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
-// SoftwareApplication), die Beta-Anfrage an Gochs Kontakt-Endpunkt und den Kopf mit aktivem Menüpunkt; keine Preise. Kein Netz.
+// SoftwareApplication), die Beta-Anfrage an Gochs Kontakt-Endpunkt, die Brotkrume zur Übersicht und den Kopf mit aktivem Menüpunkt
+// „Werkzeuge“; keine Preise. Kein Netz.
 //   node tests/smartformular_seite_test.mjs
 import { readFileSync } from "node:fs";
-import { WERKZEUGE, werkzeugPfad, werkzeugFelder, UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
-import { smartformularSeite, smartformularUrl, KONTAKT_ENDPUNKT } from "../worker/src/smartformular.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder } from "../worker/src/werkzeug.js";
+import { smartformularSeite, smartformularUrl, KONTAKT_ENDPUNKT, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
 import { PRODUKTE } from "../worker/src/produkte.js";
 
 let fails = 0;
@@ -18,17 +19,19 @@ const UEBERTRIEBEN = /revolution|einzigartig|unique|best in class|!/i;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
 const T = {
-  de: { up: "../", nav: /<a href="\.\.\/werkzeuge\/" aria-current="page">SmartFormular<\/a>/, home: "../", abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
-  en: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">SmartFormular<\/a>/, home: "../../?lang=en", abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
+  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Werkzeuge</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
+  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Tools</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
 };
 for (const lang of ["de", "en"]) {
-  const t = T[lang], pfad = UEBERSICHT_PFAD[lang], html = lesen(pfad), P = PRODUKTE[lang];
+  const t = T[lang], pfad = SMARTFORMULAR_PFAD[lang], html = lesen(pfad), P = PRODUKTE[lang];
   console.log(`\n${pfad}`);
   check(html === smartformularSeite(lang, felder), "Seite im Repository entsteht genau aus dem Modul und den Werkzeugfeldern");
   check(html.includes(`<html lang="${lang}">`) && html.includes(`<title>${t.titel}`) && html.includes('<h1 class="sf-wortmarke" aria-label="SmartFormular">Smart<span>Formular</span></h1>'), "Sprache, Titel mit Suchbegriffen, Wortmarke als Überschrift");
   check(html.includes(`<p class="abzeichen">${t.abzeichen}</p>`), "Abzeichen unter der Wortmarke");
   check(html.includes(`<link rel="canonical" href="${smartformularUrl(lang)}">`) && ["de", "en"].every(l => html.includes(`hreflang="${l}" href="${smartformularUrl(l)}"`)), "canonical und hreflang beider Fassungen");
-  check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: SmartFormular aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
+  check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: Werkzeuge aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
+  check(html.includes(t.brotkrume) && html.indexOf(t.brotkrume) < html.indexOf("<h1"), "Brotkrume „Werkzeuge › SmartFormular“ über der Wortmarke");
+  check(/Ein Produkt von robin\.vision|A product by robin\.vision/.test(html), "Kennzeichnung: Produkt von robin.vision");
   check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 3 && (html.match(/class="sf-stand">/g) || []).length >= 3, "drei Produktkacheln mit Stand und Anker");
   const lite = WERKZEUGE.find(w => w.lang === lang), d = felder[lite.id].datei;
   check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "FiBu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
@@ -52,7 +55,7 @@ for (const lang of ["de", "en"]) {
   check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 7, "sieben Fragen sichtbar");
   check(html.includes('id="downloads"') && html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html), "Downloads und Newsletter-Kasten");
   const andere = lang === "en" ? "de" : "en";
-  check(html.includes(`<a href="${t.up}${UEBERSICHT_PFAD[andere].replace(/index\.html$/, "")}" lang="${andere}" hreflang="${andere}">`), "Verweis auf die andere Sprachfassung");
+  check(html.includes(`<a href="${t.up}${SMARTFORMULAR_PFAD[andere].replace(/index\.html$/, "")}" lang="${andere}" hreflang="${andere}">`), "Verweis auf die andere Sprachfassung");
 }
 
 console.log("\nProduktdaten");

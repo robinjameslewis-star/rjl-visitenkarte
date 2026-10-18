@@ -3,8 +3,9 @@
 //                                       ~/Developer/buchungsstapel-lokal/browser/dist/Booking-Batch-Generator.html
 // Je Datei: Werkzeug am Dateinamen erkennen, nach werkzeuge/<id>/ kopieren, Fassung aus dem Fuß lesen, Datum des Git-Stands der
 // Quelle nehmen, Größe und SHA-256 berechnen und die Downloadseite mit den vorhandenen Texten neu bauen. Die Texte pflegt Robin
-// in der Redaktion; gibt es eine Seite noch nicht, kommen die Starttexte unten zum Einsatz. Danach immer: Übersichten
-// (werkzeuge/, werkzeuge/en/), alle Werkzeugseiten, Liste auf der Startseite und Weiterleitungen alter Adressen neu bauen.
+// in der Redaktion; gibt es eine Seite noch nicht, kommen die Starttexte unten zum Einsatz. Danach immer: Übersicht der Werkzeuge
+// (werkzeuge/, werkzeuge/en/; uebersicht.js), Produktseite SmartFormular (werkzeuge/smartformular/, …/en/), alle Werkzeugseiten,
+// Slider auf der Startseite und Weiterleitungen alter Adressen neu bauen.
 // Ohne Datei („node tools/werkzeug-uebernehmen.mjs“) wird nur dieser zweite Teil neu gebaut.
 // Danach: node tests/werkzeug_seite_test.mjs, committen, PR.
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
@@ -15,8 +16,9 @@ import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD
 import { parsePost, parseSettings, POSTS_DIR, SETTINGS_PATH, renderNewsletterFeed, NEWSLETTER_DIR, EN_DIR } from "../worker/src/blog.js";
 import { renderSitemap } from "../worker/src/sitemap.js";
 import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
-import { werkzeugUebersicht } from "../worker/src/smartformular.js";
-import { PRODUKTE } from "../worker/src/produkte.js";
+import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
+import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
+import { startSlider } from "../worker/src/slider.js";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
@@ -156,25 +158,21 @@ for (const quelle of process.argv.slice(2)) {
 
 // Alle vorhandenen Werkzeugseiten aus ihren Feldern (Rahmen und Kurzbeschreibung kommen aus worker/src/werkzeug.js)
 for (const w of WERKZEUGE) { const f = lesen(w.id); if (f && f.datei.fassung) writeFileSync(werkzeugPfad(w.id), werkzeugSeite(f, w.id)); }
-// Übersichten je Sprache
+// Übersicht der Werkzeuge und Produktseite SmartFormular je Sprache
 const alle = Object.fromEntries(WERKZEUGE.map(w => [w.id, lesen(w.id) || {}]));
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   mkdirSync(dirname(pfad), { recursive: true });
-  writeFileSync(pfad, werkzeugUebersicht(lang, alle));
+  writeFileSync(pfad, werkzeugeUebersicht(lang));
 }
-// Liste auf der Startseite (zwischen den Marken; language.js blendet die Einträge der anderen Sprache aus)
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+for (const [lang, pfad] of Object.entries(SMARTFORMULAR_PFAD)) {
+  mkdirSync(dirname(pfad), { recursive: true });
+  writeFileSync(pfad, smartformularSeite(lang, alle));
+}
+// Slider auf der Startseite (zwischen den Marken; language.js blendet den Slider der anderen Sprache über data-langs aus)
 const START_MARKE = "<!-- werkzeuge:liste -->", ENDE_MARKE = "<!-- /werkzeuge:liste -->";
 const start = readFileSync("index.html", "utf8"), i = start.indexOf(START_MARKE), j = start.indexOf(ENDE_MARKE);
 if (i < 0 || j < i) { console.error("index.html: Marken für die Werkzeugliste fehlen."); process.exit(1); }
-// Karte im SmartFormular-Erscheinungsbild (Robin, 17.10.2026): FiBu lite mit Knopf zum Werkzeug, darunter die Ankündigungen FiBu und Deklaration
-const SF = { de: { fertig: "Kostenlos · verfügbar", beta: "Beta · auf Anfrage", laden: "Kostenlos herunterladen", alle: "Alle SmartFormular-Produkte", uebersicht: "werkzeuge/" },
-  en: { fertig: "Free · available", beta: "Beta · on request", laden: "Download for free", alle: "All SmartFormular products", uebersicht: "werkzeuge/en/" } };
-const liste = WERKZEUGE.map(w => {
-  const s = SF[w.lang], bald = PRODUKTE[w.lang].filter(p => p.stand === "beta");
-  return `      <li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"} class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p><span class="sf-stand">${s.fertig}</span><a class="sf-titel" href="werkzeuge/${w.id}/">${esc(w.titel)}</a><p>${esc(w.kurz)}</p><p class="sf-wege"><a class="sf-knopf" href="werkzeuge/${w.id}/">${s.laden}</a><a class="sf-mehr" href="${s.uebersicht}">${s.alle}</a></p>
-      <ul class="sf-bald">${bald.map(p => `<li><span class="sf-stand">${s.beta}</span><a href="${s.uebersicht}#${p.id}">${esc(p.name)}</a><span class="sf-kurz">${esc(p.kurz)}</span></li>`).join("")}</ul></li>`;
-}).join("\n");
+const liste = startSlider();
 writeFileSync("index.html", start.slice(0, i + START_MARKE.length) + "\n" + liste + "\n" + start.slice(j));
 // Weiterleitungen alter Adressen
 for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true }); writeFileSync(a.pfad, weiterleitung(a.ziel)); }

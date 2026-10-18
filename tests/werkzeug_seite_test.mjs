@@ -1,6 +1,6 @@
 // Werkzeugseiten (worker/src/werkzeug.js): je Werkzeug und Sprache Felder hin und zurück, Prüfungen, Seite im Repository passt
 // zu ihren Feldern und zur Datei daneben, Redaktion kennt den Inhalt; dazu Übersichten, Weiterleitung der alten Adresse,
-// Werkzeugliste und Menüpunkt der Startseite, Newsletter-Kasten unter jedem Impuls. Kein Netz.
+// Slider und Menüpunkt der Startseite (Einzelheiten der Übersicht und des Sliders: werkzeuge_uebersicht_test.mjs), Newsletter-Kasten unter jedem Impuls. Kein Netz.
 //   node tests/werkzeug_seite_test.mjs
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -8,7 +8,7 @@ import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD
 import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
 import { neuigkeiten } from "../worker/src/neuigkeiten.js";
 import { CONTENT } from "../worker/src/admin.js";
-import { werkzeugUebersicht } from "../worker/src/smartformular.js";
+import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 
 let fails = 0;
 const check = (ok, label) => { console.log((ok ? "  ok   " : "  FEHLT ") + label); if (!ok) fails++; };
@@ -18,9 +18,9 @@ const lesen = p => readFileSync(root + p, "utf8");
 
 const SPRACHE = {
   de: { titel: "Buchungsstapel-Generator", fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
-    neu: "Was ist neu", marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">SmartFormular<\/a>/ },
+    neu: "Was ist neu", marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/ },
   en: { titel: "Booking Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
-    neu: "What's new", marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">SmartFormular<\/a>/ },
+    neu: "What's new", marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/ },
 };
 const felder = {};
 for (const w of WERKZEUGE) {
@@ -76,9 +76,9 @@ check(werkzeugFelder(alt).hinweis === f.hinweis && !("en" in werkzeugFelder(alt)
 console.log("\nÜbersichten, Weiterleitung, Startseite");
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
-  check(html === werkzeugUebersicht(lang, felder), `${pfad} ist aktuell`);
+  check(html === werkzeugeUebersicht(lang), `${pfad} ist aktuell`);
   const eigene = WERKZEUGE.filter(w => w.lang === lang), fremde = WERKZEUGE.filter(w => w.lang !== lang);
-  check(eigene.every(w => html.includes(`werkzeuge/${w.id}/">${w.titel}</a>`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`)), `${pfad}: nur Werkzeuge dieser Sprache`);
+  check(eigene.every(w => html.includes(`werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`)), `${pfad}: nur Werkzeuge dieser Sprache`);
   check(html.includes('id="newsletter"') && html.includes(`<html lang="${lang}">`), `${pfad}: Newsletter und Sprache`);
 }
 for (const a of ALTE_ADRESSEN) {
@@ -87,9 +87,8 @@ for (const a of ALTE_ADRESSEN) {
   check(readdirSync(root + a.pfad.replace(/index\.html$/, "")).length === 1, `${a.pfad}: keine alte Datei mehr daneben`);
 }
 const start = lesen("index.html");
-check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">SmartFormular<\/a>/.test(start), "Startseite: Menüpunkt „SmartFormular“ führt auf die Übersicht");
-check(WERKZEUGE.every(w => start.includes(`<li lang="${w.lang}"${w.lang === "de" ? "" : " hidden"} class="sf-karte"><p class="sf-wortmarke">Smart<span>Formular</span></p>`) && start.includes(`href="werkzeuge/${w.id}/">${w.titel}</a>`) && start.includes(`<a class="sf-knopf" href="werkzeuge/${w.id}/">`)), "Startseite: SmartFormular-Karte je Sprache mit Knopf zum Werkzeug");
-check((start.match(/<ul class="sf-bald">/g) || []).length === 2 && /werkzeuge\/#fibu">SmartFormular FiBu<\/a>/.test(start) && /werkzeuge\/#deklaration">SmartFormular Deklaration<\/a>/.test(start) && /werkzeuge\/en\/#deklaration">SmartFormular Deklaration<\/a>/.test(start), "Startseite: Ankündigungen FiBu und Deklaration in beiden Sprachen");
+check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
+check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte zum Werkzeug");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
 

@@ -1,5 +1,5 @@
 // Werkzeuge auf robin.vision: je Werkzeug und Sprache eine Downloadseite (werkzeuge/<id>/index.html) und je Sprache eine
-// Übersicht (werkzeuge/index.html, werkzeuge/en/index.html; Robin, 15.10.2026). Eine Downloadseite entsteht vollständig aus
+// Übersicht (werkzeuge/index.html, werkzeuge/en/index.html; Robin, 15.10.2026; seit 18.10.2026 die Übersicht aller Werkzeuge, uebersicht.js). Eine Downloadseite entsteht vollständig aus
 // Feldern: Beschreibung, Nutzungsbedingungen und ein kurzer Hinweis in der anderen Sprache (Markdown wie im Blog, in der
 // Redaktion pflegbar) sowie die Angaben zur Datei (Name, Fassung, Datum, Größe, SHA-256), die tools/werkzeug-uebernehmen.mjs
 // beim Einspielen einer neuen Fassung setzt. Die Felder stehen als JSON in der Seite selbst (script#werkzeug-daten), damit
@@ -85,7 +85,7 @@ export function werkzeugFelder(html) {
 
 const T = {
   de: {
-    home: "", blog: "Impulse", blogHref: "blog/", tools: "SmartFormular", toolsHref: "werkzeuge/", about: "Über mich", aboutHref: "ueber-mich/",
+    home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeuge", toolsHref: "werkzeuge/", sfHref: "werkzeuge/smartformular/", about: "Über mich", aboutHref: "ueber-mich/",
     frei: "Kostenlos", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
@@ -97,7 +97,7 @@ const T = {
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
   en: {
-    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "SmartFormular", toolsHref: "werkzeuge/en/", about: "About", aboutHref: "about/",
+    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Tools", toolsHref: "werkzeuge/en/", sfHref: "werkzeuge/smartformular/en/", about: "About", aboutHref: "about/",
     frei: "Free", fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
@@ -238,8 +238,8 @@ ${rest.length ? renderMarkdown(rest.join("\n"), "", lang) : ""}
 ${neu ? `<h2 id="neu">${t.neu}</h2>\n<div class="neuigkeiten">\n${neuigkeiten(neu).map(e => `<h3 id="fassung-${esc(e.fassung || e.datum)}">${esc(e.titel)}</h3>\n${renderMarkdown(e.text, "", lang)}`).join("\n")}\n</div>` : ""}
 ${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}
 <h2 id="ausblick">${t.ausblick}</h2>
-<p>${lang === "en" ? "FiBu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular FiBu</strong> turns statements, documents, open-item and trial-balance lists into the checked booking batch of the month, with the origin of every line; <strong>SmartFormular Deklaration</strong> prepares year-end accounts with a closing plan, a calculation trace and the e-balance. Beta access in the member area on request." : "FiBu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen, Belegen, OPOS- und SuSa-Listen den geprüften Buchungsstapel des Monats mit Herkunft je Zeile; <strong>SmartFormular Deklaration</strong> bereitet den Jahresabschluss vor – Abschlussplan, Rechenspur, E-Bilanz. Beta-Zugang im Memberbereich auf Anfrage."}
-<a href="${up}${T[lang].toolsHref}#beta">${lang === "en" ? "Request beta access" : "Beta-Zugang anfragen"}</a>.</p>
+<p>${lang === "en" ? "FiBu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular FiBu</strong> turns bank statements and documents into the checked booking batch of the month – for bank, payables and receivables, linked to your open items; <strong>SmartFormular Deklaration</strong> is the working paper for year-end accounts that thinks ahead and does the groundwork. Beta access in the member area on request." : "FiBu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel des Monats – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten; <strong>SmartFormular Deklaration</strong> ist das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet. Beta-Zugang im Memberbereich auf Anfrage."}
+<a href="${up}${T[lang].sfHref}#beta">${lang === "en" ? "Request beta access" : "Beta-Zugang anfragen"}</a>.</p>
 <h2 id="nutzungsbedingungen">${t.nutzung}</h2>
 <div class="nutzung">
 ${renderMarkdown(nutzung, "", lang)}

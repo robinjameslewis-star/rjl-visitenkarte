@@ -1,11 +1,11 @@
 // Gemeinsamer Seitenkopf (Robin, 16.10.2026: oben zu voll auf dem iPhone, Verweise sollen auf die Unterseiten führen, Termin
 // bleibt): Wortmarke robin.vision, drei Seiten (Werkzeuge, Impulse, Über mich), Termin als Knopf, auf schmalen Bildschirmen ein
-// Menü (details/summary, ohne Skript) mit denselben Seiten, Nachricht und der anderen Sprache. Seit 17.10.2026 heißen die Seiten SmartFormular, Impulse, Workshops (mit Unterweisung nach EU AI Act), Über mich (Robin). Genutzt von werkzeug.js (rahmen)
+// Menü (details/summary, ohne Skript) mit denselben Seiten, Nachricht und der anderen Sprache. Seit 17.10.2026 heißen die Seiten SmartFormular, Impulse, Workshops (mit Unterweisung nach EU AI Act), Über mich (Robin); seit 18.10.2026 „Werkzeuge“ statt „SmartFormular“ (robin.vision stellt Werkzeuge vor, SmartFormular ist eines davon). Genutzt von werkzeug.js (rahmen)
 // und blog.js (shell); die Startseite trägt denselben Aufbau von Hand (index.html: Sprachwahl statt Wortmarke, Texte je Sprache
 // über language.js), tests/kopf_test.mjs hält beides zusammen.
 const T = {
-  de: { tools: "SmartFormular", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
-  en: { tools: "SmartFormular", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
+  de: { tools: "Werkzeuge", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
+  en: { tools: "Tools", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
 };
 // Ziele je Sprache, relativ zur Wurzel der Website
 export const ZIELE = {

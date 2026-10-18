@@ -13,7 +13,7 @@ const lesen = p => readFileSync(root + p, "utf8");
 const html = lesen("index.html");
 
 console.log("Startseite: Kopfdaten");
-check(/<title>robin\.vision – SmartFormular und Workshops zur KI-Kompetenz<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt SmartFormular und Workshops");
+check(/<title>robin\.vision – Werkzeuge und Workshops zur KI-Kompetenz<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt Werkzeuge und Workshops");
 check(/<link rel="canonical" href="https:\/\/robin\.vision\/">/.test(html), "canonical");
 check(["de", "en", "x-default"].every(l => html.includes(`hreflang="${l}"`)), "hreflang de, en, x-default");
 check(/property="og:title"/.test(html) && /property="og:image" content="https:\/\/robin\.vision\/assets\/teilen\.jpg"/.test(html) && existsSync(root + "assets/teilen.jpg"), "Open Graph mit Bild zum Teilen, Bild vorhanden");
@@ -25,7 +25,7 @@ console.log("Startseite: Aufbau");
 const pos = id => html.indexOf(`id="${id}"`);
 check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("ueber-mich") && pos("ueber-mich") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("kontakt") && pos("kontakt") < pos("nachricht"),
   "Reihenfolge: Werkzeuge, Über mich, Impulse, Newsletter, Termin, Nachricht");
-check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: SmartFormular für die Tage, an denen der Prozess hakt/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit SmartFormular und Workshops über der Falz, Ziele je Sprache");
+check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit SmartFormular und Workshops über der Falz, Ziele je Sprache");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");
@@ -74,7 +74,8 @@ for (const w of WERKZEUGE) {
   check(alle.some(x => x && x["@type"] === "FAQPage" && x.mainEntity.length >= 5), `${w.id}: FAQPage mit Fragen und Antworten`);
   check(/<title>[^<]*DATEV[^<]*<\/title>/.test(seite) && /<meta name="description" content="[^"]*(Kontoausz|bank statement)[^"]*DATEV/.test(seite), `${w.id}: Titel und Beschreibung tragen die Suchbegriffe`);
 }
-for (const [l, p] of Object.entries({ de: "werkzeuge/index.html", en: "werkzeuge/en/index.html" })) check(/<title>[^<]*(Buchhaltung|bookkeeping)[^<]*<\/title>/.test(lesen(p)), `${p}: Übersicht mit eigenem Suchtitel`);
+for (const [l, p] of Object.entries({ de: "werkzeuge/index.html", en: "werkzeuge/en/index.html" })) check(/<title>[^<]*(Rechnungswesen|accounting)[^<]*<\/title>/.test(lesen(p)), `${p}: Übersicht der Werkzeuge mit eigenem Suchtitel`);
+for (const [l, p] of Object.entries({ de: "werkzeuge/smartformular/index.html", en: "werkzeuge/smartformular/en/index.html" })) check(/<title>[^<]*(Buchhaltung|bookkeeping)[^<]*<\/title>/.test(lesen(p)), `${p}: Produktseite SmartFormular mit eigenem Suchtitel`);
 for (const p of published) {
   const seite = lesen(`blog/${p.slug}/index.html`);
   const m = seite.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);

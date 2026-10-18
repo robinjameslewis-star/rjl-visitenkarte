@@ -358,7 +358,7 @@ export function renderNewsletterFeed({ posts, siteUrl, lang = "de", werkzeuge = 
   const fassungen = werkzeuge.filter(w => w.lang === lang).flatMap(w => neuigkeiten(w.neuigkeiten).map(e => ({ ...e, werkzeug: w, datum: e.datum || (w.datei && w.datei.datum) || "" })))
     .filter(e => e.datum && e.fassung && e.text).sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0);
   const neueste = fassungen[0], pfad = lang === "en" ? "en/" : "";
-  const angebote = `<h3>${esc(t.sf)}</h3>\n<p>${esc(t.sfText)}</p>\n<p><a href="${siteUrl}werkzeuge/${pfad}">${esc(t.sfLink)}</a></p>\n<h3>${esc(t.ws)}</h3>\n<p>${esc(t.wsText)}</p>\n<p><a href="${siteUrl}workshops/${pfad}">${esc(t.wsLink)}</a></p>`;
+  const angebote = `<h3>${esc(t.sf)}</h3>\n<p>${esc(t.sfText)}</p>\n<p><a href="${siteUrl}werkzeuge/smartformular/${pfad}">${esc(t.sfLink)}</a></p>\n<h3>${esc(t.ws)}</h3>\n<p>${esc(t.wsText)}</p>\n<p><a href="${siteUrl}workshops/${pfad}">${esc(t.wsLink)}</a></p>`;
   const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p><a href="${url(neueste.werkzeug)}">${esc(t.laden)}: ${esc(neueste.werkzeug.titel)}</a></p>` : "";
   const impulse = posts.filter(p => p.lang === lang).map(p => ({ datum: p.date, titel: p.title, link: `${siteUrl}blog/${p.slug}/`,
     html: `${p.summary ? `<p><strong>${esc(p.summary)}</strong></p>\n` : ""}${renderMarkdown(auszug(p.body), "", lang)}\n<p><a href="${siteUrl}blog/${p.slug}/">${esc(t.ganz)}</a></p>${werkzeugBlock ? "\n" + werkzeugBlock : ""}\n${angebote}` }));
