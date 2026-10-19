@@ -149,21 +149,36 @@ article li { margin-bottom: 6px; }
   .wz-tabelle { min-width: 620px; }
 }
 .wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
-.wz .wz-quelle { margin: -8px 0 26px; }</style>
+.wz .wz-quelle { margin: -8px 0 26px; }
+.grundsaetze-reihe { display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 8px; padding: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.grundsaetze-reihe > div { padding: 16px 18px 16px 0; }
+.grundsaetze-reihe > div + div { padding-left: 18px; border-left: 1px solid var(--line); }
+.grundsaetze .gs-kicker { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
+.grundsaetze .gs-titel { display: block; font: 500 20px/1.3 var(--serif); color: var(--green); margin: 2px 0 6px; }
+.grundsaetze .gs-text { margin: 0; max-width: none; font-size: 15px; line-height: 1.55; color: var(--ink-soft); text-align: left; hyphens: manual; }
+.grundsaetze .gs-nb { white-space: nowrap; }
+@media (max-width: 720px) { .grundsaetze-reihe { grid-template-columns: 1fr; } .grundsaetze-reihe > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }</style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
 <a class="marke" href="../">robin<span class="punkt">.</span>vision</a>
-<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeugkasten</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
 <a class="termin" href="../#kontakt">Termin</a>
 <details class="menue"><summary aria-label="Menü"><span></span></summary>
-<nav aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/en/" lang="en" hreflang="en">English</a></nav>
+<nav aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeugkasten</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/en/" lang="en" hreflang="en">English</a></nav>
 </details>
 </header>
 <main>
 <article class="wz">
 <h1>Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse</h1>
 <p class="untertitel">Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.</p>
+<section class="grundsaetze" aria-labelledby="grundsaetze-titel">
+<h2 id="grundsaetze-titel">Zwei Grundsätze</h2>
+<div class="grundsaetze-reihe">
+<div><span class="gs-kicker">Klardaten</span><span class="gs-titel">Sensible Klardaten, rechtssicher verarbeitet</span><p class="gs-text frei">Werkzeugkasten und Workshops sind auf die rechtssichere Verarbeitung sensibler Klardaten ausgerichtet – Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></div>
+<div><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern.</p></div>
+</div>
+</section>
 <h2 id="ueberblick">Werkzeuge im Überblick</h2>
 <div class="wz-raster">
 <article class="wz-karte">

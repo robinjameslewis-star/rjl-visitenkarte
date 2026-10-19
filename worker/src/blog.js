@@ -157,8 +157,8 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
-  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
+  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeugkasten", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
+  en: { back: "Robin James Lewis", all: "All posts", tools: "Toolbox", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
 };
 
 function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
@@ -337,10 +337,10 @@ ${items}
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
   de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom",
-    sf: "Werkzeuge", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
+    sf: "Werkzeugkasten", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
     ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Zum Workshop mit Unterweisung nach EU AI Act" },
   en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of",
-    sf: "Tools", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
+    sf: "Toolbox", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
     ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "To the workshop with EU AI Act training" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen

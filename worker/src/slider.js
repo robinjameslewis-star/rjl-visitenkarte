@@ -9,7 +9,7 @@ import { PARTNER, ROBIN_VISION, kennzeichen } from "./partner.js";
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const TEXT = {
-  de: { label: "Werkzeuge", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter",
+  de: { label: "Werkzeugkasten", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter",
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     produkte: [
       { name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – kostenlos, offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
@@ -18,7 +18,7 @@ const TEXT = {
     ],
     platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen", text: "Ihre Lösung für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse – vorgestellt auf der Website, in Workshops und auf Fachmessen.",
       bereich: "Partner", knopf: "Partner werden", href: "werkzeuge/#partner" } },
-  en: { label: "Tools", rolle: "Carousel", zurueck: "Previous", weiter: "Next",
+  en: { label: "Toolbox", rolle: "Carousel", zurueck: "Previous", weiter: "Next",
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     produkte: [
       { name: "FiBu lite", text: "Bank statements into booking batches – free, offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },

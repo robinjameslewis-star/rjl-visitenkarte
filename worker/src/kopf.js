@@ -4,8 +4,8 @@
 // und blog.js (shell); die Startseite trägt denselben Aufbau von Hand (index.html: Sprachwahl statt Wortmarke, Texte je Sprache
 // über language.js), tests/kopf_test.mjs hält beides zusammen.
 const T = {
-  de: { tools: "Werkzeuge", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
-  en: { tools: "Tools", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
+  de: { tools: "Werkzeugkasten", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
+  en: { tools: "Toolbox", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
 };
 // Ziele je Sprache, relativ zur Wurzel der Website
 export const ZIELE = {

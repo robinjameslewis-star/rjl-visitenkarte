@@ -12,6 +12,7 @@ import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
 import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
 import { PARTNER } from "../worker/src/partner.js";
+import { grundsaetze, startGrundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
 
 let fails = 0;
 const check = (ok, label) => { console.log((ok ? "  ok   " : "  FEHLT ") + label); if (!ok) fails++; };
@@ -22,13 +23,13 @@ const anzahl = (s, re) => (s.match(re) || []).length;
 const T = {
   de: { titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
     platz: "Hier könnte Ihr Produkt stehen", knopf: "Partner werden",
-    sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>',
+    sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeugkasten</a>',
     zeilen: ["Aufgabe", "Für wen", "Betrieb und Daten", "Sitz des Anbieters", "KI", "Schnittstellen", "Preis und Test", "Nachweise"], stand: "Stand",
     quelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.", partnerSatz: "Partner zahlen für die Vorstellung.",
     anzeige: "Anzeige", erkl: "../#anzeigen" },
   en: { titel: "Efficient tools for accounting, administration and other business processes",
     platz: "Your product could be here", knopf: "Become a partner",
-    sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>',
+    sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Toolbox</a>',
     zeilen: ["Task", "For whom", "Operation and data", "Provider based in", "AI", "Interfaces", "Price and trial", "Assurance"], stand: "As of",
     quelle: "Details supplied by the providers, dated per column; listed in the order they joined.", partnerSatz: "Partners pay to be presented.",
     anzeige: "Ad", erkl: "../../?lang=en#anzeigen" },
@@ -108,6 +109,16 @@ check(start.includes('href="werkzeuge/" data-i18n="toolsAll"') || /data-i18n="to
 check(/Rechnungswesen, Verwaltung und weitere Geschäftsprozesse/.test(start) && /accounting, administration and other business processes/.test(lesen("language.js")), "Startseite und Sprachdatei: weitere Geschäftsprozesse");
 check(![start, lesen("language.js"), lesen("werkzeuge/index.html"), lesen("werkzeuge/en/index.html"), lesen("worker/profile.md"), lesen("worker/links.md")].some(h => /Business[- ]IT/i.test(h)), "nirgends mehr „Business-IT“ (Robin, 18.10.2026)");
 check([start, lesen("language.js"), lesen("werkzeuge/index.html")].every(h => h.includes("vorgestellt und verglichen auf robin.vision") && !/Abläufe analysieren, Teams schulen|eingeführt und geschult/.test(h)) && /presented and compared on robin\.vision/.test(lesen("werkzeuge/en/index.html") + lesen("language.js")) && !/analyse your processes, train your team|selected, implemented/.test(lesen("language.js") + lesen("werkzeuge/en/index.html")), "Werkzeuge neutral: „vorgestellt und verglichen auf robin.vision“, robin.vision nicht als Zwischenstation (Robin, 18.10.2026)");
+
+console.log("\nGrundsätze (Robin, 19.10.2026)");
+const startHtml = lesen("index.html");
+check(startHtml.includes("<!-- grundsaetze -->\n" + startGrundsaetze() + "\n") && /id="grundsaetze-de" data-langs="de"/.test(startHtml) && /id="grundsaetze-en" data-langs="en" hidden/.test(startHtml)
+  && startHtml.indexOf('id="grundsaetze-de"') > startHtml.indexOf('id="werkzeuge"') && startHtml.indexOf('id="grundsaetze-de"') < startHtml.indexOf('id="workshops"'), "Startseite: Grundsätze je Sprache zwischen Werkzeugkasten und Workshops");
+check(GRUNDSAETZE_CSS.split("\n").every(z => startHtml.includes("  " + z)), "Startseite: Stile der Grundsätze wie in grundsaetze.js");
+for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
+  const html = lesen(pfad);
+  check(html.includes(grundsaetze(lang)) && html.indexOf('id="grundsaetze-titel"') < html.indexOf('id="ueberblick"') && /Klardaten|plaintext data/.test(html) && /Vendor-Lock-in|vendor lock-in/.test(html), `${pfad}: Grundsätze vor dem Überblick`);
+}
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");
 process.exit(fails ? 1 : 0);

@@ -19,8 +19,8 @@ const UEBERTRIEBEN = /revolution|einzigartig|unique|best in class|!/i;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
 const T = {
-  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeuge<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Werkzeuge</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
-  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Tools<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Tools</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
+  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeugkasten<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Werkzeugkasten</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
+  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Toolbox<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Toolbox</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
 };
 for (const lang of ["de", "en"]) {
   const t = T[lang], pfad = SMARTFORMULAR_PFAD[lang], html = lesen(pfad), P = PRODUKTE[lang];

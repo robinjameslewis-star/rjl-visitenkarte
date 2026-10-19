@@ -19,6 +19,7 @@ import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
 import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
 import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 import { startSlider } from "../worker/src/slider.js";
+import { startGrundsaetze } from "../worker/src/grundsaetze.js";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
@@ -168,12 +169,13 @@ for (const [lang, pfad] of Object.entries(SMARTFORMULAR_PFAD)) {
   mkdirSync(dirname(pfad), { recursive: true });
   writeFileSync(pfad, smartformularSeite(lang, alle));
 }
-// Slider auf der Startseite (zwischen den Marken; language.js blendet den Slider der anderen Sprache über data-langs aus)
-const START_MARKE = "<!-- werkzeuge:liste -->", ENDE_MARKE = "<!-- /werkzeuge:liste -->";
-const start = readFileSync("index.html", "utf8"), i = start.indexOf(START_MARKE), j = start.indexOf(ENDE_MARKE);
-if (i < 0 || j < i) { console.error("index.html: Marken für die Werkzeugliste fehlen."); process.exit(1); }
-const liste = startSlider();
-writeFileSync("index.html", start.slice(0, i + START_MARKE.length) + "\n" + liste + "\n" + start.slice(j));
+// Slider und Grundsätze auf der Startseite (zwischen den Marken; language.js blendet die andere Sprache über data-langs aus)
+const einsetzen = (html, name, inhalt) => {
+  const START_MARKE = `<!-- ${name} -->`, ENDE_MARKE = `<!-- /${name} -->`, i = html.indexOf(START_MARKE), j = html.indexOf(ENDE_MARKE);
+  if (i < 0 || j < i) { console.error(`index.html: Marken ${START_MARKE} fehlen.`); process.exit(1); }
+  return html.slice(0, i + START_MARKE.length) + "\n" + inhalt + "\n" + html.slice(j);
+};
+writeFileSync("index.html", einsetzen(einsetzen(readFileSync("index.html", "utf8"), "werkzeuge:liste", startSlider()), "grundsaetze", startGrundsaetze()));
 // Weiterleitungen alter Adressen
 for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true }); writeFileSync(a.pfad, weiterleitung(a.ziel)); }
 // sitemap.xml mit dem Datum der Fassungen (dieselbe Datei schreibt die Redaktion beim Veröffentlichen eines Impulses)

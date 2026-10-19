@@ -13,6 +13,7 @@ import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
 import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref } from "./partner.js";
 import { newsletterKasten } from "./kasten.js";
+import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
 
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
@@ -283,6 +284,7 @@ export function werkzeugeUebersicht(lang) {
   const main = `<article class="wz">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
+${grundsaetze(lang)}
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 <div class="wz-raster">
 ${karten(lang, t, up)}
@@ -318,5 +320,5 @@ ${newsletterKasten(lang, up, "werkzeug")}
 </article>
 ${SKRIPT(lang, t, sfZiel)}`;
   return rahmen({ lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
-    alternates: [{ lang, href: canonical }, { lang: andere, href: uebersichtUrl(andere) }], css: CSS, main, aktiv: "tools" });
+    alternates: [{ lang, href: canonical }, { lang: andere, href: uebersichtUrl(andere) }], css: CSS + "\n" + GRUNDSAETZE_CSS, main, aktiv: "tools" });
 }
