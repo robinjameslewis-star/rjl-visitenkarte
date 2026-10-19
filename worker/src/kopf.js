@@ -32,7 +32,7 @@ export function kopf(lang, up, { aktiv = null, andere = "" } = {}) {
 }
 
 // Stile des Kopfes; die Startseite ergänzt .kopf.start (über der Bühne, Sprachwahl statt Wortmarke)
-export const KOPF_CSS = `.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px 6vw 0; display: flex; align-items: center; gap: 18px; }
+export const KOPF_CSS = `.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px min(6vw, 48px) 0; display: flex; align-items: center; gap: 18px; }
 .kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
 .kopf .marke .punkt { color: var(--copper); }
 .kopf .hauptnav { display: flex; gap: 18px; }

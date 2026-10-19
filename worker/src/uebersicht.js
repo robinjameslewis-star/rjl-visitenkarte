@@ -183,6 +183,13 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
   .wz-raster, .wz-form .reihe { grid-template-columns: 1fr; }
   .wz-tabelle { min-width: 620px; }
 }
+/* Vergleich auf großen Bildschirmen breiter als die Textspalte (Robin, 19.10.2026: Tabelle auf großem Bildschirm „zerschossen“) */
+.wz-tabelle thead th { hyphens: manual; overflow-wrap: normal; }
+.wz-th-logo, .wz-th-ihr { max-width: 100%; }
+@media (min-width: 1100px) {
+  .wz-tabelle-rahmen { width: min(1060px, calc(100vw - 96px)); margin-left: 50%; transform: translateX(-50%); }
+  .wz-tabelle { font-size: 14px; }
+}
 .wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
 .wz .wz-quelle { margin: -8px 0 26px; }`;
 

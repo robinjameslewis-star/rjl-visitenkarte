@@ -145,7 +145,7 @@ ${alternates.map(a => `<link rel="alternate" hreflang="${a.lang}" href="${a.href
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
 ${KOPF_CSS}
-main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) 6vw clamp(56px, 10vh, 120px); }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
 h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
 .meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
@@ -182,7 +182,7 @@ ${NEWSLETTER_CSS}
 .list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
 .list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
-.foot { max-width: 780px; margin: 0 auto; padding: 0 6vw 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 min(6vw, 48px) 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 ${css}</style>
