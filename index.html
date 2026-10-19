@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>robin.vision – Werkzeuge und Workshops zur KI-Kompetenz</title>
-<meta name="description" content="Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
+<meta name="description" content="Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
 <link rel="canonical" href="https://robin.vision/">
 <link rel="alternate" hreflang="de" href="https://robin.vision/">
 <link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="robin.vision – Werkzeuge und Workshops zur KI-Kompetenz">
-<meta property="og:description" content="Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
+<meta property="og:description" content="Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
 <meta property="og:url" content="https://robin.vision/">
 <meta property="og:image" content="https://robin.vision/assets/teilen.jpg">
 <meta property="og:image:width" content="1200">
@@ -462,6 +462,16 @@
   .wzs-pfeil:hover { border-color: var(--green); }
   .wzs-punkte { display: flex; gap: 6px; } .wzs-punkte i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); } .wzs-punkte i.an { background: var(--green); }
   .wzs[hidden] { display: none; }
+  /* Zwei Grundsätze (Robin, 19.10.2026; Quelle der Stile: worker/src/grundsaetze.js, GRUNDSAETZE_CSS) */
+  .grundsaetze-reihe { display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 8px; padding: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .grundsaetze-reihe > div { padding: 16px 18px 16px 0; }
+  .grundsaetze-reihe > div + div { padding-left: 18px; border-left: 1px solid var(--line); }
+  .grundsaetze .gs-kicker { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
+  .grundsaetze .gs-titel { display: block; font: 500 20px/1.3 var(--serif); color: var(--green); margin: 2px 0 6px; }
+  .grundsaetze .gs-text { margin: 0; max-width: none; font-size: 15px; line-height: 1.55; color: var(--ink-soft); text-align: left; hyphens: manual; }
+  .grundsaetze .gs-nb { white-space: nowrap; }
+  @media (max-width: 720px) { .grundsaetze-reihe { grid-template-columns: 1fr; } .grundsaetze-reihe > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }
+  .grundsaetze[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
 <script src="landscape.js?v=20261010"></script>
@@ -475,10 +485,10 @@
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
   <a href="?lang=en" data-language="en" lang="en" hreflang="en" title="English"><svg class="flag" viewBox="0 0 60 30" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><clipPath id="flag-uk-quarters"><path d="M30 15h30v15zv15H30zH0V15zV0h30z"/></clipPath><rect width="60" height="30" fill="#1B3A73"/><path d="M0 0l60 30m0-30L0 30" stroke="#F6F1E8" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-quarters)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#F6F1E8" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg><span class="visually-hidden">English</span></a>
 </nav>
-<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeugkasten</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
 <a class="termin" href="#kontakt" data-i18n="navContact">Termin</a>
 <details class="menue"><summary aria-label="Menü" data-i18n-aria="menuLabel"><span></span></summary>
-<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeugkasten</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 </details>
 </header>
 
@@ -492,8 +502,8 @@
     <div class="intro">
       <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a></h1>
       <p class="byline" data-i18n="byline">Robin James Lewis · Balingen</p>
-      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
-      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshops</a></p>
+      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen. Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
+      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeugkasten</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshops</a></p>
     </div>
     <div class="perch">
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
@@ -542,11 +552,11 @@
 
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeuge</a></h2>
+    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeugkasten</a></h2>
     <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
     <div class="wzs-rahmen">
 <!-- werkzeuge:liste -->
-    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeuge">
+    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeugkasten">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
           <p class="wzs-kennz"><a href="#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
@@ -578,7 +588,7 @@
       </div>
       <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
     </div>
-    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Tools">
+    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Toolbox">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
           <p class="wzs-kennz"><a href="#anzeigen">Ad</a> · <span>robin.vision</span></p>
@@ -614,6 +624,23 @@
     </div>
     <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge im Überblick und im Vergleich</a></p>
   </section>
+
+  <!-- grundsaetze -->
+  <section class="blog-teaser grundsaetze" id="grundsaetze-de" data-langs="de" aria-labelledby="grundsaetze-titel-de">
+    <h2 id="grundsaetze-titel-de">Zwei Grundsätze für Werkzeugkasten und Workshops</h2>
+    <div class="grundsaetze-reihe">
+    <div><span class="gs-kicker">Klardaten</span><span class="gs-titel">Sensible Klardaten, rechtssicher verarbeitet</span><p class="gs-text frei">Werkzeugkasten und Workshops sind auf die rechtssichere Verarbeitung sensibler Klardaten ausgerichtet – Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></div>
+    <div><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern.</p></div>
+    </div>
+  </section>
+  <section class="blog-teaser grundsaetze" id="grundsaetze-en" data-langs="en" hidden aria-labelledby="grundsaetze-titel-en">
+    <h2 id="grundsaetze-titel-en">Two principles behind our toolbox and workshops</h2>
+    <div class="grundsaetze-reihe">
+    <div><span class="gs-kicker">Plaintext data</span><span class="gs-titel">Sensitive plaintext data, handled lawfully</span><p class="gs-text frei">Our toolbox and workshops are designed for the lawful processing of sensitive plaintext data – client, personnel and financial data that has not been anonymised. Data protection, confidentiality duties and the EU AI Act are the starting point, not an afterthought.</p></div>
+    <div><span class="gs-kicker">No lock-in</span><span class="gs-titel">Model-agnostic, no <span class="gs-nb">vendor lock-in</span></span><p class="gs-text frei">Solutions that work with different language models and providers take priority. You keep the choice – and can switch when prices, rules or models change.</p></div>
+    </div>
+  </section>
+<!-- /grundsaetze -->
 
   <!-- Workshops (Robin, 17.10.2026): KI-Workshop für Teams mit Unterweisung nach EU AI Act; die ganze Seite baut tools/workshops-bauen.mjs (workshops/, workshops/en/) -->
   <section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">
@@ -745,7 +772,7 @@
     zeigen();
   })();
 </script>
-<script src="language.js?v=20261018f" defer></script>
+<script src="language.js?v=20261019a" defer></script>
 <script src="site.js?v=20261016b" defer></script>
 <script src="goch.js?v=20261016c" defer></script>
 <script src="contact.js?v=20260919" defer></script>

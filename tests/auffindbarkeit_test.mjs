@@ -25,7 +25,7 @@ console.log("Startseite: Aufbau");
 const pos = id => html.indexOf(`id="${id}"`);
 check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("ueber-mich") && pos("ueber-mich") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("kontakt") && pos("kontakt") < pos("nachricht"),
   "Reihenfolge: Werkzeuge, Über mich, Impulse, Newsletter, Termin, Nachricht");
-check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
+check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen\. Workshops für Teams/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");

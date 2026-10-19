@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { WORKSHOPS, workshopsSeite, workshopsUrl, KONTAKT_ENDPUNKT, MEMBER_PRUEFUNG } from "../worker/src/workshops.js";
 import { PARTNER } from "../worker/src/partner.js";
 
+import { grundsaetze } from "../worker/src/grundsaetze.js";
 let fails = 0;
 const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEHLT ") + label + (detail ? ` (${detail})` : "")); if (!ok) fails++; };
 const root = new URL("..", import.meta.url).pathname;
@@ -52,6 +53,7 @@ for (const s of WORKSHOPS) {
   check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 8, "acht Fragen sichtbar");
   check(!/kleines Werkzeug|Schmerzpunkt|small (browser )?tool|pain point/i.test(html), "kein selbst gebautes Werkzeug im Workshop (Robin, 18.10.2026: das wollen die Partner nicht sehen)");
   const schritte = (html.match(/<ol class="schritte">[\s\S]*?<\/ol>/) || [""])[0];
+  check(html.includes(grundsaetze(s.lang)) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="grundsaetze-titel"') && html.indexOf('id="grundsaetze-titel"') < html.indexOf('id="teile"'), "Grundsätze nach „Wie wir zusammenarbeiten“, vor den drei Teilen (Robin, 19.10.2026)");
   check((schritte.match(/<li>/g) || []).length === 3 && (s.lang === "en" ? ["Analyse", "Train", "Develop"] : ["Analysieren", "Schulen", "Weiterentwickeln"]).every((w, i) => schritte.includes(`<span class="nr">0${i + 1}</span><strong>${w}</strong>`)) && /unverbindliches Gespräch|no-obligation call/.test(schritte) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="teile"'), "Drei Schritte der Zusammenarbeit vor den drei Teilen, Einstieg mit unverbindlichem Gespräch (Robin, 18.10.2026)");
   const werkzeuge = (html.match(/<h2 id="werkzeuge">[\s\S]*?<h2 id="formate">/) || [""])[0];
   check(!/Partnerangebot|partner offer|Advertisement|eigene Produkte|own products/i.test(werkzeuge) && /SmartFormular FiBu lite/.test(werkzeuge) && (PARTNER.length ? (werkzeuge.match(/rel="sponsored noopener"/g) || []).length === PARTNER.length && (werkzeuge.match(/<p class="kennzeichnung"><a href="[^"]*#anzeigen">/g) || []).length === PARTNER.length : /stelle ich hier vor|present further tools here/.test(werkzeuge)), "Werkzeuge im Workshop: verschiedene Anbieter ohne Unterscheidung und ohne Kennzeichnung, Partnerverweise mit rel=sponsored (Robin, 18.10.2026)");

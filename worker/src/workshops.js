@@ -11,6 +11,7 @@ import { rahmen } from "./werkzeug.js";
 import { newsletterKasten } from "./kasten.js";
 import { SEITEN } from "./sitemap.js";
 import { partnerListe } from "./partner.js";
+import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
 
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
@@ -345,6 +346,7 @@ ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <ol class="schritte">
 ${t.schritte.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
 </ol>
+${grundsaetze(lang)}
 <h2 id="teile">${esc(t.teileTitel)}</h2>
 <div class="teile">
 ${t.teile.map(([titel, text]) => `<section class="teil"><h3>${esc(titel)}</h3><p class="frei">${esc(text)}</p></section>`).join("\n")}
@@ -417,5 +419,5 @@ ${SKRIPT(lang, t)}`;
     mainEntity: t.fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c");
   return rahmen({ lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: workshopsUrl(andere) }],
-    head: `<script type="application/ld+json">${kurs}</script>\n<script type="application/ld+json">${faq}</script>\n`, css: CSS, main, aktiv: "workshops" });
+    head: `<script type="application/ld+json">${kurs}</script>\n<script type="application/ld+json">${faq}</script>\n`, css: CSS + "\n" + GRUNDSAETZE_CSS, main, aktiv: "workshops" });
 }
