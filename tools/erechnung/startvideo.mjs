@@ -55,10 +55,10 @@ await p.waitForFunction(() => window.RVErechnung.eintraege.length === 1 && windo
 await p.evaluate(() => window.scrollTo(0, scrollY));
 // 3 Antwort
 await scrollen(await oben(".ewz-karte"), .8);
-await untertitel("Sofort die Antwort: Ja, das ist eine E-Rechnung – mit Format, Profil und Fundstelle.");
+await untertitel("Die Antwort: Ja, das ist eine E-Rechnung – mit Format, Profil und Fundstelle im Gesetz.");
 await bild(3.2);
 await scrollen(await oben("[data-teil=pruefzeile]") - 160, 1);
-await untertitel("Geprüft mit den offiziellen Regeln von CEN und KoSIT: keine Fehler gefunden.");
+await untertitel("Geprüft mit den offiziellen Regeln der Norm EN 16931: keine Fehler gefunden.");
 await bild(2.6);
 // 4 Bezahlen
 await scrollen(await oben(".ewz-zahlen") - 40, 1.2);
