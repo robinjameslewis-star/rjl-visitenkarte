@@ -1,7 +1,8 @@
 """Prüft den sprechenden Goch auf der Startseite (23.10.2026) in einem frischen Headless-Chrome gegen die Worker-Attrappe:
-Schalter „Mit Goch sprechen“ und „Goch spricht laut“, eigene Einwilligung nur für den Besuch, Push-to-talk (Tippen und
-Halten, höchstens 20 s, WAV 16 kHz an /listen), Stimme zur Antwort mit Schnabel, KI-Hinweis, Grenzen (Text statt Stimme,
-ohne Fehlermeldung), sichtbares und hörbares Zwitschern, reduzierte Bewegung, Englisch, Handy.
+Schalter „Mit Goch sprechen“ und „Goch spricht laut“, eigene Einwilligung nur für den Besuch, Gespräch ohne Knopf (Goch
+erkennt selbst, wann jemand fertig ist; WAV 16 kHz an /listen; während er antwortet, hört er nicht zu; „Fertig“, „Pause“,
+Mikrofon aus nach Stille), Stimme zur Antwort mit Schnabel und Bewegung, KI-Hinweis, Grenzen (Text statt Stimme, ohne
+Fehlermeldung), sichtbares und hörbares Zwitschern, auch in Gesprächspausen, reduzierte Bewegung, Englisch, Handy.
 
 Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets`, laufende Seite und Attrappe:
     python3 -m http.server 8788            (im Projektordner)
@@ -10,7 +11,8 @@ Aufruf:  python3 tests/goch_stimme_test.py http://localhost:8788/ http://localho
 
 Abnahme: Ohne Aktivierung keine Mikrofonanfrage (getUserMedia), kein Ton, keine Anfrage an /listen oder die Stimme;
 kein hörbares Zwitschern vor einer Handlung; sichtbares Zwitschern höchstens dreimal; Grenze erreicht → Text statt Stimme.
-Mikrofon ist Chromes Testgerät (--use-fake-device-for-media-stream), die Stimme ein kurzer Sinuston der Attrappe."""
+Mikrofon: eine künstliche Stimme im Browser, die der Test mit window.__sprich ein- und ausschaltet (getUserMedia liefert
+ihren Stream); Gochs Stimme ist ein kurzer Sinuston der Attrappe."""
 import asyncio, base64, io, json, math, os, struct, subprocess, sys, tempfile, time, urllib.parse, urllib.request, wave
 import websockets
 
@@ -40,10 +42,21 @@ def fake(path):
 # Zählt alles, was Ton oder Mikrofon bedeutet – vor jedem Skript der Seite.
 INSTRUMENT = """
 window.__z = { gum: 0, play: 0, start: 0, speak: 0, ctx: 0, streams: [] };
-window.__mund = [];
+window.__mund = []; window.__bewegt = [];
 (() => {
+  // Mikrofon: Sägezahn mit 160 Hz, hörbar nur, solange __sprich wahr ist – wie jemand, der spricht und wieder still ist
+  window.__sprich = false;
   const md = navigator.mediaDevices;
-  if (md && md.getUserMedia) { const o = md.getUserMedia.bind(md); md.getUserMedia = async c => { __z.gum++; const s = await o(c); __z.streams.push(s); return s; }; }
+  if (md && md.getUserMedia) md.getUserMedia = async c => {
+    __z.gum++;
+    const ac = new AudioContext(), osc = ac.createOscillator(), tor = ac.createGain(), ziel = ac.createMediaStreamDestination();
+    osc.type = 'sawtooth'; osc.frequency.value = 160; tor.gain.value = 0;
+    osc.connect(tor); tor.connect(ziel); osc.start();
+    const takt = setInterval(() => { tor.gain.value = __sprich ? .25 : 0; }, 10);
+    ziel.stream.getTracks()[0].addEventListener('ended', () => clearInterval(takt));
+    __z.streams.push(ziel.stream);
+    return ziel.stream;
+  };
   const P = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { __z.play++; return P.call(this); };
   const S = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function (...a) { __z.start++; return S.apply(this, a); };
   if (window.speechSynthesis) { const sp = speechSynthesis.speak.bind(speechSynthesis); speechSynthesis.speak = u => { if (u.text) __z.speak++; return sp(u); }; }
@@ -51,6 +64,7 @@ window.__mund = [];
   document.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('scene');
     new MutationObserver(() => __mund.push((s.dataset.mund || 'zu') + (s.dataset.lauscht ? '+lauscht' : ''))).observe(s, { attributes: true, attributeFilter: ['data-mund', 'data-lauscht'] });
+    new MutationObserver(() => { if (s.dataset.bewegt) __bewegt.push(getComputedStyle(s).getPropertyValue('--goch-neigung') || s.style.getPropertyValue('--goch-neigung')); }).observe(s, { attributes: true, attributeFilter: ['data-bewegt', 'style'] });
     // Schnabelposen als Bilder: sichtbar geschaltete Pose mitschreiben
     s.querySelectorAll('.bird-frame[data-mundpose]').forEach(f => new MutationObserver(() => { if (f.style.opacity === '1') __mund.push(f.dataset.mundpose); }).observe(f, { attributes: true, attributeFilter: ['style'] }));
   });
@@ -59,7 +73,7 @@ window.__mund = [];
 
 async def main():
     profile = tempfile.mkdtemp(prefix='rjl-goch-stimme-')
-    proc = subprocess.Popen([CHROME, '--headless=new', f'--remote-debugging-port={PORT}', f'--user-data-dir={profile}', '--no-first-run',
+    proc = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={PORT}', f'--user-data-dir={profile}', '--no-first-run',
                              '--no-default-browser-check', '--window-size=1280,1100', '--use-fake-ui-for-media-stream',
                              '--use-fake-device-for-media-stream', '--autoplay-policy=no-user-gesture-required', 'about:blank'],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -208,6 +222,9 @@ async def main():
             check(zz['start'] == 1, "Stimme abgespielt", zz['start'])
             check('offen' in mund and 'halb' in mund, "Schnabel folgt der Lautstärke: Posen halb und offen im Wechsel", mund[:8])
             check(await ev("!document.getElementById('scene').dataset.mund && [...document.querySelectorAll('.bird-mund')].every(f => f.style.opacity !== '1') && document.querySelector('.bird-rest').style.opacity === '1'"), "nach dem Ende wieder geschlossen (Sitzpose)")
+            bewegt = await ev("__bewegt")
+            check(any(b.strip() not in ('', '0.00deg', '0deg') for b in bewegt), "Goch bewegt sich mit der Stimme (Neigung)", bewegt[:4])
+            check(await ev("!document.getElementById('scene').dataset.spricht && (document.getElementById('scene').style.getPropertyValue('--goch-neigung') || '0.00deg') === '0.00deg'"), "danach wieder aufrecht")
             await shot("03_antwort_stimme")
             await ev("document.getElementById('goch-input').value='Wer ist Robin?'; document.getElementById('goch-send').click()"); await pump(2)
             check(fake('/_chats')[-1].get('stimme') == {'erste': False} and not (await ev(bubbles))[-1].startswith('goch: Kurz vorab'), "zweite Antwort ohne Hinweis")
@@ -225,52 +242,76 @@ async def main():
             check(zz['start'] == 2 and zz['speak'] == 0 and not any('Gerade antworte ich nicht' in x for x in await ev(bubbles)), "Stimme gestört: nur Text, keine Gerätestimme – jeder hört dieselbe Stimme", f"speak={zz['speak']}")
             fake('/_modus?stimme=ok')
 
-            print("6. „Mit Goch sprechen“: Tippen – sprechen – tippen, Halten, WAV an /listen")
-            await real_click('#goch-mikro-an')
-            check(await sichtbar('#goch-mikro') and (await z())['gum'] == 0, "Mikrofonknopf da, Mikrofon noch nicht angefragt")
-            check((await ev("document.getElementById('goch-mikro-status').textContent")).startswith('Knopf halten oder tippen'), "Hinweis zur Bedienung")
-            check(await ev("document.activeElement.id") == 'goch-mikro-knopf', "Fokus auf dem Mikrofonknopf")
-            await space(); await pump(1.6)
+            print("6. „Mit Goch sprechen“: Gespräch ohne Knopf – Goch merkt selbst, wann jemand fertig ist")
+            zustand = lambda: ev("document.getElementById('goch-mikro').dataset.zustand")
+            knopftext = lambda: ev("document.getElementById('goch-mikro-knopf').textContent")
+            statustext = lambda: ev("document.getElementById('goch-mikro-status').textContent")
+            await real_click('#goch-mikro-an'); await pump(0.8)
             zz = await z()
-            check(zz['gum'] == 1 and zz['offen'] == 1, "Leertaste: Aufnahme läuft (getUserMedia einmal)", zz)
-            check('Ich höre zu' in await ev("document.getElementById('goch-mikro-status').textContent") and await ev("document.getElementById('goch-mikro-knopf').getAttribute('aria-pressed')") == 'true', "Status „Ich höre zu …“, Knopf gedrückt")
-            check('zu+lauscht' in await ev("__mund") or await ev("document.getElementById('scene').dataset.lauscht") == '1', "Lauschpose während der Aufnahme")
-            await shot("04_aufnahme")
-            await space(); await pump(2.5)
+            check(await sichtbar('#goch-mikro') and zz['gum'] == 1 and zz['offen'] == 1, "Einschalten öffnet das Mikrofon einmal", zz)
+            check(await zustand() == 'hoert' and (await statustext()).startswith('Sprechen Sie einfach') and await knopftext() == 'Pause', "Goch hört zu: Hinweis „Sprechen Sie einfach …“, Knopf „Pause“")
+            check(neu_listen() == [], "ohne Sprache nichts gesendet")
+            await shot("04_zuhoeren")
+            await ev("__sprich = true"); await pump(1.3)
+            check(await zustand() == 'spricht' and await knopftext() == 'Fertig' and (await ev("document.getElementById('scene').dataset.lauscht") == '1'), "Goch merkt, dass jemand spricht: Lauschpose, Knopf „Fertig“")
+            check(neu_listen() == [], "während gesprochen wird, noch nichts gesendet")
+            await ev("__sprich = false"); await pump(2.8)
             li = neu_listen()
-            check(len(li) == 1 and li[0]['kopf'] == 'RIFF' and li[0]['wave'] == 'WAVE' and li[0]['rate'] == 16000 and li[0]['typ'] == 'audio/wav' and li[0]['lang'] == 'de', "WAV (16 kHz) an /listen", li[-1:] )
-            check(30000 <= li[0]['bytes'] - 44 <= 80000, "Länge passt zur Aufnahme (gut 1,5 s)", li[0]['bytes'])
-            b = await ev(bubbles)
-            check('you: Woran arbeitet Robin gerade?' in b, "erkannter Text erscheint als Besuchertext")
-            check(fake('/_chats')[-1].get('gesprochen') is True, "läuft über /chat mit gesprochen")
+            check(len(li) == 1 and li[0]['kopf'] == 'RIFF' and li[0]['wave'] == 'WAVE' and li[0]['rate'] == 16000 and li[0]['typ'] == 'audio/wav' and li[0]['lang'] == 'de', "nach einer kurzen Pause von selbst gesendet: WAV 16 kHz an /listen", li[-1:])
+            check(li and 1.2 * 32000 <= li[0]['bytes'] - 44 <= 2.1 * 32000, "Abschnitt: Rede mit kurzem Vor- und Nachlauf, ohne die Stille danach", li and li[0]['bytes'])
+            check('you: Woran arbeitet Robin gerade?' in await ev(bubbles) and fake('/_chats')[-1].get('gesprochen') is True, "erkannter Text erscheint als Besuchertext und läuft über /chat mit gesprochen")
             zz = await z()
-            check(zz['offen'] == 0 and not await ev("document.getElementById('scene').dataset.lauscht"), "Mikrofon wieder zu, Lauschpose vorbei", zz)
-            await real_click('#goch-mikro-knopf', hold=1.2); await pump(2)
-            check(len(neu_listen()) == 2, "Halten und Loslassen: zweite Aufnahme gesendet")
-            await real_click('#goch-mikro-knopf', hold=0.05); await pump(0.6)
-            check(await ev("document.getElementById('goch-mikro-knopf').getAttribute('aria-pressed')") == 'true', "kurz getippt: Aufnahme läuft weiter")
-            await real_click('#goch-mikro-knopf', hold=0.05); await pump(2)
-            check(len(neu_listen()) == 3, "erneut getippt: gesendet")
+            check(await zustand() == 'hoert' and zz['offen'] == 1 and zz['gum'] == 1, "nach der Antwort hört Goch wieder zu – Mikrofon blieb offen, kein neues getUserMedia", zz)
+            print("6b. Während Goch antwortet, hört er nicht zu")
+            await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(1.0)  # Frage, dann Pause
+            await ev("__sprich = true"); await pump(0.5); await ev("__sprich = false")                  # spricht in Gochs Antwort hinein
+            await pump(3.0)
+            check(len(neu_listen()) == 2 and await zustand() == 'hoert', "nur die Frage gesendet, nicht was während der Antwort gesprochen wurde", len(neu_listen()))
+            print("6c. „Fertig“ und „Pause“")
+            await ev("__sprich = true"); await pump(1.0)
+            await real_click('#goch-mikro-knopf'); await ev("__sprich = false"); await pump(0.3)
+            check(len(neu_listen()) == 3, "„Fertig“: sofort gesendet, ohne die Pause abzuwarten")
+            await pump(2.0)
+            check(await zustand() == 'hoert', "danach wieder zuhören")
+            await real_click('#goch-mikro-knopf'); await pump(0.3)
+            zz = await z()
+            check(await zustand() == 'pause' and zz['offen'] == 0 and await knopftext() == 'Weiter zuhören' and 'pausiert' in await statustext(), "„Pause“: Mikrofon zu, Knopf „Weiter zuhören“", zz)
+            await ev("__sprich = true"); await pump(1.2); await ev("__sprich = false"); await pump(1.5)
+            check(len(neu_listen()) == 3, "pausiert: nichts gesendet")
+            await real_click('#goch-mikro-knopf'); await pump(0.6)
+            zz = await z()
+            check(await zustand() == 'hoert' and zz['offen'] == 1 and zz['gum'] == 2, "„Weiter zuhören“: Mikrofon wieder offen", zz)
 
-            print("7. Höchstens 20 Sekunden")
-            await ev("document.getElementById('goch-mikro-knopf').focus()"); await space(); await pump(21.5)
-            li = neu_listen()
-            check(len(li) == 4 and 19 * 32000 <= li[-1]['bytes'] - 44 <= 20.3 * 32000, "nach 20 s automatisch beendet und gesendet", li[-1]['bytes'])
-            check((await z())['offen'] == 0, "Mikrofon danach zu")
-
-            print("8. Spracheingabe: Grenze und ausgeschaltet")
+            print("7. Spracheingabe: Grenze und ausgeschaltet")
             fake('/_modus?hoeren=grenze'); vorher = len(fake('/_chats'))
-            await ev("document.getElementById('goch-mikro-knopf').focus()"); await space(); await pump(1.2); await space(); await pump(1.5)
-            check(await ev("document.getElementById('goch-mikro-status').textContent") == 'Bitte tippen Sie Ihre Frage.' and len(fake('/_chats')) == vorher, "Grenze: Bitte zum Tippen, keine Anfrage an /chat, keine Fehlermeldung")
-            check(await ev("document.activeElement.id") == 'goch-input', "Fokus im Textfeld")
+            await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(2.0)
+            check(await statustext() == 'Bitte tippen Sie Ihre Frage.' and len(fake('/_chats')) == vorher, "Grenze: Bitte zum Tippen, keine Anfrage an /chat, keine Fehlermeldung")
+            check(await ev("document.getElementById('goch-mikro-an').getAttribute('aria-pressed')") == 'false' and (await z())['offen'] == 0 and await ev("document.activeElement.id") == 'goch-input', "Mikrofon aus, Fokus im Textfeld")
             fake('/_modus?hoeren=aus')
-            await ev("document.getElementById('goch-mikro-knopf').focus()"); await space(); await pump(1.2); await space(); await pump(1.5)
-            check(await ev("document.getElementById('goch-mikro-an').getAttribute('aria-pressed')") == 'false' and 'ausgeschaltet' in await ev("document.getElementById('goch-mikro-status').textContent"), "ausgeschaltet: Mikrofon aus, Hinweis")
+            await real_click('#goch-mikro-an'); await pump(0.6)
+            await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(2.0)
+            check(await ev("document.getElementById('goch-mikro-an').getAttribute('aria-pressed')") == 'false' and 'ausgeschaltet' in await statustext() and (await z())['offen'] == 0, "ausgeschaltet: Mikrofon aus, Hinweis")
             fake('/_modus?hoeren=ok')
 
+            print("8. Eine Minute Stille (im Test 2,5 s): Mikrofon aus")
+            await goto(BASE + q('&t=8&stille=2500'), wait=2.5)
+            await ev("window.scrollTo(0,0)"); await real_click('#scene'); await real_click('#goch-mikro-an'); await real_click('#goch-stimme-allow'); await pump(0.6)
+            gum0 = (await z())['gum']
+            check(await zustand() == 'hoert' and (await z())['offen'] == 1, "Goch hört zu")
+            await pump(3.2)
+            zz = await z()
+            check(await zustand() == 'pause' and zz['offen'] == 0 and 'Stille' in await statustext() and await knopftext() == 'Weiter zuhören', "nach der Stille: Mikrofon zu, Hinweis, Knopf „Weiter zuhören“", zz)
+            await real_click('#goch-mikro-knopf'); await pump(0.6)
+            check(await zustand() == 'hoert' and (await z())['gum'] == gum0 + 1, "„Weiter zuhören“ öffnet es wieder")
+            await escape(); await pump(0.3)
+            check((await z())['offen'] == 0, "Gespräch geschlossen: Mikrofon zu")
+            await ev("window.scrollTo(0,0)"); await real_click('#scene'); await pump(0.5)
+            check(await zustand() == 'pause' and (await z())['offen'] == 0, "wieder geöffnet: Mikrofon bleibt zu, bis „Weiter zuhören“")
+
             print("9. Sprechen beenden")
+            await real_click('#goch-mikro-knopf'); await pump(0.5)
             await real_click('#goch-stimme-ende')
-            check(await ev("document.getElementById('goch-laut').getAttribute('aria-pressed')") == 'false' and await ev("document.getElementById('goch-stimme-ende').hidden"), "Stimme aus, „Sprechen beenden“ verschwindet")
+            check(await ev("document.getElementById('goch-laut').getAttribute('aria-pressed')") == 'false' and await ev("document.getElementById('goch-stimme-ende').hidden") and (await z())['offen'] == 0, "Mikrofon zu, Stimme aus, „Sprechen beenden“ verschwindet")
             await ev("document.getElementById('goch-input').value='Wer ist Robin?'; document.getElementById('goch-send').click()"); await pump(1.5)
             last = fake('/_chats')[-1]
             check(not any(k in last for k in ('stimme', 'gesprochen', 'figur')), "Anfragen wieder wie vorher", list(last.keys()))
@@ -298,6 +339,29 @@ async def main():
             check((await ev("document.querySelector('#goch-stimme-consent p').textContent")).startswith('Talking to Goch:'), "Einwilligung auf Englisch")
             await real_click('#goch-stimme-allow'); await ev("document.querySelector('.goch-starter').click()"); await pump(2.5)
             check((await ev(bubbles))[-1].startswith("goch: Just so you know: I'm an AI") and await ev("document.getElementById('goch-ki').textContent") == 'AI · synthetic voice', "KI-Hinweis auf Englisch")
+
+            print("11b. Zwitschern in Gesprächspausen: unregelmäßig, höchstens viermal, hörbar nur mit Stimme, nie beim Tippen")
+            await goto(BASE + q('&t=11b&lang=de&pausentakt=700'), wait=1)
+            for _ in range(40):  # Zwitschern erst, wenn Goch gelandet ist
+                if await ev("document.getElementById('scene').dataset.state") == 'rest': break
+                await pump(0.25)
+            await ev("window.scrollTo(0,0)"); await real_click('#scene'); await pump(0.3)
+            play0 = (await z())['play']
+            await pump(2.6)
+            p1 = await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)")
+            check(p1 >= 1 and (await z())['play'] == play0, "in der Pause zwitschert Goch sichtbar – ohne Stimme nicht hörbar", p1)
+            await real_click('#goch-laut'); await real_click('#goch-stimme-allow'); play1 = (await z())['play']
+            await pump(4.5)
+            p2 = await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)")
+            check(p2 > p1 and (await z())['play'] > play1, "mit Stimme auch hörbar", f"{p1}→{p2}")
+            await pump(4)
+            check(await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)") <= 4, "höchstens viermal je Gespräch")
+            await real_click('#goch-close')
+            check(await ev("document.getElementById('goch').hidden"), "Gespräch geschlossen")
+            await ev("document.getElementById('goch-input').value = 'Ich tippe gerade'; document.getElementById('goch-input').dispatchEvent(new Event('input'))")
+            await ev("window.scrollTo(0,0)"); await real_click('#scene'); await pump(3.5)
+            check(await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)") == 0, "während getippt wird: kein Zwitschern")
+            await ev("document.getElementById('goch-input').value = ''")
 
             print("12. Ohne Schalter (?stimme=aus): alles wie vorher")
             await goto(BASE + f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=aus&t=12", wait=4.5)

@@ -72,7 +72,7 @@ def compare(name, a_png, b_png):
 
 async def main():
     profile = tempfile.mkdtemp(prefix='rjl-figur-chrome-')
-    proc = subprocess.Popen([CHROME, '--headless=new', f'--remote-debugging-port={PORT}', f'--user-data-dir={profile}',
+    proc = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={PORT}', f'--user-data-dir={profile}',
                              '--no-first-run', '--no-default-browser-check', '--hide-scrollbars', 'about:blank'],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:

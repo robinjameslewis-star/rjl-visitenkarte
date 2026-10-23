@@ -1,7 +1,8 @@
 // Gemeinsame Tonbausteine für die Startseite (goch-stimme.js) und das Messegerät (kiosk.js), 23.10.2026.
 // AudioContext erst nach einer Berührung (iOS/Safari), Aufnahme als WAV (PCM 16 Bit, mono, 16 kHz) über Web Audio –
-// unabhängig vom Format, das der Browser sonst aufnehmen würde –, Wiedergabe mit Pegel für Schnabel oder Logo und
-// lokalen Browserstimmen für Figuren, die das erlauben (rueckfall „browser“; Goch nicht). Nichts wird gespeichert.
+// unabhängig vom Format, das der Browser sonst aufnehmen würde –, Zuhören ohne Knopf mit Sprecherkennung im Browser,
+// Wiedergabe mit Pegel für Schnabel, Bewegung oder Logo und lokalen Browserstimmen für Figuren, die das erlauben
+// (rueckfall „browser“; Goch nicht). Nichts wird gespeichert.
 (() => {
   'use strict';
   let ctx = null, quelle = null, sprichtBrowser = false, freigeschaltet = false;
@@ -145,5 +146,124 @@
     };
   }
 
-  window.GochAudio = { audio, entsperren, schweigen, abspielen, browserStimme, stimmeWaehlen, aufnahme, wav, get spielt() { return !!quelle || sprichtBrowser; } };
+  // Sprecherkennung im Browser (Robin, 23.10.2026: Gespräch ohne Knopf). Entscheidet nur aus der Lautstärke je Block, ob
+  // jemand spricht und wann er fertig ist. Grundrauschen = leisester Block der letzten 1,5 s (ein Lüfter gilt so nicht als
+  // Sprache); zu kurz ist, was weniger als minMs wirklich laut war (Räuspern, Klopfen). Reine Rechnung, ohne Mikrofon prüfbar.
+  // block(Float32Array) liefert { rms }, beim Beginn { start: true } und am Ende { ende: true, teile, sprechMs, zuKurz }.
+  function erkenner({ rate, pauseMs = 900, minMs = 250, maxMs = 20000, vorlaufMs = 300, startMs = 120, fensterMs = 1500 } = {}) {
+    let spricht = false, laut = 0, leise = 0, dauer = 0, stimmhaft = 0, vorlauf = [], teile = [], verlauf = [];
+    const abschluss = (weg = 0) => {
+      const r = { ende: true, teile: teile.slice(0, teile.length - weg), sprechMs: dauer - leise, zuKurz: stimmhaft < minMs };
+      spricht = false; laut = leise = dauer = stimmhaft = 0; teile = [];
+      return r;
+    };
+    return {
+      get spricht() { return spricht; },
+      zuruecksetzen() { spricht = false; laut = leise = dauer = stimmhaft = 0; vorlauf = []; teile = []; },
+      fertig() { return spricht ? abschluss() : null; },
+      block(d) {
+        const ms = d.length / rate * 1000;
+        let s = 0;
+        for (const v of d) s += v * v;
+        const rms = Math.sqrt(s / d.length);
+        verlauf.push(rms);
+        while (verlauf.length * ms > fensterMs) verlauf.shift();
+        const schwelle = Math.max(.012, Math.max(.003, Math.min(...verlauf)) * 3.5);
+        if (!spricht) {
+          vorlauf.push(d);
+          while (vorlauf.length * ms > vorlaufMs + ms) vorlauf.shift();
+          laut = rms >= schwelle ? laut + ms : 0;
+          if (laut < startMs) return { rms };
+          spricht = true; teile = vorlauf; vorlauf = []; dauer = teile.length * ms; stimmhaft = laut; leise = 0;
+          return { rms, start: true };
+        }
+        teile.push(d); dauer += ms;
+        if (rms >= schwelle) stimmhaft += ms;
+        leise = rms < schwelle * .7 ? leise + ms : 0;
+        if (leise >= pauseMs || dauer >= maxMs) return { rms, ...abschluss(Math.max(0, Math.floor((leise - 250) / ms))) };
+        return { rms };
+      },
+    };
+  }
+
+  // Zuhören ohne Knopf: Mikrofon offen, bis stopp() gerufen wird; geschickt wird nur, was der Erkenner als gesprochenen
+  // Abschnitt meldet (ende(WAV, Sekunden), zu Kurzes als ende(null)). anhalten() lässt die Blöcke ungenutzt verfallen
+  // (z. B. während Goch spricht), weiter() hört wieder hin, fertig() beendet den laufenden Abschnitt sofort.
+  async function zuhoeren({ pegel, start, ende, ...optionen } = {}) {
+    const c = audio();
+    if (!c || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('kein Mikrofon');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+    const src = c.createMediaStreamSource(stream), proc = c.createScriptProcessor(2048, 1, 1), still = c.createGain();
+    still.gain.value = 0;
+    const e = erkenner({ rate: c.sampleRate, ...optionen });
+    let angehalten = false, offen = true;
+    const melden = r => { if (r && r.ende && ende) ende(r.zuKurz ? null : wav(r.teile, c.sampleRate), r.sprechMs / 1000); };
+    proc.onaudioprocess = ev => {
+      if (!offen) return;
+      if (angehalten) { if (pegel) pegel(0, false); return; }
+      const r = e.block(new Float32Array(ev.inputBuffer.getChannelData(0)));
+      if (pegel) pegel(r.rms, e.spricht);
+      if (r.start && start) start();
+      melden(r);
+    };
+    src.connect(proc); proc.connect(still); still.connect(c.destination);
+    return {
+      get spricht() { return e.spricht; },
+      anhalten() { angehalten = true; e.zuruecksetzen(); },
+      weiter() { angehalten = false; },
+      fertig() { melden(e.fertig()); },
+      stopp() {
+        if (!offen) return;
+        offen = false;
+        [proc, src, still].forEach(n => { try { n.disconnect(); } catch (_) {} });
+        stream.getTracks().forEach(tr => tr.stop());
+      },
+    };
+  }
+
+  // Bewegung zur Stimme (Robin, 23.10.2026: mehr Leben beim Sprechen). Goch neigt sich mit betonten Silben leicht nach vorn
+  // und hebt sich ein wenig, wechselt an Satzpausen die Kopfhaltung und schaut in Gesprächspausen ab und zu kurz zur Seite.
+  // Setzt nur CSS-Variablen (--goch-neigung, --goch-hub) und data-bewegt am Element; gedreht wird per CSS um die Füße, damit
+  // er auf dem Ast bleibt. Bei reduzierter Bewegung nichts.
+  function bewegung(ziel) {
+    const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
+    let huelle = 0, haltung = 0, leiseSeit = 0, gewechselt = true, blickAn = false, timer = 0, aus = 0;
+    const setzen = (neigung, hub) => {
+      clearTimeout(aus); ziel.dataset.bewegt = '1';
+      ziel.style.setProperty('--goch-neigung', neigung.toFixed(2) + 'deg');
+      ziel.style.setProperty('--goch-hub', hub.toFixed(2) + '%');
+    };
+    const zurueck = () => { setzen(0, 0); aus = setTimeout(() => { if (!ziel.dataset.spricht) delete ziel.dataset.bewegt; }, 400); };
+    function naechsterBlick() {
+      clearTimeout(timer);
+      if (!blickAn) return;
+      timer = setTimeout(() => {
+        if (!blickAn) return;
+        if (ruhig.matches || ziel.dataset.spricht || ziel.dataset.lauscht || document.hidden) return naechsterBlick();
+        setzen((Math.random() < .5 ? -1 : 1) * (.8 + Math.random()), 0);
+        timer = setTimeout(() => { if (!ziel.dataset.spricht) zurueck(); naechsterBlick(); }, 700 + Math.random() * 700);
+      }, 4000 + Math.random() * 5000);
+    }
+    return {
+      stimme(rms) { // je Bild, solange die Stimme spielt
+        if (ruhig.matches) return;
+        ziel.dataset.spricht = '1';
+        huelle = huelle * .8 + rms * .2;
+        const jetzt = performance.now();
+        if (rms < .02) {
+          if (!leiseSeit) leiseSeit = jetzt;
+          if (!gewechselt && jetzt - leiseSeit > 250) { haltung = (Math.random() * 2 - 1) * 1.1; gewechselt = true; }
+        } else { leiseSeit = 0; gewechselt = false; }
+        setzen(haltung - Math.min(1.4, huelle * 9), -Math.min(.5, huelle * 3));
+      },
+      ende() { huelle = 0; haltung = 0; if (ziel.dataset.spricht) { delete ziel.dataset.spricht; zurueck(); } },
+      blicken(an) {
+        if (an === blickAn) return;
+        blickAn = an;
+        if (an) naechsterBlick(); else { clearTimeout(timer); if (!ziel.dataset.spricht && ziel.dataset.bewegt) zurueck(); }
+      },
+    };
+  }
+
+  window.GochAudio = { audio, entsperren, schweigen, abspielen, browserStimme, stimmeWaehlen, aufnahme, zuhoeren, erkenner, bewegung, wav, get spielt() { return !!quelle || sprichtBrowser; } };
 })();

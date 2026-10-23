@@ -56,6 +56,9 @@
     .figur-posen .figur-kippen { transition: transform 90ms ease-out; }
     .figur[data-mund="halb"] .figur-kippen { transform: rotate(-1.4deg); }
     .figur[data-mund="offen"] .figur-kippen { transform: rotate(-2.6deg) translateY(-.4%); }
+    /* Bewegung zur Stimme und kurze Blicke in Pausen (goch-audio.js, bewegung): um die Füße gedreht – sie bleibt auf dem Ast */
+    .figur[data-bewegt] .figur-kippen { transform-origin: 45% 78%; transform: translateY(var(--goch-hub, 0%)) rotate(var(--goch-neigung, 0deg)); transition: transform 160ms ease-out; }
+    .figur[data-bewegt][data-lauscht="1"] .figur-kippen { transform: rotate(1.6deg); }
     .figur[data-lauscht="1"] .figur-kippen { transform: rotate(3deg); }
   }
   @media (prefers-reduced-motion: reduce) { .zwitschert .noten span { animation: none; opacity: 1; } .figur.zwitschert .figur-kippen { animation: none; } }

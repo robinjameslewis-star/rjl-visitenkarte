@@ -63,6 +63,8 @@
       if (e.vorne) buehne.append(img); else buehne.insertBefore(img, kippen);
     }
     const puls = a.puls || { min: 1, max: 1.06 };
+    // Bewegung zur Stimme und Blicke in Pausen (goch-audio.js), nur für Figuren mit Posen
+    const koerper = a.art !== 'logo' && window.GochAudio && window.GochAudio.bewegung ? window.GochAudio.bewegung(buehne) : null;
     function zeige(pose) {
       const ziel = frames[pose];
       if (!ziel) return false;
@@ -86,8 +88,10 @@
           return;
         }
         steuerung.mund(rms > .09 ? 'offen' : rms > .025 ? 'halb' : 'zu');
+        if (koerper) koerper.stimme(rms);
       },
-      ruhe() { kippen.style.transform = ''; steuerung.mund('zu'); },
+      ruhe() { kippen.style.transform = ''; steuerung.mund('zu'); if (koerper) koerper.ende(); },
+      blicken(an) { if (koerper) koerper.blicken(an); },
       lauschen(an) {
         lauscht = an && !ruhig.matches;
         if (lauscht) { if (!zeige('lauschen')) buehne.dataset.lauscht = '1'; }

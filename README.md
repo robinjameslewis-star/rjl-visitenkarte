@@ -730,25 +730,34 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Einschalten fragt eine eigene Einwilligung (getrennt von der des Gesprächs); sie gilt nur für diesen Besuch, liegt nur im
   Speicher der Seite und endet mit „Sprechen beenden“. Ohne Einschalten: kein `getUserMedia`, kein Ton, kein AudioContext,
   keine Anfrage an `/listen` oder die Stimme (geprüft).
-- **Sprechen:** Knopf „Sprechen“ halten oder tippen – sprechen – tippen, Leertaste oder Enter genauso; höchstens 20 s mit
-  Pegel und Restzeit. Das Mikrofon ist nur während der Aufnahme offen. Die Seite nimmt PCM über Web Audio auf, rechnet auf
-  16 kHz mono herunter und schickt ein WAV an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über
-  `/chat` (`gesprochen: true`). Der Knopf hält den Zeiger fest (`setPointerCapture`), damit das Loslassen auch ankommt,
-  wenn sich die Sprechblase während der Aufnahme verschiebt.
+- **Sprechen – Gespräch ohne Knopf** (Robin, 23.10.2026): Ist „Mit Goch sprechen“ an, hört Goch zu. Der Browser erkennt
+  selbst an der Lautstärke, wann jemand spricht und wann er nach einer kurzen Pause (0,9 s) fertig ist (`goch-audio.js`,
+  `erkenner` und `zuhoeren`; Grundrauschen = leisester Block der letzten 1,5 s, kurze Geräusche unter 0,25 s werden
+  verworfen). Erst dann geht der gesprochene Abschnitt mit kurzem Vor- und Nachlauf als WAV (16 kHz mono, höchstens 20 s)
+  an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über `/chat` (`gesprochen: true`). Während Goch
+  versteht, denkt oder spricht, hört er nicht zu; danach wieder. Der Knopf heißt je nach Lage „Pause“, „Fertig“ (sendet
+  sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, beim Tabwechsel, mit „Pause“, beim
+  Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
+  `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
 - **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
   das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
   dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
-  `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Lauschen: leichte Neigung
-  (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
+  `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Dazu neigt er sich mit betonten Silben
+  leicht nach vorn, wechselt an Satzpausen die Kopfhaltung und schaut in Gesprächspausen ab und zu kurz zur Seite
+  (`goch-audio.js`, `bewegung`: CSS-Variablen `--goch-neigung`, `--goch-hub`, gedreht um die Füße). Lauschen: leichte
+  Neigung (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
   Hinweis – keine Gerätestimme, damit alle dieselbe Stimme hören. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
 - **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
 - **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
   höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die
   Noten. Hörbar nur nach einer Handlung: leise beim Öffnen des Gesprächs und als Bestätigung beim Einschalten der Stimme;
-  „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Solange es keine
+  „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Im offenen Gespräch zu
+  Beginn und in Pausen ab und zu (nach 30–70 s Ruhe, höchstens viermal je Gespräch), nie während Goch denkt, spricht oder
+  zuhört und nie während getippt wird; hörbar nur mit „Goch spricht laut“. Solange es keine
   Tondatei gibt (`data-goch-signalton` leer), zwitschert Goch nur sichtbar. Datei: `figuren/goch/toene/zwitschern.ogg`
   und `.mp3`, dann `data-goch-signalton="figuren/goch/toene/zwitschern"`.
-- **Handy:** Mit Sprachschaltern darf das Blatt 80 % der Höhe nutzen, damit der Verlauf lesbar bleibt.
+- **Handy:** Mit Sprachschaltern oder deren Einwilligung darf das Blatt 80 % der Höhe nutzen, damit Verlauf und Knöpfe
+  sichtbar bleiben.
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
   wenn die Funktion an ist. Die Einwilligung des Gesprächs (`rjl-goch-consent`) bleibt unverändert, weil ihr Text weiter
   stimmt; die Sprach-Einwilligung wird nicht gespeichert, also gibt es keine Version hochzuzählen.

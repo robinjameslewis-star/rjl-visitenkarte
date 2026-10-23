@@ -91,7 +91,7 @@ async def main():
     up = subprocess.Popen([PY, os.path.join(ROOT, 'tests', 'goch_fake_worker.py'), str(UP)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     warte_port(UP)
     dienst = dienst_starten('goch')
-    proc = subprocess.Popen([CHROME, '--headless=new', f'--remote-debugging-port={CDP}', f'--user-data-dir={tempfile.mkdtemp(prefix="rjl-kiosk-chrome-")}', '--no-first-run', '--window-size=1080,1920',
+    proc = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={CDP}', f'--user-data-dir={tempfile.mkdtemp(prefix="rjl-kiosk-chrome-")}', '--no-first-run', '--window-size=1080,1920',
                              '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--autoplay-policy=no-user-gesture-required', 'about:blank'],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:

@@ -84,6 +84,8 @@
     else if (zustand === 'bereit') anleitung(online ? t('bereit') : t('offlineHinweis'));
     else if (zustand === 'denken') anleitung(t('denkt'));
     beispiele();
+    if (figur) figur.blicken(zustand === 'ruhe' || zustand === 'bereit');
+    pausenZwitschern();
   }
 
   // ---------- Inaktivität: nach K.inaktivitaet_s alles zurück, nichts bleibt ----------
@@ -227,6 +229,23 @@
     document.body.dataset.gezwitschert = String(+(document.body.dataset.gezwitschert || 0) + 1); // für Tests
     const quelle = figur.signalton();
     if (quelle) { try { const ton = new Audio(quelle); ton.volume = Math.max(0, Math.min(1, z.lautstaerke ?? .5)); ton.play().catch(() => {}); } catch (_) {} }
+  }
+
+  // In Gesprächspausen (bereit, niemand spricht) einmal je Pause leise zwitschern, unregelmäßig nach 12–25 s – vor dem
+  // Zurücksetzen nach K.inaktivitaet_s, nie in Ruhezeiten (Robin, 23.10.2026).
+  let pausenTimer = 0;
+  function pausenZwitschern() {
+    clearTimeout(pausenTimer);
+    const z = (K && K.zwitschern) || {};
+    if (!z.an || zustand !== 'bereit') return;
+    const [von, bis] = z.pause_s || [12, 25];
+    pausenTimer = setTimeout(() => {
+      if (zustand !== 'bereit' || A.spielt || ruhezeit()) return;
+      figur.zwitschern();
+      document.body.dataset.pausenzwitschern = String(+(document.body.dataset.pausenzwitschern || 0) + 1); // für Tests
+      const quelle = figur.signalton();
+      if (quelle) { try { const ton = new Audio(quelle); ton.volume = Math.max(0, Math.min(1, (z.lautstaerke ?? .5) * .6)); ton.play().catch(() => {}); } catch (_) {} }
+    }, (von + Math.random() * (bis - von)) * 1000);
   }
 
   // ---------- Start ----------

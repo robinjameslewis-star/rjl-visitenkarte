@@ -28,10 +28,14 @@ Stimme, Pegel) und `figur.js` (Figurenpaket). Der Dienst liefert nur diese Datei
 2. **Hinweis:** Erster Druck zeigt den Hinweis (KI, künstliche Stimme, Verarbeitung, nichts gespeichert, Neustart nach
    einer Minute). **Zweiter Druck = Einwilligung.**
 3. **Sprechen:** Knopf halten – sprechen – loslassen, oder tippen – sprechen – tippen; höchstens 20 s. Die Figur lauscht.
+   Am Messestand bewusst mit Knopf (Umstehende, Lärm); die Website hört ohne Knopf zu (`goch-audio.js`, `zuhoeren`) – das
+   ließe sich hier per Konfiguration nachrüsten.
 4. **Antwort:** als Untertitel und mit Stimme; der Schnabel folgt der Lautstärke (Logo: pulsiert).
 5. **Zurücksetzen:** 60 s ohne Aktivität → Gespräch und Einwilligung gelöscht, zurück zu 1. Nichts bleibt im Browser.
 6. **Anwesenheit:** Steht jemand 1–3 m vor dem Gerät, zwitschert die Figur hörbar – mit Abklingzeit (30 s), nie in den
-   Ruhezeiten, nie während eines Gesprächs.
+   Ruhezeiten, nie während eines Gesprächs. In Gesprächspausen zwitschert sie einmal leise nach 12–25 s
+   (`zwitschern.pause_s`), in Ruhe und Pausen schaut sie ab und zu kurz zur Seite; beim Sprechen bewegt sie sich mit der
+   Stimme (um die Füße gedreht, der Ast bleibt fest).
 7. **Ohne Netz:** Hinweis „offline“, vorbereitete Antworten zum Antippen (mit Stimme, vorab erzeugt). Bestätigte
    Nachrichten an Robin puffert der Dienst und sendet sie, sobald das Netz zurück ist.
 

@@ -227,6 +227,7 @@
       p.append(link('mailto:robin@robin.vision', 'robin@robin.vision'));
       history.pop();
       busy = false; setAvailability(); input.focus();
+      window.dispatchEvent(new CustomEvent('goch-fertig'));
       return;
     }
     thinking.classList.remove('goch-thinking');
@@ -252,6 +253,7 @@
     log.scrollTop = log.scrollHeight;
     busy = false; setAvailability();
     (nl ? nl.querySelector('input') : input).focus();
+    window.dispatchEvent(new CustomEvent('goch-fertig')); // goch-stimme.js: danach wieder zuhören
   }
 
   // Goch ausgeschaltet (Worker antwortet 503, z. B. weil die Seite noch aus dem Cache kommt): Gespräch schließen,

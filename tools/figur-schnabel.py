@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Schnabelposen aus der Sitzpose ableiten (Robin, 23.10.2026): Der Unterschnabel wird um den Schnabelwinkel
-heruntergeklappt; die Öffnung zeigt hinten den dunklen Rachen, vorn zwischen den Spitzen den Hintergrund.
+heruntergeklappt; die Öffnung zeigt nur am Mundwinkel etwas Dunkles, sonst zwischen den Hälften den Hintergrund.
 Zwischenlösung, bis gezeichnete Posen da sind (FIGUREN.md, Prompt-Vorlage); Kehle und Kopf bewegen sich nicht mit.
 Die Lage von Schnabelwinkel und Trennlinie gilt für Gochs Sitzpose (1153 × 637, figuren/goch/bilder/…/vogel.webp).
 
@@ -41,23 +41,25 @@ def oeffnen(im, grad):
     x_hinten, x_spitze = SCHARNIER[0], OBERKANTE[0][0]
     for x in range(int(x_spitze) - 2, int(x_hinten) + 3):
         t = max(0.0, min(1.0, (x_hinten - x) / (x_hinten - x_spitze)))  # 0 am Schnabelwinkel, 1 an der Spitze
-        # dunkler, gedämpfter Rachen (kein Rosa: das leuchtet nachts vor dem Himmel); vorn scheint der Hintergrund durch
-        u = min(1.0, t / 0.5)
-        farbe = tuple(round(a + (b - a) * u) for a, b in zip((30, 22, 22), (68, 46, 43)))
-        deck = 255 if t < 0.42 else round(255 * max(0.0, 1 - (t - 0.42) / 0.3))
+        # dunkler, gedämpfter Mundwinkel (kein Rosa: das leuchtet nachts vor dem Himmel), nur ganz hinten; davor scheint der
+        # Hintergrund durch – ein längerer Verlauf wirkte auf hellem Papier wie ein Schatten (Robin, 23.10.2026)
+        u = min(1.0, t / 0.3)
+        farbe = tuple(round(a + (b - a) * u) for a, b in zip((34, 25, 24), (74, 52, 48)))
+        deck = 255 if t < 0.1 else round(255 * max(0.0, 1 - (t - 0.1) / 0.2))
         for y in range(80, 145):
             px[x, y] = farbe + (deck,)
     rachen.putalpha(Image.composite(rachen.getchannel('A'), Image.new('L', im.size, 0), km))
     aus = rgba.copy()
     # alten Unterschnabel entfernen: mit Hintergrund (Weiß bzw. transparent) überdecken, dann Rachen und neuen Unterschnabel
     hinter = Image.new('RGBA', im.size, (255, 255, 255, 255) if im.mode == 'RGB' else (0, 0, 0, 0))
-    aus.paste(hinter, (0, 0), m.point(lambda v: 255 if v > 128 else v * 2))
+    # vorn etwas über die Unterkante hinaus, sonst bleibt deren Umriss als feine Strichellinie stehen
+    loesch = maske(im.size, OBERKANTE + [(x - (1 if x < 280 else 0), y + (1.8 if x < 330 else 0)) for x, y in UNTERKANTE])
+    aus.paste(hinter, (0, 0), loesch.point(lambda v: 255 if v > 128 else v * 2))
     aus.alpha_composite(rachen)
     # feine dunkle Innenkanten an Ober- und Unterschnabel, wie gezeichnet
     kante = Image.new('RGBA', (im.size[0] * SS, im.size[1] * SS), (0, 0, 0, 0))
     d = ImageDraw.Draw(kante)
-    d.line([(x * SS, y * SS) for x, y in OBERKANTE], fill=(30, 22, 22, 150), width=SS)
-    d.line([(x * SS, y * SS) for x, y in (drehen(p, grad) for p in OBERKANTE)], fill=(30, 22, 22, 120), width=SS)
+    d.line([(x * SS, y * SS) for x, y in OBERKANTE if x >= 305], fill=(30, 22, 22, 120), width=SS)  # Unterkante des Oberschnabels, nur hinten (vorn sähe man sie als Strichel)
     aus.alpha_composite(kante.resize(im.size, Image.LANCZOS))
     aus.alpha_composite(gedreht)
     return aus.convert(im.mode) if im.mode == 'RGB' else aus
