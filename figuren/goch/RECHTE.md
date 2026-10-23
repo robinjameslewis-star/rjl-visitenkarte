@@ -27,7 +27,7 @@ kann Nachahmungen aber womöglich nicht untersagen. Schutz der Figur eher über 
 
 | Datei | Herkunft | Werkzeug | Lizenz |
 |---|---|---|---|
-| `toene/zwitschern.ogg`, `toene/zwitschern.mp3` | „Robin Song in Madeira Forest“ von Sacha.Julien (Rotkehlchen, Erithacus rubecula; Laurisilva, Madeira, 22.03.2017), Freesound 725201, https://freesound.org/people/Sacha.Julien/sounds/725201/, Vorschau in hoher Qualität abgerufen 23.10.2026 (SHA-256 c5faeecd…b53b1b); Robins Wahl aus drei Kandidaten | Stelle 1:58,40–1:59,65, Hochpass 1,2 kHz, auf −3 dBFS normalisiert, Ein- und Ausblenden – `tools/figur-zwitschern.py` (PyAV, numpy) | **CC0 1.0** (Public Domain Dedication) – frei nutzbar, auch kommerziell, ohne Namensnennung | Herkunft trotzdem hier vermerkt |
+| `toene/zwitschern.ogg`, `toene/zwitschern.mp3` | selbst erzeugt am 23.10.2026, Stil „frage“ (zwei reine Töne, der zweite steigt) – Robins Wahl aus vier Stilen, weil es zu einem gezeichneten Vogel besser passt als eine Feldaufnahme | `tools/figur-zwitschern.py --erzeugen frage` (numpy, PyAV) | keine fremden Rechte | Vorher kurz verwendet: „Robin Song in Madeira Forest“ (Sacha.Julien, Freesound 725201, CC0) – nicht mehr im Einsatz |
 
 ## Stimme
 

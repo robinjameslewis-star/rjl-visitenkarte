@@ -748,7 +748,7 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Neigung (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
   Hinweis – keine Gerätestimme, damit alle dieselbe Stimme hören. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
 - **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
-- **Zwitscher-Ton:** `figuren/goch/toene/zwitschern.ogg` und `.mp3` (Rotkehlchen, CC0, `tools/figur-zwitschern.py`),
+- **Zwitscher-Ton:** `figuren/goch/toene/zwitschern.ogg` und `.mp3` (selbst erzeugt, Stil „frage“: `tools/figur-zwitschern.py --erzeugen frage`),
   eingeschaltet mit `data-goch-signalton="figuren/goch/toene/zwitschern"` am `<body>`; am Messegerät aus `figur.json`.
 - **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
   höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die
