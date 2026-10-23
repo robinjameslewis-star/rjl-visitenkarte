@@ -756,6 +756,10 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   `figur.json` (`stability` 0,5, `similarity_boost` 0,8, `style` 0,15, `speed` 0,95); Prompt für Voice Design in `FIGUREN.md`.
   Rückfall im Browser: bevorzugt Markus, Yannick, Viktor, Martin (Premium vor einfach), sonst Reed oder Eddy; Englisch
   Daniel; etwas tiefer und ruhiger (`stimme.browser`).
+- **Vorführung am Mac mit echter Spracherkennung:** Die Attrappe erkennt auf Wunsch lokal mit faster-whisper
+  (`python3 tests/goch_fake_worker.py 8787 --whisper <Modellordner>`, Modell „base“ rund 145 MB, `pip install faster-whisper
+  numpy`); nichts verlässt den Rechner. Die Antworten bleiben die festen Texte der Attrappe. Mikrofon nur in Chrome oder
+  Safari, nicht im Browser-Bereich der Claude-App.
 - **Höhe der Sprechblase:** Mit Sprachschaltern wird die Blase so hoch wie ihr Inhalt plus Platz für den Verlauf
   (`goch.js`, `mindesthoehe`); vorher ragte die Fußzeile bei eingeschalteter Landschaft über die Seite.
 

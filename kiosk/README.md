@@ -98,6 +98,9 @@ python3 tests/kiosk_dienst_test.py                                 # lokaler Die
 python3 tests/kiosk_test.py                                        # Seite im Hochformat gegen Dienst und Worker-Attrappe
 ```
 
+Vorführung am Mac mit echter Spracherkennung: Attrappe mit `--whisper <Modellordner>` starten (siehe
+`tests/goch_fake_worker.py`), Dienst mit `--test` und `"taste": "Space"` in der Konfiguration – die Leertaste ersetzt den Taster.
+
 ## Offen
 
 - Hardware: Modell von Taster, Radar, Mikrofon-Array und Panel; Drehung des Bildschirms am Gerät prüfen.

@@ -8,11 +8,39 @@ Sprechender Goch (23.10.2026): POST /listen nimmt ein WAV und liefert einen fest
 NDJSON mit einem kurzen WAV-Ton als Stimme (KI-Hinweis bei „erste“). GET /_modus?stimme=ok|grenze|fehler&hoeren=ok|grenze|aus
 stellt das Verhalten um, GET /_listen und /_chats liefern, was ankam.
 Messegerät: /kiosk/chat, /kiosk/listen, /kiosk/figur und /kiosk/lebenszeichen wie der Worker; GET /_auth liefert die
-Authorization-Kopfzeilen, die ankamen (der lokale Dienst muss den Gerätenachweis mitschicken)."""
-import base64, io, json, math, struct, sys, urllib.parse, wave
+Authorization-Kopfzeilen, die ankamen (der lokale Dienst muss den Gerätenachweis mitschicken).
+
+Echte Spracherkennung für Vorführungen am Mac (optional, 23.10.2026):
+    python3 tests/goch_fake_worker.py 8787 --whisper <Ordner eines faster-whisper-Modells, z. B. „base“>
+Braucht `pip install faster-whisper numpy`; das Modell lädt `python3 -c "from faster_whisper import download_model;
+download_model('base', output_dir='…/base')"` (rund 145 MB). Erkannt wird lokal auf dem Mac, nichts verlässt den Rechner.
+Die Antworten bleiben die festen Texte der Attrappe; echte Antworten gibt es nur mit dem Worker."""
+import base64, io, json, math, os, re, struct, sys, threading, time, urllib.parse, wave
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
+ARGS = [a for a in sys.argv[1:]]
+WHISPER = ARGS[ARGS.index('--whisper') + 1] if '--whisper' in ARGS else os.environ.get('GOCH_WHISPER', '')
+PORT = int(next((a for a in ARGS if a.isdigit()), 8787))
+_modell, _sperre = None, threading.Lock()
+KONTEXT = {'de': 'Gespräch mit Goch, dem Rotkehlchen von Robin. robin.vision, SmartFormular, FiBu lite, Workshops, Buchungsstapel, DATEV.',
+           'en': "A conversation with Goch, Robin's robin. robin.vision, SmartFormular, FiBu lite, workshops, booking batch, DATEV."}
+ERFUNDEN = re.compile(r'^(?:untertitel(?:ung)?\b.*|vielen dank(?:,)? fürs zuschauen.*|thanks? (?:you )?for watching.*|\W*(?:musik|music)\W*|\.+)$', re.I)
+
+def erkennen(daten, lang):
+    """WAV (16 Bit, mono) lokal mit faster-whisper in Text umwandeln – wie Whisper large-v3-turbo beim Worker, nur kleiner."""
+    global _modell
+    import numpy as np
+    from faster_whisper import WhisperModel
+    with _sperre:
+        if _modell is None:
+            _modell = WhisperModel(WHISPER, device='cpu', compute_type='int8')
+        with wave.open(io.BytesIO(daten)) as w:
+            if w.getsampwidth() != 2 or w.getnchannels() != 1 or w.getframerate() != 16000:
+                return None
+            audio = np.frombuffer(w.readframes(w.getnframes()), dtype='<i2').astype(np.float32) / 32768
+        segmente, _ = _modell.transcribe(audio, language=lang, vad_filter=True, beam_size=1, condition_on_previous_text=False, initial_prompt=KONTEXT[lang])
+        text = ' '.join(s.text.strip() for s in segmente).strip()
+    return '' if ERFUNDEN.match(text) else text[:600]
 SENT = []
 CONTACT = []  # über das Formular „versendete“ Nachrichten
 LAST = {}  # zuletzt empfangener Anfragekörper, für Tests des Verlaufs
@@ -134,6 +162,15 @@ class Handler(BaseHTTPRequestHandler):
             if MODUS['hoeren'] == 'aus': return self.reply({'error': 'Spracheingabe ist zurzeit ausgeschaltet.'}, 503)
             if MODUS['hoeren'] == 'grenze': return self.reply({'text': '', 'grenze': True})
             if data[:4] != b'RIFF' or data[8:12] != b'WAVE': return self.reply({'error': 'Bitte als WAV senden.'}, 415)
+            if WHISPER:  # Vorführung: echte Erkennung auf dem Mac
+                start = time.time()
+                try:
+                    text = erkennen(data, lang)
+                except Exception as e:
+                    print('Whisper:', type(e).__name__, e, flush=True)
+                    return self.reply({'error': 'Ich habe Sie gerade nicht verstanden. Bitte tippen Sie Ihre Frage.'}, 502)
+                if text is None: return self.reply({'error': 'Bitte als WAV (16 kHz, mono) senden.'}, 415)
+                return self.reply({'text': text, 'sekunden': round((len(data) - 44) / 32000, 1), 'ms': round((time.time() - start) * 1000), 'lokal': True})
             return self.reply({'text': 'What is Robin working on?' if lang == 'en' else 'Woran arbeitet Robin gerade?', 'sekunden': round((len(data) - 44) / 32000, 1)})
         if self.path != '/chat': return self.reply({'error': 'Nicht gefunden.'}, 404)
         try:
@@ -180,5 +217,5 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args): pass
 
 if __name__ == '__main__':
-    print(f'Goch-Attrappe auf http://localhost:{PORT}/chat')
+    print(f'Goch-Attrappe auf http://localhost:{PORT}/chat' + (f' – Spracherkennung lokal mit {WHISPER}' if WHISPER else ''), flush=True)
     HTTPServer(('127.0.0.1', PORT), Handler).serve_forever()
