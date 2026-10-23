@@ -154,6 +154,16 @@ async def main():
             check(await sichtbar('#k-ki') and await text('#k-ki') == 'KI · künstliche Stimme', "Hinweis „KI · künstliche Stimme“ dauerhaft sichtbar")
             check((await z())['gum'] == 0, "kein Mikrofon vor dem Gespräch")
             await shot("01_ruhe_1080x1920")
+            # Lage des Asts zum Vogel wie in figur.json (oben 543 von 1153), in jedem Format – auch quer (Robin, 23.10.2026)
+            lage = """(()=>{const s=document.getElementById('scene').getBoundingClientRect(),b=document.querySelector('#scene [data-pose=rest]').getBoundingClientRect(),
+              a=document.querySelector('#scene [data-ebene=ast]').getBoundingClientRect();return {v:s.width/s.height, ast:(a.top-b.top)/b.width*1153, links:(a.left-b.left)/b.width*1153, unten:s.bottom<=innerHeight};})()"""
+            for w, h in ((1080, 1920), (1920, 1080), (1366, 768), (2160, 3840)):
+                await send("Emulation.setDeviceMetricsOverride", {"width": w, "height": h, "deviceScaleFactor": 1, "mobile": False}); await pump(0.4)
+                m = await ev(lage)
+                check(abs(m['v'] - 1153 / 710) < 0.01 and abs(m['ast'] - 543) < 2 and abs(m['links']) < 2 and m['unten'], f"{w} × {h}: Goch sitzt auf dem Ast (Bühne {m['v']:.3f}, Ast {m['ast']:.0f} von 543)")
+            await send("Emulation.setDeviceMetricsOverride", {"width": 1920, "height": 1080, "deviceScaleFactor": 1, "mobile": False}); await pump(0.4)
+            await shot("01b_ruhe_quer_1920x1080")
+            await send("Emulation.setDeviceMetricsOverride", {"width": 1080, "height": 1920, "deviceScaleFactor": 1, "mobile": False}); await pump(0.4)
 
             print("2. Radar: hörbares Zwitschern nur in Ruhe, mit Abklingzeit")
             post('/kiosk/test/radar', {'entfernung': 2.0}); await pump(0.5)

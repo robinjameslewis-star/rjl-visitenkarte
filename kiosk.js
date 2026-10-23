@@ -243,7 +243,9 @@
     $('scene').append(noten);
     const groesse = Math.max(.3, Math.min(1, K.groesse || (daten.kiosk && daten.kiosk.groesse) || .82));
     const verhaeltnis = daten.animation.art === 'logo' ? daten.animation.logo.breite / daten.animation.logo.hoehe : daten.animation.buehne.breite / daten.animation.buehne.hoehe;
+    // Höchstens so breit, dass die Figur in die Höhe des Feldes passt (cqh); ohne Container-Einheiten bleibt der Rückfall.
     $('scene').style.width = 'min(' + (groesse * 100) + 'vw, ' + (48 * verhaeltnis).toFixed(2) + 'vh)';
+    $('scene').style.width = 'min(' + (groesse * 100) + 'vw, ' + (100 * verhaeltnis).toFixed(2) + 'cqh)';
     // Texte: Goch aus language.js, Kundenfiguren aus der Redaktion (über den lokalen Dienst, offline zwischengespeichert)
     if (daten.texte && daten.texte.quelle === 'language.js' && L) {
       const k = daten.texte.schluessel;

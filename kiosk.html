@@ -34,7 +34,10 @@
   .sprachen { display: flex; gap: 1vh; }
   .sprachen button { font: 1.8vh/1 var(--sans); padding: .9vh 1.4vh; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--ink-soft); }
   .sprachen button[aria-current="true"] { border-color: var(--copper); color: var(--ink); }
-  #scene { position: relative; align-self: center; justify-self: center; width: 82vw; max-height: 100%; }
+  /* Feld für die Figur: so hoch wie die freie Zeile; die Figur passt hinein, ohne ihr Seitenverhältnis zu verlieren
+     (sonst rutscht im Querformat der Ast, dessen Lage in Prozent der Höhe steht). Breite setzt kiosk.js. */
+  .feld { container-type: size; min-height: 0; display: grid; place-items: center; }
+  #scene { position: relative; width: 82vw; }
   .figur-kippen { position: absolute; inset: 0; transform-origin: 47% 42%; }
   .figur-bild { position: absolute; display: block; max-width: none; height: auto; mix-blend-mode: multiply; pointer-events: none; transition: opacity 60ms linear; }
   .figur-logo .figur-kippen, .figur-logo { position: relative; }
@@ -89,7 +92,7 @@
       <span class="pille offline" id="k-offline" hidden>offline</span>
     </div>
   </header>
-  <div id="scene" role="img" aria-label=""></div>
+  <div class="feld"><div id="scene" role="img" aria-label=""></div></div>
   <section class="untertitel" id="k-untertitel" aria-live="polite"></section>
   <div class="leiste">
     <p class="anleitung" id="k-anleitung"></p>
