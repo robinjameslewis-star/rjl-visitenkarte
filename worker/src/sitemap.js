@@ -5,8 +5,8 @@
 export const SEITEN = [
   { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-18" },
   { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-18" },
-  { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-17" },
-  { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-17" },
+  { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-23" },
+  { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-23" },
   // Produktseite SmartFormular unter den Werkzeugen (smartformular.js, seit 18.10.2026)
   { id: "smartformular", lang: "de", adresse: "werkzeuge/smartformular/", stand: "2026-10-18" },
   { id: "smartformular", lang: "en", adresse: "werkzeuge/smartformular/en/", stand: "2026-10-18" },
