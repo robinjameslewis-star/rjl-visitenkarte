@@ -5,7 +5,7 @@
 // einzelne Datei zum Herunterladen (alles eingebettet, läuft offline und als lokale Datei; eine Content-Security-Policy sperrt jede
 // Verbindung ins Netz). Die Fassung ist der letzte Git-Stand von tools/erechnung; mit ungesicherten Änderungen nur als --entwurf.
 // Danach: node tools/werkzeug-uebernehmen.mjs <beide Dateien> (Seiten, Übersichten, Sitemap neu) und die Tests.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,7 +46,7 @@ const APP = app.outputFiles[0].text, KERN = kern.outputFiles[0].text, CSS = css.
 writeFileSync(join(ZIEL, "app.js"), APP);
 writeFileSync(join(ZIEL, "pruefung.js"), KERN);
 writeFileSync(join(ZIEL, "app.css"), `/* SmartFormular E-Rechnung lite ${FASSUNG} */\n${CSS}`);
-for (const n of readdirSync(join(HIER, "beispiele"))) if (/\.(xml|pdf)$/.test(n)) copyFileSync(join(HIER, "beispiele", n), join(ZIEL, "beispiele", n));
+for (const n of ["xrechnung.xml", "zugferd.pdf"]) copyFileSync(join(HIER, "beispiele", n), join(ZIEL, "beispiele", n));
 
 // Lizenztexte aller ausgelieferten Bestandteile
 const lizenz = (titel, pfad) => `${"=".repeat(78)}\n${titel}\n${"=".repeat(78)}\n${readFileSync(pfad, "utf8").trim()}\n`;
@@ -86,7 +86,7 @@ const b64 = p => existsSync(p) ? readFileSync(p).toString("base64") : "";
 const escHtml = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 for (const [lang, s] of Object.entries(SEITE)) {
   const t = T[lang];
-  const beispiele = { xrechnung: b64(join(HIER, "beispiele", `xrechnung-${lang}.xml`)), zugferd: b64(join(HIER, "beispiele", `zugferd-${lang}.pdf`)) };
+  const beispiele = { xrechnung: b64(join(HIER, "beispiele", "xrechnung.xml")), zugferd: b64(join(HIER, "beispiele", "zugferd.pdf")) };
   const html = `<!doctype html>
 <html lang="${lang}">
 <head>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Rechnung 2026-1047 – Malerbetrieb Farbe und Fläche GmbH (Beispiel)</title>
+<style>
+@page { size: A4; margin: 18mm 18mm 16mm; }
+body { font: 10pt/1.45 "Helvetica Neue", Arial, sans-serif; color: #222; }
+.kopf { display: flex; justify-content: space-between; align-items: flex-start; }
+.firma { font-size: 15pt; font-weight: 600; color: #1d4e89; }
+.firma small { display: block; font-size: 9pt; font-weight: 400; color: #555; }
+.absender { font-size: 7.5pt; color: #666; margin: 26mm 0 2mm; border-bottom: .5pt solid #999; display: inline-block; }
+.empfaenger { font-size: 10.5pt; margin-bottom: 12mm; }
+h1 { font-size: 16pt; margin: 0 0 4mm; }
+.meta { display: grid; grid-template-columns: auto auto; gap: 1mm 6mm; font-size: 9.5pt; }
+table { width: 100%; border-collapse: collapse; margin-top: 8mm; }
+th { text-align: left; border-bottom: 1pt solid #1d4e89; padding: 2mm 1mm; font-size: 9pt; }
+td { border-bottom: .4pt solid #ccc; padding: 2mm 1mm; vertical-align: top; }
+.z { text-align: right; white-space: nowrap; }
+.summen { width: 45%; margin-left: auto; margin-top: 4mm; }
+.summen td { border: 0; padding: 1mm; }
+.summen tr.gesamt td { border-top: 1pt solid #222; font-weight: 700; }
+.fuss { margin-top: 12mm; font-size: 9pt; }
+.beispiel { position: fixed; bottom: 0; left: 0; right: 0; font-size: 7.5pt; color: #999; text-align: center; }
+</style>
+</head>
+<body>
+<div class="kopf"><div class="firma">Malerbetrieb Farbe und Fläche GmbH<small>Werkstattweg 8 · 12345 Musterstadt · Tel. +49 1234 98765</small></div></div>
+<div class="absender">Malerbetrieb Farbe und Fläche GmbH · Werkstattweg 8 · 12345 Musterstadt</div>
+<div class="empfaenger">Schreinerei Holzwerk Becker<br>Lindenweg 17<br>12347 Musterstadt</div>
+<h1>Rechnung 2026-1047</h1>
+<div class="meta">
+<span>Rechnungsdatum</span><span>15.10.2026</span>
+<span>Leistungsdatum</span><span>10.10.2026</span>
+<span>Ihre Referenz</span><span>Wohnung EG</span>
+<span>USt-IdNr.</span><span>DE987654321</span>
+</div>
+<p>Malerarbeiten Wohnung Erdgeschoss, Lindenweg 17</p>
+<table>
+<thead><tr><th>Pos.</th><th>Leistung</th><th class="z">Menge</th><th class="z">Einzelpreis</th><th class="z">Betrag</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Wände streichen, Dispersionsfarbe weiß, zweifach</td><td class="z">48 m²</td><td class="z">12,50 €</td><td class="z">600,00 €</td></tr>
+<tr><td>2</td><td>Decke streichen, inklusive Abkleben</td><td class="z">22 m²</td><td class="z">14,00 €</td><td class="z">308,00 €</td></tr>
+<tr><td>3</td><td>Material: Farbe, Abdeckfolie, Klebeband</td><td class="z">pauschal</td><td class="z">185,00 €</td><td class="z">185,00 €</td></tr>
+<tr><td>4</td><td>Anfahrt</td><td class="z">pauschal</td><td class="z">35,00 €</td><td class="z">35,00 €</td></tr>
+</tbody>
+</table>
+<table class="summen">
+<tr><td>Summe netto</td><td class="z">1.128,00 €</td></tr>
+<tr><td>Umsatzsteuer 19 %</td><td class="z">214,32 €</td></tr>
+<tr class="gesamt"><td>Rechnungsbetrag</td><td class="z">1.342,32 €</td></tr>
+</table>
+<div class="fuss">
+<p>Zahlbar innerhalb von 14 Tagen ohne Abzug, bis 29.10.2026, auf das Konto<br>
+Malerbetrieb Farbe und Fläche GmbH · IBAN DE89 3704 0044 0532 0130 00 · BIC COBADEFFXXX<br>
+Verwendungszweck: Rechnung 2026-1047</p>
+<p>Amtsgericht Musterstadt, HRB 1234 · Geschäftsführer: Jonas Meier</p>
+</div>
+<div class="beispiel">Beispielrechnung, frei erfunden – erstellt für SmartFormular E-Rechnung lite (robin.vision). Die eingebetteten Daten (factur-x.xml) sind maßgeblich.</div>
+</body>
+</html>

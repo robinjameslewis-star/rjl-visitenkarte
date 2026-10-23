@@ -462,7 +462,7 @@ wurzel.addEventListener("click", async ev => {
     const name = el.dataset.beispiel === "zugferd" ? (lang === "en" ? "ZUGFeRD-example.pdf" : "ZUGFeRD-Beispiel.pdf") : (lang === "en" ? "XRechnung-example.xml" : "XRechnung-Beispiel.xml");
     const eingebettet = window.RV_BEISPIELE && window.RV_BEISPIELE[el.dataset.beispiel];
     try {
-      const daten = eingebettet ? Uint8Array.from(atob(eingebettet), c => c.charCodeAt(0)) : new Uint8Array(await (await fetch(`${basis}beispiele/${el.dataset.beispiel}-${lang}.${el.dataset.beispiel === "zugferd" ? "pdf" : "xml"}?v=${FASSUNG}`, { credentials: "omit" })).arrayBuffer());
+      const daten = eingebettet ? Uint8Array.from(atob(eingebettet), c => c.charCodeAt(0)) : new Uint8Array(await (await fetch(`${basis}beispiele/${el.dataset.beispiel === "zugferd" ? "zugferd.pdf" : "xrechnung.xml"}?v=${FASSUNG}`, { credentials: "omit" })).arrayBuffer());
       annehmen([new File([daten], name, { type: el.dataset.beispiel === "zugferd" ? "application/pdf" : "application/xml" })]);
     } catch { sagen(lang === "en" ? "The example could not be loaded." : "Das Beispiel ließ sich nicht laden."); }
     return;

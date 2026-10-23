@@ -5,6 +5,23 @@
 const XS = "http://www.w3.org/2001/XMLSchema";
 const registriert = new Set();
 
+// Funktionen, die fontoxpath nicht wie Saxon rechnen kann, in gleicher Rechnung exakt in JavaScript.
+// xr:checkIBAN (XRechnung, BR-DE-19/20) wandelt die IBAN in eine 20- bis 40-stellige Ganzzahl (xs:integer) und prüft „mod 97 = 1“;
+// fontoxpath kennt xs:integer nur bis 2^53 und bricht ab, Saxon rechnet beliebig groß. Schritte wie im XSLT der KoSIT:
+// Leerraum entfernen, Muster XR-IBAN-REGEX, die ersten vier Zeichen ans Ende, Buchstaben zu Zahlen (Codepunkt − 55), dann mod 97.
+const ERSATZ = {
+  "xr:checkIBAN": konstant => {
+    const muster = new RegExp((konstant["XR-IBAN-REGEX"] || ["^[A-Z]{2}[0-9]{2}[a-zA-Z0-9]{0,30}$"])[0]);
+    return (_ctx, iban) => {
+      const n = String(iban).replace(/[ \t\n\r]/g, "");
+      if (!muster.test(n)) return false;
+      let ziffern = "";
+      for (const ch of n.slice(4) + n.slice(0, 2).toUpperCase() + n.slice(2, 4)) { const cp = ch.codePointAt(0); ziffern += String(cp > 64 ? cp - 55 : cp - 48); }
+      return BigInt(ziffern) % 97n === 1n;
+    };
+  },
+};
+
 // Regelsatz einmal vorbereiten: Funktionen als XQuery-Modul registrieren, Ausdrücke zusammensetzen
 export function vorbereiten(satz, fx, kennung) {
   const ns = { ...satz.ns, xs: XS };
@@ -21,7 +38,12 @@ export function vorbereiten(satz, fx, kennung) {
   }
   const module = {};
   for (const f of satz.funktionen) {
-    const [prefix] = f.name.split(":");
+    const [prefix, lokal] = f.name.split(":");
+    if (ERSATZ[f.name]) {
+      const uri = ns[prefix], schluessel = `${uri}|${lokal}`;
+      if (!registriert.has(schluessel)) { fx.registerCustomXPathFunction({ namespaceURI: uri, localName: lokal }, f.params.map(p => p.as || "item()*"), f.as || "item()*", ERSATZ[f.name](konstant)); registriert.add(schluessel); }
+      continue;
+    }
     let body = f.body;
     for (const [name, werte] of Object.entries(konstant)) {
       body = body.replace(new RegExp(`\\$${name.replace(/[.-]/g, "\\$&")}(?![\\w.-])`, "g"), () => `(${werte.map(w => `'${w.replace(/'/g, "''")}'`).join(", ")})`);
