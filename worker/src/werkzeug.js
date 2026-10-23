@@ -293,7 +293,7 @@ ${w.app ? `<p class="hinweis">${APP[lang].offline}</p>\n` : ""}<p class="meta hi
 ${newsletterKasten(lang, up, "werkzeug")}
 ${rest.length ? renderMarkdown(rest.join("\n"), "", lang) : ""}
 ${neu ? `<h2 id="neu">${t.neu}</h2>\n<div class="neuigkeiten">\n${neuigkeiten(neu).map(e => `<h3 id="fassung-${esc(e.fassung || e.datum)}">${esc(e.titel)}</h3>\n${renderMarkdown(e.text, "", lang)}`).join("\n")}\n</div>` : ""}
-${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}
+${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}${w.app === "erechnung" ? `\n<p class="frei"><a href="${lang === "en" ? "rules/" : "regeln/"}">${lang === "en" ? "All validation rules explained: what messages such as BR-DE-15 mean" : "Alle Prüfregeln verständlich erklärt: was Meldungen wie BR-DE-15 bedeuten"}</a></p>` : ""}
 <h2 id="ausblick">${t.ausblick}</h2>
 <p>${AUSBLICK[w.app || "fibu"][lang]}
 <a href="${up}${T[lang].sfHref}#beta">${lang === "en" ? "Request beta access" : "Beta-Zugang anfragen"}</a>.</p>

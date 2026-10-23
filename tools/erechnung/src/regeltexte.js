@@ -312,6 +312,16 @@ function familie(fam, nr) {
   return null;
 }
 
+// Regel-Lexikon (Robin, 23.10.2026): eine Seite je Regel mit eigener Erklärung – aus der Tabelle oder der Familie der Steuerkategorien.
+// Regeln, die nur über Vorlagen erklärt werden, bekommen keine Seite. Werkzeug (Verweis je Befund) und Lexikon nutzen dieselbe Prüfung.
+export function eigeneErklaerung(id) {
+  if (TEXTE[id]) return true;
+  const m = /^BR-([A-Z]+)-(\d+)$/.exec(id);
+  return !!(m && familie(m[1], +m[2]));
+}
+export const regelSlug = id => id.toLowerCase();
+export const LEXIKON = { de: "https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/", en: "https://robin.vision/werkzeuge/e-invoice-viewer/rules/" };
+
 // Erklärung zu einem Befund: [was, tun] in der gewünschten Sprache; englisch = Originaltext der Regel
 export function erklaeren(id, englisch, lang) {
   const l = lang === "en" ? "en" : "de";

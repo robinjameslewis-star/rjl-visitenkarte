@@ -4,7 +4,7 @@
 import { T, ARTEN, ZAHLUNGSARTEN, EINHEITEN, GUTSCHRIFTEN } from "./texte.js";
 import { ANTWORT, ZUSATZ, Q, STAND } from "./recht.js";
 import { dateiLesen } from "./lesen.js";
-import { erklaeren, STEUERKATEGORIE } from "./regeltexte.js";
+import { erklaeren, STEUERKATEGORIE, eigeneErklaerung, regelSlug, LEXIKON } from "./regeltexte.js";
 import { zahlung, qrSvg, ibanLesbar, ibanGueltig } from "./girocode.js";
 import META from "./generiert/meta.json";
 
@@ -279,7 +279,7 @@ function befundeHtml(e) {
     return `<li class="ewz-befund ewz-${g.stufe}"${i >= MAX ? " hidden data-mehr" : ""}>
 <p class="ewz-befund-kopf"><span class="ewz-stufe">${t[g.stufe]}</span> <span class="ewz-regel">${t.regel} ${esc(g.id)}</span>${g.orte.length > 1 ? ` <span class="ewz-anzahl">${g.orte.length}×</span>` : ""}</p>
 <p><strong>${t.wasFehlt}:</strong> ${esc(was)}</p>
-<p><strong>${t.wasTun}:</strong> ${esc(tun)}</p>${g.id.startsWith("PEPPOL-") ? `<p class="ewz-klein">${esc(t.peppolHinweis)}</p>` : ""}
+<p><strong>${t.wasTun}:</strong> ${esc(tun)}</p>${g.id.startsWith("PEPPOL-") ? `<p class="ewz-klein">${esc(t.peppolHinweis)}</p>` : ""}${eigeneErklaerung(g.id) ? `<p class="ewz-klein"><a href="${LEXIKON[lang]}${regelSlug(g.id)}/" target="_blank" rel="noopener">${t.mehrRegel}</a></p>` : ""}
 <details><summary>${t.original}</summary><p class="ewz-orig" lang="${/[äöüß]/i.test(g.text) ? "de" : "en"}">${esc(g.text)}</p><p class="ewz-klein">${t.ort}: ${g.orte.slice(0, 5).map(o => `<code>${esc(o)}</code>`).join(", ")}${g.orte.length > 5 ? " …" : ""}</p></details>
 </li>`;
   };
