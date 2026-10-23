@@ -229,6 +229,18 @@ export function pruefen(ordner, { html } = {}) {
   if (!["browser", "keine"].includes(st.rueckfall)) f("stimme.rueckfall: „browser“ oder „keine“");
   if (st.anbieter === "elevenlabs" && !istText(st.voiceId)) h("stimme.voiceId leer – in der Redaktion eintragen");
   if (kunde && istText(st.voiceId)) h("stimme.voiceId einer Kundenfigur gehört in die Redaktion, nicht in die Datei");
+  const ein = st.einstellungen || {}, bereich = { stability: [0, 1], similarity_boost: [0, 1], style: [0, 1], speed: [0.7, 1.2] };
+  for (const [k, v] of Object.entries(ein)) {
+    if (k === "use_speaker_boost") { if (typeof v !== "boolean") f("stimme.einstellungen.use_speaker_boost: true oder false"); }
+    else if (!bereich[k]) f(`stimme.einstellungen.${k}: unbekannt (erlaubt: ${Object.keys(bereich).join(", ")}, use_speaker_boost)`);
+    else if (!(v >= bereich[k][0] && v <= bereich[k][1])) f(`stimme.einstellungen.${k}: ${bereich[k][0]} bis ${bereich[k][1]}`);
+  }
+  const br = st.browser;
+  if (br) {
+    for (const s of ["de", "en"]) if (br[s] != null && !(Array.isArray(br[s]) && br[s].every(istText))) f(`stimme.browser.${s}: Liste von Stimmnamen`);
+    if (br.tonhoehe != null && !(br.tonhoehe >= 0.5 && br.tonhoehe <= 1.5)) f("stimme.browser.tonhoehe: 0,5 bis 1,5");
+    if (br.tempo != null && !(br.tempo >= 0.5 && br.tempo <= 1.5)) f("stimme.browser.tempo: 0,5 bis 1,5");
+  }
 
   // Farben und Kiosk
   for (const [k, v] of Object.entries(figur.farben || {})) if (!HEX.test(v)) f(`farben.${k}: #RRGGBB`);
@@ -275,9 +287,11 @@ function pruefeSzene(figur, paket, htmlPfad, f) {
   const prefix = relative(resolve(htmlPfad, ".."), paket).split("\\").join("/") + "/bilder/";
   for (const [k, p] of Object.entries(a.posen)) {
     if (!p || !p.datei) continue;
-    const img = (szene.match(new RegExp(`<img[^>]*data-pose="${POSEN[k]}"[^>]*>`)) || [""])[0];
-    if (!img) { f(`Szene: Bild für Pose „${k}“ (data-pose="${POSEN[k]}") fehlt`); continue; }
-    const src = (img.match(/(?:data-src|src)="([^"]+)"/) || [])[1] || "";
+    // Schnabelposen lädt die Startseite erst beim Sprechen: data-mundpose und data-src-spaet statt data-pose und src
+    const attr = k.startsWith("schnabel-") ? "data-mundpose" : "data-pose";
+    const img = (szene.match(new RegExp(`<img[^>]*${attr}="${POSEN[k]}"[^>]*>`)) || [""])[0];
+    if (!img) { f(`Szene: Bild für Pose „${k}“ (${attr}="${POSEN[k]}") fehlt`); continue; }
+    const src = (img.match(/ (?:data-src-spaet|data-src|src)="([^"]+)"/) || [])[1] || "";
     if (!src.startsWith(prefix) || !src.endsWith("/" + p.datei)) f(`Szene: Pose „${k}“ zeigt auf ${src}, erwartet ${prefix}…${p.datei}`);
     const w = +(img.match(/width="(\d+)"/) || [])[1], hh = +(img.match(/height="(\d+)"/) || [])[1];
     if (w !== p.breite || hh !== p.hoehe) f(`Szene: Pose „${k}“ hat width/height ${w} × ${hh}, laut figur.json ${p.breite} × ${p.hoehe}`);

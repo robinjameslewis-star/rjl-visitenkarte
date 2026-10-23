@@ -6,10 +6,12 @@ import { Buffer } from "node:buffer";
 
 export const ANBIETER = { elevenlabs: "ElevenLabs" };
 export const TTS_MODELLE = [
-  { id: "eleven_flash_v2_5", label: "Flash v2.5 – schnellste Antwort (Standard)" },
-  { id: "eleven_turbo_v2_5", label: "Turbo v2.5 – schnell, etwas natürlicher" },
-  { id: "eleven_multilingual_v2", label: "Multilingual v2 – beste Qualität, langsamer" },
+  { id: "eleven_multilingual_v2", label: "Multilingual v2 – wärmste, natürlichste Stimme (Standard)" },
+  { id: "eleven_turbo_v2_5", label: "Turbo v2.5 – schneller, etwas weniger Wärme" },
+  { id: "eleven_flash_v2_5", label: "Flash v2.5 – schnellste Antwort" },
 ];
+// Ausgangswerte für eine warme, weiche Stimme (Goch: figur.json, stimme.einstellungen). Weniger Stabilität = lebendiger.
+export const EINSTELLUNGEN = { stability: 0.5, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true, speed: 0.95 };
 // Hinweis nach Art. 50 KI-VO, bei der ersten gesprochenen Antwort einer Sitzung vorangestellt (Text und Stimme gleich).
 export const KI_HINWEIS = {
   de: "Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.",
@@ -25,13 +27,14 @@ export async function stimmeMonat(env, now = Date.now()) {
 }
 
 // Ein Aufruf beim Anbieter. Liefert MP3 als Base64 (passt in eine Zeile der NDJSON-Antwort) und die Dauer des Aufrufs.
-export async function vertonen(env, text, { voiceId, modell, lang }) {
+export async function vertonen(env, text, { voiceId, modell, lang, einstellungen }) {
   const started = Date.now();
-  const model = modell || "eleven_flash_v2_5";
+  const model = modell || "eleven_multilingual_v2";
   const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_64`, {
     method: "POST",
     headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "content-type": "application/json", accept: "audio/mpeg" },
-    body: JSON.stringify({ text, model_id: model, ...(/_v2_5$/.test(model) ? { language_code: lang === "en" ? "en" : "de" } : {}) }),
+    body: JSON.stringify({ text, model_id: model, voice_settings: { ...EINSTELLUNGEN, ...(einstellungen || {}) },
+      ...(/_v2_5$/.test(model) ? { language_code: lang === "en" ? "en" : "de" } : {}) }),
   });
   if (!r.ok) throw new Error("ElevenLabs " + r.status + ": " + (await r.text().catch(() => "")).slice(0, 200));
   const audio = new Uint8Array(await r.arrayBuffer());
@@ -41,13 +44,13 @@ export async function vertonen(env, text, { voiceId, modell, lang }) {
 
 // Stimme für eine Antwort: { stimme: {mime, daten, zeichen, ms} } oder { stimme: null, grund: "aus" | "grenze" | "fehler" }.
 // „aus“ und „fehler“: die Seite darf mit lokaler Browserstimme vorlesen; „grenze“: nur Text, ohne Hinweis an den Besucher.
-export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang, msModell, zaehler = "stimme:monat:" }) {
+export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang, msModell, einstellungen, zaehler = "stimme:monat:" }) {
   if (!sprache || !sprache.stimme || !env.ELEVENLABS_API_KEY || !voiceId) return { stimme: null, grund: "aus" };
   const zeichen = text.length;
   const now = Date.now(), stand = await stimmeMonat(env, now);
   if (stand.zeichen + zeichen > (sprache.zeichenMonat || 0)) return { stimme: null, grund: "grenze" };
   let a;
-  try { a = await vertonen(env, text, { voiceId, modell: sprache.ttsModell, lang }); }
+  try { a = await vertonen(env, text, { voiceId, modell: sprache.ttsModell, lang, einstellungen }); }
   catch (e) { console.error("Stimme", String(e && e.message || e).slice(0, 300)); return { stimme: null, grund: "fehler" }; }
   // Ein Schreibzugriff je vertonter Antwort: Zeichen, Antworten und Antwortzeiten des Monats in einem Eintrag.
   if (env.USAGE) {

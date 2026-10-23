@@ -267,7 +267,9 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
       const figur = oeffentlicheFigur(body.figur) || oeffentlicheFigur();
       const voiceId = optionen.voiceId !== undefined ? optionen.voiceId // Kundenfigur: ihre eigene Stimme aus der Redaktion
         : (settings.sprache && settings.sprache.voiceId) || (figur.stimme && figur.stimme.voiceId) || "";
-      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell });
+      // Stimmcharakter: Goch aus figur.json (warm, weich), Kundenfiguren mit den Ausgangswerten
+      const einstellungen = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.einstellungen;
+      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen });
       if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
         "Goch: Monatsgrenze für die Stimme erreicht",
         "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text, ohne Hinweis an die Besucher. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));

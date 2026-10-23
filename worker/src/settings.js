@@ -31,7 +31,7 @@ export function defaults(env) {
     cache: true,
     custom: { baseUrl: "", model: "", key: "" },
     // Aus, bis Robin in der Redaktion einschaltet: ohne Schalter weder Spracheingabe noch Stimme vom Server.
-    sprache: { stimme: false, hoeren: false, modell: env.SPRACH_MODEL || "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_flash_v2_5",
+    sprache: { stimme: false, hoeren: false, modell: env.SPRACH_MODEL || "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_multilingual_v2",
       zeichenMonat: +(env.MAX_STIMME_ZEICHEN_MONAT || 30000), minutenTag: +(env.MAX_HOEREN_MINUTEN_TAG || 20) },
   };
 }

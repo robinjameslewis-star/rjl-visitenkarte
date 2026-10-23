@@ -35,8 +35,8 @@
       "gleiten": { "datei": "flugpose-2-gleiten.webp", "breite": 1536, "hoehe": 1024, "auge": [578, 375] },
       "abschlag": { "datei": "flugpose-3-abschlag.webp", "breite": 1536, "hoehe": 1024, "auge": [595, 318] },
       "landeanflug": { "datei": "flugpose-4-landeanflug.webp", "breite": 1536, "hoehe": 1024, "auge": [591, 378] },
-      "schnabel-halb": { "datei": null, "platzhalter": "neigen" },
-      "schnabel-offen": { "datei": null, "platzhalter": "neigen" },
+      "schnabel-halb": { "datei": "vogel-schnabel-halb.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "schnabel-offen": { "datei": "vogel-schnabel-offen.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
       "lauschend": { "datei": null, "platzhalter": "neigen" },
       "zwitschernd": { "datei": null, "platzhalter": "neigen" }
     },
@@ -53,8 +53,16 @@
   "stimme": {
     "anbieter": "elevenlabs",
     "voiceId": "",
-    "modell": "eleven_flash_v2_5",
-    "rueckfall": "browser"
+    "modell": "eleven_multilingual_v2",
+    "charakter": "warm, weich, männlich – ruhig, freundlich, leicht lächelnd",
+    "einstellungen": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 },
+    "rueckfall": "browser",
+    "browser": {
+      "de": ["Markus", "Yannick", "Viktor", "Martin", "Reed", "Eddy"],
+      "en": ["Daniel", "Arthur", "Oliver", "Reed", "Eddy"],
+      "tonhoehe": 0.92,
+      "tempo": 0.95
+    }
   },
   "farben": {
     "akzent": "#0B3D2E",

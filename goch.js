@@ -128,6 +128,14 @@
   const nameLink = document.getElementById('name-link');
   const narrow = matchMedia('(max-width: 720px)');
   const panelHome = panel.parentNode;
+  // Mit Sprachschaltern (goch-stimme.js) braucht die Blase mehr Platz: so hoch wie ihr Inhalt plus Raum für den Verlauf,
+  // sonst schrumpft der Verlauf auf null und die Fußzeile ragt über die Seite (Robin, 23.10.2026).
+  function mindesthoehe() {
+    if (!panel.querySelector('#goch-sprache:not([hidden]), #goch-mikro:not([hidden])')) return 0;
+    const s = getComputedStyle(panel), abstand = parseFloat(s.rowGap) || 10;
+    const kinder = [...panel.children].filter(k => k !== log && !k.hidden && getComputedStyle(k).display !== 'none');
+    return kinder.reduce((h, k) => h + k.offsetHeight + abstand, parseFloat(s.paddingTop) + parseFloat(s.paddingBottom) + 2) + 150;
+  }
   function place() {
     // Das feste Handyfenster gehört auf die Seitenebene, nicht in die isolierte Landschaft.
     // Desktop: zurück an den Ast. Ereignisse und Gesprächszustand bleiben am selben DOM-Knoten.
@@ -144,10 +152,10 @@
       // Mit Landschaft steht der Name oben im Himmel: Die Blase hängt unter ihm, vor der fernen Landschaft.
       panel.style.bottom = 'auto';
       panel.style.top = (nameBox.bottom - base.top + 16) + 'px';
-      panel.style.maxHeight = Math.max(240, Math.min(520, base.bottom - nameBox.bottom + 120)) + 'px';
+      panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(520, base.bottom - nameBox.bottom + 120)) + 'px';
     } else {
       panel.style.bottom = (base.bottom - nameBox.top + 14) + 'px';
-      panel.style.maxHeight = Math.max(240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
+      panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
     }
   }
   function open() {
@@ -281,7 +289,7 @@
     input.focus();
   });
   // Für goch-stimme.js: erkannten Text als Besuchertext senden, Endpunkt für /listen ableiten.
-  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint };
+  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });
   narrow.addEventListener('change', place);

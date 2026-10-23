@@ -745,10 +745,19 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
   wenn die Funktion an ist. Die Einwilligung des Gesprächs (`rjl-goch-consent`) bleibt unverändert, weil ihr Text weiter
   stimmt; die Sprach-Einwilligung wird nicht gespeichert, also gibt es keine Version hochzuzählen.
-- **Robins Posen einbauen:** Dateien in `figuren/goch/bilder/bestand/` (auf Weiß) und freigestellt in `figuren/goch/bilder/`
-  (`tools/landschaft-bilder.py`), in `figur.json` bei `schnabel-halb`, `schnabel-offen`, `lauschend` eintragen, in der Szene
-  von `index.html` je ein `<img class="bird-frame bird-rest" data-pose="halb|offen|lauschen" … style="opacity:0">`
-  ergänzen; `goch-stimme.js` wechselt dann das Bild statt zu neigen. Prüfen mit `node tools/figur-pruefen.mjs figuren/goch --html index.html`.
+- **Schnabelposen (23.10.2026):** `vogel-schnabel-halb.webp` und `vogel-schnabel-offen.webp` in beiden Fassungen, abgeleitet
+  aus der Sitzpose mit `tools/figur-schnabel.py` (Unterschnabel 7° bzw. 14° aufgeklappt, Rachen und Zunge ergänzt) –
+  Zwischenlösung, bis gezeichnete Posen da sind; Kehle und Kopf bewegen sich nicht mit. In der Szene als
+  `data-mundpose` mit `data-src-spaet`: geladen erst, wenn ein Besucher Stimme oder Spracheingabe einschaltet; die Landschaft
+  schaltet die Pfade mit. Gezeichnete Posen (Nano Banana oder ChatGPT, Prompt in `FIGUREN.md`) ersetzen die Dateien gleichen
+  Namens – ohne Codeänderung; nach `tools/landschaft-bilder.py` auch `tools/figur-schnabel.py` neu laufen lassen, solange die
+  abgeleiteten Posen gelten. Die Lauschpose fehlt noch (Platzhalter: leichtes Neigen).
+- **Stimme warm, weich, männlich (Robin, 23.10.2026):** ElevenLabs ab Werk mit Multilingual v2 und den Einstellungen aus
+  `figur.json` (`stability` 0,5, `similarity_boost` 0,8, `style` 0,15, `speed` 0,95); Prompt für Voice Design in `FIGUREN.md`.
+  Rückfall im Browser: bevorzugt Markus, Yannick, Viktor, Martin (Premium vor einfach), sonst Reed oder Eddy; Englisch
+  Daniel; etwas tiefer und ruhiger (`stimme.browser`).
+- **Höhe der Sprechblase:** Mit Sprachschaltern wird die Blase so hoch wie ihr Inhalt plus Platz für den Verlauf
+  (`goch.js`, `mindesthoehe`); vorher ragte die Fußzeile bei eingeschalteter Landschaft über die Seite.
 
 ### Messegerät (Kiosk)
 

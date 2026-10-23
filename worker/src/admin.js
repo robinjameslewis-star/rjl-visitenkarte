@@ -589,7 +589,7 @@ export function applyLandscape(html, wish, satz) {
   return out
     .replace(/(<link rel="preload" as="image" href=")((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1$2${bestand}$3`) // Vorabladen im <head>
     .replace(SCENE, scene => scene
-      .replace(/(src|data-src)="((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?([^"]+)"/g, (_, attr, dir, name) => `${attr}="${dir}${bestand}${name}"`)
+      .replace(/(src|data-src|data-src-spaet)="((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?([^"]+)"/g, (_, attr, dir, name) => `${attr}="${dir}${bestand}${name}"`)
       .replace(/(<img src="assets\/(?:bestand\/)?ast\.webp"[^>]*?width=")\d+"/, `$1${on ? 2800 : 1153}"`));
 }
 async function siteState(env) {

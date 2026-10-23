@@ -190,7 +190,9 @@
     if (zeile && zeile.stimme && await A.abspielen(zeile.stimme.daten, { pegel, ende: fertig, lautstaerke: K.lautstaerke || 1 })) return;
     if (!zeile || zeile.grund !== 'grenze') {
       let zu = 0;
-      if (A.browserStimme(text, sprache, { wort: () => { figur.pegel(.12); clearTimeout(zu); zu = setTimeout(() => figur.pegel(.03), 110); }, ende: fertig })) return;
+      const b = (figur.figur.stimme && figur.figur.stimme.browser) || {};
+      if (A.browserStimme(text, sprache, { vorzug: b[sprache] || [], tonhoehe: b.tonhoehe || 1, tempo: b.tempo || 1,
+        wort: () => { figur.pegel(.12); clearTimeout(zu); zu = setTimeout(() => figur.pegel(.03), 110); }, ende: fertig })) return;
     }
     fertig();
   }

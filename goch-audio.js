@@ -59,16 +59,28 @@
     return true;
   }
 
-  // Rückfall ohne Stimme vom Server: nur lokale Stimmen des Geräts – Online-Stimmen (z. B. „Google Deutsch“) würden den
-  // Text an einen weiteren Dienst schicken. wort() bei jeder Wortgrenze (Schnabel), ende() danach.
-  function browserStimme(text, lang, { wort, ende } = {}) {
+  // Stimme des Geräts wählen: nur lokale Stimmen (Online-Stimmen wie „Google Deutsch“ schicken den Text an einen weiteren
+  // Dienst); zuerst die Namen aus dem Vorzug der Figur (Goch: warme Männerstimmen wie Markus, Yannick, Daniel), dabei
+  // „Premium“/„Erweitert“ vor der einfachen Fassung; sonst die erste lokale Stimme der Sprache, britisches Englisch zuerst.
+  function stimmeWaehlen(stimmen, lang, vorzug = []) {
+    const sprache = lang === 'en' ? 'en' : 'de';
+    const lokal = stimmen.filter(v => v.localService && String(v.lang).toLowerCase().replace('_', '-').startsWith(sprache));
+    const gut = v => /premium|erweitert|enhanced|verbessert/i.test(v.name) ? 0 : 1;
+    for (const name of vorzug) {
+      const treffer = lokal.filter(v => v.name.toLowerCase().startsWith(name.toLowerCase())).sort((a, b) => gut(a) - gut(b));
+      if (treffer.length) return treffer[0];
+    }
+    return lokal.find(v => /GB/i.test(v.lang)) || lokal[0] || null;
+  }
+  // Rückfall ohne Stimme vom Server. wort() bei jeder Wortgrenze (Schnabel), ende() danach; vorzug, tonhoehe und tempo
+  // aus figur.json (stimme.browser).
+  function browserStimme(text, lang, { wort, ende, vorzug, tonhoehe = 1, tempo = 1 } = {}) {
     if (!('speechSynthesis' in window) || !text) return false;
-    const stimmen = speechSynthesis.getVoices().filter(v => v.localService && v.lang.toLowerCase().startsWith(lang === 'en' ? 'en' : 'de'));
-    const stimme = stimmen.find(v => /GB/i.test(v.lang)) || stimmen[0];
+    const stimme = stimmeWaehlen(speechSynthesis.getVoices(), lang, vorzug);
     if (!stimme) return false;
     schweigen();
     const u = new SpeechSynthesisUtterance(text);
-    u.voice = stimme; u.lang = stimme.lang;
+    u.voice = stimme; u.lang = stimme.lang; u.pitch = tonhoehe; u.rate = tempo;
     u.onboundary = () => { if (wort) wort(); };
     u.onend = u.onerror = () => { sprichtBrowser = false; if (ende) ende(); };
     sprichtBrowser = true;
@@ -133,5 +145,5 @@
     };
   }
 
-  window.GochAudio = { audio, entsperren, schweigen, abspielen, browserStimme, aufnahme, wav, get spielt() { return !!quelle || sprichtBrowser; } };
+  window.GochAudio = { audio, entsperren, schweigen, abspielen, browserStimme, stimmeWaehlen, aufnahme, wav, get spielt() { return !!quelle || sprichtBrowser; } };
 })();

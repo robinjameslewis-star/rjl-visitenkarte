@@ -128,6 +128,8 @@ console.log("Stimme zur Antwort (NDJSON)");
   check(z[1].stimme && z[1].stimme.mime === "audio/mpeg" && Buffer.from(z[1].stimme.daten, "base64").length === 7, "MP3 als Base64 in Zeile 2");
   check(t.body.text === "Robin baut Werkzeuge für Kanzleien." && !t.body.text.includes("1000 Euro"), "vertont wird nur Gochs eigene Antwort, nie der Besuchertext");
   check(t.url.includes("/v1/text-to-speech/Voice1234567890?output_format=mp3_44100_64") && t.headers["xi-api-key"] === "xi-test" && t.body.model_id === "eleven_flash_v2_5" && t.body.language_code === "de", "ElevenLabs mit voiceId, Schlüssel, Modell und Sprache");
+  const vs = t.body.voice_settings || {};
+  check(vs.stability === 0.5 && vs.similarity_boost === 0.8 && vs.style === 0.15 && vs.use_speaker_boost === true && vs.speed === 0.95, "Stimmcharakter aus figur.json: warm, weich, ruhig", JSON.stringify(vs));
   const monat = JSON.parse(e.USAGE.map.get("stimme:monat:" + new Date().toISOString().slice(0, 7)) || "{}");
   check(monat.zeichen === t.body.text.length && monat.antworten === 1 && monat.letzte && Number.isFinite(monat.letzte.msStimme), "Zeichen und Antwortzeit des Monats gezählt", JSON.stringify(monat));
 
@@ -166,6 +168,7 @@ console.log("Einstellungen und Kundenfiguren");
 {
   const base = defaults({});
   check(base.sprache.stimme === false && base.sprache.hoeren === false && base.sprache.zeichenMonat === 30000 && base.sprache.minutenTag === 20, "ab Werk aus, Grenzen 30.000 Zeichen und 20 Minuten");
+  check(base.sprache.ttsModell === "eleven_multilingual_v2", "Stimmmodell ab Werk: Multilingual v2 (wärmste Stimme)");
   const e = { USAGE: kv(), ANTHROPIC_API_KEY: "x", AI: ai };
   const prev = await loadSettings(e, true);
   let fehler = "";

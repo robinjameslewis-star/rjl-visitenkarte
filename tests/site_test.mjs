@@ -9,7 +9,8 @@ const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEH
 const root = new URL("..", import.meta.url).pathname;
 const html = readFileSync(root + "index.html", "utf8");
 const scene = h => (h.match(/<button class="scene"[\s\S]*?<\/button>/) || [""])[0];
-const paths = h => [...scene(h).matchAll(/(?:src|data-src)="([^"]+)"/g)].map(m => m[1]);
+const paths = h => [...scene(h).matchAll(/ (?:src|data-src)="([^"]+)"/g)].map(m => m[1]);
+const spaet = h => [...scene(h).matchAll(/data-src-spaet="([^"]+)"/g)].map(m => m[1]); // Schnabelposen, erst beim Sprechen geladen
 const state = h => (h.match(/data-landschaft="(an|aus)"/) || [])[1];
 const branchWidth = h => +(scene(h).match(/ast\.webp"[^>]*?width="(\d+)"/) || [])[1];
 const preloads = h => [...h.matchAll(/<link rel="preload" as="image" href="([^"]+)"/g)].map(m => m[1]);
@@ -33,6 +34,8 @@ const on = applyLandscape(html, "an"), off = applyLandscape(on, "aus");
 check(state(on) === "an" && [...paths(on), ...preloads(on)].every(isLive) && branchWidth(on) === 2800, "an: ohne bestand/ (Szene und Vorabladen), Ast 2800 px");
 check(state(off) === "aus" && [...paths(off), ...preloads(off)].every(isBestand) && branchWidth(off) === 1153, "aus: …/bestand/ (Szene und Vorabladen), Ast 1153 px");
 check([...paths(off), ...preloads(off)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }) && [...paths(on), ...preloads(on)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }), "alle Bildpfade beider Fassungen gibt es als Datei");
+check(spaet(html).length === 2 && spaet(on).every(isLive) && spaet(off).every(isBestand) && [...spaet(on), ...spaet(off)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }), "Schnabelposen schalten mit (data-src-spaet) und liegen als Datei vor");
+check(/'data-src-spaet'/.test(readFileSync(root + "landscape.js", "utf8")), "landscape.js tauscht auch die Schnabelposen");
 check(applyLandscape(html, s) === html && applyLandscape(on, "an") === on, "Umschalten auf den bestehenden Zustand ändert nichts");
 check((s === "aus" ? off : on) === html, "Rundreise an → aus liefert die Datei unverändert zurück");
 const rest = h => h.replace(scene(h), "").replace(/<link rel="preload" as="image"[^>]*>/g, "").replace(/data-landschaft="(an|aus)"/, "").replace(/ data-landschaft-satz="[a-z0-9-]*"/, "");

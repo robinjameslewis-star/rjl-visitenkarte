@@ -51,6 +51,8 @@ window.__mund = [];
   document.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('scene');
     new MutationObserver(() => __mund.push((s.dataset.mund || 'zu') + (s.dataset.lauscht ? '+lauscht' : ''))).observe(s, { attributes: true, attributeFilter: ['data-mund', 'data-lauscht'] });
+    // Schnabelposen als Bilder: sichtbar geschaltete Pose mitschreiben
+    s.querySelectorAll('.bird-frame[data-mundpose]').forEach(f => new MutationObserver(() => { if (f.style.opacity === '1') __mund.push(f.dataset.mundpose); }).observe(f, { attributes: true, attributeFilter: ['style'] }));
   });
 })();
 """
@@ -148,7 +150,17 @@ async def main():
             check(zz['gum'] == 0 and zz['play'] == 0 and zz['start'] == 0 and zz['speak'] == 0 and zz['ctx'] == 0, "kein getUserMedia, kein Ton, kein AudioContext", zz)
             check(neu_listen() == [] and not any('/listen' in u for _, u in requests) and len(fake('/_chats')) == chats0, "keine Anfrage an /listen oder /chat")
             check(extern() == [], "keine fremden Hosts", extern()[:3])
+            check(not any('vogel-schnabel' in u for _, u in requests), "Schnabelposen vor der Aktivierung nicht geladen")
             check(await ev("!document.getElementById('privacy-goch-stimme').hidden"), "Datenschutzabsatz „Sprechen mit Goch“ sichtbar, wenn die Funktion an ist")
+
+            print("1b. Stimme des Geräts: warme Männerstimme vor Anna, Premium vor einfach, nie online")
+            wahl = await ev("""(()=>{const v=(name,lang,lokal=true)=>({name,lang,localService:lokal});
+              const mac=[v('Anna (Deutsch (Deutschland))','de-DE'),v('Reed (Deutsch (Deutschland))','de-DE'),v('Markus','de-DE'),v('Markus (Premium)','de-DE'),v('Google Deutsch','de-DE',false),v('Daniel','en-GB'),v('Samantha','en-US')];
+              const vz={de:['Markus','Yannick','Viktor','Martin','Reed','Eddy'],en:['Daniel','Arthur','Oliver','Reed','Eddy']};
+              const n=x=>x&&x.name;
+              return [n(GochAudio.stimmeWaehlen(mac,'de',vz.de)), n(GochAudio.stimmeWaehlen(mac.filter(x=>!x.name.startsWith('Markus')),'de',vz.de)),
+                      n(GochAudio.stimmeWaehlen([v('Google Deutsch','de-DE',false)],'de',vz.de)), n(GochAudio.stimmeWaehlen(mac,'en',vz.en))];})()""")
+            check(wahl == ['Markus (Premium)', 'Reed (Deutsch (Deutschland))', None, 'Daniel'], "Stimmwahl: Markus (Premium), sonst Reed; keine Online-Stimme; Englisch Daniel", wahl)
 
             print("2. Öffnen: sichtbares Zwitschern endet, leiser Gruß als Ton, Stummschalter gemerkt")
             await goto(BASE + q('&t=2'), wait=8)
@@ -181,6 +193,8 @@ async def main():
             zz = await z()
             check(await ev("document.getElementById('goch-laut').getAttribute('aria-pressed')") == 'true' and await sichtbar('#goch-ki'), "Stimme an, Hinweis „KI · künstliche Stimme“ sichtbar")
             check(zz['play'] == 2 and zz['gum'] == 0, "Bestätigung als leises Zwitschern, weiter kein Mikrofon", zz)
+            await pump(0.6)
+            check(await ev("[...document.querySelectorAll('.bird-mund')].every(f => f.complete && f.naturalWidth === 1153)"), "Schnabelposen nach dem Einschalten geladen")
             check(await ev("Object.keys(sessionStorage).concat(Object.keys(localStorage)).every(k => !/einwill|consent-stimme|stimme-erlaubt/i.test(k))"), "Einwilligung nirgends im Browser gespeichert")
 
             print("4. Frage mit Stimme: KI-Hinweis, Ton, Schnabel; Text bleibt")
@@ -192,8 +206,8 @@ async def main():
             check(b[-1].startswith('goch: Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.'), "KI-Hinweis bei der ersten gesprochenen Antwort, als Text sichtbar", b[-1][:80])
             zz = await z(); mund = await ev("__mund")
             check(zz['start'] == 1, "Stimme abgespielt", zz['start'])
-            check('offen' in mund or 'halb' in mund, "Schnabel folgt der Lautstärke", mund[:8])
-            check(await ev("!document.getElementById('scene').dataset.mund"), "nach dem Ende wieder geschlossen")
+            check('offen' in mund and 'halb' in mund, "Schnabel folgt der Lautstärke: Posen halb und offen im Wechsel", mund[:8])
+            check(await ev("!document.getElementById('scene').dataset.mund && [...document.querySelectorAll('.bird-mund')].every(f => f.style.opacity !== '1') && document.querySelector('.bird-rest').style.opacity === '1'"), "nach dem Ende wieder geschlossen (Sitzpose)")
             await shot("03_antwort_stimme")
             await ev("document.getElementById('goch-input').value='Wer ist Robin?'; document.getElementById('goch-send').click()"); await pump(2)
             check(fake('/_chats')[-1].get('stimme') == {'erste': False} and not (await ev(bubbles))[-1].startswith('goch: Kurz vorab'), "zweite Antwort ohne Hinweis")

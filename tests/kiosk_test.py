@@ -173,6 +173,7 @@ async def main():
             await taste()
             check(await zustand() == 'bereit' and (await text('.antwort')).startswith('Ich bin Goch'), "zweiter Druck: bereit, Begrüßung als Untertitel")
 
+            await ev("window.__posen = []; document.querySelectorAll('#scene img[data-pose=\"halb\"], #scene img[data-pose=\"offen\"]').forEach(f => new MutationObserver(() => { if (f.style.opacity === '1') __posen.push(f.dataset.pose); }).observe(f, {attributes: true, attributeFilter: ['style']}))")
             print("4. Sprechen: Taster halten, Antwort mit Stimme und KI-Hinweis")
             await taste(halten=1.4); await pump(3)
             li = upstream('/_listen'); chats = upstream('/_chats'); auth = upstream('/_auth')
@@ -181,6 +182,8 @@ async def main():
             check(auth and all(a == 'Bearer ' + TOKEN for a in auth), "Nachweis kommt vom Dienst, nicht von der Seite")
             check(await text('.besucher') == 'Woran arbeitet Robin gerade?' and (await text('.antwort')).startswith('Kurz vorab: Ich bin eine KI'), "Untertitel: Frage und Antwort mit KI-Hinweis")
             check((await z())['start'] == 1 and (await z())['gum'] == 1, "Stimme abgespielt, Mikrofon einmal")
+            posen = await ev("__posen")
+            check('halb' in posen and 'offen' in posen, "Goch bewegt den Schnabel (Posen halb und offen)", posen[:6])
             await shot("03_antwort")
             await pump(1.5)
             await tippen(540, 1000, halten=1.3); await pump(3)

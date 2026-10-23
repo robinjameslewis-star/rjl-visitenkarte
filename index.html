@@ -124,6 +124,7 @@
   .bird-rest { left: 0; top: 0; width: 100%; opacity: 1; clip-path: inset(0 0 2.5% 0); }
   .js .bird-rest { opacity: 0; } /* bird-flight.js blendet per Inline-Stil ein */
   .bird-flight { width: 133.2177%; }
+  .bird-mund { left: 0; top: 0; width: 100%; clip-path: inset(0 0 2.5% 0); transition-duration: 0ms; } /* wie .bird-rest, nur unsichtbar bis zum Sprechen */
   .bird-up { left: -14.7441%; top: -40.8451%; }
   .bird-glide { left: -15.4380%; top: -38.7324%; }
   .bird-down { left: -16.9124%; top: -30.7042%; }
@@ -134,6 +135,7 @@
     .scene .bird-move, .scene .branch { transform: none !important; }
     .scene .bird-move, .scene .bird-rest { opacity: 1 !important; }
     .scene .bird-flight { display: none; }
+    .scene .bird-mund { opacity: 0 !important; }
   }
 
 
@@ -548,6 +550,9 @@
         <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="figuren/goch/bilder/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
         <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="figuren/goch/bilder/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
         <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="figuren/goch/bilder/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
+        <!-- Schnabelposen für den sprechenden Goch (23.10.2026): erst geladen, wenn ein Besucher Stimme oder Spracheingabe einschaltet (goch-stimme.js) -->
+        <img class="bird-frame bird-mund" data-mundpose="halb" data-src-spaet="figuren/goch/bilder/vogel-schnabel-halb.webp" alt="" width="1153" height="637" decoding="async">
+        <img class="bird-frame bird-mund" data-mundpose="offen" data-src-spaet="figuren/goch/bilder/vogel-schnabel-offen.webp" alt="" width="1153" height="637" decoding="async">
       </span></span>
       <!-- Vogel und Ast: …/bestand/ = Fassung ohne Landschaft (kurzer Ast, Vogel mit weißem Grund, multiply), sonst Fassung mit Landschaft (langer Ast, freigestellter Vogel).
            Der Vogel liegt seit 23.10.2026 im Figurenpaket figuren/goch/bilder/, der Ast als Teil der Szene in assets/.

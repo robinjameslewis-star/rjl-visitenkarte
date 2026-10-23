@@ -42,7 +42,7 @@ check(Math.abs(opusDauer(ogg(1.2)) - 1.2) < 0.001, "Dauer aus Ogg/Opus (Granulpo
 // 2. Goch: besteht, Platzhalter als Hinweis, Szene der Startseite passt
 const goch = pruefen(root + "figuren/goch", { html: root + "index.html" });
 check(goch.fehler.length === 0, "Goch besteht samt Szene der Startseite", goch.fehler.join(" | "));
-check(has(goch.hinweise, "schnabel-halb") && has(goch.hinweise, "lauschend"), "fehlende Posen von Goch nur als Hinweis (Platzhalter)");
+check(has(goch.hinweise, "lauschend") && !has(goch.hinweise, "schnabel-halb"), "Schnabelposen vorhanden, fehlende Lauschpose nur als Hinweis (Platzhalter)");
 const v = versatz(goch.figur, "aufschlag");
 check(v.links.toFixed(4) === "-14.7441" && v.oben.toFixed(4) === "-40.8451" && v.breite.toFixed(4) === "133.2177", "Versatz der Aufschlagpose aus dem Augenpunkt wie im CSS");
 const tmp = mkdtempSync(join(tmpdir(), "figur-pruefen-"));

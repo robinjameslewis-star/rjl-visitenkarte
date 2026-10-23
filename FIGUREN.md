@@ -68,6 +68,12 @@ Abrufbar sind sie nur über die authentifizierte Kiosk-Route, nie über `/chat`.
 | `zwitschernd` | nein | Zwitschern (sonst kurzes Schnabelzucken) |
 | `aufschlag`, `gleiten`, `abschlag`, `landeanflug` | nein, aber nur alle vier | Anflug (Goch); ohne sie erscheint die Figur ohne Flug |
 
+**Rückfall ohne Stimme vom Server:** `stimme.browser` nennt bevorzugte Gerätestimmen je Sprache (Goch: Markus, Yannick,
+Viktor, Martin, dann Reed, Eddy; Englisch Daniel, Arthur, Oliver), dazu `tonhoehe` und `tempo`. Genutzt werden nur lokale
+Stimmen. Auf dem Mac klingen die Premium-Stimmen deutlich wärmer: Systemeinstellungen → Bedienungshilfen → Gesprochene
+Inhalte → Systemstimme → Stimmen verwalten → Deutsch → „Markus (Premium)“ oder „Yannick (Premium)“ laden; Chrome danach
+neu starten.
+
 Solange Robins Posen für Goch fehlen, steht `"platzhalter": "neigen"`: Der Schnabel folgt der Stimme dann als leichte
 Kopfbewegung über `.bird-tilt`.
 
@@ -102,9 +108,19 @@ Danach: Maße und Augenpunkt messen, als WebP speichern
 
 1. Konto mit robin@robin.vision, bezahlter Tarif (kommerzielle Nutzung). In den Kontoeinstellungen der Nutzung für
    Training widersprechen; Auftragsverarbeitung abschließen.
-2. Voices → Voice Design: Stimme beschreiben, z. B. für Goch: „Warme, helle, freundliche Stimme einer kleinen
-   Vogelfigur, eher hoch, klar und ruhig, deutliche deutsche Aussprache, britisches Englisch.“ Vorschläge anhören,
-   speichern.
+2. Voices → Voice Design: Stimme beschreiben, Vorschläge anhören, die wärmste speichern. Für Goch (warm, weich, männlich;
+   Robin, 23.10.2026) – Voice Design versteht Englisch am besten:
+
+   > A warm, soft, gentle male voice, mid-forties, medium-low pitch. Calm, friendly and unhurried, with a slight smile in
+   > the voice, close and intimate like a trusted storyteller. Clear standard German pronunciation without dialect,
+   > natural breathing, no radio announcer tone. Studio quality.
+
+   Testsatz zum Anhören: „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. Robin baut Werkzeuge für
+   den Alltag in Kanzleien – fragen Sie mich gern.“ Für Englisch dieselbe Stimme mit dem Satz „Just so you know: I'm an AI …“
+   prüfen; klingt sie dort zu deutsch, eine zweite Stimme nur für Englisch anlegen.
+   Stimmcharakter in `figur.json` (`stimme.einstellungen`): `stability` 0,5 (lebendig, nicht monoton), `similarity_boost`
+   0,8, `style` 0,15 (etwas Ausdruck, nicht theatralisch), `use_speaker_boost` an, `speed` 0,95 (ruhig). Modell in der
+   Redaktion: Multilingual v2 klingt am wärmsten; Flash v2.5 antwortet schneller.
 3. Die **Voice ID** in der Redaktion bei der Figur eintragen (nicht in die Datei einer Kundenfigur).
 4. Nur synthetische Stimmen. Die Stimme einer echten Person nie ohne deren schriftliche Einwilligung nachbilden.
 5. In `RECHTE.md` eintragen: Tarif, Datum, `voiceId`, Fundstelle der Lizenzbedingungen.

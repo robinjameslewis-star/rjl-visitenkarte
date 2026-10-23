@@ -35,23 +35,30 @@
   let aufnahme = null, startet = false;
 
   const say = text => { const p = document.createElement('p'); p.className = 'goch-bubble goch-goch'; p.textContent = text; log.append(p); log.scrollTop = log.scrollHeight; };
-  const meldung = text => { status.textContent = text || ''; };
+  // Höhe der Sprechblase nachziehen, wenn Zeilen erscheinen oder verschwinden (goch.js, place)
+  const nachziehen = () => { if (window.Goch.place) window.Goch.place(); };
+  const meldung = text => { const war = !!status.textContent; status.textContent = text || ''; if (war !== !!status.textContent) nachziehen(); };
 
   // ---------- Schnabel und Lauschpose ----------
-  // Mit eigenen Posen (data-pose="halb", "offen", "lauschen" in der Szene) wechselt das Bild; bis Robins Posen da sind,
-  // neigt sich der Vogel nur leicht (CSS über .bird-tilt). Bei reduzierter Bewegung bleibt er ruhig.
+  // Schnabelposen (data-mundpose="halb", "offen" in der Szene) werden erst beim Einschalten geladen und dann gewechselt;
+  // fehlt eine Pose (z. B. „lauschen“, solange Robins Pose fehlt), neigt sich der Vogel nur leicht (CSS über .bird-tilt).
+  // Bei reduzierter Bewegung bleibt er ruhig.
+  const nameVon = f => f.dataset.pose || f.dataset.mundpose;
   function zeige(pose) {
-    const frames = [...scene.querySelectorAll('.bird-frame[data-pose]')];
-    const ziel = pose && frames.find(f => f.dataset.pose === pose);
     if (scene.dataset.state !== 'rest') return false;
-    if (!ziel) { frames.forEach(f => { if (['halb', 'offen', 'lauschen', 'zwitschern'].includes(f.dataset.pose)) f.style.opacity = '0'; }); return false; }
-    frames.forEach(f => { f.style.opacity = f === ziel ? '1' : '0'; });
+    const frames = [...scene.querySelectorAll('.bird-frame[data-pose], .bird-frame[data-mundpose]')];
+    const ziel = frames.find(f => nameVon(f) === pose && (f.dataset.pose || (f.complete && f.naturalWidth > 0)));
+    if (!ziel) return false;
+    frames.forEach(f => { if (f.dataset.pose === 'rest' || f.dataset.mundpose) f.style.opacity = f === ziel ? '1' : '0'; });
     return true;
+  }
+  function posenLaden() {
+    scene.querySelectorAll('.bird-frame[data-src-spaet]').forEach(f => { if (!f.getAttribute('src')) f.src = f.dataset.srcSpaet; });
   }
   function mund(stufe) { // 'zu' | 'halb' | 'offen'
     if (ruhig.matches) stufe = 'zu';
     if (stufe === 'zu') { delete scene.dataset.mund; if (!aufnahme) zeige('rest'); return; }
-    if (!zeige(stufe)) scene.dataset.mund = stufe;
+    if (zeige(stufe)) delete scene.dataset.mund; else scene.dataset.mund = stufe;
   }
   function lauschen(an) {
     if (an && !ruhig.matches) { if (!zeige('lauschen')) scene.dataset.lauscht = '1'; }
@@ -69,9 +76,15 @@
       ende: () => mund('zu'),
     });
   }
-  function browserStimme(text) {
+  // Stimmcharakter des Rückfalls aus Gochs Paket (figuren/goch/figur.json, stimme.browser) – erst geladen, wenn er gebraucht wird
+  let charakter = null;
+  async function browserStimme(text) {
+    if (!charakter) {
+      try { charakter = (await (await fetch('figuren/goch/figur.json')).json()).stimme.browser || {}; } catch (_) { charakter = {}; }
+    }
+    const lang = language.current === 'en' ? 'en' : 'de';
     let zu = 0;
-    A.browserStimme(text, language.current === 'en' ? 'en' : 'de', {
+    A.browserStimme(text, lang, { vorzug: charakter[lang] || [], tonhoehe: charakter.tonhoehe || 1, tempo: charakter.tempo || 1,
       wort: () => { mund('offen'); clearTimeout(zu); zu = setTimeout(() => mund('halb'), 110); },
       ende: () => { clearTimeout(zu); mund('zu'); },
     });
@@ -83,7 +96,7 @@
       if (!erlaubt) return {};
       const z = {};
       if (opts && opts.gesprochen) z.gesprochen = true;
-      if (lautAn) { schweigen(); z.stimme = { erste: !schonGesprochen }; schonGesprochen = true; kiHinweis.hidden = false; }
+      if (lautAn) { schweigen(); z.stimme = { erste: !schonGesprochen }; schonGesprochen = true; if (kiHinweis.hidden) { kiHinweis.hidden = false; nachziehen(); } }
       if (Object.keys(z).length) z.figur = 'goch';
       return z;
     },
@@ -119,6 +132,7 @@
     mikro.hidden = !mikroAn || leiste.hidden;
     beenden.hidden = !erlaubt;
     if (!mikroAn && aufnahme) stoppeAufnahme(false);
+    nachziehen();
   }
   function umschalten(welcher) {
     entsperren(); // in der Berührung: Ton und Sprachausgabe freischalten (iOS/Safari)
@@ -128,6 +142,7 @@
       erlauben.focus();
       return;
     }
+    posenLaden();
     if (welcher === 'mikro') {
       mikroAn = !mikroAn;
       meldung(mikroAn ? t('gochMikroHinweis') : '');
