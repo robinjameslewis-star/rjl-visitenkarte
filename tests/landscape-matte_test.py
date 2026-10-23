@@ -23,10 +23,11 @@ class MatteTest(unittest.TestCase):
   np.testing.assert_array_equal(before[:4],after[:4])
  def test_export_budget_and_registration(self):
   assets=Path(__file__).parents[1]/'assets'
+  vogel=Path(__file__).parents[1]/bilder.BIRD_DIR # Figurenpaket von Goch (seit 23.10.2026)
   birds=[n for n in bilder.ORIGINALS if n!='ast.webp']
-  self.assertLessEqual(sum((assets/n).stat().st_size for n in birds),600000)
+  self.assertLessEqual(sum((vogel/n).stat().st_size for n in birds),600000)
   for name in birds:
-   with Image.open(assets/name) as current, Image.open(assets/'bestand'/name) as original:
+   with Image.open(vogel/name) as current, Image.open(vogel/'bestand'/name) as original:
     self.assertEqual(current.size,original.size)
     self.assertEqual(current.mode,'RGBA')
   with Image.open(assets/'ast.webp') as branch:

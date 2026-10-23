@@ -9,7 +9,8 @@ Vom Repository-Stamm aus:
 
 Krone und Ferne landen im Satz-Ordner assets/landschaften/<satz>/ (Standard: burgberg-herbst) und werden in
 dessen landschaft.json eingetragen – derselbe Ort, in den auch die Redaktion hochlädt (dort ohne AVIF).
-Vogelbilder und Ast bleiben in assets/. Die sechs unveränderten Bestandsdateien werden aus assets/bestand/ gelesen.
+Der Ast bleibt in assets/, die Vogelbilder liegen seit 23.10.2026 im Figurenpaket figuren/goch/bilder/. Die sechs
+unveränderten Bestandsdateien werden jeweils aus bestand/ darunter gelesen.
 Fehlen sie beim ersten Lauf, werden sie aus dem festgelegten Git-Stand restauriert.
 Die Originalbilder im Vault werden ausschließlich gelesen.
 """
@@ -37,6 +38,7 @@ ORIGINALS = {
     'flugpose-3-abschlag.webp': 'd4f05c80bd5eedbb9eb898688ba112fec0237233b49b53afee73b0ecf74673e9',
     'flugpose-4-landeanflug.webp': '2f5a953d78db8e0a812111bc434f86ca4d7531b2467c654718b394352438dd00',
 }
+BIRD_DIR = 'figuren/goch/bilder'  # Figurenpaket von Goch (FIGUREN.md); der Ast gehört zur Szene und bleibt in assets/
 PAPER = np.array([243, 239, 229], dtype=np.float32)
 ALPHA_QUALITY_BIRDS = 90  # deckende Silhouette mit weicher Kante: verlustarmes Alpha, sonst fransen die Ränder
 
@@ -45,11 +47,15 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def source_dir(name: str) -> str:
+    return 'assets' if name == 'ast.webp' else BIRD_DIR
+
+
 def preserve_originals(repo: Path) -> dict:
-    folder = repo / 'assets/bestand'
-    folder.mkdir(parents=True, exist_ok=True)
     checks = {}
     for name, expected in ORIGINALS.items():
+        folder = repo / source_dir(name) / 'bestand'
+        folder.mkdir(parents=True, exist_ok=True)
         path = folder / name
         data = path.read_bytes() if path.exists() else subprocess.check_output(
             ['git', 'show', f'{ORIGINAL_REF}:assets/{name}'], cwd=repo)
@@ -298,7 +304,7 @@ def build_birds(repo: Path, output: Path) -> list[dict]:
     for name in ORIGINALS:
         if name == 'ast.webp':
             continue
-        path = repo / 'assets/bestand' / name
+        path = repo / BIRD_DIR / 'bestand' / name
         source = Image.open(path)
         cutout = remove_white_fringe(opaque_cutout(source))  # deckend: der helle Bauch darf Blätter und Nachthimmel nicht durchscheinen lassen
         report = source_stats(path, source)
@@ -438,7 +444,7 @@ def main() -> None:
             'avif': 'Qualität 82, speed 4, YUV 4:2:0',
             'webp_rgb_quality': {'landscape': 83, 'birds': 82}, 'paper_rgb': PAPER.astype(int).tolist(),
             'crop_coordinates': '[links, oben, rechts exklusiv, unten exklusiv]',
-            'fallback': f'assets/bestand enthält byteidentische Originale aus Git {ORIGINAL_REF}.',
+            'fallback': f'bestand/ (assets/ für den Ast, {BIRD_DIR}/ für den Vogel) enthält byteidentische Originale aus Git {ORIGINAL_REF}.',
         },
         'originals': preserve_originals(repo), 'images': [],
     }
@@ -449,7 +455,7 @@ def main() -> None:
     if not args.output_dir and not (args.skip_crown and args.skip_distance):
         register_layers(set_dir, args.landscape_set, args.season, report['images'], avif)
     if not args.skip_birds:
-        report['images'].extend(build_birds(repo, output))
+        report['images'].extend(build_birds(repo, args.output_dir or repo/BIRD_DIR))
     if not args.skip_branch:
         report['images'].append(build_branch(branch, repo, output))
     # Teilläufe (--skip-…) behalten die Einträge früherer Läufe für nicht neu gebaute Dateien.
