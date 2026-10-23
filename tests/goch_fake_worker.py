@@ -20,6 +20,9 @@ Stimme für Vorführungen (optional): `--stimme mac` vertont die Antworten serve
 Yannick in Premium, wenn geladen, sonst Reed; englisch Daniel) – jeder Besucher hört dieselbe Stimme, der Schnabel folgt
 ihr. Nur ein Platzhalter, nicht die Stimme von Goch. `--stimme elevenlabs` nimmt die echte Stimme mit den Einstellungen aus
 figur.json; Schlüssel und Voice ID nur aus der Umgebung (ELEVENLABS_API_KEY, GOCH_VOICE_ID), nie als Argument.
+Stimmen durchprobieren ohne Neustart (23.10.2026): GET /_stimmen?suche=<Name> sucht in der Voice Library und unter den
+eigenen Stimmen (Name, Voice ID, ob im Gratistarif nutzbar), GET /_stimme?id=<Voice ID> wechselt die Stimme. Der Schlüssel
+bleibt im Prozess; die Attrappe hört nur auf 127.0.0.1.
 Ohne --stimme: kurzer Sinuston (Tests)."""
 import base64, io, json, math, os, re, struct, subprocess, sys, tempfile, threading, time, urllib.parse, urllib.request, wave
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -73,7 +76,7 @@ def vertonen(text, lang):
             if r.returncode or not os.path.exists(ziel): return None
             return 'audio/wav', base64.b64encode(open(ziel, 'rb').read()).decode()
     if STIMME == 'elevenlabs':
-        schluessel, voice = os.environ.get('ELEVENLABS_API_KEY', ''), os.environ.get('GOCH_VOICE_ID', '')
+        schluessel, voice = os.environ.get('ELEVENLABS_API_KEY', ''), STIMM_ID['id']
         if not schluessel or not voice: return None
         cfg = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'figuren', 'goch', 'figur.json'))).get('stimme', {})
         modell = os.environ.get('GOCH_TTS_MODELL') or cfg.get('modell') or 'eleven_v4'
@@ -89,6 +92,25 @@ def vertonen(text, lang):
             grund = fehler.read().decode('utf-8', 'replace')[:300] if hasattr(fehler, 'read') else ''
             print('ElevenLabs:', str(fehler)[:120], grund, flush=True); return None
     return 'audio/wav', TON
+
+STIMM_ID = {'id': os.environ.get('GOCH_VOICE_ID', '')}
+
+def stimmen_suchen(suche):
+    """Voice Library und eigene Stimmen nach Namen durchsuchen; gibt nur Name, Voice ID und Eckdaten zurück."""
+    schluessel = os.environ.get('ELEVENLABS_API_KEY', '')
+    if not schluessel: return {'error': 'ELEVENLABS_API_KEY fehlt.'}
+    treffer = []
+    for quelle, url in (('library', 'https://api.elevenlabs.io/v1/shared-voices?' + urllib.parse.urlencode({'search': suche, 'page_size': 30})),
+                        ('eigene', 'https://api.elevenlabs.io/v2/voices?' + urllib.parse.urlencode({'search': suche}))):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={'xi-api-key': schluessel}), timeout=20) as r: d = json.load(r)
+        except Exception as fehler:
+            treffer.append({'quelle': quelle, 'fehler': str(fehler)[:120]}); continue
+        for v in d.get('voices', []):
+            treffer.append({'quelle': quelle, 'name': v.get('name'), 'voice_id': v.get('voice_id'), 'kategorie': v.get('category'),
+                            'gratis': v.get('free_users_allowed'), 'sprache': v.get('language'), 'akzent': v.get('accent'),
+                            'beschreibung': (v.get('description') or '')[:140]})
+    return treffer
 
 SENT = []
 CONTACT = []  # über das Formular „versendete“ Nachrichten
@@ -188,6 +210,14 @@ class Handler(BaseHTTPRequestHandler):
             AUTH.append(self.headers.get('Authorization', ''))
             fid = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('id', ['goch'])[0]
             return self.reply(KUNDE if fid == 'kunde-test' else {'id': 'goch', 'texte': 'language.js'})
+        if self.path.startswith('/_stimmen'):
+            return self.reply(stimmen_suchen(urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('suche', [''])[0]))
+        if self.path.startswith('/_stimme'):
+            neu = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('id', [''])[0]
+            if neu:
+                if not re.fullmatch(r'[A-Za-z0-9]{10,40}', neu): return self.reply({'error': 'Voice ID ungültig.'}, 400)
+                STIMM_ID['id'] = neu; print('Stimme gewechselt:', neu, flush=True)
+            return self.reply({'voice': STIMM_ID['id']})
         if self.path.startswith('/_modus'):
             for k, v in urllib.parse.parse_qsl(urllib.parse.urlparse(self.path).query): MODUS[k] = v
             return self.reply(MODUS)
@@ -279,6 +309,6 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args): pass
 
 if __name__ == '__main__':
-    stimme = {'mac': lambda: f'macOS-Stimme {mac_stimme("de")} / {mac_stimme("en")}', 'elevenlabs': lambda: 'ElevenLabs' + ('' if os.environ.get('ELEVENLABS_API_KEY') and os.environ.get('GOCH_VOICE_ID') else ' (ELEVENLABS_API_KEY oder GOCH_VOICE_ID fehlt – nur Text)')}.get(STIMME, lambda: 'Sinuston')()
+    stimme = {'mac': lambda: f'macOS-Stimme {mac_stimme("de")} / {mac_stimme("en")}', 'elevenlabs': lambda: 'ElevenLabs' + ('' if os.environ.get('ELEVENLABS_API_KEY') and STIMM_ID['id'] else ' (ELEVENLABS_API_KEY oder GOCH_VOICE_ID fehlt – nur Text)')}.get(STIMME, lambda: 'Sinuston')()
     print(f'Goch-Attrappe auf http://localhost:{PORT}/chat' + (f' – Spracherkennung lokal mit {WHISPER}' if WHISPER else '') + f' – Stimme: {stimme}', flush=True)
     HTTPServer(('127.0.0.1', PORT), Handler).serve_forever()

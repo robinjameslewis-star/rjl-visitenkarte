@@ -6,7 +6,7 @@
 // hört im Gesprächsmodus nur zu, wenn er angesehen wird. Keine Mimik, keine Gefühle, keine Wiedererkennung, nichts
 // gespeichert, kein Bild verlässt das Gerät. Kein sichtbares Vorschaubild (störte, Robin 23.10.2026): Den Zustand zeigen
 // der Schalter „Blickkontakt“ und die Kamera-Anzeige des Browsers. Aus mit „Blickkontakt“, beim Schließen, mit
-// „Sprechen beenden“ und beim Verlassen der Seite – nicht beim Tabwechsel. Aktiv nur mit der Sprachfunktion (goch-stimme.js).
+// „Sprechen beenden“, wenn die Stimme gerade nicht da ist, und beim Verlassen der Seite – nicht beim Tabwechsel. Aktiv nur mit der Sprachfunktion (goch-stimme.js).
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -138,6 +138,7 @@
   ablehnen.addEventListener('click', () => { einwilligung.hidden = true; leiste.hidden = false; say(t('gochBlickDenied')); nachziehen(); });
   const ende = $('goch-stimme-ende');
   if (ende) ende.addEventListener('click', () => { ausschalten(); erlaubt = false; });
+  window.addEventListener('goch-nur-chat', ausschalten); // Stimme gerade nicht da: Gespräch nur im Chat (goch-stimme.js)
   new MutationObserver(() => { if (panel.hidden) { ausschalten(); einwilligung.hidden = true; } }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   // Beim Tabwechsel bleibt die Kamera an (Robin, 23.10.2026: das Abschalten verwirrte).
   addEventListener('pagehide', ausschalten);

@@ -276,7 +276,8 @@ export default worker;
 
 // Antwort von /chat um die Stimme ergänzen: Zeile 1 sofort (die Seite zeigt den Text), Zeile 2 mit dem MP3, sobald es
 // da ist. Bei der ersten gesprochenen Antwort einer Sitzung stellt der Worker den KI-Hinweis voran (Art. 50 KI-VO) –
-// im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme steht nur der Text da.
+// im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme nur { stimme: null, grund }, nie ein
+// Fehlertext des Anbieters; die Seite zeigt den Text und den allgemeinen Hinweis, dass es gerade nur im Chat geht.
 async function mitStimme(response, body, env, ctx, optionen = {}) {
   let out;
   try { out = await response.json(); } catch { return response; }
@@ -303,7 +304,7 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
       const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed });
       if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
         "Goch: Monatsgrenze für die Stimme erreicht",
-        "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text, ohne Hinweis an die Besucher. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
+        "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
       await writer.write(enc.encode(JSON.stringify(r) + "\n"));
     } catch (e) {
       console.error("Stimme (Antwort)", String(e && e.message || e).slice(0, 300));

@@ -107,7 +107,8 @@ Danach: Maße und Augenpunkt messen, als WebP speichern
 
 Grundsatz (Robin, 23.10.2026): Jeder Besucher hört dieselbe Stimme, menschlich und passend zur Figur. Deshalb vertont nur
 der Server (ElevenLabs), und Goch steht auf `"rueckfall": "keine"`: Ist die Stimme gestört oder die Monatsgrenze erreicht,
-antwortet Goch nur als Text. Eine Gerätestimme klänge auf jedem Rechner anders.
+antwortet Goch nur als Text, schaltet das Sprechen ab und schreibt in den Chat, dass ein Gespräch gerade nur dort möglich
+ist – nie den Grund oder den Anbieter. Eine Gerätestimme klänge auf jedem Rechner anders.
 
 1. **Konto:** robin@robin.vision, bezahlter Tarif (kommerzielle Nutzung). In den Kontoeinstellungen der Nutzung für
    Training widersprechen; Auftragsverarbeitung abschließen.

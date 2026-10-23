@@ -697,7 +697,9 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
   eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
   sonst aus `figur.json`), Modell Eleven v4, Regler und fester Startwert (`seed`) aus `figur.json` – jeder Besucher hört
   dieselbe Stimme. Ohne Stimme (`aus`, `fehler`, `grenze`) antwortet Goch nur als Text; eine Gerätestimme gibt es nur
-  für Figuren mit `stimme.rueckfall: "browser"`.
+  für Figuren mit `stimme.rueckfall: "browser"`. Für Goch schaltet die Seite dann Stimme, Mikrofon und Kamera ab und
+  schreibt in den Chat nur „Sprechen geht gerade nicht – ein Gespräch ist im Moment nur hier im Chat möglich.“ Den Grund
+  (etwa die Meldung von ElevenLabs) sieht kein Besucher; er steht nur im Protokoll des Workers.
 - **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
   Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
 - **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus

@@ -100,7 +100,7 @@
     if (!stimmCfg) {
       try { stimmCfg = (await (await fetch('figuren/goch/figur.json')).json()).stimme || {}; } catch (_) { stimmCfg = {}; }
     }
-    if (stimmCfg.rueckfall !== 'browser') return;
+    if (stimmCfg.rueckfall !== 'browser') return false;
     const charakter = stimmCfg.browser || {};
     const lang = language.current === 'en' ? 'en' : 'de';
     let zu = 0;
@@ -108,6 +108,7 @@
       wort: () => { mund('offen'); clearTimeout(zu); zu = setTimeout(() => mund('halb'), 110); },
       ende: () => { clearTimeout(zu); mund('zu'); },
     });
+    return true;
   }
 
   // ---------- Anfrage und Antwort (aus goch.js) ----------
@@ -146,11 +147,22 @@
     blinzeln: doppelt => blinzeln(!!doppelt), // für goch-blick.js: Goch bemerkt jemanden
     koerper,                    // für goch-blick.js: dem Gegenüber zuwenden
   };
-  // „grenze“: nur Text, ohne Hinweis. „aus“ und „fehler“: Gerätestimme nur, wenn die Figur sie erlaubt (Goch: nein).
+  // Ohne Stimme („aus“, „grenze“, „fehler“ oder nicht abspielbar): Gerätestimme nur, wenn die Figur sie erlaubt (Goch:
+  // nein). Sonst bleibt die Antwort als Text, Sprechen schaltet sich ab, und im Chat steht nur ein allgemeiner Hinweis –
+  // nie ein Grund oder Anbieter (Robin, 23.10.2026).
   async function stimmeZurAntwort(z, antwort) {
     if (!z || !('stimme' in z) || !lautAn || panel.hidden) return;
     if (z.stimme && await abspielen(z.stimme)) return;
-    if (z.grund !== 'grenze') browserStimme(antwort && antwort.reply);
+    if (z.grund !== 'grenze' && await browserStimme(antwort && antwort.reply)) return;
+    nurChat();
+  }
+  function nurChat() {
+    if (!lautAn) return;
+    mikroAn = false; lautAn = false;
+    schweigen(); zuhoerenStoppen(); setzeZustand('aus'); meldung('');
+    say(t('gochNurChat'));
+    aktualisieren(); input.focus();
+    window.dispatchEvent(new CustomEvent('goch-nur-chat')); // goch-blick.js: Kamera aus
   }
   window.addEventListener('goch-fertig', () => { denkt = false; setTimeout(() => { if (!restLaeuft && !spielt) weiterHoeren(); }, 0); });
 
