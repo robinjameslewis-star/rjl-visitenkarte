@@ -52,9 +52,9 @@
   },
   "stimme": {
     "anbieter": "elevenlabs",
-    "voiceId": "sJ8mnaQVr5om2HJMoQ7o",
+    "voiceId": "89gcX1AeMGgcsN8ypHLu",
     "modell": "eleven_v4",
-    "charakter": "warm, weich, männlich – ruhig, freundlich, leicht lächelnd",
+    "charakter": "gepflegt, präzise, höflich-trocken – zu Diensten (Rupert, ElevenLabs Voice Library)",
     "einstellungen": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 },
     "seed": 4711,
     "rueckfall": "keine"

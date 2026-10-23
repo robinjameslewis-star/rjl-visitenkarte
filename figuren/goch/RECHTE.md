@@ -30,13 +30,19 @@ kann Nachahmungen aber womöglich nicht untersagen. Schutz der Figur eher über 
 
 ## Stimme
 
-Stimme „Goch“, `voiceId` `sJ8mnaQVr5om2HJMoQ7o`: ElevenLabs Voice Design (ElevenCreative), erzeugt am 23.10.2026
-aus der Beschreibung in `FIGUREN.md` mit deutschem Vorschautext; Robin hat Vorschlag 2 von 3 gewählt. Synthetische
-Stimme aus einer Textbeschreibung, keine Nachbildung einer echten Person.
+Gochs Stimme seit 23.10.2026 (Robins Wahl): „Rupert – Proper & At Your Service“ aus der ElevenLabs Voice Library,
+Ersteller Robert Ranger, `voiceId` `89gcX1AeMGgcsN8ypHLu` (am 23.10.2026 zu „Meine Stimmen“ hinzugefügt). Deutsch,
+kein Aufschlag je Zeichen, keine Live-Moderation, Kündigungsfrist des Erstellers zwei Jahre (zieht er die Stimme zurück,
+bleibt sie so lange nutzbar). Nutzung nach den Bedingungen der Voice Library; kommerziell nur mit bezahltem Tarif.
+
+Vorher (bleibt als Rückweg in „Meine Stimmen“): Stimme „Goch“, `voiceId` `sJ8mnaQVr5om2HJMoQ7o`, ElevenLabs Voice Design,
+erzeugt am 23.10.2026 aus der Beschreibung in `FIGUREN.md`, Vorschlag 2 von 3 – synthetisch, keine Nachbildung einer
+echten Person. Verworfen: „Wolf Spencer – Rough and Deep“ (Aufschlag 0,20 $ je 1.000 Credits, Anklang an eine bekannte
+Synchronstimme).
 
 **Offen:** Am 23.10.2026 lief das Konto noch im kostenlosen Tarif, der keine kommerzielle Lizenz enthält. Vor dem
-ersten Einsatz einen bezahlten Tarif abschließen (Robin) und hier Tarif und Datum eintragen; in den Bedingungen
-prüfen, ob die im kostenlosen Tarif entworfene Stimme danach kommerziell genutzt werden darf. Außerdem: Konto
+ersten Einsatz einen bezahlten Tarif abschließen (Robin) und hier Tarif und Datum eintragen; die Bedingungen der Voice
+Library für Ruperts Stimme (Fundstelle, Abrufdatum) hier festhalten. Außerdem: Konto
 (E-Mail-Adresse) bestätigen, Widerspruch gegen Training, Auftragsverarbeitung, Fundstelle der Lizenzbedingungen mit
 Abrufdatum.
 
