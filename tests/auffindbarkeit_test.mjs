@@ -54,6 +54,8 @@ const posts = readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md")).map(n
 const published = posts.filter(p => p.status === "published" && p.date), drafts = posts.filter(p => p.status !== "published");
 check(published.every(p => sitemap.includes(`<loc>https://robin.vision/blog/${p.slug}/</loc>`)), `sitemap.xml nennt alle ${published.length} veröffentlichten Impulse`);
 check(drafts.every(p => !sitemap.includes(`/blog/${p.slug}/`)), `sitemap.xml ohne Entwürfe (${drafts.length})`);
+const llms = lesen("llms.txt");
+check(/^# robin\.vision\n\n> /.test(llms) && WERKZEUGE.every(w => llms.includes(`(https://robin.vision/werkzeuge/${w.id}/)`)) && llms.includes("(https://robin.vision/sitemap.xml)") && !/googlemail|0151|Höchststr/.test(llms), "llms.txt für KI-Assistenten: Überblick, jedes Werkzeug verlinkt, keine privaten Daten");
 check(WERKZEUGE.every(w => sitemap.includes(`<loc>https://robin.vision/werkzeuge/${w.id}/</loc>`)) && sitemap.includes("<loc>https://robin.vision/werkzeuge/en/</loc>"), "sitemap.xml nennt Werkzeuge und Übersichten");
 check(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap) && (sitemap.match(/<url>/g) || []).length === (sitemap.match(/<\/url>/g) || []).length, "sitemap.xml wohlgeformt mit lastmod");
 check(/Sitemap: https:\/\/robin\.vision\/sitemap\.xml/.test(lesen("robots.txt")), "robots.txt verweist auf die Sitemap");
