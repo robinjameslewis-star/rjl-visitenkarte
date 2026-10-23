@@ -1,0 +1,179 @@
+/* SmartFormular E-Rechnung lite – Erscheinungsbild „Nacht und Violett“ wie FiBu lite (dunkle Fläche, Violett als Akzent, Erfolg mint,
+   Fehler rosé, keine Schatten). Die lesbare Rechnung steht als helles Blatt darin und wird so auch gedruckt. Alles unter #erechnung. */
+#erechnung {
+  --e-papier: #0E0B14; --e-feld: #16121F; --e-flaeche: #1C1726; --e-linie: #2A2340; --e-tinte: #EDE9FE; --e-tinte2: #C4B5FD; --e-tinte3: #9C94B8;
+  --e-violett: #7C3AED; --e-violett2: #6D28D9; --e-akzent: #A78BFA; --e-ok: #A7F3D0; --e-warn: #FCA5A5; --e-gelb: #FCD34D;
+  --e-serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --e-sans: "Helvetica Neue", Inter, Arial, sans-serif;
+  color: var(--e-tinte); font: 400 15px/1.55 var(--e-sans); text-align: left; hyphens: manual;
+}
+#erechnung * { box-sizing: border-box; }
+#erechnung [hidden] { display: none !important; }
+#erechnung p, #erechnung li { max-width: none; text-align: left; }
+#erechnung a { color: var(--e-akzent); text-decoration: underline; text-decoration-color: var(--e-violett); text-underline-offset: .2em; }
+#erechnung a:hover { color: #fff; }
+#erechnung code { font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+#erechnung h2 { font: 400 23px/1.25 var(--e-serif); color: var(--e-tinte); margin: 2px 0 12px; }
+#erechnung h3 { font: 400 20px/1.3 var(--e-serif); color: #fff; margin: 0 0 10px; }
+.ewz-label, .ewz-mini { font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .16em; color: var(--e-tinte2); }
+.ewz-klein { font-size: 13px; color: var(--e-tinte3); }
+
+/* Schritt 01 */
+.ewz-abschnitt { display: grid; grid-template-columns: 54px 1fr; gap: 20px; padding: 6px 0 14px; }
+.ewz-n { font: 400 26px/1 var(--e-serif); color: var(--e-akzent); border-right: 1px solid var(--e-akzent); padding: 4px 14px 0 0; text-align: right; align-self: start; min-height: 56px; }
+.ewz-inhalt { min-width: 0; }
+.ewz-ablage { display: grid; gap: 6px; justify-items: center; border: 1.5px dashed var(--e-tinte3); background: var(--e-flaeche); padding: 30px 20px; text-align: center; color: var(--e-tinte2);
+  font: 400 18px/1.4 var(--e-serif); cursor: pointer; border-radius: 6px; transition: border-color .15s, background .15s; position: relative; }
+.ewz-ablage small { font: 400 13px/1.4 var(--e-sans); color: var(--e-tinte3); }
+.ewz-ablage:hover, .ewz-ablage.ewz-drueber { border-color: var(--e-akzent); background: #221B33; }
+.ewz-ablage:focus-within { outline: 2px solid var(--e-akzent); outline-offset: 3px; }
+.ewz-ablage input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.ewz-ablage u { text-decoration-color: var(--e-akzent); text-underline-offset: 3px; }
+.ewz-beispiele { margin: 12px 0 0; font-size: 14px; color: var(--e-tinte2); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ewz-status { min-height: 1.5em; margin: 8px 0 0; font-size: 14px; color: var(--e-tinte2); }
+
+/* Knöpfe */
+#erechnung button { font: 400 14px/1 var(--e-sans); cursor: pointer; padding: 9px 14px; border-radius: 4px; }
+.ewz-haupt { color: #fff; background: var(--e-violett); border: 1px solid var(--e-violett); }
+.ewz-haupt:hover { background: var(--e-violett2); }
+.ewz-zweit { color: var(--e-tinte); background: transparent; border: 1px solid var(--e-akzent); }
+.ewz-zweit:hover { background: rgba(167,139,250,.14); }
+#erechnung button:focus-visible, #erechnung a:focus-visible, #erechnung summary:focus-visible, #erechnung input:focus-visible { outline: 2px solid var(--e-akzent); outline-offset: 2px; }
+.ewz-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--e-tinte2); }
+.ewz-check input { accent-color: var(--e-violett); width: 16px; height: 16px; }
+
+/* Übersicht und Karten */
+.ewz-uebersicht, .ewz-karte { margin: 26px 0 0; padding: 22px 24px 18px; border: 1px solid var(--e-linie); border-radius: 8px; background: var(--e-feld); }
+.ewz-karte-kopf { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px 16px; margin-bottom: 12px; }
+.ewz-karte-kopf h2 { margin: 0 !important; overflow-wrap: anywhere; }
+.ewz-dateiname { font: 400 22px/1.3 var(--e-serif); color: #fff; }
+.ewz-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ewz-tabelle { overflow-x: auto; }
+.ewz-uebersicht table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ewz-uebersicht th { text-align: left; font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .12em; color: var(--e-tinte2); border-bottom: 1px solid var(--e-akzent); padding: 6px 10px 6px 0; }
+.ewz-uebersicht td { border-bottom: 1px solid var(--e-linie); padding: 7px 10px 7px 0; }
+.ewz-z { text-align: right !important; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Antwort */
+.ewz-antwort { border: 1px solid var(--e-linie); border-left: 4px solid var(--e-tinte3); border-radius: 6px; background: var(--e-flaeche); padding: 16px 20px 12px; }
+.ewz-antwort.ewz-ja { border-left-color: var(--e-ok); }
+.ewz-antwort.ewz-gelb { border-left-color: var(--e-gelb); }
+.ewz-antwort.ewz-nein { border-left-color: var(--e-warn); }
+.ewz-antwort.ewz-unklar { border-left-color: var(--e-akzent); }
+.ewz-frage { margin: 0; font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .16em; color: var(--e-tinte2); }
+.ewz-urteil { margin: 2px 0 6px; font: 400 27px/1.2 var(--e-serif); color: #fff; }
+.ewz-ja .ewz-urteil::before { content: "✓ "; color: var(--e-ok); }
+.ewz-gelb .ewz-urteil::before { content: "✓ "; color: var(--e-gelb); }
+.ewz-nein .ewz-urteil::before { content: "✕ "; color: var(--e-warn); }
+.ewz-antwort p { margin: 0 0 8px; }
+.ewz-quellen { font-size: 12.5px; color: var(--e-tinte3); }
+.ewz-format { display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; margin: 10px 0; font-size: 14px; }
+.ewz-format dt { color: var(--e-tinte3); }
+.ewz-format dd { margin: 0; min-width: 0; }
+.ewz-pruefstand { font-size: 15px; }
+.ewz-pruefstand.ewz-gruen strong { color: var(--e-ok); }
+.ewz-pruefstand.ewz-gelb strong { color: var(--e-gelb); }
+.ewz-rot { color: var(--e-warn); }
+.ewz-zusatz { border-top: 1px solid var(--e-linie); padding-top: 8px; font-size: 14px; color: var(--e-tinte2); }
+.ewz-stand { font-size: 12px; color: var(--e-tinte3); }
+.ewz-spinner { display: inline-block; width: 12px; height: 12px; margin-right: 8px; border: 2px solid var(--e-akzent); border-right-color: transparent; border-radius: 50%; animation: ewz-dreh .8s linear infinite; vertical-align: -1px; }
+@keyframes ewz-dreh { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ewz-spinner { animation: none; border-right-color: var(--e-akzent); } }
+
+/* Teile der Karte */
+.ewz-teil { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--e-linie); }
+.ewz-zahlen { display: grid; grid-template-columns: 210px 1fr; gap: 18px 24px; align-items: start; }
+.ewz-qr { margin: 0; }
+.ewz-qr-bild { width: 190px; background: #fff; padding: 6px; border-radius: 4px; }
+.ewz-qr-bild svg { display: block; width: 100%; height: auto; }
+.ewz-qr figcaption { font-size: 13px; color: var(--e-tinte2); margin-top: 8px; }
+.ewz-kein-qr { grid-column: 1 / -1; margin: 0; padding: 10px 14px; border: 1px solid var(--e-linie); border-left: 3px solid var(--e-akzent); border-radius: 4px; background: var(--e-flaeche); }
+.ewz-zahlwerte { margin: 0; display: grid; gap: 4px; }
+.ewz-kopie { display: grid; grid-template-columns: 140px 1fr; gap: 10px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--e-linie); }
+.ewz-kopie dt { color: var(--e-tinte3); font-size: 13px; }
+.ewz-kopie dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; min-width: 0; }
+.ewz-wert { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; color: #fff; }
+#erechnung .ewz-kopieren { padding: 4px 9px; font-size: 12.5px; color: var(--e-tinte2); background: transparent; border: 1px solid var(--e-linie); }
+#erechnung .ewz-kopieren:hover { border-color: var(--e-akzent); color: #fff; }
+.ewz-befunde { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ewz-befund { border: 1px solid var(--e-linie); border-left: 4px solid var(--e-tinte3); border-radius: 4px; padding: 10px 14px 6px; background: var(--e-flaeche); }
+.ewz-befund.ewz-fehler { border-left-color: var(--e-warn); }
+.ewz-befund.ewz-warnung { border-left-color: var(--e-gelb); }
+.ewz-befund p { margin: 0 0 6px; }
+.ewz-befund-kopf { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 13px; color: var(--e-tinte2); }
+.ewz-stufe { font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+.ewz-fehler .ewz-stufe { color: var(--e-warn); }
+.ewz-warnung .ewz-stufe { color: var(--e-gelb); }
+.ewz-regel, .ewz-feld { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.ewz-feld abbr { text-decoration: underline dotted; cursor: help; }
+.ewz-anzahl { color: var(--e-tinte3); }
+.ewz-befund details { margin: 2px 0 6px; font-size: 13px; }
+.ewz-befund summary { cursor: pointer; color: var(--e-tinte3); }
+.ewz-orig { color: var(--e-tinte2); }
+.ewz-ok-text { color: var(--e-ok); margin: 0 0 10px; }
+.ewz-befunde + .ewz-zweit { margin-top: 10px; }
+.ewz-anhaenge { margin: 0; padding-left: 18px; }
+.ewz-anhaenge li { margin-bottom: 6px; }
+.ewz-anhaenge .ewz-zweit { margin-left: 8px; padding: 5px 10px; }
+.ewz-aufbewahren { margin: 20px 0 4px; padding: 10px 14px; border: 1px dashed var(--e-linie); border-radius: 4px; font-size: 14px; color: var(--e-tinte2); }
+
+/* Das Blatt: lesbare Rechnung, hell */
+.ewz-blatt { --b-tinte: #1F1F1F; --b-leise: #5C5C5C; --b-linie: #DDD8EA; color: var(--b-tinte); background: #fff; border-radius: 4px; padding: 30px 32px 22px; font: 400 13.5px/1.5 var(--e-sans); }
+.ewz-blatt p, .ewz-blatt li, .ewz-blatt td, .ewz-blatt th, .ewz-blatt dd, .ewz-blatt dt { color: var(--b-tinte); }
+.ewz-blatt .ewz-klein { color: var(--b-leise); font-size: 12px; }
+.ewz-blatt .ewz-mini { color: #5B4B8A; }
+.ewz-blatt-kopf { display: grid; grid-template-columns: 1fr minmax(220px, 40%); gap: 20px 32px; }
+.ewz-titel .ewz-art { font: 400 26px/1.15 var(--e-serif); color: #2E1065 !important; margin: 0 0 8px; }
+.ewz-titel dl { display: grid; grid-template-columns: max-content 1fr; gap: 1px 12px; margin: 0; font-size: 13px; }
+.ewz-titel dt { color: var(--b-leise) !important; }
+.ewz-titel dd { margin: 0; overflow-wrap: anywhere; }
+.ewz-blatt-parteien { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 32px; margin: 22px 0 6px; }
+.ewz-partei p { margin: 0 0 4px; }
+.ewz-notizen { margin: 12px 0; padding: 8px 12px; background: #F6F4FB; border-radius: 3px; }
+.ewz-notizen p { margin: 0 0 4px; }
+.ewz-blatt table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ewz-blatt th { text-align: left; font: 500 10.5px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .1em; color: #5B4B8A !important; border-bottom: 1.5px solid #5B4B8A; padding: 6px 8px 5px 0; }
+.ewz-blatt td { border-bottom: 1px solid var(--b-linie); padding: 6px 8px 6px 0; vertical-align: top; }
+.ewz-pos { margin-top: 14px; }
+.ewz-pos tr.ewz-unter td { color: var(--b-leise); font-size: 12.5px; }
+.ewz-pos tr.ewz-unter td:nth-child(2) { padding-left: 14px; }
+.ewz-summen-reihe { display: flex; justify-content: flex-end; margin-top: 10px; }
+.ewz-summen { width: auto !important; min-width: 300px; }
+.ewz-summen th { text-transform: none; letter-spacing: 0; font: 400 13px/1.4 var(--e-sans); color: var(--b-tinte) !important; border-bottom: 1px solid var(--b-linie); padding-right: 24px; }
+.ewz-summen .ewz-stark th, .ewz-summen .ewz-stark td { font-weight: 700; border-top: 1.5px solid #5B4B8A; border-bottom: 0; font-size: 14px; }
+.ewz-steuer { margin-top: 18px; }
+.ewz-steuer caption { text-align: left; font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .14em; color: #5B4B8A; padding-bottom: 4px; }
+.ewz-blatt-fuss { margin-top: 18px; display: grid; gap: 8px; }
+.ewz-blatt-fuss p { margin: 0; }
+.ewz-ansicht-hinweis { border-top: 1px solid var(--b-linie); padding-top: 8px; }
+.ewz-blatt abbr { text-decoration: underline dotted; cursor: help; }
+.ewz-mit-bt [data-bt]::after { content: attr(data-bt); margin-left: 4px; padding: 0 4px; border-radius: 3px; background: #EDE9FE; color: #4C1D95; font: 500 9.5px/1.6 ui-monospace, Menlo, monospace; vertical-align: 1px; white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .ewz-abschnitt { grid-template-columns: 1fr; gap: 6px; }
+  .ewz-n { display: none; }
+  .ewz-uebersicht, .ewz-karte { padding: 16px 14px 12px; }
+  .ewz-zahlen { grid-template-columns: 1fr; }
+  .ewz-qr-bild { width: 200px; }
+  .ewz-kopie { grid-template-columns: 1fr; gap: 2px; }
+  .ewz-blatt { padding: 18px 14px 14px; }
+  .ewz-blatt-kopf { grid-template-columns: 1fr; }
+  .ewz-summen { min-width: 0; width: 100% !important; }
+  .ewz-urteil { font-size: 23px; }
+}
+
+/* Druck: nur die Rechnung mit Prüfergebnis, hell */
+#ewz-druck { display: none; }
+@media print {
+  body.ewz-druckt > *:not(#ewz-druck) { display: none !important; }
+  body.ewz-druckt { background: #fff !important; color: #000 !important; }
+  body.ewz-druckt #ewz-druck { display: block; color: #000; font: 400 11pt/1.45 "Helvetica Neue", Arial, sans-serif; }
+  #ewz-druck .ewz-blatt { padding: 0; border-radius: 0; }
+  #ewz-druck .ewz-druck-pruefung { break-before: page; margin-top: 12mm; }
+  #ewz-druck .ewz-antwort, #ewz-druck .ewz-befund { background: #fff; border-color: #bbb; color: #000; }
+  #ewz-druck .ewz-antwort *, #ewz-druck .ewz-befund *, #ewz-druck h3 { color: #000 !important; }
+  #ewz-druck .ewz-antwort.ewz-ja, #ewz-druck .ewz-befund { border-left-color: #666; }
+  #ewz-druck a { color: #000; text-decoration: none; }
+  #ewz-druck tr, #ewz-druck .ewz-befund { break-inside: avoid; }
+  #ewz-druck .ewz-spinner { display: none; }
+  @page { margin: 16mm 14mm; }
+}
