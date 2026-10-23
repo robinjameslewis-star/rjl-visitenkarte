@@ -6,7 +6,9 @@ Seite:   http://localhost:8788/?goch=http://localhost:8787/chat
 Prüfen:  GET /_sent liefert die „versendeten“ Nachrichten als JSON, GET /_last die letzte Anfrage.
 Sprechender Goch (23.10.2026): POST /listen nimmt ein WAV und liefert einen festen Text; /chat mit „stimme“ antwortet als
 NDJSON mit einem kurzen WAV-Ton als Stimme (KI-Hinweis bei „erste“). GET /_modus?stimme=ok|grenze|fehler&hoeren=ok|grenze|aus
-stellt das Verhalten um, GET /_listen und /_chats liefern, was ankam."""
+stellt das Verhalten um, GET /_listen und /_chats liefern, was ankam.
+Messegerät: /kiosk/chat, /kiosk/listen, /kiosk/figur und /kiosk/lebenszeichen wie der Worker; GET /_auth liefert die
+Authorization-Kopfzeilen, die ankamen (der lokale Dienst muss den Gerätenachweis mitschicken)."""
 import base64, io, json, math, struct, sys, urllib.parse, wave
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -17,6 +19,10 @@ LAST = {}  # zuletzt empfangener Anfragekörper, für Tests des Verlaufs
 CHATS = []  # alle Anfragekörper an /chat (Sprechender Goch: gesprochen, stimme, figur)
 LISTEN = []  # was an /listen ankam: Größe, Kopf, Sprache, Inhaltstyp
 MODUS = {'stimme': 'ok', 'hoeren': 'ok'}
+AUTH = []  # Authorization der Kiosk-Anfragen
+LEBENSZEICHEN = []
+KUNDE = {'id': 'kunde-test', 'sprachen': ['de', 'en'], 'name': {'de': 'Muster', 'en': 'Muster'}, 'rolle': {'de': 'der Empfang der Muster GmbH', 'en': 'the Muster Ltd front desk'},
+         'begruessung': {'de': 'Willkommen bei der Muster GmbH.', 'en': 'Welcome to Muster Ltd.'}, 'fragen': {'de': ['Was bieten Sie an?'], 'en': ['What do you offer?']}}
 KI = {'de': 'Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. ', 'en': "Just so you know: I'm an AI, and my voice is artificially generated. "}
 
 def ton(sekunden=0.6, hz=440):
@@ -90,6 +96,12 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == '/_contact': return self.reply(CONTACT)
         if self.path == '/_listen': return self.reply(LISTEN)
         if self.path == '/_chats': return self.reply(CHATS)
+        if self.path == '/_auth': return self.reply(AUTH)
+        if self.path == '/_lebenszeichen': return self.reply(LEBENSZEICHEN)
+        if self.path.startswith('/kiosk/figur'):
+            AUTH.append(self.headers.get('Authorization', ''))
+            fid = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('id', ['goch'])[0]
+            return self.reply(KUNDE if fid == 'kunde-test' else {'id': 'goch', 'texte': 'language.js'})
         if self.path.startswith('/_modus'):
             for k, v in urllib.parse.parse_qsl(urllib.parse.urlparse(self.path).query): MODUS[k] = v
             return self.reply(MODUS)
@@ -98,6 +110,12 @@ class Handler(BaseHTTPRequestHandler):
         self.reply({'error': 'Nicht gefunden.'}, 404)
 
     def do_POST(self):
+        if self.path.startswith('/kiosk/'):  # Messegerät: wie /chat und /listen, Nachweis merken
+            AUTH.append(self.headers.get('Authorization', ''))
+            if self.path == '/kiosk/lebenszeichen':
+                LEBENSZEICHEN.append(json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))) or b'{}'))
+                return self.reply({'ok': True})
+            self.path = self.path[len('/kiosk'):]
         if self.path == '/contact':  # Kontaktformular: prüfen wie der echte Worker, nur ohne Zeitprüfung und Versand
             try:
                 body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0)) or b'{}'))

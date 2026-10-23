@@ -37,6 +37,9 @@ MAX_STIMME_ZEICHEN_MONAT = "30000"   # vertonte Zeichen je Monat (Kostenbremse; 
 MAX_HOEREN_MINUTEN_TAG = "20"        # Audiominuten Spracheingabe je Tag
 MAX_HOEREN_PER_IP_PER_HOUR = "30"    # Aufnahmen je Besucher und Stunde (pro Worker-Instanz)
 SPRACH_MODEL = "claude-haiku-5-5"    # Ausgangswert für das schnellere Modell im Sprachmodus
+# Messegerät (23.10.2026): Kiosk-Route /kiosk/* mit Gerätenachweis aus der Redaktion („Messegeräte“). „an“ verlangt
+# zusätzlich ein Cloudflare-Client-Zertifikat (API Shield → mTLS für goch.robin.vision, im Dashboard einzurichten).
+KIOSK_MTLS = "aus"
 # Newsletter „Impulse und Werkzeuge“ über Brevo (src/newsletter.js). Aus, solange das Secret fehlt. Einrichten: siehe README, Abschnitt Newsletter.
 # Secret: npx wrangler secret put BREVO_API_KEY
 BREVO_LISTE_DE = "3"         # ID der Liste „Newsletter DE“ in Brevo (angelegt 15.10.2026)
@@ -57,6 +60,16 @@ SITE_URL = "https://robin.vision/"  # eigene Domain seit 21.09.2026 (GitHub Page
 [[kv_namespaces]]
 binding = "USAGE"
 id = "46e7ba80286c4ed1b701bb0c2fd3af30"
+
+# Messegerät: Tagesbudget je Gerät (Antworten, Sekunden Spracheingabe) als Durable Object (src/kiosk.js, Klasse Geraetebudget).
+# Wird mit dem nächsten Deploy angelegt (SQLite-Speicher, auch im kostenlosen Tarif).
+[[durable_objects.bindings]]
+name = "GERAETE"
+class_name = "Geraetebudget"
+
+[[migrations]]
+tag = "v1-geraetebudget"
+new_sqlite_classes = ["Geraetebudget"]
 
 # Anfragengrenze für die Anmeldung der Redaktion: 10 je Minute und Adresse, gezählt von Cloudflare ohne KV
 # (sonst könnte ein Skript mit Challenges das Schreibkontingent des KV aufbrauchen). Review 25.09.2026.

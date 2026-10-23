@@ -130,6 +130,8 @@ async def main():
             await send("Page.addScriptToEvaluateOnNewDocument", {"source": INSTRUMENT})
             await send("Emulation.setDeviceMetricsOverride", {"width": 1280, "height": 1100, "deviceScaleFactor": 1, "mobile": False})
             fake('/_modus?stimme=ok&hoeren=ok')
+            listen0, chats0 = len(fake('/_listen')), len(fake('/_chats'))  # andere Tests können die Attrappe schon benutzt haben
+            neu_listen = lambda: fake('/_listen')[listen0:]
 
             print("1. Vor jeder Handlung: kein Ton, kein Mikrofon, keine Anfrage; Zwitschern nur sichtbar, höchstens dreimal")
             await goto(BASE + q('&t=1'), wait=2)
@@ -144,7 +146,7 @@ async def main():
             check(await ev("+(document.getElementById('scene').dataset.zwitschern || 0)") == 3, "nicht öfter als dreimal je Besuch")
             zz = await z()
             check(zz['gum'] == 0 and zz['play'] == 0 and zz['start'] == 0 and zz['speak'] == 0 and zz['ctx'] == 0, "kein getUserMedia, kein Ton, kein AudioContext", zz)
-            check(fake('/_listen') == [] and not any('/listen' in u for _, u in requests) and fake('/_chats') == [], "keine Anfrage an /listen oder /chat")
+            check(neu_listen() == [] and not any('/listen' in u for _, u in requests) and len(fake('/_chats')) == chats0, "keine Anfrage an /listen oder /chat")
             check(extern() == [], "keine fremden Hosts", extern()[:3])
             check(await ev("!document.getElementById('privacy-goch-stimme').hidden"), "Datenschutzabsatz „Sprechen mit Goch“ sichtbar, wenn die Funktion an ist")
 
@@ -221,7 +223,7 @@ async def main():
             check('zu+lauscht' in await ev("__mund") or await ev("document.getElementById('scene').dataset.lauscht") == '1', "Lauschpose während der Aufnahme")
             await shot("04_aufnahme")
             await space(); await pump(2.5)
-            li = fake('/_listen')
+            li = neu_listen()
             check(len(li) == 1 and li[0]['kopf'] == 'RIFF' and li[0]['wave'] == 'WAVE' and li[0]['rate'] == 16000 and li[0]['typ'] == 'audio/wav' and li[0]['lang'] == 'de', "WAV (16 kHz) an /listen", li[-1:] )
             check(30000 <= li[0]['bytes'] - 44 <= 80000, "Länge passt zur Aufnahme (gut 1,5 s)", li[0]['bytes'])
             b = await ev(bubbles)
@@ -230,15 +232,15 @@ async def main():
             zz = await z()
             check(zz['offen'] == 0 and not await ev("document.getElementById('scene').dataset.lauscht"), "Mikrofon wieder zu, Lauschpose vorbei", zz)
             await real_click('#goch-mikro-knopf', hold=1.2); await pump(2)
-            check(len(fake('/_listen')) == 2, "Halten und Loslassen: zweite Aufnahme gesendet")
+            check(len(neu_listen()) == 2, "Halten und Loslassen: zweite Aufnahme gesendet")
             await real_click('#goch-mikro-knopf', hold=0.05); await pump(0.6)
             check(await ev("document.getElementById('goch-mikro-knopf').getAttribute('aria-pressed')") == 'true', "kurz getippt: Aufnahme läuft weiter")
             await real_click('#goch-mikro-knopf', hold=0.05); await pump(2)
-            check(len(fake('/_listen')) == 3, "erneut getippt: gesendet")
+            check(len(neu_listen()) == 3, "erneut getippt: gesendet")
 
             print("7. Höchstens 20 Sekunden")
             await ev("document.getElementById('goch-mikro-knopf').focus()"); await space(); await pump(21.5)
-            li = fake('/_listen')
+            li = neu_listen()
             check(len(li) == 4 and 19 * 32000 <= li[-1]['bytes'] - 44 <= 20.3 * 32000, "nach 20 s automatisch beendet und gesendet", li[-1]['bytes'])
             check((await z())['offen'] == 0, "Mikrofon danach zu")
 

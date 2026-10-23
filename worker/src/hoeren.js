@@ -46,7 +46,8 @@ function antwort(obj, status, cors) {
 }
 
 // settings: Betriebseinstellungen (settings.js); zaehler: eigener Zählerschlüssel, z. B. für das Kiosk-Gerätebudget.
-export async function handleListen(request, env, ctx, cors, settings, { zaehler = "hoeren:tag:", ipGrenze = true } = {}) {
+// zaehlen: false für das Messegerät – dort bucht src/kiosk.js die Sekunden im Gerätebudget.
+export async function handleListen(request, env, ctx, cors, settings, { zaehler = "hoeren:tag:", ipGrenze = true, zaehlen = true } = {}) {
   const sprache = settings.sprache || {};
   if (!sprache.hoeren || !env.AI) return antwort({ error: "Spracheingabe ist zurzeit ausgeschaltet." }, 503, cors);
   const lang = new URL(request.url).searchParams.get("lang") === "en" ? "en" : "de";
@@ -71,8 +72,8 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
   }
   const tagKey = zaehler + new Date(now).toISOString().slice(0, 10);
   let stand = { sekunden: 0, anfragen: 0, ms: 0 };
-  if (env.USAGE) try { stand = { ...stand, ...JSON.parse(await env.USAGE.get(tagKey)) }; } catch {}
-  if (stand.sekunden + dauer > (sprache.minutenTag || 0) * 60) return antwort({ text: "", grenze: true }, 200, cors);
+  if (env.USAGE && zaehlen) try { stand = { ...stand, ...JSON.parse(await env.USAGE.get(tagKey)) }; } catch {}
+  if (zaehlen && stand.sekunden + dauer > (sprache.minutenTag || 0) * 60) return antwort({ text: "", grenze: true }, 200, cors);
 
   const started = Date.now();
   let out;
@@ -87,7 +88,7 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
   let text = String(out && out.text || "").replace(/\s+/g, " ").trim();
   if (ERFUNDEN.test(text)) text = "";
   text = text.slice(0, +(env.MAX_INPUT_CHARS || 600));
-  if (env.USAGE) {
+  if (env.USAGE && zaehlen) {
     const next = { ...stand, sekunden: Math.round((stand.sekunden + dauer) * 10) / 10, anfragen: stand.anfragen + 1, ms: stand.ms + ms };
     ctx.waitUntil(env.USAGE.put(tagKey, JSON.stringify(next), { expirationTtl: 40 * 86400 }).catch(() => {}));
   }

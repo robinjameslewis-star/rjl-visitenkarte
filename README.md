@@ -750,6 +750,32 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   von `index.html` je ein `<img class="bird-frame bird-rest" data-pose="halb|offen|lauschen" … style="opacity:0">`
   ergänzen; `goch-stimme.js` wechselt dann das Bild statt zu neigen. Prüfen mit `node tools/figur-pruefen.mjs figuren/goch --html index.html`.
 
+### Messegerät (Kiosk)
+
+Einrichtung, Betrieb und Datenschutz am Gerät stehen in `kiosk/README.md`; Hinweisschild in `kiosk/hinweisschild.md`.
+
+- **Seite** `kiosk.html` + `kiosk.js`: derselbe Code wie die Website – `language.js` (Texte), `goch-audio.js` (Aufnahme als WAV,
+  Stimme, Pegel; seit 23.10.2026 auch von `goch-stimme.js` genutzt) und `figur.js` (lädt ein Figurenpaket: Posen am Auge
+  ausgerichtet oder ein Logo, das mit der Stimme pulsiert). Hochformat 1080 × 1920 und 2160 × 3840, große Figur, Gespräch als
+  Untertitel. Bedienung: Touch und ein USB-Taster (F13). Erster Druck zeigt den Hinweis, der zweite ist die Einwilligung;
+  nach 60 s ohne Aktivität ist alles zurückgesetzt. Nichts wird im Browser gespeichert. Läuft nur unter localhost.
+- **Lokaler Dienst** `kiosk/dienst/goch_kiosk.py` (Python, Standardbibliothek): liefert nur die Dateien des Kiosks aus
+  einem festen Commit aus, reicht `/kiosk/*` mit dem Gerätenachweis an den Worker weiter (der Nachweis liegt nur dort),
+  puffert ohne Netz bestätigte Nachrichten an Robin, meldet Radar (HLK-LD2410, `radar_ld2410.py`) und Netz als Ereignisse,
+  schickt Lebenszeichen. systemd mit Watchdog, Wächter für Chromium, Chromium-Richtlinien in `kiosk/chromium/`.
+- **Worker** `worker/src/kiosk.js`: `/kiosk/chat`, `/kiosk/listen`, `/kiosk/figur`, `/kiosk/lebenszeichen` mit
+  Geräteanmeldung (Nachweis aus der Redaktion, im KV nur als SHA-256; wahlweise Client-Zertifikat, `KIOSK_MTLS`).
+  Gerätebudget im Durable Object `Geraetebudget` statt der IP-Grenzen der Website. Kundenfiguren nur hier und nur für
+  freigegebene Geräte: eigener Systemprompt aus Persönlichkeit und Wissen der Redaktion, ohne Draht, Links und Newsletter,
+  Stimme mit ihrer eigenen `voiceId`. Goch am Gerät antwortet kürzer, ohne Links und ohne Newsletter-Feld.
+- **Redaktion:** Abschnitt „Messegeräte“ (Gerät anlegen, Nachweis einmal anzeigen oder erneuern, freigegebene Figuren,
+  Tagesbudget, Fingerabdruck des Zertifikats, Lebenszeichen und Verbrauch heute).
+- **Offline:** vorbereitete Antworten mit Stimme erzeugt `kiosk/dienst/offline_antworten.py` auf dem Gerät; sie bleiben dort.
+
+Deploy: Der nächste `npx wrangler deploy` legt das Durable Object an (Migration `v1-geraetebudget` in `wrangler.toml`).
+Prüfen: `node tests/kiosk_worker_test.mjs`, `python3 tests/kiosk_dienst_test.py`, `python3 tests/kiosk_test.py` (startet
+Dienst und Attrappe selbst; Bildschirmfotos im Hochformat).
+
 Prüfen: `python3 tests/goch_stimme_test.py http://localhost:8788/ http://localhost:8787` (Seite und
 `tests/goch_fake_worker.py` wie beim Goch-Test; Chromes Testmikrofon, 14 Gruppen: vor jeder Handlung, Öffnen, Einwilligung,
 Stimme, Grenze, Mikrofon, 20 s, Spracheingabe aus/Grenze, Beenden, reduzierte Bewegung, Englisch, ohne Schalter, Handy,

@@ -14,6 +14,7 @@ import * as cfg from "./settings.js";
 import * as fig from "./figuren.js";
 import { stimmeMonat, TTS_MODELLE } from "./stimme.js";
 import { hoerenTag } from "./hoeren.js";
+import * as kiosk from "./kiosk.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
@@ -67,6 +68,7 @@ export async function handleAdmin(request, env, ctx, deps) {
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
   if (api === "figuren") return figurenApi(request, env);
+  if (api === "geraete" || api === "geraete/geheimnis") return geraeteApi(api, request, env);
   if (api === "site") return siteApi(request, env);
   if (api.startsWith("landschaften")) return landscapesApi(api, request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
@@ -648,6 +650,18 @@ async function gochState(env) {
       keys: { elevenlabs: !!env.ELEVENLABS_API_KEY, ai: !!env.AI } } };
 }
 
+// Messegeräte (src/kiosk.js): Nachweis nur beim Anlegen oder Erneuern sichtbar, gespeichert nur als Hash
+async function geraeteApi(api, request, env) {
+  const liste = async () => Promise.all((await kiosk.geraete(env)).map(async g => ({ ...g, stand: env.GERAETE ? await kiosk.geraetStand(env, g.id) : null })));
+  try {
+    if (api === "geraete" && request.method === "GET") return json({ geraete: await liste(), mtls: env.KIOSK_MTLS === "an" });
+    if (api === "geraete" && request.method === "PUT") { const r = await kiosk.speichereGeraet(env, await readJson(request)); return json({ geraete: await liste(), token: r.token }); }
+    if (api === "geraete/geheimnis" && request.method === "POST") { const r = await kiosk.speichereGeraet(env, { id: (await readJson(request)).id }, true); return json({ geraete: await liste(), token: r.token }); }
+    if (api === "geraete" && request.method === "DELETE") { await kiosk.loescheGeraet(env, (await readJson(request)).id); return json({ geraete: await liste() }); }
+  } catch (e) { return json({ error: e.message }, 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
+
 // Figuren für Vorführungen (Kunden): nur KV, nie GitHub (src/figuren.js)
 async function figurenApi(request, env) {
   try {
@@ -870,6 +884,20 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button id="fgsave">Speichern</button><button class="quiet" id="fgclose">Schließen</button><button class="quiet" id="fgdelete" style="margin-left:auto;color:var(--warn)">Figur löschen</button><span class="msg" id="mF" style="margin-left:0;flex-basis:100%"></span></div>
 </div></section>
 
+<section id="mgsec"><h2>Messegeräte <span class="note">(Kiosk: Gerätenachweis, Tagesbudget, Lebenszeichen)</span></h2>
+<p class="note" style="margin:0 0 6px">Jedes Messegerät meldet sich mit einem eigenen Nachweis an. Er steht nur einmal hier und gehört auf dem Gerät in /etc/goch-kiosk/geraet.json (kiosk/README.md) – nie in den Browser, nie in eine E-Mail. Statt der Grenzen der Website gilt das Tagesbudget des Geräts; Stimme und Spracheingabe schalten die Schalter oben für Website und Geräte gemeinsam.</p>
+<ul class="q" id="mglist"></ul>
+<div class="bar"><button class="quiet" id="mgnew">Neues Gerät</button></div>
+<div id="mgedit" hidden style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+<div class="row"><div><label for="mgid">Kennung (z. B. messe-1)</label><input id="mgid" autocomplete="off"></div><div><label for="mgname">Name (z. B. „Stele Messe Stuttgart“)</label><input id="mgname"></div></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="mgan" style="width:auto;margin:0"> Gerät an (darf sich anmelden)</label>
+<label for="mgfiguren">Freigegebene Figuren <span class="note">(durch Komma getrennt: goch, kunde-…; * für alle)</span></label><input id="mgfiguren" autocomplete="off">
+<div class="row"><div><label for="mgantworten">Antworten je Tag</label><input id="mgantworten" type="number" min="0" max="5000"></div><div><label for="mgminuten">Minuten Spracheingabe je Tag</label><input id="mgminuten" type="number" min="0" max="1440"></div></div>
+<label for="mgzert">Fingerabdruck des Client-Zertifikats <span class="note">(SHA-256, nur wenn KIOSK_MTLS = „an“; leer = jedes gültige Zertifikat)</span></label><input id="mgzert" autocomplete="off">
+<p class="note" id="mgtoken" hidden style="font-family:ui-monospace,Menlo,monospace;color:var(--ink);background:#fff;border:1px solid var(--line);padding:10px;border-radius:6px;word-break:break-all"></p>
+<div class="bar"><button id="mgsave">Speichern</button><button class="quiet" id="mgrotate">Neuen Nachweis erzeugen</button><button class="quiet" id="mgclose">Schließen</button><button class="quiet" id="mgdelete" style="margin-left:auto;color:var(--warn)">Gerät löschen</button><span class="msg" id="mMG" style="margin-left:0;flex-basis:100%"></span></div>
+</div></section>
+
 <section><h2>Goch – Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
 <div class="stat"><b id="month">–</b><span>Antworten in 30 Tagen</span></div>
@@ -1065,6 +1093,20 @@ $('fgsave').onclick=async()=>{const per=k=>Object.fromEntries(['de','en'].map(l=
  try{const r=await api('figuren','PUT',body);renderFiguren(r);fgOpen(r.figuren.find(f=>f.id===body.id));say('mF','Gespeichert – das Messegerät holt die Figur beim nächsten Gespräch.',true);}catch(e){say('mF',e.message);}};
 $('fgdelete').onclick=async()=>{if(!fEdit||!confirm('Figur „'+fEdit.id+'“ löschen? Das Messegerät kann sie danach nicht mehr laden.'))return;try{const r=await api('figuren','DELETE',{id:fEdit.id});renderFiguren(r);$('fgedit').hidden=true;}catch(e){say('mF',e.message);}};
 api('figuren').then(d=>d&&renderFiguren(d)).catch(e=>{$('fglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
+// ---- Messegeräte (Kiosk, 23.10.2026) ----
+let MG=[],mgEdit=null;
+function renderGeraete(d){MG=d.geraete||[];$('mglist').innerHTML=MG.length?MG.map(g=>{const s=g.stand||{},l=s.lebenszeichen,h=s.heute||{};return '<li><b>'+esc(g.name)+'</b> <span class="note">'+esc(g.id)+' · '+(g.an?'an':'aus')+' · Figuren: '+esc(g.figuren.join(', '))+' · heute '+(h.antworten||0)+' von '+g.antwortenTag+' Antworten, '+Math.round((h.sekunden||0)/60)+' von '+g.minutenTag+' Min. · '+(l?'Lebenszeichen '+fmt(l.at)+(l.online===false?' (offline)':'')+(l.commit?', Stand '+esc(String(l.commit).slice(0,7)):'')+(l.puffer?', '+l.puffer+' Nachricht(en) gepuffert':''):'noch kein Lebenszeichen')+'</span> <button class="quiet" data-mg="'+esc(g.id)+'">Bearbeiten</button></li>';}).join(''):'<li class="note">Noch kein Messegerät.</li>';}
+function mgOpen(g){mgEdit=g||null;const v=g||{id:'messe-',name:'',an:true,figuren:['goch'],antwortenTag:300,minutenTag:60,zertifikat:''};
+ $('mgedit').hidden=false;$('mgid').value=v.id;$('mgid').disabled=!!g;$('mgname').value=v.name;$('mgan').checked=v.an!==false;$('mgfiguren').value=v.figuren.join(', ');$('mgantworten').value=v.antwortenTag;$('mgminuten').value=v.minutenTag;$('mgzert').value=v.zertifikat||'';$('mgdelete').hidden=!g;$('mgrotate').hidden=!g;$('mgtoken').hidden=true;}
+function mgToken(t){if(!t)return;$('mgtoken').hidden=false;$('mgtoken').textContent='Gerätenachweis – nur jetzt sichtbar, auf dem Gerät in /etc/goch-kiosk/geraet.json eintragen: '+t;}
+$('mglist').onclick=e=>{const b=e.target.closest('button[data-mg]');if(b){mgOpen(MG.find(g=>g.id===b.dataset.mg));$('mgedit').scrollIntoView({block:'start'});}};
+$('mgnew').onclick=()=>{mgOpen(null);$('mgid').focus();};
+$('mgclose').onclick=()=>{$('mgedit').hidden=true;};
+$('mgsave').onclick=async()=>{const body={id:$('mgid').value.trim().toLowerCase(),name:$('mgname').value,an:$('mgan').checked,figuren:$('mgfiguren').value.split(',').map(x=>x.trim()).filter(Boolean),antwortenTag:+$('mgantworten').value,minutenTag:+$('mgminuten').value,zertifikat:$('mgzert').value};
+ try{const r=await api('geraete','PUT',body);renderGeraete(r);mgOpen(r.geraete.find(g=>g.id===body.id));mgToken(r.token);say('mMG','Gespeichert.',true);}catch(e){say('mMG',e.message);}};
+$('mgrotate').onclick=async()=>{if(!mgEdit||!confirm('Neuen Nachweis erzeugen? Der alte gilt sofort nicht mehr – das Gerät braucht dann den neuen.'))return;try{const r=await api('geraete/geheimnis','POST',{id:mgEdit.id});renderGeraete(r);mgToken(r.token);}catch(e){say('mMG',e.message);}};
+$('mgdelete').onclick=async()=>{if(!mgEdit||!confirm('Gerät „'+mgEdit.name+'“ löschen? Es kann sich danach nicht mehr anmelden.'))return;try{const r=await api('geraete','DELETE',{id:mgEdit.id});renderGeraete(r);$('mgedit').hidden=true;}catch(e){say('mMG',e.message);}};
+api('geraete').then(d=>d&&renderGeraete(d)).catch(e=>{$('mglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
 // ---- Blog ----
 let B=null,editing=null;
 function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;

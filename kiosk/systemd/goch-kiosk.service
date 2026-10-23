@@ -1,0 +1,24 @@
+# Lokaler Dienst des Messegeräts (kiosk/dienst/goch_kiosk.py): Seite, Weiterleitung an den Worker, Radar, Lebenszeichen.
+# systemd startet ihn neu, wenn er abstürzt oder sich 60 s nicht meldet (Watchdog).
+[Unit]
+Description=Goch Messegerät – lokaler Dienst
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=goch
+Group=goch
+SupplementaryGroups=dialout
+ExecStart=/usr/bin/python3 /opt/goch-kiosk/seite/kiosk/dienst/goch_kiosk.py --seite /opt/goch-kiosk/seite --figuren /var/lib/goch-kiosk/figuren --daten /var/lib/goch-kiosk --geraet /etc/goch-kiosk/geraet.json --konfiguration /etc/goch-kiosk/konfiguration.json --port 8080
+Restart=always
+RestartSec=3
+WatchdogSec=60
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/goch-kiosk
+
+[Install]
+WantedBy=multi-user.target

@@ -10,7 +10,8 @@
   const t = key => language.t(key);
   const $ = id => document.getElementById(id);
   const scene = $('scene'), panel = $('goch'), log = $('goch-log'), form = $('goch-form'), input = $('goch-input');
-  if (!scene || !panel || !window.Goch || scene.dataset.chat !== 'on') return;
+  if (!scene || !panel || !window.Goch || !window.GochAudio || scene.dataset.chat !== 'on') return;
+  const A = window.GochAudio; // Tonbausteine, gemeinsam mit dem Messegerät (goch-audio.js)
   const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   // Testschalter nur lokal, wie ?goch= in goch.js; bleibt im Tab erhalten (sessionStorage).
   function testwert(name) {
@@ -31,8 +32,7 @@
 
   let erlaubt = false;           // Einwilligung dieses Besuchs, nur im Speicher
   let mikroAn = false, lautAn = false, schonGesprochen = false, wartet = null;
-  let ctx = null;                // AudioContext, erst nach einer Berührung (iOS/Safari)
-  let quelle = null, sprichtBrowser = false, aufnahme = null, startet = false;
+  let aufnahme = null, startet = false;
 
   const say = text => { const p = document.createElement('p'); p.className = 'goch-bubble goch-goch'; p.textContent = text; log.append(p); log.scrollTop = log.scrollHeight; };
   const meldung = text => { status.textContent = text || ''; };
@@ -58,77 +58,23 @@
     else { delete scene.dataset.lauscht; zeige('rest'); }
   }
 
-  // ---------- Ton ----------
-  function audio() {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!ctx && Ctx) ctx = new Ctx();
-    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
-    return ctx;
-  }
-  // iOS/Safari: Ton und Sprachausgabe nur, wenn sie in einer Berührung freigeschaltet wurden.
-  function entsperren() {
-    audio();
-    if ('speechSynthesis' in window && !entsperren.sprache) {
-      entsperren.sprache = true;
-      try { const u = new SpeechSynthesisUtterance(''); u.volume = 0; speechSynthesis.speak(u); } catch (_) {}
-    }
-  }
-  function schweigen() {
-    if (quelle) { try { quelle.stop(); } catch (_) {} quelle = null; }
-    if (sprichtBrowser && 'speechSynthesis' in window) speechSynthesis.cancel();
-    sprichtBrowser = false;
-    mund('zu');
-  }
-  function schnabel(analyser, src) {
-    if (ruhig.matches) return;
-    const daten = new Float32Array(analyser.fftSize);
-    let weich = 0;
-    const schritt = () => {
-      if (quelle !== src) return;
-      analyser.getFloatTimeDomainData(daten);
-      let summe = 0;
-      for (const v of daten) summe += v * v;
-      weich = weich * .55 + Math.sqrt(summe / daten.length) * .45;
-      mund(weich > .09 ? 'offen' : weich > .025 ? 'halb' : 'zu');
-      requestAnimationFrame(schritt);
-    };
-    requestAnimationFrame(schritt);
-  }
+  // ---------- Ton (goch-audio.js) ----------
+  const entsperren = A.entsperren;
+  function schweigen() { A.schweigen(); mund('zu'); }
   async function abspielen(stimme) {
-    const c = audio();
-    if (!c) return false;
-    try {
-      const bytes = Uint8Array.from(atob(stimme.daten), ch => ch.charCodeAt(0));
-      const puffer = await c.decodeAudioData(bytes.buffer);
-      if (!lautAn || panel.hidden) return true;
-      schweigen();
-      const src = c.createBufferSource(), analyser = c.createAnalyser();
-      analyser.fftSize = 512;
-      src.buffer = puffer;
-      src.connect(analyser); analyser.connect(c.destination);
-      quelle = src;
-      src.onended = () => { if (quelle === src) { quelle = null; mund('zu'); } };
-      src.start();
-      schnabel(analyser, src);
-      return true;
-    } catch (_) { return false; }
+    if (!lautAn || panel.hidden) return true;
+    let weich = 0;
+    return A.abspielen(stimme.daten, {
+      pegel: rms => { weich = weich * .55 + rms * .45; mund(weich > .09 ? 'offen' : weich > .025 ? 'halb' : 'zu'); },
+      ende: () => mund('zu'),
+    });
   }
-  // Rückfall ohne Stimme vom Server: nur lokale Stimmen des Geräts – Online-Stimmen (z. B. „Google Deutsch“) würden den
-  // Text an einen weiteren Dienst schicken.
   function browserStimme(text) {
-    if (!('speechSynthesis' in window) || !text) return;
-    const lang = language.current === 'en' ? 'en' : 'de';
-    const stimmen = speechSynthesis.getVoices().filter(v => v.localService && v.lang.toLowerCase().startsWith(lang));
-    const stimme = stimmen.find(v => /GB/i.test(v.lang)) || stimmen[0];
-    if (!stimme) return;
-    schweigen();
-    const u = new SpeechSynthesisUtterance(text);
-    u.voice = stimme; u.lang = stimme.lang;
     let zu = 0;
-    u.onboundary = () => { mund('offen'); clearTimeout(zu); zu = setTimeout(() => mund('halb'), 110); };
-    u.onend = u.onerror = () => { sprichtBrowser = false; clearTimeout(zu); mund('zu'); };
-    sprichtBrowser = true;
-    speechSynthesis.speak(u);
+    A.browserStimme(text, language.current === 'en' ? 'en' : 'de', {
+      wort: () => { mund('offen'); clearTimeout(zu); zu = setTimeout(() => mund('halb'), 110); },
+      ende: () => { clearTimeout(zu); mund('zu'); },
+    });
   }
 
   // ---------- Anfrage und Antwort (aus goch.js) ----------
@@ -217,79 +163,43 @@
     if (aufnahme || startet || !mikroAn) return;
     startet = true;
     schweigen();
-    const c = audio();
-    let stream;
+    let a;
     try {
-      if (!c || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('kein Mikrofon');
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+      a = await A.aufnahme({ pegel: spitze => { pegelBalken.style.width = Math.min(100, Math.round(spitze * 140)) + '%'; } });
     } catch (_) {
       startet = false; mikroAn = false; aktualisieren(); meldung(t('gochMikroVerweigert'));
       return;
     }
     startet = false;
-    if (!mikroAn || panel.hidden) { stream.getTracks().forEach(tr => tr.stop()); return; }
-    const src = c.createMediaStreamSource(stream), analyser = c.createAnalyser(), proc = c.createScriptProcessor(4096, 1, 1), still = c.createGain();
-    still.gain.value = 0; // der Prozessor braucht einen Ausgang; hörbar wird nichts
-    analyser.fftSize = 1024;
-    const teile = [];
-    proc.onaudioprocess = e => { if (aufnahme && aufnahme.proc === proc) teile.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
-    src.connect(analyser); src.connect(proc); proc.connect(still); still.connect(c.destination);
-    aufnahme = { stream, src, proc, still, analyser, teile, rate: c.sampleRate, start: performance.now() };
-    aufnahme.timer = setTimeout(() => stoppeAufnahme(true), MAX_MS);
+    if (!mikroAn || panel.hidden) { a.abbrechen(); return; }
+    aufnahme = a;
+    a.timer = setTimeout(() => stoppeAufnahme(true), MAX_MS);
     knopf.setAttribute('aria-pressed', 'true');
     lauschen(true);
-    pegel(aufnahme);
-  }
-  function pegel(a) {
-    const daten = new Float32Array(a.analyser.fftSize);
-    const schritt = () => {
-      if (aufnahme !== a) { pegelBalken.style.width = '0'; return; }
-      a.analyser.getFloatTimeDomainData(daten);
-      let spitze = 0;
-      for (const v of daten) spitze = Math.max(spitze, Math.abs(v));
-      pegelBalken.style.width = Math.min(100, Math.round(spitze * 140)) + '%';
-      const rest = Math.max(0, Math.ceil((MAX_MS - (performance.now() - a.start)) / 1000));
-      const text = t('gochMikroHoert').replace('{s}', rest);
+    const restzeit = () => {
+      if (aufnahme !== a) return;
+      const text = t('gochMikroHoert').replace('{s}', Math.max(0, Math.ceil(MAX_MS / 1000 - a.dauer())));
       if (status.textContent !== text) meldung(text);
-      requestAnimationFrame(schritt);
+      requestAnimationFrame(restzeit);
     };
-    requestAnimationFrame(schritt);
-  }
-  function wav(teile, rate) {
-    const ziel = 16000, verhaeltnis = rate / ziel;
-    const laenge = teile.reduce((n, a) => n + a.length, 0), alle = new Float32Array(laenge);
-    let pos = 0;
-    for (const a of teile) { alle.set(a, pos); pos += a.length; }
-    const n = Math.floor(laenge / verhaeltnis), b = new DataView(new ArrayBuffer(44 + n * 2));
-    const text = (o, s) => [...s].forEach((ch, i) => b.setUint8(o + i, ch.charCodeAt(0)));
-    text(0, 'RIFF'); b.setUint32(4, 36 + n * 2, true); text(8, 'WAVEfmt '); b.setUint32(16, 16, true); b.setUint16(20, 1, true); b.setUint16(22, 1, true);
-    b.setUint32(24, ziel, true); b.setUint32(28, ziel * 2, true); b.setUint16(32, 2, true); b.setUint16(34, 16, true); text(36, 'data'); b.setUint32(40, n * 2, true);
-    for (let i = 0; i < n; i++) { // Mittelwert je Zielabtastung: einfacher Tiefpass gegen Aliasing
-      const von = Math.floor(i * verhaeltnis), bis = Math.max(von + 1, Math.floor((i + 1) * verhaeltnis));
-      let s = 0;
-      for (let j = von; j < bis; j++) s += alle[j];
-      const v = Math.max(-1, Math.min(1, s / (bis - von)));
-      b.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7fff, true);
-    }
-    return new Blob([b.buffer], { type: 'audio/wav' });
+    requestAnimationFrame(restzeit);
   }
   async function stoppeAufnahme(senden) {
     const a = aufnahme;
     if (!a) return;
     aufnahme = null;
     clearTimeout(a.timer);
-    [a.proc, a.src, a.still].forEach(n => { try { n.disconnect(); } catch (_) {} });
-    a.stream.getTracks().forEach(tr => tr.stop());
+    const dauer = a.dauer(), daten = senden ? a.stopp() : (a.abbrechen(), null);
     knopf.setAttribute('aria-pressed', 'false');
     lauschen(false);
     pegelBalken.style.width = '0';
     if (!senden) { meldung(''); return; }
-    if ((performance.now() - a.start) / 1000 < .4) { meldung(t('gochMikroKurz')); return; }
+    if (dauer < .4) { meldung(t('gochMikroKurz')); return; }
     meldung(t('gochMikroErkennen'));
     let d = {};
     try {
       const r = await fetch(listenEndpunkt + '?lang=' + (language.current === 'en' ? 'en' : 'de'),
-        { method: 'POST', headers: { 'content-type': 'audio/wav' }, body: wav(a.teile, a.rate) });
+        { method: 'POST', headers: { 'content-type': 'audio/wav' }, body: daten });
       d = await r.json().catch(() => ({}));
       if (r.status === 503) { mikroAn = false; aktualisieren(); meldung(t('gochMikroAusgeschaltet')); input.focus(); return; }
       if (!r.ok) { meldung(t('gochMikroFehler')); return; }
