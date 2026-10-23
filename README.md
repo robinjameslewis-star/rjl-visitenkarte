@@ -678,6 +678,43 @@ python3 tests/figur_bildvergleich.py http://127.0.0.1:8791 http://127.0.0.1:8792
 Ergebnis am 23.10.2026 gegen `main` (b49edec): 16 von 16 Ansichten identisch oder höchstens eine Farbstufe abweichend
 (Rauschen der Papierkachel, das Chrome auch bei zwei Aufnahmen derselben Seite zeigt).
 
+## Sprechender Goch (23.10.2026, Entwurf – noch nicht veröffentlicht)
+
+Auftrag Robin, 23.10.2026: Goch spricht auf der Startseite, aber erst, wenn ein Besucher das bewusst einschaltet; ein
+sichtbares Zwitschern macht dezent darauf aufmerksam; dazu ein Kiosk-Modus für ein Messegerät. Keine Kamera, keine
+Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker, Startseite, Kiosk).
+
+### Worker: Spracheingabe, Stimme, Figur-ID
+
+- **`POST /listen?lang=de|en`** (`worker/src/hoeren.js`): ein WAV (PCM 16 Bit, mono, höchstens 20 s). Die Seite wandelt jede
+  Aufnahme selbst in WAV um – so kommt jedes Browserformat gleich an, und die Dauer steht exakt im Kopf. Erkennung mit
+  Whisper large-v3-turbo über Workers AI (Bindung `AI`), Begriffe wie robin.vision und SmartFormular als Kontext; was
+  Whisper bei Stille erfindet („Untertitel im Auftrag …“), gilt als leer. Nichts wird gespeichert, gezählt werden nur
+  Sekunden je Tag. Der erkannte Text erscheint als Besuchertext und läuft über `/chat` – Draht, Newsletter, Links und
+  Grenzen bleiben unverändert.
+- **Stimme** (`worker/src/stimme.js`): `/chat` mit `stimme` antwortet als NDJSON – Zeile 1 die Antwort wie immer (die Seite
+  zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Vertont wird nur diese eigene Antwort;
+  eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
+  sonst aus `figur.json`); bei `aus` oder `fehler` liest die Seite mit einer lokalen Browserstimme vor.
+- **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
+  Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
+- **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus
+  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Antwortzeiten von Modell und Stimme werden je
+  Monat gezählt und in der Redaktion gezeigt.
+- **Kostenbremsen:** vertonte Zeichen je Monat (`MAX_STIMME_ZEICHEN_MONAT`, 30.000) und Audiominuten je Tag
+  (`MAX_HOEREN_MINUTEN_TAG`, 20), eigene Zähler im KV (`stimme:monat:…`, `hoeren:tag:…`, je ein Schreibzugriff). Ist
+  eine Grenze erreicht, antwortet Goch nur als Text bzw. bietet Tippen an – ohne Fehlermeldung; Robin bekommt einmal im
+  Monat eine E-Mail.
+- **Figur-ID:** `/chat` nimmt `figur`; öffentlich gilt nur `goch` (`worker/src/figuren.js`), alles andere ergibt 400 –
+  auch eine Kundenfigur, die im KV liegt.
+- **Redaktion:** Abschnitt „Goch – Stimme und Spracheingabe“ (Schalter, Modell im Sprachmodus, Stimmmodell, Voice ID,
+  Grenzen, Zähler, Antwortzeiten) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
+  Persönlichkeit, Wissen, Quellen, Voice ID, Tagesgrenze – nur im KV, nie GitHub). Beides ist ab Werk aus.
+
+Deploy (Robin, lokal): `cd worker && npx wrangler secret put ELEVENLABS_API_KEY`, dann `npx wrangler deploy`; danach in
+der Redaktion Voice ID eintragen und einschalten. Prüfen: `node tests/goch_stimme_test.mjs` (Workers AI, ElevenLabs,
+Anthropic und Resend abgefangen), `node tests/bundle_check.mjs`, `python3 tests/admin_test.py` gegen `node tests/admin_fake.mjs 8789`.
+
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 
 GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy
