@@ -308,6 +308,19 @@ export const CONTENT = {
     join: f => werkzeugSeite(f, "booking-batch-generator"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
+  // SmartFormular E-Rechnung lite (23.10.2026): Seite mit dem Werkzeug selbst, Texte wie bei FiBu lite
+  werkzeugEr: {
+    path: werkzeugPfad("e-rechnung-pruefen"), title: "Werkzeug „E-Rechnung lite“",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f, "e-rechnung-pruefen"),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
+  },
+  werkzeugErEn: {
+    path: werkzeugPfad("e-invoice-viewer"), title: "Werkzeug „E-Rechnung lite“ (englisch)",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f, "e-invoice-viewer"),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
+  },
 };
 
 async function state(env, deps) {
@@ -353,7 +366,7 @@ async function save(key, request, env, deps, session) {
     await gh.putFile(env, c.path, md, `Dashboard: ${c.title} – ${summary}`, current && current.sha);
     await cache(env, key, md, session.email);
     // Werkzeugseiten: „Was ist neu“ steht auch im Newsletter-Feed – Feeds (und Sitemap) gleich mit neu schreiben
-    if (key === "werkzeug" || key === "werkzeugEn") await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
+    if (/^werkzeug/.test(key)) await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
   } catch (e) { return json({ error: e.message }, 502); }
   return json(await state(env, deps));
 }
@@ -841,7 +854,8 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
-${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
+${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"],
+  ["R", "E-Rechnung lite", "e-rechnung-pruefen", "Hinweis auf Englisch"], ["RE", "E-Rechnung lite (englische Seite)", "e-invoice-viewer", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
 <p class="note" id="wdatei${x}"></p>
 <label for="wbeschr${x}">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr${x}" style="min-height:320px"></textarea>
 <label for="wneu${x}">Was ist neu <span class="note">(je Fassung eine Überschrift „### Fassung a1b2c3d vom 15.10.2026“ bzw. „### Version a1b2c3d, 15 October 2026“, darunter Stichpunkte; die neueste zuerst – sie steht auch im Newsletter)</span></label><textarea id="wneu${x}" style="min-height:160px"></textarea>
@@ -1169,7 +1183,7 @@ function addRow(r={}){const tr=document.createElement('tr');tr.innerHTML=['id','
 function rows(){return [...$('rows').querySelectorAll('tr')].map(tr=>Object.fromEntries([...tr.querySelectorAll('input')].map(i=>[i.dataset.k,i.value])));}
 $('addRow').onclick=()=>addRow();
 async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
-const WK=[['','werkzeug'],['E','werkzeugEn']],WD={};
+const WK=[['','werkzeug'],['E','werkzeugEn'],['R','werkzeugEr'],['RE','werkzeugErEn']],WD={};
 for(const [x,key] of WK){
  $('saveW'+x).onclick=()=>{if(confirm('Texte der Werkzeug-Seite jetzt veröffentlichen?'))publish(key,'mW'+x,{beschreibung:$('wbeschr'+x).value,neuigkeiten:$('wneu'+x).value,nutzung:$('wnutz'+x).value,hinweis:$('wen'+x).value,datei:WD[x]});};
  $('prevW'+x).onclick=async()=>{if(!confirm('Vorige Fassung der Werkzeug-Seite wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/'+key,'POST'));say('mW'+x,'Vorige Fassung ist live.',true);}catch(e){say('mW'+x,e.message);}};}

@@ -30,7 +30,21 @@ export const WERKZEUGE = [
     seitentitel: "SmartFormular FiBu lite (Booking Batch Generator): convert bank statement PDFs into DATEV booking batches – free, offline",
     meta: "Free tool: convert bank statements in PDF format, scans included, into booking batches in the DATEV format (EXTF). Runs offline in your browser, no upload, no sign-up – for the days when the bank feed is down.",
     untertitel: "The Booking Batch Generator: bank statement PDF → booking batch in the DATEV format (EXTF), offline in your browser" },
+  // Seit 23.10.2026: läuft direkt auf der Seite (app: Oberfläche aus assets/erechnung/, Quelle tools/erechnung/), dazu die Datei offline
+  { id: "e-rechnung-pruefen", lang: "de", titel: "SmartFormular E-Rechnung lite", datei: "E-Rechnung-lite.html", gegenstueck: "e-invoice-viewer", app: "erechnung",
+    kurz: "Ist das eine E-Rechnung, was steht drin, was fehlt? XRechnung oder ZUGFeRD hineinziehen: lesbar ansehen, mit den offiziellen Regeln prüfen, per GiroCode bezahlen. Im Browser, ohne Upload.",
+    seitentitel: "E-Rechnung prüfen: XRechnung öffnen und anzeigen, ZUGFeRD prüfen – kostenlos, ohne Upload | SmartFormular E-Rechnung lite",
+    meta: "E-Rechnung prüfen und lesen: XRechnung öffnen und anzeigen, ZUGFeRD prüfen, Fehler verständlich erklärt, GiroCode zum Bezahlen. Mit den offiziellen Regeln von CEN und KoSIT – kostenlos, im Browser, ohne Upload.",
+    untertitel: "E-Rechnungen verstehen und bezahlen: XRechnung und ZUGFeRD lesen, mit den offiziellen Regeln prüfen, per GiroCode zahlen – direkt im Browser, ohne Upload" },
+  { id: "e-invoice-viewer", lang: "en", titel: "SmartFormular E-Rechnung lite", datei: "E-Invoice-Viewer.html", gegenstueck: "e-rechnung-pruefen", app: "erechnung",
+    kurz: "Is it an e-invoice, what does it say, what is missing? Drop in an XRechnung or ZUGFeRD invoice to read it, check it against the official rules and pay it by GiroCode. In your browser, no upload.",
+    seitentitel: "E-invoice viewer and validator: open XRechnung, check ZUGFeRD – free, no upload | SmartFormular E-Rechnung lite",
+    meta: "E-invoice viewer and validator: open and read XRechnung, check ZUGFeRD, errors explained in plain words, GiroCode to pay. Using the official CEN and KoSIT rules – free, in your browser, no upload.",
+    untertitel: "E-invoice viewer and validator: read XRechnung and ZUGFeRD, check them against the official rules, pay by GiroCode – in your browser, no upload" },
 ];
+// Bild zum Teilen (og:image, 1200 × 630) je Werkzeug und Sprache; erzeugt mit tools/erechnung/teilen-bilder.mjs
+export const TEILEN_BILD = { "buchungsstapel-generator": "assets/teilen-fibu-lite.jpg", "booking-batch-generator": "assets/teilen-fibu-lite-en.jpg",
+  "e-rechnung-pruefen": "assets/teilen-e-rechnung-lite.jpg", "e-invoice-viewer": "assets/teilen-e-rechnung-lite-en.jpg" };
 export const werkzeug = id => WERKZEUGE.find(w => w.id === id);
 
 // Fragen und Antworten je Werkzeug (16.10.2026): sichtbar auf der Seite und als FAQPage für Suchmaschinen. Fest im Code, nicht in der Redaktion.
@@ -51,6 +65,38 @@ export const FRAGEN = {
     ["How do I import the booking batch into DATEV?", "Through the import for booking batches in the DATEV format (in DATEV Kanzlei-Rechnungswesen under Bestand → Importieren). Other accounting software with a DATEV import reads the file as well. Test it with a test client first and check every batch before finalising it."],
     ["What does the Booking Batch Generator cost?", "Nothing. Download without sign-up, use in your firm or company permitted; the terms of use on this page apply. There is no entitlement to updates or support."],
   ],
+  // Rechtliche Antworten mit Fundstelle und Stand (Robin, 23.10.2026); bei neuen BMF-Schreiben anpassen (wie tools/erechnung/src/recht.js)
+  "e-rechnung-pruefen": [
+    ["Wie öffne ich eine XRechnung?", "Ziehen Sie die XML-Datei oben in das Feld. SmartFormular E-Rechnung lite zeigt die Rechnung sofort lesbar an – Rechnungssteller, Empfänger, Positionen, Steuer, Summen und Zahlungsangaben – und Sie können sie drucken. Ein eigenes Programm brauchen Sie nicht; die Datei wird nicht hochgeladen."],
+    ["Woran erkenne ich, ob eine Rechnung eine E-Rechnung ist?", "Eine E-Rechnung ist eine Rechnung in einem strukturierten elektronischen Format, das eine elektronische Verarbeitung ermöglicht (§ 14 Abs. 1 Satz 3 UStG). Formate nach der europäischen Norm EN 16931 wie XRechnung sind immer zulässig. Ein PDF ohne eingebettete Rechnungsdaten oder ein Foto ist keine E-Rechnung, sondern eine sonstige Rechnung (Abschnitt 14.1 Abs. 2 UStAE). Das Werkzeug sagt Ihnen das für jede Datei und nennt die Fundstelle. Stand: 23.10.2026."],
+    ["Ist eine ZUGFeRD-Rechnung eine E-Rechnung?", "Ja, ab ZUGFeRD 2.0.1 – außer in den Profilen MINIMUM und BASIC WL; diese enthalten nicht alle Rechnungsangaben (Abschnitt 14.1 Abs. 14 UStAE, gefasst durch das BMF-Schreiben vom 15.10.2025). Das Werkzeug liest die im PDF eingebetteten Daten aus, zeigt Profil und Fassung und prüft sie. Maßgeblich sind die eingebetteten Daten, nicht das sichtbare PDF."],
+    ["Die Prüfung meldet Fehler – ist das dann keine E-Rechnung?", "Nicht unbedingt. Ein Verstoß gegen eine Geschäftsregel ist kein Formatfehler: Umsatzsteuerlich bleibt die Datei grundsätzlich eine E-Rechnung, technisch entspricht sie aber nicht der EN 16931 (BMF-Schreiben vom 15.10.2026, Rn. 22 und 23). Betrifft der Fehler eine Pflichtangabe nach § 14 Abs. 4 UStG, ist die Rechnung nicht ordnungsgemäß. Das Werkzeug zeigt je Befund, welches Feld betroffen ist und was der Rechnungssteller ändern muss; im Zweifel klären Sie es mit Ihrer Steuerberatung."],
+    ["Wie genau prüft das Werkzeug?", "Mit denselben Regeln wie der Prüfer der KoSIT: den Geschäftsregeln der EN 16931 von CEN und den Regeln der XRechnung, unverändert aus der KoSIT-Konfiguration übernommen. Bei jeder neuen Fassung wird das Ergebnis an Tausenden Testrechnungen mit der offiziellen Prüfung außerhalb des Browsers verglichen; die Regelnummern müssen übereinstimmen. Nicht geprüft wird das XML-Schema, also der formale Aufbau der Datei, und ob die Angaben inhaltlich stimmen, etwa der Steuersatz."],
+    ["Werden meine Rechnungen hochgeladen?", "Nein. Die Dateien werden nur in Ihrem Browserfenster gelesen und geprüft. Von robin.vision werden lediglich das Werkzeug und die Prüfregeln geladen; Rechnungsdaten gehen nirgendwohin. Die Datei zum Herunterladen läuft ganz ohne Internet."],
+    ["Was ist ein GiroCode?", "Ein QR-Code für Überweisungen nach dem Standard des European Payments Council. Viele Banking-Apps lesen ihn: Empfänger, IBAN, Betrag und Verwendungszweck werden übernommen, Sie prüfen und senden ab. Das Werkzeug zeigt ihn nur, wenn die IBAN gültig ist, der Betrag in Euro und größer als null ist und als Zahlungsart Überweisung angegeben ist – sonst sagt es, warum nicht."],
+    ["Was kostet SmartFormular E-Rechnung lite?", "Nichts. Nutzung auf dieser Seite und als Datei, ohne Anmeldung, auch in Kanzlei und Unternehmen; es gelten die Nutzungsbedingungen auf dieser Seite. Ein Anspruch auf Aktualisierungen oder Unterstützung besteht nicht."],
+  ],
+  "e-invoice-viewer": [
+    ["How do I open an XRechnung?", "Drag the XML file into the box above. SmartFormular E-Rechnung lite shows the invoice in readable form straight away – issuer, recipient, lines, VAT, totals and payment details – and you can print it. You need no separate software; the file is not uploaded."],
+    ["How can I tell whether an invoice is an e-invoice?", "Under German VAT law an e-invoice is an invoice in a structured electronic format that allows electronic processing (section 14(1) sentence 3 UStG). Formats that follow the European standard EN 16931, such as XRechnung, are always permitted. A PDF without embedded invoice data, or a photo, is not an e-invoice but an \"other invoice\" (section 14.1(2) UStAE). The tool tells you this for every file and names the source. As of 23 October 2026."],
+    ["Is a ZUGFeRD invoice an e-invoice?", "Yes, from ZUGFeRD 2.0.1 – except for the MINIMUM and BASIC WL profiles, which do not contain all invoice details (section 14.1(14) UStAE, as amended by the Federal Ministry of Finance letter of 15 October 2025). The tool reads the data embedded in the PDF, shows profile and version and checks it. The embedded data counts, not the visible PDF."],
+    ["The check reports errors – does that mean it is not an e-invoice?", "Not necessarily. A breach of a business rule is not a format error: for VAT purposes the file generally remains an e-invoice, though technically it does not conform to EN 16931 (Federal Ministry of Finance letter of 15 October 2026, paras. 22 and 23). If the error concerns a mandatory detail under section 14(4) UStG, the invoice is not in proper form. For each finding the tool shows the field concerned and what the issuer needs to change; if in doubt, check with your tax adviser."],
+    ["How accurate is the check?", "It uses the same rules as the KoSIT validator: the EN 16931 business rules from CEN and the XRechnung rules, taken unchanged from the KoSIT configuration. With every new version the results are compared with the official validation outside the browser on thousands of test invoices; the rule numbers must match. Not checked are the XML schema, the formal structure of the file, and whether the details are correct, such as the VAT rate."],
+    ["Are my invoices uploaded?", "No. The files are read and checked only in your browser window. Only the tool and the validation rules are loaded from robin.vision; no invoice data goes anywhere. The downloadable file works without any internet connection."],
+    ["What is a GiroCode?", "A QR code for credit transfers following the European Payments Council standard. Many banking apps read it: payee, IBAN, amount and reference are filled in, and you check and send. The tool only shows it if the IBAN is valid, the amount is in euros and above zero, and credit transfer is given as the payment means – otherwise it says why not."],
+    ["What does SmartFormular E-Rechnung lite cost?", "Nothing. Use it on this page and as a file, without sign-up, in your firm or company too; the terms of use on this page apply. There is no entitlement to updates or support."],
+  ],
+};
+// „Was kommt“ je Werkzeug
+const AUSBLICK = {
+  fibu: {
+    de: "FiBu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel des Monats – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten; <strong>SmartFormular Deklaration</strong> ist das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet. Beta-Zugang im Memberbereich auf Anfrage.",
+    en: "FiBu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular FiBu</strong> turns bank statements and documents into the checked booking batch of the month – for bank, payables and receivables, linked to your open items; <strong>SmartFormular Deklaration</strong> is the working paper for year-end accounts that thinks ahead and does the groundwork. Beta access in the member area on request.",
+  },
+  erechnung: {
+    de: "E-Rechnung lite liest und prüft E-Rechnungen. <strong>SmartFormular FiBu</strong> geht weiter: Es liest Rechnungen als PDF oder E-Rechnung, ordnet sie den Zahlungen auf dem Kontoauszug zu und macht daraus den geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren. Kostenlos gibt es außerdem <strong>FiBu lite</strong> für Kontoauszüge. Beta-Zugang zu FiBu im Memberbereich auf Anfrage.",
+    en: "E-Rechnung lite reads and checks e-invoices. <strong>SmartFormular FiBu</strong> goes further: it reads invoices as PDF or e-invoice, matches them to the payments on the bank statement and turns them into the checked booking batch – for bank, payables and receivables. <strong>FiBu lite</strong> for bank statements is free as well. Beta access to FiBu in the member area on request.",
+  },
 };
 export const werkzeugPfad = id => `werkzeuge/${id}/index.html`;
 export const werkzeugUrl = id => `${SITE}werkzeuge/${id}/`;
@@ -117,7 +163,7 @@ const datumText = (iso, lang) => {
 
 // Gemeinsamer Rahmen der Werkzeugseiten und der Seite „Über mich“ (ueber_mich.js): Seitenkopf (kopf.js) mit Wortmarke, Seiten,
 // Termin und Menü, Fuß, Newsletter-Skript; css ergänzt die Stile der Seite, aktiv markiert den Menüpunkt dieser Seite
-export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, alternates = [], head = "", css = "", main, aktiv = null }) {
+export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, alternates = [], head = "", css = "", main, aktiv = null, bild = "" }) {
   const andere = (alternates.find(a => a.lang !== lang) || {}).href || "";
   const t = T[lang];
   return `<!doctype html>
@@ -137,7 +183,7 @@ ${alternates.map(a => `<link rel="alternate" hreflang="${a.lang}" href="${a.href
 <meta property="og:description" content="${esc(beschr)}">
 <meta property="og:locale" content="${lang === "en" ? "en_GB" : "de_DE"}">
 <meta property="og:url" content="${canonical}">
-<meta name="twitter:card" content="summary">
+${bild ? `<meta property="og:image" content="${SITE}${bild}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta name="twitter:card" content="summary_large_image">` : `<meta name="twitter:card" content="summary">`}
 <style>
 @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("${up}assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
 :root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
@@ -229,18 +275,18 @@ ${kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "kennz")}
 <h1>${esc(w.titel)}</h1>
 ${w.untertitel ? `<p class="untertitel">${esc(w.untertitel)}</p>\n` : ""}<p class="meta">${t.frei} · ${stand}</p>
 ${renderMarkdown(einleitung, "", lang)}
-<div class="download" id="download">
+${w.app ? appAbschnitt(w, lang, up, datei.fassung) : ""}<div class="download" id="download">
 <a class="knopf" href="${esc(datei.name)}" download="${esc(datei.name)}">${t.laden} (${mb} MB)</a>
 <dl><dt>${t.datei}</dt><dd>${esc(datei.name)}</dd><dt>${t.fassung}</dt><dd>${esc(datei.fassung)} ${t.vom} ${datumText(datei.datum, lang)}</dd>
 <dt>SHA-256</dt><dd><code>${esc(datei.sha256)}</code></dd></dl>
-<p class="meta hinweis">${t.agb}</p>
+${w.app ? `<p class="hinweis">${APP[lang].offline}</p>\n` : ""}<p class="meta hinweis">${t.agb}</p>
 </div>
 ${newsletterKasten(lang, up, "werkzeug")}
 ${rest.length ? renderMarkdown(rest.join("\n"), "", lang) : ""}
 ${neu ? `<h2 id="neu">${t.neu}</h2>\n<div class="neuigkeiten">\n${neuigkeiten(neu).map(e => `<h3 id="fassung-${esc(e.fassung || e.datum)}">${esc(e.titel)}</h3>\n${renderMarkdown(e.text, "", lang)}`).join("\n")}\n</div>` : ""}
 ${fragen.length ? `<h2 id="fragen">${t.fragen}</h2>\n<div class="fragen">\n${fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}\n</div>` : ""}
 <h2 id="ausblick">${t.ausblick}</h2>
-<p>${lang === "en" ? "FiBu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular FiBu</strong> turns bank statements and documents into the checked booking batch of the month – for bank, payables and receivables, linked to your open items; <strong>SmartFormular Deklaration</strong> is the working paper for year-end accounts that thinks ahead and does the groundwork. Beta access in the member area on request." : "FiBu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel des Monats – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten; <strong>SmartFormular Deklaration</strong> ist das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet. Beta-Zugang im Memberbereich auf Anfrage."}
+<p>${AUSBLICK[w.app || "fibu"][lang]}
 <a href="${up}${T[lang].sfHref}#beta">${lang === "en" ? "Request beta access" : "Beta-Zugang anfragen"}</a>.</p>
 <h2 id="nutzungsbedingungen">${t.nutzung}</h2>
 <div class="nutzung">
@@ -253,7 +299,8 @@ ${renderMarkdown(hinweis, "", andereLang)}
 </article>`;
   // Strukturierte Daten für Suchmaschinen: kostenlose Browser-Anwendung mit Fassung, Datum, Größe und Nutzungsbedingungen
   const jsonld = JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: w.titel, description: w.kurz, url: werkzeugUrl(id),
-    applicationCategory: "BusinessApplication", operatingSystem: "Windows, macOS, Linux (Browser: Edge, Chrome)", inLanguage: lang,
+    applicationCategory: "BusinessApplication", operatingSystem: w.app ? "Web browser (Chrome, Edge, Firefox, Safari)" : "Windows, macOS, Linux (Browser: Edge, Chrome)", inLanguage: lang,
+    ...(w.app ? { featureList: APP[lang].funktionen } : {}),
     softwareVersion: datei.fassung, datePublished: datei.datum, fileSize: `${(datei.bytes / 1e6).toFixed(1)} MB`, downloadUrl: werkzeugUrl(id) + datei.name,
     isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" }, license: werkzeugUrl(id) + "#nutzungsbedingungen",
     author: { "@type": "Person", name: "Robin James Lewis", url: SITE } }).replace(/</g, "\\u003c");
@@ -261,8 +308,30 @@ ${renderMarkdown(hinweis, "", andereLang)}
     mainEntity: fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c") : "";
   return rahmen({ lang, up, titel: w.titel, seitentitel: w.seitentitel, beschr: w.meta || (lang === "en" ? "Free tool: " : "Kostenloses Werkzeug: ") + w.kurz, canonical: werkzeugUrl(id),
     alternates: anderes ? [{ lang, href: werkzeugUrl(id) }, { lang: anderes.lang, href: werkzeugUrl(anderes.id) }] : [],
-    head: `<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main: `<p class="sf-marke">Smart<span>Formular</span></p>` + main, aktiv: "tools", css: SF_CSS + "\n" + KENNZ_CSS });
+    head: `${w.app ? appKopf(up, datei.fassung) : ""}<script type="application/json" id="werkzeug-daten">${daten}</script>\n<script type="application/ld+json">${jsonld}</script>\n${faq ? `<script type="application/ld+json">${faq}</script>\n` : ""}`, main: `<p class="sf-marke">Smart<span>Formular</span></p>` + main, aktiv: "tools",
+    css: SF_CSS + "\n" + KENNZ_CSS + (w.app ? "\n" + APP_CSS : ""), bild: TEILEN_BILD[id] || "" });
 }
+
+// Werkzeug direkt auf der Seite (app): Oberfläche und Prüfkern aus assets/erechnung/ (gebaut aus tools/erechnung/), Fassung als ?v=.
+// Eine Content-Security-Policy erlaubt Skripte und Verbindungen nur zu robin.vision selbst (und Gochs Newsletter-Endpunkt).
+const APP = {
+  de: { offline: "Dasselbe Werkzeug als einzelne Datei: läuft ohne Internet, auch als lokale Datei – zum Beispiel für Rechner ohne Netzzugang.",
+    ohneSkript: "Das Werkzeug braucht JavaScript. Ohne JavaScript laden Sie es unten als Datei herunter.", rahmen: "Werkzeug: E-Rechnung prüfen",
+    funktionen: ["XRechnung (UBL, CII) und ZUGFeRD/Factur-X lesen", "Antwort „Ist das eine E-Rechnung?“ mit Fundstelle", "Prüfung mit den Regeln der EN 16931 und der XRechnung", "Befunde mit verständlicher Erklärung", "GiroCode zum Bezahlen", "Druckansicht und Prüfbericht", "läuft im Browser, ohne Upload"] },
+  en: { offline: "The same tool as a single file: it works without the internet, also as a local file – on computers without network access, for example.",
+    ohneSkript: "The tool needs JavaScript. Without JavaScript, download it as a file below.", rahmen: "Tool: check an e-invoice",
+    funktionen: ["Read XRechnung (UBL, CII) and ZUGFeRD/Factur-X", "Answer to \"Is this an e-invoice?\" with legal source", "Check against the EN 16931 and XRechnung rules", "Findings explained in plain words", "GiroCode to pay", "Print view and check report", "Runs in the browser, no upload"] },
+};
+const APP_CSS = `.ewz-rahmen { margin: 26px 0 34px; }
+@media (min-width: 1100px) { .ewz-rahmen { width: min(1060px, calc(100vw - 96px)); margin-left: 50%; transform: translateX(-50%); } }`;
+const appKopf = (up, fassung) => `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://goch.robin.vision; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<link rel="stylesheet" href="${up}assets/erechnung/app.css?v=${fassung}">
+<script src="${up}assets/erechnung/app.js?v=${fassung}" defer></script>
+`;
+const appAbschnitt = (w, lang, up, fassung) => `<section class="ewz-rahmen" id="werkzeug" aria-label="${esc(APP[lang].rahmen)}">
+<div id="erechnung" data-lang="${lang}" data-basis="${up}assets/erechnung/" data-fassung="${esc(fassung)}"><noscript><p>${esc(APP[lang].ohneSkript)}</p></noscript></div>
+</section>
+`;
 
 // Übersicht je Sprache: alle Werkzeuge dieser Sprache mit Stand der Datei (felder: id → Felder der Seite)
 // Erscheinungsbild SmartFormular „Nacht und Violett“ (Robin 29.09.2026, #77 im Member-Repo; seit 17.10.2026 auch der Bereich auf der Website)

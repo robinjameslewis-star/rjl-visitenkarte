@@ -13,6 +13,7 @@ const TEXT = {
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     produkte: [
       { name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – kostenlos, offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
+      { name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – kostenlos, im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
       { name: "FiBu", text: "Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.", bereich: "Rechnungswesen", href: "werkzeuge/smartformular/#fibu" },
       { name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#deklaration" },
     ],
@@ -22,6 +23,7 @@ const TEXT = {
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     produkte: [
       { name: "FiBu lite", text: "Bank statements into booking batches – free, offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
+      { name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – free, in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
       { name: "FiBu", text: "Post bank, payables and receivables – linked to your open items.", bereich: "Accounting", href: "werkzeuge/smartformular/en/#fibu" },
       { name: "Deklaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#deklaration" },
     ],
