@@ -85,8 +85,9 @@ def vertonen(text, lang):
                                          headers={'xi-api-key': schluessel, 'content-type': 'application/json', 'accept': 'audio/mpeg'})
         try:
             with urllib.request.urlopen(anfrage, timeout=30) as r: return 'audio/mpeg', base64.b64encode(r.read()).decode()
-        except Exception as fehler:
-            print('ElevenLabs:', str(fehler)[:200], flush=True); return None
+        except Exception as fehler:  # mit dem Grund von ElevenLabs (z. B. Stimme nur im bezahlten Tarif)
+            grund = fehler.read().decode('utf-8', 'replace')[:300] if hasattr(fehler, 'read') else ''
+            print('ElevenLabs:', str(fehler)[:120], grund, flush=True); return None
     return 'audio/wav', TON
 
 SENT = []
