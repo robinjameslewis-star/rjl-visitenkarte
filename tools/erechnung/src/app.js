@@ -361,13 +361,13 @@ ${partei(d.verkaeufer, t.von, "BT-27")}
 </header>
 <div class="ewz-blatt-parteien">${partei(d.kaeufer, t.an, "BT-44")}${d.lieferung && (d.lieferung.name || d.lieferung.anschrift) ? partei({ name: d.lieferung.name, anschrift: d.lieferung.anschrift }, t.lieferung, "BT-70") : ""}${d.zahlungsempfaenger && d.zahlungsempfaenger.name ? partei(d.zahlungsempfaenger, t.zahlungsempfaenger, "BT-59") : ""}</div>
 ${d.notizen.length ? `<div class="ewz-notizen"><p class="ewz-mini">${t.bemerkungen}</p>${d.notizen.map(n => `<p>${bt("BT-22", esc(n).replace(/\n/g, "<br>"))}</p>`).join("")}</div>` : ""}
-<div class="ewz-tabelle"><table class="ewz-pos"><thead><tr><th scope="col">${t.pos}</th><th scope="col">${t.artikel}</th><th scope="col" class="ewz-z">${t.menge}</th><th scope="col">${t.einheit}</th><th scope="col" class="ewz-z">${t.preis}</th><th scope="col" class="ewz-z">${t.ust}</th><th scope="col" class="ewz-z">${t.netto}</th></tr></thead><tbody>${pos}</tbody></table></div>
+<div class="ewz-tabelle" tabindex="0" role="group" aria-label="${esc(t.tabPositionen)}"><table class="ewz-pos"><thead><tr><th scope="col">${t.pos}</th><th scope="col">${t.artikel}</th><th scope="col" class="ewz-z">${t.menge}</th><th scope="col">${t.einheit}</th><th scope="col" class="ewz-z">${t.preis}</th><th scope="col" class="ewz-z">${t.ust}</th><th scope="col" class="ewz-z">${t.netto}</th></tr></thead><tbody>${pos}</tbody></table></div>
 <div class="ewz-summen-reihe">
 <table class="ewz-summen"><tbody>
 ${sz(t.summePos, s.positionen, "BT-106")}${doks}${sz(t.nettoGesamt, s.netto, "BT-109")}${sz(t.ustGesamt, s.steuer, "BT-110")}${sz(t.brutto, s.brutto, "BT-112")}${sz(t.gezahlt, s.gezahlt, "BT-113")}${sz(t.rundung, s.rundung, "BT-114")}${sz(t.zuZahlen, s.zahlbetrag, "BT-115", true)}
 ${s.steuerInSteuerwaehrung && s.steuerInSteuerwaehrung.wert != null ? `<tr><th scope="row">${t.ustGesamt} (${esc(s.steuerInSteuerwaehrung.waehrung || d.steuerwaehrung)})</th><td class="ewz-z">${geld(s.steuerInSteuerwaehrung.wert, s.steuerInSteuerwaehrung.waehrung || d.steuerwaehrung)}</td></tr>` : ""}
 </tbody></table></div>
-${steuern ? `<div class="ewz-tabelle"><table class="ewz-steuer"><caption>${t.steuer}</caption><thead><tr><th scope="col">${t.kategorie}</th><th scope="col" class="ewz-z">${t.satz}</th><th scope="col" class="ewz-z">${t.basis}</th><th scope="col" class="ewz-z">${t.steuer}</th><th scope="col">${t.befreiung}</th></tr></thead><tbody>${steuern}</tbody></table></div>` : ""}
+${steuern ? `<div class="ewz-tabelle" tabindex="0" role="group" aria-label="${esc(t.tabSteuer)}"><table class="ewz-steuer"><caption>${t.steuer}</caption><thead><tr><th scope="col">${t.kategorie}</th><th scope="col" class="ewz-z">${t.satz}</th><th scope="col" class="ewz-z">${t.basis}</th><th scope="col" class="ewz-z">${t.steuer}</th><th scope="col">${t.befreiung}</th></tr></thead><tbody>${steuern}</tbody></table></div>` : ""}
 <div class="ewz-blatt-fuss">
 ${zahlarten.length ? `<p><span class="ewz-mini">${t.zahlungsart}</span><br>${zahlarten.map(esc).join("<br>")}</p>` : ""}
 ${d.bedingungen ? `<p><span class="ewz-mini">${t.bedingungen}</span><br>${bt("BT-20", bedingungenText(d.bedingungen, w))}</p>` : ""}
@@ -391,9 +391,9 @@ function anhaengeHtml(e) {
 // ---------- Karte je Datei ----------
 function karte(e) {
   const rechnung = e.art === "rechnung" && e.daten && !e.daten.fehler;
-  const abschnitt = (id, titel, inhalt, teil) => inhalt ? `<section class="ewz-teil" aria-labelledby="ewz-${id}${e.nr}"${teil ? ` data-teil="${teil}"` : ""}><h3 id="ewz-${id}${e.nr}">${titel}</h3>${inhalt}</section>` : "";
+  const abschnitt = (id, titel, inhalt, teil) => inhalt ? `<section class="ewz-teil" aria-labelledby="ewz-${id}${e.nr} ewz-dn${e.nr}"${teil ? ` data-teil="${teil}"` : ""}><h3 id="ewz-${id}${e.nr}">${titel}</h3>${inhalt}</section>` : "";
   return `<section class="ewz-karte" id="ewz-k${e.nr}" aria-labelledby="ewz-t${e.nr}" data-nr="${e.nr}">
-<div class="ewz-karte-kopf"><h2 id="ewz-t${e.nr}"><span class="ewz-dateiname">${esc(e.name)}</span> <span class="ewz-klein">${groesse(e.groesse)}</span></h2>
+<div class="ewz-karte-kopf"><h2 id="ewz-t${e.nr}"><span class="ewz-dateiname" id="ewz-dn${e.nr}">${esc(e.name)}</span> <span class="ewz-klein">${groesse(e.groesse)}</span></h2>
 <div class="ewz-knoepfe">${rechnung ? `<button type="button" class="ewz-haupt" data-aktion="drucken">${t.drucken}</button><button type="button" class="ewz-zweit" data-aktion="bericht">${t.bericht}</button><label class="ewz-check"><input type="checkbox" data-aktion="bt"> ${t.btZeigen}</label>` : ""}<button type="button" class="ewz-zweit" data-aktion="entfernen" aria-label="${esc(`${t.schliessen}: ${e.name}`)}">${t.schliessen}</button></div></div>
 ${antwortHtml(e)}
 ${rechnung ? abschnitt("z", t.abschnittZahlen, zahlenHtml(e)) : ""}
@@ -421,7 +421,7 @@ function uebersichtZeichnen() {
     return `<tr><td><a href="#ewz-k${e.nr}">${esc(e.name)}</a></td><td>${urteil}</td><td>${esc(bef)}</td><td class="ewz-z">${zb}</td></tr>`;
   };
   uebersicht.innerHTML = `<section class="ewz-uebersicht" aria-labelledby="ewz-ue"><div class="ewz-karte-kopf"><h2 id="ewz-ue">${t.uebersicht}</h2><div class="ewz-knoepfe"><button type="button" class="ewz-zweit" data-aktion="alle-entfernen">${t.alleEntfernen}</button></div></div>
-<div class="ewz-tabelle"><table><thead><tr><th scope="col">${t.datei}</th><th scope="col">${t.eRechnung}</th><th scope="col">${t.befunde}</th><th scope="col" class="ewz-z">${t.zahlbetrag}</th></tr></thead><tbody>${eintraege.map(zeile).join("")}</tbody></table></div></section>`;
+<div class="ewz-tabelle" tabindex="0" role="group" aria-label="${esc(t.uebersicht)}"><table><thead><tr><th scope="col">${t.datei}</th><th scope="col">${t.eRechnung}</th><th scope="col">${t.befunde}</th><th scope="col" class="ewz-z">${t.zahlbetrag}</th></tr></thead><tbody>${eintraege.map(zeile).join("")}</tbody></table></div></section>`;
 }
 
 // ---------- Druck und Bericht ----------

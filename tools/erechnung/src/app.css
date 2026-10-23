@@ -48,6 +48,7 @@
 .ewz-dateiname { font: 400 22px/1.3 var(--e-serif); color: #fff; }
 .ewz-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .ewz-tabelle { overflow-x: auto; }
+.ewz-tabelle:focus-visible { outline: 2px solid var(--e-akzent); outline-offset: 2px; }
 .ewz-uebersicht table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .ewz-uebersicht th { text-align: left; font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .12em; color: var(--e-tinte2); border-bottom: 1px solid var(--e-akzent); padding: 6px 10px 6px 0; }
 .ewz-uebersicht td { border-bottom: 1px solid var(--e-linie); padding: 7px 10px 7px 0; }
@@ -160,6 +161,8 @@
   .ewz-blatt-kopf { grid-template-columns: 1fr; }
   .ewz-summen { min-width: 0; width: 100% !important; }
   .ewz-urteil { font-size: 23px; }
+  .ewz-format { grid-template-columns: 1fr; gap: 0; }
+  .ewz-format dt { font-size: 12.5px; margin-top: 6px; }
 }
 
 /* Druck: nur die Rechnung mit Prüfergebnis, hell */
