@@ -5,8 +5,7 @@ import { T, ARTEN, ZAHLUNGSARTEN, EINHEITEN, GUTSCHRIFTEN } from "./texte.js";
 import { ANTWORT, ZUSATZ, Q, STAND } from "./recht.js";
 import { dateiLesen } from "./lesen.js";
 import { erklaeren, STEUERKATEGORIE } from "./regeltexte.js";
-import { feld } from "./felder.js";
-import { zahlung, qrSvg, ibanLesbar } from "./girocode.js";
+import { zahlung, qrSvg, ibanLesbar, ibanGueltig } from "./girocode.js";
 import META from "./generiert/meta.json";
 
 /* global __FASSUNG__ */
@@ -40,6 +39,13 @@ const groesse = b => b < 1024 ? `${b} B` : b < 1048576 ? `${zahl(b / 1024, 0)} K
 const bt = (id, inhalt) => `<span data-bt="${id}">${inhalt}</span>`;
 const quellenHtml = keys => keys.length ? `<p class="ewz-quellen">${t.quellen}: ${keys.map(k => `<a href="${esc(Q[k][2])}" target="_blank" rel="noopener">${esc(Q[k][lang === "en" ? 1 : 0])}</a>`).join("; ")}.</p>` : "";
 const pause = () => new Promise(r => setTimeout(r, 0));
+// Profilnamen kommen deutsch aus lesen.js; auf Englisch übersetzen
+const PROFIL_EN = [["Profil", "profile"], ["mit Erweiterung (Extension)", "with extension"], ["(saubere Fahrzeuge)", "(clean vehicles)"], ["ältere Fassung", "older version"],
+  ["andere Umsetzung der EN 16931", "other implementation of EN 16931"], ["unbekannte Kennung", "unknown identifier"], ["ohne Kennung", "no identifier"], ["(Kern-Datenmodell)", "(core data model)"]];
+const profilName = p => lang === "en" ? PROFIL_EN.reduce((n, [a, b]) => n.replace(a, b), p.name) : p.name;
+let waehrungen = null;
+const waehrungName = c => { try { waehrungen ||= new Intl.DisplayNames([L], { type: "currency" }); const n = waehrungen.of(c); return n && n !== c ? `${n} (${c})` : c; } catch { return c; } };
+const istGutschrift = d => zahlung(d).grund === "gutschrift-dokument";
 
 // ---------- Gerüst ----------
 wurzel.innerHTML = `
@@ -177,11 +183,12 @@ function formatZeilen(e) {
   if (e.art !== "rechnung") return "";
   const f = e.format, p = f.profil;
   const syntax = f.syntax === "ubl" ? `UBL 2.1 (${f.wurzel})` : "UN/CEFACT CII (D16B)";
-  const zeilen = [[t.format, esc(p.name)], [t.syntax, esc(syntax)]];
+  const zeilen = [[t.syntax, esc(syntax)]];
   if (e.herkunft === "pdf") zeilen.push([lang === "en" ? "Embedded as" : "Eingebettet als", esc(e.pdf.xmlName || "XML")]);
   zeilen.push([t.kennung, `<code>${esc(f.kennung || "–")}</code>`]);
   if (e.pdf && e.pdf.xmp && e.pdf.xmp.profil) zeilen.push([lang === "en" ? "Profile in PDF metadata" : "Profil in den PDF-Metadaten", esc(e.pdf.xmp.profil)]);
-  return `<dl class="ewz-format">${zeilen.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+  return `<dl class="ewz-format"><dt>${t.format}</dt><dd>${esc(profilName(p))}</dd></dl>
+<details class="ewz-technik"><summary>${t.technischeAngaben}</summary><dl class="ewz-format">${zeilen.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></details>`;
 }
 function pruefZeile(e) {
   const pr = e.pruefung;
@@ -192,7 +199,7 @@ function pruefZeile(e) {
   const text = [pr.fehler.length ? `${t.formatfehler} (${formatWerte(pr.fehler).length})` : "", z.fehler || z.warnung || z.hinweis ? t.zaehler(z.fehler, z.warnung, z.hinweis) : pr.fehler.length ? "" : t.keineFehler].filter(Boolean).join(", ");
   const regeln = ersetze(e.format.saetze.some(s => s.startsWith("xrechnung")) ? t.regeln : t.regelnNur, { stand: datum(META.stand) });
   return `<p class="ewz-pruefstand ${pr.fehler.length ? "ewz-rot" : z.fehler ? "ewz-gelb" : "ewz-gruen"}"><strong>${t.pruefung}:</strong> ${esc(text)} <a href="#ewz-b${e.nr}">${lang === "en" ? "Details" : "Einzelheiten"}</a></p>
-<p class="ewz-klein">${esc(regeln)}</p>`;
+<p class="ewz-klein">${esc(regeln)} ${esc(t.nichtGeprueftText)}</p>`;
 }
 function antwortHtml(e) {
   const a = antwort(e);
@@ -203,9 +210,9 @@ function antwortHtml(e) {
   }
   const [kopf, satz] = a[lang];
   const klasse = a.urteil === "nein" ? "ewz-nein" : a.urteil === "eingeschraenkt" ? "ewz-unklar" : z.fehler ? "ewz-gelb" : "ewz-ja";
-  const formatName = e.art === "rechnung" ? e.format.profil.name : "";
+  const formatName = e.art === "rechnung" ? profilName(e.format.profil) : "";
   let zusatz = "";
-  if (e.art === "xml-fremd") zusatz = `<p>${esc(ersetze(t.art["xml-fremd"][1], { dokument: t.xmlFremd(e.format.dokument || "?", e.format.namespace || "") }))}</p>`;
+  if (e.art === "xml-fremd") zusatz = `<p>${esc(ersetze(t.art["xml-fremd"][1], { dokument: t.xmlFremd(e.format.dokument || "?") }))}</p>`;
   else if (e.art === "xml-defekt") zusatz = `<p>${esc(t.art["xml-defekt"][1])}</p>`;
   else if (e.art === "xml-dtd") zusatz = `<p>${esc(t.art["xml-dtd"][1])}</p>`;
   let hinweise = "";
@@ -213,17 +220,18 @@ function antwortHtml(e) {
     if (fertig && z.fehler && a.urteil === "ja") hinweise += `<p class="ewz-zusatz">${esc(ZUSATZ.geschaeftsregel[lang])}</p>${quellenHtml(ZUSATZ.geschaeftsregel.quellen)}`;
     if (e.format.profil.alt) hinweise += `<p class="ewz-zusatz">${esc(ZUSATZ.altXR[lang])}</p>`;
     else if (!e.format.szenario && e.format.saetze.length && e.format.profil.id !== "en16931") hinweise += `<p class="ewz-zusatz">${esc(ZUSATZ.ohneSzenario[lang])}</p>`;
-    if (e.herkunft === "pdf") hinweise += `<p class="ewz-zusatz">${esc(ZUSATZ.hybrid[lang])}</p>${quellenHtml(ZUSATZ.hybrid.quellen)}`;
+    if (e.herkunft === "pdf" && a.urteil !== "nein") hinweise += `<p class="ewz-zusatz">${esc(ZUSATZ.hybrid[lang])}</p>${quellenHtml(ZUSATZ.hybrid.quellen)}`;
   }
+  if (a.urteil === "nein" && a !== ANTWORT.keineRechnung) hinweise += `<p class="ewz-zusatz">${esc(ZUSATZ.sonstige[lang])}</p>${quellenHtml(ZUSATZ.sonstige.quellen)}`;
   return `<div class="ewz-antwort ${klasse}" data-teil="antwort">
 <p class="ewz-frage">${lang === "en" ? "Is this an e-invoice?" : "Ist das eine E-Rechnung?"}</p>
 <p class="ewz-urteil">${esc(kopf)}</p>
-<p>${esc(ersetze(satz, { format: formatName }))}</p>${zusatz}
+${satz ? `<p>${esc(ersetze(satz, { format: formatName }))}</p>` : ""}${zusatz}
 ${quellenHtml(a.quellen)}
 ${formatZeilen(e)}
 <div data-teil="pruefzeile">${pruefZeile(e)}</div>
 ${hinweise}
-${a.quellen.length || hinweise ? `<p class="ewz-stand">${t.stand}: ${datum(STAND)}</p>` : ""}
+${a.quellen.length || hinweise ? `<p class="ewz-stand">${t.stand}: ${datum(STAND)} · ${t.keineBeratung}</p>` : ""}
 </div>`;
 }
 
@@ -253,7 +261,8 @@ function befundeHtml(e) {
   const werte = pr.fehler.length ? `<ol class="ewz-befunde">${formatWerte(pr.fehler).map(w => `<li class="ewz-befund ewz-fehler"><p class="ewz-befund-kopf"><span class="ewz-stufe">${t.formatfehler}</span></p>
 <p><strong>${t.wasFehlt}:</strong> ${esc(w.satz)}</p><p><strong>${t.wasTun}:</strong> ${esc(t.formatTun)}</p>
 <details><summary>${t.technisch}</summary><p class="ewz-orig" lang="en">${esc(w.meldung.slice(0, 300))}</p>${w.orte.size ? `<p class="ewz-klein">${t.formatOrt}: ${[...w.orte].slice(0, 5).map(o => `<code>${esc(o)}</code>`).join(", ")}</p>` : ""}</details></li>`).join("")}</ol>` : "";
-  if (!pr.befunde.length) return werte || `<p class="ewz-ok-text">${esc(t.keineBefunde)}</p>`;
+  const naechster = `<p class="ewz-naechster">${esc(t.naechsterSchritt)}</p>`;
+  if (!pr.befunde.length) return werte ? werte + naechster : `<p class="ewz-ok-text">${esc(t.keineBefunde)}</p>`;
   const gruppen = new Map();
   for (const b of pr.befunde) {
     if (!gruppen.has(b.id)) gruppen.set(b.id, { ...b, orte: [] });
@@ -263,19 +272,18 @@ function befundeHtml(e) {
   const nat = s => s.replace(/\d+/g, d => d.padStart(5, "0"));
   const sortiert = [...gruppen.values()].sort((a, b) => rang[a.stufe] - rang[b.stufe] || nat(a.id).localeCompare(nat(b.id)));
   const z = zaehlen(e);
-  const kopf = werte + (!z.fehler && !pr.fehler.length ? `<p class="ewz-ok-text">${esc(t.nurWarnungen)}</p>` : "");
+  const kopf = werte + (!z.fehler && !pr.fehler.length ? `<p class="ewz-ok-text">${esc(t.nurWarnungen)}</p>` : "") + `<p class="ewz-klein ewz-legende">${esc(t.legende)}</p>`;
   const MAX = 12;
   const item = (g, i) => {
     const [was, tun] = erklaeren(g.id, g.text, lang);
-    const felder = [...new Set((g.text.match(/\bB[TG]-\d+\b/g) || []))];
     return `<li class="ewz-befund ewz-${g.stufe}"${i >= MAX ? " hidden data-mehr" : ""}>
-<p class="ewz-befund-kopf"><span class="ewz-stufe">${t[g.stufe]}</span> <span class="ewz-regel">${t.regel} ${esc(g.id)}</span>${felder.length ? ` <span class="ewz-feld">${t.feld} ${felder.map(f => `<abbr title="${esc(feld(f, lang))}">${f}</abbr>`).join(", ")}</span>` : ""}${g.orte.length > 1 ? ` <span class="ewz-anzahl">${g.orte.length}×</span>` : ""}</p>
+<p class="ewz-befund-kopf"><span class="ewz-stufe">${t[g.stufe]}</span> <span class="ewz-regel">${t.regel} ${esc(g.id)}</span>${g.orte.length > 1 ? ` <span class="ewz-anzahl">${g.orte.length}×</span>` : ""}</p>
 <p><strong>${t.wasFehlt}:</strong> ${esc(was)}</p>
-<p><strong>${t.wasTun}:</strong> ${esc(tun)}</p>
+<p><strong>${t.wasTun}:</strong> ${esc(tun)}</p>${g.id.startsWith("PEPPOL-") ? `<p class="ewz-klein">${esc(t.peppolHinweis)}</p>` : ""}
 <details><summary>${t.original}</summary><p class="ewz-orig" lang="${/[äöüß]/i.test(g.text) ? "de" : "en"}">${esc(g.text)}</p><p class="ewz-klein">${t.ort}: ${g.orte.slice(0, 5).map(o => `<code>${esc(o)}</code>`).join(", ")}${g.orte.length > 5 ? " …" : ""}</p></details>
 </li>`;
   };
-  return `${kopf}<ol class="ewz-befunde">${sortiert.map(item).join("")}</ol>${sortiert.length > MAX ? `<button type="button" class="ewz-zweit" data-aktion="mehr" aria-expanded="false" data-n="${sortiert.length}">${esc(ersetze(t.mehrAnzeigen, { n: sortiert.length }))}</button>` : ""}`;
+  return `${kopf}<ol class="ewz-befunde">${sortiert.map(item).join("")}</ol>${sortiert.length > MAX ? `<button type="button" class="ewz-zweit" data-aktion="mehr" aria-expanded="false" data-n="${sortiert.length}">${esc(ersetze(t.mehrAnzeigen, { n: sortiert.length }))}</button>` : ""}${z.fehler || pr.fehler.length ? naechster : ""}`;
 }
 
 // ---------- Bezahlen ----------
@@ -287,23 +295,28 @@ function skonto(bed) {
   return out;
 }
 const kopierbar = (label, wert, anzeige) => wert ? `<div class="ewz-kopie"><dt>${label}</dt><dd><span class="ewz-wert">${esc(anzeige || wert)}</span> <button type="button" class="ewz-kopieren" data-kopie="${esc(wert)}" aria-label="${esc(`${label} ${t.kopieren.toLowerCase()}`)}">${t.kopieren}</button></dd></div>` : "";
+const nurWert = (label, wert, extra = "") => wert ? `<div class="ewz-kopie"><dt>${label}</dt><dd><span class="ewz-wert">${esc(wert)}</span>${extra}</dd></div>` : "";
 function zahlenHtml(e) {
   const d = e.daten;
   const z = zahlung(d);
-  const werte = `<dl class="ewz-zahlwerte">
-${kopierbar(t.empfaenger, z.empfaenger)}
-${kopierbar(t.iban, z.iban, ibanLesbar(z.iban))}
-${kopierbar(t.bic, z.bic)}
-${z.betrag != null ? kopierbar(t.betrag, z.betrag.toFixed(2), geld(z.betrag, z.waehrung)) : ""}
-${kopierbar(t.zweck, z.zweck)}
-${d.faellig ? `<div class="ewz-kopie"><dt>${t.faellig}</dt><dd>${esc(datum(d.faellig))}</dd></div>` : ""}
-${skonto(d.bedingungen).map(s => `<div class="ewz-kopie"><dt>${t.skonto}</dt><dd>${esc(t.skontoText(zahl(s.prozent, 2), s.tage, s.basis != null ? geld(s.basis, d.waehrung) : ""))}</dd></div>`).join("")}
+  // Gutschrift: nichts zu überweisen – Bankverbindung nur zur Information, ohne Kopierknöpfe; ungültige IBAN nie zum Kopieren
+  const info = z.grund === "gutschrift-dokument" || z.grund === "gutschrift";
+  const zeige = (label, wert, anzeige) => info ? nurWert(label, anzeige || wert) : kopierbar(label, wert, anzeige);
+  const iban = z.iban && !ibanGueltig(z.iban) ? nurWert(t.iban, ibanLesbar(z.iban), ` <strong class="ewz-ungueltig">${t.ungueltig}</strong>`) : zeige(t.iban, z.iban, ibanLesbar(z.iban));
+  const werte = `${info ? `<p class="ewz-klein ewz-info">${esc(t.kontoInfo)}</p>` : ""}<dl class="ewz-zahlwerte">
+${zeige(t.empfaenger, z.empfaenger)}
+${iban}
+${zeige(t.bic, z.bic)}
+${z.betrag != null ? zeige(t.betrag, z.betrag.toFixed(2), geld(z.betrag, z.waehrung)) : ""}
+${zeige(t.zweck, z.zweck)}
+${d.faellig && !info ? `<div class="ewz-kopie"><dt>${t.faellig}</dt><dd>${esc(datum(d.faellig))}</dd></div>` : ""}
+${info ? "" : skonto(d.bedingungen).map(s => `<div class="ewz-kopie"><dt>${t.skonto}</dt><dd>${esc(t.skontoText(zahl(s.prozent, 2), s.tage, s.basis != null ? geld(s.basis, d.waehrung) : ""))}</dd></div>`).join("")}
 </dl>`;
   const lastschrift = (d.zahlung || []).find(x => x.lastschrift);
   const ls = lastschrift ? `<p class="ewz-klein">${t.mandat}: ${esc(lastschrift.lastschrift.mandat || "–")} · ${t.glaeubiger}: ${esc(d.glaeubigerId || "–")} · ${t.konto}: ${esc(ibanLesbar(lastschrift.lastschrift.konto) || "–")}</p>` : "";
   const qr = z.nutzlast
     ? `<figure class="ewz-qr"><div class="ewz-qr-bild">${qrSvg(z.nutzlast, ersetze(t.girocodeAlt, { betrag: geld(z.betrag, "EUR"), empfaenger: z.empfaenger }))}</div><figcaption><strong>${t.girocode}</strong> – ${esc(t.girocodeLead)}</figcaption></figure>`
-    : `<p class="ewz-kein-qr"><strong>${esc(t.keinGirocode)}</strong> ${esc(ersetze(t.grund[z.grund] || z.grund, { code: z.code, waehrung: z.waehrung }))}</p>`;
+    : `<p class="ewz-kein-qr"><strong>${esc(t.keinGirocode)}</strong> ${esc(ersetze(t.grund[z.grund] || z.grund, { code: z.code, waehrung: waehrungName(z.waehrung) }))}</p>`;
   return `<div class="ewz-zahlen">${qr}${werte}</div>${ls}`;
 }
 
@@ -346,7 +359,7 @@ function ansichtHtml(e) {
     const unter = p.unter && p.unter.length ? p.unter.map(u => `<tr class="ewz-unter"><td>${esc(u.id)}</td><td>${esc(u.name)}</td><td class="ewz-z">${zahl(u.menge)}</td><td>${esc(einheit(u.einheit))}</td><td class="ewz-z">${geld(u.preis.netto, w)}</td><td class="ewz-z">${prozent(u.satz)}</td><td class="ewz-z">${geld(u.netto, w)}</td></tr>`).join("") : "";
     const details = [p.beschreibung, p.artikelnr ? `${lang === "en" ? "Item no." : "Art.-Nr."} ${p.artikelnr}` : "", p.notiz, p.zeitraum ? [datum(p.zeitraum.von), datum(p.zeitraum.bis)].filter(Boolean).join(" – ") : "",
       ...p.eigenschaften.map(x => `${x.name}: ${x.wert}`), ...p.zuschlaege.map(z => `${z.zuschlag ? t.zuschlag : t.nachlass}: ${geld(z.betrag, w)}${z.grund ? ` (${z.grund})` : ""}`)].filter(Boolean);
-    return `<tr><td>${bt("BT-126", esc(p.id))}</td><td>${bt("BT-153", esc(p.name))}${details.length ? `<div class="ewz-klein">${details.map(esc).join("<br>")}</div>` : ""}</td><td class="ewz-z">${bt("BT-129", zahl(p.menge))}</td><td>${bt("BT-130", esc(einheit(p.einheit)))}</td><td class="ewz-z">${bt("BT-146", geld(p.preis.netto, w))}${p.preis.basis && p.preis.basis !== 1 ? `<div class="ewz-klein">/ ${zahl(p.preis.basis)} ${esc(einheit(p.preis.basisEinheit || p.einheit))}</div>` : ""}</td><td class="ewz-z">${bt("BT-152", prozent(p.satz))}${p.kategorie && p.kategorie !== "S" ? ` <abbr title="${esc((STEUERKATEGORIE[p.kategorie] || [p.kategorie])[lang === "en" ? 1 : 0])}">${esc(p.kategorie)}</abbr>` : ""}</td><td class="ewz-z">${bt("BT-131", geld(p.netto, w))}</td></tr>${unter}`;
+    return `<tr><td>${bt("BT-126", esc(p.id))}</td><td>${bt("BT-153", esc(p.name))}${details.length ? `<div class="ewz-klein">${details.map(esc).join("<br>")}</div>` : ""}</td><td class="ewz-z">${bt("BT-129", zahl(p.menge))}</td><td>${bt("BT-130", esc(einheit(p.einheit)))}</td><td class="ewz-z">${bt("BT-146", geld(p.preis.netto, w))}${p.preis.basis && p.preis.basis !== 1 ? `<div class="ewz-klein">/ ${zahl(p.preis.basis)} ${esc(einheit(p.preis.basisEinheit || p.einheit))}</div>` : ""}</td><td class="ewz-z">${bt("BT-152", prozent(p.satz))}${p.kategorie && p.kategorie !== "S" ? `<div class="ewz-klein">${esc((STEUERKATEGORIE[p.kategorie] || [p.kategorie])[lang === "en" ? 1 : 0])}</div>` : ""}</td><td class="ewz-z">${bt("BT-131", geld(p.netto, w))}</td></tr>${unter}`;
   }).join("");
   const s = d.summen || {};
   const sz = (label, wert, id, stark) => wert == null ? "" : `<tr${stark ? ' class="ewz-stark"' : ""}><th scope="row">${label}</th><td class="ewz-z">${bt(id, geld(wert, w))}</td></tr>`;
@@ -364,7 +377,7 @@ ${d.notizen.length ? `<div class="ewz-notizen"><p class="ewz-mini">${t.bemerkung
 <div class="ewz-tabelle" tabindex="0" role="group" aria-label="${esc(t.tabPositionen)}"><table class="ewz-pos"><thead><tr><th scope="col">${t.pos}</th><th scope="col">${t.artikel}</th><th scope="col" class="ewz-z">${t.menge}</th><th scope="col">${t.einheit}</th><th scope="col" class="ewz-z">${t.preis}</th><th scope="col" class="ewz-z">${t.ust}</th><th scope="col" class="ewz-z">${t.netto}</th></tr></thead><tbody>${pos}</tbody></table></div>
 <div class="ewz-summen-reihe">
 <table class="ewz-summen"><tbody>
-${sz(t.summePos, s.positionen, "BT-106")}${doks}${sz(t.nettoGesamt, s.netto, "BT-109")}${sz(t.ustGesamt, s.steuer, "BT-110")}${sz(t.brutto, s.brutto, "BT-112")}${sz(t.gezahlt, s.gezahlt, "BT-113")}${sz(t.rundung, s.rundung, "BT-114")}${sz(t.zuZahlen, s.zahlbetrag, "BT-115", true)}
+${sz(t.summePos, s.positionen, "BT-106")}${doks}${sz(t.nettoGesamt, s.netto, "BT-109")}${sz(t.ustGesamt, s.steuer, "BT-110")}${sz(t.brutto, s.brutto, "BT-112")}${sz(t.gezahlt, s.gezahlt, "BT-113")}${sz(t.rundung, s.rundung, "BT-114")}${sz(istGutschrift(d) ? t.gutschriftBetrag : t.zuZahlen, s.zahlbetrag, "BT-115", true)}
 ${s.steuerInSteuerwaehrung && s.steuerInSteuerwaehrung.wert != null ? `<tr><th scope="row">${t.ustGesamt} (${esc(s.steuerInSteuerwaehrung.waehrung || d.steuerwaehrung)})</th><td class="ewz-z">${geld(s.steuerInSteuerwaehrung.wert, s.steuerInSteuerwaehrung.waehrung || d.steuerwaehrung)}</td></tr>` : ""}
 </tbody></table></div>
 ${steuern ? `<div class="ewz-tabelle" tabindex="0" role="group" aria-label="${esc(t.tabSteuer)}"><table class="ewz-steuer"><caption>${t.steuer}</caption><thead><tr><th scope="col">${t.kategorie}</th><th scope="col" class="ewz-z">${t.satz}</th><th scope="col" class="ewz-z">${t.basis}</th><th scope="col" class="ewz-z">${t.steuer}</th><th scope="col">${t.befreiung}</th></tr></thead><tbody>${steuern}</tbody></table></div>` : ""}
@@ -396,12 +409,17 @@ function karte(e) {
 <div class="ewz-karte-kopf"><h2 id="ewz-t${e.nr}"><span class="ewz-dateiname" id="ewz-dn${e.nr}">${esc(e.name)}</span> <span class="ewz-klein">${groesse(e.groesse)}</span></h2>
 <div class="ewz-knoepfe">${rechnung ? `<button type="button" class="ewz-haupt" data-aktion="drucken">${t.drucken}</button><button type="button" class="ewz-zweit" data-aktion="bericht">${t.bericht}</button><label class="ewz-check"><input type="checkbox" data-aktion="bt"> ${t.btZeigen}</label>` : ""}<button type="button" class="ewz-zweit" data-aktion="entfernen" aria-label="${esc(`${t.schliessen}: ${e.name}`)}">${t.schliessen}</button></div></div>
 ${antwortHtml(e)}
-${rechnung ? abschnitt("z", t.abschnittZahlen, zahlenHtml(e)) : ""}
+${rechnung ? abschnitt("z", ["gutschrift", "gutschrift-dokument"].includes(zahlung(e.daten).grund) ? t.abschnittZahlenGutschrift : t.abschnittZahlen, zahlenHtml(e)) : ""}
 ${abschnitt("b", t.abschnittBefunde, e.pruefung.status === "keine" ? "" : befundeHtml(e), "befunde")}
 ${rechnung ? abschnitt("r", t.abschnittRechnung, ansichtHtml(e)) : ""}
 ${abschnitt("a", t.abschnittAnhaenge, anhaengeHtml(e))}
-${e.art === "rechnung" ? `<p class="ewz-aufbewahren">${esc(ZUSATZ.aufbewahren[lang])}</p>${quellenHtml(ZUSATZ.aufbewahren.quellen)}` : ""}
+${aufbewahrenHtml(e)}
 </section>`;
+}
+function aufbewahrenHtml(e) {
+  if (!["rechnung", "pdf-ohne-xml", "bild", "zugferd1"].includes(e.art)) return "";
+  const z = e.art === "rechnung" && (antwort(e) || {}).urteil !== "nein" ? ZUSATZ.aufbewahren : ZUSATZ.aufbewahrenSonst;
+  return `<p class="ewz-aufbewahren">${esc(z[lang])}</p>${quellenHtml(z.quellen)}`;
 }
 function teilZeichnen(e) {
   const k = document.getElementById(`ewz-k${e.nr}`);
@@ -458,11 +476,11 @@ function bericht(e) {
   teile.querySelectorAll("button,.ewz-knoepfe,.ewz-qr").forEach(x => x.remove());
   teile.querySelectorAll("details").forEach(d => d.setAttribute("open", ""));
   teile.querySelectorAll("[hidden]").forEach(x => x.removeAttribute("hidden"));
-  const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${esc(lang === "en" ? "Check report" : "Prüfbericht")} – ${esc(e.name)}</title><style>${css}</style></head><body>
-<h1>${esc(lang === "en" ? "Check report" : "Prüfbericht")}: ${esc(e.name)}</h1>
+  const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${esc(lang === "en" ? "Validation report" : "Prüfbericht")} – ${esc(e.name)}</title><style>${css}</style></head><body>
+<h1>${esc(lang === "en" ? "Validation report" : "Prüfbericht")}: ${esc(e.name)}</h1>
 <p>${esc(lang === "en" ? "Created" : "Erstellt")}: ${new Date().toLocaleString(L)} · SmartFormular E-Rechnung lite ${esc(FASSUNG)} · ${esc(lang === "en" ? "Rule set" : "Prüfregeln")}: ${esc(META.quelle)}</p>
 ${teile.innerHTML}</body></html>`;
-  speichern(`${lang === "en" ? "Check-report" : "Pruefbericht"}-${(e.daten && e.daten.nummer || e.name).replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 60)}.html`, html, "text/html;charset=utf-8");
+  speichern(`${lang === "en" ? "Validation-report" : "Pruefbericht"}-${(e.daten && e.daten.nummer || e.name).replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 60)}.html`, html, "text/html;charset=utf-8");
 }
 function anhangSpeichern(e, key) {
   if (key[0] === "x") {

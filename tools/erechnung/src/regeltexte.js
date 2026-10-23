@@ -13,7 +13,7 @@ const WO = {
   "In der Lieferanschrift": "in the delivery address", "Bei Lastschrift": "for the direct debit",
 };
 const fehlt = (bt, wo = "") => ({
-  de: [`${wo ? wo + " fehlt" : "Es fehlt"}: ${f(bt, "de")}.`, `${gross(feld(bt, "de"))} angeben.`],
+  de: [`${wo || "Es"} fehlt die Angabe „${feld(bt, "de")}“ (${bt}).`, `${gross(feld(bt, "de"))} angeben.`],
   en: [`Missing${wo ? " " + WO[wo] : ""}: ${f(bt, "en")}.`, `Add the ${feld(bt, "en")}.`],
 });
 const P = { de: "In mindestens einer Rechnungsposition", en: "In at least one invoice line" };
@@ -136,8 +136,8 @@ export const TEXTE = {
   "BR-CO-24": paar("Bei einem Zuschlag in einer Position fehlt der Grund (BT-144 oder BT-145).", "Den Grund als Text oder Code angeben.", "A line charge has no reason (BT-144 or BT-145).", "Give the reason as text or code."),
   "BR-CO-25": paar("Der Zahlbetrag ist größer als null, aber es fehlen Fälligkeitsdatum (BT-9) und Zahlungsbedingungen (BT-20).", "Fälligkeitsdatum oder Zahlungsbedingungen angeben.",
     "The amount due is positive but there is neither a due date (BT-9) nor payment terms (BT-20).", "Give a due date or payment terms."),
-  "BR-CO-26": paar("Der Rechnungssteller ist nicht eindeutig gekennzeichnet: Es fehlen Kennung (BT-29), Registernummer (BT-30) und Umsatzsteuer-Identifikationsnummer (BT-31).", "Mindestens eine dieser Angaben machen, meist die USt-IdNr.",
-    "The seller cannot be identified: seller identifier (BT-29), registration number (BT-30) and VAT identifier (BT-31) are all missing.", "Give at least one of them, usually the VAT number."),
+  "BR-CO-26": paar("Die Rechnung nennt keine Kennung des Rechnungsstellers: weder Umsatzsteuer-Identifikationsnummer (BT-31) noch Handelsregisternummer (BT-30) noch eine andere Kennung (BT-29). Eine Steuernummer allein reicht dafür nicht.", "Mindestens eine dieser Angaben machen, meist die USt-IdNr.",
+    "The invoice gives no identifier for the seller: no VAT identifier (BT-31), no commercial register number (BT-30) and no other identifier (BT-29). A tax number alone is not enough.", "Give at least one of them, usually the VAT number."),
   "BR-CL-01": paar("Der Code für die Art der Rechnung (BT-3) ist nicht zulässig.", "Einen zulässigen Code verwenden, zum Beispiel 380 für eine Rechnung oder 381 für eine Gutschrift.",
     "The invoice type code (BT-3) is not allowed.", "Use a valid code, for example 380 for an invoice or 381 for a credit note."),
   "BR-CL-03": paar("Ein Währungscode an einem Betrag ist kein gültiger Code nach ISO 4217.", "Den Währungscode korrigieren, zum Beispiel EUR.", "A currency code on an amount is not a valid ISO 4217 code.", "Correct the currency code, for example EUR."),
@@ -169,8 +169,8 @@ export const TEXTE = {
   "BR-DE-3": fehlt("BT-37"),
   "BR-DE-4": fehlt("BT-38"),
   "BR-DE-5": fehlt("BT-41"),
-  "BR-DE-6": fehlt("BT-42"),
-  "BR-DE-7": fehlt("BT-43"),
+  "BR-DE-6": paar("Die Telefonnummer des Ansprechpartners (BT-42) fehlt oder ist leer.", "Eine vollständige Telefonnummer des Ansprechpartners angeben.", "The contact telephone number (BT-42) is missing or empty.", "Give a complete telephone number for the contact."),
+  "BR-DE-7": paar("Die E-Mail-Adresse des Ansprechpartners (BT-43) fehlt oder ist leer.", "Eine E-Mail-Adresse des Ansprechpartners angeben.", "The contact email address (BT-43) is missing or empty.", "Give an email address for the contact."),
   "BR-DE-8": fehlt("BT-52"),
   "BR-DE-9": fehlt("BT-53"),
   "BR-DE-10": fehlt("BT-77", "In der Lieferanschrift"),
@@ -184,7 +184,7 @@ export const TEXTE = {
     "The invoice type code (BT-3) is not intended for XRechnung.", "Use one of the usual codes: 380 invoice, 381 credit note, 384 corrected invoice, 389 self-billed invoice, 326 partial invoice, 875–877 construction invoices."),
   "BR-DE-18": paar("Die Skonto-Angabe in den Zahlungsbedingungen (BT-20) hat nicht die vorgeschriebene Form.", "Skonto in dieser Form angeben: #SKONTO#TAGE=14#PROZENT=2.00# und danach einen Zeilenumbruch.",
     "The early-payment discount in the payment terms (BT-20) is not in the required form.", "Give the discount in this form: #SKONTO#TAGE=14#PROZENT=2.00# followed by a line break."),
-  "BR-DE-19": paar("Die angegebene IBAN (BT-84) ist ungültig.", "Die IBAN prüfen und korrigieren.", "The IBAN given (BT-84) is not valid.", "Check and correct the IBAN."),
+  "BR-DE-19": paar("Die angegebene IBAN (BT-84) ist ungültig. Wichtig für die Zahlung: nicht auf diese IBAN überweisen.", "Die IBAN prüfen und korrigieren.", "The IBAN given (BT-84) is not valid. Important for payment: do not pay to this IBAN.", "Check and correct the IBAN."),
   "BR-DE-20": paar("Die IBAN des belasteten Kontos (BT-91) ist ungültig.", "Die IBAN prüfen und korrigieren.", "The IBAN of the debited account (BT-91) is not valid.", "Check and correct the IBAN."),
   "BR-DE-21": paar("Die Kennung der Spezifikation (BT-24) ist nicht die der XRechnung.", "Als Kennung urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0 verwenden.",
     "The specification identifier (BT-24) is not the XRechnung identifier.", "Use urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0."),
@@ -196,8 +196,8 @@ export const TEXTE = {
   "BR-DE-25-a": paar("Als Zahlungsart ist Lastschrift angegeben, aber ohne Lastschriftangaben (BG-19).", "Mandatsreferenz, Gläubiger-ID und IBAN des belasteten Kontos angeben.", "Direct debit is given as payment means, but without direct debit details (BG-19).", "Give the mandate reference, creditor ID and IBAN of the debited account."),
   "BR-DE-25-b": paar("Bei Lastschrift stehen zusätzlich Überweisungs- oder Kartenangaben in der Rechnung.", "Nur die Angaben zur gewählten Zahlungsart übermitteln.", "With direct debit, transfer or card details are also given.", "Send only the details for the chosen payment means."),
   "BR-DE-26": paar("Eine Rechnungskorrektur (Code 384) nennt nicht die ursprüngliche Rechnung (BG-3).", "Nummer und Datum der korrigierten Rechnung angeben.", "A corrected invoice (code 384) does not name the original invoice (BG-3).", "Give the number and date of the corrected invoice."),
-  "BR-DE-27": paar("Die Telefonnummer des Ansprechpartners (BT-42) enthält weniger als drei Ziffern.", "Eine vollständige Telefonnummer angeben.", "The contact telephone number (BT-42) has fewer than three digits.", "Give a complete telephone number."),
-  "BR-DE-28": paar("Die E-Mail-Adresse des Ansprechpartners (BT-43) sieht ungültig aus.", "Die E-Mail-Adresse prüfen.", "The contact email address (BT-43) looks invalid.", "Check the email address."),
+  "BR-DE-27": paar("Die Telefonnummer des Ansprechpartners (BT-42) fehlt oder hat weniger als drei Ziffern.", "Eine vollständige Telefonnummer angeben.", "The contact telephone number (BT-42) is missing or has fewer than three digits.", "Give a complete telephone number."),
+  "BR-DE-28": paar("Die E-Mail-Adresse des Ansprechpartners (BT-43) fehlt oder sieht ungültig aus.", "Die E-Mail-Adresse prüfen.", "The contact email address (BT-43) is missing or looks invalid.", "Check the email address."),
   "BR-DE-30": fehlt("BT-90", "Bei Lastschrift"),
   "BR-DE-31": fehlt("BT-91", "Bei Lastschrift"),
   "BR-DE-TMP-32": paar("Die Rechnung nennt kein Liefer- oder Leistungsdatum (BT-72) und keinen Leistungszeitraum (BG-14 oder je Position BG-26).",
@@ -209,11 +209,14 @@ export const TEXTE = {
   "BR-TMP-5": paar("In einem Anhang-Eintrag stecken mehrere Dateien (BT-125).", "Für jede Datei einen eigenen Anhang anlegen.", "One attachment entry contains several files (BT-125).", "Create a separate attachment for each file."),
   "BR-TMP-6": paar("Ein Datum hat nicht das Format JJJJ-MM-TT.", "Datumsangaben im Format 2026-10-23 übermitteln.", "A date is not in the YYYY-MM-DD format.", "Send dates in the format 2026-10-23."),
   "BR-TMP-7": paar("Ein Datum hat nicht das Format JJJJMMTT mit der Formatangabe 102.", "Datumsangaben als 20261023 mit format=\"102\" übermitteln.", "A date is not in the YYYYMMDD format with format code 102.", "Send dates as 20261023 with format=\"102\"."),
-  "PEPPOL-EN16931-R001": fehlt("BT-23"),
+  "PEPPOL-EN16931-R001": paar("Es fehlt die Angabe zum Geschäftsprozess (BT-23): eine technische Kennung, zu welchem Ablauf die Rechnung gehört.", "Den Geschäftsprozess im Rechnungsprogramm eintragen lassen; üblich ist urn:fdc:peppol.eu:2017:poacc:billing:01:1.0.",
+    "The business process (BT-23) is missing: a technical identifier of the process the invoice belongs to.", "Have the business process entered in the invoicing software; the usual value is urn:fdc:peppol.eu:2017:poacc:billing:01:1.0."),
   "PEPPOL-EN16931-R005": paar("Die Währung für die Umsatzsteuer (BT-6) ist gleich der Rechnungswährung (BT-5).", "BT-6 nur angeben, wenn die Steuer in einer anderen Währung ausgewiesen wird.", "The VAT accounting currency (BT-6) equals the invoice currency (BT-5).", "Give BT-6 only if VAT is stated in a different currency."),
   "PEPPOL-EN16931-R008": paar("Die Datei enthält leere Elemente (ohne Inhalt).", "Leere Felder weglassen statt sie leer zu übermitteln.", "The file contains empty elements.", "Leave out empty fields instead of sending them empty."),
-  "PEPPOL-EN16931-R010": fehlt("BT-49"),
-  "PEPPOL-EN16931-R020": fehlt("BT-34"),
+  "PEPPOL-EN16931-R010": paar("Es fehlt die elektronische Adresse des Rechnungsempfängers (BT-49): die Adresse, an die E-Rechnungen geschickt werden, etwa eine E-Mail-Adresse oder die Leitweg-ID. Eine E-Mail-Adresse an anderer Stelle der Rechnung zählt nicht.", "Die elektronische Adresse des Empfängers angeben.",
+    "The buyer's electronic address (BT-49) is missing: the address e-invoices are sent to, such as an email address or the Leitweg-ID. An email address elsewhere in the invoice does not count.", "Give the buyer's electronic address."),
+  "PEPPOL-EN16931-R020": paar("Es fehlt die elektronische Adresse des Rechnungsstellers (BT-34): die Adresse, unter der er E-Rechnungen empfängt, etwa eine E-Mail-Adresse. Eine E-Mail-Adresse an anderer Stelle der Rechnung zählt nicht.", "Die elektronische Adresse des Rechnungsstellers angeben.",
+    "The seller's electronic address (BT-34) is missing: the address where the seller receives e-invoices, such as an email address. An email address elsewhere in the invoice does not count.", "Give the seller's electronic address."),
   "PEPPOL-EN16931-R040": paar("Ein Nachlass oder Zuschlag ist nicht Grundbetrag mal Prozentsatz.", "Betrag, Grundbetrag und Prozentsatz angleichen.", "An allowance or charge is not base amount times percentage.", "Make amount, base amount and percentage consistent."),
   "PEPPOL-EN16931-R041": paar("Bei einem Nachlass oder Zuschlag steht ein Prozentsatz ohne Grundbetrag.", "Den Grundbetrag ergänzen.", "An allowance or charge has a percentage but no base amount.", "Add the base amount."),
   "PEPPOL-EN16931-R042": paar("Bei einem Nachlass oder Zuschlag steht ein Grundbetrag ohne Prozentsatz.", "Den Prozentsatz ergänzen.", "An allowance or charge has a base amount but no percentage.", "Add the percentage."),
@@ -296,7 +299,7 @@ function familie(fam, nr) {
       ? paar(`Bei ${K} muss der Steuerbetrag in der Steueraufschlüsselung (BT-117) 0 sein.`, "Steuerbetrag auf 0 setzen oder die Steuerkategorie prüfen.", `With ${KE} the VAT amount in the breakdown (BT-117) must be 0.`, "Set the VAT amount to 0 or check the category.")
       : paar(`Der Steuerbetrag für ${K} (BT-117) ist nicht steuerpflichtiger Betrag mal Steuersatz.`, "Den Steuerbetrag neu berechnen und auf Cent runden lassen.", `The VAT amount for ${KE} (BT-117) is not taxable amount times rate.`, "Recalculate the VAT amount and round it to the cent.");
     case 10: return befreit
-      ? paar(`Bei ${K} fehlt der Grund der Steuerbefreiung (BT-120 oder BT-121).`, `Den Grund als Text oder Code angeben, zum Beispiel den Hinweis auf die gesetzliche Vorschrift.`, `With ${KE} the VAT exemption reason is missing (BT-120 or BT-121).`, "Give the reason as text or code, for example the legal provision.")
+      ? paar(`Die Rechnung weist keine Umsatzsteuer aus – Steuerkategorie ${K} –, nennt aber keinen Grund dafür (BT-120 oder BT-121).`, "Den Grund angeben, zum Beispiel die Vorschrift des Umsatzsteuergesetzes, nach der keine Steuer berechnet wird.", `The invoice shows no VAT – category ${KE} – but gives no reason (BT-120 or BT-121).`, "Give the reason, for example the provision of the VAT Act under which no VAT is charged.")
       : paar(`Bei ${K} darf kein Grund für eine Steuerbefreiung angegeben sein (BT-120, BT-121).`, "Den Befreiungsgrund entfernen.", `With ${KE} no exemption reason may be given (BT-120, BT-121).`, "Remove the exemption reason.");
     case 11: if (fam === "IC") return paar("Bei einer innergemeinschaftlichen Lieferung fehlen Lieferdatum (BT-72) und Abrechnungszeitraum (BG-14).", "Lieferdatum oder Zeitraum angeben.", "For an intra-community supply, the delivery date (BT-72) and invoicing period (BG-14) are missing.", "Give the delivery date or period.");
       if (fam === "O") return paar("Neben „nicht steuerbar“ stehen weitere Steuerkategorien in der Steueraufschlüsselung.", "Eine nicht steuerbare Leistung getrennt abrechnen.", "Other VAT categories appear next to \"not subject to VAT\".", "Invoice non-taxable supplies separately.");

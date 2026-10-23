@@ -12,40 +12,46 @@ const BMF2025 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF
 const BMF2026 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile";
 
 const ABGLEICH_DE = b && !b.abweichungen
-  ? `Vor der Veröffentlichung wurde das Werkzeug im Browser mit der offiziellen Prüfung außerhalb des Browsers verglichen (Saxon mit denselben Regeldateien der KoSIT): ${de(b.dokumente)} Testrechnungen – die Testsammlung der KoSIT, Beispiele und Testfälle von CEN und KoSIT und gezielt veränderte Fassungen davon –, ${de(b.pruefungen)} Prüfungen, ${de(b.befundeReferenz)} Meldungen. Ergebnis: in jedem Fall dieselben Regelnummern; wo die offizielle Prüfung an ungültigen Werten scheitert, meldet auch das Werkzeug einen Formatfehler.`
-  : "Vor jeder Veröffentlichung wird das Werkzeug im Browser an Tausenden Testrechnungen mit der offiziellen Prüfung außerhalb des Browsers verglichen; die Regelnummern müssen übereinstimmen.";
+  ? `Vor der Veröffentlichung wurde das Werkzeug mit der Prüfung verglichen, die auch das Prüfprogramm der KoSIT verwendet – dieselben Regeldateien, ausgewertet außerhalb des Browsers: ${de(b.dokumente)} Testrechnungen (die Testsammlung der KoSIT, Beispiele und Testfälle von CEN und KoSIT und gezielt veränderte Fassungen davon), ${de(b.pruefungen)} Prüfungen, ${de(b.befundeReferenz)} Meldungen. Ergebnis: in jedem Fall dieselben Regelnummern. Wo die Prüfung außerhalb des Browsers an ungültigen Werten scheitert, meldet auch das Werkzeug einen Formatfehler.`
+  : "Vor jeder Veröffentlichung wird das Werkzeug an Tausenden Testrechnungen mit der Prüfung verglichen, die auch das Prüfprogramm der KoSIT verwendet; die Regelnummern müssen übereinstimmen.";
 const ABGLEICH_EN = b && !b.abweichungen
-  ? `Before publication, the tool was compared in the browser with the official validation outside the browser (Saxon with the same KoSIT rule files): ${en(b.dokumente)} test invoices – the KoSIT test suite, examples and test cases from CEN and KoSIT and deliberately altered versions of them –, ${en(b.pruefungen)} checks, ${en(b.befundeReferenz)} messages. Result: the same rule numbers in every case; where the official validation fails on invalid values, the tool reports a format error too.`
-  : "Before every release, the tool is compared in the browser with the official validation outside the browser on thousands of test invoices; the rule numbers must match.";
+  ? `Before publication, the tool was compared with the validation the KoSIT validator uses – the same rule files, run outside the browser: ${en(b.dokumente)} test invoices (the KoSIT test suite, examples and test cases from CEN and KoSIT and deliberately altered versions of them), ${en(b.pruefungen)} checks, ${en(b.befundeReferenz)} messages. Result: the same rule numbers in every case. Where the validation outside the browser fails on invalid values, the tool reports a format error too.`
+  : "Before every release, the tool is compared on thousands of test invoices with the validation the KoSIT validator uses; the rule numbers must match.";
 
 export const START_ERECHNUNG = {
   "e-rechnung-pruefen": {
-    beschreibung: `Eine E-Rechnung ist gekommen, und niemand kann sie öffnen? Oder die eigene Rechnung soll vor dem Versand stimmen? Ziehen Sie die XRechnung oder ZUGFeRD-Rechnung in das Feld: SmartFormular E-Rechnung lite sagt sofort, ob es eine E-Rechnung ist, zeigt sie lesbar, prüft sie mit den offiziellen Regeln und erklärt jeden Befund in einem Satz. Ist etwas zu zahlen, steht der GiroCode für die Banking-App bereit. Alles geschieht in diesem Browserfenster; Ihre Rechnungen verlassen den Rechner nicht.
+    beschreibung: `Eine E-Rechnung ist gekommen, und niemand kann sie öffnen? Oder Sie wollen Ihre eigene E-Rechnung vor dem Versand auf Fehler prüfen? Ziehen Sie die XRechnung oder ZUGFeRD-Rechnung in das Feld: SmartFormular E-Rechnung lite sagt, ob es eine E-Rechnung ist, zeigt sie lesbar, prüft sie mit den offiziellen Regeln und erklärt jeden Befund in einfachen Worten. Ist etwas zu zahlen, steht der GiroCode für die Banking-App bereit. Alles geschieht in diesem Browserfenster; Ihre Rechnungen verlassen den Rechner nicht.
 
 ## Was es kann
 
-- **Ist das eine E-Rechnung?** Format (XRechnung, ZUGFeRD/Factur-X, EN 16931, Peppol), Syntax (UBL oder CII), Profil und Fassung – mit der amtlichen Fundstelle. ZUGFeRD in den Profilen MINIMUM und BASIC WL und PDFs ohne eingebettete Daten benennt es klar als keine E-Rechnung.
-- **Lesbar und druckbar:** Rechnungssteller, Empfänger, Positionen, Steuer, Summen und Zahlungsangaben als übersichtliches Blatt, auf Wunsch mit den Feldnummern (BT) der Norm.
-- **Geprüft mit den offiziellen Regeln:** den Geschäftsregeln der EN 16931 von CEN und den Regeln der XRechnung von der KoSIT – dieselben, die der Prüfer der KoSIT verwendet.
-- **Verständliche Befunde:** je Befund Fehler, Warnung oder Hinweis, die Regelnummer, das betroffene Feld und ein Satz, was nicht stimmt und was der Rechnungssteller ändern muss.
-- **Bezahlen per GiroCode:** Empfänger, IBAN, Betrag und Verwendungszweck mit Kopierknöpfen und als QR-Code für die Banking-App – nur bei gültiger IBAN, Betrag in Euro und Überweisung; sonst steht da, warum nicht.
-- **Mehrere Dateien auf einmal**, Anhänge der Rechnung speichern, Prüfbericht als Datei.
+- **Ist das eine E-Rechnung?** Das Werkzeug antwortet mit Ja oder Nein und nennt das Format, zum Beispiel XRechnung oder ZUGFeRD, mit der Fundstelle im Gesetz. ZUGFeRD in den einfachen Stufen MINIMUM und BASIC WL und PDFs ohne eingebettete Rechnungsdaten erkennt es als keine E-Rechnung.
+- **Lesbar und druckbar:** Rechnungssteller, Empfänger, Positionen, Steuer, Summen und Zahlungsangaben als übersichtliches Blatt, auf Wunsch mit den Feldnummern der Norm.
+- **Geprüft mit den offiziellen Regeln:** den Regeln der europäischen Norm EN 16931 vom Europäischen Komitee für Normung (CEN) und den Regeln der XRechnung von der Koordinierungsstelle für IT-Standards (KoSIT) – dieselben, die das Prüfprogramm der KoSIT verwendet.
+- **Verständliche Befunde:** je Befund die Stufe (Fehler, Warnung oder Hinweis), die Regelnummer und in einfachen Worten, was nicht stimmt und was der Rechnungssteller ändern muss.
+- **Bezahlen per GiroCode:** Empfänger, IBAN, Betrag und Verwendungszweck mit Kopierknöpfen und als QR-Code für die Banking-App – nur bei gültiger IBAN, Betrag in Euro und Überweisung; andernfalls nennt das Werkzeug den Grund.
+- **Außerdem:** mehrere Dateien auf einmal prüfen, Anhänge der Rechnung speichern, den Prüfbericht als Datei sichern.
 
 ## So geht es
 
 1. Die XML-Datei oder das ZUGFeRD-PDF in das Feld oben ziehen oder auswählen – oder ein Beispiel ansehen.
 2. Die Antwort lesen: E-Rechnung ja oder nein, in welchem Format.
-3. Die Befunde ansehen; jeder sagt, was zu ändern ist.
+3. Die Befunde ansehen. Haben Sie die Rechnung bekommen, schicken Sie den Prüfbericht an den Rechnungssteller; bei Ihrer eigenen Rechnung ergänzen Sie die Angaben in Ihrem Rechnungsprogramm.
 4. Drucken oder den Prüfbericht speichern; bezahlen per GiroCode oder mit den kopierten Angaben.
 5. Die Originaldatei aufbewahren – die Ansicht ersetzt sie nicht.
 
 ## Was geprüft wird und was nicht
 
-Geprüft werden die Geschäftsregeln der EN 16931 (CEN, Prüfregeln 1.3.16) und bei einer XRechnung zusätzlich die Regeln der XRechnung 3.0.2 (KoSIT, Schematron 2.6.0), unverändert aus der Konfiguration des KoSIT-Prüfers vom 31.08.2026 und mit den dort festgelegten Stufen. Für ZUGFeRD-Profile ohne eigenes Szenario der KoSIT gelten die Regeln der EN 16931. Enthält eine Datei Werte im falschen Format, etwa ein Datum oder einen Betrag, lassen sich die Regeln nicht vollständig anwenden; das Werkzeug meldet das als Formatfehler.
+Kurz gesagt: Das Werkzeug prüft, ob alle nötigen Angaben vorhanden sind und zusammenpassen – die Geschäftsregeln der Norm. Ob die Angaben inhaltlich stimmen, etwa der Steuersatz, prüft es nicht.
 
-Nicht geprüft werden das XML-Schema (der formale Aufbau der Datei), besondere Regeln anderer Umsetzungen wie Peppol und ob die Angaben inhaltlich stimmen – ob zum Beispiel der Steuersatz zur Leistung passt. Eine Validierung ersetzt nicht die Prüfung der Rechnung auf Vollständigkeit und Richtigkeit ([BMF-Schreiben vom 15.10.2025](${BMF2025}), Rn. 35a).
+Jeder Befund hat eine Stufe: **Fehler** – die Rechnung verletzt eine Regel, der Rechnungssteller sollte sie berichtigen; **Warnung** – bitte prüfen, die Rechnung kann trotzdem in Ordnung sein; **Hinweis** – nur zur Information.
 
-## Genau wie der Prüfer der KoSIT
+Findet das Werkzeug Werte im falschen Format, etwa ein Datum in falscher Schreibweise, meldet es einen **Formatfehler**. Eine Datei mit Formatfehlern ist keine E-Rechnung. Fehlende oder unstimmige Angaben (Verstöße gegen Geschäftsregeln) sind dagegen kein Formatfehler.
+
+Nicht geprüft wird das XML-Schema, also der formale Aufbau der Datei in allen Einzelheiten; Formatfehler, die nur dort auffallen, erkennt das Werkzeug nicht. Eine Prüfung ersetzt nicht die Kontrolle der Rechnung auf Vollständigkeit und Richtigkeit ([Schreiben des Bundesfinanzministeriums vom 15.10.2025](${BMF2025}), Randnummer 35a).
+
+**Für Fachleute:** Geprüft werden die Geschäftsregeln der EN 16931 (CEN, Prüfregeln 1.3.16) und bei einer XRechnung zusätzlich die Regeln der XRechnung 3.0.2 (KoSIT, Schematron 2.6.0), unverändert aus der Konfiguration des KoSIT-Prüfprogramms vom 31.08.2026 und mit den dort festgelegten Stufen. Zur XRechnung gehören auch einige Regeln, deren Name mit PEPPOL beginnt. Für ZUGFeRD-Profile ohne eigenes Prüfszenario der KoSIT gelten die Regeln der EN 16931. Nicht geprüft werden die besonderen Regeln anderer Umsetzungen, etwa die vollständigen Regeln von Peppol BIS.
+
+## Abgleich mit dem Prüfprogramm der KoSIT
 
 ${ABGLEICH_DE}
 
@@ -55,7 +61,7 @@ Die Rechnungen werden nur in Ihrem Browserfenster gelesen und geprüft. Von robi
 
 ## Rechtliche Einordnung
 
-Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle: [§ 14 UStG](https://www.gesetze-im-internet.de/ustg_1980/__14.html), Abschnitt 14.1 UStAE in der Fassung des [BMF-Schreibens vom 15.10.2025](${BMF2025}) und das [BMF-Schreiben vom 15.10.2026](${BMF2026}) zu Geschäftsregelfehlern. Stand der Rechtsangaben: 23.10.2026. Es ist keine Steuer- oder Rechtsberatung; ob eine Rechnung im Einzelfall ordnungsgemäß ist, klären Sie mit Ihrer Steuerberatung.`,
+Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle: [§ 14 Umsatzsteuergesetz (UStG)](https://www.gesetze-im-internet.de/ustg_1980/__14.html), Abschnitt 14.1 des Umsatzsteuer-Anwendungserlasses (UStAE) in der Fassung des [Schreibens des Bundesfinanzministeriums (BMF) vom 15.10.2025](${BMF2025}) und das [BMF-Schreiben vom 15.10.2026](${BMF2026}) zu Fehlern bei den Geschäftsregeln. Stand der Rechtsangaben: 23.10.2026. Es ist eine technische Einordnung, keine Steuer- oder Rechtsberatung; ob eine Rechnung im Einzelfall ordnungsgemäß ist, klären Sie mit Ihrer Steuerberatung.`,
     nutzung: `Stand: 23. Oktober 2026
 
 **Anbieter.** Robin James Lewis, Höchststr. 32, 72336 Balingen ([Impressum](https://robin.vision/#privacy)).
@@ -73,35 +79,41 @@ Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle: [§ 14 US
 **Lizenzen.** Das Werkzeug enthält die Prüfregeln der EN 16931 (CEN/TC 434, European Union Public Licence 1.2), die Regeln und Feldbezeichnungen der XRechnung (KoSIT, Apache License 2.0), fontoxpath, xspattern, whynot und prsc (MIT License) und die QR Code generator library von Project Nayuki (MIT License). Für diese Bestandteile gelten ihre eigenen Lizenzen; die Einschränkungen unter „Nutzung“ betreffen sie nicht. Die Lizenztexte und Quellen stehen in der Datei unter „Lizenzen und Quellen“ und in [LIZENZEN.txt](https://robin.vision/assets/erechnung/LIZENZEN.txt).
 
 Es gilt deutsches Recht.`,
-    hinweis: `An English version of this tool is available as the [e-invoice viewer and validator](https://robin.vision/werkzeuge/e-invoice-viewer/): same functions, English user interface.`,
+    hinweis: `An English version of this tool is available: [SmartFormular E-Rechnung lite in English (e-invoice viewer and validator)](https://robin.vision/werkzeuge/e-invoice-viewer/) – same functions, English user interface.`,
   },
   "e-invoice-viewer": {
-    beschreibung: `An e-invoice has arrived and nobody can open it? Or your own invoice needs to be right before it goes out? Drag the XRechnung or ZUGFeRD invoice into the box: SmartFormular E-Rechnung lite tells you at once whether it is an e-invoice, shows it in readable form, checks it against the official rules and explains every finding in one sentence. If there is something to pay, the GiroCode for your banking app is ready. Everything happens in this browser window; your invoices never leave your computer.
+    beschreibung: `An e-invoice has arrived and nobody can open it? Or you want to check your own e-invoice for errors before it goes out? Drag the XRechnung or ZUGFeRD invoice into the box: SmartFormular E-Rechnung lite tells you whether it is an e-invoice, shows it in readable form, checks it against the official rules and explains every finding in plain words. If there is something to pay, the GiroCode for your banking app is ready. Everything happens in this browser window; your invoices never leave your computer.
 
 ## What it does
 
-- **Is this an e-invoice?** Format (XRechnung, ZUGFeRD/Factur-X, EN 16931, Peppol), syntax (UBL or CII), profile and version – with the legal source. It names ZUGFeRD in the MINIMUM and BASIC WL profiles, and PDFs without embedded data, clearly as not an e-invoice.
-- **Readable and printable:** issuer, recipient, lines, VAT, totals and payment details as a clear page, with the standard's field numbers (BT) if you like.
-- **Checked against the official rules:** the EN 16931 business rules from CEN and the XRechnung rules from KoSIT – the same rules the KoSIT validator uses.
-- **Findings in plain words:** for each finding, error, warning or notice, the rule number, the field concerned and a sentence on what is wrong and what the issuer needs to change.
-- **Pay by GiroCode:** payee, IBAN, amount and reference with copy buttons and as a QR code for your banking app – only with a valid IBAN, an amount in euros and credit transfer; otherwise it says why not.
-- **Several files at once**, save the invoice's attachments, check report as a file.
+- **Is this an e-invoice?** The tool answers yes or no and names the format, such as XRechnung or ZUGFeRD, with the legal source. It clearly flags ZUGFeRD files in the basic MINIMUM and BASIC WL profiles, and PDFs without embedded invoice data, as not e-invoices.
+- **Readable and printable:** issuer, recipient, lines, VAT, totals and payment details as a clear page, with the standard's field numbers if you like.
+- **Checked against the official rules:** the rules of the European standard EN 16931 from the European Committee for Standardization (CEN) and the XRechnung rules from the German Coordination Office for IT Standards (KoSIT) – the same rules the KoSIT validator uses.
+- **Findings in plain words:** for each finding the level (error, warning or notice), the rule number, and in plain words what is wrong and what the issuer needs to change.
+- **Pay by GiroCode:** payee, IBAN, amount and reference with copy buttons and as a QR code for your banking app – only with a valid IBAN, an amount in euros and credit transfer; otherwise the tool says why not.
+- **Also:** check several files at once, save the invoice's attachments, save the validation report as a file.
 
 ## How it works
 
 1. Drag the XML file or the ZUGFeRD PDF into the box above, or choose it – or try an example.
 2. Read the answer: e-invoice or not, and in which format.
-3. Look at the findings; each one says what to change.
-4. Print or save the check report; pay by GiroCode or with the copied details.
+3. Look at the findings. If you received the invoice, send the validation report to the issuer; for your own invoice, complete the details in your invoicing software.
+4. Print or save the validation report; pay by GiroCode or with the copied details.
 5. Keep the original file – the view does not replace it.
 
 ## What is checked and what is not
 
-The tool checks the EN 16931 business rules (CEN, rule set 1.3.16) and, for an XRechnung, the XRechnung 3.0.2 rules as well (KoSIT, Schematron 2.6.0), taken unchanged from the KoSIT validator configuration of 31 August 2026, with the severity levels set there. ZUGFeRD profiles without a KoSIT scenario of their own are checked against the EN 16931 rules. If a file contains values in the wrong format, such as a date or an amount, the rules cannot be applied in full; the tool reports this as a format error.
+In short: the tool checks whether all required details are there and fit together – the business rules of the standard. It does not check whether the details are correct, such as the VAT rate.
 
-Not checked are the XML schema (the formal structure of the file), specific rules of other implementations such as Peppol, and whether the details are correct – whether the VAT rate suits the supply, for example. A validation does not replace checking the invoice for completeness and accuracy ([German Federal Ministry of Finance letter of 15 October 2025](${BMF2025}), para. 35a).
+Each finding has a level: **error** – the invoice breaks a rule and the issuer should correct it; **warning** – please check, the invoice may still be in order; **notice** – for information only.
 
-## Just like the KoSIT validator
+If the tool finds values in the wrong format, such as a date written the wrong way, it reports a **format error**. A file with format errors is not an e-invoice. Missing or inconsistent details (business rule breaches), by contrast, are not format errors.
+
+The tool does not check the XML schema, the formal structure of the file in every detail; format errors that only show up there are not detected. A validation does not replace checking the invoice for completeness and accuracy ([letter of the German Federal Ministry of Finance of 15 October 2025](${BMF2025}), para. 35a).
+
+**For specialists:** the tool checks the EN 16931 business rules (CEN, rule set 1.3.16) and, for an XRechnung, the XRechnung 3.0.2 rules as well (KoSIT, Schematron 2.6.0), taken unchanged from the KoSIT validator configuration of 31 August 2026, with the severity levels set there. XRechnung includes some rules whose names start with PEPPOL. ZUGFeRD profiles without a KoSIT scenario of their own are checked against the EN 16931 rules. Specific rules of other implementations, such as the full Peppol BIS rules, are not checked.
+
+## Compared with the KoSIT validator
 
 ${ABGLEICH_EN}
 
@@ -111,7 +123,7 @@ Invoices are read and checked only in your browser window. The tool, and on the 
 
 ## Legal classification
 
-The tool classifies the format technically and names the source: [section 14 UStG](https://www.gesetze-im-internet.de/ustg_1980/__14.html), section 14.1 UStAE as amended by the [Federal Ministry of Finance letter of 15 October 2025](${BMF2025}), and the [letter of 15 October 2026](${BMF2026}) on business-rule errors. Legal information as of 23 October 2026. It is not tax or legal advice; whether an invoice is in proper form in a particular case is a question for your tax adviser.`,
+The tool classifies the format technically and names the source: [section 14 of the German VAT Act (UStG)](https://www.gesetze-im-internet.de/ustg_1980/__14.html), section 14.1 of the German VAT Application Decree (UStAE) as amended by the [letter of the Federal Ministry of Finance (BMF) of 15 October 2025](${BMF2025}), and the [BMF letter of 15 October 2026](${BMF2026}) on business rule errors. Legal information as of 23 October 2026. It is a technical classification, not tax or legal advice; whether an invoice meets the legal requirements in a particular case is a question for your tax adviser.`,
     nutzung: `As of: 23 October 2026
 
 **Provider.** Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany ([legal notice](https://robin.vision/?lang=en#privacy)).
@@ -128,7 +140,7 @@ The tool classifies the format technically and names the source: [section 14 USt
 
 **Licences.** The tool contains the EN 16931 validation rules (CEN/TC 434, European Union Public Licence 1.2), the XRechnung rules and field labels (KoSIT, Apache License 2.0), fontoxpath, xspattern, whynot and prsc (MIT License) and the QR Code generator library by Project Nayuki (MIT License). These components are governed by their own licences; the restrictions under "Use" do not apply to them. The licence texts and sources are in the file under "Licences and sources" and in [LIZENZEN.txt](https://robin.vision/assets/erechnung/LIZENZEN.txt).
 
-German law applies. These terms are a translation; in case of doubt, the German terms of use of [E-Rechnung prüfen](https://robin.vision/werkzeuge/e-rechnung-pruefen/#nutzungsbedingungen) apply.`,
-    hinweis: `Eine deutsche Fassung des Werkzeugs gibt es unter [E-Rechnung prüfen](https://robin.vision/werkzeuge/e-rechnung-pruefen/): gleiche Funktionen, deutsche Oberfläche.`,
+German law applies. These terms are a translation; in case of doubt, the German terms of use of [SmartFormular E-Rechnung lite](https://robin.vision/werkzeuge/e-rechnung-pruefen/#nutzungsbedingungen) apply.`,
+    hinweis: `Eine deutsche Fassung des Werkzeugs gibt es unter [SmartFormular E-Rechnung lite auf Deutsch](https://robin.vision/werkzeuge/e-rechnung-pruefen/) – gleiche Funktionen, deutsche Oberfläche.`,
   },
 };

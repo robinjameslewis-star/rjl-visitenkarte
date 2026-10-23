@@ -296,7 +296,7 @@ denen es hakt und schnell gehen muss. Vier SmartFormular-Produkte gibt es, zwei 
 - **SmartFormular E-Rechnung lite** – das neueste, auf Englisch „E-invoice viewer and validator“ (Link „e-rechnung-lite“).
   Kostenlos, läuft direkt auf der Seite im Browser oder als Datei offline; die Rechnungen werden nicht hochgeladen. Man zieht eine
   XRechnung (XML) oder eine ZUGFeRD-Rechnung (PDF) hinein und sieht sofort: ob es eine E-Rechnung ist, mit Format und Profil; die
-  Rechnung lesbar und druckbar; die Prüfung mit den offiziellen Regeln der EN 16931 und der XRechnung, je Befund in einem Satz, was
+  Rechnung lesbar und druckbar; die Prüfung mit den offiziellen Regeln der EN 16931 und der XRechnung, je Befund in einfachen Worten, was
   fehlt und was der Rechnungssteller ändern muss; und die Zahlungsangaben mit GiroCode für die Banking-App. Den Kern erzählst du
   so: verstehen und bezahlen. Die ZUGFeRD-Profile MINIMUM und BASIC WL sind keine E-Rechnung, ein PDF ohne eingebettete Daten
   auch nicht. Und seit dem BMF-Schreiben vom 15.10.2026 gilt: Ein Verstoß gegen eine Geschäftsregel macht eine Datei umsatzsteuerlich

@@ -70,6 +70,9 @@
 .ewz-format { display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; margin: 10px 0; font-size: 14px; }
 .ewz-format dt { color: var(--e-tinte3); }
 .ewz-format dd { margin: 0; min-width: 0; }
+.ewz-technik { margin: 2px 0 8px; font-size: 13px; } .ewz-technik summary { cursor: pointer; color: var(--e-tinte2); } .ewz-technik .ewz-format { margin-top: 6px; }
+.ewz-legende { margin: 0 0 10px; } .ewz-naechster { margin: 12px 0 0; padding: 10px 14px; border-left: 3px solid var(--e-akzent); background: var(--e-flaeche); border-radius: 4px; }
+.ewz-ungueltig { color: var(--e-warn); font-weight: 600; } .ewz-info { margin: 0 0 6px; }
 .ewz-pruefstand { font-size: 15px; }
 .ewz-pruefstand.ewz-gruen strong { color: var(--e-ok); }
 .ewz-pruefstand.ewz-gelb strong { color: var(--e-gelb); }

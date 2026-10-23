@@ -40,7 +40,7 @@ const TEXT = {
     fassung: "Fassung", vom: "vom", laden: "Herunterladen", zurSeite: "Zur Werkzeugseite: Nutzungsbedingungen, Prüfsumme, Was ist neu",
     erTitel: "SmartFormular E-Rechnung lite",
     er: [
-      "Eine XRechnung kommt, und niemand kann sie öffnen? E-Rechnung lite zeigt sie lesbar und druckbar, sagt, ob es eine E-Rechnung ist – auch bei ZUGFeRD mit Profil –, prüft sie mit den Regeln von CEN und KoSIT und erklärt jeden Befund in einem Satz: was fehlt und was der Rechnungssteller ändern muss. Ist etwas zu zahlen, steht der GiroCode für die Banking-App bereit.",
+      "Eine XRechnung kommt, und niemand kann sie öffnen? E-Rechnung lite zeigt sie lesbar und druckbar, sagt, ob es eine E-Rechnung ist – auch bei ZUGFeRD mit Profil –, prüft sie mit den Regeln von CEN und KoSIT und erklärt jeden Befund in einfachen Worten: was fehlt und was der Rechnungssteller ändern muss. Ist etwas zu zahlen, steht der GiroCode für die Banking-App bereit.",
       "Es läuft direkt auf der Seite oder als Datei offline; die Rechnungen werden nicht hochgeladen.",
     ],
     erFakten: ["XRechnung (UBL, CII), ZUGFeRD", "Regeln von CEN und KoSIT", "GiroCode", "Kostenlos, ohne Upload"],
@@ -143,7 +143,7 @@ const TEXT = {
     fassung: "Version", vom: "of", laden: "Download", zurSeite: "To the tool page: terms of use, checksum, what's new",
     erTitel: "SmartFormular E-Rechnung lite",
     er: [
-      "An XRechnung arrives and nobody can open it? E-Rechnung lite shows it in readable, printable form, tells you whether it is an e-invoice – ZUGFeRD with its profile included –, checks it against the CEN and KoSIT rules and explains every finding in one sentence: what is missing and what the issuer needs to change. If there is something to pay, the GiroCode for your banking app is ready.",
+      "An XRechnung arrives and nobody can open it? E-Rechnung lite shows it in readable, printable form, tells you whether it is an e-invoice – ZUGFeRD with its profile included –, checks it against the CEN and KoSIT rules and explains every finding in plain words: what is missing and what the issuer needs to change. If there is something to pay, the GiroCode for your banking app is ready.",
       "It runs right on the page or as a file offline; your invoices are not uploaded.",
     ],
     erFakten: ["XRechnung (UBL, CII), ZUGFeRD", "CEN and KoSIT rules", "GiroCode", "Free, no upload"],

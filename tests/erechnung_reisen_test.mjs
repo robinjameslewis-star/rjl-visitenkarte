@@ -91,8 +91,9 @@ async function reiseKanzlei(geraet) {
   await laden(p, b("xrechnung.xml"));
   const k = karte(p, "xrechnung.xml");
   const a = await text(k.locator("[data-teil=antwort]"));
-  check(/Ja, das ist eine E-Rechnung/.test(a) && /XRechnung 3\.0/.test(a) && /UBL/.test(a), `${geraet} a: Antwort oben – E-Rechnung ja, XRechnung 3.0, Syntax UBL`);
-  check(/§ 14 Abs\. 1/.test(a) && /BMF-Schreiben/.test(a) && /Stand der Rechtsangaben: 23\.10\.2026/.test(a), `${geraet} a: Antwort mit amtlicher Fundstelle und Stand`);
+  const technik = (await k.locator(".ewz-technik").textContent()).replace(/\s+/g, " ");
+  check(/Ja, das ist eine E-Rechnung/.test(a) && /XRechnung 3\.0/.test(a) && /UBL 2\.1/.test(technik) && !/UBL 2\.1/.test(a), `${geraet} a: Antwort oben – E-Rechnung ja, XRechnung 3.0; Syntax UBL unter „Technische Angaben“ zugeklappt`);
+  check(/§ 14 Abs\. 1/.test(a) && /Bundesfinanzministeriums/.test(a) && /Stand der Rechtsangaben: 23\.10\.2026 · Technische Einordnung nach den genannten Vorschriften, keine Steuerberatung/.test(a), `${geraet} a: Antwort mit Fundstelle, Stand und Hinweis „keine Steuerberatung“`);
   const blatt = await text(k.locator(".ewz-blatt"));
   check(/Elektro Hartmann GmbH/.test(blatt) && /Bäckerei Sonnenkorn KG/.test(blatt) && /RE-2026-0318/.test(blatt) && /€/.test(blatt) && /Gesamt|Zahlbetrag|Summe/.test(blatt), `${geraet} a: Rechnung lesbar – Rechnungssteller, Empfänger, Nummer, Beträge`);
   await k.locator("input[data-aktion=bt]").check();
@@ -137,7 +138,7 @@ async function reiseHandwerk(geraet, lang = "de") {
   await laden(p, b("zugferd.pdf"));
   const k = karte(p, "zugferd.pdf");
   const a = await text(k.locator("[data-teil=antwort]"));
-  check(lang === "en" ? /Yes, this is an e-invoice/.test(a) && /ZUGFeRD|Factur-X/.test(a) && /EN 16931/.test(a) : /Ja, das ist eine E-Rechnung/.test(a) && /ZUGFeRD|Factur-X/.test(a) && /EN 16931/.test(a) && /ab Version 2\.0\.1/.test(a) && /MINIMUM und BASIC WL/.test(a),
+  check(lang === "en" ? /Yes, this is an e-invoice/.test(a) && /ZUGFeRD|Factur-X/.test(a) && /profile EN 16931/.test(a) && !/Profil /.test(a) : /Ja, das ist eine E-Rechnung/.test(a) && /ZUGFeRD|Factur-X/.test(a) && /EN 16931/.test(a) && /ab Version 2\.0\.1/.test(a) && /MINIMUM und BASIC WL/.test(a),
     `${geraet} b: Antwort – E-Rechnung ja, ZUGFeRD mit Profil EN 16931, Hinweis auf MINIMUM und BASIC WL`);
   check(lang === "en" ? /embedded data counts/.test(a) : /zählen die eingebetteten Daten/.test(a), `${geraet} b: Hinweis, dass bei ZUGFeRD die Daten vorgehen`);
   const qr = k.locator(".ewz-qr-bild");
@@ -172,16 +173,19 @@ async function reiseKleinunternehmerin(geraet) {
   await laden(p, d("kleinunternehmerin.xml"));
   const k = karte(p, "kleinunternehmerin.xml");
   const a = await text(k.locator("[data-teil=antwort]"));
-  check(/Ja, das ist eine E-Rechnung/.test(a) && /5 Fehler, 3 Warnungen/.test(a) && /BMF-Schreiben vom 15\.10\.2026/.test(a) && /Steuerberatung/.test(a), `${geraet} c: Antwort mit Zahl der Befunde und Einordnung nach BMF 15.10.2026`);
+  check(/Ja, das ist eine E-Rechnung/.test(a) && /5 Fehler, 3 Warnungen/.test(a) && /Bundesfinanzministeriums vom 15\.10\.2026/.test(a) && /Das Format stimmt, aber einige Angaben fehlen/.test(a) && /Steuerberatung/.test(a), `${geraet} c: Antwort mit Zahl der Befunde und Einordnung nach BMF 15.10.2026, ohne Widerspruch zum Format`);
   const befunde = await k.locator(".ewz-befund").evaluateAll(l => l.map(x => x.innerText.replace(/\s+/g, " ")));
   const vollstaendig = befunde.filter(x => /(FEHLER|WARNUNG|HINWEIS|Fehler|Warnung|Hinweis) Regel [A-Z]/.test(x) && /Was nicht stimmt: .{12,}/.test(x) && /Was der Rechnungssteller ändern muss: .{8,}/.test(x));
   check(befunde.length === 8 && vollstaendig.length === 8, `${geraet} c: acht Befunde, jeder mit Stufe, Regel, was nicht stimmt und was zu ändern ist (${vollstaendig.length}/${befunde.length})`);
   const alle = befunde.join(" ");
-  check(/USt-IdNr/.test(alle) && /Telefonnummer/.test(alle) && /E-Mail-Adresse/.test(alle) && /Käuferreferenz/.test(alle) && /Grund der Steuerbefreiung/.test(alle) && /IBAN/.test(alle), `${geraet} c: Befunde nennen, was zu ändern ist – USt-IdNr., Telefon, E-Mail, Käuferreferenz, Befreiungsgrund, IBAN`);
+  check(/USt-IdNr/.test(alle) && /Telefonnummer/.test(alle) && /E-Mail-Adresse/.test(alle) && /Käuferreferenz/.test(alle) && /keinen Grund dafür/.test(alle) && /IBAN/.test(alle), `${geraet} c: Befunde nennen, was zu ändern ist – USt-IdNr., Telefon, E-Mail, Käuferreferenz, Befreiungsgrund, IBAN`);
+  const teilB = await text(k.locator("[data-teil=befunde]"));
+  check(/Fehler: Die Rechnung verletzt eine Regel/.test(teilB) && /Warnung: Bitte prüfen/.test(teilB) && /Es ist Ihre eigene Rechnung\? Ergänzen oder korrigieren Sie die Angaben in Ihrem Rechnungsprogramm/.test(teilB), `${geraet} c: Stufen erklärt, nächster Schritt für die eigene Rechnung genannt`);
   check(!/Prüfregel ist verletzt \(Originaltext unten\)/.test(alle), `${geraet} c: kein Befund nur mit allgemeinem Satz`);
   check(befunde.findIndex(x => /WARNUNG|Warnung/.test(x)) > befunde.findLastIndex(x => /FEHLER|Fehler/.test(x)), `${geraet} c: Fehler vor Warnungen`);
   const zahl = await text(k.locator(".ewz-zahlen"));
-  check(/Kein GiroCode\. Die angegebene IBAN ist ungültig/.test(zahl) && /DE89 3704 0044 0532 0130 01/.test(zahl) && /570,00 €/.test(zahl), `${geraet} c: kein GiroCode bei ungültiger IBAN, mit Grund; Werte bleiben sichtbar`);
+  check(/Kein GiroCode\. Die IBAN in dieser Rechnung ist fehlerhaft\. Überweisen Sie nicht auf diese IBAN/.test(zahl) && /DE89 3704 0044 0532 0130 01 ungültig/.test(zahl) && /570,00 €/.test(zahl), `${geraet} c: kein GiroCode bei ungültiger IBAN, mit Grund und Warnung; Werte bleiben sichtbar`);
+  check(await k.locator('.ewz-kopieren[data-kopie="DE89370400440532013001"]').count() === 0, `${geraet} c: ungültige IBAN lässt sich nicht kopieren`);
   const orig = k.locator(".ewz-befund details summary").first();
   await orig.click();
   check(await k.locator(".ewz-befund details[open] .ewz-orig").first().isVisible(), `${geraet} c: Originaltext der Regel aufklappbar`);
@@ -209,15 +213,16 @@ async function reiseFehlerfaelle(geraet) {
   check(zeilen === 10 && await p.locator(".ewz-karte").count() === 10, `${geraet} d: zehn Dateien auf einmal – Übersicht mit zehn Zeilen, zehn Karten (${dauer.toFixed(1)} s)`);
   const antwort = async n => text(karte(p, n).locator("[data-teil=antwort], .ewz-antwort").first());
   const g = await text(karte(p, "gutschrift.xml"));
-  check(/Gutschrift/.test(g) && /Kein GiroCode\. Es ist eine Gutschrift: Der Betrag wird an Sie gezahlt/.test(g) && /1\.342,32 €/.test(g), `${geraet} d: Gutschrift erkannt, kein GiroCode mit Grund, Betrag sichtbar`);
+  const kg0 = karte(p, "gutschrift.xml");
+  check(/Gutschrift/.test(g) && /Zahlung an Sie/.test(g) && /Kein GiroCode\. Es ist eine Gutschrift: Sie müssen nichts überweisen/.test(g) && /nur zur Information/.test(g) && /Gutschriftbetrag/.test(g) && /1\.342,32 €/.test(g) && await kg0.locator(".ewz-zahlen .ewz-kopieren").count() === 0, `${geraet} d: Gutschrift – „Zahlung an Sie“, nichts zu überweisen, Bankverbindung nur zur Information ohne Kopierknöpfe`);
   const u = await text(karte(p, "fremdwaehrung-usd.xml"));
-  check(/Ja, das ist eine E-Rechnung/.test(u) && /Kein GiroCode\. Der Betrag ist nicht in Euro \(USD\)/.test(u) && /DE02 1203 0000 0000 2020 51/.test(u) && /687,82/.test(u), `${geraet} d: Fremdwährung USD – E-Rechnung, kein GiroCode mit Grund, Werte sichtbar`);
+  check(/Ja, das ist eine E-Rechnung/.test(u) && /Kein GiroCode\. Die Rechnung lautet auf US-Dollar \(USD\)/.test(u) && /DE02 1203 0000 0000 2020 51/.test(u) && /687,82/.test(u), `${geraet} d: Fremdwährung USD – E-Rechnung, kein GiroCode mit Grund, Werte sichtbar`);
   check(/Nein, das ist keine E-Rechnung/.test(await antwort("minimum.pdf")) && /MINIMUM/.test(await antwort("minimum.pdf")), `${geraet} d: ZUGFeRD MINIMUM – keine E-Rechnung, Profil genannt`);
-  check(/Nein, das ist keine E-Rechnung/.test(await antwort("ohne-xml.pdf")) && /keine eingebetteten Rechnungsdaten/.test(await antwort("ohne-xml.pdf")), `${geraet} d: PDF ohne XML – keine E-Rechnung, freundlich erklärt`);
+  check(/Nein, das ist keine E-Rechnung/.test(await antwort("ohne-xml.pdf")) && /keine eingebetteten Rechnungsdaten/.test(await antwort("ohne-xml.pdf")) && /„Sonstige Rechnung“ nennt das Umsatzsteuerrecht jede Rechnung/.test(await antwort("ohne-xml.pdf")), `${geraet} d: PDF ohne XML – keine E-Rechnung, „sonstige Rechnung“ erklärt`);
   check(/Nein, das ist keine E-Rechnung/.test(await antwort("foto.jpg")) && /Bild/.test(await antwort("foto.jpg")), `${geraet} d: Foto – keine E-Rechnung, als Bild erkannt`);
   const best = await text(karte(p, "bestellung-ubl.xml"));
-  check(/Nein, das ist keine Rechnung/.test(best) && /anderes Dokument \(Order\)/.test(best) && !/Formatfehler/.test(best), `${geraet} d: XML ohne Rechnung (Bestellung) erkannt und erklärt, nicht als Formatfehler`);
-  check(/Nein, das ist keine E-Rechnung/.test(await antwort("abgeschnitten.xml")) && /kein lesbares Rechnungs-XML/.test(await antwort("abgeschnitten.xml")), `${geraet} d: kaputte (abgeschnittene) XML – keine E-Rechnung, Formatfehler erklärt`);
+  check(/Nein, das ist keine Rechnung/.test(best) && /eine Bestellung, keine Rechnung/.test(best) && !/Formatfehler/.test(best), `${geraet} d: XML ohne Rechnung (Bestellung) erkannt und erklärt, nicht als Formatfehler`);
+  check(/Nein, das ist keine E-Rechnung/.test(await antwort("abgeschnitten.xml")) && /beschädigt oder unvollständig/.test(await antwort("abgeschnitten.xml")), `${geraet} d: kaputte (abgeschnittene) XML – keine E-Rechnung, Formatfehler erklärt`);
   await foto(p, `d-zehn-dateien-${geraet}`);
   await p.locator("[data-aktion=alle-entfernen]").click();
   check(await p.locator(".ewz-karte").count() === 0, `${geraet} d: „Alle entfernen“ leert die Liste`);
