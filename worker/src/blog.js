@@ -336,10 +336,10 @@ ${items}
 // werkzeuge: [{ id, lang, titel, datei, neuigkeiten: Text }].
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
-  de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom",
+  de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", oeffnen: "Zum Werkzeug", fassung: "Fassung", vom: "vom",
     sf: "Werkzeugkasten", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
     ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Zum Workshop mit Unterweisung nach EU AI Act" },
-  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of",
+  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", oeffnen: "To the tool", fassung: "Version", vom: "of",
     sf: "Toolbox", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
     ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "To the workshop with EU AI Act training" },
 };
@@ -355,15 +355,17 @@ export function renderNewsletterFeed({ posts, siteUrl, lang = "de", werkzeuge = 
   const x = s => String(s).replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
   const cdata = s => `<![CDATA[${String(s).replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
   const url = w => `${siteUrl}werkzeuge/${w.id}/`;
+  // Werkzeuge, die direkt auf der Seite laufen (app), führen zum Werkzeug statt zum Download
+  const weg = w => `<a href="${url(w)}">${esc(w.app ? t.oeffnen : t.laden)}: ${esc(w.titel)}</a>`;
   const fassungen = werkzeuge.filter(w => w.lang === lang).flatMap(w => neuigkeiten(w.neuigkeiten).map(e => ({ ...e, werkzeug: w, datum: e.datum || (w.datei && w.datei.datum) || "" })))
     .filter(e => e.datum && e.fassung && e.text).sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0);
   const neueste = fassungen[0], pfad = lang === "en" ? "en/" : "";
   const angebote = `<h3>${esc(t.sf)}</h3>\n<p>${esc(t.sfText)}</p>\n<p><a href="${siteUrl}werkzeuge/${pfad}">${esc(t.sfLink)}</a></p>\n<h3>${esc(t.ws)}</h3>\n<p>${esc(t.wsText)}</p>\n<p><a href="${siteUrl}workshops/${pfad}">${esc(t.wsLink)}</a></p>`;
-  const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p><a href="${url(neueste.werkzeug)}">${esc(t.laden)}: ${esc(neueste.werkzeug.titel)}</a></p>` : "";
+  const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p>${weg(neueste.werkzeug)}</p>` : "";
   const impulse = posts.filter(p => p.lang === lang).map(p => ({ datum: p.date, titel: p.title, link: `${siteUrl}blog/${p.slug}/`,
     html: `${p.summary ? `<p><strong>${esc(p.summary)}</strong></p>\n` : ""}${renderMarkdown(auszug(p.body), "", lang)}\n<p><a href="${siteUrl}blog/${p.slug}/">${esc(t.ganz)}</a></p>${werkzeugBlock ? "\n" + werkzeugBlock : ""}\n${angebote}` }));
   const releases = fassungen.map(e => ({ datum: e.datum, titel: `${e.werkzeug.titel}: ${t.fassung} ${e.fassung}`, link: `${url(e.werkzeug)}#fassung-${e.fassung}`,
-    html: `${renderMarkdown(e.text, "", lang)}\n<p><a href="${url(e.werkzeug)}">${esc(t.laden)}: ${esc(e.werkzeug.titel)}</a></p>\n${angebote}` }));
+    html: `${renderMarkdown(e.text, "", lang)}\n<p>${weg(e.werkzeug)}</p>\n${angebote}` }));
   const items = [...impulse, ...releases].sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0).map(i => `  <item>
     <title>${x(i.titel)}</title>
     <link>${x(i.link)}</link>

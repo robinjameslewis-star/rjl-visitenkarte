@@ -4,7 +4,7 @@
 //   node tests/werkzeug_seite_test.mjs
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung } from "../worker/src/werkzeug.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung, TEILEN_BILD } from "../worker/src/werkzeug.js";
 import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
 import { neuigkeiten } from "../worker/src/neuigkeiten.js";
 import { CONTENT } from "../worker/src/admin.js";
@@ -17,14 +17,21 @@ const root = new URL("..", import.meta.url).pathname;
 const lesen = p => readFileSync(root + p, "utf8");
 
 const SPRACHE = {
-  de: { titel: "Buchungsstapel-Generator", fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
-    neu: "Was ist neu", marke: /DATEV ist eine eingetragene Marke der DATEV eG/, ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeugkasten<\/a>/ },
-  en: { titel: "Booking Batch Generator", fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
-    neu: "What's new", marke: /DATEV is a registered trademark of DATEV eG/, ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Toolbox<\/a>/ },
+  de: { fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
+    neu: "Was ist neu", ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeugkasten<\/a>/ },
+  en: { fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
+    neu: "What's new", ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Toolbox<\/a>/ },
+};
+// je Werkzeug: Suchbegriffe in Titel und Beschreibung, Markenhinweis, Lizenzen
+const ART = {
+  "buchungsstapel-generator": { such: [/DATEV/], marke: /DATEV ist eine eingetragene Marke der DATEV eG/, lizenz: /Tesseract/ },
+  "booking-batch-generator": { such: [/DATEV/], marke: /DATEV is a registered trademark of DATEV eG/, lizenz: /Tesseract/ },
+  "e-rechnung-pruefen": { such: [/E-Rechnung prüfen/, /XRechnung öffnen/, /ZUGFeRD prüfen/], marke: /XRechnung ist ein Standard der Koordinierungsstelle für IT-Standards/, lizenz: /European Union Public Licence 1\.2.*Apache License 2\.0.*MIT License/s },
+  "e-invoice-viewer": { such: [/E-invoice viewer and validator/, /XRechnung/, /ZUGFeRD/], marke: /XRechnung is a standard of the German Coordination Office for IT Standards/, lizenz: /European Union Public Licence 1\.2.*Apache License 2\.0.*MIT License/s },
 };
 const felder = {};
 for (const w of WERKZEUGE) {
-  const s = SPRACHE[w.lang], pfad = werkzeugPfad(w.id), html = lesen(pfad), f = felder[w.id] = werkzeugFelder(html);
+  const s = SPRACHE[w.lang], a = ART[w.id], pfad = werkzeugPfad(w.id), html = lesen(pfad), f = felder[w.id] = werkzeugFelder(html);
   console.log(`\n${w.titel} (${pfad})`);
   check(werkzeugSeite(f, w.id) === html, "Seite im Repository entsteht genau aus ihren Feldern");
   const datei = root + pfad.replace(/index\.html$/, "") + f.datei.name;
@@ -33,21 +40,32 @@ for (const w of WERKZEUGE) {
   check(createHash("sha256").update(roh).digest("hex") === f.datei.sha256 && roh.length === f.datei.bytes, "Größe und SHA-256 stimmen mit der Datei überein");
   const text = roh.toString("utf8");
   check(text.includes(`${s.fassung} <span class="mono">${f.datei.fassung}</span>`), "Fassung stimmt mit dem Fuß der Datei überein");
-  check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.titel}</title>`) && text.includes("Smart<span>Formular</span>"), "Datei in der Sprache der Seite, Titel und Wortmarke SmartFormular FiBu lite");
+  check(text.includes(`<html lang="${w.lang}">`) && text.includes(`<title>${w.titel}</title>`) && text.includes("Smart<span>Formular</span>"), "Datei in der Sprache der Seite, Titel und Wortmarke SmartFormular");
   check(text.includes(`robin.vision/werkzeuge/${w.id}/`), "Fuß der Datei verweist auf diese Seite");
   check(html.includes(`<html lang="${w.lang}">`) && html.includes(`<title>${w.seitentitel}</title>`) && html.includes(`<h1>${w.titel}</h1>`), "Titel (mit Suchbegriffen) und Sprache");
-  check(html.includes(`<p class="untertitel">${w.untertitel}</p>`) && html.includes(`<meta name="description" content="${w.meta}">`) && /DATEV/.test(w.seitentitel) && /DATEV/.test(w.meta), "Untertitel und Beschreibung mit Suchbegriffen");
+  check(html.includes(`<p class="untertitel">${w.untertitel}</p>`) && html.includes(`<meta name="description" content="${w.meta}">`) && a.such.every(r => r.test(w.seitentitel) && r.test(w.meta)), "Untertitel und Beschreibung mit Suchbegriffen");
+  const bild = TEILEN_BILD[w.id];
+  check(bild && html.includes(`<meta property="og:image" content="https://robin.vision/${bild}">`) && html.includes('<meta name="twitter:card" content="summary_large_image">') && existsSync(root + bild), "Bild zum Teilen (og:image) liegt im Repository");
   const faq = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1])).find(d => d["@type"] === "FAQPage");
   check(faq && faq.mainEntity.length >= 5 && faq.mainEntity.every(q => html.includes(`<h3>${q.name.replace(/&/g, "&amp;")}</h3>`)) && html.indexOf('id="fragen"') < html.indexOf('id="nutzungsbedingungen"'), "Fragen und Antworten sichtbar und als FAQPage, vor den Nutzungsbedingungen");
   check(html.includes(`href="${f.datei.name}" download="${f.datei.name}"`), "Download-Knopf mit download-Attribut");
   check(html.includes(`<h2 id="nutzungsbedingungen">${s.nutzung}</h2>`) && s.haftung.test(html), "Nutzungsbedingungen auf der Seite");
-  check(s.marke.test(html), "Markenhinweis");
+  check(a.marke.test(html), "Markenhinweis");
   check(!/ADDISON|Kontoauszug-Konverter|Bank Statement Converter|Posting Batch Generator/.test(html), "kein ADDISON-Bezug, kein alter Name");
   const nl = html.indexOf('id="newsletter"'), dl = html.indexOf('id="download"'), nb = html.indexOf('id="nutzungsbedingungen"');
   check(dl > 0 && nl > dl && nl < nb && html.indexOf("<h2", dl) === html.indexOf('<h2 id="newsletter-title"'), "Newsletter direkt unter dem Download, vor allem anderen");
   check(/data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html) && /<script src="\.\.\/\.\.\/newsletter\.js\?v=[^"]+" defer><\/script>/.test(html), "Anmeldung über den Worker");
   check(/name="website"/.test(html) && s.ohne.test(html), "Falle für Bots; Download ohne Anmeldung (Kopplungsverbot)");
-  check(/Tesseract/.test(html), "Lizenzen nennen auch Tesseract");
+  check(a.lizenz.test(html), "Lizenzen der Bestandteile genannt");
+  if (w.app) {
+    // Werkzeug direkt auf der Seite: eigener Abschnitt, Sicherheitsrichtlinie nur für robin.vision, alle Teile von robin.vision
+    const csp = (html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/) || [])[1] || "";
+    check(html.includes(`<div id="${w.app}" data-lang="${w.lang}"`) && html.indexOf(`id="${w.app}"`) < html.indexOf('id="download"'), "Werkzeug auf der Seite, vor dem Download");
+    check(/default-src 'self'/.test(csp) && /script-src 'self'(;|$)/.test(csp) && !/unsafe-inline'[^;]*script|script-src[^;]*unsafe/.test(csp) && /connect-src 'self' https:\/\/goch\.robin\.vision(;|$)/.test(csp), "Sicherheitsrichtlinie: Skripte und Verbindungen nur von robin.vision");
+    const teile = [...html.matchAll(/(?:src|href)="(\.\.\/\.\.\/assets\/erechnung\/[^"?]+)/g)].map(m => m[1].replace("../../", ""));
+    check(teile.length >= 2 && teile.every(t => existsSync(root + t)), "Skript und Stil des Werkzeugs liegen im Repository");
+    check(!/https?:\/\/(?!robin\.vision|goch\.robin\.vision|schema\.org|www\.gesetze-im-internet\.de|www\.bundesfinanzministerium\.de|github\.com)[^"' )<]+\.(js|css)/.test(html), "keine Skripte oder Stile von fremden Hosts");
+  }
   const neu = neuigkeiten(f.neuigkeiten);
   check(neu.length >= 1 && neu[0].fassung === f.datei.fassung && neu[0].datum === f.datei.datum && html.includes(`<h2 id="neu">${s.neu}</h2>`) && html.includes(`<h3 id="fassung-${f.datei.fassung}">`), "„Was ist neu“ mit Eintrag zur aktuellen Fassung (Fassung und Datum aus der Überschrift)");
   check(s.kopf.test(html), "Kopf führt zu den Werkzeugen dieser Sprache");

@@ -33,9 +33,12 @@ for (const lang of ["de", "en"]) {
   check((xml.match(/<item>/g) || []).length === eigene.length + fassungen.length && (xml.match(/<\/item>/g) || []).length === eigene.length + fassungen.length, `${pfad}: ein Eintrag je Impuls und je Fassung (${eigene.length} + ${fassungen.length})`);
   check(eigene.every(p => xml.includes(`<guid isPermaLink="true">${SITE}blog/${p.slug}/</guid>`)) && fremde.every(p => !xml.includes(`blog/${p.slug}/`)), `${pfad}: nur Impulse dieser Sprache`);
   check(fassungen.every(n => xml.includes(`<guid isPermaLink="true">${SITE}werkzeuge/${n.w.id}/#fassung-${n.fassung}</guid>`)), `${pfad}: jede Fassung als eigener Eintrag`);
-  const neuBlock = lang === "en" ? "<h3>New in SmartFormular FiBu lite</h3>" : "<h3>Neu im SmartFormular FiBu lite</h3>";
+  const neueste = fassungen.filter(n => n.datum).sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0)[0];
+  const neuBlock = `<h3>${lang === "en" ? "New in" : "Neu im"} ${neueste.w.titel}</h3>`;
   check((xml.match(new RegExp(neuBlock.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length === eigene.length, `${pfad}: „Neu im Werkzeug“ in jedem Impuls-Eintrag`);
   check((xml.match(lang === "en" ? /<h3>Toolbox<\/h3>/g : /<h3>Werkzeugkasten<\/h3>/g) || []).length === eigene.length + fassungen.length && !xml.includes("<h3>SmartFormular</h3>") && xml.includes(`${SITE}werkzeuge/${lang === "en" ? "en/" : ""}"`) && (xml.match(/<h3>Workshops<\/h3>/g) || []).length === eigene.length + fassungen.length && xml.includes(`${SITE}workshops/${lang === "en" ? "en/" : ""}`), `${pfad}: Angebote Werkzeuge und Workshops in jedem Eintrag`);
+  const weg = w => `<a href="${SITE}werkzeuge/${w.id}/">${w.app ? (lang === "en" ? "To the tool" : "Zum Werkzeug") : (lang === "en" ? "Download" : "Herunterladen")}: ${w.titel}</a>`;
+  check(fassungen.every(n => xml.includes(weg(n.w))), `${pfad}: Verweis je Werkzeug – zum Download oder, wenn es auf der Seite läuft, zum Werkzeug`);
   check(!/FiBu und Deklaration entstehen|FiBu and Deklaration are in the making|Beta-Zugang auf Anfrage|beta access on request/.test(xml), `${pfad}: Angebotsblock ohne einzelne Produkte (Robin, 18.10.2026)`);
   check((xml.match(/<description><!\[CDATA\[</g) || []).length === eigene.length + fassungen.length && !/undefined|\[object/.test(xml), `${pfad}: Beschreibungen der Einträge als HTML in CDATA, nichts Undefiniertes`);
   const daten = [...xml.matchAll(/<pubDate>([^<]+)<\/pubDate>/g)].map(m => Date.parse(m[1]));
@@ -46,7 +49,7 @@ for (const lang of ["de", "en"]) {
 console.log("\nRedaktion und Skripte");
 const admin = lesen("worker/src/admin.js");
 check(/wneu\$\{x\}/.test(admin) && /\['wneu','neuigkeiten'\]/.test(admin) && /neuigkeiten:\$\('wneu'\+x\)\.value/.test(admin), "Redaktion: Feld „Was ist neu“ wird gelesen und veröffentlicht");
-check(/key === "werkzeug" \|\| key === "werkzeugEn"\) await rebuild/.test(admin) && /werkzeugFelder: felder/.test(admin), "Redaktion: Feeds werden nach Werkzeug-Texten und bei jedem Neubau geschrieben");
+check(/if \(\/\^werkzeug\/\.test\(key\)\) await rebuild/.test(admin) && /werkzeugFelder: felder/.test(admin), "Redaktion: Feeds werden nach Werkzeug-Texten und bei jedem Neubau geschrieben");
 check(/neuigkeitKopf\(fassung, datum, w\.lang\)/.test(lesen("tools/werkzeug-uebernehmen.mjs")) && /renderNewsletterFeed/.test(lesen("tools/werkzeug-uebernehmen.mjs")) && /werkzeugFelder: felder/.test(lesen("tools/blog-seiten-bauen.mjs")), "Skripte: neue Fassung belegt „Was ist neu“ vor, beide Skripte schreiben die Feeds");
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nNewsletter-Feeds in Ordnung.");
