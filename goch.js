@@ -176,7 +176,25 @@
     form.hidden = true; starters.hidden = true;
     document.getElementById('goch-allow').focus();
   }
-  async function ask(text) {
+  // Sprechender Goch (23.10.2026): goch-stimme.js ergänzt die Anfrage nur, wenn der Besucher Spracheingabe oder Stimme
+  // eingeschaltet hat (gesprochen, stimme, figur); sonst bleibt sie wie vorher. Mit Stimme antwortet der Worker als NDJSON:
+  // die erste Zeile ist die gewohnte Antwort, den Rest (die Stimme) liest goch-stimme.js.
+  const zusatz = opts => (window.GochStimme && window.GochStimme.anfrage(opts)) || {};
+  async function ersteZeile(r) {
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (value) buf += dec.decode(value, { stream: true });
+      const i = buf.indexOf('\n');
+      if (i >= 0 || done) {
+        const first = JSON.parse(i >= 0 ? buf.slice(0, i) : buf);
+        if (window.GochStimme && !done) window.GochStimme.rest(reader, buf.slice(i + 1), dec, first); else if (!done) reader.cancel();
+        return first;
+      }
+    }
+  }
+  async function ask(text, opts = {}) {
     text = text.trim().slice(0, 600);
     if (!text || busy) return;
     if (!choice || !choice.allowed) { askConsent(text); return; }
@@ -189,11 +207,11 @@
     try {
       const r = await fetch(endpoint, {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ lang: language.current, messages: history.slice(-24) })
+        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), ...zusatz(opts) })
       });
       if (r.status === 503) { switchOff(); return; } // in der Redaktion ausgeschaltet: Vogel fliegt wieder statt zu sprechen
       if (!r.ok) throw new Error(String(r.status));
-      data = await r.json();
+      data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r) : await r.json();
       if (!data || typeof data.reply !== 'string') throw new Error('format');
     } catch (_) {
       thinking.remove();
@@ -220,6 +238,7 @@
       }
     }
     history.push({ role: 'assistant', content: remembered });
+    window.dispatchEvent(new CustomEvent('goch-antwort', { detail: data }));
     const nl = data.action === 'newsletter' ? newsletterForm() : null;
     if (nl) log.append(nl);
     log.scrollTop = log.scrollHeight;
@@ -261,6 +280,8 @@
     bubble('goch', t('gochWithdrawn'));
     input.focus();
   });
+  // Für goch-stimme.js: erkannten Text als Besuchertext senden, Endpunkt für /listen ableiten.
+  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });
   narrow.addEventListener('change', place);

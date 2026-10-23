@@ -3,14 +3,30 @@ Worker, aber mit festen Texten. Nachrichten an Robin werden nicht versendet, son
 
 Aufruf:  python3 tests/goch_fake_worker.py [Port, Standard 8787]
 Seite:   http://localhost:8788/?goch=http://localhost:8787/chat
-Prüfen:  GET /_sent liefert die „versendeten“ Nachrichten als JSON, GET /_last die letzte Anfrage."""
-import json, sys
+Prüfen:  GET /_sent liefert die „versendeten“ Nachrichten als JSON, GET /_last die letzte Anfrage.
+Sprechender Goch (23.10.2026): POST /listen nimmt ein WAV und liefert einen festen Text; /chat mit „stimme“ antwortet als
+NDJSON mit einem kurzen WAV-Ton als Stimme (KI-Hinweis bei „erste“). GET /_modus?stimme=ok|grenze|fehler&hoeren=ok|grenze|aus
+stellt das Verhalten um, GET /_listen und /_chats liefern, was ankam."""
+import base64, io, json, math, struct, sys, urllib.parse, wave
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
 SENT = []
 CONTACT = []  # über das Formular „versendete“ Nachrichten
 LAST = {}  # zuletzt empfangener Anfragekörper, für Tests des Verlaufs
+CHATS = []  # alle Anfragekörper an /chat (Sprechender Goch: gesprochen, stimme, figur)
+LISTEN = []  # was an /listen ankam: Größe, Kopf, Sprache, Inhaltstyp
+MODUS = {'stimme': 'ok', 'hoeren': 'ok'}
+KI = {'de': 'Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. ', 'en': "Just so you know: I'm an AI, and my voice is artificially generated. "}
+
+def ton(sekunden=0.6, hz=440):
+    """Kurzer Sinuston als WAV – steht in den Tests für die Stimme (MP3 wäre für headless Chrome gleichwertig)."""
+    buf = io.BytesIO()
+    with wave.open(buf, 'wb') as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000)
+        w.writeframes(b''.join(struct.pack('<h', int(9000 * math.sin(2 * math.pi * hz * i / 16000))) for i in range(int(16000 * sekunden))))
+    return base64.b64encode(buf.getvalue()).decode()
+TON = ton()
 
 REPLIES = {
     'de': {
@@ -50,6 +66,16 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
 
     def reply(self, obj, status=200):
+        stimme = getattr(self, 'stimme', None)
+        if stimme and status == 200 and isinstance(obj.get('reply'), str):  # Antwort mit Stimme: NDJSON wie der Worker
+            if isinstance(stimme, dict) and stimme.get('erste'): obj = {**obj, 'reply': KI[self.lang] + obj['reply']}
+            zweite = {'stimme': {'mime': 'audio/wav', 'daten': TON, 'zeichen': len(obj['reply']), 'ms': 5}} if MODUS['stimme'] == 'ok' \
+                else {'stimme': None, 'grund': MODUS['stimme']}
+            body = (json.dumps({**obj, 'ki': True}, ensure_ascii=False) + '\n' + json.dumps(zweite) + '\n').encode()
+            self.send_response(200); self.cors()
+            self.send_header('Content-Type', 'application/x-ndjson; charset=utf-8')
+            self.send_header('Content-Length', str(len(body))); self.end_headers(); self.wfile.write(body)
+            return
         body = json.dumps(obj, ensure_ascii=False).encode()
         self.send_response(status); self.cors()
         self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -62,6 +88,11 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == '/_sent': return self.reply(SENT)
         if self.path == '/_last': return self.reply(LAST)
         if self.path == '/_contact': return self.reply(CONTACT)
+        if self.path == '/_listen': return self.reply(LISTEN)
+        if self.path == '/_chats': return self.reply(CHATS)
+        if self.path.startswith('/_modus'):
+            for k, v in urllib.parse.parse_qsl(urllib.parse.urlparse(self.path).query): MODUS[k] = v
+            return self.reply(MODUS)
         if self.path == '/':
             self.send_response(200); self.cors(); self.send_header('Content-Type', 'text/plain'); self.end_headers(); self.wfile.write(b'Goch'); return
         self.reply({'error': 'Nicht gefunden.'}, 404)
@@ -77,13 +108,24 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply({'error': 'Bitte Name, eine gültige E-Mail-Adresse und eine Nachricht angeben.'}, 400)
             CONTACT.append({k: body.get(k, '') for k in ('name', 'email', 'phone', 'message', 'lang')})
             return self.reply({'ok': True})
+        if self.path.startswith('/listen'):  # Spracheingabe: WAV prüfen, festen Text liefern
+            data = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+            lang = 'en' if 'lang=en' in self.path else 'de'
+            LISTEN.append({'bytes': len(data), 'kopf': data[:4].decode('latin1'), 'wave': data[8:12].decode('latin1'), 'lang': lang,
+                           'typ': self.headers.get('Content-Type', ''), 'rate': struct.unpack('<I', data[24:28])[0] if len(data) >= 28 else 0})
+            if MODUS['hoeren'] == 'aus': return self.reply({'error': 'Spracheingabe ist zurzeit ausgeschaltet.'}, 503)
+            if MODUS['hoeren'] == 'grenze': return self.reply({'text': '', 'grenze': True})
+            if data[:4] != b'RIFF' or data[8:12] != b'WAVE': return self.reply({'error': 'Bitte als WAV senden.'}, 415)
+            return self.reply({'text': 'What is Robin working on?' if lang == 'en' else 'Woran arbeitet Robin gerade?', 'sekunden': round((len(data) - 44) / 32000, 1)})
         if self.path != '/chat': return self.reply({'error': 'Nicht gefunden.'}, 404)
         try:
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0)) or b'{}'))
         except Exception:
             return self.reply({'error': 'Ungültige Anfrage.'}, 400)
         global LAST; LAST = body
+        CHATS.append(body)
         lang = 'en' if body.get('lang') == 'en' else 'de'
+        self.stimme, self.lang = body.get('stimme'), lang
         T = REPLIES[lang]
         msgs = [m for m in body.get('messages', []) if m.get('role') in ('user', 'assistant')]
         if not msgs or msgs[-1]['role'] != 'user': return self.reply({'error': 'Keine Frage erhalten.'}, 400)
