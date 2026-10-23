@@ -168,7 +168,8 @@ function antwort(e) {
   }
   if (a === "pdf-ohne-xml") return ANTWORT.neinPdf;
   if (a === "bild") return ANTWORT.neinBild;
-  if (a === "xml-defekt" || a === "xml-fremd" || a === "xml-dtd") return ANTWORT.neinFormat;
+  if (a === "xml-fremd") return ANTWORT.keineRechnung;
+  if (a === "xml-defekt" || a === "xml-dtd") return ANTWORT.neinFormat;
   if (a === "zugferd1") return ANTWORT.neinZugferd1;
   return null;
 }
@@ -222,7 +223,7 @@ ${quellenHtml(a.quellen)}
 ${formatZeilen(e)}
 <div data-teil="pruefzeile">${pruefZeile(e)}</div>
 ${hinweise}
-<p class="ewz-stand">${t.stand}: ${datum(STAND)}</p>
+${a.quellen.length || hinweise ? `<p class="ewz-stand">${t.stand}: ${datum(STAND)}</p>` : ""}
 </div>`;
 }
 
@@ -302,7 +303,7 @@ ${skonto(d.bedingungen).map(s => `<div class="ewz-kopie"><dt>${t.skonto}</dt><dd
   const ls = lastschrift ? `<p class="ewz-klein">${t.mandat}: ${esc(lastschrift.lastschrift.mandat || "–")} · ${t.glaeubiger}: ${esc(d.glaeubigerId || "–")} · ${t.konto}: ${esc(ibanLesbar(lastschrift.lastschrift.konto) || "–")}</p>` : "";
   const qr = z.nutzlast
     ? `<figure class="ewz-qr"><div class="ewz-qr-bild">${qrSvg(z.nutzlast, ersetze(t.girocodeAlt, { betrag: geld(z.betrag, "EUR"), empfaenger: z.empfaenger }))}</div><figcaption><strong>${t.girocode}</strong> – ${esc(t.girocodeLead)}</figcaption></figure>`
-    : `<p class="ewz-kein-qr">${esc(t.keinGirocode)} ${esc(ersetze(t.grund[z.grund] || z.grund, { code: z.code, waehrung: z.waehrung }))}</p>`;
+    : `<p class="ewz-kein-qr"><strong>${esc(t.keinGirocode)}</strong> ${esc(ersetze(t.grund[z.grund] || z.grund, { code: z.code, waehrung: z.waehrung }))}</p>`;
   return `<div class="ewz-zahlen">${qr}${werte}</div>${ls}`;
 }
 
