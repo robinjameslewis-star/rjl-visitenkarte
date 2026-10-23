@@ -4,7 +4,7 @@
 // alter Sprungmarken zur SmartFormular-Produktseite; Slider je Sprache; ein Probe-Partner erscheint wie alle anderen, nur der Verweis trägt rel="sponsored";
 // nirgends eine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026). Jedes Werkzeug – Karte, Slider, Spalte im
 // Vergleich – trägt dasselbe Kennzeichen „Anzeige · Anbieter“ mit Verweis auf die Erläuterung im Impressum (Robin, 18.10.2026, Option C);
-// der Platzhalter nicht. Vergleich mit acht Kriterien und Stand je Spalte (Recherche 18.10.2026, Option A).
+// eigene kostenlose Werkzeuge (FiBu lite, E-Rechnung lite) tragen im Slider und im Vergleich „Kostenlos“ (Robin, 23.10.2026); der Platzhalter nichts. Vergleich mit acht Kriterien und Stand je Spalte (Recherche 18.10.2026, Option A).
 // Kein Netz.
 //   node tests/werkzeuge_uebersicht_test.mjs
 import { readFileSync } from "node:fs";
@@ -60,7 +60,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const zeilen = [...tabelle.matchAll(/<tr><th scope="row">([^<]*)<\/th>/g)].map(m => m[1].replace(/\u00AD/g, ""));
   check(anzahl(tabelle, /<th scope="col"/g) === 6 && zeilen.join("|") === t.zeilen.join("|") && !/>(Bereich|Area|Programme|Software|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && /Komplettlösung aus einer Hand|all-in-one suites/.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: vier Werkzeuge (E-Rechnung lite seit 23.10.2026), „Ihr Produkt“, acht Kriterien nach der Recherche vom 18.10.2026, Weg zum Formular");
   check(anzahl(tabelle, /<td><\/td>/g) === 0 && anzahl(tabelle, /<span class="wz-th-stand">/g) === 4 && tabelle.includes(`<span class="wz-th-stand">${t.stand} 10/2026</span>`), "jede SmartFormular-Zelle gefüllt, Stand der Angaben im Kopf je Spalte");
-  check(anzahl(tabelle, new RegExp(thKennz(t, "robin.vision").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 4 && !/wz-frei-spalte"><span class="wz-th-kennz/.test(tabelle), "Vergleich: jede Werkzeugspalte mit Kennzeichen „Anzeige · Anbieter“, die Spalte „Ihr Produkt“ ohne");
+  check(anzahl(tabelle, new RegExp(thKennz(t, "robin.vision").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 2 && anzahl(tabelle, new RegExp(`<span class="wz-th-kennz">${lang === "en" ? "Free" : "Kostenlos"}</span>`, "g")) === 2 && anzahl(tabelle, /class="wz-th-kennz"/g) === 4 && !/wz-frei-spalte"><span class="wz-th-kennz/.test(tabelle), "Vergleich: FiBu und Deklaration mit „Anzeige · robin.vision“, FiBu lite und E-Rechnung lite mit „Kostenlos“, die Spalte „Ihr Produkt“ ohne");
   check(!/Testsieger|empfohlen|recommended|★|\b[1-5],[0-9] \/ 5\b/.test(tabelle), "keine Noten, Sterne oder Empfehlungen im Vergleich (§ 6 UWG)");
   const quelle = html.match(/<\/table>\n<\/div>\n<p class="meta wz-quelle">([^<]*)<\/p>/)?.[1] || "";
   check(quelle === t.quelle, "unter dem Vergleich: Herkunft der Angaben und Reihenfolge, ohne Partner kein Satz zur Bezahlung");
@@ -99,7 +99,7 @@ for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
   check(anzahl(s, /<article class="wzs-karte/g) === 5 && anzahl(s, /<i( class="an")?><\/i>/g) === 5 && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: fünf Karten, fünf Punkte, zwei Pfeile`);
-  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 4 && anzahl(s, /wzs-kennz/g) === 4 && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && s.includes(`<h3>${t.platz}</h3>`) && s.includes(`href="werkzeuge/${lang === "en" ? "en/" : ""}#partner"`), `${lang}: vier SmartFormular-Produkte mit Kennzeichen „Anzeige · robin.vision“, Platzhalter ohne, führt zu „Partner werden“`);
+  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 2 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free" : "Kostenlos"}</p>`, "g")) === 2 && anzahl(s, /wzs-kennz/g) === 4 && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && s.includes(`<h3>${t.platz}</h3>`) && s.includes(`href="werkzeuge/${lang === "en" ? "en/" : ""}#partner"`), `${lang}: vier SmartFormular-Produkte – zwei mit „Kostenlos“, zwei mit „Anzeige · robin.vision“ –, Platzhalter ohne, führt zu „Partner werden“`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
   check(s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#deklaration"`), `${lang}: FiBu und Deklaration führen zur Produktseite`);
 }

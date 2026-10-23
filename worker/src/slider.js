@@ -4,7 +4,7 @@
 // am Ende „Hier könnte Ihr Produkt stehen“. Je Sprache ein Slider; language.js blendet den der anderen Sprache über data-langs aus.
 // Ohne Skript lässt er sich wischen und scrollen, das kleine Skript in index.html ergänzt Pfeile und Punkte. Stile in index.html (.wzs).
 // tools/werkzeug-uebernehmen.mjs setzt das Ergebnis zwischen die Marken <!-- werkzeuge:liste --> ein.
-import { PARTNER, ROBIN_VISION, kennzeichen } from "./partner.js";
+import { PARTNER, ROBIN_VISION, kennzeichen, kostenlos } from "./partner.js";
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -12,8 +12,8 @@ const TEXT = {
   de: { label: "Werkzeugkasten", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter",
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     produkte: [
-      { name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – kostenlos, offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
-      { name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – kostenlos, im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
+      { frei: true, name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
+      { frei: true, name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
       { name: "FiBu", text: "Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.", bereich: "Rechnungswesen", href: "werkzeuge/smartformular/#fibu" },
       { name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#deklaration" },
     ],
@@ -22,8 +22,8 @@ const TEXT = {
   en: { label: "Toolbox", rolle: "Carousel", zurueck: "Previous", weiter: "Next",
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     produkte: [
-      { name: "FiBu lite", text: "Bank statements into booking batches – free, offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
-      { name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – free, in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
+      { frei: true, name: "FiBu lite", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
+      { frei: true, name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
       { name: "FiBu", text: "Post bank, payables and receivables – linked to your open items.", bereich: "Accounting", href: "werkzeuge/smartformular/en/#fibu" },
       { name: "Deklaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#deklaration" },
     ],
@@ -43,7 +43,8 @@ export function slider(lang) {
   const t = TEXT[lang];
   const sfLogo = `<div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>`;
   const kennz = anbieter => kennzeichen(lang, "#anzeigen", anbieter, "wzs-kennz");
-  const eigene = t.produkte.map(p => karte({ kennz: kennz(ROBIN_VISION), logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
+  // Eigene kostenlose Werkzeuge: „Kostenlos“ statt „Anzeige · robin.vision“ (Robin, 23.10.2026)
+  const eigene = t.produkte.map(p => karte({ kennz: p.frei ? kostenlos(lang, "wzs-kennz") : kennz(ROBIN_VISION), logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
   const partner = PARTNER.map(p => karte({ kennz: kennz(p.anbieter), logo: `<div class="wzs-logo" aria-hidden="true">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : esc(p.name)}</div>`,
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: p.bereich || "",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));

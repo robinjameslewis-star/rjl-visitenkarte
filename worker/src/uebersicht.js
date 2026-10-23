@@ -11,7 +11,7 @@
 // (tools/entwuerfe/werkzeuge-2026-10-18/).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref } from "./partner.js";
+import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, KOSTENLOS } from "./partner.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
 
@@ -42,11 +42,11 @@ const TEXT = {
     kriterien: { aufgabe: "Aufgabe", fuer: "Für wen", daten: "Betrieb und Daten", sitz: "Sitz des Anbieters", ki: "KI",
       schnittstellen: "Schnitt­stellen", preis: "Preis und Test", nachweise: "Nachweise" },
     vergleich: [
-      { name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
+      { frei: true, name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
         daten: "Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner", sitz: "Deutschland", ki: "Nein, arbeitet mit Regeln",
         schnittstellen: "Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format", preis: "Kostenlos, ohne Anmeldung",
         nachweise: "Prüfsumme je Fassung; nichts wird hochgeladen" },
-      { name: "E-Rechnung lite", href: "werkzeuge/e-rechnung-pruefen/", stand: "10/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
+      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-rechnung-pruefen/", stand: "10/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
         daten: "Im Browser auf der Seite oder als Datei offline; nichts wird hochgeladen", sitz: "Deutschland", ki: "Nein, offizielle Prüfregeln von CEN und KoSIT",
         schnittstellen: "Liest XRechnung (UBL, CII) und ZUGFeRD/Factur-X; Prüfbericht, GiroCode", preis: "Kostenlos, ohne Anmeldung",
         nachweise: "Abgleich mit der offiziellen Prüfung an Tausenden Testrechnungen" },
@@ -101,11 +101,11 @@ const TEXT = {
     kriterien: { aufgabe: "Task", fuer: "For whom", daten: "Operation and data", sitz: "Provider based in", ki: "AI",
       schnittstellen: "Interfaces", preis: "Price and trial", nachweise: "Assurance" },
     vergleich: [
-      { name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
+      { frei: true, name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
         daten: "A single file in your browser, offline; the data stays on your computer", sitz: "Germany", ki: "No, works with rules",
         schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free, no sign-up",
         nachweise: "Checksum for every version; nothing is uploaded" },
-      { name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "10/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Firms, companies, the self-employed",
+      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "10/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Firms, companies, the self-employed",
         daten: "In the browser on the page or as an offline file; nothing is uploaded", sitz: "Germany", ki: "No, official CEN and KoSIT validation rules",
         schnittstellen: "Reads XRechnung (UBL, CII) and ZUGFeRD/Factur-X; check report, GiroCode", preis: "Free, no sign-up",
         nachweise: "Compared with the official validation on thousands of test invoices" },
@@ -269,12 +269,14 @@ ${chips(t.platzhalter.chips)}
 // gewählt): Aufgabe, Für wen, Betrieb und Daten, Sitz des Anbieters, KI, Schnittstellen, Preis und Test, Nachweise – Tatsachen, die
 // jeder Anbieter für Komplettlösung wie Einzelwerkzeug liefern kann, keine Noten. Im Kopf je Spalte der Stand der Angaben. Darunter
 // eine Zeile zur Herkunft der Angaben und zur Reihenfolge. Jede Spalte trägt im Kopf dasselbe Kennzeichen „Anzeige · Anbieter“ wie die
-// Karten (Robin, 18.10.2026, Option C). Steckbriefe mit Filter folgen später (Option B).
+// Karten (Robin, 18.10.2026, Option C); eigene kostenlose Werkzeuge tragen „Kostenlos“ (Robin, 23.10.2026). Steckbriefe mit Filter folgen
+// später (Option B).
 function vergleich(lang, t, up) {
   const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
   const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
     ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, anbieter: p.anbieter, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
-  const kennz = s => kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");
+  const kennz = s => s.frei ? `<span class="wz-th-kennz">${KOSTENLOS[lang]}</span>`
+    : kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");
   const zeilen = Object.entries(t.kriterien).map(([k, label]) => `<tr><th scope="row">${esc(label)}</th>${spalten.map(s => `<td>${esc(s[k] || "")}</td>`).join("")}<td class="wz-frei-spalte">${k === "aufgabe" ? esc(t.ihrProduktText) : ""}</td></tr>`).join("\n");
   return `<div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">

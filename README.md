@@ -642,6 +642,13 @@ deren Vorstellung es vergütet wird. Gestaltung dezent (Robin, 18.10.2026: „no
 Sperrung, Unterstreichung nur beim Darüberfahren, Grau #767676 auf Papier (lesbar bleiben – sonst verfehlt es den Zweck).
 Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
 
+**Ausnahme für eigene kostenlose Werkzeuge (Robin, 23.10.2026):** FiBu lite und E-Rechnung lite tragen statt „Anzeige · robin.vision“
+einfach „Kostenlos“ (englisch „Free“, ohne Verweis) – über dem Titel ihrer Seiten, auf ihren Karten im Startseiten-Slider und im Kopf
+ihrer Spalte im Vergleich (`kostenlos` in `worker/src/partner.js`, Kennung `frei: true` in `slider.js` und `uebersicht.js`). Anlass: In der
+Laien-Textprüfung wirkte „Anzeige“ an einem kostenlosen Werkzeug wie Werbung oder ein Bezahlangebot. Partner, die Beta-Produkte FiBu und
+Deklaration und die Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), behalten „Anzeige“.
+Die Zeile unter dem Titel der Werkzeugseiten nennt nur noch Fassung und Datum („Kostenlos“ steht schon darüber).
+
 ## Werkzeug: SmartFormular E-Rechnung lite (23.10.2026)
 
 Zweites kostenloses SmartFormular-Werkzeug (Robin, 23.10.2026, Option A „verstehen und bezahlen“): E-Rechnungen als XRechnung

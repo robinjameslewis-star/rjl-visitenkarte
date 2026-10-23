@@ -10,7 +10,7 @@ import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { kopf, KOPF_CSS } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
-import { ROBIN_VISION, kennzeichen, anzeigeHref, KENNZ_CSS } from "./partner.js";
+import { kostenlos, KENNZ_CSS } from "./partner.js";
 
 export { NEWSLETTER_ENDPUNKT };
 const SITE = "https://robin.vision/";
@@ -133,7 +133,7 @@ export function werkzeugFelder(html) {
 const T = {
   de: {
     home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeugkasten", toolsHref: "werkzeuge/", sfHref: "werkzeuge/smartformular/", about: "Über mich", aboutHref: "ueber-mich/",
-    frei: "Kostenlos", fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
+    fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
     kurz: "SmartFormular", seitentitel: "SmartFormular von robin.vision: FiBu lite kostenlos, FiBu und Deklaration als Beta – Buchhaltung und Jahresabschluss mit KI, human in the loop | robin.vision",
@@ -145,7 +145,7 @@ const T = {
   },
   en: {
     home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Toolbox", toolsHref: "werkzeuge/en/", sfHref: "werkzeuge/smartformular/en/", about: "About", aboutHref: "about/",
-    frei: "Free", fassung: "Version", vom: "of", laden: "Download", datei: "File",
+    fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
     kurz: "SmartFormular", seitentitel: "SmartFormular by robin.vision: FiBu lite free, FiBu and Deklaration in beta – bookkeeping and year-end accounts with AI, human in the loop | robin.vision",
@@ -271,9 +271,9 @@ export function werkzeugSeite(f, id = "buchungsstapel-generator") {
   const [einleitung, ...rest] = beschreibung.split(/\n(?=## )/);
   const fragen = FRAGEN[id] || [];
   const main = `<article>
-${kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "kennz")}
+${kostenlos(lang, "kennz")}
 <h1>${esc(w.titel)}</h1>
-${w.untertitel ? `<p class="untertitel">${esc(w.untertitel)}</p>\n` : ""}<p class="meta">${t.frei} · ${stand}</p>
+${w.untertitel ? `<p class="untertitel">${esc(w.untertitel)}</p>\n` : ""}<p class="meta">${stand}</p>
 ${renderMarkdown(einleitung, "", lang)}
 ${w.app ? appAbschnitt(w, lang, up, datei.fassung) : ""}<div class="download" id="download">
 <a class="knopf" href="${esc(datei.name)}" download="${esc(datei.name)}">${t.laden} (${mb} MB)</a>
