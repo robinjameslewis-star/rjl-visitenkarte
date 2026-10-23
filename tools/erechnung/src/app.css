@@ -168,6 +168,19 @@
   .ewz-format dt { font-size: 12.5px; margin-top: 6px; }
 }
 
+/* Übersicht auf schmalen Bildschirmen: je Datei ein Block statt einer breiten Tabelle */
+@media (max-width: 560px) {
+  .ewz-uebersicht table, .ewz-uebersicht tbody { display: block; }
+  .ewz-uebersicht thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .ewz-uebersicht tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 9px 0; border-bottom: 1px solid var(--e-linie); }
+  .ewz-uebersicht td { border: 0 !important; padding: 0 !important; }
+  .ewz-uebersicht td:nth-child(1) { grid-column: 1 / -1; }
+  .ewz-uebersicht td:nth-child(2) { grid-column: 1; grid-row: 2; }
+  .ewz-uebersicht td:nth-child(4) { grid-column: 2; grid-row: 2; }
+  .ewz-uebersicht td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; }
+  .ewz-uebersicht td[data-label]::before { content: attr(data-label) " "; color: var(--e-tinte3); font-size: 12.5px; }
+}
+
 /* Druck: nur die Rechnung mit Prüfergebnis, hell */
 #ewz-druck { display: none; }
 @media print {

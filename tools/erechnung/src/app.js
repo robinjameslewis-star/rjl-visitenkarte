@@ -436,7 +436,7 @@ function uebersichtZeichnen() {
     const urteil = a ? (a.urteil === "ja" ? t.ja : a.urteil === "nein" ? t.nein : t.eingeschraenkt) : "–";
     const bef = e.pruefung.status === "keine" ? "–" : z ? (t.zaehler(z.fehler, z.warnung, z.hinweis) || t.keineFehler) : t.prueftLaeuft;
     const zb = e.daten && e.daten.summen ? geld(e.daten.summen.zahlbetrag, e.daten.waehrung) : "";
-    return `<tr><td><a href="#ewz-k${e.nr}">${esc(e.name)}</a></td><td>${urteil}</td><td>${esc(bef)}</td><td class="ewz-z">${zb}</td></tr>`;
+    return `<tr><td><a href="#ewz-k${e.nr}">${esc(e.name)}</a></td><td data-label="${esc(t.eRechnung)}">${urteil}</td><td data-label="${esc(t.befunde)}">${esc(bef)}</td><td class="ewz-z">${zb}</td></tr>`;
   };
   uebersicht.innerHTML = `<section class="ewz-uebersicht" aria-labelledby="ewz-ue"><div class="ewz-karte-kopf"><h2 id="ewz-ue">${t.uebersicht}</h2><div class="ewz-knoepfe"><button type="button" class="ewz-zweit" data-aktion="alle-entfernen">${t.alleEntfernen}</button></div></div>
 <div class="ewz-tabelle" tabindex="0" role="group" aria-label="${esc(t.uebersicht)}"><table><thead><tr><th scope="col">${t.datei}</th><th scope="col">${t.eRechnung}</th><th scope="col">${t.befunde}</th><th scope="col" class="ewz-z">${t.zahlbetrag}</th></tr></thead><tbody>${eintraege.map(zeile).join("")}</tbody></table></div></section>`;
