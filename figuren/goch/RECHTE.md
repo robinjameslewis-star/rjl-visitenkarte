@@ -31,19 +31,23 @@ kann Nachahmungen aber womöglich nicht untersagen. Schutz der Figur eher über 
 
 ## Stimme
 
-Gochs Stimme seit 23.10.2026 (Robins Wahl): „Rupert – Proper & At Your Service“ aus der ElevenLabs Voice Library,
-Ersteller Robert Ranger, `voiceId` `89gcX1AeMGgcsN8ypHLu` (am 23.10.2026 zu „Meine Stimmen“ hinzugefügt). Deutsch,
-kein Aufschlag je Zeichen, keine Live-Moderation, Kündigungsfrist des Erstellers zwei Jahre (zieht er die Stimme zurück,
-bleibt sie so lange nutzbar). Nutzung nach den Bedingungen der Voice Library; kommerziell nur mit bezahltem Tarif.
+Gochs Stimme seit 23.10.2026 (Robins Wahl nach dem Anhören): „Piet“ (Convo, Thoughtful) aus der ElevenLabs Voice
+Library, `voiceId` `2QhwfRSog8ArO9AfgYMU`. Am 23.10.2026 über die Schnittstelle mit Eleven v4 erprobt – läuft auch im
+kostenlosen Tarif. Nutzung nach den Bedingungen der Voice Library; kommerziell nur mit bezahltem Tarif.
 
-Vorher (bleibt als Rückweg in „Meine Stimmen“): Stimme „Goch“, `voiceId` `sJ8mnaQVr5om2HJMoQ7o`, ElevenLabs Voice Design,
-erzeugt am 23.10.2026 aus der Beschreibung in `FIGUREN.md`, Vorschlag 2 von 3 – synthetisch, keine Nachbildung einer
-echten Person. Verworfen: „Wolf Spencer – Rough and Deep“ (Aufschlag 0,20 $ je 1.000 Credits, Anklang an eine bekannte
-Synchronstimme).
+Vorher:
+- „Rupert – Proper & At Your Service“ (Voice Library, Ersteller Robert Ranger, `voiceId` `89gcX1AeMGgcsN8ypHLu`), am
+  23.10.2026 kurz gewählt; die Schnittstelle lehnt ihn im kostenlosen Tarif ab (402 Payment Required).
+- Stimme „Goch“ (bleibt als Rückweg in „Meine Stimmen“), `voiceId` `sJ8mnaQVr5om2HJMoQ7o`, ElevenLabs Voice Design,
+  erzeugt am 23.10.2026 aus der Beschreibung in `FIGUREN.md`, Vorschlag 2 von 3 – synthetisch, keine Nachbildung einer
+  echten Person.
+- Verworfen: „Wolf Spencer – Rough and Deep“ (Aufschlag 0,20 $ je 1.000 Credits, Anklang an eine bekannte
+  Synchronstimme).
 
 **Offen:** Am 23.10.2026 lief das Konto noch im kostenlosen Tarif, der keine kommerzielle Lizenz enthält. Vor dem
-ersten Einsatz einen bezahlten Tarif abschließen (Robin) und hier Tarif und Datum eintragen; die Bedingungen der Voice
-Library für Ruperts Stimme (Fundstelle, Abrufdatum) hier festhalten. Außerdem: Konto
+ersten Einsatz einen bezahlten Tarif abschließen (Robin) und hier Tarif und Datum eintragen. Für Piet aus der Voice
+Library nachtragen: genauer Name, Ersteller, Aufschlag je Zeichen, Live-Moderation, Kündigungsfrist des Erstellers
+sowie die Bedingungen (Fundstelle, Abrufdatum); Piet zu „Meine Stimmen“ hinzufügen. Außerdem: Konto
 (E-Mail-Adresse) bestätigen, Widerspruch gegen Training, Auftragsverarbeitung, Fundstelle der Lizenzbedingungen mit
 Abrufdatum.
 

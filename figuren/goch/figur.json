@@ -53,9 +53,9 @@
   },
   "stimme": {
     "anbieter": "elevenlabs",
-    "voiceId": "89gcX1AeMGgcsN8ypHLu",
+    "voiceId": "2QhwfRSog8ArO9AfgYMU",
     "modell": "eleven_v4",
-    "charakter": "gepflegt, präzise, höflich-trocken – zu Diensten (Rupert, ElevenLabs Voice Library)",
+    "charakter": "nachdenklich, im Gesprächston (Piet, ElevenLabs Voice Library)",
     "einstellungen": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 },
     "seed": 4711,
     "rueckfall": "keine"
