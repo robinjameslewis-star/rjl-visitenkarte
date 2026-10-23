@@ -143,7 +143,7 @@
     // für goch-zwitschern.js: in Gesprächspausen zwitschern, hörbar nur mit Stimme
     beschaeftigt: () => denkt || restLaeuft || spielt || zustand === 'spricht',
     laut: () => lautAn,
-    blinzeln: () => blinzeln(), // für goch-blick.js: Goch bemerkt jemanden
+    blinzeln: doppelt => blinzeln(!!doppelt), // für goch-blick.js: Goch bemerkt jemanden
     koerper,                    // für goch-blick.js: dem Gegenüber zuwenden
   };
   // „grenze“: nur Text, ohne Hinweis. „aus“ und „fehler“: Gerätestimme nur, wenn die Figur sie erlaubt (Goch: nein).

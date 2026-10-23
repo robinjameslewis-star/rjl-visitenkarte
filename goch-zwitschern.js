@@ -59,7 +59,9 @@
     if (stumm || !tonBasis) return;
     try { const a = new Audio(datei()); a.volume = lautstaerke; a.play().catch(() => {}); } catch (_) {}
   }
-  window.GochZwitschern = { bestaetigen: () => hoerbar() };
+  // gruss: Goch bemerkt jemanden (goch-blick.js) – Noten, hörbar nur mit Stimme
+  window.GochZwitschern = { bestaetigen: () => hoerbar(),
+    gruss() { noteZeigen(); scene.dataset.gruss = String(+(scene.dataset.gruss || 0) + 1); if (window.GochStimme && window.GochStimme.laut()) hoerbar(LAUTSTAERKE * .8); } };
   if (tonBasis && stummKnopf) {
     // Der Knopf nennt, was er tut: „Zwitschern aus“ bzw. „Zwitschern an“ (Fußzeile des Gesprächs)
     const zeigen = () => { stummKnopf.textContent = window.SiteLanguage.t(stumm ? 'gochStummAn' : 'gochStummAus'); };

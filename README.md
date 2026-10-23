@@ -771,9 +771,12 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   `connect-src 'self'`, MediaPipe Face Landmarker aus `vendor/mediapipe/` (selbst ausgeliefert, Nutzungsmeldung an Google
   abgeschaltet, siehe `vendor/mediapipe/HINWEIS.md` und `tools/mediapipe-uebernehmen.py`). An die Seite gehen nur Zahlen:
   da, Lage, Größe, Kopfrichtung, schaut her – keine Bilder, keine Ausdruckswerte, keine Wiedererkennung. Goch bemerkt sein
-  Gegenüber (blinzelt), wendet sich ihm leicht zu und hört im Gesprächsmodus nur zu, wenn er angesehen wird. Kleines
-  Vorschaubild, solange die Kamera an ist; aus mit „Blickkontakt“, beim Schließen, beim Tabwechsel und mit „Sprechen
-  beenden“. Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  Gegenüber (blinzelt doppelt, richtet sich auf), wendet sich ihm sichtbar zu, wird bei Blickkontakt aufmerksam und hört
+  im Gesprächsmodus nur zu, wenn er angesehen wird. Kommt jemand an den Bildschirm (neu oder nach 20 s Abwesenheit),
+  zwitschert Goch und spricht ihn an: fester Satz vom Worker (`anlass` „angekommen“ bzw. „zurueck“, kein Modellaufruf,
+  zählt zur Grenze je IP), höchstens alle zwei Minuten, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
+  Vorschaubild (Robin, 23.10.2026: störte) – den Zustand zeigen der Schalter und die Kamera-Anzeige des Browsers; aus mit
+  „Blickkontakt“, beim Schließen, beim Tabwechsel und mit „Sprechen beenden“. Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
   Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
   zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,

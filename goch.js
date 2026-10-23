@@ -258,6 +258,25 @@
     window.dispatchEvent(new CustomEvent('goch-fertig')); // goch-stimme.js: danach wieder zuhören
   }
 
+  // Goch beginnt das Gespräch von sich aus (goch-blick.js: jemand kommt an den Bildschirm). Fester Satz vom Worker
+  // (anlass „angekommen“ oder „zurueck“), erscheint als Gochs Antwort und steht im Verlauf; mit Stimme wird er vorgelesen.
+  // Nur mit Einwilligung ins Gespräch und wenn gerade nichts läuft.
+  async function begruessen(anlass) {
+    if (busy || !choice || !choice.allowed || panel.hidden || form.hidden) return false;
+    busy = true; setAvailability();
+    let data = null;
+    try {
+      const r = await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), anlass, ...zusatz({}) }) });
+      if (r.ok) data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r) : await r.json();
+    } catch (_) { data = null; }
+    busy = false; setAvailability();
+    const ok = !!(data && typeof data.reply === 'string' && data.reply.trim());
+    if (ok) { bubble('goch', data.reply); history.push({ role: 'assistant', content: data.reply }); log.scrollTop = log.scrollHeight; }
+    window.dispatchEvent(new CustomEvent('goch-fertig'));
+    return ok;
+  }
+
   // Goch ausgeschaltet (Worker antwortet 503, z. B. weil die Seite noch aus dem Cache kommt): Gespräch schließen,
   // Vogel wie vor Goch – der Klick wiederholt den Anflug.
   function switchOff() {
@@ -293,7 +312,8 @@
     input.focus();
   });
   // Für goch-stimme.js: erkannten Text als Besuchertext senden, Endpunkt für /listen ableiten.
-  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place };
+  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen,
+    begonnen: () => history.some(m => m.role === 'user') };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });
   narrow.addEventListener('change', place);

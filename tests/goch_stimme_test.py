@@ -145,7 +145,7 @@ async def main():
             sichtbar = lambda sel: ev(f"!document.querySelector({json.dumps(sel)}).hidden && !!document.querySelector({json.dumps(sel)}).offsetParent")
             extern = lambda: [u for _, u in requests if not u.startswith(('http://localhost', 'http://127.0.0.1', 'data:', 'blob:'))]
             ton = signalton()
-            q = lambda extra='': f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&zwitschertakt=2500&signalton={urllib.parse.quote(ton, safe='')}" + extra
+            q = lambda extra='': f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&zwitschertakt=2500&wiederda=1500&signalton={urllib.parse.quote(ton, safe='')}" + extra
 
             await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable")
             await send("Page.addScriptToEvaluateOnNewDocument", {"source": INSTRUMENT})
@@ -157,7 +157,7 @@ async def main():
             print("1. Vor jeder Handlung: kein Ton, kein Mikrofon, keine Anfrage; Zwitschern nur sichtbar, höchstens dreimal")
             await goto(BASE + q('&t=1'), wait=2)
             noten = []
-            for _ in range(56):  # 14 s: Anflug und Landung (gut 5 s), erstes Zwitschern 1,5 s danach, dann alle 2,5 s
+            for _ in range(72):  # 18 s: Anflug und Landung (gut 5 s, beim Kaltstart länger), erstes Zwitschern 1,5 s danach, dann alle 2,5 s
                 noten.append(await ev("!document.getElementById('goch-noten').hidden"))
                 await pump(0.25)
             n = await ev("+(document.getElementById('scene').dataset.zwitschern || 0)")
@@ -295,7 +295,8 @@ async def main():
                 if await ev("document.getElementById('scene').dataset.kamera") == 'bereit': break
                 await pump(0.25)
             rahmen = await ev("(()=>{const f=document.querySelector('#goch-kamera-platz iframe');return f?{allow:f.getAttribute('allow'),src:f.getAttribute('src'),sichtbar:!document.getElementById('goch-kamera-platz').hidden}:null})()")
-            check(rahmen and rahmen['allow'] == 'camera' and rahmen['src'].startswith('goch-kamera.html') and rahmen['sichtbar'], "Rahmen goch-kamera.html mit Kamera, Vorschaubild sichtbar", rahmen)
+            check(rahmen and rahmen['allow'] == 'camera' and rahmen['src'].startswith('goch-kamera.html') and rahmen['sichtbar'], "Rahmen goch-kamera.html mit Kamera", rahmen)
+            check(await ev("(()=>{const p=document.getElementById('goch-kamera-platz'),r=p.getBoundingClientRect(),s=getComputedStyle(p);return s.opacity==='0'&&r.width<=2&&r.height<=2;})()"), "kein sichtbares Vorschaubild (kein leuchtender Rahmen)")
             check(await ev("document.getElementById('scene').dataset.kamera") == 'bereit', "MediaPipe geladen (vom eigenen Server)")
             csp = await ev("fetch('goch-kamera.html').then(r=>r.text()).then(t=>(t.match(/Content-Security-Policy\" content=\"([^\"]+)/)||[])[1]||'')")
             check("connect-src 'self'" in csp and "default-src 'none'" in csp, "Rahmen sperrt fremde Verbindungen (CSP)", csp[:60])
@@ -312,6 +313,18 @@ async def main():
             check(any(b.strip() not in ('', '0.00deg', '0deg') for b in await ev("__bewegt")), "Goch wendet sich dem Gegenüber zu", (await ev("__bewegt"))[:3])
             await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(2.5)
             check(len(neu_listen()) == n0 + 1, "mit Blickkontakt: Goch hört zu und antwortet", len(neu_listen()) - n0)
+            print("6e. Jemand kommt wieder an den Bildschirm: Goch zwitschert und spricht an")
+            await pump(1.0)
+            gruss0 = await ev("+(document.getElementById('scene').dataset.gruss || 0)"); play0 = (await z())['play']
+            await gesicht({"da": False}); await pump(2.2)
+            check(not await ev("document.getElementById('scene').dataset.gegenueber"), "Gegenüber weg")
+            await gesicht({"da": True, "x": .5, "y": .4, "groesse": .3, "schautHer": True}); await pump(2.8)
+            last = fake('/_chats')[-1]
+            check(last.get('anlass') == 'zurueck' and any('Da sind Sie wieder!' in b for b in await ev(bubbles)), "zurück am Bildschirm: Goch spricht an („Da sind Sie wieder!“)", last.get('anlass'))
+            check(await ev("+(document.getElementById('scene').dataset.gruss || 0)") == gruss0 + 1 and (await z())['play'] > play0, "und zwitschert dabei (hörbar, weil die Stimme an ist)")
+            n1 = len(fake('/_chats'))
+            await gesicht({"da": False}); await pump(0.8); await gesicht({"da": True, "x": .5, "y": .4, "groesse": .3, "schautHer": True}); await pump(1.5)
+            check(len(fake('/_chats')) == n1, "nur kurz weggeschaut: kein neuer Gruß")
             await ev("clearInterval(window.__gesicht)")
             await real_click('#goch-blick-an'); await pump(0.5)
             check(await ev("!document.querySelector('#goch-kamera-platz iframe') && document.getElementById('goch-kamera-platz').hidden && !document.getElementById('scene').dataset.kamera"), "Blickkontakt aus: Rahmen und Vorschaubild weg")

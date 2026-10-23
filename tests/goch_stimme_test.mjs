@@ -223,5 +223,19 @@ console.log("Goch zeigt eine Stelle der Seite (zeigen)");
   modell = { reply: "Robin baut gerade Werkzeuge für Kanzleien.", action: null, message: null, link: null };
 }
 
+console.log("Goch spricht an, wenn jemand kommt (anlass)");
+{
+  const w = await frisch(), e = env({ ELEVENLABS_API_KEY: "xi-test" }, sprache({ stimme: true, voiceId: "Voice1234567890" }));
+  const vorher = prompts.length, ttsVorher = tts.length;
+  let o = await (await chat(w, e, { messages: [], anlass: "angekommen" })).json();
+  check(["Hallo! Schön, dass Sie vorbeischauen.", "Ah, hallo! Ich bin Goch", "Da sind Sie ja!"].some(s => o.reply.startsWith(s)) && prompts.length === vorher, "angekommen: fester Begrüßungssatz, kein Modellaufruf", o.reply);
+  o = await (await chat(w, e, { messages: [{ role: "user", content: "Hallo" }, { role: "assistant", content: "Hallo!" }], anlass: "zurueck", lang: "en" })).json();
+  check(["There you are again!", "Nice to see you again."].some(s => o.reply.startsWith(s)), "zurück, englisch", o.reply);
+  const z = await zeilen(await chat(w, e, { messages: [], anlass: "angekommen", stimme: { erste: true } })); await Promise.all(ctx.pending);
+  check(z[0].reply.startsWith("Kurz vorab: Ich bin eine KI") && z[1].stimme && tts.length === ttsVorher + 1 && prompts.length === vorher, "mit Stimme: KI-Hinweis vorn, vorgelesen – weiter ohne Modell");
+  const r = await chat(w, e, { messages: [], anlass: "irgendwas" });
+  check(r.status === 400, "anderer Anlass ohne Frage: abgelehnt wie bisher", r.status);
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nStimme, Spracheingabe und Figuren in Ordnung.");
 process.exit(fails ? 1 : 0);
