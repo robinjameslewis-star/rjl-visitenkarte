@@ -1,0 +1,18 @@
+{
+  "name": "smartformular-e-rechnung-lite",
+  "private": true,
+  "type": "module",
+  "description": "SmartFormular E-Rechnung lite – E-Rechnungen lesen und prüfen im Browser (Bau und Tests; ausgeliefert wird nur assets/erechnung/)",
+  "scripts": {
+    "regeln": "node regeln-bauen.mjs",
+    "bauen": "node bauen.mjs",
+    "test": "node ../../tests/erechnung_regeln_test.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.14.0",
+    "esbuild": "0.28.2",
+    "fontoxpath": "3.34.0",
+    "playwright-core": "1.64.1",
+    "slimdom": "4.3.5"
+  }
+}
