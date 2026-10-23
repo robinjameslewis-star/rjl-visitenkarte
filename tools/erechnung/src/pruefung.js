@@ -62,7 +62,8 @@ export function vorbereiten(satz, fx, kennung) {
     id: p.id,
     regeln: p.regeln.map(r => {
       const lets = r.lets.length ? `let ${r.lets.map(l => `$${l.name} := (${l.expr})`).join(",\n    ")}\nreturn ` : "";
-      return { context: r.context, tests: r.tests, lets, auswahl: kontextAusdruck(r.context), alle: `${lets}(${r.tests.map(t => `boolean((${t.cond}))`).join(",\n ")})` };
+      return { context: r.context, tests: r.tests, lets, letNamen: new Set(r.lets.map(l => l.name)), auswahl: kontextAusdruck(r.context), passt: musterPraedikat(r.context),
+        alle: `${lets}(${r.tests.map(t => `boolean((${t.cond}))`).join(",\n ")})` };
     }),
   }));
   return { kennung, titel: satz.titel, globale: satz.globale, muster, optionen };
@@ -89,10 +90,69 @@ export function kontextAusdruck(p) {
   return teile.length === 1 ? einzeln(teile[0]) : teile.map(t => `(${einzeln(t)})`).join(" | ");
 }
 
+// Dasselbe Muster als Bedingung für einen einzelnen Knoten (Kontextknoten): Schritte von hinten nach vorn über parent:: und ancestor::.
+// XSLT 3.0 (5.5.4): Ein Fehler beim Abgleich eines Musters mit einem Knoten gilt als „passt nicht“. Schlägt die Auswahl aller Knoten
+// fehl, prüft pruefen() deshalb jeden Knoten einzeln mit dieser Bedingung. Die Muster der Regeln haben keine Positionsprädikate.
+function schritte(pfad) {
+  const teile = [], trenner = [];
+  let tiefe = 0, q = null, start = 0;
+  for (let i = 0; i < pfad.length; i++) {
+    const c = pfad[i];
+    if (q) { if (c === q) q = null; continue; }
+    if (c === "'" || c === '"') q = c;
+    else if (c === "(" || c === "[") tiefe++;
+    else if (c === ")" || c === "]") tiefe--;
+    else if (c === "/" && tiefe === 0) {
+      teile.push(pfad.slice(start, i).trim());
+      if (pfad[i + 1] === "/") { trenner.push("//"); i++; } else trenner.push("/");
+      start = i + 1;
+    }
+  }
+  teile.push(pfad.slice(start).trim());
+  return { teile, trenner };
+}
+function selbst(schritt) {
+  if (schritt.startsWith("(")) {
+    let tiefe = 0, i = 0;
+    for (; i < schritt.length; i++) { if (schritt[i] === "(") tiefe++; else if (schritt[i] === ")" && --tiefe === 0) break; }
+    return `self::node()[${musterPraedikat(schritt.slice(1, i))}]${schritt.slice(i + 1)}`;
+  }
+  const m = /^(@?)([^[\s]+)(.*)$/s.exec(schritt);
+  const [, at, test, rest] = m;
+  if (at) return `self::attribute(${test === "*" ? "" : test})${rest}`;
+  if (/^(node|text|comment|processing-instruction)\(\)$/.test(test)) return `self::${test}${rest}`;
+  return `self::${test}${rest}`;
+}
+export function musterPraedikat(p) {
+  const teile = teileOberstes(p);
+  if (teile.length > 1) return teile.map(x => `(${musterPraedikat(x)})`).join(" or ");
+  let pfad = teile[0], fuehrung = "";
+  if (pfad === "/") return ". instance of document-node()";
+  if (pfad.startsWith("//")) { fuehrung = "//"; pfad = pfad.slice(2); } else if (pfad.startsWith("/")) { fuehrung = "/"; pfad = pfad.slice(1); }
+  const { teile: st, trenner } = schritte(pfad);
+  const kette = i => {
+    let e = selbst(st[i]);
+    if (i > 0) e += `[${trenner[i - 1] === "//" ? "ancestor" : "parent"}::node()[${kette(i - 1)}]]`;
+    else if (fuehrung === "/") e += "[parent::node() instance of document-node()]";
+    return e;
+  };
+  return `exists(${kette(st.length - 1)})`;
+}
+
+// Alle Knoten eines Dokuments (Elemente, Attribute, Text) für den Abgleich einzelner Knoten
+function knotenListe(doc) {
+  const out = [doc];
+  const lauf = n => { for (let k = n.firstChild; k; k = k.nextSibling) { out.push(k); if (k.nodeType === 1) { for (const a of Array.from(k.attributes)) if (!/^xmlns(:|$)/.test(a.name)) out.push(a); lauf(k); } } };
+  lauf(doc);
+  return out;
+}
+
 // Globale Variablen einmal je Dokument auswerten und mit ihrem Typ weitergeben
 const TYP = `for $i in $__v return (if ($i instance of node()) then 'node()' else if ($i instance of xs:integer) then 'xs:integer' else if ($i instance of xs:decimal) then 'xs:decimal' else if ($i instance of xs:double) then 'xs:double' else if ($i instance of xs:boolean) then 'xs:boolean' else if ($i instance of xs:untypedAtomic) then 'xs:untypedAtomic' else 'xs:string')`;
+// Wie in XSLT werden globale Variablen nur bei Bedarf ausgewertet: Schlägt eine fehl (etwa wegen doppelter Elemente), ist das nur dann
+// ein Fehler, wenn eine Regel sie wirklich braucht. Solche Variablen (kaputt) setzt pruefen() als Ausdruck in die Regeln ein.
 function globaleWerte(fx, doc, v) {
-  const vars = {}, offen = [...v.globale];
+  const vars = {}, offen = [...v.globale], kaputt = new Map();
   let weiter = true;
   while (offen.length && weiter) {
     weiter = false;
@@ -106,12 +166,19 @@ function globaleWerte(fx, doc, v) {
         offen.splice(offen.indexOf(g), 1);
         weiter = true;
       } catch (e) {
-        if (!/XPST0008/.test(e.message)) throw new Error(`Globale Variable ${g.name}: ${e.message}`);
+        if (!/XPST0008/.test(e.message)) { kaputt.set(g.name, g.expr); offen.splice(offen.indexOf(g), 1); weiter = true; }
       }
     }
   }
-  if (offen.length) throw new Error("Globale Variablen nicht auflösbar: " + offen.map(g => g.name).join(", "));
-  return vars;
+  for (const g of offen) kaputt.set(g.name, g.expr);
+  return { vars, kaputt };
+}
+// Verweise auf nicht auswertbare globale Variablen durch ihren Ausdruck ersetzen, ausgewertet am Dokumentknoten (wie in XSLT)
+function einsetzer(kaputt) {
+  if (!kaputt.size) return null;
+  const re = new RegExp(`\\$(${[...kaputt.keys()].map(n => n.replace(/[.-]/g, "\\$&")).join("|")})(?![\\w.-])`, "g");
+  const ersetzen = (s, ausser = new Set(), tiefe = 0) => tiefe > 10 ? s : s.replace(re, (ganz, name) => ausser.has(name) ? ganz : `(/ ! (${ersetzen(kaputt.get(name), new Set(), tiefe + 1)}))`);
+  return ersetzen;
 }
 
 // Ort eines Knotens als Pfad (für Anzeige und Abgleich)
@@ -131,15 +198,21 @@ export function ort(n) {
 
 // Ein Dokument gegen einen vorbereiteten Regelsatz prüfen; pause() gibt der Oberfläche zwischendurch Zeit
 export async function pruefen(fx, doc, v, { pause = null } = {}) {
-  const vars = globaleWerte(fx, doc, v);
+  const { vars, kaputt } = globaleWerte(fx, doc, v);
+  const ersetzen = einsetzer(kaputt);
   const befunde = [], fehler = [];
-  let schritte = 0;
+  let zaehler = 0, alleKnoten = null;
   for (const m of v.muster) {
     const gefeuert = new Set();
-    for (const r of m.regeln) {
+    for (const r0 of m.regeln) {
+      const r = ersetzen ? angepasst(r0, s => ersetzen(s, r0.letNamen)) : r0;
       let knoten;
       try { knoten = fx.evaluateXPathToNodes(r.auswahl, doc, null, vars, v.optionen); }
-      catch (e) { fehler.push({ regel: r.context, meldung: e.message }); continue; }
+      catch {
+        // Fehler beim Musterabgleich gilt je Knoten als „passt nicht“ (XSLT 3.0)
+        alleKnoten ||= knotenListe(doc);
+        knoten = alleKnoten.filter(k => { try { return fx.evaluateXPathToBoolean(r.passt, k, null, vars, v.optionen); } catch { return false; } });
+      }
       for (const k of knoten) {
         if (gefeuert.has(k)) continue;
         gefeuert.add(k);
@@ -155,11 +228,16 @@ export async function pruefen(fx, doc, v, { pause = null } = {}) {
         r.tests.forEach((t, i) => {
           if (ergebnis[i] === true) befunde.push({ id: t.id, flag: t.flag, art: t.art, ort: ort(k), knoten: k, text: nachricht(fx, t, k, r, vars, v) });
         });
-        if (pause && ++schritte % 150 === 0) await pause();
+        if (pause && ++zaehler % 150 === 0) await pause();
       }
     }
   }
   return { befunde, fehler };
+}
+
+function angepasst(r, f) {
+  return { ...r, lets: f(r.lets), auswahl: f(r.auswahl), passt: f(r.passt), alle: f(r.alle),
+    tests: r.tests.map(t => ({ ...t, cond: f(t.cond), text: t.text.map(x => x.v != null ? { v: f(x.v) } : x) })) };
 }
 
 function nachricht(fx, t, k, r, vars, v) {

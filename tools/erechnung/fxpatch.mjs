@@ -1,6 +1,9 @@
 // fontoxpath rechnet xs:decimal mit JS-Gleitkommazahlen (336.9 + 0.01 = 336.90999999999997). Die Regeln von CEN und KoSIT vergleichen
 // Beträge exakt; Saxon rechnet mit echten Dezimalzahlen. Der Patch rundet jedes Dezimal-Ergebnis von +, -, *, mod und sum() auf die
-// exakte Stellenzahl der Operanden (bei Division auf 15 signifikante Stellen). Jede Ersetzung muss genau einmal greifen.
+// exakte Stellenzahl der Operanden (bei Division auf 15 signifikante Stellen). Außerdem lehnt fontoxpath Kalenderdaten wie 2026-02-30
+// nicht ab (Saxon schon: „Non-existent date“); der Patch prüft den Tag gegen den Monat. Und wie Saxon werten and/or „nachsichtig“ aus
+// (XPath 3.1, 3.8: Reihenfolge implementierungsabhängig): Wirft ein Operand einen Fehler, entscheidet ein anderer, der false (and)
+// bzw. true (or) ergibt; sonst gilt der Fehler. Jede Ersetzung muss genau einmal greifen.
 import { readFileSync } from "node:fs";
 const HELFER = `const __rvSkala=x=>{if(!isFinite(x)||Math.floor(x)===x)return 0;let s=String(Math.abs(x)),e=0;const m=/e([+-]\\d+)$/i.exec(s);if(m){e=+m[1];s=s.slice(0,m.index)}const i=s.indexOf(".");return Math.max(0,(i<0?0:s.length-i-1)-e)};
 const __rvRund=(r,k)=>!isFinite(r)||k>20?r:Number(r.toFixed(k));
@@ -8,6 +11,9 @@ const __rvDec=(op,n,r,x,y)=>{if(4!==n||!isFinite(r))return r;if("addOp"===op||"s
 const __rvSumme=w=>w.reduce((s,x)=>__rvRund(s+x,Math.max(__rvSkala(s),__rvSkala(x))),0);
 `;
 const ERSETZUNGEN = [
+  ["return w.create({next:()=>{if(!e){for(;c<this.l.length;){if(!d){const h=this.l[c];if(null!==f&&null!==h.D()&&!f.includes(h.D()))return c++,e=!0,q(wa);d=A(h,a,b)}if(!1===d.ea())return e=!0,q(wa);d=null;c++}e=!0;return q(va)}return p}})", "return w.create({next:()=>{if(!e){let __f=null;for(;c<this.l.length;){const h=this.l[c];if(null!==f&&null!==h.D()&&!f.includes(h.D()))return c++,e=!0,q(wa);let __w;try{__w=A(h,a,b).ea()}catch(__x){__f||(__f=__x);c++;continue}if(!1===__w)return e=!0,q(wa);c++}e=!0;if(__f)throw __f;return q(va)}return p}})"],
+  ["return w.create({next:()=>{if(!e){for(;c<this.l.length;){if(!d){const h=this.l[c];if(null!==f&&null!==h.D()&&!f.includes(h.D())){c++;continue}d=A(h,a,b)}if(!0===d.ea())return e=\n!0,q(va);d=null;c++}e=!0;return q(wa)}return p}})", "return w.create({next:()=>{if(!e){let __f=null;for(;c<this.l.length;){const h=this.l[c];if(null!==f&&null!==h.D()&&!f.includes(h.D())){c++;continue}let __w;try{__w=A(h,a,b).ea()}catch(__x){__f||(__f=__x);c++;continue}if(!0===__w)return e=!0,q(va);c++}e=!0;if(__f)throw __f;return q(wa)}return p}})"],
+  ["b=b[9]?Cb(b[9]):null;", "b=b[9]?Cb(b[9]):null;if(null!==a&&null!==c&&null!==d&&(1>c||12<c||1>d||d>new Date(Date.UTC(2000+(a%400+400)%400,c,0)).getUTCDate()))throw Error(\"FORG0001: Invalid date: non-existent date\");"],
   ["return g(l(z.value,y.value),n)}}", "return g(__rvDec(a,n,l(z.value,y.value),z.value,y.value),n)}}"],
   ["b=a.reduce((f,h)=>f+h.value,0);return a.every(f=>v(f.type,5))", "b=a.reduce((f,h)=>f+h.value,0);a.every(f=>v(f.type,4)||v(f.type,5))&&(b=__rvSumme(a.map(f=>f.value)));return a.every(f=>v(f.type,5))"],
 ];
