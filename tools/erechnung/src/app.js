@@ -161,6 +161,7 @@ function antwort(e) {
   const a = e.art;
   if (a === "rechnung") {
     const p = e.format.profil;
+    if (e.pruefung.status === "fertig" && e.pruefung.fehler.length && p.e !== false) return ANTWORT.neinWerte;
     if (p.e === false) return ANTWORT.neinProfil;
     if (p.e == null || p.unbekannt) return ANTWORT.unklar;
     return e.herkunft === "pdf" ? ANTWORT.jaZugferd : ANTWORT.ja;
@@ -187,10 +188,10 @@ function pruefZeile(e) {
   if (pr.status === "offen" || pr.status === "laeuft") return `<p class="ewz-pruefstand"><span class="ewz-spinner" aria-hidden="true"></span>${t.pruefung}: ${t.prueftLaeuft}</p>`;
   if (pr.status === "fehler") return `<p class="ewz-pruefstand ewz-rot">${esc(ersetze(t.fehlerBeimPruefen, { meldung: pr.meldung }))}</p>`;
   const z = zaehlen(e);
-  const text = z.fehler || z.warnung || z.hinweis ? t.zaehler(z.fehler, z.warnung, z.hinweis) : t.keineFehler;
+  const text = [pr.fehler.length ? `${t.formatfehler} (${formatWerte(pr.fehler).length})` : "", z.fehler || z.warnung || z.hinweis ? t.zaehler(z.fehler, z.warnung, z.hinweis) : pr.fehler.length ? "" : t.keineFehler].filter(Boolean).join(", ");
   const regeln = ersetze(e.format.saetze.some(s => s.startsWith("xrechnung")) ? t.regeln : t.regelnNur, { stand: datum(META.stand) });
-  return `<p class="ewz-pruefstand ${z.fehler ? "ewz-gelb" : "ewz-gruen"}"><strong>${t.pruefung}:</strong> ${esc(text)} <a href="#ewz-b${e.nr}">${lang === "en" ? "Details" : "Einzelheiten"}</a></p>
-<p class="ewz-klein">${esc(regeln)}${pr.fehler.length ? " " + esc(ersetze(t.auswertung, { n: pr.fehler.length })) : ""}</p>`;
+  return `<p class="ewz-pruefstand ${pr.fehler.length ? "ewz-rot" : z.fehler ? "ewz-gelb" : "ewz-gruen"}"><strong>${t.pruefung}:</strong> ${esc(text)} <a href="#ewz-b${e.nr}">${lang === "en" ? "Details" : "Einzelheiten"}</a></p>
+<p class="ewz-klein">${esc(regeln)}</p>`;
 }
 function antwortHtml(e) {
   const a = antwort(e);
@@ -226,11 +227,32 @@ ${hinweise}
 }
 
 // ---------- Befunde ----------
+// Auswertungsfehler: Werte im falschen Format (dort bricht auch der Prüfer der KoSIT ab) – verständlich, je Meldung einmal
+function formatWerte(fehler) {
+  const out = new Map();
+  for (const f of fehler) {
+    const m = String(f.meldung || "");
+    let satz;
+    const cast = /Cannot cast (.*?) to xs:(\w+)/.exec(m);
+    if (cast && /decimal|double|integer|float/.test(cast[2])) satz = t.werte.zahl(cast[1]);
+    else if (cast && /date|time/i.test(cast[2])) satz = t.werte.datum(cast[1]);
+    else if (cast && cast[2] === "boolean") satz = t.werte.wahr(cast[1]);
+    else if (/Invalid date/.test(m)) satz = t.werte.datum((/"([^"]+)"/.exec(m) || [])[1] || "");
+    else if (/Multiplicity|more than one|effective boolean value of a sequence/.test(m)) satz = t.werte.mehrfach();
+    else satz = t.werte.sonst();
+    if (!out.has(satz)) out.set(satz, { satz, orte: new Set(), meldung: m });
+    if (f.ort) out.get(satz).orte.add(f.ort);
+  }
+  return [...out.values()];
+}
 function befundeHtml(e) {
   const pr = e.pruefung;
   if (pr.status === "keine") return "";
   if (pr.status !== "fertig") return `<p class="ewz-klein">${t.pruefung}: ${pr.status === "fehler" ? esc(pr.meldung) : t.prueftLaeuft}</p>`;
-  if (!pr.befunde.length) return `<p class="ewz-ok-text">${esc(t.keineBefunde)}</p>`;
+  const werte = pr.fehler.length ? `<ol class="ewz-befunde">${formatWerte(pr.fehler).map(w => `<li class="ewz-befund ewz-fehler"><p class="ewz-befund-kopf"><span class="ewz-stufe">${t.formatfehler}</span></p>
+<p><strong>${t.wasFehlt}:</strong> ${esc(w.satz)}</p><p><strong>${t.wasTun}:</strong> ${esc(t.formatTun)}</p>
+<details><summary>${t.technisch}</summary><p class="ewz-orig" lang="en">${esc(w.meldung.slice(0, 300))}</p>${w.orte.size ? `<p class="ewz-klein">${t.formatOrt}: ${[...w.orte].slice(0, 5).map(o => `<code>${esc(o)}</code>`).join(", ")}</p>` : ""}</details></li>`).join("")}</ol>` : "";
+  if (!pr.befunde.length) return werte || `<p class="ewz-ok-text">${esc(t.keineBefunde)}</p>`;
   const gruppen = new Map();
   for (const b of pr.befunde) {
     if (!gruppen.has(b.id)) gruppen.set(b.id, { ...b, orte: [] });
@@ -240,7 +262,7 @@ function befundeHtml(e) {
   const nat = s => s.replace(/\d+/g, d => d.padStart(5, "0"));
   const sortiert = [...gruppen.values()].sort((a, b) => rang[a.stufe] - rang[b.stufe] || nat(a.id).localeCompare(nat(b.id)));
   const z = zaehlen(e);
-  const kopf = !z.fehler ? `<p class="ewz-ok-text">${esc(t.nurWarnungen)}</p>` : "";
+  const kopf = werte + (!z.fehler && !pr.fehler.length ? `<p class="ewz-ok-text">${esc(t.nurWarnungen)}</p>` : "");
   const MAX = 12;
   const item = (g, i) => {
     const [was, tun] = erklaeren(g.id, g.text, lang);
@@ -285,6 +307,13 @@ ${skonto(d.bedingungen).map(s => `<div class="ewz-kopie"><dt>${t.skonto}</dt><dd
 }
 
 // ---------- Lesbare Ansicht ----------
+// Zahlungsbedingungen: Skonto-Zeilen der XRechnung (#SKONTO#TAGE=…#PROZENT=…#) lesbar, sonst der Text
+function bedingungenText(bed, w) {
+  return bed.split(/\r?\n/).filter(z => z.trim()).map(z => {
+    const m = /^#SKONTO#TAGE=(\d+)#PROZENT=(\d+\.\d{2})(?:#BASISBETRAG=(-?\d+\.\d{2}))?#$/.exec(z.trim());
+    return m ? esc(t.skontoText(zahl(+m[2], 2), +m[1], m[3] ? geld(+m[3], w) : "")) : esc(z);
+  }).join("<br>");
+}
 function partei(p, titel, btName) {
   if (!p) return "";
   const a = p.anschrift;
@@ -340,7 +369,7 @@ ${s.steuerInSteuerwaehrung && s.steuerInSteuerwaehrung.wert != null ? `<tr><th s
 ${steuern ? `<div class="ewz-tabelle"><table class="ewz-steuer"><caption>${t.steuer}</caption><thead><tr><th scope="col">${t.kategorie}</th><th scope="col" class="ewz-z">${t.satz}</th><th scope="col" class="ewz-z">${t.basis}</th><th scope="col" class="ewz-z">${t.steuer}</th><th scope="col">${t.befreiung}</th></tr></thead><tbody>${steuern}</tbody></table></div>` : ""}
 <div class="ewz-blatt-fuss">
 ${zahlarten.length ? `<p><span class="ewz-mini">${t.zahlungsart}</span><br>${zahlarten.map(esc).join("<br>")}</p>` : ""}
-${d.bedingungen ? `<p><span class="ewz-mini">${t.bedingungen}</span><br>${bt("BT-20", esc(d.bedingungen).replace(/\n/g, "<br>"))}</p>` : ""}
+${d.bedingungen ? `<p><span class="ewz-mini">${t.bedingungen}</span><br>${bt("BT-20", bedingungenText(d.bedingungen, w))}</p>` : ""}
 <p class="ewz-klein ewz-ansicht-hinweis">${esc(t.ansichtHinweis)} ${esc(e.name)}</p>
 </div>
 </article>`;

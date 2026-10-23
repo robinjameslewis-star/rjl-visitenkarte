@@ -2,8 +2,8 @@
 // Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle; ob eine Rechnung steuerlich ordnungsgemäß ist, beurteilt es nicht.
 // Bei neuen BMF-Schreiben oder Gesetzesänderungen: Texte und STAND hier anpassen, Fundstellen prüfen.
 export const STAND = "2026-10-23";
-const BMF2025 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile&v=3";
-const BMF2026 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile&v=2";
+const BMF2025 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile";
+const BMF2026 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile";
 const USTG14 = "https://www.gesetze-im-internet.de/ustg_1980/__14.html";
 const USTG14B = "https://www.gesetze-im-internet.de/ustg_1980/__14b.html";
 
@@ -36,6 +36,8 @@ export const ANTWORT = {
     en: ["No, this is not an e-invoice.", "An image (a photo or scan, for example) is an \"other invoice\", not an e-invoice."], quellen: ["ustae2"] },
   neinFormat: { urteil: "nein", de: ["Nein, das ist keine E-Rechnung.", "Die Datei ist kein lesbares Rechnungs-XML. Eine Datei mit Formatfehlern ist keine E-Rechnung, sondern eine sonstige Rechnung."],
     en: ["No, this is not an e-invoice.", "The file is not readable invoice XML. A file with format errors is not an e-invoice but an \"other invoice\"."], quellen: ["ustae2", "rn6a"] },
+  neinWerte: { urteil: "nein", de: ["Nein, das ist keine E-Rechnung.", "{format}: Die Datei enthält Werte oder Angaben, die nicht dem vorgeschriebenen Format entsprechen – zum Beispiel ein ungültiges Datum, einen Betrag mit Buchstaben oder eine doppelte Angabe. Die offiziellen Prüfregeln lassen sich darauf nicht vollständig anwenden. Eine Datei mit Formatfehlern ist keine E-Rechnung, sondern eine sonstige Rechnung."],
+    en: ["No, this is not an e-invoice.", "{format}: the file contains values or details that do not follow the required format – an invalid date, an amount with letters or a duplicated detail, for example. The official validation rules cannot be applied in full. A file with format errors is not an e-invoice but an \"other invoice\"."], quellen: ["ustae2", "rn6a"] },
   neinZugferd1: { urteil: "nein", de: ["Nein, das ist keine E-Rechnung nach EN 16931.", "Die Daten sind im Format ZUGFeRD 1.0 eingebettet. Zulässig ist ZUGFeRD erst ab Version 2.0.1. Ein anderes Format kann nur gelten, wenn beide Seiten es vereinbart haben und sich die Angaben vollständig übertragen lassen – das prüft dieses Werkzeug nicht."],
     en: ["No, this is not an e-invoice under EN 16931.", "The data is embedded as ZUGFeRD 1.0. ZUGFeRD is permitted from version 2.0.1. Another format can only count if both sides have agreed on it and the details can be fully transferred – this tool does not check that."], quellen: ["ustae14", "ustg146"] },
   unklar: { urteil: "eingeschraenkt", de: ["Das Format ist nicht eindeutig.", "Die Datei ist eine Rechnung in UBL oder CII, nennt aber keine bekannte Kennung der EN 16931 ({format}). Geprüft werden die Regeln der EN 16931; ob ein anderes, vereinbartes Format vorliegt, beurteilt das Werkzeug nicht."],

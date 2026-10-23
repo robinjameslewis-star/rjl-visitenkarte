@@ -73,6 +73,10 @@ export const T = {
     fehlerBeimPruefen: "Die Prüfung konnte nicht vollständig laufen: {meldung}",
     auswertung: "Einzelne Regeln konnten nicht ausgewertet werden ({n}).",
     gross: "Große Rechnung – die Prüfung dauert etwas.",
+    formatfehler: "Formatfehler", formatTitel: "Werte im falschen Format", formatOrt: "Stelle", technisch: "Technische Meldung",
+    werte: { zahl: v => `Der Wert „${v}“ ist keine gültige Zahl.`, datum: v => v ? `Der Wert „${v}“ ist kein gültiges Datum.` : "Ein Datum gibt es nicht (zum Beispiel der 30. Februar).", wahr: v => `Der Wert „${v}“ ist weder true noch false.`,
+      mehrfach: () => "Eine Angabe steht mehrfach, wo sie nur einmal stehen darf.", sonst: () => "Ein Wert hat nicht das vorgeschriebene Format." },
+    formatTun: "Der Rechnungssteller muss die Datei korrigieren und neu ausstellen.",
   },
   en: {
     titel: "SmartFormular E-Rechnung lite",
@@ -147,6 +151,10 @@ export const T = {
     fehlerBeimPruefen: "The check could not run completely: {meldung}",
     auswertung: "Some rules could not be evaluated ({n}).",
     gross: "Large invoice – the check takes a little while.",
+    formatfehler: "Format error", formatTitel: "Values in the wrong format", formatOrt: "Location", technisch: "Technical message",
+    werte: { zahl: v => `The value "${v}" is not a valid number.`, datum: v => v ? `The value "${v}" is not a valid date.` : "A date does not exist (30 February, for example).", wahr: v => `The value "${v}" is neither true nor false.`,
+      mehrfach: () => "A detail appears more than once where it may appear only once.", sonst: () => "A value is not in the required format." },
+    formatTun: "The issuer needs to correct the file and issue it again.",
   },
 };
 
