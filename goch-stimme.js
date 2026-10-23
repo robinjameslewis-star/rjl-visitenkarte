@@ -103,11 +103,12 @@
     anfrage(opts) {
       denkt = true;
       if (ohr) { ohr.anhalten(); if (zustand !== 'pause') setzeZustand('denkt'); }
-      if (!erlaubt) return {};
+      if (!erlaubt) return { kannZeigen: true };
       const z = {};
       if (opts && opts.gesprochen) z.gesprochen = true;
       if (lautAn) { schweigen(); z.stimme = { erste: !schonGesprochen }; schonGesprochen = true; if (kiHinweis.hidden) { kiHinweis.hidden = false; nachziehen(); } }
       if (Object.keys(z).length) z.figur = 'goch';
+      z.kannZeigen = true; // die Seite kann zu Stellen führen (goch-gespraech.js)
       return z;
     },
     async rest(reader, buf, dec, antwort) {
@@ -242,6 +243,7 @@
     if (!mikroAn && ohr) { zuhoerenStoppen(); setzeZustand('aus'); }
     blicken();
     nachziehen();
+    window.dispatchEvent(new CustomEvent('goch-modus', { detail: { mikro: mikroAn, laut: lautAn } })); // goch-gespraech.js
   }
   function umschalten(welcher) {
     entsperren(); // in der Berührung: Ton und Sprachausgabe freischalten (iOS/Safari)

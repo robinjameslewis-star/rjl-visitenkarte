@@ -246,6 +246,8 @@
         remembered += ' (Link: ' + l.label + ')';
       }
     }
+    // Sprachmodus (goch-gespraech.js): Verweis zur Stelle der Seite, die Goch zeigt; auf dem Handy führt die Seite hin
+    if (data.zeigen && window.GochZeigen) thinking.append(' ', window.GochZeigen.link(data.zeigen));
     history.push({ role: 'assistant', content: remembered });
     window.dispatchEvent(new CustomEvent('goch-antwort', { detail: data }));
     const nl = data.action === 'newsletter' ? newsletterForm() : null;

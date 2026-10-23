@@ -112,6 +112,7 @@ TON = ton()
 
 REPLIES = {
     'de': {
+        'zeigen': "Hier unten sehen Sie Robins Werkzeuge – vom SmartFormular bis zur Deklaration.",
         'work': "Robin lernt gerade für die Abschlussprüfung zum Steuerfachangestellten, schriftlich Ende November. Daneben bekommt diese Seite eine Landschaft, und er baut kleine Werkzeuge für seinen Mac.",
         'who': "Robin James Lewis lebt in Balingen am Fuß der Schwäbischen Alb, mit walisischen Wurzeln. Er wird Steuerfachangestellter und arbeitet daran, Verwaltung mit Software leichter zu machen. Sein Leitsatz: Selig sind die Friedensstifter, sie werden Kinder Gottes heißen.",
         'message': "Gern. Was soll ich Robin ausrichten – und wie heißt du, und unter welcher E-Mail-Adresse kann er dir antworten?",
@@ -126,6 +127,7 @@ REPLIES = {
         'unknown': "Das weiß ich nicht. Soll ich Robin fragen?",
     },
     'en': {
+        'zeigen': "Down here you can see Robin's tools – from SmartFormular to the declaration.",
         'work': "Robin is preparing for his final exam as a certified tax clerk, written papers in late November. This page is getting a landscape, and he builds small tools for his Mac.",
         'who': "Robin James Lewis lives in Balingen at the foot of the Swabian Alb, with Welsh roots. He is qualifying as a certified tax clerk and works on making administration lighter through software.",
         'message': "Gladly. What should I pass on to Robin – and what's your name and the email address he can reply to?",
@@ -248,6 +250,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply({'reply': T['sent'].format(email=m.get('email', '')), 'action': 'message', 'sent': True})
         if low in ('ja', 'ja.', 'yes', 'yes.') and len(msgs) >= 2 and ('Soll ich Robin fragen' in msgs[-2]['content'] or 'Shall I ask Robin' in msgs[-2]['content']):
             return self.reply({'reply': T['askmsg'], 'action': None})
+        if ('zeig' in low or 'show' in low) and body.get('kannZeigen'):  # Sprachmodus: Goch zeigt eine Stelle der Seite
+            return self.reply({'reply': T['zeigen'], 'action': None, 'zeigen': 'werkzeuge'})
         if 'mehr' in low or 'more' in low: return self.reply({'reply': T['more'], 'action': None})
         if 'name:' in low and 'email:' in low:
             fields = dict(p.split(':', 1) for p in last.split(',') if ':' in p)

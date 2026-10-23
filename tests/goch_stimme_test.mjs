@@ -206,5 +206,22 @@ console.log("Einstellungen und Kundenfiguren");
   check((await kundenfiguren(ke)).length === 0, "gelöscht");
 }
 
+console.log("Goch zeigt eine Stelle der Seite (zeigen)");
+{
+  const w = await frisch(), e = env({}, sprache({}));
+  modell = { reply: "Hier sehen Sie alle Werkzeuge.", action: null, message: null, link: null, zeigen: "werkzeuge" };
+  const systemtext = () => prompts.at(-1).system.map(s => s.text).join("\n");
+  let o = await (await chat(w, e, { messages: [{ role: "user", content: "Zeig mir die Werkzeuge" }], kannZeigen: true })).json();
+  check(o.zeigen === "werkzeuge" && o.reply === "Hier sehen Sie alle Werkzeuge.", "erlaubte Stelle wird weitergegeben", o.zeigen);
+  check(/Zusätzliches Feld "zeigen"/.test(systemtext()), "Hinweis nennt die erlaubten Stellen");
+  modell = { reply: "Hier entlang.", action: null, message: null, link: null, zeigen: "redaktion" };
+  o = await (await chat(w, e, { messages: [{ role: "user", content: "Zeig mir die Redaktion" }], kannZeigen: true })).json();
+  check(o.zeigen === null, "unbekannte Stelle verworfen", o.zeigen);
+  modell = { reply: "Hier sehen Sie alle Werkzeuge.", action: null, message: null, link: null, zeigen: "werkzeuge" };
+  o = await (await chat(w, e, { messages: [{ role: "user", content: "Zeig mir die Werkzeuge" }] })).json();
+  check(o.zeigen === null && !/Zusätzliches Feld "zeigen"/.test(systemtext()), "ohne kannZeigen: kein Hinweis, keine Stelle – wie vorher", o.zeigen);
+  modell = { reply: "Robin baut gerade Werkzeuge für Kanzleien.", action: null, message: null, link: null };
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nStimme, Spracheingabe und Figuren in Ordnung.");
 process.exit(fails ? 1 : 0);

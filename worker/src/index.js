@@ -2,7 +2,8 @@
 // POST /chat  { lang: "de"|"en", messages: [{role:"user"|"assistant", content:"…"}, …] }
 // Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message" | "newsletter", sent: true|false|undefined,
 //               (newsletter: die Seite zeigt unter der Antwort ein Feld zur Anmeldung, die Adresse geht nie an das Modell)
-//               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“) }
+//               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“),
+//               zeigen: null | Stelle der Startseite aus ZIELE (die Seite führt dorthin, während Goch spricht) }
 //               – Links nur aus links.md, nie vom Modell erfunden
 // Sprechender Goch (23.10.2026): { figur: "goch" } wählt die Figur (öffentlich nur Goch); { gesprochen: true } – die Frage
 // kam per Spracheingabe – oder { stimme: {erste} } schaltet das schnellere Modell des Sprachmodus ein. Mit „stimme“
@@ -195,7 +196,9 @@ const worker = {
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
     const system = kunde ? kundenSystem(intern.figur, lang)
       : content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
-    const systemText = body.stimme ? system + "\n\n" + GESPROCHEN[lang] : system; // vorgelesen: so formulieren, wie man spricht
+    const zeigen = body.kannZeigen === true && !intern && !kunde;
+    // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
+    const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
     let text;
     try {
       text = await complete(env, systemText, messages, content.linkIds, modelSettings);
@@ -215,6 +218,7 @@ const worker = {
     // Kundenfigur am Messegerät: nur Text, höchstens „contact“; kein Draht, keine Links, keine Rückkopplung in Gochs Profil.
     if (kunde) return json({ reply: out.reply, action: out.action === "contact" ? "contact" : null, link: null, link2: null }, 200, cors);
     // Goch am Messegerät: keine Links und keine Anmeldung zum Newsletter (kein Feld am Gerät)
+    if (!zeigen) out.zeigen = null;
     if (intern) { out.link = null; out.link2 = null; if (out.action === "newsletter") out.action = null; }
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
@@ -404,6 +408,17 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
 "link2" ist null – außer bei „Was gibt's Neues?“: dann die zweite Kennung (siehe Profil).
 "reply" ist immer dein Text an den Besucher, in dessen Sprache.`;
 
+// Stellen der Startseite, zu denen Goch führen darf (Robin, 23.10.2026: Goch zeigt, während er spricht). Die Seite kennt
+// dieselben Kennungen (goch.js, ZIELE); alles andere wird verworfen.
+export const ZIELE = ["werkzeuge", "workshops", "ueber-mich", "blog", "newsletter", "nachricht", "grundsaetze"];
+// Nur wenn die Seite meldet, dass sie dorthin führen kann (kannZeigen, Sprachmodus der Startseite) – sonst bleibt alles wie vorher.
+const ZEIGEN = `# Seite zeigen
+
+Zusätzliches Feld "zeigen": null oder eine Stelle dieser Seite, zu der die Seite den Besucher führt, während du sprichst –
+wenn er etwas sehen möchte („Zeig mir …“, „Wo finde ich …“) oder es deine Antwort klar unterstützt: "werkzeuge" (Werkzeuge
+im Überblick), "workshops", "ueber-mich" (über Robin), "blog" (Impulse), "newsletter", "nachricht" (Robin schreiben),
+"grundsaetze" (Robins Grundsätze). Dann sag in "reply" kurz, was dort zu sehen ist. Sonst null.`;
+
 const CONFIRM = /^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b/i;
 const DECLINE = /^\s*(nein|no|nope|lieber nicht|doch nicht|abbrechen|cancel|stop)\b|\b(nicht|don't|do not|not)\s+(senden|schicken|abschicken|send)\b/i;
 const NO_TRANSCRIPT = /(ohne|nicht|kein|keinen|no|without|don't|do not|nur die nachricht|only the message)[^.!?]{0,60}(gespräch|verlauf|unterhaltung|chat|conversation|transcript|history)|(gespräch|verlauf|unterhaltung|conversation|transcript|history)[^.!?]{0,40}(nicht|weglassen|raus|weg|out|off|leave)/i;
@@ -586,6 +601,7 @@ const gochOutput = linkIds => z.object({
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
   link2: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
+  zeigen: z.enum(ZIELE).nullable(),
 });
 
 export async function complete(env, system, messages, linkIds = [], settings = null) {
@@ -660,6 +676,7 @@ const schemaFor = linkIds => ({
     reply: { type: "string" },
     action: { type: ["string", "null"], enum: ["calendar", "contact", "message", null] },
     link: { type: ["string", "null"], enum: [...linkIds, null] },
+    zeigen: { type: ["string", "null"], enum: [...ZIELE, null] },
     message: { type: ["object", "null"], properties: { name: { type: "string" }, email: { type: "string" }, text: { type: "string" } }, required: ["name", "email", "text"] },
   },
   required: ["reply", "action"],
@@ -687,7 +704,7 @@ function parse(text, linkIds = []) {
       const o = JSON.parse(m[0]);
       const action = ["calendar", "contact", "message", "newsletter", "feedback"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
-      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null };
+      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null, zeigen: ZIELE.includes(o.zeigen) ? o.zeigen : null };
       if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = o.message;
       return out;
     } catch {}
@@ -697,7 +714,8 @@ function parse(text, linkIds = []) {
     const reply = (text.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/) || [])[1] || "";
     const action = (text.match(/"action"\s*:\s*"(calendar|contact|message|newsletter|feedback)"/) || [])[1] || null;
     const link = (text.match(/"link"\s*:\s*"([a-z0-9-]+)"/) || [])[1] || null;
-    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null };
+    const zeigen = (text.match(/"zeigen"\s*:\s*"([a-z-]+)"/) || [])[1] || null;
+    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null, zeigen: ZIELE.includes(zeigen) ? zeigen : null };
     if (action === "message" || action === "feedback") {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";

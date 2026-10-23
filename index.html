@@ -217,6 +217,31 @@
   .scene.zwitschert[data-state="rest"] .bird-tilt { animation: goch-zucken .3s ease-in-out 2; }
   @keyframes goch-zucken { 50% { transform: rotate(-2deg); } }
   @media (prefers-reduced-motion: reduce) { .goch-noten.an span { opacity: 1; } }
+  /* Goch zeigt eine Stelle der Seite (goch-gespraech.js): Verweis in der Antwort, die Stelle leuchtet kurz auf */
+  .goch-zeigen { white-space: nowrap; }
+  .goch-zeigen::before { content: "→ "; }
+  .goch-gezeigt { animation: goch-gezeigt 3.2s ease-out; border-radius: 10px; }
+  @keyframes goch-gezeigt { 0%, 60% { box-shadow: 0 0 0 3px var(--copper); } 100% { box-shadow: 0 0 0 3px transparent; } }
+  .goch-papier, .goch-mini { display: none; }
+  @media (max-width: 720px) {
+    /* Gesprächsmodus auf dem Handy: Papier über der Seite, Goch groß oben, darunter das Gespräch */
+    html.goch-fokus, html.goch-fokus body { overflow: hidden; }
+    html.goch-fokus .goch-papier { display: block; position: fixed; inset: 0; z-index: 18; background: var(--paper) url("assets/papier.jpg"); }
+    html.goch-fokus .stage, html.goch-fokus .perch { z-index: auto !important; isolation: auto !important; } /* sonst bliebe Goch unter dem Papier */
+    html.goch-fokus .scene { position: fixed; z-index: 19; left: 5vw; top: calc(env(safe-area-inset-top) + 28px); width: 90vw; }
+    html.goch-fokus .goch { max-height: min(56dvh, calc(100dvh - 90vw * 0.616 - 52px)) !important; } /* Goch oben bleibt frei */
+    html.goch-fokus .goch-log .goch-bubble { font-size: 16px; }
+    /* Goch zeigt etwas: klein in der Ecke, das Gespräch als schmale Leiste */
+    html.goch-unterwegs .goch { max-height: 32dvh !important; }
+    html.goch-unterwegs .goch-log > :not(:last-child), html.goch-unterwegs #goch-starters, html.goch-unterwegs #goch-form,
+      html.goch-unterwegs #goch-sprache, html.goch-unterwegs .goch-note { display: none; }
+    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; position: fixed; z-index: 21; right: 4vw; bottom: calc(32dvh + 16px); width: 96px;
+      padding: 0; border: 0; background: transparent; cursor: pointer; }
+    .goch-mini img { display: block; width: 100%; height: auto; transform-origin: 45% 80%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
+    .goch-mini.spricht img { animation: goch-mini 0.45s ease-in-out infinite alternate; }
+    @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }
+  }
+  @media (max-width: 720px) and (prefers-reduced-motion: reduce) { .goch-mini.spricht img { animation: none; } }
   @media (max-width: 720px) { .goch:has(#goch-sprache:not([hidden])), .goch:has(#goch-mikro:not([hidden])), .goch:has(#goch-stimme-consent:not([hidden])) { max-height: 80dvh; }
     #goch-stimme-consent { min-height: 0; flex-shrink: 1; overflow-y: auto; } } /* Handy: Platz für Verlauf und Einwilligung trotz Schaltern */
   @media (prefers-reduced-motion: no-preference) {
@@ -608,7 +633,7 @@
           <button class="consent-link" id="goch-stimme-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
         </div>
       </div>
-      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button> <button class="consent-link goch-withdraw" id="goch-stimme-ende" type="button" data-i18n="gochStimmeEnde" hidden>Sprechen beenden</button> <button class="consent-link goch-withdraw" id="goch-stumm" type="button" hidden>Zwitschern aus</button></p>
+      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button> <button class="consent-link goch-withdraw" id="goch-stimme-ende" type="button" data-i18n="gochStimmeEnde" hidden>Sprechen beenden</button> <button class="consent-link goch-withdraw" id="goch-stumm" type="button" hidden>Zwitschern aus</button> <button class="consent-link goch-withdraw" id="goch-zur-seite" type="button" data-i18n="gochZurSeite" hidden>Seite ansehen</button></p>
     </section>
     </div>
   </section>
@@ -788,6 +813,9 @@
     </form>
   </section>
 </main>
+<!-- Gesprächsmodus auf dem Handy (goch-gespraech.js): Papier über der Seite, kleiner Goch, wenn er eine Stelle zeigt -->
+<div class="goch-papier" aria-hidden="true"></div>
+<button class="goch-mini" id="goch-mini" type="button" aria-label="Zurück zu Goch" data-i18n-aria="gochMini" hidden><img data-src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"></button>
 
 <footer>
   <details id="privacy">
@@ -843,6 +871,7 @@
 <script src="goch-audio.js?v=20261023" defer></script>
 <script src="goch-stimme.js?v=20261023" defer></script>
 <script src="goch-zwitschern.js?v=20261023" defer></script>
+<script src="goch-gespraech.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
 </body>
