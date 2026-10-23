@@ -37,6 +37,7 @@
       "landeanflug": { "datei": "flugpose-4-landeanflug.webp", "breite": 1536, "hoehe": 1024, "auge": [591, 378] },
       "schnabel-halb": { "datei": "vogel-schnabel-halb.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
       "schnabel-offen": { "datei": "vogel-schnabel-offen.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "blinzelnd": { "datei": "vogel-blinzeln.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
       "lauschend": { "datei": null, "platzhalter": "neigen" },
       "zwitschernd": { "datei": null, "platzhalter": "neigen" }
     },

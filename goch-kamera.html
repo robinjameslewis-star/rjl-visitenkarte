@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Gochs Blickkontakt (Robin, 23.10.2026): eigener Rahmen der Startseite (goch-blick.js). Verbindungen nur zu robin.vision
+     selbst – MediaPipe kann so nichts nach außen schicken; die Startseite bekommt nur Zahlen (da, Lage, schaut her), nie ein
+     Bild. Das Video ist zugleich das kleine Vorschaubild, das zeigt, solange die Kamera an ist. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; media-src 'self' blob: mediastream:; img-src 'self' blob: data:; style-src 'unsafe-inline'; worker-src 'self' blob:">
+<meta name="robots" content="noindex">
+<title>Goch – Blickkontakt</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+  video { display: block; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+</style>
+</head>
+<body>
+<video id="bild" playsinline muted autoplay></video>
+<script type="module" src="goch-kamera.js?v=20261023"></script>
+</body>
+</html>

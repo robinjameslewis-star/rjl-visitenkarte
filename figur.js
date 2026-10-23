@@ -5,7 +5,7 @@
   'use strict';
   // Posen der Figur und ihre Namen in der Szene (wie POSEN in tools/figur-pruefen.mjs)
   const NAMEN = { sitzend: 'rest', aufschlag: 'up', gleiten: 'glide', abschlag: 'down', landeanflug: 'landing',
-    'schnabel-halb': 'halb', 'schnabel-offen': 'offen', lauschend: 'lauschen', zwitschernd: 'zwitschern' };
+    'schnabel-halb': 'halb', 'schnabel-offen': 'offen', lauschend: 'lauschen', zwitschernd: 'zwitschern', blinzelnd: 'blinzeln' };
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
 
   // Lage einer Pose in Prozent der Bühne, am Auge ausgerichtet (dieselbe Rechnung wie in figur-pruefen).
@@ -71,7 +71,16 @@
       Object.values(frames).forEach(f => { f.style.opacity = f === ziel ? '1' : '0'; });
       return true;
     }
-    let lauscht = false;
+    let lauscht = false, spricht = false, blinzelTimer = 0;
+    // Blinzeln (Robin, 23.10.2026): in Ruhe und Gesprächspausen alle paar Sekunden, nie während die Figur spricht
+    const blinzeln = () => {
+      if (ruhig.matches || spricht || lauscht || buehne.dataset.mund || !zeige('blinzeln')) return;
+      setTimeout(() => { if (!spricht && !lauscht) zeige('rest'); }, 110);
+    };
+    function blinzelnPlanen(an) {
+      clearTimeout(blinzelTimer);
+      if (an && frames.blinzeln) blinzelTimer = setTimeout(() => { blinzeln(); blinzelnPlanen(true); }, 2500 + Math.random() * 4000);
+    }
     const steuerung = {
       figur,
       // Schnabel: Pose, sonst leichtes Neigen (data-mund, CSS); Logo: Puls mit dem Pegel. Reduzierte Bewegung: ruhig.
@@ -87,11 +96,13 @@
           kippen.style.transform = 'scale(' + s.toFixed(4) + ')';
           return;
         }
+        spricht = true;
         steuerung.mund(rms > .09 ? 'offen' : rms > .025 ? 'halb' : 'zu');
         if (koerper) koerper.stimme(rms);
       },
-      ruhe() { kippen.style.transform = ''; steuerung.mund('zu'); if (koerper) koerper.ende(); },
-      blicken(an) { if (koerper) koerper.blicken(an); },
+      ruhe() { spricht = false; kippen.style.transform = ''; steuerung.mund('zu'); if (koerper) koerper.ende(); },
+      blicken(an) { if (koerper) koerper.blicken(an); blinzelnPlanen(an); },
+      blinzeln,
       lauschen(an) {
         lauscht = an && !ruhig.matches;
         if (lauscht) { if (!zeige('lauschen')) buehne.dataset.lauscht = '1'; }

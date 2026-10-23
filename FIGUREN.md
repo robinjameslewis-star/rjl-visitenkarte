@@ -66,6 +66,7 @@ Abrufbar sind sie nur über die authentifizierte Kiosk-Route, nie über `/chat`.
 | `schnabel-offen` | ja | Sprechen, laute Silben |
 | `lauschend` | ja | während der Aufnahme: Kopf leicht geneigt, aufmerksam |
 | `zwitschernd` | nein | Zwitschern (sonst kurzes Schnabelzucken) |
+| `blinzelnd` | nein | Blinzeln im Gespräch, beim Bemerken (Blickkontakt); Goch: aus der Sitzpose abgeleitet (`tools/figur-augen.py`) |
 | `aufschlag`, `gleiten`, `abschlag`, `landeanflug` | nein, aber nur alle vier | Anflug (Goch); ohne sie erscheint die Figur ohne Flug |
 
 **Gerätestimme:** nur bei `stimme.rueckfall: "browser"` (etwa eine Kundenfigur ohne eigene Stimme). `stimme.browser` nennt

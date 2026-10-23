@@ -30,6 +30,11 @@ VIEWS = [  # Name, Breite, Höhe, Pixeldichte, Zeit, Landschaft
     ('handy-nacht-ohne-landschaft', 390, 844, 2, '2026-10-15T23:00', 'aus'),
 ]
 TOLERANZ = 12
+# Gewollte Änderung (Robin, 23.10.2026): In den freigestellten Vogelbildern (Ansicht mit Landschaft) ist eingeschlossenes
+# Weiß zwischen Zehen, Beinen und Federspitzen jetzt durchsichtig (tools/landschaft-bilder.py, enclosed_holes). Solange
+# der Vergleichsstand die alten Bilder hat, gelten dort bis GEWOLLT Pixel als gewollt; ein verschobenes oder getauschtes
+# Bild weicht um Tausende ab. Ohne Landschaft bleibt es bei genauer Gleichheit.
+GEWOLLT = 800
 POSES = ['rest', 'up', 'glide', 'down', 'landing']
 # Zeigt eine Pose in der Sitzlage; die Flugbilder sind bei reduzierter Bewegung sonst ausgeblendet.
 SHOW_POSE = """(async name => {
@@ -66,6 +71,9 @@ def compare(name, a_png, b_png):
         print(f'  ok   {name}: gleich bis auf Rauschen (höchstens {peak} Stufen)')
         return
     mask.save(os.path.join(folder, 'diff.png'))
+    if not name.endswith('-ohne-landschaft') and changed <= GEWOLLT:
+        print(f'  ok   {name}: {changed} Pixel geändert – gewollt (Füße und Federlücken freigestellt, 23.10.2026)')
+        return
     failures.append(name)
     print(f'  FAIL {name}: {changed} Pixel um mehr als {TOLERANZ} Stufen abweichend (höchstens {peak}) in {mask.getbbox()}')
 

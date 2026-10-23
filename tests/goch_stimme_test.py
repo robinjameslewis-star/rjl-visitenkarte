@@ -13,7 +13,7 @@ Abnahme: Ohne Aktivierung keine Mikrofonanfrage (getUserMedia), kein Ton, keine 
 kein hörbares Zwitschern vor einer Handlung; sichtbares Zwitschern höchstens dreimal; Grenze erreicht → Text statt Stimme.
 Mikrofon: eine künstliche Stimme im Browser, die der Test mit window.__sprich ein- und ausschaltet (getUserMedia liefert
 ihren Stream); Gochs Stimme ist ein kurzer Sinuston der Attrappe."""
-import asyncio, base64, io, json, math, os, struct, subprocess, sys, tempfile, time, urllib.parse, urllib.request, wave
+import asyncio, base64, io, json, math, os, re, struct, subprocess, sys, tempfile, time, urllib.parse, urllib.request, wave
 import websockets
 
 BASE = sys.argv[1].rstrip('/') + '/'
@@ -63,6 +63,7 @@ window.__mund = []; window.__bewegt = [];
   const AC = window.AudioContext; window.AudioContext = class extends AC { constructor(...a) { super(...a); __z.ctx++; } };
   document.addEventListener('DOMContentLoaded', () => {
     const s = document.getElementById('scene');
+    if (!s) return; // Kamerarahmen goch-kamera.html: dort gibt es keine Szene
     new MutationObserver(() => __mund.push((s.dataset.mund || 'zu') + (s.dataset.lauscht ? '+lauscht' : ''))).observe(s, { attributes: true, attributeFilter: ['data-mund', 'data-lauscht'] });
     new MutationObserver(() => { if (s.dataset.bewegt) __bewegt.push(getComputedStyle(s).getPropertyValue('--goch-neigung') || s.style.getPropertyValue('--goch-neigung')); }).observe(s, { attributes: true, attributeFilter: ['data-bewegt', 'style'] });
     // Schnabelposen als Bilder: sichtbar geschaltete Pose mitschreiben
@@ -117,7 +118,11 @@ async def main():
                 open(os.path.join(OUT, name + '.png'), "wb").write(base64.b64decode(r["data"]))
             async def goto(url, wait=4):
                 requests.clear()
-                await send("Page.navigate", {"url": url}); await pump(wait)
+                await send("Page.navigate", {"url": url})
+                for _ in range(40):  # erst weiter, wenn die Seite wirklich geladen ist (frisch gestartetes Chrome braucht manchmal länger)
+                    if await ev("location.href.startsWith(" + json.dumps(BASE) + ") && document.readyState === 'complete'"): break
+                    await pump(0.25)
+                await pump(wait)
             async def real_click(selector, hold=0):  # echte Maus: Nutzergeste für Ton (iOS-artige Freischaltung)
                 box = await ev(f"(()=>{{const e=document.querySelector({json.dumps(selector)});e.scrollIntoView({{block:'center'}});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2];}})()")
                 ziel = await ev(f"(()=>{{const e=document.elementFromPoint({box[0]},{box[1]});const t=document.querySelector({json.dumps(selector)});return t.contains(e)?'':(e&&(e.id||e.className||e.tagName));}})()")
@@ -282,6 +287,36 @@ async def main():
             zz = await z()
             check(await zustand() == 'hoert' and zz['offen'] == 1 and zz['gum'] == 2, "„Weiter zuhören“: Mikrofon wieder offen", zz)
 
+            print("6d. Blickkontakt: eigene Einwilligung, Kamera nur im Rahmen, nichts nach außen, zuhören nur mit Blick")
+            await real_click('#goch-blick-an')
+            check(await sichtbar('#goch-kamera-consent') and not await sichtbar('#goch-sprache') and await ev("!document.querySelector('#goch-kamera-platz iframe')"), "eigene Einwilligung für die Kamera, noch kein Rahmen")
+            await real_click('#goch-kamera-allow')
+            for _ in range(60):
+                if await ev("document.getElementById('scene').dataset.kamera") == 'bereit': break
+                await pump(0.25)
+            rahmen = await ev("(()=>{const f=document.querySelector('#goch-kamera-platz iframe');return f?{allow:f.getAttribute('allow'),src:f.getAttribute('src'),sichtbar:!document.getElementById('goch-kamera-platz').hidden}:null})()")
+            check(rahmen and rahmen['allow'] == 'camera' and rahmen['src'].startswith('goch-kamera.html') and rahmen['sichtbar'], "Rahmen goch-kamera.html mit Kamera, Vorschaubild sichtbar", rahmen)
+            check(await ev("document.getElementById('scene').dataset.kamera") == 'bereit', "MediaPipe geladen (vom eigenen Server)")
+            csp = await ev("fetch('goch-kamera.html').then(r=>r.text()).then(t=>(t.match(/Content-Security-Policy\" content=\"([^\"]+)/)||[])[1]||'')")
+            check("connect-src 'self'" in csp and "default-src 'none'" in csp, "Rahmen sperrt fremde Verbindungen (CSP)", csp[:60])
+            check(not any('googleapis' in u or 'odml' in u for _, u in requests) and extern() == [], "keine Anfrage an Google oder andere fremde Hosts", extern()[:3])
+            gesicht = lambda wert: ev("clearInterval(window.__gesicht); window.__gesicht = setInterval(() => { const f = document.querySelector('#goch-kamera-platz iframe'); if (f) f.contentWindow.postMessage({typ:'test-gesicht', wert:" + json.dumps(wert) + "}, location.origin); }, 100)")
+            n0 = len(neu_listen())
+            await gesicht({"da": True, "x": .5, "y": .4, "groesse": .3, "schautHer": False}); await pump(0.6)
+            check(await ev("document.getElementById('scene').dataset.gegenueber") == '1' and not await ev("document.getElementById('scene').dataset.blickkontakt"), "Goch bemerkt sein Gegenüber – ohne Blickkontakt")
+            await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(1.6)
+            check(len(neu_listen()) == n0 and any('Schauen Sie Goch an' in b for b in await ev(bubbles)), "spricht, ohne ihn anzusehen: Goch hört nicht zu, ein Hinweis", len(neu_listen()) - n0)
+            await ev("__bewegt.length = 0")
+            await gesicht({"da": True, "x": .85, "y": .4, "groesse": .3, "schautHer": True}); await pump(0.8)
+            check(await ev("document.getElementById('scene').dataset.blickkontakt") == '1', "Blickkontakt erkannt")
+            check(any(b.strip() not in ('', '0.00deg', '0deg') for b in await ev("__bewegt")), "Goch wendet sich dem Gegenüber zu", (await ev("__bewegt"))[:3])
+            await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(2.5)
+            check(len(neu_listen()) == n0 + 1, "mit Blickkontakt: Goch hört zu und antwortet", len(neu_listen()) - n0)
+            await ev("clearInterval(window.__gesicht)")
+            await real_click('#goch-blick-an'); await pump(0.5)
+            check(await ev("!document.querySelector('#goch-kamera-platz iframe') && document.getElementById('goch-kamera-platz').hidden && !document.getElementById('scene').dataset.kamera"), "Blickkontakt aus: Rahmen und Vorschaubild weg")
+            await pump(1.0)
+
             print("7. Spracheingabe: Grenze und ausgeschaltet")
             fake('/_modus?hoeren=grenze'); vorher = len(fake('/_chats'))
             await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(2.0)
@@ -350,10 +385,11 @@ async def main():
             await pump(2.6)
             p1 = await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)")
             check(p1 >= 1 and (await z())['play'] == play0, "in der Pause zwitschert Goch sichtbar – ohne Stimme nicht hörbar", p1)
+            await real_click('#goch-close'); await ev("window.scrollTo(0,0)"); await real_click('#scene'); await pump(0.2)  # neues Gespräch: Zähler von vorn
             await real_click('#goch-laut'); await real_click('#goch-stimme-allow'); play1 = (await z())['play']
-            await pump(4.5)
+            await pump(3.5)
             p2 = await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)")
-            check(p2 > p1 and (await z())['play'] > play1, "mit Stimme auch hörbar", f"{p1}→{p2}")
+            check(p2 >= 1 and (await z())['play'] > play1, "mit Stimme auch hörbar", f"{p2} Mal, {(await z())['play'] - play1} hörbar")
             await pump(4)
             check(await ev("+(document.getElementById('scene').dataset.pausenZwitschern || 0)") <= 4, "höchstens viermal je Gespräch")
             await real_click('#goch-close')
@@ -393,7 +429,9 @@ async def main():
             await send("Emulation.setDeviceMetricsOverride", {"width": 1280, "height": 1100, "deviceScaleFactor": 1, "mobile": False})
 
             print("14. Konsole und fremde Hosts")
-            check(not console, "keine Fehler", "; ".join(console)[:300])
+            # MediaPipe schreibt Infozeilen über console.error (INFO:, W…/I… mit Datum) – keine Fehler der Seite
+            fehler = [c for c in console if not re.match(r'^\s*(INFO:|[IW]\d{4} )', c)]
+            check(not fehler, "keine Fehler", "; ".join(fehler)[:300])
             check(extern() == [], "keine fremden Hosts im letzten Lauf", extern()[:3])
     finally:
         proc.terminate()

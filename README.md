@@ -758,6 +758,24 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   und `.mp3`, dann `data-goch-signalton="figuren/goch/toene/zwitschern"`.
 - **Handy:** Mit Sprachschaltern oder deren Einwilligung darf das Blatt 80 % der Höhe nutzen, damit Verlauf und Knöpfe
   sichtbar bleiben.
+- **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
+  Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
+  das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch
+  wird zur Leiste, die Seite scrollt zur Stelle und hebt sie kurz hervor; ein Tipp auf den kleinen Goch holt ihn zurück.
+- **Goch zeigt** (Worker: `zeigen`, feste Liste `ZIELE`): nur wenn die Seite `kannZeigen` meldet (Sprachfunktion an), sonst
+  bleibt alles wie vorher. In der Antwort steht ein Verweis („Werkzeuge ansehen“); auf großen Bildschirmen führt nur er hin.
+- **Blinzeln** (`vogel-blinzeln.webp`, abgeleitet mit `tools/figur-augen.py`): im offenen Gespräch alle paar Sekunden,
+  ab und zu doppelt, nie während Goch spricht oder jemand zu ihm spricht.
+- **Blickkontakt** (`goch-blick.js`, `goch-kamera.html`, `goch-kamera.js`, `goch-blickrechnung.js`): dritter Schalter mit
+  eigener Einwilligung. Die Kamera wird nur im eigenen Rahmen `goch-kamera.html` ausgewertet – Content-Security-Policy
+  `connect-src 'self'`, MediaPipe Face Landmarker aus `vendor/mediapipe/` (selbst ausgeliefert, Nutzungsmeldung an Google
+  abgeschaltet, siehe `vendor/mediapipe/HINWEIS.md` und `tools/mediapipe-uebernehmen.py`). An die Seite gehen nur Zahlen:
+  da, Lage, Größe, Kopfrichtung, schaut her – keine Bilder, keine Ausdruckswerte, keine Wiedererkennung. Goch bemerkt sein
+  Gegenüber (blinzelt), wendet sich ihm leicht zu und hört im Gesprächsmodus nur zu, wenn er angesehen wird. Kleines
+  Vorschaubild, solange die Kamera an ist; aus mit „Blickkontakt“, beim Schließen, beim Tabwechsel und mit „Sprechen
+  beenden“. Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
+  zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
   wenn die Funktion an ist. Die Einwilligung des Gesprächs (`rjl-goch-consent`) bleibt unverändert, weil ihr Text weiter
   stimmt; die Sprach-Einwilligung wird nicht gespeichert, also gibt es keine Version hochzuzählen.

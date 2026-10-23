@@ -66,7 +66,19 @@
     if (an && !ruhig.matches) { if (!zeige('lauschen')) scene.dataset.lauscht = '1'; }
     else { delete scene.dataset.lauscht; zeige('rest'); }
   }
-  const blicken = () => koerper.blicken(erlaubt && !panel.hidden);
+  // Blinzeln (Robin, 23.10.2026): im offenen Gespräch alle paar Sekunden, ab und zu doppelt; nie während Goch spricht oder
+  // jemand zu ihm spricht. Die Pose „blinzeln“ wird wie die Schnabelposen erst beim Einschalten geladen.
+  let blinzelTimer = 0;
+  function blinzeln(doppelt = false) {
+    if (ruhig.matches || spielt || zustand === 'spricht' || scene.dataset.mund || scene.dataset.lauscht || !zeige('blinzeln')) return;
+    setTimeout(() => { if (!spielt) zeige('rest'); if (doppelt) setTimeout(() => blinzeln(), 170); }, 110);
+  }
+  function blinzelnPlanen(an) {
+    if (!an) { clearTimeout(blinzelTimer); blinzelTimer = 0; return; }
+    if (blinzelTimer) return;
+    blinzelTimer = setTimeout(() => { blinzelTimer = 0; blinzeln(Math.random() < .2); blinzelnPlanen(erlaubt && !panel.hidden); }, 2500 + Math.random() * 4000);
+  }
+  const blicken = () => { koerper.blicken(erlaubt && !panel.hidden); blinzelnPlanen(erlaubt && !panel.hidden); };
 
   // ---------- Ton (goch-audio.js) ----------
   const entsperren = A.entsperren;
@@ -131,6 +143,8 @@
     // für goch-zwitschern.js: in Gesprächspausen zwitschern, hörbar nur mit Stimme
     beschaeftigt: () => denkt || restLaeuft || spielt || zustand === 'spricht',
     laut: () => lautAn,
+    blinzeln: () => blinzeln(), // für goch-blick.js: Goch bemerkt jemanden
+    koerper,                    // für goch-blick.js: dem Gegenüber zuwenden
   };
   // „grenze“: nur Text, ohne Hinweis. „aus“ und „fehler“: Gerätestimme nur, wenn die Figur sie erlaubt (Goch: nein).
   async function stimmeZurAntwort(z, antwort) {
@@ -166,7 +180,11 @@
       o = await A.zuhoeren({
         maxMs: MAX_MS,
         pegel: (rms, spricht) => { if (spricht) pegelBalken.style.width = Math.min(100, Math.round(rms * 600)) + '%'; },
-        start: () => { setzeZustand('spricht'); lauschen(true); restzeitZeigen(); },
+        start: () => {
+          // Mit Blickkontakt (goch-blick.js) hört Goch nur zu, wenn er angesehen wird – Gespräche nebenan zählen nicht
+          if (window.GochBlick && !window.GochBlick.aufmerksam()) { ohr.anhalten(); ohr.weiter(); window.GochBlick.hinweisen(); return; }
+          setzeZustand('spricht'); lauschen(true); restzeitZeigen();
+        },
         ende: abschnitt,
       });
     } catch (_) {
@@ -235,7 +253,8 @@
   // ---------- Schalter und Einwilligung ----------
   function aktualisieren() {
     // Schalter nur neben dem Textfeld: nicht, solange das Gespräch abgelehnt ist oder seine Einwilligung offen ist
-    leiste.hidden = panel.hidden || form.hidden || !einwilligung.hidden;
+    const kameraFrage = $('goch-kamera-consent');
+    leiste.hidden = panel.hidden || form.hidden || !einwilligung.hidden || (!!kameraFrage && !kameraFrage.hidden);
     mikroSchalter.setAttribute('aria-pressed', String(mikroAn));
     lautSchalter.setAttribute('aria-pressed', String(lautAn));
     mikro.hidden = !mikroAn || leiste.hidden;

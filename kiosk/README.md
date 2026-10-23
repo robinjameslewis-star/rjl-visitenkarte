@@ -34,8 +34,9 @@ Stimme, Pegel) und `figur.js` (Figurenpaket). Der Dienst liefert nur diese Datei
 5. **Zurücksetzen:** 60 s ohne Aktivität → Gespräch und Einwilligung gelöscht, zurück zu 1. Nichts bleibt im Browser.
 6. **Anwesenheit:** Steht jemand 1–3 m vor dem Gerät, zwitschert die Figur hörbar – mit Abklingzeit (30 s), nie in den
    Ruhezeiten, nie während eines Gesprächs. In Gesprächspausen zwitschert sie einmal leise nach 12–25 s
-   (`zwitschern.pause_s`), in Ruhe und Pausen schaut sie ab und zu kurz zur Seite; beim Sprechen bewegt sie sich mit der
-   Stimme (um die Füße gedreht, der Ast bleibt fest).
+   (`zwitschern.pause_s`), in Ruhe und Pausen schaut sie ab und zu kurz zur Seite und blinzelt (Pose `blinzelnd`); beim
+   Sprechen bewegt sie sich mit der Stimme (um die Füße gedreht, der Ast bleibt fest). Blickkontakt per Kamera gibt es am
+   Gerät bewusst nicht (öffentlicher Raum, Umstehende) – nur auf der Website, mit eigener Einwilligung.
 7. **Ohne Netz:** Hinweis „offline“, vorbereitete Antworten zum Antippen (mit Stimme, vorab erzeugt). Bestätigte
    Nachrichten an Robin puffert der Dienst und sendet sie, sobald das Netz zurück ist.
 

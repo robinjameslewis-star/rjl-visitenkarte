@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 // Posen der Figur und ihre Namen in der Szene (data-pose in index.html, kiosk.html)
 export const POSEN = { sitzend: "rest", aufschlag: "up", gleiten: "glide", abschlag: "down", landeanflug: "landing",
-  "schnabel-halb": "halb", "schnabel-offen": "offen", lauschend: "lauschen", zwitschernd: "zwitschern" };
+  "schnabel-halb": "halb", "schnabel-offen": "offen", lauschend: "lauschen", zwitschernd: "zwitschern", blinzelnd: "blinzeln" };
 export const PFLICHT = ["sitzend", "schnabel-halb", "schnabel-offen", "lauschend"];
 export const FLUG = ["aufschlag", "gleiten", "abschlag", "landeanflug"];
 export const PLATZHALTER = ["neigen", "keiner"]; // neigen: leichte Kopfbewegung über .bird-tilt, bis die Pose da ist
@@ -289,8 +289,8 @@ function pruefeSzene(figur, paket, htmlPfad, f) {
   const prefix = relative(resolve(htmlPfad, ".."), paket).split("\\").join("/") + "/bilder/";
   for (const [k, p] of Object.entries(a.posen)) {
     if (!p || !p.datei) continue;
-    // Schnabelposen lädt die Startseite erst beim Sprechen: data-mundpose und data-src-spaet statt data-pose und src
-    const attr = k.startsWith("schnabel-") ? "data-mundpose" : "data-pose";
+    // Schnabelposen und Blinzeln lädt die Startseite erst beim Sprechen: data-mundpose und data-src-spaet statt data-pose und src
+    const attr = k.startsWith("schnabel-") || k === "blinzelnd" ? "data-mundpose" : "data-pose";
     const img = (szene.match(new RegExp(`<img[^>]*${attr}="${POSEN[k]}"[^>]*>`)) || [""])[0];
     if (!img) { f(`Szene: Bild für Pose „${k}“ (${attr}="${POSEN[k]}") fehlt`); continue; }
     const src = (img.match(/ (?:data-src-spaet|data-src|src)="([^"]+)"/) || [])[1] || "";

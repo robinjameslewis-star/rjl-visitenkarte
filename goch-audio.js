@@ -224,24 +224,30 @@
   // Bewegung zur Stimme (Robin, 23.10.2026: mehr Leben beim Sprechen). Goch neigt sich mit betonten Silben leicht nach vorn
   // und hebt sich ein wenig, wechselt an Satzpausen die Kopfhaltung und schaut in Gesprächspausen ab und zu kurz zur Seite.
   // Setzt nur CSS-Variablen (--goch-neigung, --goch-hub) und data-bewegt am Element; gedreht wird per CSS um die Füße, damit
-  // er auf dem Ast bleibt. Bei reduzierter Bewegung nichts.
+  // er auf dem Ast bleibt. richten() gibt eine Grundhaltung vor (Blickkontakt: Goch wendet sich dem Gegenüber zu); alles
+  // andere spielt um sie herum. Bei reduzierter Bewegung nichts.
   function bewegung(ziel) {
     const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
-    let huelle = 0, haltung = 0, leiseSeit = 0, gewechselt = true, blickAn = false, timer = 0, aus = 0;
+    let huelle = 0, haltung = 0, leiseSeit = 0, gewechselt = true, blickAn = false, timer = 0, aus = 0, imBlick = false;
+    let basis = 0, basisHub = 0;
     const setzen = (neigung, hub) => {
       clearTimeout(aus); ziel.dataset.bewegt = '1';
       ziel.style.setProperty('--goch-neigung', neigung.toFixed(2) + 'deg');
       ziel.style.setProperty('--goch-hub', hub.toFixed(2) + '%');
     };
-    const zurueck = () => { setzen(0, 0); aus = setTimeout(() => { if (!ziel.dataset.spricht) delete ziel.dataset.bewegt; }, 400); };
+    const zurueck = () => {
+      setzen(basis, basisHub);
+      if (!basis && !basisHub) aus = setTimeout(() => { if (!ziel.dataset.spricht) delete ziel.dataset.bewegt; }, 400);
+    };
     function naechsterBlick() {
       clearTimeout(timer);
       if (!blickAn) return;
       timer = setTimeout(() => {
         if (!blickAn) return;
         if (ruhig.matches || ziel.dataset.spricht || ziel.dataset.lauscht || document.hidden) return naechsterBlick();
-        setzen((Math.random() < .5 ? -1 : 1) * (.8 + Math.random()), 0);
-        timer = setTimeout(() => { if (!ziel.dataset.spricht) zurueck(); naechsterBlick(); }, 700 + Math.random() * 700);
+        imBlick = true;
+        setzen(basis + (Math.random() < .5 ? -1 : 1) * (.8 + Math.random()), basisHub);
+        timer = setTimeout(() => { imBlick = false; if (!ziel.dataset.spricht) zurueck(); naechsterBlick(); }, 700 + Math.random() * 700);
       }, 4000 + Math.random() * 5000);
     }
     return {
@@ -254,13 +260,18 @@
           if (!leiseSeit) leiseSeit = jetzt;
           if (!gewechselt && jetzt - leiseSeit > 250) { haltung = (Math.random() * 2 - 1) * 1.1; gewechselt = true; }
         } else { leiseSeit = 0; gewechselt = false; }
-        setzen(haltung - Math.min(1.4, huelle * 9), -Math.min(.5, huelle * 3));
+        setzen(basis + haltung - Math.min(1.4, huelle * 9), basisHub - Math.min(.5, huelle * 3));
+      },
+      richten(grad, hub = 0) { // Grundhaltung, z. B. dem Gegenüber zugewandt (goch-blick.js)
+        if (ruhig.matches) { grad = 0; hub = 0; }
+        basis = grad; basisHub = hub;
+        if (!ziel.dataset.spricht && !imBlick) zurueck();
       },
       ende() { huelle = 0; haltung = 0; if (ziel.dataset.spricht) { delete ziel.dataset.spricht; zurueck(); } },
       blicken(an) {
         if (an === blickAn) return;
         blickAn = an;
-        if (an) naechsterBlick(); else { clearTimeout(timer); if (!ziel.dataset.spricht && ziel.dataset.bewegt) zurueck(); }
+        if (an) naechsterBlick(); else { clearTimeout(timer); imBlick = false; if (!ziel.dataset.spricht && ziel.dataset.bewegt) zurueck(); }
       },
     };
   }

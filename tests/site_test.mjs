@@ -34,7 +34,7 @@ const on = applyLandscape(html, "an"), off = applyLandscape(on, "aus");
 check(state(on) === "an" && [...paths(on), ...preloads(on)].every(isLive) && branchWidth(on) === 2800, "an: ohne bestand/ (Szene und Vorabladen), Ast 2800 px");
 check(state(off) === "aus" && [...paths(off), ...preloads(off)].every(isBestand) && branchWidth(off) === 1153, "aus: …/bestand/ (Szene und Vorabladen), Ast 1153 px");
 check([...paths(off), ...preloads(off)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }) && [...paths(on), ...preloads(on)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }), "alle Bildpfade beider Fassungen gibt es als Datei");
-check(spaet(html).length === 2 && spaet(on).every(isLive) && spaet(off).every(isBestand) && [...spaet(on), ...spaet(off)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }), "Schnabelposen schalten mit (data-src-spaet) und liegen als Datei vor");
+check(spaet(html).length === 3 && spaet(on).every(isLive) && spaet(off).every(isBestand) && [...spaet(on), ...spaet(off)].every(x => { try { readFileSync(root + x); return true; } catch { return false; } }), "Schnabelposen und Blinzeln schalten mit (data-src-spaet) und liegen als Datei vor");
 check(/'data-src-spaet'/.test(readFileSync(root + "landscape.js", "utf8")), "landscape.js tauscht auch die Schnabelposen");
 check(applyLandscape(html, s) === html && applyLandscape(on, "an") === on, "Umschalten auf den bestehenden Zustand ändert nichts");
 check((s === "aus" ? off : on) === html, "Rundreise an → aus liefert die Datei unverändert zurück");
