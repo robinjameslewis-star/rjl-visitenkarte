@@ -6,11 +6,15 @@ viele kurze, wechselnde Töne – ein gleichbleibender Ton ist eher Grille oder 
 −3 dBFS Spitze, blendet weich ein (25 ms) und aus (120 ms). Ausgabe Ogg/Opus (40 kbit/s) und MP3 (64 kbit/s), je unter
 50 KB (FIGUREN.md, Signalton). Vor dem Einbau anhören; die Stelle lässt sich mit --start/--ende festlegen.
 
-Quelle für Goch: „Robin Song in Madeira Forest“ von Sacha.Julien, Freesound 725201, CC0 1.0 (figuren/goch/RECHTE.md).
+Oder erzeugt (Robin, 23.10.2026: „weniger echt, perfekter – passend zu einem gezeichneten Vogel, der spricht“): reine
+Töne mit kurzen Tonhöhen-Bögen, ein wenig Oberton, weicher Ein- und Ausklang, ein Hauch Raum – ohne Feldrauschen.
+Stile: tiu (zwei fallende Bögen und ein Pip), tschilp (drei steigende Bögen), triller (kurzer Triller mit Schluss-
+Bogen), frage (freundlich fragend, steigend). Selbst erzeugt, keine fremden Rechte.
 Braucht Python mit numpy und PyAV (`pip install av numpy`), kein ffmpeg.
 
   python3 tools/figur-zwitschern.py <aufnahme> figuren/goch/toene/zwitschern   # schreibt .ogg und .mp3
   python3 tools/figur-zwitschern.py <aufnahme> <ziel> --start 61.20 --ende 62.30   # Stelle von Hand
+  python3 tools/figur-zwitschern.py --erzeugen tiu figuren/goch/toene/zwitschern   # gezeichnetes Zwitschern
 """
 import argparse, sys
 import av
@@ -81,6 +85,41 @@ def bearbeiten(x, start, ende):
     y *= 10 ** (-3 / 20) / max(np.abs(y).max(), 1e-9)
     return y.astype(np.float32)
 
+def ton(f0, f1, dauer, form=1.0, vibrato=0.0, oberton=.12):
+    """Ein Bogen von f0 nach f1 Hz (form < 1: schnell zu Beginn, > 1: schnell am Ende), weich ein- und ausgeblendet."""
+    n = int(dauer * RATE); t = np.arange(n) / RATE; u = t / dauer
+    f = f0 + (f1 - f0) * u ** form
+    if vibrato: f *= 1 + vibrato * np.sin(2 * np.pi * 32 * t)
+    phase = 2 * np.pi * np.cumsum(f) / RATE
+    y = np.sin(phase) + oberton * np.sin(2 * phase + .4)
+    rein = np.clip(t / .006, 0, 1); raus = np.clip((dauer - t) / min(.04, dauer * .45), 0, 1)
+    return y * (3 * rein ** 2 - 2 * rein ** 3) * np.sin(np.pi / 2 * raus) ** 2
+
+def triller(f, hub, rate, dauer):
+    n = int(dauer * RATE); t = np.arange(n) / RATE
+    phase = 2 * np.pi * np.cumsum(f + hub * np.sin(2 * np.pi * rate * t)) / RATE
+    huelle = np.sin(np.pi * t / dauer) ** .7
+    return (np.sin(phase) + .1 * np.sin(2 * phase)) * huelle
+
+STILE = {  # (Ton oder Pause in Sekunden), nacheinander
+    'tiu': [ton(4300, 3000, .10, .6), .055, ton(4500, 3100, .11, .6), .07, ton(3500, 4200, .05, 1.4)],
+    'tschilp': [ton(2900, 4500, .06, 1.5), .045, ton(3000, 4700, .06, 1.5), .045, ton(3100, 5000, .12, 1.3, vibrato=.012)],
+    'triller': [triller(3700, 520, 27, .26), .03, ton(3300, 4800, .11, 1.6)],
+    'frage': [ton(3000, 3350, .08, 1.0), .06, ton(3150, 4900, .15, 1.8, vibrato=.008)],
+}
+
+def erzeugen(stil):
+    teile = [np.zeros(int(.02 * RATE))]
+    for s in STILE[stil]:
+        teile.append(np.zeros(int(s * RATE)) if isinstance(s, float) else s)
+    y = np.concatenate(teile + [np.zeros(int(.12 * RATE))])
+    # ein Hauch Raum: kurzer, abklingender Nachhall (18 dB leiser), damit es nicht ganz trocken klingt
+    rng = np.random.default_rng(23); n = int(.09 * RATE)
+    hall = rng.standard_normal(n) * np.exp(-np.arange(n) / (.025 * RATE)); hall *= .125 / np.sqrt((hall ** 2).sum())
+    y = y + np.convolve(y, hall)[:len(y)]
+    while len(y) < int(.55 * RATE): y = np.append(y, 0.0)  # mindestens 0,5 s (FIGUREN.md)
+    return (y * 10 ** (-3 / 20) / np.abs(y).max()).astype(np.float32)
+
 def schreiben(y, ziel, format_, codec, rate, bitrate):
     out = av.open(ziel, 'w', format=format_)
     s = out.add_stream(codec, rate=rate); s.layout = 'mono'; s.bit_rate = bitrate
@@ -92,6 +131,13 @@ def schreiben(y, ziel, format_, codec, rate, bitrate):
     out.close()
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == '--erzeugen':
+        stil, ziel = sys.argv[2], sys.argv[3]
+        y = erzeugen(stil)
+        schreiben(y, ziel + '.ogg', 'ogg', 'libopus', 48000, 40000)
+        schreiben(y, ziel + '.mp3', 'mp3', 'libmp3lame', 44100, 64000)
+        print(f'Stil {stil}, Ton {len(y) / RATE:.2f} s → {ziel}.ogg, {ziel}.mp3')
+        sys.exit(0)
     arg = argparse.ArgumentParser(); arg.add_argument('aufnahme'); arg.add_argument('ziel')
     arg.add_argument('--start', type=float); arg.add_argument('--ende', type=float)
     a = arg.parse_args()

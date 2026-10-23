@@ -168,6 +168,12 @@
   .goch-thinking { color: var(--ink-muted); letter-spacing: .2em; }
   .goch-action { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--copper); padding-bottom: 1px; white-space: nowrap; }
   .goch-consent p { margin: 0 0 10px; font-size: 14px; }
+  /* Einwilligungen zu Stimme und Kamera im Gespräch: Die Beispielfragen weichen, der Text scrollt bei Bedarf, die Knöpfe
+     bleiben immer im Fenster (Robin, 23.10.2026: Knöpfe rutschten über den Seitentext) */
+  .goch:has(#goch-stimme-consent:not([hidden])) :is(#goch-starters, #goch-form), .goch:has(#goch-kamera-consent:not([hidden])) :is(#goch-starters, #goch-form) { display: none; }
+  #goch-stimme-consent:not([hidden]), #goch-kamera-consent:not([hidden]) { display: flex; flex-direction: column; min-height: 0; flex-shrink: .1; } /* erst weicht der Verlauf */
+  #goch-stimme-consent p, #goch-kamera-consent p { min-height: 0; overflow-y: auto; }
+  #goch-stimme-consent .consent-actions, #goch-kamera-consent .consent-actions { flex: none; }
   .goch-starters { display: flex; flex-wrap: wrap; gap: 6px; }
   .goch-starter { border: 1px solid var(--copper); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
   .goch-starter:hover { background: var(--hover); }
