@@ -232,6 +232,36 @@ export const TEXTE = {
   "PEPPOL-EN16931-R130": paar("Die Einheit der Preisbasismenge (BT-150) unterscheidet sich von der Mengeneinheit (BT-130).", "Beide Einheiten gleich setzen.", "The price base quantity unit (BT-150) differs from the invoiced quantity unit (BT-130).", "Make both units the same."),
 };
 for (const k of ["PEPPOL-EN16931-R043-1", "PEPPOL-EN16931-R043-2"]) TEXTE[k] = TEXTE["PEPPOL-EN16931-R043"];
+// Aufbau- und Datenformatregeln der Syntax und Regeln der XRechnung-Erweiterung, die in Testrechnungen häufig vorkommen (Abdeckung 23.10.2026)
+Object.assign(TEXTE, {
+  "UBL-SR-53": paar("Ein Steuerschema (PartyTaxScheme) ist angegeben, aber ohne die Umsatzsteuer-Identifikationsnummer dazu.", "Die USt-IdNr. eintragen oder das leere Steuerschema entfernen lassen.", "A tax scheme (PartyTaxScheme) is given without the VAT identifier.", "Add the VAT identifier or have the empty tax scheme removed."),
+  "UBL-SR-51": paar("Eine Anschrift hat mehr als eine dritte Adresszeile.", "Nur eine dritte Adresszeile angeben.", "An address has more than one third address line.", "Give only one third address line."),
+  "UBL-SR-48": paar("Eine Position hat keine oder mehr als eine Steuerkategorie.", "Jeder Position genau eine Steuerkategorie mit Steuersatz zuordnen.", "A line has no VAT category or more than one.", "Give every line exactly one VAT category with its rate."),
+  "UBL-SR-07": fehlt("BT-25", "Beim Verweis auf eine vorherige Rechnung"),
+  "UBL-SR-47": paar("Die Zahlungsanweisungen nennen unterschiedliche Zahlungsarten (BT-81).", "Für alle Zahlungsanweisungen dieselbe Zahlungsart angeben.", "The payment instructions give different payment means (BT-81).", "Use the same payment means in all payment instructions."),
+  "UBL-SR-55": paar("Es ist mehr als ein Lastschriftmandat (BG-19) angegeben.", "Nur ein Mandat angeben.", "More than one direct debit mandate (BG-19) is given.", "Give only one mandate."),
+  "UBL-SR-42": paar("Beim Rechnungssteller stehen mehr als zwei Steuerangaben (PartyTaxScheme).", "Höchstens USt-IdNr. und Steuernummer angeben.", "The seller has more than two tax entries (PartyTaxScheme).", "Give at most the VAT number and the tax number."),
+  "UBL-SR-43": paar("Ein Dokumentverweis trägt ein Kennungsschema, obwohl er kein abgerechnetes Objekt ist (Dokumentart 130 oder 50).", "Das Kennungsschema entfernen oder die Dokumentart korrigieren.", "A document reference has an identifier scheme although it is not an invoiced object (document type 130 or 50).", "Remove the scheme or correct the document type."),
+  "UBL-SR-44": paar("Es sind unterschiedliche Verwendungszwecke (BT-83) angegeben.", "Einen einzigen Verwendungszweck verwenden; er darf in mehreren Zahlungsanweisungen stehen.", "Different remittance information values (BT-83) are given.", "Use one single remittance information; it may appear in several payment instructions."),
+  "UBL-DT-01": paar("Ein Betrag hat mehr als zwei Nachkommastellen.", "Beträge auf zwei Nachkommastellen (Cent) runden lassen.", "An amount has more than two decimals.", "Have amounts rounded to two decimals (cents)."),
+  "UBL-DT-06": paar("Bei einem Anhang fehlt der Dateityp (MIME-Code).", "Den Dateityp angeben, zum Beispiel application/pdf.", "An attachment has no file type (MIME code).", "Give the file type, for example application/pdf."),
+  "UBL-DT-07": paar("Bei einem Anhang fehlt der Dateiname.", "Den Dateinamen des Anhangs angeben.", "An attachment has no file name.", "Give the attachment's file name."),
+  "CII-DT-097": paar("Ein Datum hat nicht das Format JJJJMMTT (Formatcode 102).", "Das Datum als JJJJMMTT angeben, zum Beispiel 20261023.", "A date is not in the format YYYYMMDD (format code 102).", "Give the date as YYYYMMDD, for example 20261023."),
+  "CII-DT-037": paar("Als Steuerart ist nicht „VAT“ (Umsatzsteuer) angegeben.", "Als Steuerart VAT angeben.", "The tax type is not \"VAT\".", "Give VAT as the tax type."),
+  "BR-DEX-02": paar("Der Nettobetrag einer Position (BT-131) entspricht nicht der Summe ihrer Unterpositionen.", "Die Beträge von Position und Unterpositionen abgleichen lassen.", "A line net amount (BT-131) does not equal the sum of its sub-lines.", "Have the amounts of the line and its sub-lines reconciled."),
+  "BR-DEX-03": paar("Eine Unterposition (BG-DEX-01) hat nicht genau eine Steuerangabe (BG-DEX-06).", "Jeder Unterposition genau eine Steuerangabe zuordnen.", "A sub-line (BG-DEX-01) does not have exactly one VAT entry (BG-DEX-06).", "Give every sub-line exactly one VAT entry."),
+  "BR-DEX-07": paar("Das Schema einer elektronischen Adresse ist nicht aus der zulässigen Liste (EAS).", "Ein zulässiges Schema angeben, zum Beispiel EM für eine E-Mail-Adresse oder 0204 für die Leitweg-ID.", "The scheme of an electronic address is not on the permitted list (EAS).", "Give a permitted scheme, for example EM for an email address or 0204 for the Leitweg-ID."),
+  "BR-DEX-09": paar("Der Zahlbetrag (BT-115) stimmt nicht: Er muss Bruttobetrag (BT-112) minus bereits gezahlt (BT-113) plus Rundung (BT-114) plus Zahlungen Dritter (BT-DEX-002) sein.", "Den Zahlbetrag neu berechnen lassen.", "The amount due (BT-115) is wrong: it must be the total with VAT (BT-112) minus the amount paid (BT-113) plus rounding (BT-114) plus third-party payments (BT-DEX-002).", "Have the amount due recalculated."),
+  "BR-DEX-10": paar("Bei einer Zahlung durch Dritte fehlt die Art der Zahlung (BT-DEX-001).", "Die Art der Zahlung angeben.", "For a third-party payment, the payment type (BT-DEX-001) is missing.", "Give the payment type."),
+  "BR-DEX-11": paar("Bei einer Zahlung durch Dritte fehlt der Betrag (BT-DEX-002).", "Den Betrag angeben.", "For a third-party payment, the amount (BT-DEX-002) is missing.", "Give the amount."),
+  "BR-DEX-12": paar("Bei einer Zahlung durch Dritte fehlt die Beschreibung (BT-DEX-003).", "Die Beschreibung angeben.", "For a third-party payment, the description (BT-DEX-003) is missing.", "Give the description."),
+  "BR-DEX-14": paar("Die Währung einer Zahlung durch Dritte (BT-DEX-002) weicht von der Rechnungswährung (BT-5) ab.", "Dieselbe Währung wie die Rechnung verwenden.", "The currency of a third-party payment (BT-DEX-002) differs from the invoice currency (BT-5).", "Use the invoice currency."),
+  "BR-DEX-15": paar("Die Datei scheint Unterpositionen zu verwenden; die XRechnung sieht das in der Syntax CII nicht vor.", "Die Positionen ohne Unterpositionen übermitteln.", "The file appears to use sub-lines; XRechnung does not support them in the CII syntax.", "Send the lines without sub-lines."),
+});
+// Kennungsschemata nach ISO 6523 (BR-DEX-04, -05, -06, -08)
+for (const k of ["BR-DEX-04", "BR-DEX-05", "BR-DEX-06", "BR-DEX-08"]) TEXTE[k] = paar("Das Schema einer Kennung ist nicht aus der zulässigen Liste (ISO 6523).", "Ein zulässiges Schema angeben, zum Beispiel 0088 für eine GLN oder 0204 für die Leitweg-ID.",
+  "The scheme of an identifier is not on the permitted list (ISO 6523).", "Give a permitted scheme, for example 0088 for a GLN or 0204 for the Leitweg-ID.");
+
 
 // Steuerkategorien und ihre Regelfamilien (BR-S-01 … BR-AG-10): je Familie gleiche Nummern mit gleicher Bedeutung
 const KATEGORIEN = {
@@ -285,8 +315,13 @@ export function erklaeren(id, englisch, lang) {
   if (TEXTE[id]) return TEXTE[id][l];
   const m = /^BR-([A-Z]+)-(\d+)$/.exec(id);
   if (m) { const x = familie(m[1], +m[2]); if (x) return x[l]; }
+  const dec = /^BR-DEC-\d+$/.test(id) && (String(englisch).match(/\b(BT-\d+)\b/) || [])[1];
+  if (dec) return l === "de"
+    ? [`Der Betrag „${feld(dec, "de")}“ (${dec}) hat mehr Nachkommastellen als erlaubt.`, "Den Betrag auf zwei Nachkommastellen (Cent) runden lassen."]
+    : [`The amount "${feld(dec, "en")}" (${dec}) has more decimals than allowed.`, "Have the amount rounded to two decimals (cents)."];
+  englisch = String(englisch).replace(/^\s*\[[^\]]+\]\s*-?\s*/, "");
   const element = (englisch.match(/(?:should not include (?:the |an? )?|should not be present[: ]*|^)([A-Z][A-Za-z]+(?:\/[A-Za-z:@]+)*)\s+(?:should not be present|shall occur maximum once|must not be present)?/) || [])[1] || "";
-  if (/^(UBL-CR|CII-SR)-/.test(id)) return l === "de"
+  if (/^(UBL-CR|CII-SR)-/.test(id) || (/^(UBL|CII)-DT-/.test(id) && /should not be present|shall not be used|must not be present/.test(englisch))) return l === "de"
     ? [`Die Datei enthält eine Angabe, die die EN 16931 nicht vorsieht${element ? ` (${element})` : ""}.`, "Die Angabe weglassen oder an der dafür vorgesehenen Stelle übermitteln. Empfänger dürfen sie übergehen."]
     : [`The file contains information that EN 16931 does not provide for${element ? ` (${element})` : ""}.`, "Leave it out or send it in the intended field. Recipients may ignore it."];
   if (/^UBL-SR-/.test(id)) return l === "de"
