@@ -233,6 +233,8 @@ console.log("Goch spricht an, wenn jemand kommt (anlass)");
   check(["There you are again!", "Nice to see you again."].some(s => o.reply.startsWith(s)), "zurück, englisch", o.reply);
   const z = await zeilen(await chat(w, e, { messages: [], anlass: "angekommen", stimme: { erste: true } })); await Promise.all(ctx.pending);
   check(z[0].reply.startsWith("Kurz vorab: Ich bin eine KI") && z[1].stimme && tts.length === ttsVorher + 1 && prompts.length === vorher, "mit Stimme: KI-Hinweis vorn, vorgelesen – weiter ohne Modell");
+  o = await (await chat(w, e, { messages: [], anlass: "nachfrage" })).json();
+  check(["Möchten Sie wissen", "Fragen Sie mich ruhig", "Soll ich Ihnen von Robins Workshops"].some(s => o.reply.startsWith(s)) && prompts.length === vorher, "nachfrage: fester Satz, kein Modellaufruf", o.reply);
   const r = await chat(w, e, { messages: [], anlass: "irgendwas" });
   check(r.status === 400, "anderer Anlass ohne Frage: abgelehnt wie bisher", r.status);
 }

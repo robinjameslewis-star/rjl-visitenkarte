@@ -99,8 +99,10 @@ AUTH = []  # Authorization der Kiosk-Anfragen
 LEBENSZEICHEN = []
 KUNDE = {'id': 'kunde-test', 'sprachen': ['de', 'en'], 'name': {'de': 'Muster', 'en': 'Muster'}, 'rolle': {'de': 'der Empfang der Muster GmbH', 'en': 'the Muster Ltd front desk'},
          'begruessung': {'de': 'Willkommen bei der Muster GmbH.', 'en': 'Welcome to Muster Ltd.'}, 'fragen': {'de': ['Was bieten Sie an?'], 'en': ['What do you offer?']}}
-GRUSS = {'de': {'angekommen': 'Hallo! Schön, dass Sie vorbeischauen. Fragen Sie mich gern, woran Robin gerade arbeitet.', 'zurueck': 'Da sind Sie wieder! Wo waren wir stehen geblieben?'},
-         'en': {'angekommen': "Hello! Nice of you to drop by. Feel free to ask me what Robin is working on.", 'zurueck': 'There you are again! Where were we?'}}
+GRUSS = {'de': {'angekommen': 'Hallo! Schön, dass Sie vorbeischauen. Fragen Sie mich gern, woran Robin gerade arbeitet.', 'zurueck': 'Da sind Sie wieder! Wo waren wir stehen geblieben?',
+                'nachfrage': 'Möchten Sie wissen, woran Robin gerade arbeitet?'},
+         'en': {'angekommen': "Hello! Nice of you to drop by. Feel free to ask me what Robin is working on.", 'zurueck': 'There you are again! Where were we?',
+                'nachfrage': 'Would you like to know what Robin is working on?'}}
 KI = {'de': 'Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. ', 'en': "Just so you know: I'm an AI, and my voice is artificially generated. "}
 
 def ton(sekunden=0.6, hz=440):
@@ -236,7 +238,7 @@ class Handler(BaseHTTPRequestHandler):
         CHATS.append(body)
         lang = 'en' if body.get('lang') == 'en' else 'de'
         self.stimme, self.lang = body.get('stimme'), lang
-        if body.get('anlass') in ('angekommen', 'zurueck'):  # Blickkontakt: Goch spricht an, fester Satz wie beim Worker
+        if body.get('anlass') in ('angekommen', 'zurueck', 'nachfrage'):  # Blickkontakt: Goch spricht an, fester Satz wie beim Worker
             return self.reply({'reply': GRUSS[lang][body['anlass']], 'action': None, 'anlass': body['anlass']})
         T = REPLIES[lang]
         msgs = [m for m in body.get('messages', []) if m.get('role') in ('user', 'assistant')]

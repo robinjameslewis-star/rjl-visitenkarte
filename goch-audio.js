@@ -223,8 +223,8 @@
 
   // Bewegung zur Stimme (Robin, 23.10.2026: mehr Leben beim Sprechen). Goch neigt sich mit betonten Silben leicht nach vorn
   // und hebt sich ein wenig, wechselt an Satzpausen die Kopfhaltung und schaut in Gesprächspausen ab und zu kurz zur Seite.
-  // Setzt nur CSS-Variablen (--goch-neigung, --goch-hub) und data-bewegt am Element; gedreht wird per CSS um die Füße, damit
-  // er auf dem Ast bleibt. richten() gibt eine Grundhaltung vor (Blickkontakt: Goch wendet sich dem Gegenüber zu); alles
+  // Setzt nur CSS-Variablen (--goch-neigung in Grad, --goch-streck als Faktor) und data-bewegt am Element; per CSS geneigt
+  // und gestreckt über der Fußlinie, damit die Füße auf dem Ast bleiben. richten() gibt eine Grundhaltung vor (Blickkontakt: Goch wendet sich dem Gegenüber zu); alles
   // andere spielt um sie herum. Bei reduzierter Bewegung nichts.
   function bewegung(ziel) {
     const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
@@ -233,7 +233,7 @@
     const setzen = (neigung, hub) => {
       clearTimeout(aus); ziel.dataset.bewegt = '1';
       ziel.style.setProperty('--goch-neigung', neigung.toFixed(2) + 'deg');
-      ziel.style.setProperty('--goch-hub', hub.toFixed(2) + '%');
+      ziel.style.setProperty('--goch-streck', (1 - hub * .015).toFixed(4)); // hub < 0: aufrichten, ohne abzuheben
     };
     const zurueck = () => {
       setzen(basis, basisHub);

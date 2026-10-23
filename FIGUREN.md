@@ -150,7 +150,10 @@ Schnabel. Mit der echten Stimme: `--stimme elevenlabs`, Schlüssel und Voice ID 
 - 0,5–1,5 s, normalisiert, als Ogg/Opus plus MP3-Rückfall, je unter 50 KB.
 - Quelle: echte Aufnahme nur mit kommerziell nutzbarer Lizenz (CC0, CC BY, gekauft, selbst aufgenommen) oder ein
   erzeugter Ton. xeno-canto ist meist CC BY-NC-SA und damit ungeeignet.
-- Umwandeln mit ffmpeg:
+- Goch (23.10.2026): „Robin Song in Madeira Forest“ (Sacha.Julien, Freesound 725201, CC0), geschnitten mit
+  `tools/figur-zwitschern.py <aufnahme> figuren/goch/toene/zwitschern --start 118.40 --ende 119.65` (PyAV und numpy, kein
+  ffmpeg nötig; ohne --start/--ende sucht das Werkzeug selbst eine Phrase mit vielen Tonwechseln – vorher anhören).
+- Oder umwandeln mit ffmpeg:
   ```sh
   ffmpeg -i quelle.wav -t 1.0 -af "loudnorm=I=-18:TP=-2,afade=t=in:d=0.02,afade=t=out:st=0.9:d=0.1" -ac 1 -c:a libopus -b:a 40k toene/zwitschern.ogg
   ffmpeg -i quelle.wav -t 1.0 -af "loudnorm=I=-18:TP=-2,afade=t=in:d=0.02,afade=t=out:st=0.9:d=0.1" -ac 1 -c:a libmp3lame -b:a 64k toene/zwitschern.mp3

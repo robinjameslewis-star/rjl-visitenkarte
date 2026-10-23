@@ -145,7 +145,7 @@ async def main():
             sichtbar = lambda sel: ev(f"!document.querySelector({json.dumps(sel)}).hidden && !!document.querySelector({json.dumps(sel)}).offsetParent")
             extern = lambda: [u for _, u in requests if not u.startswith(('http://localhost', 'http://127.0.0.1', 'data:', 'blob:'))]
             ton = signalton()
-            q = lambda extra='': f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&zwitschertakt=2500&wiederda=1500&signalton={urllib.parse.quote(ton, safe='')}" + extra
+            q = lambda extra='': f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&zwitschertakt=2500&wiederda=1500&nachfragezeit=6000&signalton={urllib.parse.quote(ton, safe='')}" + extra
 
             await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable")
             await send("Page.addScriptToEvaluateOnNewDocument", {"source": INSTRUMENT})
@@ -325,6 +325,17 @@ async def main():
             n1 = len(fake('/_chats'))
             await gesicht({"da": False}); await pump(0.8); await gesicht({"da": True, "x": .5, "y": .4, "groesse": .3, "schautHer": True}); await pump(1.5)
             check(len(fake('/_chats')) == n1, "nur kurz weggeschaut: kein neuer Gruß")
+            print("6f. Schaut her und schweigt: Goch fragt nach; weiter weg: Goch lockt, spricht beim Näherkommen an")
+            n2 = len(fake('/_chats'))
+            await pump(6.5)
+            last = fake('/_chats')[-1]
+            check(len(fake('/_chats')) == n2 + 1 and last.get('anlass') == 'nachfrage' and any('Möchten Sie wissen' in b for b in await ev(bubbles)), "schaut her, sagt nichts: Goch fragt von sich aus nach", last.get('anlass'))
+            await gesicht({"da": False}); await pump(2.2)
+            lock0 = await ev("+(document.getElementById('scene').dataset.lockt || 0)"); gruss1 = await ev("+(document.getElementById('scene').dataset.gruss || 0)"); n3 = len(fake('/_chats'))
+            await gesicht({"da": True, "x": .5, "y": .4, "groesse": .08, "schautHer": False}); await pump(1.2)
+            check(await ev("+(document.getElementById('scene').dataset.lockt || 0)") == lock0 + 1 and await ev("+(document.getElementById('scene').dataset.gruss || 0)") == gruss1 + 1 and len(fake('/_chats')) == n3, "weiter weg: Goch lockt mit Zwitschern, spricht noch nicht")
+            await gesicht({"da": True, "x": .5, "y": .4, "groesse": .3, "schautHer": True}); await pump(2.8)
+            check(len(fake('/_chats')) == n3 + 1 and fake('/_chats')[-1].get('anlass') == 'zurueck', "kommt näher und schaut her: Goch spricht an", fake('/_chats')[-1].get('anlass'))
             await ev("clearInterval(window.__gesicht)")
             await real_click('#goch-blick-an'); await pump(0.5)
             check(await ev("!document.querySelector('#goch-kamera-platz iframe') && document.getElementById('goch-kamera-platz').hidden && !document.getElementById('scene').dataset.kamera"), "Blickkontakt aus: Rahmen und Vorschaubild weg")

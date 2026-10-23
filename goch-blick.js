@@ -1,11 +1,12 @@
 // Blickkontakt (Robin, 23.10.2026): Mit eigener Einwilligung schaut Goch über die Kamera, ob jemand da ist, wo er ist und
 // ob er zu ihm schaut – im eigenen Rahmen goch-kamera.html, der nur diese Zahlen meldet. Kommt jemand an den Bildschirm,
 // bemerkt Goch ihn (blinzelt doppelt, richtet sich auf), zwitschert und spricht ihn an (fester Satz vom Worker: anlass
-// „angekommen“, bei Rückkehr „zurueck“). Er wendet sich dem Gegenüber sichtbar zu, wird bei Blickkontakt aufmerksam und
+// „angekommen“, bei Rückkehr „zurueck“); steht jemand weiter weg, lockt er mit Zwitschern; schaut jemand her und
+// schweigt, fragt er nach („nachfrage“). Er wendet sich dem Gegenüber sichtbar zu, wird bei Blickkontakt aufmerksam und
 // hört im Gesprächsmodus nur zu, wenn er angesehen wird. Keine Mimik, keine Gefühle, keine Wiedererkennung, nichts
 // gespeichert, kein Bild verlässt das Gerät. Kein sichtbares Vorschaubild (störte, Robin 23.10.2026): Den Zustand zeigen
-// der Schalter „Blickkontakt“ und die Kamera-Anzeige des Browsers. Aus mit „Blickkontakt“, beim Schließen, beim
-// Tabwechsel und mit „Sprechen beenden“. Aktiv nur mit der Sprachfunktion (goch-stimme.js).
+// der Schalter „Blickkontakt“ und die Kamera-Anzeige des Browsers. Aus mit „Blickkontakt“, beim Schließen, mit
+// „Sprechen beenden“ und beim Verlassen der Seite – nicht beim Tabwechsel. Aktiv nur mit der Sprachfunktion (goch-stimme.js).
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -15,10 +16,16 @@
   const t = k => window.SiteLanguage.t(k);
   const koerper = window.GochStimme.koerper, input = $('goch-input');
   const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-  // Wer länger als WIEDER_MS weg war, gilt beim Wiederkommen als neu angekommen; gegrüßt wird höchstens alle ABSTAND_MS.
-  const WIEDER_MS = Math.max(500, +(lokal && new URL(location.href).searchParams.get('wiederda') || 20000)), ABSTAND_MS = Math.min(WIEDER_MS * 3, 120000);
+  // Kontakt suchen (Robin, 23.10.2026: ausbauen): Wer länger als WIEDER_MS weg war, gilt beim Wiederkommen als neu
+  // angekommen; gegrüßt wird höchstens alle ABSTAND_MS. Steht jemand weiter weg (Gesicht schmaler als NAH), lockt Goch mit
+  // Zwitschern (höchstens LOCKRUFE Mal, alle LOCK_MS). Schaut jemand her und sagt NACHFRAGE_MS lang nichts, fragt Goch
+  // höchstens NACHFRAGEN Mal von sich aus nach. Testwerte lokal: ?wiederda=ms&nachfragezeit=ms.
+  const test = name => lokal ? +new URL(location.href).searchParams.get(name) || 0 : 0;
+  const WIEDER_MS = Math.max(500, test('wiederda') || 6000), ABSTAND_MS = Math.min(WIEDER_MS * 5, 30000);
+  const NACHFRAGE_MS = Math.max(1000, test('nachfragezeit') || 15000), NACHFRAGEN = 2, NAH = .17, LOCK_MS = 12000, LOCKRUFE = 3;
   let erlaubt = false, an = false, bereit = false, rahmen = null, da = false, wegSeit = 0, herSeit = 0, zuletztHer = 0, hingewiesen = false;
   let neuDa = true, ersteSicht = true, angekommenSeit = 0, gegruesst = false, letzterGruss = -Infinity;
+  let aktivSeit = performance.now(), nachfragen = 0, letzteNachfrage = -Infinity, lockrufe = 0, letzterLockruf = -Infinity;
 
   const say = text => { const p = document.createElement('p'); p.className = 'goch-bubble goch-goch'; p.textContent = text; log.append(p); log.scrollTop = log.scrollHeight; };
   const nachziehen = () => { if (window.Goch && window.Goch.place) window.Goch.place(); };
@@ -65,7 +72,7 @@
     }
     wegSeit = 0;
     if (!da) { // bemerkt sein Gegenüber: doppelt blinzeln, kurz aufrichten
-      da = true; angekommenSeit = jetzt; gegruesst = false;
+      da = true; angekommenSeit = jetzt; gegruesst = false; nachfragen = 0; lockrufe = 0;
       scene.dataset.gegenueber = '1';
       window.GochStimme.blinzeln(true);
     }
@@ -83,17 +90,37 @@
     ansprechen(d, jetzt);
   });
 
-  // Jemand kommt an den Bildschirm: zwitschern und das Gespräch beginnen – sobald er herschaut (oder nach 1,5 s), nicht
-  // wenn er gerade erst „Blickkontakt“ mitten im Gespräch eingeschaltet hat, nie während Goch spricht oder getippt wird.
+  // Kontakt suchen: jemand kommt an den Bildschirm oder in die Nähe. Nie während Goch spricht, jemand zu ihm spricht
+  // oder getippt wird; nicht gleich, wenn „Blickkontakt“ mitten im Gespräch eingeschaltet wurde.
+  const ruhig = () => !window.GochStimme.beschaeftigt() && !(input && input.value.trim());
+  const zwitschern = () => { if (window.GochZwitschern && window.GochZwitschern.gruss) window.GochZwitschern.gruss(); };
   function ansprechen(d, jetzt) {
-    if (!neuDa || gegruesst || !(d.schautHer || jetzt - angekommenSeit > 1500)) return;
-    const begonnen = window.Goch.begonnen && window.Goch.begonnen();
-    if (ersteSicht && begonnen) { neuDa = false; ersteSicht = false; return; } // war ja schon im Gespräch
-    if (jetzt - letzterGruss < ABSTAND_MS || window.GochStimme.beschaeftigt() || (input && input.value.trim())) return;
-    gegruesst = true; neuDa = false; ersteSicht = false; letzterGruss = jetzt;
-    if (window.GochZwitschern && window.GochZwitschern.gruss) window.GochZwitschern.gruss();
-    setTimeout(() => { if (an && window.Goch.begruessen) window.Goch.begruessen(begonnen ? 'zurueck' : 'angekommen'); }, 900);
+    if (!ruhig()) { aktivSeit = jetzt; return; }
+    const nah = (d.groesse || 0) >= NAH;
+    if (neuDa && !gegruesst) {
+      const begonnen = window.Goch.begonnen && window.Goch.begonnen();
+      if (ersteSicht && begonnen) { neuDa = false; ersteSicht = false; aktivSeit = jetzt; return; } // war ja schon im Gespräch
+      // weiter weg und schaut nicht her: mit Zwitschern locken, sich zuwenden
+      if (!nah && !d.schautHer) {
+        if (lockrufe < LOCKRUFE && jetzt - letzterLockruf > LOCK_MS) { lockrufe++; letzterLockruf = jetzt; scene.dataset.lockt = String(lockrufe); zwitschern(); }
+        return;
+      }
+      // kommt näher oder schaut her: zwitschern und das Gespräch beginnen
+      if (!(d.schautHer || jetzt - angekommenSeit > 1200) || jetzt - letzterGruss < ABSTAND_MS) return;
+      gegruesst = true; neuDa = false; ersteSicht = false; letzterGruss = jetzt; aktivSeit = jetzt;
+      zwitschern();
+      setTimeout(() => { if (an && window.Goch.begruessen) window.Goch.begruessen(begonnen ? 'zurueck' : 'angekommen'); }, 900);
+      return;
+    }
+    // schaut her, sagt aber nichts: von sich aus nachfragen
+    if (d.schautHer && nah && nachfragen < NACHFRAGEN && jetzt - aktivSeit > NACHFRAGE_MS && jetzt - letzteNachfrage > NACHFRAGE_MS) {
+      nachfragen++; letzteNachfrage = jetzt; aktivSeit = jetzt;
+      if (window.Goch.begruessen) window.Goch.begruessen('nachfrage');
+    }
   }
+  // Jede Antwort, jede Eingabe zählt als Gespräch: die Nachfrage wartet danach wieder von vorn
+  window.addEventListener('goch-fertig', () => { aktivSeit = performance.now(); });
+  if (input) input.addEventListener('input', () => { aktivSeit = performance.now(); });
 
   // Für goch-stimme.js: zuhören nur, wenn Goch angesehen wird (oder die Kamera aus bzw. noch nicht bereit ist)
   window.GochBlick = {
@@ -112,6 +139,6 @@
   const ende = $('goch-stimme-ende');
   if (ende) ende.addEventListener('click', () => { ausschalten(); erlaubt = false; });
   new MutationObserver(() => { if (panel.hidden) { ausschalten(); einwilligung.hidden = true; } }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) ausschalten(); });
+  // Beim Tabwechsel bleibt die Kamera an (Robin, 23.10.2026: das Abschalten verwirrte).
   addEventListener('pagehide', ausschalten);
 })();

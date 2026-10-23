@@ -27,7 +27,7 @@ kann Nachahmungen aber womöglich nicht untersagen. Schutz der Figur eher über 
 
 | Datei | Herkunft | Werkzeug | Lizenz |
 |---|---|---|---|
-| `toene/` | **offen** – noch keine Datei. Bis Robin liefert, zwitschert Goch nur sichtbar, ohne Ton. | – | Nur CC0 oder CC BY, gekauft, selbst aufgenommen oder erzeugt. xeno-canto ist meist CC BY-NC-SA und damit ungeeignet. Datei, Quelle (Adresse, Abrufdatum), Urheber und Lizenz hier eintragen. |
+| `toene/zwitschern.ogg`, `toene/zwitschern.mp3` | „Robin Song in Madeira Forest“ von Sacha.Julien (Rotkehlchen, Erithacus rubecula; Laurisilva, Madeira, 22.03.2017), Freesound 725201, https://freesound.org/people/Sacha.Julien/sounds/725201/, Vorschau in hoher Qualität abgerufen 23.10.2026 (SHA-256 c5faeecd…b53b1b); Robins Wahl aus drei Kandidaten | Stelle 1:58,40–1:59,65, Hochpass 1,2 kHz, auf −3 dBFS normalisiert, Ein- und Ausblenden – `tools/figur-zwitschern.py` (PyAV, numpy) | **CC0 1.0** (Public Domain Dedication) – frei nutzbar, auch kommerziell, ohne Namensnennung | Herkunft trotzdem hier vermerkt |
 
 ## Stimme
 

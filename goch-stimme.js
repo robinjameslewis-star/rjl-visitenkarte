@@ -248,7 +248,7 @@
     if (zustand === 'pause' || zustand === 'aus') { zuhoerenStarten(); return; }
     schlafen(t('gochZuhoerenPause'));
   });
-  document.addEventListener('visibilitychange', () => { if (document.hidden && ohr) schlafen(t('gochZuhoerenPause')); });
+  // Beim Tabwechsel bleibt das Mikrofon an (Robin, 23.10.2026: das Abschalten verwirrte); es schließt nach einer Minute Stille.
 
   // ---------- Schalter und Einwilligung ----------
   function aktualisieren() {

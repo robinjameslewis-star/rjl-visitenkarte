@@ -47,8 +47,8 @@
     ]
   },
   "signalton": {
-    "datei": null,
-    "rueckfall": null,
+    "datei": "zwitschern.ogg",
+    "rueckfall": "zwitschern.mp3",
     "lautstaerke": 0.35
   },
   "stimme": {

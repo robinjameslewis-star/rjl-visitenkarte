@@ -50,15 +50,15 @@
   .zwitschert .noten span { animation: note 2.4s ease-out forwards; }
   .zwitschert .noten span + span { animation-delay: .35s; }
   @keyframes note { 0% { opacity: 0; transform: translate(0, 1vh); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-2vh, -4vh) rotate(-12deg); } }
-  .figur.zwitschert .figur-kippen { animation: zucken .3s ease-in-out 2; }
-  @keyframes zucken { 50% { transform: rotate(-2deg); } }
+  .figur.zwitschert .figur-kippen { transform-origin: 44% 85%; animation: zucken .3s ease-in-out 2; } /* über der Fußlinie, Füße bleiben auf dem Ast */
+  @keyframes zucken { 50% { transform: skewX(3deg) scaleY(1.012); } }
   @media (prefers-reduced-motion: no-preference) {
     .figur-posen .figur-kippen { transition: transform 90ms ease-out; }
     .figur[data-mund="halb"] .figur-kippen { transform: rotate(-1.4deg); }
     .figur[data-mund="offen"] .figur-kippen { transform: rotate(-2.6deg) translateY(-.4%); }
     /* Bewegung zur Stimme und kurze Blicke in Pausen (goch-audio.js, bewegung): um die Füße gedreht – sie bleibt auf dem Ast */
-    .figur[data-bewegt] .figur-kippen { transform-origin: 45% 78%; transform: translateY(var(--goch-hub, 0%)) rotate(var(--goch-neigung, 0deg)); transition: transform 160ms ease-out; }
-    .figur[data-bewegt][data-lauscht="1"] .figur-kippen { transform: rotate(1.6deg); }
+    .figur[data-bewegt] .figur-kippen { transform-origin: 44% 85%; transform: skewX(calc(var(--goch-neigung, 0deg) * -1)) scaleY(var(--goch-streck, 1)); transition: transform 160ms ease-out; }
+    .figur[data-bewegt][data-lauscht="1"] .figur-kippen { transform-origin: 44% 85%; transform: skewX(-2.5deg) scaleY(1.01); }
     .figur[data-lauscht="1"] .figur-kippen { transform: rotate(3deg); }
   }
   @media (prefers-reduced-motion: reduce) { .zwitschert .noten span { animation: none; opacity: 1; } .figur.zwitschert .figur-kippen { animation: none; } }

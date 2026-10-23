@@ -736,7 +736,7 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   verworfen). Erst dann geht der gesprochene Abschnitt mit kurzem Vor- und Nachlauf als WAV (16 kHz mono, höchstens 20 s)
   an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über `/chat` (`gesprochen: true`). Während Goch
   versteht, denkt oder spricht, hört er nicht zu; danach wieder. Der Knopf heißt je nach Lage „Pause“, „Fertig“ (sendet
-  sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, beim Tabwechsel, mit „Pause“, beim
+  sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, mit „Pause“, beim
   Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
   `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
 - **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
@@ -748,6 +748,8 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Neigung (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
   Hinweis – keine Gerätestimme, damit alle dieselbe Stimme hören. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
 - **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
+- **Zwitscher-Ton:** `figuren/goch/toene/zwitschern.ogg` und `.mp3` (Rotkehlchen, CC0, `tools/figur-zwitschern.py`),
+  eingeschaltet mit `data-goch-signalton="figuren/goch/toene/zwitschern"` am `<body>`; am Messegerät aus `figur.json`.
 - **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
   höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die
   Noten. Hörbar nur nach einer Handlung: leise beim Öffnen des Gesprächs und als Bestätigung beim Einschalten der Stimme;
@@ -772,11 +774,13 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   abgeschaltet, siehe `vendor/mediapipe/HINWEIS.md` und `tools/mediapipe-uebernehmen.py`). An die Seite gehen nur Zahlen:
   da, Lage, Größe, Kopfrichtung, schaut her – keine Bilder, keine Ausdruckswerte, keine Wiedererkennung. Goch bemerkt sein
   Gegenüber (blinzelt doppelt, richtet sich auf), wendet sich ihm sichtbar zu, wird bei Blickkontakt aufmerksam und hört
-  im Gesprächsmodus nur zu, wenn er angesehen wird. Kommt jemand an den Bildschirm (neu oder nach 20 s Abwesenheit),
-  zwitschert Goch und spricht ihn an: fester Satz vom Worker (`anlass` „angekommen“ bzw. „zurueck“, kein Modellaufruf,
-  zählt zur Grenze je IP), höchstens alle zwei Minuten, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
+  im Gesprächsmodus nur zu, wenn er angesehen wird. Kontakt suchen (Robin, 23.10.2026): Kommt jemand an den Bildschirm
+  (neu oder nach 6 s Abwesenheit), zwitschert Goch und spricht ihn an; steht jemand weiter weg (Gesicht schmal), lockt er
+  erst mit Zwitschern (höchstens dreimal) und spricht beim Näherkommen oder Herschauen an; schaut jemand her und schweigt
+  15 s, fragt er nach (höchstens zweimal). Alles feste Sätze vom Worker (`anlass` „angekommen“, „zurueck“, „nachfrage“,
+  kein Modellaufruf, zählt zur Grenze je IP); gegrüßt höchstens alle 30 s, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
   Vorschaubild (Robin, 23.10.2026: störte) – den Zustand zeigen der Schalter und die Kamera-Anzeige des Browsers; aus mit
-  „Blickkontakt“, beim Schließen, beim Tabwechsel und mit „Sprechen beenden“. Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  „Blickkontakt“, beim Schließen und mit „Sprechen beenden“ – beim Tabwechsel bleiben Kamera und Mikrofon an (Robin, 23.10.2026). Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
   Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
   zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,

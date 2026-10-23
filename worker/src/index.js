@@ -4,7 +4,7 @@
 //               (newsletter: die Seite zeigt unter der Antwort ein Feld zur Anmeldung, die Adresse geht nie an das Modell)
 //               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“),
 //               zeigen: null | Stelle der Startseite aus ZIELE (die Seite führt dorthin, während Goch spricht) }
-// Mit anlass "angekommen" | "zurueck" (Blickkontakt) antwortet der Worker ohne Modell mit einem festen Begrüßungssatz.
+// Mit anlass "angekommen" | "zurueck" | "nachfrage" (Blickkontakt) antwortet der Worker ohne Modell mit einem festen Satz.
 //               – Links nur aus links.md, nie vom Modell erfunden
 // Sprechender Goch (23.10.2026): { figur: "goch" } wählt die Figur (öffentlich nur Goch); { gesprochen: true } – die Frage
 // kam per Spracheingabe – oder { stimme: {erste} } schaltet das schnellere Modell des Sprachmodus ein. Mit „stimme“
@@ -46,6 +46,8 @@ const TEXT = {
       "Ah, hallo! Ich bin Goch, Robins Rotkehlchen. Womit kann ich Ihnen helfen?",
       "Da sind Sie ja! Möchten Sie wissen, was Robin gerade baut?"],
     zurueck: ["Da sind Sie wieder! Wo waren wir stehen geblieben?", "Schön, Sie wiederzusehen. Haben Sie noch eine Frage?"],
+    nachfrage: ["Möchten Sie wissen, woran Robin gerade arbeitet?", "Fragen Sie mich ruhig etwas – zum Beispiel, was das SmartFormular kann.",
+      "Soll ich Ihnen von Robins Workshops erzählen?"],
     sent: e => `Ausgerichtet. Robin antwortet Ihnen persönlich per E-Mail an ${e}.`,
     summary: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Unser Gespräch schicke ich mit, damit Robin den Zusammenhang kennt; wenn Sie das nicht möchten, sagen Sie es. Soll ich das so senden?`,
     summaryBare: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Ohne unser Gespräch, nur diese Nachricht. Soll ich das so senden?`,
@@ -71,6 +73,8 @@ const TEXT = {
       "Oh, hello! I'm Goch, Robin's robin. How can I help?",
       "There you are! Would you like to know what Robin is building right now?"],
     zurueck: ["There you are again! Where were we?", "Nice to see you again. Anything else you'd like to ask?"],
+    nachfrage: ["Would you like to know what Robin is working on?", "Feel free to ask me something – for example, what SmartFormular can do.",
+      "Shall I tell you about Robin's workshops?"],
     sent: e => `Passed on. Robin will reply to you personally by email at ${e}.`,
     summary: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. I'll include our conversation so Robin has the context; if you'd rather not, just say so. Shall I send it like this?`,
     summaryBare: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. Without our conversation, just this message. Shall I send it like this?`,
@@ -149,7 +153,7 @@ const worker = {
     // Goch beginnt das Gespräch, wenn jemand an den Bildschirm kommt (Blickkontakt der Startseite, Robin, 23.10.2026):
     // fester Satz des Workers, kein Modellaufruf, keine Eingabe des Besuchers – die Stimme vertont also wieder nur Gochs
     // eigenen Text. Zählt wie eine Frage (Grenze je IP und Stunde); an der Grenze schweigt Goch (leere Antwort).
-    if (!intern && (body.anlass === "angekommen" || body.anlass === "zurueck")) {
+    if (!intern && ["angekommen", "zurueck", "nachfrage"].includes(body.anlass)) {
       const ip = request.headers.get("CF-Connecting-IP") || "0", jetzt = Date.now();
       const hits = (perIp.get(ip) || []).filter(x => jetzt - x < 3600_000);
       if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12)) return json({ reply: "", action: null }, 200, cors);
