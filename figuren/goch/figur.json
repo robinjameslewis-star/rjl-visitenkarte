@@ -52,7 +52,7 @@
   },
   "stimme": {
     "anbieter": "elevenlabs",
-    "voiceId": "",
+    "voiceId": "sJ8mnaQVr5om2HJMoQ7o",
     "modell": "eleven_v4",
     "charakter": "warm, weich, männlich – ruhig, freundlich, leicht lächelnd",
     "einstellungen": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 },
