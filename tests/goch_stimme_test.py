@@ -222,7 +222,7 @@ async def main():
             fake('/_modus?stimme=fehler')
             await ev("document.getElementById('goch-input').value='Woran arbeitet Robin?'; document.getElementById('goch-send').click()"); await pump(2)
             zz = await z()
-            check(zz['start'] == 2 and not any('Gerade antworte ich nicht' in x for x in await ev(bubbles)), "Stimme gestört: Text bleibt, Rückfall nur mit lokaler Browserstimme", f"speak={zz['speak']}")
+            check(zz['start'] == 2 and zz['speak'] == 0 and not any('Gerade antworte ich nicht' in x for x in await ev(bubbles)), "Stimme gestört: nur Text, keine Gerätestimme – jeder hört dieselbe Stimme", f"speak={zz['speak']}")
             fake('/_modus?stimme=ok')
 
             print("6. „Mit Goch sprechen“: Tippen – sprechen – tippen, Halten, WAV an /listen")

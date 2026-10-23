@@ -76,12 +76,15 @@
       ende: () => mund('zu'),
     });
   }
-  // Stimmcharakter des Rückfalls aus Gochs Paket (figuren/goch/figur.json, stimme.browser) – erst geladen, wenn er gebraucht wird
-  let charakter = null;
+  // Rückfall auf eine Stimme des Geräts nur, wenn Gochs Paket ihn erlaubt (figur.json, stimme.rueckfall „browser“). Für Goch
+  // „keine“ (Robin, 23.10.2026): Jeder Besucher hört dieselbe Stimme – ohne Stimme vom Server nur Text.
+  let stimmCfg = null;
   async function browserStimme(text) {
-    if (!charakter) {
-      try { charakter = (await (await fetch('figuren/goch/figur.json')).json()).stimme.browser || {}; } catch (_) { charakter = {}; }
+    if (!stimmCfg) {
+      try { stimmCfg = (await (await fetch('figuren/goch/figur.json')).json()).stimme || {}; } catch (_) { stimmCfg = {}; }
     }
+    if (stimmCfg.rueckfall !== 'browser') return;
+    const charakter = stimmCfg.browser || {};
     const lang = language.current === 'en' ? 'en' : 'de';
     let zu = 0;
     A.browserStimme(text, lang, { vorzug: charakter[lang] || [], tonhoehe: charakter.tonhoehe || 1, tempo: charakter.tempo || 1,
@@ -116,7 +119,7 @@
       } catch (_) { /* ohne Stimme bleibt der Text */ }
     },
   };
-  // „grenze“: nur Text, ohne Hinweis. „aus“ und „fehler“: lokale Browserstimme, wenn es eine gibt.
+  // „grenze“: nur Text, ohne Hinweis. „aus“ und „fehler“: Gerätestimme nur, wenn die Figur sie erlaubt (Goch: nein).
   async function stimmeZurAntwort(z, antwort) {
     if (!z || !('stimme' in z) || !lautAn || panel.hidden) return;
     if (z.stimme && await abspielen(z.stimme)) return;

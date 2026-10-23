@@ -128,6 +128,7 @@ console.log("Stimme zur Antwort (NDJSON)");
   check(z[1].stimme && z[1].stimme.mime === "audio/mpeg" && Buffer.from(z[1].stimme.daten, "base64").length === 7, "MP3 als Base64 in Zeile 2");
   check(t.body.text === "Robin baut Werkzeuge für Kanzleien." && !t.body.text.includes("1000 Euro"), "vertont wird nur Gochs eigene Antwort, nie der Besuchertext");
   check(t.url.includes("/v1/text-to-speech/Voice1234567890?output_format=mp3_44100_64") && t.headers["xi-api-key"] === "xi-test" && t.body.model_id === "eleven_flash_v2_5" && t.body.language_code === "de", "ElevenLabs mit voiceId, Schlüssel, Modell und Sprache");
+  check(t.body.seed === 4711, "fester Startwert (seed) aus figur.json: gleichbleibender Klang", t.body.seed);
   const vs = t.body.voice_settings || {};
   check(vs.stability === 0.5 && vs.similarity_boost === 0.8 && vs.style === 0.15 && vs.use_speaker_boost === true && vs.speed === 0.95, "Stimmcharakter aus figur.json: warm, weich, ruhig", JSON.stringify(vs));
   const monat = JSON.parse(e.USAGE.map.get("stimme:monat:" + new Date().toISOString().slice(0, 7)) || "{}");
@@ -140,6 +141,10 @@ console.log("Stimme zur Antwort (NDJSON)");
   z = await zeilen(r); await Promise.all(ctx.pending);
   check(z[0].reply.startsWith("Just so you know: I'm an AI") && tts.at(-1).body.language_code === "en", "KI-Hinweis und Stimme auf Englisch");
 
+  w = await frisch(); e = env({ ELEVENLABS_API_KEY: "xi-test" }, sprache({ stimme: true, voiceId: "Voice1234567890", ttsModell: "eleven_v4" }));
+  await zeilen(await chat(w, e, { messages: frage, stimme: {} })); await Promise.all(ctx.pending);
+  const v4 = tts.at(-1).body;
+  check(v4.model_id === "eleven_v4" && JSON.stringify(Object.keys(v4.voice_settings).sort()) === '["similarity_boost","stability"]' && !("language_code" in v4), "Eleven v4: nur Stabilität und Ähnlichkeit, ohne language_code", JSON.stringify(v4.voice_settings));
   ttsAntwort = () => new Response("kaputt", { status: 500 });
   z = await zeilen(await chat(w, e, { messages: frage, stimme: {} })); await Promise.all(ctx.pending);
   check(z[0].reply && z[1].stimme === null && z[1].grund === "fehler", "Anbieter gestört: Text bleibt, Stimme „fehler“ (die Seite liest lokal vor)");
@@ -162,13 +167,16 @@ console.log("Sprachmodus: schnelleres Modell");
   check(prompts.at(-1).model === "claude-haiku-5-5", "Frage per Spracheingabe: Modell des Sprachmodus");
   await zeilen(await chat(w, e, { messages: frage, stimme: {} }));
   check(prompts.at(-1).model === "claude-haiku-5-5", "mit Stimme: Modell des Sprachmodus");
+  check(/# Gesprochen/.test(prompts.at(-1).system[0].text), "mit Stimme: Hinweis, so zu formulieren, wie man spricht");
+  await chat(w, e, { messages: frage, gesprochen: true });
+  check(!/# Gesprochen/.test(prompts.at(-1).system[0].text), "nur Spracheingabe, ohne Stimme: kein Sprechstil-Hinweis");
 }
 
 console.log("Einstellungen und Kundenfiguren");
 {
   const base = defaults({});
   check(base.sprache.stimme === false && base.sprache.hoeren === false && base.sprache.zeichenMonat === 30000 && base.sprache.minutenTag === 20, "ab Werk aus, Grenzen 30.000 Zeichen und 20 Minuten");
-  check(base.sprache.ttsModell === "eleven_multilingual_v2", "Stimmmodell ab Werk: Multilingual v2 (wärmste Stimme)");
+  check(base.sprache.ttsModell === "eleven_v4", "Stimmmodell ab Werk: Eleven v4 (am menschlichsten)");
   const e = { USAGE: kv(), ANTHROPIC_API_KEY: "x", AI: ai };
   const prev = await loadSettings(e, true);
   let fehler = "";

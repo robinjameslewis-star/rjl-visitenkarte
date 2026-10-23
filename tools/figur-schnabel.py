@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Schnabelposen aus der Sitzpose ableiten (Robin, 23.10.2026): Der Unterschnabel wird um den Schnabelwinkel
-heruntergeklappt, die Öffnung zeigt hinten den dunklen Rachen, vorn die Zunge, an den Spitzen den Hintergrund.
+heruntergeklappt; die Öffnung zeigt hinten den dunklen Rachen, vorn zwischen den Spitzen den Hintergrund.
 Zwischenlösung, bis gezeichnete Posen da sind (FIGUREN.md, Prompt-Vorlage); Kehle und Kopf bewegen sich nicht mit.
 Die Lage von Schnabelwinkel und Trennlinie gilt für Gochs Sitzpose (1153 × 637, figuren/goch/bilder/…/vogel.webp).
 
 Vom Repository-Stamm aus (Pillow):
-  python3 tools/figur-schnabel.py            # erzeugt halb (7°) und offen (14°) für beide Fassungen
+  python3 tools/figur-schnabel.py            # erzeugt halb (5°) und offen (10°) für beide Fassungen
 """
 import math, sys
 from PIL import Image, ImageDraw, ImageFilter
@@ -41,11 +41,10 @@ def oeffnen(im, grad):
     x_hinten, x_spitze = SCHARNIER[0], OBERKANTE[0][0]
     for x in range(int(x_spitze) - 2, int(x_hinten) + 3):
         t = max(0.0, min(1.0, (x_hinten - x) / (x_hinten - x_spitze)))  # 0 am Schnabelwinkel, 1 an der Spitze
-        if t < 0.55:   # Rachen → Zunge
-            u = t / 0.55; farbe = tuple(round(a + (b - a) * u) for a, b in zip((44, 28, 27), (132, 70, 64)))
-        else:          # Zunge → Spitze
-            u = (t - 0.55) / 0.45; farbe = tuple(round(a + (b - a) * u) for a, b in zip((132, 70, 64), (168, 104, 96)))
-        deck = 255 if t < 0.9 else round(255 * max(0.0, 1 - (t - 0.9) / 0.1))  # erst ganz vorn ausblenden
+        # dunkler, gedämpfter Rachen (kein Rosa: das leuchtet nachts vor dem Himmel); vorn scheint der Hintergrund durch
+        u = min(1.0, t / 0.5)
+        farbe = tuple(round(a + (b - a) * u) for a, b in zip((30, 22, 22), (68, 46, 43)))
+        deck = 255 if t < 0.42 else round(255 * max(0.0, 1 - (t - 0.42) / 0.3))
         for y in range(80, 145):
             px[x, y] = farbe + (deck,)
     rachen.putalpha(Image.composite(rachen.getchannel('A'), Image.new('L', im.size, 0), km))
@@ -63,7 +62,7 @@ def oeffnen(im, grad):
     aus.alpha_composite(gedreht)
     return aus.convert(im.mode) if im.mode == 'RGB' else aus
 
-STUFEN = {'halb': 7.0, 'offen': 14.0}
+STUFEN = {'halb': 5.0, 'offen': 10.0}  # Robin, 23.10.2026: weniger weit, kein roter Keil vor dem Schnabel
 
 if __name__ == '__main__':
     from pathlib import Path

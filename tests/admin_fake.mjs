@@ -18,7 +18,7 @@ const posts = [{ slug: "erster-beitrag", title: "Erster Beitrag", date: "2026-09
 const images = [{ name: "beispiel.jpg", size: 1234 }];
 const saved = []; // was PUT blog/post erhielt
 // Goch: Betrieb und Sprache (Stimme, Spracheingabe) – Speichern merkt sich die Sprache; Kundenfiguren nur im Speicher, geprüft mit der echten Regel
-let sprache = { stimme: false, hoeren: false, modell: "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_flash_v2_5", zeichenMonat: 30000, minutenTag: 20 };
+let sprache = { stimme: false, hoeren: false, modell: "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_v4", zeichenMonat: 30000, minutenTag: 20 };
 const figuren = [];
 const gochState = () => ({ settings: { enabled: true, provider: "anthropic", model: "claude-opus-5", cache: true, sprache,
     custom: { baseUrl: "", model: "", key: "", keySet: false, keyHint: "", keySource: "" } }, providers: { anthropic: "Anthropic (Claude)" },
@@ -87,6 +87,12 @@ http.createServer(async (req, res) => {
     if (f.sprache) { if (f.sprache.stimme && !f.sprache.voiceId) return json(res, { error: "Für die Stimme bitte die Voice ID von ElevenLabs eintragen." }, 400); sprache = { ...sprache, ...f.sprache }; }
     return json(res, { ...gochState(), note: "Gespeichert (Attrappe)." }); }
   if (api === "goch") return json(res, gochState());
+  if (api === "goch/stimmprobe" && req.method === "POST") { const f = await readBody(req); // kurzer Sinuston als WAV statt ElevenLabs
+    if (!/^[A-Za-z0-9]{10,40}$/.test(f.voiceId || "")) return json(res, { error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
+    const n = 8000, b = Buffer.alloc(44 + n * 2); b.write("RIFF", 0); b.writeUInt32LE(36 + n * 2, 4); b.write("WAVEfmt ", 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22);
+    b.writeUInt32LE(16000, 24); b.writeUInt32LE(32000, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write("data", 36); b.writeUInt32LE(n * 2, 40);
+    for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(8000 * Math.sin(2 * Math.PI * 220 * i / 16000)), 44 + i * 2);
+    return json(res, { mime: "audio/wav", daten: b.toString("base64"), ms: 420, zeichen: String(f.text || "").length, modell: f.ttsModell }); }
   if (api === "figuren" && req.method === "GET") return json(res, { figuren });
   if (api === "figuren" && req.method === "PUT") { try { const f = pruefeKundenfigur(await readBody(req)); const i = figuren.findIndex(x => x.id === f.id);
     const eintrag = { ...f, wissenWorte: f.wissen.split(/\s+/).filter(Boolean).length }; if (i >= 0) figuren[i] = eintrag; else figuren.push(eintrag); return json(res, { figuren }); }

@@ -235,6 +235,8 @@ export function pruefen(ordner, { html } = {}) {
     else if (!bereich[k]) f(`stimme.einstellungen.${k}: unbekannt (erlaubt: ${Object.keys(bereich).join(", ")}, use_speaker_boost)`);
     else if (!(v >= bereich[k][0] && v <= bereich[k][1])) f(`stimme.einstellungen.${k}: ${bereich[k][0]} bis ${bereich[k][1]}`);
   }
+  if (st.seed != null && !(Number.isInteger(st.seed) && st.seed >= 0 && st.seed <= 4294967295)) f("stimme.seed: ganze Zahl ab 0");
+  if (st.rueckfall === "keine" && st.browser) h("stimme.browser wird nicht genutzt (rueckfall „keine“: nur die Stimme vom Server)");
   const br = st.browser;
   if (br) {
     for (const s of ["de", "en"]) if (br[s] != null && !(Array.isArray(br[s]) && br[s].every(istText))) f(`stimme.browser.${s}: Liste von Stimmnamen`);

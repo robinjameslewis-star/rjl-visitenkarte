@@ -208,6 +208,9 @@ async def main():
             check("Voice ID" in await ev("document.getElementById('mS').textContent"), "Stimme ohne Voice ID: deutsche Fehlermeldung")
             await ev("document.getElementById('spvoice').value='Voice1234567890'; document.getElementById('sphoeren').checked=true; document.getElementById('spsave').click()"); await wait(600)
             check("Gespeichert" in await ev("document.getElementById('mS').textContent") and "Spracheingabe an" in await ev("document.getElementById('spstat').textContent"), "Stimme und Spracheingabe eingeschaltet")
+            check(await ev("[...document.getElementById('sptts').options].some(o => o.value === 'eleven_v4')"), "Stimmmodell wählbar, Eleven v4 dabei")
+            await ev("document.getElementById('spanhoeren').click()"); await wait(800)
+            check(await ev("!document.getElementById('spaudio').hidden && document.getElementById('spaudio').src.startsWith('blob:')") and "420 ms" in await ev("document.getElementById('mSP').textContent"), "Stimme anhören: Hörprobe spielt (Blob), Antwortzeit angezeigt", await ev("document.getElementById('mSP').textContent"))
             await ev("document.getElementById('fgnew').click()"); await wait(200)
             await ev("""(()=>{const s=(id,v)=>{document.getElementById(id).value=v;};s('fgid','kunde-muster');s('fgnamede','Muster');s('fgrollede','der Empfang der Muster GmbH');
               s('fggrussde','Willkommen am Stand der Muster GmbH.');s('fgfragende','Was bieten Sie an?\\nWo finde ich Sie?');s('fgwissen','kurz');s('fgquellen','Freigabe per E-Mail am 20.10.2026');

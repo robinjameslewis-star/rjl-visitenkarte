@@ -53,16 +53,11 @@
   "stimme": {
     "anbieter": "elevenlabs",
     "voiceId": "",
-    "modell": "eleven_multilingual_v2",
+    "modell": "eleven_v4",
     "charakter": "warm, weich, männlich – ruhig, freundlich, leicht lächelnd",
     "einstellungen": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 },
-    "rueckfall": "browser",
-    "browser": {
-      "de": ["Markus", "Yannick", "Viktor", "Martin", "Reed", "Eddy"],
-      "en": ["Daniel", "Arthur", "Oliver", "Reed", "Eddy"],
-      "tonhoehe": 0.92,
-      "tempo": 0.95
-    }
+    "seed": 4711,
+    "rueckfall": "keine"
   },
   "farben": {
     "akzent": "#0B3D2E",

@@ -23,7 +23,7 @@ import { handleAufbau } from "./aufbau.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
-import { stimmeFuerAntwort, KI_HINWEIS } from "./stimme.js";
+import { stimmeFuerAntwort, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
 import { handleListen } from "./hoeren.js";
 import { handleKiosk, kundenSystem, GOCH_AM_GERAET } from "./kiosk.js";
 // Durable Object des Messegeräts (Gerätebudget, src/kiosk.js) – muss vom Hauptmodul exportiert werden
@@ -195,9 +195,10 @@ const worker = {
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
     const system = kunde ? kundenSystem(intern.figur, lang)
       : content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
+    const systemText = body.stimme ? system + "\n\n" + GESPROCHEN[lang] : system; // vorgelesen: so formulieren, wie man spricht
     let text;
     try {
-      text = await complete(env, system, messages, content.linkIds, modelSettings);
+      text = await complete(env, systemText, messages, content.linkIds, modelSettings);
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -269,7 +270,8 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
         : (settings.sprache && settings.sprache.voiceId) || (figur.stimme && figur.stimme.voiceId) || "";
       // Stimmcharakter: Goch aus figur.json (warm, weich), Kundenfiguren mit den Ausgangswerten
       const einstellungen = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.einstellungen;
-      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen });
+      const seed = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.seed; // gleichbleibender Klang
+      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed });
       if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
         "Goch: Monatsgrenze für die Stimme erreicht",
         "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text, ohne Hinweis an die Besucher. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));

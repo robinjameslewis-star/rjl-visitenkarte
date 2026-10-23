@@ -695,11 +695,14 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
 - **Stimme** (`worker/src/stimme.js`): `/chat` mit `stimme` antwortet als NDJSON – Zeile 1 die Antwort wie immer (die Seite
   zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Vertont wird nur diese eigene Antwort;
   eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
-  sonst aus `figur.json`); bei `aus` oder `fehler` liest die Seite mit einer lokalen Browserstimme vor.
+  sonst aus `figur.json`), Modell Eleven v4, Regler und fester Startwert (`seed`) aus `figur.json` – jeder Besucher hört
+  dieselbe Stimme. Ohne Stimme (`aus`, `fehler`, `grenze`) antwortet Goch nur als Text; eine Gerätestimme gibt es nur
+  für Figuren mit `stimme.rueckfall: "browser"`.
 - **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
   Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
 - **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus
-  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Antwortzeiten von Modell und Stimme werden je
+  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ in den
+  Systemprompt (kurze Sätze, keine Aufzählungen, Zahlen wie gesprochen). Antwortzeiten von Modell und Stimme werden je
   Monat gezählt und in der Redaktion gezeigt.
 - **Kostenbremsen:** vertonte Zeichen je Monat (`MAX_STIMME_ZEICHEN_MONAT`, 30.000) und Audiominuten je Tag
   (`MAX_HOEREN_MINUTEN_TAG`, 20), eigene Zähler im KV (`stimme:monat:…`, `hoeren:tag:…`, je ein Schreibzugriff). Ist
@@ -708,12 +711,15 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
 - **Figur-ID:** `/chat` nimmt `figur`; öffentlich gilt nur `goch` (`worker/src/figuren.js`), alles andere ergibt 400 –
   auch eine Kundenfigur, die im KV liegt.
 - **Redaktion:** Abschnitt „Goch – Stimme und Spracheingabe“ (Schalter, Modell im Sprachmodus, Stimmmodell, Voice ID,
-  Grenzen, Zähler, Antwortzeiten) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
+  Grenzen, Zähler, Antwortzeiten, „Stimme anhören“: Probesatz mit der eingetragenen Voice ID, vor dem Speichern,
+  zählt zur Monatsgrenze) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
   Persönlichkeit, Wissen, Quellen, Voice ID, Tagesgrenze – nur im KV, nie GitHub). Beides ist ab Werk aus.
 
 Deploy (Robin, lokal): `cd worker && npx wrangler secret put ELEVENLABS_API_KEY`, dann `npx wrangler deploy`; danach in
 der Redaktion Voice ID eintragen und einschalten. Prüfen: `node tests/goch_stimme_test.mjs` (Workers AI, ElevenLabs,
 Anthropic und Resend abgefangen), `node tests/bundle_check.mjs`, `python3 tests/admin_test.py` gegen `node tests/admin_fake.mjs 8789`.
+Vorführung ohne Worker: `python3 tests/goch_fake_worker.py 8787 --stimme mac` (macOS-Stimme serverseitig, für alle gleich;
+nur Platzhalter) oder `--stimme elevenlabs` mit `ELEVENLABS_API_KEY` und `GOCH_VOICE_ID` als Umgebungsvariablen.
 
 ### Startseite: Sprachmodus und Zwitschern
 
@@ -730,10 +736,11 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   `/chat` (`gesprochen: true`). Der Knopf hält den Zeiger fest (`setPointerCapture`), damit das Loslassen auch ankommt,
   wenn sich die Sprechblase während der Aufnahme verschiebt.
 - **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
-  das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen). Bis Robins Posen da
-  sind, neigt sich der Vogel nur leicht (`data-mund`, `data-lauscht` an der Szene, CSS über `.bird-tilt`); während der
-  Aufnahme zeigt er die Lauschpose. Ohne Stimme vom Server liest der Browser vor – nur mit lokalen Stimmen des Geräts.
-  Grenze erreicht: nur Text, kein Hinweis. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
+  das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
+  dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
+  `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Lauschen: leichte Neigung
+  (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
+  Hinweis – keine Gerätestimme, damit alle dieselbe Stimme hören. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
 - **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
 - **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
   höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die

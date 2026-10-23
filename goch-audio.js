@@ -1,7 +1,7 @@
 // Gemeinsame Tonbausteine für die Startseite (goch-stimme.js) und das Messegerät (kiosk.js), 23.10.2026.
 // AudioContext erst nach einer Berührung (iOS/Safari), Aufnahme als WAV (PCM 16 Bit, mono, 16 kHz) über Web Audio –
 // unabhängig vom Format, das der Browser sonst aufnehmen würde –, Wiedergabe mit Pegel für Schnabel oder Logo und
-// Rückfall auf lokale Browserstimmen. Nichts wird gespeichert.
+// lokalen Browserstimmen für Figuren, die das erlauben (rueckfall „browser“; Goch nicht). Nichts wird gespeichert.
 (() => {
   'use strict';
   let ctx = null, quelle = null, sprichtBrowser = false, freigeschaltet = false;

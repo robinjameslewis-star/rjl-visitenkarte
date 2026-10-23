@@ -12,7 +12,7 @@ import * as blog from "./blog.js";
 import * as land from "./landscapes.js";
 import * as cfg from "./settings.js";
 import * as fig from "./figuren.js";
-import { stimmeMonat, TTS_MODELLE } from "./stimme.js";
+import { stimmeMonat, TTS_MODELLE, vertonen, zeichenBuchen, PROBESATZ } from "./stimme.js";
 import { hoerenTag } from "./hoeren.js";
 import * as kiosk from "./kiosk.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
@@ -564,6 +564,22 @@ async function gochApi(api, request, env, deps, session) {
       }
       return json({ ...(await gochState(env)), note });
     }
+    // Hörprobe der Stimme (nur Robin, angemeldet): Voice ID und Modell aus den Feldern, auch ungespeichert; zählt zur Monatsgrenze
+    if (api === "goch/stimmprobe" && request.method === "POST") {
+      const body = await readJson(request), sp = (await cfg.loadSettings(env, true)).sprache;
+      const voiceId = String(body.voiceId || sp.voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
+      const lang = body.lang === "en" ? "en" : "de";
+      if (!env.ELEVENLABS_API_KEY) return json({ error: "Für die Stimme fehlt das Geheimnis ELEVENLABS_API_KEY im Worker." }, 400);
+      if (!/^[A-Za-z0-9]{10,40}$/.test(voiceId)) return json({ error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
+      if (!cfg.TTS_MODELL_ID.test(modell)) return json({ error: "Stimmmodell von ElevenLabs beginnt mit „eleven_“." }, 400);
+      const text = String(body.text || PROBESATZ[lang]).replace(/\s+/g, " ").trim().slice(0, 300);
+      const stimme = fig.oeffentlicheFigur("goch").stimme || {};
+      try {
+        const a = await vertonen(env, text, { voiceId, modell, lang, einstellungen: stimme.einstellungen, seed: stimme.seed });
+        await zeichenBuchen(env, text.length);
+        return json({ ...a, zeichen: text.length, modell });
+      } catch (e) { return json({ error: "ElevenLabs: " + String(e.message || e).slice(0, 200) }, 502); }
+    }
     if (api === "goch/test" && request.method === "POST") {
       const body = await readJson(request);
       const settings = await cfg.loadSettings(env, true);
@@ -686,7 +702,7 @@ function html(s, env) {
   let site = ""; try { site = env && env.SITE_URL ? " " + new URL(env.SITE_URL).origin : ""; } catch {} // Vorschau der Startseite (Landschaften) im Rahmen
   return new Response(s, { status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
     "x-frame-options": "DENY", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow",
-    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
+    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; media-src blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
 }
 
 // ---------- Seiten ----------
@@ -863,7 +879,10 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="stats"><div class="stat"><b id="spzmonat">–</b><span>Zeichen vertont in diesem Monat (Grenze)</span></div>
 <div class="stat"><b id="spminheute">–</b><span>Minuten Spracheingabe heute (Grenze)</span></div>
 <div class="stat"><b id="spzeit">–</b><span>Antwortzeit im Sprachmodus, Modell und Stimme (Mittel des Monats)</span></div></div>
-<p class="note" id="spmeta"></p></section>
+<p class="note" id="spmeta"></p>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><label for="spprobe">Stimme anhören <span class="note">(mit Voice ID und Stimmmodell aus den Feldern oben, auch ungespeichert; zählt zu den vertonten Zeichen)</span></label>
+<div class="bar" style="margin:0"><input id="spprobe" style="flex:1;min-width:200px"><button class="quiet" id="spanhoeren">Anhören</button><span class="msg" id="mSP"></span></div>
+<audio id="spaudio" controls hidden style="width:100%;margin-top:8px"></audio></div></section>
 
 <section id="fgsec"><h2>Figuren für Vorführungen <span class="note">(Kunden, nur am Messegerät)</span></h2>
 <p class="note" style="margin:0 0 6px">Kundenfiguren liegen nur hier im Speicher des Workers – nie auf GitHub, nie auf der Website. Abrufbar sind sie nur über das angemeldete Messegerät; Bilder und Töne liegen auf dem Gerät (FIGUREN.md). Wissen nur aus Angaben, die der Kunde freigibt oder die öffentlich sind – robots.txt und Vorbehalte gegen Text- und Data-Mining beachten, Quellen mit Datum festhalten.</p>
@@ -1075,6 +1094,12 @@ function renderSprache(g){const sp=g.settings.sprache||{},x=g.sprache||{},st=x.s
  $('spzeit').textContent=st.antworten?Math.round((st.msModell+st.msStimme)/st.antworten)+' ms':'–';
  $('spstat').innerHTML='Spracheingabe <b>'+(sp.hoeren?'an':'aus')+'</b> · Stimme <b>'+(sp.stimme?'an':'aus')+'</b>'+(keys.elevenlabs?'':' · <span style="color:var(--warn)">Geheimnis ELEVENLABS_API_KEY fehlt</span>')+(keys.ai?'':' · <span style="color:var(--warn)">Workers AI fehlt</span>');
  $('spmeta').textContent=(st.letzte?'Letzte vertonte Antwort '+fmt(st.letzte.at)+': '+st.letzte.zeichen+' Zeichen, Modell '+(st.letzte.msModell==null?'–':st.letzte.msModell+' ms')+', Stimme '+st.letzte.msStimme+' ms. ':'Noch keine vertonte Antwort in diesem Monat. ')+'Spracheingabe heute: '+(ho.anfragen||0)+' Aufnahmen'+(ho.anfragen?', Erkennung im Mittel '+Math.round(ho.ms/ho.anfragen)+' ms':'')+'.';}
+$('spprobe').value='Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. Ich bin Goch, das Rotkehlchen von Robin – fragen Sie mich gern, woran er gerade arbeitet.';
+$('spanhoeren').onclick=async()=>{$('spanhoeren').disabled=true;say('mSP','erzeugt …',true);
+ try{const r=await api('goch/stimmprobe','POST',{text:$('spprobe').value,voiceId:$('spvoice').value.trim(),ttsModell:$('sptts').value});
+  const bin=atob(r.daten),b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);
+  const a=$('spaudio');if(a.src)URL.revokeObjectURL(a.src);a.src=URL.createObjectURL(new Blob([b],{type:r.mime}));a.hidden=false;a.play().catch(()=>{});
+  say('mSP',r.modell+' · '+r.ms+' ms · '+r.zeichen+' Zeichen',true);const g=await api('goch');renderGoch(g);}catch(e){say('mSP',e.message);}finally{$('spanhoeren').disabled=false;}};
 $('spsave').onclick=async()=>{const body={sprache:{hoeren:$('sphoeren').checked,stimme:$('spstimme').checked,modell:$('spmodell').value,ttsModell:$('sptts').value,voiceId:$('spvoice').value.trim(),zeichenMonat:+$('spzeichen').value,minutenTag:+$('spminuten').value}};
  try{const r=await api('goch','PUT',body);renderGoch(r);say('mS','Gespeichert – gilt ab der nächsten Frage (spätestens nach einer Minute).',true);}catch(e){say('mS',e.message);}};
 // ---- Figuren für Vorführungen (Kunden, nur KV) ----

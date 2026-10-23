@@ -39,7 +39,7 @@ Abrufbar sind sie nur über die authentifizierte Kiosk-Route, nie über `/chat`.
 | `animation.ebenen` | optional: feste Bilder in der Bühne, z. B. Gochs Ast – je `name`, `datei`, `breite`, `hoehe`, `links`, `oben` (Pixel der Bühne), `vorne` (über der Figur), wahlweise `fassungen` und `css` (Gegenstück in der Szene der Startseite, wird mit `--html` verglichen). Ebenen kippen und zwitschern nicht mit |
 | `animation.logo`, `animation.puls` | bei `logo`: `datei`, `breite`, `hoehe`; Puls zwischen `min` und `max` (Standard 1,00–1,06) |
 | `signalton` | `datei` (Ogg/Opus), `rueckfall` (MP3), `lautstaerke` 0–1; `null`, solange es keinen gibt |
-| `stimme` | `anbieter` (`elevenlabs`, `browser`, `keine`), `voiceId`, `modell`, `rueckfall` (`browser`, `keine`) |
+| `stimme` | `anbieter` (`elevenlabs`, `browser`, `keine`), `voiceId`, `modell` (`eleven_v4` …), `einstellungen`, `seed`, `charakter`, `rueckfall` (`keine` = ohne Server-Stimme nur Text; `browser` = lokale Gerätestimme), `browser` |
 | `farben` | `#RRGGBB` für Akzent, Linie, Papier |
 | `kiosk` | Voreinstellungen fürs Gerät: `groesse` (Anteil der Breite), `untertitel`, `zwitschern` (`an`, `abklingzeit_s`, `entfernung_m`) |
 
@@ -68,11 +68,9 @@ Abrufbar sind sie nur über die authentifizierte Kiosk-Route, nie über `/chat`.
 | `zwitschernd` | nein | Zwitschern (sonst kurzes Schnabelzucken) |
 | `aufschlag`, `gleiten`, `abschlag`, `landeanflug` | nein, aber nur alle vier | Anflug (Goch); ohne sie erscheint die Figur ohne Flug |
 
-**Rückfall ohne Stimme vom Server:** `stimme.browser` nennt bevorzugte Gerätestimmen je Sprache (Goch: Markus, Yannick,
-Viktor, Martin, dann Reed, Eddy; Englisch Daniel, Arthur, Oliver), dazu `tonhoehe` und `tempo`. Genutzt werden nur lokale
-Stimmen. Auf dem Mac klingen die Premium-Stimmen deutlich wärmer: Systemeinstellungen → Bedienungshilfen → Gesprochene
-Inhalte → Systemstimme → Stimmen verwalten → Deutsch → „Markus (Premium)“ oder „Yannick (Premium)“ laden; Chrome danach
-neu starten.
+**Gerätestimme:** nur bei `stimme.rueckfall: "browser"` (etwa eine Kundenfigur ohne eigene Stimme). `stimme.browser` nennt
+bevorzugte lokale Stimmen je Sprache, dazu `tonhoehe` und `tempo`. Goch nutzt sie nicht: Jeder Besucher soll dieselbe
+Stimme hören (siehe „Stimme“).
 
 Solange Robins Posen für Goch fehlen, steht `"platzhalter": "neigen"`: Der Schnabel folgt der Stimme dann als leichte
 Kopfbewegung über `.bird-tilt`.
@@ -104,26 +102,47 @@ Danach: Maße und Augenpunkt messen, als WebP speichern
 (`python3 -c "from PIL import Image; Image.open('in.png').save('out.webp', quality=90)"`), in `figur.json` eintragen,
 `RECHTE.md` ergänzen, prüfen.
 
-## Stimme (ElevenLabs Voice Design)
+## Stimme – dieselbe für alle
 
-1. Konto mit robin@robin.vision, bezahlter Tarif (kommerzielle Nutzung). In den Kontoeinstellungen der Nutzung für
+Grundsatz (Robin, 23.10.2026): Jeder Besucher hört dieselbe Stimme, menschlich und passend zur Figur. Deshalb vertont nur
+der Server (ElevenLabs), und Goch steht auf `"rueckfall": "keine"`: Ist die Stimme gestört oder die Monatsgrenze erreicht,
+antwortet Goch nur als Text. Eine Gerätestimme klänge auf jedem Rechner anders.
+
+1. **Konto:** robin@robin.vision, bezahlter Tarif (kommerzielle Nutzung). In den Kontoeinstellungen der Nutzung für
    Training widersprechen; Auftragsverarbeitung abschließen.
-2. Voices → Voice Design: Stimme beschreiben, Vorschläge anhören, die wärmste speichern. Für Goch (warm, weich, männlich;
-   Robin, 23.10.2026) – Voice Design versteht Englisch am besten:
+2. **Stimme finden** – drei Wege:
+   - **Voice Design** (Standard): eine neue, synthetische Stimme aus einer Beschreibung. Voice Design versteht Englisch
+     am besten. Für Goch (warm, weich, männlich):
 
-   > A warm, soft, gentle male voice, mid-forties, medium-low pitch. Calm, friendly and unhurried, with a slight smile in
-   > the voice, close and intimate like a trusted storyteller. Clear standard German pronunciation without dialect,
-   > natural breathing, no radio announcer tone. Studio quality.
+     > A warm, soft, gentle male voice, mid-forties, medium-low pitch. Calm, friendly and unhurried, with a slight smile in
+     > the voice, close and intimate like a trusted storyteller. Clear standard German pronunciation without dialect,
+     > natural breathing, no radio announcer tone. Studio quality.
 
-   Testsatz zum Anhören: „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. Robin baut Werkzeuge für
-   den Alltag in Kanzleien – fragen Sie mich gern.“ Für Englisch dieselbe Stimme mit dem Satz „Just so you know: I'm an AI …“
-   prüfen; klingt sie dort zu deutsch, eine zweite Stimme nur für Englisch anlegen.
-   Stimmcharakter in `figur.json` (`stimme.einstellungen`): `stability` 0,5 (lebendig, nicht monoton), `similarity_boost`
-   0,8, `style` 0,15 (etwas Ausdruck, nicht theatralisch), `use_speaker_boost` an, `speed` 0,95 (ruhig). Modell in der
-   Redaktion: Multilingual v2 klingt am wärmsten; Flash v2.5 antwortet schneller.
-3. Die **Voice ID** in der Redaktion bei der Figur eintragen (nicht in die Datei einer Kundenfigur).
-4. Nur synthetische Stimmen. Die Stimme einer echten Person nie ohne deren schriftliche Einwilligung nachbilden.
-5. In `RECHTE.md` eintragen: Tarif, Datum, `voiceId`, Fundstelle der Lizenzbedingungen.
+     Abwandlungen, wenn es noch nicht passt: „…slightly husky, relaxed, like a friendly neighbour telling a story by the
+     fire…“ (rauer, gemütlicher) oder „…light and bright, gently amused, curious like a small bird…“ (leichter, näher an
+     einem Rotkehlchen). Mehrere Vorschläge erzeugen, die zwei besten speichern und vergleichen.
+   - **Voice Library:** fertige Stimmen anderer Nutzer. Nur mit Freigabe für kommerzielle Nutzung; die Bedingungen der
+     Stimme prüfen (auch, ob und mit welcher Frist der Ersteller sie zurückziehen kann) und in `RECHTE.md` festhalten.
+   - **Professional Voice Clone** eines echten Sprechers: am natürlichsten, aber nur mit schriftlicher Einwilligung und
+     Vertrag (Zweck, Dauer, Vergütung, Widerruf). Die Stimme einer echten Person nie ohne das nachbilden.
+3. **Anhören:** Redaktion → „Goch – Stimme und Spracheingabe“ → Voice ID eintragen → „Stimme anhören“ (geht vor dem
+   Speichern; zählt zur Monatsgrenze). Prüfen mit dem KI-Hinweis, einer langen Antwort und einer Rückfrage, auf
+   Laptop-, Handy- und Messelautsprecher: warm statt Ansager, kein Dialekt, natürliche Atmung, Zahlen und Namen
+   (Balingen, SmartFormular, DATEV) richtig. Englisch mit „Just so you know: I'm an AI …“ prüfen; klingt es zu deutsch,
+   eine zweite Stimme nur für Englisch anlegen.
+4. **Modell und Regler** (`figur.json`, `stimme`): Eleven v4 ist Standard (am menschlichsten), v4 Turbo, wenn Antworten
+   zu lange dauern, Multilingual v2 als Rückweg. Bei v3 und v4 wirken nur `stability` 0,5 (lebendig, nicht monoton) und
+   `similarity_boost` 0,8; `style` 0,15, `use_speaker_boost` und `speed` 0,95 nur bei älteren Modellen. `seed` 4711 hält
+   den Klang von Antwort zu Antwort gleich.
+5. **Sprechstil:** Mit Stimme bekommt das Sprachmodell den Hinweis „Gesprochen“: kurze Sätze, keine Aufzählungen,
+   Zahlen und Uhrzeiten so, wie man sie sagt (`GESPROCHEN` in `worker/src/stimme.js`).
+6. Die **Voice ID** in der Redaktion speichern (bei einer Kundenfigur dort bei der Figur, nie in ihrer Datei).
+7. In `RECHTE.md` eintragen: Weg (Design, Library, Clone), Tarif, Datum, `voiceId`, Fundstelle der Lizenzbedingungen.
+
+**Vorführung am Mac ohne Worker:** `tests/goch_fake_worker.py --stimme mac` spricht serverseitig mit einer macOS-Stimme
+(Markus oder Yannick in Premium, wenn geladen, sonst Reed) – nur ein Platzhalter, aber für alle gleich und mit
+Schnabel. Mit der echten Stimme: `--stimme elevenlabs`, Schlüssel und Voice ID nur als Umgebungsvariablen
+(`ELEVENLABS_API_KEY`, `GOCH_VOICE_ID`) im eigenen Terminal.
 
 ## Signalton
 

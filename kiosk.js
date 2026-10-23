@@ -174,7 +174,7 @@
     untertitel(text, antwort.reply);
     sprechen(antwort.reply, antwort.stimmeZeile);
   }
-  // Stimme aus der Antwort; ohne Stimme vom Server die lokale Browserstimme; bei erreichter Grenze nur Text.
+  // Stimme aus der Antwort; ohne Stimme vom Server nur bei rueckfall „browser“ der Figur lokal vorlesen, sonst nur Text.
   async function sprechen(text, zeile, datei) {
     zustand = 'sprechen'; zeigen(); aktiv();
     const fertig = () => { if (zustand === 'sprechen') { zustand = 'bereit'; figur.ruhe(); zeigen(); aktiv(); } };
@@ -188,7 +188,8 @@
       } catch (_) {}
     }
     if (zeile && zeile.stimme && await A.abspielen(zeile.stimme.daten, { pegel, ende: fertig, lautstaerke: K.lautstaerke || 1 })) return;
-    if (!zeile || zeile.grund !== 'grenze') {
+    // Gerätestimme nur, wenn die Figur sie erlaubt (figur.json, stimme.rueckfall „browser“) – Goch: immer dieselbe Stimme
+    if ((!zeile || zeile.grund !== 'grenze') && figur.figur.stimme && figur.figur.stimme.rueckfall === 'browser') {
       let zu = 0;
       const b = (figur.figur.stimme && figur.figur.stimme.browser) || {};
       if (A.browserStimme(text, sprache, { vorzug: b[sprache] || [], tonhoehe: b.tonhoehe || 1, tempo: b.tempo || 1,
