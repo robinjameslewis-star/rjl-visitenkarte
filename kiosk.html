@@ -38,6 +38,8 @@
   .figur-kippen { position: absolute; inset: 0; transform-origin: 47% 42%; }
   .figur-bild { position: absolute; display: block; max-width: none; height: auto; mix-blend-mode: multiply; pointer-events: none; transition: opacity 60ms linear; }
   .figur-logo .figur-kippen, .figur-logo { position: relative; }
+  .figur-ebene { position: absolute; display: block; max-width: none; height: auto; pointer-events: none; } /* z. B. Gochs Ast (figur.json, ebenen) */
+  .figur-vorne { z-index: 2; }
   .figur-logo .figur-bild { position: static; width: 100%; transition: transform 70ms linear; }
   .noten { position: absolute; left: 15%; top: 0; font: 400 5vh/1 var(--serif); color: var(--copper); pointer-events: none; }
   .noten span { display: inline-block; opacity: 0; }

@@ -51,6 +51,11 @@ cpSync(root + "figuren", join(tmp, "figuren"), { recursive: true });
 cpSync(root + "worker", join(tmp, "worker"), { recursive: true, filter: s => !s.includes("node_modules") });
 const verschoben = pruefen(join(tmp, "figuren/goch"), { html: join(tmp, "index.html") });
 check(has(verschoben.fehler, ".bird-up"), "verschobene Flugpose im CSS wird erkannt", verschoben.fehler.join(" | "));
+// Ast als Ebene (Messegerät, 23.10.2026): dieselbe Datei wie auf der Startseite, dieselbe Höhe wie .branch
+const ast = goch.figur.animation.ebenen.find(e => e.name === "ast");
+check(ast && ast.vorne && ast.oben === 543 && readFileSync(root + "figuren/goch/bilder/bestand/ast.webp").equals(readFileSync(root + "assets/bestand/ast.webp")), "Ast im Paket: byte-gleich mit assets/bestand/ast.webp, vor der Figur");
+writeFileSync(join(tmp, "index.html"), readFileSync(root + "index.html", "utf8").replace(".branch { position: absolute; left: 0; top: 76.48%", ".branch { position: absolute; left: 0; top: 75%"));
+check(has(pruefen(join(tmp, "figuren/goch"), { html: join(tmp, "index.html") }).fehler, "CSS .branch"), "Ast verrutscht gegenüber der Szene: erkannt");
 
 // 3. Kundenfigur als Logo außerhalb des Repos: besteht
 function paket(name, figur, dateien = {}, rechte = null) {
@@ -88,6 +93,7 @@ fall("Bild zu groß", "kunde-gross", { ...logo("kunde-gross"), animation: { ...l
 const posen = (id, extra = {}) => ({
   ...logo(id),
   animation: {
+    ...(id === "kunde-ebene" ? { ebenen: [{ name: "boden", datei: "ast.webp", breite: 1000, hoehe: 100, links: 0, oben: 600, vorne: true }] } : {}),
     art: "posen", buehne: { breite: 1000, hoehe: 700 }, auge: [300, 100], fassungen: { standard: "bilder/" },
     posen: {
       sitzend: { datei: "sitzend.webp", breite: 1000, hoehe: 600, auge: [300, 100] },
@@ -104,6 +110,7 @@ check(r1.fehler.length === 0 && has(r1.hinweise, "ohne Flugposen"), "Kundenfigur
 fall("Auge außerhalb des Bildes", "kunde-auge", posen("kunde-auge", { lauschend: { datei: "lauschend.webp", breite: 1000, hoehe: 600, auge: [300, 650] } }), vier, null, "innerhalb des Bildes");
 fall("Pflichtpose ohne Platzhalter", "kunde-pflicht", posen("kunde-pflicht", { "schnabel-offen": { datei: null } }), vier, null, "platzhalter");
 fall("unbekannte Pose", "kunde-pose", posen("kunde-pose", { winken: { datei: "w.webp", breite: 10, hoehe: 10, auge: [1, 1] } }), vier, null, "unbekannt");
+fall("Ebene mit falschen Maßen", "kunde-ebene", posen("kunde-ebene", {}), { ...vier, "bilder/ast.webp": webp(900, 100) }, null, "laut figur.json");
 fall("Flugposen unvollständig", "kunde-flug", posen("kunde-flug", { aufschlag: { datei: "sitzend.webp", breite: 1000, hoehe: 600, auge: [300, 100] } }), vier, null, "nur vollständig");
 
 // 5. Signalton

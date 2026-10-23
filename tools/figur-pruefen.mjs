@@ -184,6 +184,26 @@ export function pruefen(ordner, { html } = {}) {
     if (!(puls.min >= 0.8 && puls.max <= 1.25 && puls.min < puls.max)) f("animation.puls: min ≥ 0,8, max ≤ 1,25, min < max");
   } else f("animation.art: „posen“ oder „logo“");
 
+  // Ebenen (optional, z. B. Gochs Ast): fest in der Bühne, Lage in Pixeln der Bühne bzw. des Logos
+  const flaeche = a.art === "logo" ? a.logo || {} : a.buehne || {};
+  if (a.ebenen != null && !Array.isArray(a.ebenen)) f("animation.ebenen: Liste");
+  for (const [i, e] of (Array.isArray(a.ebenen) ? a.ebenen : []).entries()) {
+    const wo = `Ebene ${i + 1}${e && e.name ? " „" + e.name + "“" : ""}`;
+    if (!e || !/^[a-z0-9-]{1,30}$/.test(e.name || "")) { f(`${wo}: name a–z, 0–9, Bindestrich`); continue; }
+    if (!istText(e.datei) || !/^[a-z0-9][a-z0-9.-]*\.(webp|png)$/.test(e.datei) || !istZahl(e.breite) || !istZahl(e.hoehe)) { f(`${wo}: datei (.webp/.png), breite, hoehe`); continue; }
+    if (![e.links, e.oben].every(Number.isFinite) || e.links < 0 || e.oben < 0 || e.links + e.breite > flaeche.breite + 0.5 || e.oben > flaeche.hoehe) f(`${wo}: links/oben in Pixeln innerhalb der Bühne`);
+    if (typeof e.vorne !== "boolean") f(`${wo}: vorne true (über der Figur) oder false (dahinter)`);
+    const nur = e.fassungen == null ? fassungen.map(([n]) => n) : e.fassungen;
+    if (!Array.isArray(nur) || !nur.length || !nur.every(n => a.fassungen && a.fassungen[n])) { f(`${wo}: fassungen nur aus animation.fassungen`); continue; }
+    for (const n of nur) {
+      const pfad = join(paket, a.fassungen[n], e.datei);
+      if (!existsSync(pfad)) { f(`${wo} (${n}): ${a.fassungen[n]}${e.datei} fehlt`); continue; }
+      const buf = readFileSync(pfad), m = bildmasse(buf);
+      if (!m || m.breite !== e.breite || m.hoehe !== e.hoehe) f(`${wo} (${n}): ${m ? m.breite + " × " + m.hoehe : "kein Bild"}, laut figur.json ${e.breite} × ${e.hoehe}`);
+      if (buf.length > GRENZEN.bild) f(`${wo} (${n}): ${kb(buf.length)}, höchstens ${kb(GRENZEN.bild)}`);
+    }
+  }
+
   // Signalton: Ogg/Opus mit MP3-Rückfall, kurz, klein
   const ton = figur.signalton || {};
   if (ton.datei == null) h("kein Signalton – die Figur macht sich nur sichtbar bemerkbar");
@@ -269,6 +289,12 @@ function pruefeSzene(figur, paket, htmlPfad, f) {
   if (flug.length) {
     const breite = prozent(regel(".bird-flight"), "width"), soll = rund(versatz(figur, flug[0]).breite);
     if (Math.abs(breite - soll) > 0.0002) f(`CSS .bird-flight: width ${breite}%, aus figur.json ${soll}%`);
+  }
+  // Ebenen mit Gegenstück in der Szene (css, z. B. ".branch"): gleiche Höhe wie im CSS der Seite
+  for (const e of a.ebenen || []) {
+    if (!e || !e.css) continue;
+    const oben = prozent(regel(e.css), "top"), soll = e.oben / a.buehne.hoehe * 100;
+    if (!(Math.abs(oben - soll) <= 0.01)) f(`CSS ${e.css}: top ${oben}%, aus figur.json ${rund(soll)}% (Ebene „${e.name}“)`);
   }
   for (const k of flug) {
     const v = versatz(figur, k), r = regel(".bird-" + POSEN[k]);

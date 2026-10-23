@@ -36,6 +36,7 @@ Abrufbar sind sie nur über die authentifizierte Kiosk-Route, nie über `/chat`.
 | `animation.buehne`, `animation.auge` | bei `posen`: Bühne in Pixel (Seitenverhältnis der Szene) und Augenpunkt der Sitzpose |
 | `animation.fassungen` | Ordner je Fassung, z. B. `{"standard": "bilder/"}`; Goch hat zwei (mit und ohne Landschaft) |
 | `animation.posen` | je Pose `datei`, `breite`, `hoehe`, `auge`; fehlt eine Pose noch: `{"datei": null, "platzhalter": "neigen"}` |
+| `animation.ebenen` | optional: feste Bilder in der Bühne, z. B. Gochs Ast – je `name`, `datei`, `breite`, `hoehe`, `links`, `oben` (Pixel der Bühne), `vorne` (über der Figur), wahlweise `fassungen` und `css` (Gegenstück in der Szene der Startseite, wird mit `--html` verglichen). Ebenen kippen und zwitschern nicht mit |
 | `animation.logo`, `animation.puls` | bei `logo`: `datei`, `breite`, `hoehe`; Puls zwischen `min` und `max` (Standard 1,00–1,06) |
 | `signalton` | `datei` (Ogg/Opus), `rueckfall` (MP3), `lautstaerke` 0–1; `null`, solange es keinen gibt |
 | `stimme` | `anbieter` (`elevenlabs`, `browser`, `keine`), `voiceId`, `modell`, `rueckfall` (`browser`, `keine`) |

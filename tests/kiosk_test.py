@@ -149,6 +149,7 @@ async def main():
             check(await zustand() == 'ruhe' and await sichtbar('#kiosk'), "Kiosk sichtbar, Zustand Ruhe")
             check(await ev("[...document.querySelectorAll('#scene img')].some(i => i.naturalWidth > 0 && i.src.includes('/figur/goch/bilder/bestand/vogel.webp'))"), "Goch aus dem Figurenpaket (Fassung auf Weiß)")
             check(await text('#k-name') == 'Goch' and await text('#k-rolle') == 'das Rotkehlchen von Robin', "Name und Rolle aus language.js")
+            check(await ev("(()=>{const a=document.querySelector('#scene img.figur-ebene[data-ebene=\"ast\"]');return !!a && a.naturalWidth===1153 && !a.closest('.figur-kippen') && a.src.includes('/figur/goch/bilder/bestand/ast.webp');})()"), "Goch sitzt auf dem Ast (Ebene vor der Figur, kippt nicht mit)")
             check('Knopf drücken' in await text('#k-anleitung') and await ev("document.querySelectorAll('#k-beispiele li').length") == 3, "Einladung und drei Beispielfragen")
             check(await sichtbar('#k-ki') and await text('#k-ki') == 'KI · künstliche Stimme', "Hinweis „KI · künstliche Stimme“ dauerhaft sichtbar")
             check((await z())['gum'] == 0, "kein Mikrofon vor dem Gespräch")

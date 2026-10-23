@@ -25,7 +25,8 @@
   // (Standard: „ohne-landschaft“, sonst die erste) – auf Papier mit multiply, wie auf der Startseite.
   function bauen(figur, basis, buehne, { fassung } = {}) {
     const a = figur.animation, fassungen = a.fassungen || {};
-    const ordner = fassungen[fassung] || fassungen['ohne-landschaft'] || Object.values(fassungen)[0] || 'bilder/';
+    const name = fassungen[fassung] ? fassung : fassungen['ohne-landschaft'] ? 'ohne-landschaft' : Object.keys(fassungen)[0];
+    const ordner = fassungen[name] || 'bilder/';
     buehne.replaceChildren();
     buehne.classList.add('figur', 'figur-' + a.art);
     const bild = (datei, klasse) => {
@@ -51,6 +52,15 @@
         img.dataset.pose = NAMEN[name];
         kippen.append(frames[NAMEN[name]] = img);
       }
+    }
+    // Ebenen (z. B. Gochs Ast): fest in der Bühne, kippen und zwitschern nicht mit; „vorne“ liegt über der Figur.
+    const flaeche = a.art === 'logo' ? a.logo : a.buehne;
+    for (const e of a.ebenen || []) {
+      if (e.fassungen && !e.fassungen.includes(name)) continue;
+      const img = bild(e.datei, 'figur-ebene' + (e.vorne ? ' figur-vorne' : ''));
+      Object.assign(img.style, { left: e.links / flaeche.breite * 100 + '%', top: e.oben / flaeche.hoehe * 100 + '%', width: e.breite / flaeche.breite * 100 + '%' });
+      img.dataset.ebene = e.name;
+      if (e.vorne) buehne.append(img); else buehne.insertBefore(img, kippen);
     }
     const puls = a.puls || { min: 1, max: 1.06 };
     function zeige(pose) {

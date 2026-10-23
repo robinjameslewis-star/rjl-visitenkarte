@@ -39,7 +39,11 @@
       "schnabel-offen": { "datei": null, "platzhalter": "neigen" },
       "lauschend": { "datei": null, "platzhalter": "neigen" },
       "zwitschernd": { "datei": null, "platzhalter": "neigen" }
-    }
+    },
+    "ebenen": [
+      { "name": "ast", "datei": "ast.webp", "breite": 1153, "hoehe": 167, "links": 0, "oben": 543, "vorne": true,
+        "fassungen": ["ohne-landschaft"], "css": ".branch" }
+    ]
   },
   "signalton": {
     "datei": null,
