@@ -31,13 +31,13 @@ check(["BR-DE-15", "BR-CO-26", "PEPPOL-EN16931-R010", "BR-E-10", "BR-DE-19", "UB
 check(["UBL-CR-001", "BR-DEC-12", "CII-SR-001"].every(id => !existsSync(join(root, LEXIKON_PFAD.de, regelSlug(id)))), "keine Seiten für Regeln, die nur über Vorlagen erklärt werden");
 
 console.log("\nRegelseiten");
-const BERATUNG = /rechtssicher|GoBD-konform|amtlich geprüft|garantiert/i, DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i, PRIVAT = /googlemail|0151|684 ?660|Höchststr/i;
+const BERATUNG = /rechtssicher|GoBD-konform|amtlich geprüft|garantiert/i, DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i, PRIVAT = /googlemail|\+49 ?151|0151 ?684|684 ?660|Höchststr/i;
 const fehler = { titel: [], canonical: [], beschr: [], ld: [], verweis: [], sprache: [], text: [] };
 for (const e of liste) for (const lang of ["de", "en"]) {
   const pfad = `${LEXIKON_PFAD[lang]}${regelSlug(e.id)}/index.html`, html = lesen(pfad), url = `${LEXIKON[lang]}${regelSlug(e.id)}/`, andere = lang === "en" ? "de" : "en";
   if (!new RegExp(`<title>${e.id.replace(/[-]/g, "\\-")}: `).test(html) || !html.includes(`<h1>${e.id}</h1>`)) fehler.titel.push(pfad);
   if (!html.includes(`<link rel="canonical" href="${url}">`) || !html.includes(`hreflang="${andere}" href="${LEXIKON[andere]}${regelSlug(e.id)}/"`) || !html.includes(`<html lang="${lang}">`)) fehler.canonical.push(pfad);
-  const beschr = (html.match(/<meta name="description" content="([^"]*)">/) || [])[1] || "";
+  const beschr = ((html.match(/<meta name="description" content="([^"]*)">/) || [])[1] || "").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
   if (beschr.length < 40 || beschr.length > 170) fehler.beschr.push(`${pfad} (${beschr.length})`);
   try { const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1])); if (!(ld[0]["@type"] === "DefinedTerm" && ld[0].termCode === e.id && ld[1]["@type"] === "BreadcrumbList" && ld[1].itemListElement.length === 4)) fehler.ld.push(pfad); } catch { fehler.ld.push(pfad); }
   const ordner = posix.dirname(pfad) + "/";

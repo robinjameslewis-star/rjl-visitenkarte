@@ -678,6 +678,10 @@ FiBu lite läuft es **direkt auf der Seite** (`app: "erechnung"` in `WERKZEUGE`)
   `node tests/erechnung_regeln_test.mjs`: dieselben Regelnummern im Browser wie mit Saxon, jede Abweichung ist ein Fehler.
 - **Kundenreisen, Datenschutz, axe, Tastatur:** `node tests/erechnung_reisen_test.mjs` (Chrome über playwright-core; Fotos, Druck-PDF
   und Berichte in `tools/erechnung/.cache/reisen/`); nach dem Deploy mit `--basis https://robin.vision`.
+- **Regel-Lexikon** (Robin, 23.10.2026): je Prüfregel mit eigener Erklärung (`eigeneErklaerung` in `src/regeltexte.js`, derzeit 290)
+  eine Seite unter `werkzeuge/e-rechnung-pruefen/regeln/<id>/` und `werkzeuge/e-invoice-viewer/rules/<id>/`, je eine Übersicht und
+  `sitemap-regeln.xml` (in `robots.txt`). Im Werkzeug führt jeder solche Befund über „Mehr zu dieser Regel“ dorthin. Nach Änderungen an
+  Regeln oder Erklärtexten: `node tools/erechnung/lexikon.mjs`; Prüfung: `node tests/erechnung_lexikon_test.mjs`.
 - **Lizenzen:** EUPL 1.2 (Regeln CEN), Apache 2.0 (KoSIT), MIT (fontoxpath, xspattern, whynot, prsc, Nayuki QR); Texte in
   `tools/erechnung/lizenzen/` und ausgeliefert als `assets/erechnung/LIZENZEN.txt` sowie im Fuß der Datei.
 - **Nach dem Zusammenführen:** Worker neu ausrollen (`cd worker && npm run deploy`), damit die Redaktion die neuen Seiten kennt
