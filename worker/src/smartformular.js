@@ -15,7 +15,7 @@ export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
 export const SMARTFORMULAR_PFAD = { de: "werkzeuge/smartformular/index.html", en: "werkzeuge/smartformular/en/index.html" };
 export const smartformularUrl = lang => `${SITE}${SMARTFORMULAR_PFAD[lang].replace(/index\.html$/, "")}`;
 // Brotkrume zurück zur Übersicht der Werkzeuge
-const BROTKRUME = { de: { text: "Werkzeugkasten", href: "werkzeuge/" }, en: { text: "Toolbox", href: "werkzeuge/en/" } };
+const BROTKRUME = { de: { text: "Robins Werkzeugkasten", href: "werkzeuge/" }, en: { text: "Robin's Tech Stack", href: "werkzeuge/en/" } };
 
 const TEXT = {
   de: {
@@ -27,7 +27,7 @@ const TEXT = {
     meta: "FiBu lite und E-Rechnung lite kostenlos · FiBu und Deklaration als Beta · für Kanzleien und Rechnungswesen",
     intro: [
       "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Jeder Vorschlag trägt seine Herkunft: Beleg, Regel, Vormonat oder Modell. Geprüft und festgeschrieben wird von Ihnen, in Ihrem Buchhaltungsprogramm.",
-      "Heute stehen SmartFormular FiBu lite, der Buchungsstapel-Generator, und SmartFormular E-Rechnung lite kostenlos bereit; E-Rechnung lite macht E-Rechnungen lesbar, prüft sie und lässt sie per GiroCode bezahlen. SmartFormular FiBu und SmartFormular Deklaration folgen – für den laufenden Monat und für den Jahresabschluss. Beide erprobe ich mit ausgewählten Kanzleien im Memberbereich; Beta-Zugang auf Anfrage.",
+      "Heute stehen SmartFormular FiBu lite, der Buchungsstapel-Generator, und SmartFormular E-Rechnung lite kostenlos bereit; E-Rechnung lite macht E-Rechnungen lesbar, prüft sie und lässt sie per GiroCode bezahlen. SmartFormular FiBu und SmartFormular Deklaration folgen – für den laufenden Monat und für den Jahresabschluss. Beide entstehen als Beta im Memberbereich; Kanzleien, die mitprüfen wollen, erhalten Zugang auf Anfrage.",
     ],
     liteKnopf: "FiBu lite kostenlos herunterladen", betaKnopf: "Beta-Zugang anfragen",
     produkteTitel: "Vier Produkte", fertig: "Kostenlos · verfügbar", inEntwicklung: "Beta · auf Anfrage",
@@ -90,7 +90,7 @@ const TEXT = {
     fahrplanTitel: "So geht es weiter",
     fahrplan: [
       "FiBu lite und E-Rechnung lite stehen bereit – kostenlos, mit neuen Fassungen über den Newsletter.",
-      "SmartFormular FiBu erprobe ich als Beta mit ausgewählten Kanzleien im Memberbereich – mit Testdaten und Ihrer Rückmeldung.",
+      "SmartFormular FiBu entsteht als Beta im Memberbereich – mit Testdaten und der Rückmeldung von Kanzleien, die mitprüfen wollen.",
       "SmartFormular Deklaration folgt als Beta für Kanzleien, die den Jahresabschluss strukturierter vorbereiten wollen.",
     ],
     fahrplanHinweis: "Beta-Zugänge sind kostenfrei. Preise für FiBu und Deklaration erhalten Sie mit dem Angebot.",
@@ -110,7 +110,7 @@ const TEXT = {
       ["Wie bekomme ich Beta-Zugang?", "Über das Formular unten. Sie erhalten einen Zugang zum Memberbereich, die Beta-Fassung mit Testdaten und einen kurzen Weg für Rückmeldungen."],
     ],
     betaTitel: "Beta-Zugang anfragen",
-    betaLead: "FiBu und Deklaration entstehen gemeinsam mit Kanzleien, die sie im Alltag erproben. Ich melde mich persönlich per E-Mail.",
+    betaLead: "FiBu und Deklaration sollen gemeinsam mit Kanzleien entstehen, die sie im Alltag erproben. Ich melde mich persönlich per E-Mail.",
     felder: { firma: "Kanzlei oder Unternehmen", name: "Ihr Name", email: "E-Mail-Adresse", produkt: "Interesse an", nachricht: "Ihre Lage oder Frage", optional: "(freiwillig)", beide: "Beiden" },
     senden: "Beta-Zugang anfragen", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
@@ -129,8 +129,8 @@ const TEXT = {
     untertitel: "Tools for bookkeeping and year-end accounts that start the casework while you fill them in. Checking, deciding and finalising stay with you.",
     meta: "FiBu lite and E-Rechnung lite free · FiBu and Deklaration as a beta · for accounting firms and finance teams",
     intro: [
-      "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, guarantees completeness and takes the first steps of the casework while you are still typing. Every suggestion carries its origin: document, rule, previous month or model. You check and finalise it in your accounting software.",
-      "SmartFormular FiBu lite, the Booking Batch Generator, and SmartFormular E-Rechnung lite are available free today; E-Rechnung lite makes e-invoices readable, checks them and lets you pay them by GiroCode. SmartFormular FiBu and SmartFormular Deklaration follow – for the current month and for year-end accounts. I am testing both with selected firms in the member area; beta access on request.",
+      "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, checks for completeness and takes the first steps of the casework while you are still typing. Every suggestion carries its origin: document, rule, previous month or model. You check and finalise it in your accounting software.",
+      "SmartFormular FiBu lite, the Booking Batch Generator, and SmartFormular E-Rechnung lite are available free today; E-Rechnung lite makes e-invoices readable, checks them and lets you pay them by GiroCode. SmartFormular FiBu and SmartFormular Deklaration follow – for the current month and for year-end accounts. Both are being developed as a beta in the member area; accounting firms that want to help test them get access on request.",
     ],
     liteKnopf: "Download FiBu lite for free", betaKnopf: "Request beta access",
     produkteTitel: "Four products", fertig: "Free · available", inEntwicklung: "Beta · on request",
@@ -193,7 +193,7 @@ const TEXT = {
     fahrplanTitel: "What comes next",
     fahrplan: [
       "FiBu lite and E-Rechnung lite are available – free, with new versions announced in the newsletter.",
-      "I am testing SmartFormular FiBu as a beta with selected firms in the member area – with test data and your feedback.",
+      "SmartFormular FiBu is being developed as a beta in the member area – with test data and feedback from firms that want to help test it.",
       "SmartFormular Deklaration follows as a beta for firms that want to prepare year-end accounts in a more structured way.",
     ],
     fahrplanHinweis: "Beta access is free of charge. Prices for FiBu and Deklaration come with the quote.",
@@ -213,7 +213,7 @@ const TEXT = {
       ["How do I get beta access?", "Through the form below. You receive access to the member area, the beta version with test data and a short route for feedback."],
     ],
     betaTitel: "Request beta access",
-    betaLead: "FiBu and Deklaration are developed together with firms that test them in daily work. I will get back to you personally by email.",
+    betaLead: "FiBu and Deklaration are to be developed together with firms that test them in daily work. I will get back to you personally by email.",
     felder: { firma: "Firm or company", name: "Your name", email: "Email address", produkt: "Interested in", nachricht: "Your situation or question", optional: "(optional)", beide: "Both" },
     senden: "Request beta access", sendet: "Sending …",
     gesendet: "Thank you – your request has arrived. I will get back to you by email.",

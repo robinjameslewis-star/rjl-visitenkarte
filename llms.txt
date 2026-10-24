@@ -1,6 +1,6 @@
 # robin.vision
 
-> Website von Robin James Lewis (Balingen, Deutschland): kostenlose Werkzeuge für Rechnungswesen und Verwaltung unter dem Namen SmartFormular, ein Werkzeugkasten mit Vergleich von Software und KI-Lösungen, wöchentliche Impulse und Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Sprache: Deutsch, mit englischen Fassungen.
+> Website von Robin James Lewis (Balingen, Deutschland): kostenlose Werkzeuge für Rechnungswesen und Verwaltung unter dem Namen SmartFormular, Robins Werkzeugkasten mit Vergleich von Software und KI-Lösungen, wöchentliche Impulse und Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Sprache: Deutsch, mit englischen Fassungen.
 
 Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochgeladen. Sie ersetzen keine Steuer- oder Rechtsberatung.
 
@@ -12,7 +12,7 @@ Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochg
 - [SmartFormular FiBu lite – Buchungsstapel-Generator](https://robin.vision/werkzeuge/buchungsstapel-generator/): Kostenlos, offline im Browser. Macht aus Kontoauszügen (PDF, Scan, CAMT, MT940, CSV) Buchungsstapel im DATEV-Format, nach dem Muster des Vormonats, mit Summenprüfung.
 - [Booking Batch Generator (English)](https://robin.vision/werkzeuge/booking-batch-generator/): Englische Fassung von FiBu lite.
 - [SmartFormular](https://robin.vision/werkzeuge/smartformular/): Überblick über die SmartFormular-Werkzeuge (FiBu lite, E-Rechnung lite, FiBu und Deklaration als Beta).
-- [Werkzeugkasten](https://robin.vision/werkzeuge/): Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen.
+- [Robins Werkzeugkasten](https://robin.vision/werkzeuge/): Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen.
 
 ## Weitere Seiten
 

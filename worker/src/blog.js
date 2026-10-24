@@ -157,8 +157,10 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeugkasten", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
-  en: { back: "Robin James Lewis", all: "All posts", tools: "Toolbox", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
+  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Robins Werkzeugkasten", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge.",
+    liste: "Jeden Freitag ein kurzer Beitrag zu Automatisierung, KI und E-Rechnung im Rechnungswesen – mit Quellen. Von Robin James Lewis." },
+  en: { back: "Robin James Lewis", all: "All posts", tools: "Robin's Tech Stack", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet.",
+    liste: "Food for Thought: a short post every Friday on automation, AI and e-invoicing in accounting – with sources. By Robin James Lewis." },
 };
 
 function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
@@ -300,7 +302,8 @@ export function renderListPage(posts, settings, siteUrl, lang = "de") {
   const main = `<h1>${esc(title)}</h1>
 ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
 ${own.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.empty}</p>`}`;
-  return shell({ lang, title, description: intro || `${title} – robin.vision`, depth: en ? 2 : 1, main, allHref: "./",
+  // Meta-Beschreibung mit Inhalt statt nur dem Leitsatz (Textprüfung, Hebel 10); der Leitsatz bleibt sichtbar
+  return shell({ lang, title, description: t.liste, depth: en ? 2 : 1, main, allHref: "./",
     siteUrl, canonical: siteUrl ? `${siteUrl}blog/${en ? EN_DIR + "/" : ""}` : "" });
 }
 
@@ -337,10 +340,10 @@ ${items}
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
   de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", oeffnen: "Zum Werkzeug", fassung: "Fassung", vom: "vom",
-    sf: "Werkzeugkasten", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
+    sf: "Robins Werkzeugkasten", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
     ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Zum Workshop mit Unterweisung nach EU AI Act" },
   en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", oeffnen: "To the tool", fassung: "Version", vom: "of",
-    sf: "Toolbox", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
+    sf: "Robin's Tech Stack", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
     ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "To the workshop with EU AI Act training" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen

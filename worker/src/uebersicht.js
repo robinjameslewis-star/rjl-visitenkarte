@@ -8,7 +8,8 @@
 // Vergleich und das Formular „Partner werden“ an Gochs Kontakt-Endpunkt. Erscheinungsbild robin.vision (Papier, Grün, Kupfer); die
 // Produkte haben eigene Seiten unter werkzeuge/<produkt>/ (SmartFormular: smartformular.js). Weitere Lösungen kommen aus partner.js. Alte Sprungmarken der früheren SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Produktseite weiter.
 // tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen; Vorlage war der Entwurf auf dem Zweig claude/werkzeuge-entwurf
-// (tools/entwuerfe/werkzeuge-2026-10-18/).
+// (tools/entwuerfe/werkzeuge-2026-10-18/). Welle 2 der Textprüfung (Robin, 23.10.2026): „Robins Werkzeugkasten“ im Seitentitel,
+// Partnerkarte „Ihre Lösung in Robins Werkzeugkasten“ mit dem Neutralitätsversprechen, Workshops und Fachmessen ab 2027.
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
 import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, KOSTENLOS } from "./partner.js";
@@ -24,14 +25,14 @@ export const ALTE_MARKEN = ["produkte", "fibu-lite", "fibu", "deklaration", "men
 const TEXT = {
   de: {
     titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
-    seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse | robin.vision",
+    seitentitel: "Robins Werkzeugkasten: Software und KI fürs Rechnungswesen im Vergleich | robin.vision",
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    untertitel: "Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
+    untertitel: "Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
     ueberblickTitel: "Werkzeuge im Überblick",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite und E-Rechnung lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
-    platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen",
-      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, zeige sie in meinen Workshops und auf Fachmessen.",
+    platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung in Robins Werkzeugkasten",
+      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor und ab 2027 in Workshops und auf Fachmessen – Wettbewerber mit denselben Angaben nebeneinander.",
       chips: ["Website", "Workshops", "Fachmessen"], knopf: "Partner werden" },
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     vergleichTitel: "Im Vergleich",
@@ -63,7 +64,7 @@ const TEXT = {
     ],
     ihrProduktText: "Ihre Lösung – auch als Komplettlösung aus einer Hand",
     formTitel: "Partner werden",
-    formLead: "Stellen Sie Ihre Lösung hier, in meinen Workshops und bei meinen Auftritten auf Fachmessen und Netzwerkveranstaltungen vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
+    formLead: "Stellen Sie Ihre Lösung hier vor – ab 2027 auch in meinen Workshops und bei Auftritten auf Fachmessen und Netzwerkveranstaltungen. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
     felder: { firma: "Unternehmen", name: "Ansprechperson", email: "E-Mail-Adresse", produkt: "Produkt oder Website", nachricht: "Worum geht es?", optional: "(freiwillig)",
       fuer: "Für wen", standort: "Wo liegen die Daten?", waehlen: "Bitte wählen" },
     // Zwei freiwillige Auswahlfelder für die erste Einschätzung (Recherche Vergleich, 18.10.2026); die übrigen Angaben folgen nach der
@@ -83,14 +84,14 @@ const TEXT = {
   },
   en: {
     titel: "Efficient tools for accounting, administration and other business processes",
-    seitentitel: "Efficient tools and AI solutions for accounting, administration and other business processes | robin.vision",
+    seitentitel: "Robin's Tech Stack: accounting software and AI compared | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision. With SmartFormular, a comparison and a partner programme.",
-    untertitel: "Software and AI solutions that hold up in daily work – presented and compared on robin.vision. I show many of them in the workshops using real cases.",
+    untertitel: "Software and AI solutions that hold up in daily work – presented and compared on robin.vision. I show a selection of them in the workshops, using cases from everyday work.",
     ueberblickTitel: "Tools at a glance",
     sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite and E-Rechnung lite are free; FiBu and Deklaration are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
-    platzhalter: { logo: "Your logo", titel: "Your product could be here",
-      text: "You develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here and show them in my workshops and at trade fairs.",
+    platzhalter: { logo: "Your logo", titel: "Your solution in Robin's Tech Stack",
+      text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here and, from 2027, in workshops and at trade fairs – competitors side by side, with the same details.",
       chips: ["Website", "Workshops", "Trade fairs"], knopf: "Become a partner" },
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     vergleichTitel: "Comparison",
@@ -122,7 +123,7 @@ const TEXT = {
     ],
     ihrProduktText: "Your solution – including all-in-one suites",
     formTitel: "Become a partner",
-    formLead: "Present your solution here, in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
+    formLead: "Present your solution here – and from 2027 in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
     felder: { firma: "Company", name: "Contact person", email: "Email address", produkt: "Product or website", nachricht: "What is it about?", optional: "(optional)",
       fuer: "For whom", standort: "Where is the data kept?", waehlen: "Please choose" },
     fuerWerte: ["Accounting firms", "Companies", "Organisations", "Several of these"],

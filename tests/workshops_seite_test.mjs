@@ -76,9 +76,12 @@ console.log("\nStartseite, Sitemap, Goch");
 const start = lesen("index.html");
 check((start.match(/<a href="workshops\/" data-href-de="workshops\/" data-href-en="workshops\/en\/" data-i18n="navWorkshops">Workshops<\/a><a href="ueber-mich\/"/g) || []).length === 2, "Startseite: Menüpunkt „Workshops“ in beiden Navigationen vor „Über mich“");
 check(start.includes('<section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">') && start.indexOf('id="workshops"') > start.indexOf('id="werkzeuge"') && start.indexOf('id="workshops"') < start.indexOf('id="ueber-mich"'), "Startseite: Abschnitt zwischen SmartFormularen und Über mich");
-check(/data-i18n="workshopsMore">Zum Workshop mit Unterweisung nach EU AI Act<\/a>/.test(start) && /data-i18n="workshopsLead">[^<]*mit Unterweisung nach EU AI Act/.test(start), "Startseite: Unterweisung nach EU AI Act im Text und im Verweis");
+check(/data-i18n="workshopsMore">Mehr zum Workshop<\/a>/.test(start) && /data-i18n="workshopsLead">[^<]*mit Unterweisung nach EU AI Act/.test(start)
+  && /href="workshops\/#anfrage" data-href-de="workshops\/#anfrage" data-href-en="workshops\/en\/#anfrage" data-i18n="workshopsAnfrage">Workshop anfragen<\/a>/.test(start)
+  && /data-i18n="workshopsTeil3">[^<]*als Nachweis Ihrer Maßnahme nach Art\. 4 KI-Verordnung/.test(start) && /data-i18n="workshopsLeitung">Ich leite die Workshops selbst/.test(start),
+  "Startseite (Option B): Unterweisung nach EU AI Act, drei Teile, Leitung, „Workshop anfragen“ und „Mehr zum Workshop“");
 const lang = lesen("language.js");
-check((lang.match(/workshopsTitle: 'Workshops'/g) || []).length === 2 && /workshopsLead: '[^']*with EU AI Act training/.test(lang) && /workshopsMore: 'To the workshop with EU AI Act training'/.test(lang), "language.js: Titel, Text und Verweis in beiden Sprachen");
+check((lang.match(/workshopsTitle: 'Workshops'/g) || []).length === 2 && /workshopsLead: '[^']*with EU AI Act training/.test(lang) && /workshopsMore: 'More about the workshop'/.test(lang) && /workshopsAnfrage: 'Enquire about a workshop'/.test(lang), "language.js: Titel, Text und Verweis in beiden Sprachen");
 const sitemap = lesen("sitemap.xml");
 check(WORKSHOPS.every(s => sitemap.includes(`<loc>${workshopsUrl(s.lang)}</loc>`)), "sitemap.xml nennt beide Fassungen");
 const links = lesen("worker/links.md");

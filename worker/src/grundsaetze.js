@@ -1,5 +1,5 @@
-// Zwei Grundsätze für Werkzeugkasten und Workshops (Robin, 19.10.2026): rechtssichere Verarbeitung sensibler Klardaten und
-// modellunabhängige Lösungen ohne Vendor-Lock-in. Eine Quelle für drei Stellen: Startseite (index.html zwischen den Marken
+// Zwei Grundsätze für Werkzeugkasten und Workshops (Robin, 19.10.2026): echte Daten nur in Werkzeuge, die dafür gemacht sind
+// (Welle 2 der Textprüfung, 23.10.2026: ohne „rechtssicher“ und „Klardaten“), und modellunabhängige Lösungen ohne Vendor-Lock-in. Eine Quelle für drei Stellen: Startseite (index.html zwischen den Marken
 // <!-- grundsaetze --> und <!-- /grundsaetze -->, je Sprache ein Block, language.js blendet über data-langs um), Übersicht
 // „Werkzeugkasten“ (uebersicht.js) und Workshops (workshops.js). Gestaltung (Robin, 19.10.2026: „etwas aufwändiger und herausragender,
 // nicht übertrieben“): zwei Karten mit Kupferkante oben, Sinnbild im grünen Kreis, Kupferzeile, Serifentitel; nachts die Seitenfarben.
@@ -8,19 +8,19 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 
 export const GRUNDSAETZE = {
   de: {
-    titel: "Zwei Grundsätze", titelStart: "Zwei Grundsätze für Werkzeugkasten und Workshops",
+    titel: "Zwei Grundsätze", titelStart: "Zwei Grundsätze für Robins Werkzeugkasten und die Workshops",
     punkte: [
-      ["Klardaten", "Sensible Klardaten, rechtssicher verarbeitet",
-        "Werkzeugkasten und Workshops sind auf die rechtssichere Verarbeitung sensibler Klardaten ausgerichtet – Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag."],
+      ["Echte Daten", "Echte Daten nur in Werkzeuge, die dafür gemacht sind",
+        "In Kanzlei und Rechnungswesen geht es um Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Danach richten sich Robins Werkzeugkasten und die Workshops: Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag."],
       ["Ohne Lock-in", "Modellunabhängig, ohne Vendor-Lock-in",
         "Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern."],
     ],
   },
   en: {
-    titel: "Two principles", titelStart: "Two principles behind our toolbox and workshops",
+    titel: "Two principles", titelStart: "Two principles behind Robin's Tech Stack and the workshops",
     punkte: [
-      ["Plaintext data", "Sensitive plaintext data, handled lawfully",
-        "Our toolbox and workshops are designed for the lawful processing of sensitive plaintext data – client, personnel and financial data that has not been anonymised. Data protection, confidentiality duties and the EU AI Act are the starting point, not an afterthought."],
+      ["Real data", "Real data only in tools built for it",
+        "Accounting work means client, staff and financial data that has not been anonymised. Robin's Tech Stack and the workshops are built around that: data protection, professional confidentiality and the EU AI Act are the starting point, not an afterthought."],
       ["No lock-in", "Model-agnostic, no vendor lock-in",
         "Solutions that work with different language models and providers take priority. You keep the choice – and can switch when prices, rules or models change."],
     ],
@@ -39,7 +39,7 @@ export const GRUNDSAETZE_CSS = `.grundsaetze-reihe { display: grid; grid-templat
 .grundsaetze .gs-nb { white-space: nowrap; }
 @media (max-width: 720px) { .grundsaetze-reihe { grid-template-columns: 1fr; gap: 14px; } .gs-karte { padding: 20px 20px 18px; } }`;
 
-// Sinnbilder (Linien, Farbe aus dem Text): Schild mit Schloss für Klardaten, Wechselpfeile für „ohne Lock-in“
+// Sinnbilder (Linien, Farbe aus dem Text): Schild mit Schloss für echte Daten, Wechselpfeile für „ohne Lock-in“
 const ICONS = [
   `<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg>`,
   `<svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg>`,

@@ -23,9 +23,10 @@ check(/application\/rss\+xml/.test(html), "Feeds im Kopf angekündigt");
 
 console.log("Startseite: Aufbau");
 const pos = id => html.indexOf(`id="${id}"`);
-check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("ueber-mich") && pos("ueber-mich") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("kontakt") && pos("kontakt") < pos("nachricht"),
-  "Reihenfolge: Werkzeuge, Über mich, Impulse, Newsletter, Termin, Nachricht");
-check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen\. Workshops für Teams/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
+// Option B (Robin, 23.10.2026): Workshops direkt nach den Werkzeugen, Hinweis für Anbieter ganz unten
+check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("workshops") && pos("workshops") < pos("grundsaetze-de") && pos("grundsaetze-de") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("ueber-mich") && pos("ueber-mich") < pos("kontakt") && pos("kontakt") < pos("nachricht") && pos("nachricht") < pos("anbieter"),
+  "Reihenfolge: Werkzeugkasten, Workshops, Grundsätze, Impulse, Newsletter, Über mich, Termin, Nachricht, Hinweis für Anbieter");
+check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt – in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen\. Workshops für Teams/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");

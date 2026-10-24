@@ -18,9 +18,9 @@ const lesen = p => readFileSync(root + p, "utf8");
 
 const SPRACHE = {
   de: { fassung: "Fassung", nutzung: "Nutzungsbedingungen", haftung: /Vorsatz und grobe Fahrlässigkeit/,
-    neu: "Was ist neu", ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeugkasten<\/a>/ },
+    neu: "Was ist neu", ohne: /Für den Download ist keine Anmeldung nötig/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Robins Werkzeugkasten<\/a>/ },
   en: { fassung: "Version", nutzung: "Terms of use", haftung: /intent and gross negligence/,
-    neu: "What's new", ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Toolbox<\/a>/ },
+    neu: "What's new", ohne: /No sign-up is needed for the download/, kopf: /<a href="\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Robin's Tech Stack<\/a>/ },
 };
 // je Werkzeug: Suchbegriffe in Titel und Beschreibung, Markenhinweis, Lizenzen
 const ART = {
@@ -106,7 +106,7 @@ for (const a of ALTE_ADRESSEN) {
   check(readdirSync(root + a.pfad.replace(/index\.html$/, "")).length === 1, `${a.pfad}: keine alte Datei mehr daneben`);
 }
 const start = lesen("index.html");
-check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeugkasten<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
+check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Robins Werkzeugkasten<\/a>/.test(start), "Startseite: Menüpunkt „Robins Werkzeugkasten“ führt auf die Übersicht");
 check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte zum Werkzeug");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
