@@ -147,7 +147,7 @@ async def main():
             sichtbar = lambda sel: ev(f"!document.querySelector({json.dumps(sel)}).hidden && !!document.querySelector({json.dumps(sel)}).offsetParent")
             extern = lambda: [u for _, u in requests if not u.startswith(('http://localhost', 'http://127.0.0.1', 'data:', 'blob:'))]
             ton = signalton()
-            q = lambda extra='': f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&zwitschertakt=2500&wiederda=1500&nachfragezeit=6000&signalton={urllib.parse.quote(ton, safe='')}" + extra
+            q = lambda extra='': f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&blick=an&zwitschertakt=2500&wiederda=1500&nachfragezeit=6000&signalton={urllib.parse.quote(ton, safe='')}" + extra
 
             await send("Page.enable"); await send("Runtime.enable"); await send("Network.enable")
             await send("Page.addScriptToEvaluateOnNewDocument", {"source": INSTRUMENT})
@@ -449,6 +449,9 @@ async def main():
             check(not await ev("document.getElementById('scene').dataset.zwitschern") and await ev("document.getElementById('privacy-goch-stimme').hidden"), "kein Zwitschern, kein Datenschutzabsatz zur Stimme")
             await ev("window.scrollTo(0,0)"); await real_click('#scene')
             check(await ev("document.getElementById('goch-sprache').hidden") and (await z())['play'] == 0, "keine Schalter, kein Ton beim Öffnen")
+            print("12b. Stimme an, Blickkontakt ohne eigenen Schalter (data-goch-blick): bleibt aus")
+            await goto(BASE + f"?goch={urllib.parse.quote(ENDPOINT, safe='')}&stimme=an&t=12b", wait=4.5)
+            check(await ev("document.getElementById('goch-blick-an').hidden && document.getElementById('privacy-goch-blick').hidden && !document.getElementById('privacy-goch-stimme').hidden"), "kein Knopf „Blickkontakt“, kein Datenschutzabsatz zur Kamera – der zur Stimme schon")
 
             print("13. Handy")
             await send("Emulation.setDeviceMetricsOverride", {"width": 390, "height": 844, "deviceScaleFactor": 2, "mobile": True})

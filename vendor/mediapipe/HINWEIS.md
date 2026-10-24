@@ -11,8 +11,11 @@ er „Blickkontakt“ eingeschaltet und eingewilligt hat. Kein Bild verlässt da
 | `modelle/face_landmarker.task` | `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`, abgerufen 23.10.2026 | `64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff` |
 | `LICENSE` | Apache License 2.0, `https://www.apache.org/licenses/LICENSE-2.0.txt` | – |
 
-Lizenz: MediaPipe ist Apache-2.0 (Copyright Google LLC). Das Modell steht laut den Modellkarten (BlazeFace,
-FaceMesh V2) ebenfalls unter Apache 2.0 – **auf Googles Seite noch zu bestätigen**.
+Lizenz: MediaPipe ist Apache-2.0 (Copyright Google LLC). Das Modell steht ebenfalls unter Apache 2.0: Googles Seite zum
+Face Landmarker (developers.google.com/edge/mediapipe/solutions/vision/face_landmarker) verlinkt drei Modellkarten, alle mit
+„LICENSED UNDER Apache License, Version 2.0“ – BlazeFace short-range (09.06.2021), Face Mesh V2 (15.09.2022), Blendshape V2
+(geprüft 24.10.2026). Die Karten schließen Überwachung und Identifizierung aus; der Blickkontakt identifiziert niemanden und
+nutzt keine Ausdruckswerte (Blendshapes aus).
 
 ## Änderung (Apache 2.0, § 4 b)
 
