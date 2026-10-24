@@ -12,7 +12,18 @@ Robin freigegeben und in der Redaktion (`/admin`) pflegbar; Herleitung im Vault 
 POST /chat   { "lang": "de"|"en", "messages": [{ "role": "user"|"assistant", "content": "…" }, …] }
 →            { "reply": "…", "action": null|"calendar"|"contact"|"message", "sent": true|false }
 GET  /       → "Goch" (Lebenszeichen)
+
+Sprechender Goch (23.10.2026):
+POST /chat   { …, "figur": "goch", "gesprochen": true, "stimme": { "erste": true } }
+→            application/x-ndjson: Zeile 1 wie oben (+ "ki": true), Zeile 2 { "stimme": { "mime", "daten", "zeichen", "ms" } }
+             oder { "stimme": null, "grund": "aus"|"grenze"|"fehler" }
+POST /listen?lang=de|en   Body: WAV (PCM 16 Bit, mono, ≤ 20 s), Content-Type audio/wav
+→            { "text": "…", "sekunden": 2.4 } · { "text": "", "grenze": true } · 503 wenn ausgeschaltet
 ```
+
+`figur` ist öffentlich nur `goch`; jede andere Kennung ergibt 400 (Kundenfiguren nur über die Kiosk-Route). Vertont
+wird ausschließlich die Antwort, die der Worker gerade selbst erzeugt hat – es gibt keine Route, die beliebigen Text
+vorliest. Einzelheiten: README der Website, Abschnitt „Sprechender Goch“.
 
 `action: "message"` heißt: Der Besucher hat bestätigt, dass Goch Robin etwas ausrichten soll.
 Der Worker prüft Name, E-Mail-Form und Text, begrenzt auf `MAX_MESSAGES_PER_IP_PER_DAY` und
@@ -78,6 +89,9 @@ Modell zum Draht. Abgeschnittene oder wiederholte Modellantworten werden gerette
   Verkehr; `MAX_MESSAGES_PER_IP_PER_DAY` die Nachrichten an Robin. Mit Anthropic/OpenAI ist
   `MAX_PER_DAY` die Kostenbremse: 400 kurze Antworten am Tag sind bei Sonnet-Klasse Modellen
   wenige Euro im Monat.
+- Sprechender Goch: Whisper large-v3-turbo über Workers AI (laut Cloudflare rund 0,0005 $ je Audiominute) mit Tagesgrenze
+  `MAX_HOEREN_MINUTEN_TAG`; ElevenLabs rechnet nach vertonten Zeichen, Monatsgrenze `MAX_STIMME_ZEICHEN_MONAT`. Beides in
+  der Redaktion änderbar; erreicht → nur Text, ohne Fehlermeldung, und eine E-Mail an Robin je Monat.
 - Resend Free: 100 Mails/Tag, Absender `onboarding@resend.dev`. Mit eigener Domain: Domain bei
   Resend verifizieren und `MAIL_FROM` ändern – oder auf Cloudflare Email Routing wechseln.
 
@@ -88,6 +102,9 @@ zusätzlich an Resend und per E-Mail an Robin. Workers AI trainiert nicht auf Ei
 Anthropic/OpenAI gelten deren API-Bedingungen (kein Training per Standard-API). Keine
 Speicherung im Worker außer dem Tageszähler. Die Seite fragt vor dem ersten Wort um
 Einwilligung; der Datenschutztext im Impressum beschreibt die Beteiligten.
+Spracheingabe und Stimme brauchen eine eigene Einwilligung der Seite. Die Aufnahme geht als WAV an den Worker und an
+Workers AI (Cloudflare), wird nicht gespeichert und nicht protokolliert; die Stimme erzeugt ElevenLabs (USA) aus Gochs
+Antworttext – nie aus dem, was Besucher sagen oder schreiben.
 
 ## Durchsicht (monatlich)
 

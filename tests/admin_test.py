@@ -199,6 +199,26 @@ async def main():
             msg = await ev("document.getElementById('mP2').textContent"); check("Veröffentlicht" in msg, "geänderte Fassung veröffentlicht", msg[:60])
             check(await ev("document.getElementById('ptext').value.includes('Herbstspaziergänge') && !document.getElementById('prevP').disabled"), "Textfeld zeigt die gespeicherte Fassung, „Vorige Fassung“ verfügbar")
 
+            print("10b. Stimme und Spracheingabe, Figuren für Vorführungen (23.10.2026)")
+            stat = await ev("document.getElementById('spstat').textContent")
+            check("Spracheingabe aus" in stat and "Stimme aus" in stat, "Stand: beides aus", stat)
+            check(await ev("document.getElementById('spzmonat').textContent") == "1.234 / 30.000" and await ev("document.getElementById('spzeit').textContent") == "1250 ms", "Zähler und mittlere Antwortzeit im Sprachmodus",
+                  await ev("document.getElementById('spzmonat').textContent+' | '+document.getElementById('spzeit').textContent"))
+            await ev("document.getElementById('spstimme').checked=true; document.getElementById('spsave').click()"); await wait(600)
+            check("Voice ID" in await ev("document.getElementById('mS').textContent"), "Stimme ohne Voice ID: deutsche Fehlermeldung")
+            await ev("document.getElementById('spvoice').value='Voice1234567890'; document.getElementById('sphoeren').checked=true; document.getElementById('spsave').click()"); await wait(600)
+            check("Gespeichert" in await ev("document.getElementById('mS').textContent") and "Spracheingabe an" in await ev("document.getElementById('spstat').textContent"), "Stimme und Spracheingabe eingeschaltet")
+            await ev("document.getElementById('fgnew').click()"); await wait(200)
+            await ev("""(()=>{const s=(id,v)=>{document.getElementById(id).value=v;};s('fgid','kunde-muster');s('fgnamede','Muster');s('fgrollede','der Empfang der Muster GmbH');
+              s('fggrussde','Willkommen am Stand der Muster GmbH.');s('fgfragende','Was bieten Sie an?\\nWo finde ich Sie?');s('fgwissen','kurz');s('fgquellen','Freigabe per E-Mail am 20.10.2026');
+              document.getElementById('fgsave').click();})()"""); await wait(500)
+            check("Wissen" in await ev("document.getElementById('mF').textContent"), "zu wenig Wissen: abgelehnt mit Hinweis")
+            await ev("document.getElementById('fgwissen').value='Die Muster GmbH berät Kanzleien. '.repeat(12); document.getElementById('fgsave').click()"); await wait(600)
+            check(await ev("document.getElementById('fglist').textContent.includes('kunde-muster')") and await ev("document.getElementById('fgid').disabled"), "Figur gespeichert, Kennung danach fest")
+            check(await ev("document.getElementById('fgfragende').value") == "Was bieten Sie an?\nWo finde ich Sie?", "Einstiegsfragen je Zeile")
+            await ev("window.confirm=()=>true; document.getElementById('fgdelete').click()"); await wait(500)
+            check(await ev("document.getElementById('fglist').textContent.includes('Noch keine Kundenfigur')"), "Figur gelöscht")
+
             print("11. Konsole")
             check(not console, "keine Fehler", "; ".join(console)[:200])
     finally:

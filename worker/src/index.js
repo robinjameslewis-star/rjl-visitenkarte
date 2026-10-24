@@ -4,6 +4,11 @@
 //               (newsletter: die Seite zeigt unter der Antwort ein Feld zur Anmeldung, die Adresse geht nie an das Modell)
 //               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“) }
 //               – Links nur aus links.md, nie vom Modell erfunden
+// Sprechender Goch (23.10.2026): { figur: "goch" } wählt die Figur (öffentlich nur Goch); { gesprochen: true } – die Frage
+// kam per Spracheingabe – oder { stimme: {erste} } schaltet das schnellere Modell des Sprachmodus ein. Mit „stimme“
+// antwortet der Worker als NDJSON: Zeile 1 die Antwort wie oben, Zeile 2 { stimme: {mime, daten, zeichen, ms} } oder
+// { stimme: null, grund }. Vertont wird nur diese eigene Antwort; eine freie Vorlese-Route gibt es nicht.
+// POST /listen?lang=de|en  WAV (16 Bit, mono, höchstens 20 s) → { text, sekunden } – Spracheingabe, src/hoeren.js
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
@@ -17,10 +22,14 @@ import { handleContact } from "./contact.js";
 import { handleAufbau } from "./aufbau.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
+import { oeffentlicheFigur } from "./figuren.js";
+import { stimmeFuerAntwort, KI_HINWEIS } from "./stimme.js";
+import { handleListen } from "./hoeren.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
 let lastUsage = null;            // Verbrauch des letzten Modellaufrufs (Status und Testfrage in der Redaktion)
+let msLetzterModellaufruf = null; // Antwortzeit des Modells für die Statistik des Sprachmodus (je Instanz, ungefähr)
 
 const TEXT = {
   de: {
@@ -66,8 +75,19 @@ const TEXT = {
   },
 };
 
-export default {
+const worker = {
+  // Vorne: Stimme zur Antwort von /chat (NDJSON), nur wenn die Seite sie verlangt; sonst unverändert durchgereicht.
   async fetch(request, env, ctx) {
+    if (request.method === "POST" && new URL(request.url).pathname === "/chat") {
+      let body = null;
+      try { body = await request.clone().json(); } catch {}
+      const response = await worker.handle(request, env, ctx);
+      return body && body.stimme && response.status === 200 ? mitStimme(response, body, env, ctx) : response;
+    }
+    return worker.handle(request, env, ctx);
+  },
+
+  async handle(request, env, ctx) {
     // Aufbau aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Booking Batch Generator“): offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
     if (new URL(request.url).pathname === "/aufbau") return handleAufbau(request, env, ctx);
     const origin = request.headers.get("Origin") || "";
@@ -86,20 +106,28 @@ export default {
       return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD, profile: PROFILE },
         profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch });
     }
-    if (request.method !== "POST" || !["/chat", "/contact", "/newsletter"].includes(url.pathname)) return json({ error: "Nicht gefunden." }, 404, cors);
+    if (request.method !== "POST" || !["/chat", "/contact", "/newsletter", "/listen"].includes(url.pathname)) return json({ error: "Nicht gefunden." }, 404, cors);
     if (allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
     // Kontaktformular: zweiter Eingang neben Goch, gleiche Zustellung per Resend (src/contact.js)
     if (url.pathname === "/contact") return handleContact(request, env, ctx, cors);
     // Newsletter „Impulse“: Anmeldung mit Double-Opt-In über Brevo (src/newsletter.js)
     if (url.pathname === "/newsletter") return handleNewsletter(request, env, ctx, cors);
 
-    // Betriebseinstellungen aus der Redaktion (an/aus, Anbieter, Modell, Cache)
+    // Betriebseinstellungen aus der Redaktion (an/aus, Anbieter, Modell, Cache, Sprache)
     const settings = await loadSettings(env);
     if (!settings.enabled) return json({ error: "Goch ist zurzeit ausgeschaltet." }, 503, cors);
+    // Spracheingabe: WAV → Text (src/hoeren.js); der Text läuft danach als Besuchertext über /chat
+    if (url.pathname === "/listen") return handleListen(request, env, ctx, cors, settings);
 
     // Eingabe
     let body; try { body = await request.json(); } catch { return json({ error: "Ungültige Anfrage." }, 400, cors); }
     const lang = body.lang === "en" ? "en" : "de", t = TEXT[lang];
+    // Figur: über diese öffentliche Route nur Figuren aus dem Repository (Goch). Kundenfiguren nie hier, nur am Kiosk.
+    if (!oeffentlicheFigur(body.figur)) return json({ error: "Unbekannte Figur." }, 400, cors);
+    // Sprachmodus: schnelleres Modell aus der Redaktion (nur bei Anthropic; andere Anbieter behalten ihr Modell)
+    const sprachmodus = body.gesprochen === true || !!body.stimme;
+    const modelSettings = sprachmodus && settings.provider === "anthropic" && settings.sprache && settings.sprache.modell
+      ? { ...settings, model: settings.sprache.modell } : settings;
     const maxChars = +(env.MAX_INPUT_CHARS || 600), maxTurns = +(env.MAX_TURNS || 8);
     const messages = (Array.isArray(body.messages) ? body.messages : [])
       .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
@@ -155,7 +183,7 @@ export default {
     const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
     let text;
     try {
-      text = await complete(env, system, messages, content.linkIds, settings);
+      text = await complete(env, system, messages, content.linkIds, modelSettings);
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -167,6 +195,7 @@ export default {
     }
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
     ctx.waitUntil(rememberStatus(env, lastUsage, settings.provider));
+    msLetzterModellaufruf = lastUsage && lastUsage.ms || null;
     const out = parse(text, content.linkIds);
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
@@ -194,6 +223,43 @@ export default {
     return json(out, 200, cors);
   },
 };
+
+export default worker;
+
+// Antwort von /chat um die Stimme ergänzen: Zeile 1 sofort (die Seite zeigt den Text), Zeile 2 mit dem MP3, sobald es
+// da ist. Bei der ersten gesprochenen Antwort einer Sitzung stellt der Worker den KI-Hinweis voran (Art. 50 KI-VO) –
+// im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme steht nur der Text da.
+async function mitStimme(response, body, env, ctx) {
+  let out;
+  try { out = await response.json(); } catch { return response; }
+  if (!out || typeof out.reply !== "string" || !out.reply.trim()) return new Response(JSON.stringify(out), response);
+  const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme;
+  if (wunsch && wunsch.erste === true) out.reply = KI_HINWEIS[lang] + " " + out.reply;
+  out.ki = true; // die Seite zeigt den Hinweis „KI · künstliche Stimme“ dauerhaft an
+  const msModell = msLetzterModellaufruf; msLetzterModellaufruf = null;
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter(), enc = new TextEncoder();
+  const headers = new Headers(response.headers);
+  headers.set("content-type", "application/x-ndjson; charset=utf-8");
+  headers.set("cache-control", "no-store");
+  ctx.waitUntil((async () => {
+    try {
+      await writer.write(enc.encode(JSON.stringify(out) + "\n"));
+      const settings = await loadSettings(env);
+      const figur = oeffentlicheFigur(body.figur) || oeffentlicheFigur();
+      const voiceId = (settings.sprache && settings.sprache.voiceId) || (figur.stimme && figur.stimme.voiceId) || "";
+      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell });
+      if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
+        "Goch: Monatsgrenze für die Stimme erreicht",
+        "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text, ohne Hinweis an die Besucher. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
+      await writer.write(enc.encode(JSON.stringify(r) + "\n"));
+    } catch (e) {
+      console.error("Stimme (Antwort)", String(e && e.message || e).slice(0, 300));
+      try { await writer.write(enc.encode(JSON.stringify({ stimme: null, grund: "fehler" }) + "\n")); } catch {}
+    } finally { try { await writer.close(); } catch {} }
+  })());
+  return new Response(readable, { status: 200, headers });
+}
 
 const UNKNOWN = /das weiß ich nicht|weiß ich (leider )?nicht|kann dir nur robin sagen|i don't know|only robin can (tell|say|answer)|pass (that|this|it) (on )?to robin|(ask|check with) robin (for you|about that)/i;
 
