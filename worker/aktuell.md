@@ -28,7 +28,7 @@
 
 ## English
 
-1. **Final exam.** Robin is preparing for his final exam as a qualified tax technician
+1. **Final exam.** Robin is preparing for his final exam as a certified tax clerk
    (Steuerfachangestellter): written papers in late November 2026, oral exam in January 2027. Until then
    the exam comes first.
 2. **AI literacy workshops.** From January 2027 Robin runs workshops for teams in accounting firms and
