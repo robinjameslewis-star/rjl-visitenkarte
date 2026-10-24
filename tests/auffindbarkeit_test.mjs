@@ -54,6 +54,8 @@ const posts = readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md")).map(n
 const published = posts.filter(p => p.status === "published" && p.date), drafts = posts.filter(p => p.status !== "published");
 check(published.every(p => sitemap.includes(`<loc>https://robin.vision/blog/${p.slug}/</loc>`)), `sitemap.xml nennt alle ${published.length} veröffentlichten Impulse`);
 check(drafts.every(p => !sitemap.includes(`/blog/${p.slug}/`)), `sitemap.xml ohne Entwürfe (${drafts.length})`);
+const llms = lesen("llms.txt");
+check(/^# robin\.vision\n\n> /.test(llms) && WERKZEUGE.every(w => llms.includes(`(https://robin.vision/werkzeuge/${w.id}/)`)) && llms.includes("(https://robin.vision/sitemap.xml)") && !/googlemail|0151|Höchststr/.test(llms), "llms.txt für KI-Assistenten: Überblick, jedes Werkzeug verlinkt, keine privaten Daten");
 check(WERKZEUGE.every(w => sitemap.includes(`<loc>https://robin.vision/werkzeuge/${w.id}/</loc>`)) && sitemap.includes("<loc>https://robin.vision/werkzeuge/en/</loc>"), "sitemap.xml nennt Werkzeuge und Übersichten");
 check(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap) && (sitemap.match(/<url>/g) || []).length === (sitemap.match(/<\/url>/g) || []).length, "sitemap.xml wohlgeformt mit lastmod");
 check(/Sitemap: https:\/\/robin\.vision\/sitemap\.xml/.test(lesen("robots.txt")), "robots.txt verweist auf die Sitemap");
@@ -72,7 +74,12 @@ for (const w of WERKZEUGE) {
   check(d && d["@type"] === "SoftwareApplication" && d.name === w.titel && d.offers.price === "0" && /^[0-9a-f]{7}$/.test(d.softwareVersion), `${w.id}: SoftwareApplication mit Fassung und Preis 0`);
   const alle = [...seite.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
   check(alle.some(x => x && x["@type"] === "FAQPage" && x.mainEntity.length >= 5), `${w.id}: FAQPage mit Fragen und Antworten`);
-  check(/<title>[^<]*DATEV[^<]*<\/title>/.test(seite) && /<meta name="description" content="[^"]*(Kontoausz|bank statement)[^"]*DATEV/.test(seite), `${w.id}: Titel und Beschreibung tragen die Suchbegriffe`);
+  const such = w.app === "erechnung"
+    ? (w.lang === "en" ? [/<title>[^<]*E-invoice viewer and validator[^<]*XRechnung[^<]*ZUGFeRD/, /<meta name="description" content="[^"]*E-invoice viewer[^"]*XRechnung[^"]*ZUGFeRD/]
+      : [/<title>[^<]*E-Rechnung prüfen[^<]*XRechnung öffnen und anzeigen[^<]*ZUGFeRD prüfen/, /<meta name="description" content="[^"]*E-Rechnung prüfen[^"]*XRechnung öffnen und anzeigen[^"]*ZUGFeRD prüfen/])
+    : [/<title>[^<]*DATEV[^<]*<\/title>/, /<meta name="description" content="[^"]*(Kontoausz|bank statement)[^"]*DATEV/];
+  check(such.every(r => r.test(seite)), `${w.id}: Titel und Beschreibung tragen die Suchbegriffe`);
+  check(/<meta property="og:image" content="https:\/\/robin\.vision\/assets\/teilen-[a-z-]+\.jpg">/.test(seite) && seite.includes('<meta property="og:image:width" content="1200">'), `${w.id}: Bild zum Teilen 1200 × 630`);
 }
 for (const [l, p] of Object.entries({ de: "werkzeuge/index.html", en: "werkzeuge/en/index.html" })) check(/<title>[^<]*(Rechnungswesen|accounting)[^<]*<\/title>/.test(lesen(p)), `${p}: Übersicht der Werkzeuge mit eigenem Suchtitel`);
 for (const [l, p] of Object.entries({ de: "werkzeuge/smartformular/index.html", en: "werkzeuge/smartformular/en/index.html" })) check(/<title>[^<]*(Buchhaltung|bookkeeping)[^<]*<\/title>/.test(lesen(p)), `${p}: Produktseite SmartFormular mit eigenem Suchtitel`);

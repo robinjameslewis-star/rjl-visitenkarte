@@ -1,4 +1,4 @@
-// Die drei SmartFormular-Produkte (Robin, 17.10.2026) als gemeinsame Daten für die Seite „SmartFormular“ (smartformular.js), die
+// Die SmartFormular-Produkte (Robin, 17.10.2026; E-Rechnung lite seit 23.10.2026) als gemeinsame Daten für die Seite „SmartFormular“ (smartformular.js), die
 // Werkzeugseite (werkzeug.js, Abschnitt „Was kommt“) und die Karte auf der Startseite (tools/werkzeug-uebernehmen.mjs). Keine Importe.
 // stand: "fertig" (kostenlos, verfügbar) | "beta" (auf Anfrage). href führt zur Werkzeugseite, sonst zur Beta-Anfrage. Texte aus
 // Kundensicht, ohne interne Planung (Robin, 17.10.2026).
@@ -6,6 +6,8 @@ export const PRODUKTE = {
   de: [
     { id: "fibu-lite", kurz: "Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zu Buchungsstapeln im DATEV-Format – offline im Browser, kostenlos.", name: "SmartFormular FiBu lite", stand: "fertig",
       text: "Der kostenlose Buchungsstapel-Generator: Kontoauszüge werden zu Buchungsstapeln im DATEV-Format, je Auszug und Monat einer – nach dem Muster des Vormonats, mit Summenprüfung. Eine Datei, läuft offline im Browser.", href: "buchungsstapel-generator/", knopf: "Zur Seite und zum Download" },
+    { id: "e-rechnung-lite", kurz: "E-Rechnungen verstehen und bezahlen: XRechnung und ZUGFeRD lesen, mit den offiziellen Regeln prüfen, per GiroCode zahlen – im Browser, kostenlos.", name: "SmartFormular E-Rechnung lite", stand: "fertig",
+      text: "Ist das eine E-Rechnung, was steht drin, was fehlt? XRechnung oder ZUGFeRD hineinziehen: lesbar ansehen und drucken, mit den Regeln von CEN und KoSIT prüfen, jeden Befund verständlich erklärt, per GiroCode bezahlen. Direkt auf der Seite, ohne Upload.", href: "e-rechnung-pruefen/", knopf: "Zum Werkzeug" },
     { id: "fibu", kurz: "Kontoauszüge und Belege zum geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten.", name: "SmartFormular FiBu", stand: "beta",
       text: "Für den laufenden Monat: FiBu macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren – und stellt die Zusammenhänge zu Ihren offenen Posten her. Mit Herkunft je Zeile und einer Klärliste für alles, was Ihre Entscheidung braucht.",
       punkte: ["Bank buchen – mit Bezug zu den OPOS-Listen", "Kreditoren und Debitoren buchen – mit Ihrer Stammdaten- und Kontenliste", "Ihre Buchungsweise je Mandant – als Datei bei Ihnen, ohne Modelltraining", "Klärliste und Herkunft je Zeile als Prüfprotokoll", "Umsatzsteuer-Voranmeldung überschlagen: Zahllast oder Vorsteuerüberhang nach Soll- oder Ist-Versteuerung"] },
@@ -16,6 +18,8 @@ export const PRODUKTE = {
   en: [
     { id: "fibu-lite", kurz: "Bank statements as PDF, scan, CAMT, MT940 or CSV become booking batches in the DATEV format – offline in your browser, free.", name: "SmartFormular FiBu lite", stand: "fertig",
       text: "The free Booking Batch Generator: bank statements become booking batches in the DATEV format, one per statement and month – following the previous month's pattern, with a totals check. One file, runs offline in your browser.", href: "booking-batch-generator/", knopf: "To the page and download" },
+    { id: "e-rechnung-lite", kurz: "Understand and pay e-invoices: read XRechnung and ZUGFeRD, check them against the official rules, pay by GiroCode – in your browser, free.", name: "SmartFormular E-Rechnung lite", stand: "fertig",
+      text: "Is it an e-invoice, what does it say, what is missing? Drop in an XRechnung or ZUGFeRD invoice: read and print it, check it against the CEN and KoSIT rules with every finding explained, pay by GiroCode. Right on the page, no upload.", href: "e-invoice-viewer/", knopf: "To the tool" },
     { id: "fibu", kurz: "Bank statements and documents into a checked booking batch – for bank, payables and receivables, linked to your open items.", name: "SmartFormular FiBu", stand: "beta",
       text: "For the current month: FiBu turns bank statements and documents into the checked booking batch – for bank, payables and receivables – and links it to your open items. With the origin of every line and a clarification list for everything that needs your decision.",
       punkte: ["Post the bank account – linked to the open-item lists", "Post payables and receivables – using your master data and account list", "Your posting style per client – as a file kept with you, no model training", "Clarification list and origin of every line as an audit trail", "Estimate the advance VAT return: VAT payable or refund on an accrual or cash basis"] },

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-invoice viewer and validator: open XRechnung, check ZUGFeRD – free, no upload | SmartFormular E-Rechnung lite</title>
+<meta name="description" content="E-invoice viewer and validator: open and read XRechnung, check ZUGFeRD, errors explained in plain words, GiroCode to pay. Using the official CEN and KoSIT rules – free, in your browser, no upload.">
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/werkzeuge/e-invoice-viewer/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/e-invoice-viewer/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">
+<meta property="og:site_name" content="robin.vision">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SmartFormular E-Rechnung lite">
+<meta property="og:description" content="E-invoice viewer and validator: open and read XRechnung, check ZUGFeRD, errors explained in plain words, GiroCode to pay. Using the official CEN and KoSIT rules – free, in your browser, no upload.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://robin.vision/werkzeuge/e-invoice-viewer/">
+<meta property="og:image" content="https://robin.vision/assets/teilen-e-rechnung-lite-en.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px min(6vw, 48px) 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
+h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
+.untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
+.meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
+.meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 64px 0 16px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+@media (min-width: 720px) { article p:not(.meta):not(.untertitel):not(.hinweis):not(.frei), article li { text-align: justify; hyphens: auto; } }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.download + .newsletter { margin-top: 18px; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
+.fragen p { color: var(--ink-soft); }
+.list { list-style: none; margin: 0 0 8px; padding: 0; }
+.list li { padding: 22px 0; border-top: 1px solid var(--line); }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.list a { color: var(--green); text-decoration: none; font: 400 clamp(21px, 2.4vw, 25px)/1.25 var(--serif); }
+.list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
+.list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 min(6vw, 48px) 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+:root { --green: #EDE9FE; --copper: #A78BFA; --ink: #EDE9FE; --ink-soft: #C4B5FD; --ink-muted: #8B83A8; --line: #2A2340; --paper: #0E0B14; }
+body { background: #0E0B14; color: #EDE9FE; }
+.kopf .termin { border-color: #A78BFA; color: #EDE9FE; } .kopf .termin:hover { background: #7C3AED; color: #fff; }
+.kopf .menue nav { background: #1C1726; box-shadow: 0 10px 30px rgba(0,0,0,.5); } .kopf .menue nav a:hover { background: rgba(255,255,255,.06); }
+.sf-marke { margin: 0 0 6px; font: 500 15px/1.2 var(--sans); letter-spacing: .02em; color: #fff; } .sf-marke span, .sf-wortmarke span { color: #A78BFA; }
+.sf-kacheln { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 28px 0 18px; }
+.sf-kachel { padding: 24px 24px 20px; border: 1px solid #2A2340; border-radius: 6px; background: #1C1726; }
+.sf-kachel.beta { background: #16121f; }
+.sf-kachel h2 { margin: 0 0 10px; font: 500 24px/1.25 var(--serif); color: #fff; }
+.sf-kachel p { color: #C4B5FD; max-width: none; text-align: left; }
+.sf-kachel ul { margin: 0 0 14px; padding-left: 20px; } .sf-kachel li { color: #C4B5FD; font-size: 15px; margin-bottom: 4px; text-align: left; max-width: none; }
+.sf-stand { margin: 0 0 8px; font: 500 12px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
+.sf-kachel.beta .sf-stand { color: #D4C8FF; }
+.sf-wege { margin: 10px 0 0; }
+.sf-knopf { display: inline-block; padding: 10px 18px; border-radius: 4px; background: #7C3AED; color: #fff; text-decoration: none; font-size: 15px; } .sf-knopf:hover { background: #6D28D9; }
+.sf-ki { color: #C4B5FD; font-size: 15px; border-left: 2px solid #7C3AED; padding-left: 14px; }
+.beta { position: relative; margin: 8px 0 8px; padding: 22px 24px 20px; border: 1px solid #2A2340; border-left: 2px solid #7C3AED; border-radius: 6px; background: #1C1726; }
+.beta .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.beta label { display: block; font-size: 14px; color: #C4B5FD; margin: 12px 0 4px; }
+.beta input, .beta select, .beta textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid #2A2340; border-radius: 4px; background: #0E0B14; color: #EDE9FE; }
+.beta textarea { min-height: 100px; resize: vertical; }
+.beta button { margin-top: 18px; padding: 11px 20px; border: 1px solid #7C3AED; border-radius: 4px; background: #7C3AED; color: #fff; font: inherit; font-size: 15px; cursor: pointer; } .beta button:hover { background: #6D28D9; } .beta button:disabled { opacity: .6; }
+.beta .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; } .beta .status.ok { color: #A7F3D0; } .beta .status.warn { color: #FCA5A5; }
+.beta .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.list li { border-color: #2A2340; } .list a { color: #fff; } .list .when { color: #8B83A8; } .list p { color: #C4B5FD; }
+.download { background: #1C1726; border-color: #2A2340; border-left-color: #7C3AED; } .download a.knopf { background: #7C3AED; border-color: #7C3AED; color: #fff; } .download a.knopf:hover { background: #6D28D9; }
+.newsletter { background: #1C1726; border-color: #2A2340; border-left-color: #A78BFA; }
+.newsletter input { background: #0E0B14; color: #EDE9FE; border-color: #2A2340; } .newsletter button { background: #7C3AED; border-color: #7C3AED; color: #fff; }
+.foot a:hover { color: #EDE9FE; }
+@media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }
+.kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--sans); color: var(--ink-muted); }
+.kennz a { color: inherit; text-decoration: none; } .kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
+.ewz-rahmen { margin: 26px 0 34px; }
+@media (min-width: 1100px) { .ewz-rahmen { width: min(1060px, calc(100vw - 96px)); margin-left: 50%; transform: translateX(-50%); } }</style>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://goch.robin.vision; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<link rel="stylesheet" href="../../assets/erechnung/app.css?v=6321765">
+<script src="../../assets/erechnung/app.js?v=6321765" defer></script>
+<script type="application/json" id="werkzeug-daten">{"beschreibung":"An e-invoice has arrived and nobody can open it? Or you want to check your own e-invoice for errors before it goes out? Drag the XRechnung or ZUGFeRD invoice into the box: SmartFormular E-Rechnung lite tells you whether it is an e-invoice, shows it in readable form, checks it against the official rules and explains every finding in plain words. If there is something to pay, the GiroCode for your banking app is ready. Everything happens in this browser window; your invoices never leave your computer.\n\n## What it does\n\n- **Is this an e-invoice?** The tool answers yes or no and names the format, such as XRechnung or ZUGFeRD, with the legal source. It clearly flags ZUGFeRD files in the basic MINIMUM and BASIC WL profiles, and PDFs without embedded invoice data, as not e-invoices.\n- **Readable and printable:** issuer, recipient, lines, VAT, totals and payment details as a clear page, with the standard's field numbers if you like.\n- **Checked against the official rules:** the rules of the European standard EN 16931 from the European Committee for Standardization (CEN) and the XRechnung rules from the German Coordination Office for IT Standards (KoSIT) – the same rules the KoSIT validator uses.\n- **Findings in plain words:** for each finding the level (error, warning or notice), the rule number, and in plain words what is wrong and what the issuer needs to change.\n- **Pay by GiroCode:** payee, IBAN, amount and reference with copy buttons and as a QR code for your banking app – only with a valid IBAN, an amount in euros and credit transfer; otherwise the tool says why not.\n- **Also:** check several files at once, save the invoice's attachments, save the validation report as a file.\n\n## How it works\n\n1. Drag the XML file or the ZUGFeRD PDF into the box above, or choose it – or try an example.\n2. Read the answer: e-invoice or not, and in which format.\n3. Look at the findings. If you received the invoice, send the validation report to the issuer; for your own invoice, complete the details in your invoicing software.\n4. Print or save the validation report; pay by GiroCode or with the copied details.\n5. Keep the original file – the view does not replace it.\n\n## What is checked and what is not\n\nIn short: the tool checks whether all required details are there and fit together – the business rules of the standard. It does not check whether the details are correct, such as the VAT rate.\n\nEach finding has a level: **error** – the invoice breaks a rule and the issuer should correct it; **warning** – please check, the invoice may still be in order; **notice** – for information only.\n\nIf the tool finds values in the wrong format, such as a date written the wrong way, it reports a **format error**. A file with format errors is not an e-invoice. Missing or inconsistent details (business rule breaches), by contrast, are not format errors.\n\nThe tool does not check the XML schema, the formal structure of the file in every detail; format errors that only show up there are not detected. A validation does not replace checking the invoice for completeness and accuracy ([letter of the German Federal Ministry of Finance of 15 October 2025](https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile), para. 35a).\n\n**For specialists:** the tool checks the EN 16931 business rules (CEN, rule set 1.3.16) and, for an XRechnung, the XRechnung 3.0.2 rules as well (KoSIT, Schematron 2.6.0), taken unchanged from the KoSIT validator configuration of 31 August 2026, with the severity levels set there. XRechnung includes some rules whose names start with PEPPOL. ZUGFeRD profiles without a KoSIT scenario of their own are checked against the EN 16931 rules. Specific rules of other implementations, such as the full Peppol BIS rules, are not checked.\n\n## Compared with the KoSIT validator\n\nBefore publication, the tool was compared with the validation the KoSIT validator uses – the same rule files, run outside the browser: 6,715 test invoices (the KoSIT test suite, examples and test cases from CEN and KoSIT and deliberately altered versions of them), 13,430 checks, 56,310 messages. Result: the same rule numbers in every case. Where the validation outside the browser fails on invalid values, the tool reports a format error too.\n\n## Privacy\n\nInvoices are read and checked only in your browser window. The tool, and on the first check the validation rules, are loaded from robin.vision; no invoice data is transmitted or stored, and there is no tracking. A security policy on the page (Content Security Policy) allows connections to robin.vision only. The downloadable file cannot connect to the internet at all.\n\n## Legal classification\n\nThe tool classifies the format technically and names the source: [section 14 of the German VAT Act (UStG)](https://www.gesetze-im-internet.de/ustg_1980/__14.html), section 14.1 of the German VAT Application Decree (UStAE) as amended by the [letter of the Federal Ministry of Finance (BMF) of 15 October 2025](https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile), and the [BMF letter of 15 October 2026](https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile) on business rule errors. Legal information as of 23 October 2026. It is a technical classification, not tax or legal advice; whether an invoice meets the legal requirements in a particular case is a question for your tax adviser.","nutzung":"As of: 23 October 2026\n\n**Provider.** Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany ([legal notice](https://robin.vision/?lang=en#privacy)).\n\n**Use.** You may use the tool free of charge, on this page and as a file, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.\n\n**No advice, check the result.** The tool checks technically against formats and rules. It is not tax or legal advice and does not check the invoice for accuracy of content. The legal classification names sources and their date; the law and the original invoice file prevail, not the view. Before every transfer, check payee, IBAN and amount in your banking app.\n\n**Warranty and liability.** The tool is provided free of charge. I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. Liability for injury to life, body or health and under the German Product Liability Act remains unaffected.\n\n**Further development.** There is no entitlement to updates, support or permanent availability.\n\n**Trademarks and standards.** XRechnung is a standard of the German Coordination Office for IT Standards (KoSIT), ZUGFeRD a standard of the Forum elektronische Rechnung Deutschland (FeRD), and Factur-X its Franco-German counterpart; GiroCode denotes the QR code for credit transfers following the European Payments Council standard. The tool is not affiliated with these bodies and is neither reviewed nor endorsed by them. Other names mentioned are trademarks of their respective owners.\n\n**Licences.** The tool contains the EN 16931 validation rules (CEN/TC 434, European Union Public Licence 1.2), the XRechnung rules and field labels (KoSIT, Apache License 2.0), fontoxpath, xspattern, whynot and prsc (MIT License) and the QR Code generator library by Project Nayuki (MIT License). These components are governed by their own licences; the restrictions under \"Use\" do not apply to them. The licence texts and sources are in the file under \"Licences and sources\" and in [LIZENZEN.txt](https://robin.vision/assets/erechnung/LIZENZEN.txt).\n\nGerman law applies. These terms are a translation; in case of doubt, the German terms of use of [SmartFormular E-Rechnung lite](https://robin.vision/werkzeuge/e-rechnung-pruefen/#nutzungsbedingungen) apply.","hinweis":"Eine deutsche Fassung des Werkzeugs gibt es unter [SmartFormular E-Rechnung lite auf Deutsch](https://robin.vision/werkzeuge/e-rechnung-pruefen/) – gleiche Funktionen, deutsche Oberfläche.","neuigkeiten":"### Version 6321765, 23 October 2026\n\nFirst version. Read and print e-invoices as XRechnung (UBL or CII) and ZUGFeRD/Factur-X; the answer whether it is an e-invoice, with the legal source; validation against the CEN and KoSIT rules, every finding explained in plain words; pay by GiroCode. Runs right on this page and as an offline file.","datei":{"name":"E-Invoice-Viewer.html","fassung":"6321765","datum":"2026-10-23","bytes":1389726,"sha256":"6e9d28581939c08675c97126a9ff44abd5253f3bff35358539c37238836aa031"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SmartFormular E-Rechnung lite","description":"Is it an e-invoice, what does it say, what is missing? Drop in an XRechnung or ZUGFeRD invoice to read it, check it against the official rules and pay it by GiroCode. In your browser, no upload.","url":"https://robin.vision/werkzeuge/e-invoice-viewer/","applicationCategory":"BusinessApplication","operatingSystem":"Web browser (Chrome, Edge, Firefox, Safari)","inLanguage":"en","featureList":["Read XRechnung (UBL, CII) and ZUGFeRD/Factur-X","Answer to \"Is this an e-invoice?\" with legal source","Check against the EN 16931 and XRechnung rules","Findings explained in plain words","GiroCode to pay","Print view and check report","Runs in the browser, no upload"],"softwareVersion":"6321765","datePublished":"2026-10-23","fileSize":"1.4 MB","downloadUrl":"https://robin.vision/werkzeuge/e-invoice-viewer/E-Invoice-Viewer.html","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"license":"https://robin.vision/werkzeuge/e-invoice-viewer/#nutzungsbedingungen","about":[{"@type":"Thing","name":"E-Rechnung","sameAs":"https://de.wikipedia.org/wiki/Elektronische_Rechnung"},{"@type":"Thing","name":"XRechnung","sameAs":"https://de.wikipedia.org/wiki/XRechnung"},{"@type":"Thing","name":"ZUGFeRD","sameAs":"https://de.wikipedia.org/wiki/ZUGFeRD"}],"screenshot":"https://robin.vision/assets/teilen-e-rechnung-lite-en.jpg","author":{"@type":"Person","name":"Robin James Lewis","url":"https://robin.vision/","sameAs":["https://www.linkedin.com/in/robin-james-lewis-688945283/"]}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"en","mainEntity":[{"@type":"Question","name":"How do I open an XRechnung?","acceptedAnswer":{"@type":"Answer","text":"Drag the XML file into the box above. SmartFormular E-Rechnung lite shows the invoice in readable form straight away – issuer, recipient, lines, VAT, totals and payment details – and you can print it. You need no separate software; the file is not uploaded."}},{"@type":"Question","name":"How can I tell whether an invoice is an e-invoice?","acceptedAnswer":{"@type":"Answer","text":"Under German VAT law an e-invoice is an invoice in a structured electronic format that allows electronic processing (section 14(1) sentence 3 UStG). Formats that follow the European standard EN 16931, such as XRechnung, are permitted. A PDF without embedded invoice data, or a photo, is not an e-invoice; German VAT law calls it an \"other invoice\" (section 14.1(2) German VAT Application Decree, UStAE). The tool tells you this for every file and names the source. As of 23 October 2026."}},{"@type":"Question","name":"When does the e-invoicing obligation apply?","acceptedAnswer":{"@type":"Answer","text":"Since 1 January 2025, e-invoices have been mandatory between businesses in Germany (section 14(2) sentence 2 no. 1 UStG), and all of them must be able to receive them. Transitional rules apply to issuing (section 27(38) UStG): until the end of 2026 an \"other invoice\" may still be sent – on paper or, if the recipient agrees, as a PDF, for example. Until the end of 2027 this applies to businesses with a prior-year turnover of up to €800,000 and to EDI invoices. From 2028 the e-invoice is the rule between domestic businesses. Small-amount invoices up to €250, tickets and invoices from small businesses can always be other invoices (sections 33, 34 and 34a UStDV). As of 23 October 2026; not tax advice."}},{"@type":"Question","name":"Is a ZUGFeRD invoice an e-invoice?","acceptedAnswer":{"@type":"Answer","text":"Yes, from ZUGFeRD 2.0.1 – except for the MINIMUM and BASIC WL profiles, which do not contain all invoice details (section 14.1(14) UStAE, as amended by the Federal Ministry of Finance letter of 15 October 2025). The tool reads the data embedded in the PDF, shows profile and version and checks it. The embedded data counts, not the visible PDF."}},{"@type":"Question","name":"What is the difference between XRechnung and ZUGFeRD?","acceptedAnswer":{"@type":"Answer","text":"An XRechnung is a pure data file (XML) following the European standard EN 16931 with German additional rules; to read it you need software such as this tool. A ZUGFeRD invoice is a PDF that also contains the invoice data as an XML file: people see a familiar invoice image, software reads the data. Both are permitted e-invoices – ZUGFeRD from version 2.0.1 and not in the MINIMUM and BASIC WL profiles. The tool reads both."}},{"@type":"Question","name":"The check reports errors – does that mean it is not an e-invoice?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. Missing or inconsistent details (business rule breaches) are not format errors: for VAT purposes, as a rule, the file remains an e-invoice (Federal Ministry of Finance letter of 15 October 2026, paras. 22 and 23). If a mandatory detail under section 14(4) UStG is missing or wrong, however, the invoice does not meet the legal requirements. For each finding the tool shows what is wrong and what the issuer needs to change – send them the validation report. If in doubt, check with your tax adviser."}},{"@type":"Question","name":"What do error messages such as BR-DE-15 or BR-CO-26 mean?","acceptedAnswer":{"@type":"Answer","text":"They are validation rule numbers. Rules such as BR-CO-26 come from the European standard EN 16931, rules starting with BR-DE from XRechnung, and rules with UBL or CII concern the structure of the file. BR-DE-15, for example, reports a missing buyer reference (the Leitweg-ID for public authorities), BR-CO-26 a missing seller identifier such as the VAT number. Drag the invoice into the box above: the tool explains every message in plain words and says what the issuer needs to change."}},{"@type":"Question","name":"How accurate is the check?","acceptedAnswer":{"@type":"Answer","text":"It uses the same rules as the KoSIT validator: the EN 16931 business rules from CEN and the XRechnung rules, taken unchanged from the KoSIT configuration. With every new version the results are compared on thousands of test invoices with the validation the KoSIT validator uses; the rule numbers must match. The tool does not check the XML schema, the formal structure of the file, or whether the details are correct, such as the VAT rate."}},{"@type":"Question","name":"Are my invoices uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The files are read and checked only in your browser window. Only the tool and the validation rules are loaded from robin.vision; no invoice data goes anywhere. The downloadable file works without any internet connection."}},{"@type":"Question","name":"What is a GiroCode?","acceptedAnswer":{"@type":"Answer","text":"A QR code for credit transfers following the European Payments Council standard. Many banking apps read it: payee, IBAN, amount and reference are filled in, and you check and send. The tool only shows it if the IBAN is valid, the amount is in euros and above zero, and credit transfer is given as the payment means – otherwise it says why not."}},{"@type":"Question","name":"What does SmartFormular E-Rechnung lite cost?","acceptedAnswer":{"@type":"Answer","text":"Nothing. Use it on this page and as a file, without sign-up, in your firm or company too; the terms of use on this page apply. There is no entitlement to updates or support."}}]}</script>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<header class="kopf">
+<a class="marke" href="../../?lang=en">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Pages"><a href="../../werkzeuge/en/" aria-current="page">Toolbox</a><a href="../../blog/en/">Food for Thought</a><a href="../../workshops/en/">Workshops</a><a href="../../about/">About</a></nav>
+<a class="termin" href="../../?lang=en#kontakt">Appointment</a>
+<details class="menue"><summary aria-label="Menu"><span></span></summary>
+<nav aria-label="Pages"><a href="../../werkzeuge/en/" aria-current="page">Toolbox</a><a href="../../blog/en/">Food for Thought</a><a href="../../workshops/en/">Workshops</a><a href="../../about/">About</a><a href="../../?lang=en#nachricht">Message</a><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/" lang="de" hreflang="de">Deutsch</a></nav>
+</details>
+</header>
+<main>
+<p class="sf-marke">Smart<span>Formular</span></p><article>
+<p class="kennz">Free</p>
+<h1>SmartFormular E-Rechnung lite</h1>
+<p class="untertitel">E-invoice viewer and validator: read XRechnung and ZUGFeRD, check them against the official rules, pay by GiroCode – in your browser, no upload</p>
+<p class="meta">Version 6321765 of 23 October 2026</p>
+<p>An e-invoice has arrived and nobody can open it? Or you want to check your own e-invoice for errors before it goes out? Drag the XRechnung or ZUGFeRD invoice into the box: SmartFormular E-Rechnung lite tells you whether it is an e-invoice, shows it in readable form, checks it against the official rules and explains every finding in plain words. If there is something to pay, the GiroCode for your banking app is ready. Everything happens in this browser window; your invoices never leave your computer.</p>
+<section class="ewz-rahmen" id="werkzeug" aria-label="Tool: check an e-invoice">
+<div id="erechnung" data-lang="en" data-basis="../../assets/erechnung/" data-fassung="6321765"><noscript><p>The tool needs JavaScript. Without JavaScript, download it as a file below.</p></noscript></div>
+</section>
+<div class="download" id="download">
+<a class="knopf" href="E-Invoice-Viewer.html" download="E-Invoice-Viewer.html">Download (1.4 MB)</a>
+<dl><dt>File</dt><dd>E-Invoice-Viewer.html</dd><dt>Version</dt><dd>6321765 of 23 October 2026</dd>
+<dt>SHA-256</dt><dd><code>6e9d28581939c08675c97126a9ff44abd5253f3bff35358539c37238836aa031</code></dd></dl>
+<p class="hinweis">The same tool as a single file: it works without the internet, also as a local file – on computers without network access, for example.</p>
+<p class="meta hinweis">The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.</p>
+</div>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">News of the tools by email</h2>
+<p>The newsletter reports on new tools, new versions and the workshops, plus the new post every Friday. No sign-up is needed for the download.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">Email address</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Email address"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Subscribe</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="../../?lang=en#privacy">Privacy</a>.</p>
+</form>
+</section>
+<h2>What it does</h2>
+<ul><li><strong>Is this an e-invoice?</strong> The tool answers yes or no and names the format, such as XRechnung or ZUGFeRD, with the legal source. It clearly flags ZUGFeRD files in the basic MINIMUM and BASIC WL profiles, and PDFs without embedded invoice data, as not e-invoices.</li><li><strong>Readable and printable:</strong> issuer, recipient, lines, VAT, totals and payment details as a clear page, with the standard&#39;s field numbers if you like.</li><li><strong>Checked against the official rules:</strong> the rules of the European standard EN 16931 from the European Committee for Standardization (CEN) and the XRechnung rules from the German Coordination Office for IT Standards (KoSIT) – the same rules the KoSIT validator uses.</li><li><strong>Findings in plain words:</strong> for each finding the level (error, warning or notice), the rule number, and in plain words what is wrong and what the issuer needs to change.</li><li><strong>Pay by GiroCode:</strong> payee, IBAN, amount and reference with copy buttons and as a QR code for your banking app – only with a valid IBAN, an amount in euros and credit transfer; otherwise the tool says why not.</li><li><strong>Also:</strong> check several files at once, save the invoice&#39;s attachments, save the validation report as a file.</li></ul>
+<h2>How it works</h2>
+<ol><li>Drag the XML file or the ZUGFeRD PDF into the box above, or choose it – or try an example.</li><li>Read the answer: e-invoice or not, and in which format.</li><li>Look at the findings. If you received the invoice, send the validation report to the issuer; for your own invoice, complete the details in your invoicing software.</li><li>Print or save the validation report; pay by GiroCode or with the copied details.</li><li>Keep the original file – the view does not replace it.</li></ol>
+<h2>What is checked and what is not</h2>
+<p>In short: the tool checks whether all required details are there and fit together – the business rules of the standard. It does not check whether the details are correct, such as the VAT rate.</p>
+<p>Each finding has a level: <strong>error</strong> – the invoice breaks a rule and the issuer should correct it; <strong>warning</strong> – please check, the invoice may still be in order; <strong>notice</strong> – for information only.</p>
+<p>If the tool finds values in the wrong format, such as a date written the wrong way, it reports a <strong>format error</strong>. A file with format errors is not an e-invoice. Missing or inconsistent details (business rule breaches), by contrast, are not format errors.</p>
+<p>The tool does not check the XML schema, the formal structure of the file in every detail; format errors that only show up there are not detected. A validation does not replace checking the invoice for completeness and accuracy (<a href="https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile" rel="noopener">letter of the German Federal Ministry of Finance of 15 October 2025</a>, para. 35a).</p>
+<p><strong>For specialists:</strong> the tool checks the EN 16931 business rules (CEN, rule set 1.3.16) and, for an XRechnung, the XRechnung 3.0.2 rules as well (KoSIT, Schematron 2.6.0), taken unchanged from the KoSIT validator configuration of 31 August 2026, with the severity levels set there. XRechnung includes some rules whose names start with PEPPOL. ZUGFeRD profiles without a KoSIT scenario of their own are checked against the EN 16931 rules. Specific rules of other implementations, such as the full Peppol BIS rules, are not checked.</p>
+<h2>Compared with the KoSIT validator</h2>
+<p>Before publication, the tool was compared with the validation the KoSIT validator uses – the same rule files, run outside the browser: 6,715 test invoices (the KoSIT test suite, examples and test cases from CEN and KoSIT and deliberately altered versions of them), 13,430 checks, 56,310 messages. Result: the same rule numbers in every case. Where the validation outside the browser fails on invalid values, the tool reports a format error too.</p>
+<h2>Privacy</h2>
+<p>Invoices are read and checked only in your browser window. The tool, and on the first check the validation rules, are loaded from robin.vision; no invoice data is transmitted or stored, and there is no tracking. A security policy on the page (Content Security Policy) allows connections to robin.vision only. The downloadable file cannot connect to the internet at all.</p>
+<h2>Legal classification</h2>
+<p>The tool classifies the format technically and names the source: <a href="https://www.gesetze-im-internet.de/ustg_1980/__14.html" rel="noopener">section 14 of the German VAT Act (UStG)</a>, section 14.1 of the German VAT Application Decree (UStAE) as amended by the <a href="https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile" rel="noopener">letter of the Federal Ministry of Finance (BMF) of 15 October 2025</a>, and the <a href="https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile" rel="noopener">BMF letter of 15 October 2026</a> on business rule errors. Legal information as of 23 October 2026. It is a technical classification, not tax or legal advice; whether an invoice meets the legal requirements in a particular case is a question for your tax adviser.</p>
+<h2 id="neu">What's new</h2>
+<div class="neuigkeiten">
+<h3 id="fassung-6321765">Version 6321765, 23 October 2026</h3>
+<p>First version. Read and print e-invoices as XRechnung (UBL or CII) and ZUGFeRD/Factur-X; the answer whether it is an e-invoice, with the legal source; validation against the CEN and KoSIT rules, every finding explained in plain words; pay by GiroCode. Runs right on this page and as an offline file.</p>
+</div>
+<h2 id="fragen">Questions and answers</h2>
+<div class="fragen">
+<h3>How do I open an XRechnung?</h3>
+<p>Drag the XML file into the box above. SmartFormular E-Rechnung lite shows the invoice in readable form straight away – issuer, recipient, lines, VAT, totals and payment details – and you can print it. You need no separate software; the file is not uploaded.</p>
+<h3>How can I tell whether an invoice is an e-invoice?</h3>
+<p>Under German VAT law an e-invoice is an invoice in a structured electronic format that allows electronic processing (section 14(1) sentence 3 UStG). Formats that follow the European standard EN 16931, such as XRechnung, are permitted. A PDF without embedded invoice data, or a photo, is not an e-invoice; German VAT law calls it an &quot;other invoice&quot; (section 14.1(2) German VAT Application Decree, UStAE). The tool tells you this for every file and names the source. As of 23 October 2026.</p>
+<h3>When does the e-invoicing obligation apply?</h3>
+<p>Since 1 January 2025, e-invoices have been mandatory between businesses in Germany (section 14(2) sentence 2 no. 1 UStG), and all of them must be able to receive them. Transitional rules apply to issuing (section 27(38) UStG): until the end of 2026 an &quot;other invoice&quot; may still be sent – on paper or, if the recipient agrees, as a PDF, for example. Until the end of 2027 this applies to businesses with a prior-year turnover of up to €800,000 and to EDI invoices. From 2028 the e-invoice is the rule between domestic businesses. Small-amount invoices up to €250, tickets and invoices from small businesses can always be other invoices (sections 33, 34 and 34a UStDV). As of 23 October 2026; not tax advice.</p>
+<h3>Is a ZUGFeRD invoice an e-invoice?</h3>
+<p>Yes, from ZUGFeRD 2.0.1 – except for the MINIMUM and BASIC WL profiles, which do not contain all invoice details (section 14.1(14) UStAE, as amended by the Federal Ministry of Finance letter of 15 October 2025). The tool reads the data embedded in the PDF, shows profile and version and checks it. The embedded data counts, not the visible PDF.</p>
+<h3>What is the difference between XRechnung and ZUGFeRD?</h3>
+<p>An XRechnung is a pure data file (XML) following the European standard EN 16931 with German additional rules; to read it you need software such as this tool. A ZUGFeRD invoice is a PDF that also contains the invoice data as an XML file: people see a familiar invoice image, software reads the data. Both are permitted e-invoices – ZUGFeRD from version 2.0.1 and not in the MINIMUM and BASIC WL profiles. The tool reads both.</p>
+<h3>The check reports errors – does that mean it is not an e-invoice?</h3>
+<p>Not necessarily. Missing or inconsistent details (business rule breaches) are not format errors: for VAT purposes, as a rule, the file remains an e-invoice (Federal Ministry of Finance letter of 15 October 2026, paras. 22 and 23). If a mandatory detail under section 14(4) UStG is missing or wrong, however, the invoice does not meet the legal requirements. For each finding the tool shows what is wrong and what the issuer needs to change – send them the validation report. If in doubt, check with your tax adviser.</p>
+<h3>What do error messages such as BR-DE-15 or BR-CO-26 mean?</h3>
+<p>They are validation rule numbers. Rules such as BR-CO-26 come from the European standard EN 16931, rules starting with BR-DE from XRechnung, and rules with UBL or CII concern the structure of the file. BR-DE-15, for example, reports a missing buyer reference (the Leitweg-ID for public authorities), BR-CO-26 a missing seller identifier such as the VAT number. Drag the invoice into the box above: the tool explains every message in plain words and says what the issuer needs to change.</p>
+<h3>How accurate is the check?</h3>
+<p>It uses the same rules as the KoSIT validator: the EN 16931 business rules from CEN and the XRechnung rules, taken unchanged from the KoSIT configuration. With every new version the results are compared on thousands of test invoices with the validation the KoSIT validator uses; the rule numbers must match. The tool does not check the XML schema, the formal structure of the file, or whether the details are correct, such as the VAT rate.</p>
+<h3>Are my invoices uploaded?</h3>
+<p>No. The files are read and checked only in your browser window. Only the tool and the validation rules are loaded from robin.vision; no invoice data goes anywhere. The downloadable file works without any internet connection.</p>
+<h3>What is a GiroCode?</h3>
+<p>A QR code for credit transfers following the European Payments Council standard. Many banking apps read it: payee, IBAN, amount and reference are filled in, and you check and send. The tool only shows it if the IBAN is valid, the amount is in euros and above zero, and credit transfer is given as the payment means – otherwise it says why not.</p>
+<h3>What does SmartFormular E-Rechnung lite cost?</h3>
+<p>Nothing. Use it on this page and as a file, without sign-up, in your firm or company too; the terms of use on this page apply. There is no entitlement to updates or support.</p>
+</div>
+<p class="frei"><a href="rules/">All validation rules explained: what messages such as BR-DE-15 mean</a></p>
+<h2 id="ausblick">What's next</h2>
+<p>E-Rechnung lite reads and checks e-invoices. <strong>SmartFormular FiBu</strong> goes further: it reads invoices as PDF or e-invoice, matches them to the payments on the bank statement and turns them into the checked booking batch – for bank, payables and receivables. <strong>FiBu lite</strong> for bank statements is free as well. Beta access to FiBu in the member area on request.
+<a href="../../werkzeuge/smartformular/en/#beta">Request beta access</a>.</p>
+<h2 id="nutzungsbedingungen">Terms of use</h2>
+<div class="nutzung">
+<p>As of: 23 October 2026</p>
+<p><strong>Provider.</strong> Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany (<a href="https://robin.vision/?lang=en#privacy" rel="noopener">legal notice</a>).</p>
+<p><strong>Use.</strong> You may use the tool free of charge, on this page and as a file, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.</p>
+<p><strong>No advice, check the result.</strong> The tool checks technically against formats and rules. It is not tax or legal advice and does not check the invoice for accuracy of content. The legal classification names sources and their date; the law and the original invoice file prevail, not the view. Before every transfer, check payee, IBAN and amount in your banking app.</p>
+<p><strong>Warranty and liability.</strong> The tool is provided free of charge. I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. Liability for injury to life, body or health and under the German Product Liability Act remains unaffected.</p>
+<p><strong>Further development.</strong> There is no entitlement to updates, support or permanent availability.</p>
+<p><strong>Trademarks and standards.</strong> XRechnung is a standard of the German Coordination Office for IT Standards (KoSIT), ZUGFeRD a standard of the Forum elektronische Rechnung Deutschland (FeRD), and Factur-X its Franco-German counterpart; GiroCode denotes the QR code for credit transfers following the European Payments Council standard. The tool is not affiliated with these bodies and is neither reviewed nor endorsed by them. Other names mentioned are trademarks of their respective owners.</p>
+<p><strong>Licences.</strong> The tool contains the EN 16931 validation rules (CEN/TC 434, European Union Public Licence 1.2), the XRechnung rules and field labels (KoSIT, Apache License 2.0), fontoxpath, xspattern, whynot and prsc (MIT License) and the QR Code generator library by Project Nayuki (MIT License). These components are governed by their own licences; the restrictions under &quot;Use&quot; do not apply to them. The licence texts and sources are in the file under &quot;Licences and sources&quot; and in <a href="https://robin.vision/assets/erechnung/LIZENZEN.txt" rel="noopener">LIZENZEN.txt</a>.</p>
+<p>German law applies. These terms are a translation; in case of doubt, the German terms of use of <a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/#nutzungsbedingungen" rel="noopener">SmartFormular E-Rechnung lite</a> apply.</p>
+</div>
+<h2 id="deutsch" lang="de">Auf Deutsch</h2>
+<div lang="de">
+<p>Eine deutsche Fassung des Werkzeugs gibt es unter <a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/" rel="noopener">SmartFormular E-Rechnung lite auf Deutsch</a> – gleiche Funktionen, deutsche Oberfläche.</p>
+</div>
+</article>
+</main>
+<footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="#newsletter">Newsletter</a><a href="../../blog/en/feed.xml">RSS</a></footer>
+<script src="../../newsletter.js?v=20261016" defer></script>
+</body>
+</html>

@@ -642,6 +642,51 @@ deren Vorstellung es vergütet wird. Gestaltung dezent (Robin, 18.10.2026: „no
 Sperrung, Unterstreichung nur beim Darüberfahren, Grau #767676 auf Papier (lesbar bleiben – sonst verfehlt es den Zweck).
 Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
 
+**Ausnahme für eigene kostenlose Werkzeuge (Robin, 23.10.2026):** FiBu lite und E-Rechnung lite tragen statt „Anzeige · robin.vision“
+einfach „Kostenlos“ (englisch „Free“, ohne Verweis) – über dem Titel ihrer Seiten, auf ihren Karten im Startseiten-Slider und im Kopf
+ihrer Spalte im Vergleich (`kostenlos` in `worker/src/partner.js`, Kennung `frei: true` in `slider.js` und `uebersicht.js`). Anlass: In der
+Laien-Textprüfung wirkte „Anzeige“ an einem kostenlosen Werkzeug wie Werbung oder ein Bezahlangebot. Partner, die Beta-Produkte FiBu und
+Deklaration und die Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), behalten „Anzeige“.
+Die Zeile unter dem Titel der Werkzeugseiten nennt nur noch Fassung und Datum („Kostenlos“ steht schon darüber).
+
+## Werkzeug: SmartFormular E-Rechnung lite (23.10.2026)
+
+Zweites kostenloses SmartFormular-Werkzeug (Robin, 23.10.2026, Option A „verstehen und bezahlen“): E-Rechnungen als XRechnung
+(UBL, CII) und ZUGFeRD/Factur-X lesen, drucken, mit den offiziellen Regeln prüfen und per GiroCode bezahlen. Seiten
+`werkzeuge/e-rechnung-pruefen/` (deutsch) und `werkzeuge/e-invoice-viewer/` (englisch, „E-invoice viewer and validator“). Anders als
+FiBu lite läuft es **direkt auf der Seite** (`app: "erechnung"` in `WERKZEUGE`) und zusätzlich als **eine Datei offline**
+(`E-Rechnung-lite.html`, `E-Invoice-Viewer.html`). Quelle: `tools/erechnung/` in diesem Repository.
+
+- **Datenschutz:** Rechnungen werden nur im Browser gelesen. Die Seite lädt Oberfläche und – erst beim ersten Prüfen – Prüfkern und
+  Regeln von robin.vision (`assets/erechnung/`), sonst nichts; eine CSP im Seitenkopf erlaubt Skripte und Verbindungen nur von
+  robin.vision (`goch.robin.vision` für die Newsletter-Anmeldung). Die Datei hat `connect-src 'none'` und enthält Regeln und Beispiele.
+- **Prüfregeln:** die Schematron-Regeln der KoSIT-Validator-Konfiguration (EN 16931 von CEN, XRechnung von KoSIT), als JSON
+  (`assets/erechnung/regeln/`) aus den kompilierten XSLT übertragen (`tools/erechnung/regeln-bauen.mjs`, Quellen mit SHA-256 in
+  `quellen.json`). Ausgewertet von einem eigenen Schematron-Interpreter (`src/pruefung.js`) auf fontoxpath (MIT) mit Anpassungen für
+  exakte Dezimalrechnung und Saxon-gleiches Verhalten (`fxpatch.mjs`, jede Ersetzung muss genau einmal greifen). Nicht geprüft:
+  XML-Schema (XSD).
+- **Texte:** Antwort „Ist das eine E-Rechnung?“ mit Fundstellen und Stand in `src/recht.js` (`STAND`); Erklärung je Regel in
+  `src/regeltexte.js` (was nicht stimmt, was der Rechnungssteller ändern muss); Oberfläche in `src/texte.js`. Keine Steuer- oder
+  Rechtsberatung, keine Worte wie „rechtssicher“. **Bei neuen BMF-Schreiben oder Gesetzesänderungen** `recht.js` anpassen und `STAND`
+  setzen, Starttexte und Fragen der Seiten (`werkzeug.js`, Redaktion) mitziehen.
+- **Bauen:** `cd tools/erechnung && npm ci && node regeln-bauen.mjs && node bauen.mjs` (Fassung = letzter Commit in
+  `tools/erechnung`; mit ungesicherten Änderungen nur `--entwurf`). Danach
+  `node tools/werkzeug-uebernehmen.mjs tools/erechnung/.cache/dist/E-Rechnung-lite.html tools/erechnung/.cache/dist/E-Invoice-Viewer.html`
+  und „Was ist neu“ in Sätze bringen. Bilder zum Teilen (auch FiBu lite): `node tools/erechnung/teilen-bilder.mjs`.
+- **Abgleich mit der offiziellen Prüfung:** `node tools/erechnung/testdaten-holen.mjs`, `node tests/erechnung_korpus.mjs`,
+  `tools/erechnung/.cache/venv/bin/python tests/erechnung_referenz.py 8` (saxonche, `pip install saxonche`), dann
+  `node tests/erechnung_regeln_test.mjs`: dieselben Regelnummern im Browser wie mit Saxon, jede Abweichung ist ein Fehler.
+- **Kundenreisen, Datenschutz, axe, Tastatur:** `node tests/erechnung_reisen_test.mjs` (Chrome über playwright-core; Fotos, Druck-PDF
+  und Berichte in `tools/erechnung/.cache/reisen/`); nach dem Deploy mit `--basis https://robin.vision`.
+- **Regel-Lexikon** (Robin, 23.10.2026): je Prüfregel mit eigener Erklärung (`eigeneErklaerung` in `src/regeltexte.js`, derzeit 290)
+  eine Seite unter `werkzeuge/e-rechnung-pruefen/regeln/<id>/` und `werkzeuge/e-invoice-viewer/rules/<id>/`, je eine Übersicht und
+  `sitemap-regeln.xml` (in `robots.txt`). Im Werkzeug führt jeder solche Befund über „Mehr zu dieser Regel“ dorthin. Nach Änderungen an
+  Regeln oder Erklärtexten: `node tools/erechnung/lexikon.mjs`; Prüfung: `node tests/erechnung_lexikon_test.mjs`.
+- **Lizenzen:** EUPL 1.2 (Regeln CEN), Apache 2.0 (KoSIT), MIT (fontoxpath, xspattern, whynot, prsc, Nayuki QR); Texte in
+  `tools/erechnung/lizenzen/` und ausgeliefert als `assets/erechnung/LIZENZEN.txt` sowie im Fuß der Datei.
+- **Nach dem Zusammenführen:** Worker neu ausrollen (`cd worker && npm run deploy`), damit die Redaktion die neuen Seiten kennt
+  (`werkzeugEr`, `werkzeugErEn`) und Sitemap und Newsletter-Feeds beim nächsten Neubau die neuen Werkzeuge behalten.
+
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 
 GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy
