@@ -22,7 +22,8 @@ ihr. Nur ein Platzhalter, nicht die Stimme von Goch. `--stimme elevenlabs` nimmt
 figur.json; Schlüssel und Voice ID nur aus der Umgebung (ELEVENLABS_API_KEY, GOCH_VOICE_ID), nie als Argument.
 Stimmen durchprobieren ohne Neustart (23.10.2026): GET /_stimmen?suche=<Name> sucht in der Voice Library und unter den
 eigenen Stimmen (Name, Voice ID, ob im Gratistarif nutzbar), GET /_stimme?id=<Voice ID> wechselt die Stimme. Der Schlüssel
-bleibt im Prozess; die Attrappe hört nur auf 127.0.0.1.
+bleibt im Prozess; die Attrappe hört nur auf 127.0.0.1. POST /_vertonen {text, lang} vertont einen eigenen Text mit der
+eingestellten Stimme (Clips, tools/goch-clip.py; höchstens 600 Zeichen je Aufruf).
 Ohne --stimme: kurzer Sinuston (Tests)."""
 import base64, io, json, math, os, re, struct, subprocess, sys, tempfile, threading, time, urllib.parse, urllib.request, wave
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -226,6 +227,12 @@ class Handler(BaseHTTPRequestHandler):
         self.reply({'error': 'Nicht gefunden.'}, 404)
 
     def do_POST(self):
+        if self.path == '/_vertonen':  # Clip: eigener Text mit der eingestellten Stimme (nur lokal)
+            body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))) or b'{}')
+            text = str(body.get('text', '')).strip()
+            if not text or len(text) > 600: return self.reply({'error': 'Text fehlt oder länger als 600 Zeichen.'}, 400)
+            r = vertonen(text, 'en' if body.get('lang') == 'en' else 'de')
+            return self.reply({'mime': r[0], 'daten': r[1]} if r else {'error': 'Keine Stimme.'}, 200 if r else 502)
         if self.path.startswith('/kiosk/'):  # Messegerät: wie /chat und /listen, Nachweis merken
             AUTH.append(self.headers.get('Authorization', ''))
             if self.path == '/kiosk/lebenszeichen':
