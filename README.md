@@ -783,6 +783,9 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   kein Modellaufruf, zählt zur Grenze je IP); gegrüßt höchstens alle 30 s, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
   Vorschaubild (Robin, 23.10.2026: störte) – den Zustand zeigen der Schalter und die Kamera-Anzeige des Browsers; aus mit
   „Blickkontakt“, beim Schließen und mit „Sprechen beenden“ – beim Tabwechsel bleiben Kamera und Mikrofon an (Robin, 23.10.2026). Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  **Eigener Schalter (24.10.2026):** Der Blickkontakt erscheint nur mit `data-goch-blick="an"` am `<body>` (lokal zum Testen
+  `?blick=an`), unabhängig von `data-goch-stimme`. Ohne ihn fehlen der Knopf und der Datenschutzabsatz zur Kamera – so kann
+  die Stimme live gehen, bevor der Blickkontakt auf iPhone und Mac erprobt ist.
   Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
   zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,

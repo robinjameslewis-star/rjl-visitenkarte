@@ -53,6 +53,14 @@ sowie die Bedingungen (Fundstelle, Abrufdatum); Piet zu „Meine Stimmen“ hinz
 (E-Mail-Adresse) bestätigen, Widerspruch gegen Training, Auftragsverarbeitung, Fundstelle der Lizenzbedingungen mit
 Abrufdatum.
 
+**Befunde vom 24.10.2026 (Release-Sitzung, noch von Robin umzusetzen bzw. zu entscheiden):**
+- *Widerspruch gegen Training:* im Profil oben rechts „Terms and privacy“ → „Data use“ → „Improve the models for everyone“
+  ausschalten → „Update your choice“ (Help Center „Is my data used to improve ElevenLabs' AI models?“; Terms Stand
+  09.10.2026, Abschnitt 4(i)). Robin klickt selbst; danach hier Datum eintragen.
+- *Auftragsverarbeitung:* Das DPA von ElevenLabs (Stand 08.04.2026) gilt für Self-Serve-Kunden mit den Terms als
+  „Agreement“; wer für ein Unternehmen zustimmt, für den gilt es (Terms Abschnitt 2). Ein eigener Unterschriftsschritt ist
+  nicht beschrieben. Ob das genügt, entscheidet Robin; danach hier mit Datum und Fundstelle vermerken.
+
 ## Wissen und Name
 
 | Was | Herkunft | Rechte |
