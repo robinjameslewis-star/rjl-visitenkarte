@@ -817,6 +817,10 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Kopfhaltung) ein MP4 in 4:5 – jeder Satz einzeln vertont über die Attrappe (`POST /_vertonen`, Stimme aus
   `GOCH_VOICE_ID`, Schlüssel bleibt in der Attrappe), zwischengespeichert; Goch Bild für Bild synchron zum Ton auf
   `tools/goch-clip/clip.html`, Untertitel und Karten, Zwitschern am Anfang und Ende. Kein Teil der Website.
+  Layout „vortrag“ (16:9, 24.10.2026) für Workshops: `tools/goch-vortrag.py` schreibt aus Skript (Markdown) und Folien
+  (HTML mit `data-bloecke` je Folie) ein Drehbuch je Kapitel – Folie zum Absatz, Aussprache von Paragrafen und
+  Gesetzesnamen; erster Einsatz: Unterweisung KI-Kompetenz, Kanzlei-Fassung (Vault). Port für Chrome mit
+  `GOCH_CLIP_PORT`.
 
 ### Messegerät (Kiosk)
 

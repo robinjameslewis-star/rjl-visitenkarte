@@ -7,6 +7,8 @@ Ablauf: Jeder Satz wird einzeln vertont (POST <stimme>/_vertonen der Attrappe, t
 --stimme elevenlabs; der Schlüssel bleibt dort) und zwischengespeichert, damit ein neuer Schnitt keine Zeichen kostet.
 Aus dem Ton entsteht ein Zeitplan je Bild (30 je Sekunde); Chrome zeigt jedes Bild auf tools/goch-clip/clip.html an,
 das Skript macht ein Bildschirmfoto und setzt Bilder und Ton zu MP4 zusammen (H.264, AAC, 1080 × 1350).
+Layout „vortrag“ (Workshops, 24.10.2026): 1920 × 1080, Karten der Art „folie“ (Folienbilder), Kapitelangabe rechts; die
+Drehbücher dafür schreibt tools/goch-vortrag.py aus Skript und Folien.
 In den Pausen zwischen den Sätzen knickst, blinzelt oder zuckt Goch – fest gewählt, damit jeder Lauf gleich aussieht.
 
 Braucht Google Chrome und Python mit numpy, Pillow, websockets und PyAV (`pip install av numpy pillow websockets`).
@@ -126,11 +128,12 @@ class Warteschlange(ThreadingHTTPServer):
     request_queue_size = 64  # Chrome holt ein Dutzend Bilder auf einmal; mit der Voreinstellung 5 brechen einige ab
     daemon_threads = True
 
-async def aufnehmen(url, n, schreiben):
-    port = 9371
+async def aufnehmen(url, n, schreiben, breite=1080, hoehe=1350):
+    port = int(os.environ.get("GOCH_CLIP_PORT", 9371))
+    w, h = breite // 2, hoehe // 2  # aufgenommen bei Pixeldichte 2
     profil = tempfile.mkdtemp(prefix='goch-clip-')
     proc = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', '--hide-scrollbars', f'--remote-debugging-port={port}',
-                             f'--user-data-dir={profil}', '--no-first-run', '--window-size=540,675', 'about:blank'],
+                             f'--user-data-dir={profil}', '--no-first-run', f'--window-size={w},{h}', 'about:blank'],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         for _ in range(50):
@@ -151,7 +154,7 @@ async def aufnehmen(url, n, schreiben):
                 r = await send('Runtime.evaluate', {'expression': x, 'awaitPromise': True, 'returnByValue': True})
                 if 'exceptionDetails' in r: raise RuntimeError(json.dumps(r['exceptionDetails'])[:400])
                 return r.get('result', {}).get('value')
-            await send('Emulation.setDeviceMetricsOverride', {'width': 540, 'height': 675, 'deviceScaleFactor': 2, 'mobile': False})
+            await send('Emulation.setDeviceMetricsOverride', {'width': w, 'height': h, 'deviceScaleFactor': 2, 'mobile': False})
             await send('Page.enable'); await send('Page.navigate', {'url': url})
             for _ in range(200):
                 if await ev('window.bereit === true'): break
@@ -176,7 +179,8 @@ def main(pfad_db, ausgabe):
     # Zwitschern am Anfang und am Ende (Gochs Signalton aus dem Figurenpaket)
     zw = ton(os.path.join(WZ, 'figuren', 'goch', 'toene', 'zwitschern.mp3')) * db.get('zwitschern', .35)
     mix = stimme.copy()
-    for start in (.05, zeiten[-1][1] + .35):
+    starts = ([.05] if db.get('zwitschern_anfang', True) else []) + ([zeiten[-1][1] + .35] if db.get('zwitschern_ende', True) else [])
+    for start in starts:
         a = int(start * RATE); b = min(len(mix), a + len(zw)); mix[a:b] += zw[:b - a]
     mix = np.clip(mix, -1, 1)
     # Untertitel und Karten je Satz
@@ -195,8 +199,9 @@ def main(pfad_db, ausgabe):
             karten.append({**karte, 'von': round(von + k * teil, 3), 'bis': round(von + (k + 1) * teil + (.25 if k < len(liste) - 1 else 0), 3)})
     for name, cfg in db.get('bilder', {}).items(): bild_vorbereiten(name, cfg, basis, clip)
     for k in karten:
-        if k.get('art') == 'bild': k['src'] = '/_clip/' + k['src']
-    json.dump({'fps': fps, 'rahmen': rahmen, 'untertitel': untertitel, 'karten': karten}, open(os.path.join(clip, 'zeitplan.json'), 'w'))
+        if k.get('art') in ('bild', 'folie'): k['src'] = '/_clip/' + k['src']
+    json.dump({'fps': fps, 'rahmen': rahmen, 'untertitel': untertitel, 'karten': karten, 'layout': db.get('layout', ''),
+               'kapitel': db.get('kapitel', ''), 'kapiteltitel': db.get('kapiteltitel', '')}, open(os.path.join(clip, 'zeitplan.json'), 'w'))
     print(f'Dauer {len(mix) / RATE:.1f} s, {len(rahmen)} Bilder; Sätze ab ' + ', '.join(f'{a:.1f}' for a, _ in zeiten), flush=True)
 
     srv = Warteschlange(('127.0.0.1', 0), partial(Server, clip=clip))
@@ -212,7 +217,7 @@ def main(pfad_db, ausgabe):
         if n == int(db.get('vorschau', 10) * fps): im.save(os.path.splitext(ausgabe)[0] + '_vorschau.jpg', quality=88)
         for p in v.encode(av.VideoFrame.from_image(im).reformat(format='yuv420p')): out.mux(p)
     print('Bilder:', flush=True)
-    asyncio.run(aufnehmen(url, len(rahmen), schreiben))
+    asyncio.run(aufnehmen(url, len(rahmen), schreiben, v.width, v.height))
     for p in v.encode(None): out.mux(p)
     rs = av.AudioResampler(format='fltp', layout='mono', rate=RATE, frame_size=au.codec_context.frame_size or 1024)
     fr = av.AudioFrame.from_ndarray(mix.reshape(1, -1), format='flt', layout='mono'); fr.sample_rate = RATE

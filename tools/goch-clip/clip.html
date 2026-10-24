@@ -1,5 +1,6 @@
 <!doctype html>
-<!-- Bühne für Clips mit Goch (tools/goch-clip.py, Robin 24.10.2026): 4:5, als CSS 540 × 675 bei Pixeldichte 2 aufgenommen.
+<!-- Bühne für Clips mit Goch (tools/goch-clip.py, Robin 24.10.2026): 4:5, als CSS 540 × 675 bei Pixeldichte 2 aufgenommen;
+     Layout „vortrag“ (Workshops): 16:9, CSS 960 × 540 – Folie groß, Goch rechts daneben, Untertitel darunter.
      Kein eigenes Timing: Das Skript ruft je Bild zeige(i) auf und macht dann ein Bildschirmfoto. Goch besteht aus seinen
      Teilen (figur.json animation.teile) wie auf der Seite; Schnabel, Kopf, Schwanz, Knicks und Neigung kommen je Bild aus
      dem Zeitplan (?daten=…), berechnet aus dem Ton. Nicht Teil der Website. -->
@@ -34,6 +35,18 @@
   .k-bild img { position: absolute; left: 0; top: 0; width: 100%; transform-origin: 0 0; }
   .k-hell { background: #fffdf8; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px 26px; }
   .k-gruen { background: var(--green); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px 26px; }
+  /* Layout „vortrag“ (Workshop-Videos, 1920 × 1080) */
+  html.vortrag, html.vortrag body { width: 960px; height: 540px; }
+  .vortrag .kopfzeile { top: 12px; left: 24px; right: 24px; }
+  .vortrag .karte { left: 24px; top: 40px; right: auto; bottom: auto; width: 704px; height: 396px; border-radius: 6px; }
+  .vortrag .buehne { left: auto; right: 2px; top: 286px; width: 252px; transform: none; }
+  .vortrag .untertitel { top: 448px; left: 24px; right: auto; width: 704px; height: 80px; font-size: 19px; }
+  .kapitel { display: none; }
+  .vortrag .kapitel { display: block; position: absolute; left: 748px; right: 22px; top: 52px; font: 500 12px/1.35 var(--sans);
+    color: var(--copper); letter-spacing: .06em; text-transform: uppercase; }
+  .vortrag .kapitel b { display: block; margin-top: 6px; font: 500 21px/1.2 var(--serif); color: var(--green); letter-spacing: 0; text-transform: none; }
+  .k-folie { background: var(--paper); }
+  .k-folie img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; }
   .k-befund { background: #1a1623; color: #e9e6f2; padding: 26px 26px 0 24px; border-left: 6px solid #f28b82; }
   .datei { width: 92px; height: 116px; border: 2px solid var(--ink-soft); border-radius: 6px 26px 6px 6px; position: relative; display: flex; align-items: center;
     justify-content: center; font: 500 58px/1 var(--serif); color: var(--copper); background: #fff; }
@@ -52,11 +65,17 @@
 <body>
 <div class="kopfzeile"><span class="marke">robin.vision</span><span class="ki">KI-Figur · künstliche Stimme</span></div>
 <div class="buehne" id="buehne"></div>
+<div class="kapitel" id="kapitel"></div>
 <div class="untertitel" id="untertitel"></div>
 <div class="karte" id="karte"></div>
 <script>
 (async () => {
   const daten = await (await fetch(new URLSearchParams(location.search).get('daten'))).json();
+  if (daten.layout === 'vortrag') {
+    document.documentElement.classList.add('vortrag');
+    const k = document.getElementById('kapitel');
+    k.textContent = daten.kapitel || ''; if (daten.kapiteltitel) { const b = document.createElement('b'); b.textContent = daten.kapiteltitel; k.append(b); }
+  }
   const figur = await (await fetch('../../figuren/goch/figur.json')).json();
   const a = figur.animation, t = a.teile, s = a.posen.sitzend, basis = '../../figuren/goch/';
   const pz = (v, g) => (v / g * 100).toFixed(3) + '%';
@@ -85,6 +104,7 @@
   const karten = daten.karten.map(k => {
     let d;
     if (k.art === 'bild') { d = el('div', 'k-bild'); const i = bild(k.src); d.append(i); d._img = i; }
+    else if (k.art === 'folie') { d = el('div', 'k-folie'); d.append(bild(k.src)); }
     else if (k.art === 'datei') { d = el('div', 'k-hell'); d.append(el('div', 'datei', '?'), el('div', 'datei-name', k.name)); }
     else if (k.art === 'name') { d = el('div', 'k-hell'); d.append(el('div', 'gross', k.titel), el('div', 'zeile', k.zeile1), el('div', 'zeile', k.zeile2)); }
     else if (k.art === 'fakt') { d = el('div', 'k-hell'); d.append(el('div', 'gross', k.zahl), el('div', 'titel', k.titel), el('div', 'zeile', k.zeile)); d.querySelector('.titel').style.color = 'var(--ink)'; }
