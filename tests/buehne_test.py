@@ -144,6 +144,7 @@ async def main():
             await send("Page.enable"); await send("Runtime.enable")
             await send("Emulation.setFocusEmulationEnabled", {"enabled": True})  # document.hasFocus() wie im echten Fenster
             check(await laden(), 'Bühne geladen')
+            check(await ev("document.querySelector('meta[name=robots]')?.content") == 'noindex, nofollow', 'nicht für Suchmaschinen (noindex, nofollow)')
             k = json.loads(urllib.request.urlopen(urllib.request.Request(f'http://127.0.0.1:{DIENST}/kiosk/konfiguration', headers={'Host': f'localhost:{DIENST}'})).read())
             check(k['figur'] == 'kunde-workshop-ki' and k['figurBasis'] == '/figur/goch/', 'Workshop-Figur antwortet, Bilder aus dem Paket „goch“', k.get('figurBasis'))
             check(await warte("!!document.querySelector('#buehne .leben[data-an]') && !!document.querySelector('#buehne .goch[data-leben]')", 8), 'Goch live gebaut (Teile geladen, Sitzpose ausgeblendet)')
