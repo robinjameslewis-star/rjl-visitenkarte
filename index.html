@@ -305,6 +305,7 @@
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
   .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
   .blog-teaser p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
+  .blog-teaser p.lead + p.lead.zeile { margin-top: -16px; }
   .blog-teaser ul { list-style: none; margin: 0; padding: 0; max-width: 680px; }
   /* Das Werkzeug als Karte – es ist das Angebot der Seite; die Impulse bleiben eine Liste mit Hairlines */
   #werkzeuge li { border: 1px solid var(--line); border-radius: 3px; padding: 20px 22px; background: rgba(255,255,255,.45); }
@@ -791,6 +792,7 @@
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="de en">
     <h2 id="blog-title"><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a></h2>
     <p class="lead" data-title-de="Auf dem Datenfluss der Wertschöpfung surfen" data-title-en="Riding the data flow of value creation">Auf dem Datenfluss der Wertschöpfung surfen</p>
+    <p class="lead zeile" data-title-de="Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen." data-title-en="What automation and AI change in accounting – every Friday, with sources.">Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen.</p>
     <ul>
       <li lang="de"><span class="when"><time datetime="2026-10-23">23. Oktober 2026</time></span><a href="blog/die-stelle-die-sich-nicht-besetzen-laesst/">Die Stelle, die sich nicht besetzen lässt</a><p>Wer die Routine automatisiert, schafft die Lehrzeit ab – gegen den Fachkräftemangel hilft Software nur, wenn Kanzleien das Lernen neu organisieren.</p></li>
       <li lang="de"><span class="when"><time datetime="2026-10-16">16. Oktober 2026</time></span><a href="blog/fehler-skalieren/">Fehler skalieren – warum vor ARP die alten Regeln auf den Tisch gehören</a><p>Fehler in Buchungsregeln und Vorjahresdaten wiederholen sich bei jedem Vorgang – wer Agenten einführen will, prüft zuerst die alten Regeln.</p></li>
@@ -828,7 +830,7 @@
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team oder eine Partnerschaft in Robins Werkzeugkasten. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
+    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team oder darüber, Ihre Lösung in Robins Werkzeugkasten vorzustellen. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->

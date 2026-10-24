@@ -21,7 +21,7 @@ const TEXT = {
   de: {
     titel: "SmartFormular",
     abzeichen: "Formulare, die mitarbeiten",
-    seitentitel: "SmartFormular: Buchhaltung und Jahresabschluss mit Werkzeugen, die mitarbeiten – FiBu lite kostenlos | robin.vision",
+    seitentitel: "SmartFormular: Buchhaltung und Jahresabschluss mit Werkzeugen, die mitarbeiten – FiBu lite und E-Rechnung lite kostenlos | robin.vision",
     beschr: "SmartFormular von robin.vision: FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, E-Rechnung lite liest und prüft E-Rechnungen – beide kostenlos, im Browser. SmartFormular FiBu und Deklaration bringen Belege, offene Posten und den Jahresabschluss zusammen. Beta-Zugang auf Anfrage.",
     untertitel: "Werkzeuge für Buchhaltung und Jahresabschluss, die schon beim Ausfüllen mit der Sachbearbeitung beginnen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
     meta: "FiBu lite und E-Rechnung lite kostenlos · FiBu und Deklaration als Beta · für Kanzleien und Rechnungswesen",
@@ -124,7 +124,7 @@ const TEXT = {
   en: {
     titel: "SmartFormular",
     abzeichen: "Forms that work with you",
-    seitentitel: "SmartFormular: bookkeeping and year-end accounts with tools that work with you – FiBu lite free | robin.vision",
+    seitentitel: "SmartFormular: bookkeeping and year-end accounts with tools that work with you – FiBu lite and E-Rechnung lite free | robin.vision",
     beschr: "SmartFormular by robin.vision: FiBu lite turns bank statements into booking batches in the DATEV format, E-Rechnung lite reads and checks e-invoices – both free, in your browser. SmartFormular FiBu and Deklaration bring documents, open items and year-end accounts together. Beta access on request.",
     untertitel: "Tools for bookkeeping and year-end accounts that start the casework while you fill them in. Checking, deciding and finalising stay with you.",
     meta: "FiBu lite and E-Rechnung lite free · FiBu and Deklaration as a beta · for accounting firms and finance teams",
