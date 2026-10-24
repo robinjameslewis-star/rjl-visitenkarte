@@ -1,0 +1,66 @@
+{
+  "format": 1,
+  "id": "goch",
+  "name": { "de": "Goch", "en": "Goch" },
+  "rolle": { "de": "das Rotkehlchen von Robin", "en": "Robin's robin" },
+  "sprachen": ["de", "en"],
+  "oeffentlich": true,
+  "texte": {
+    "quelle": "language.js",
+    "schluessel": {
+      "name": "gochName",
+      "rolle": "gochRole",
+      "begruessung": "gochGreeting",
+      "einstiegsfragen": ["gochQ1", "gochQ2", "gochQ3", "gochQ4"]
+    }
+  },
+  "wissen": {
+    "quelle": "repository",
+    "profil": "worker/profile.md",
+    "aktuell": "worker/aktuell.md",
+    "links": "worker/links.md"
+  },
+  "animation": {
+    "art": "posen",
+    "buehne": { "breite": 1153, "hoehe": 710 },
+    "auge": [400, 100],
+    "blick": "links",
+    "fassungen": {
+      "mit-landschaft": "bilder/",
+      "ohne-landschaft": "bilder/bestand/"
+    },
+    "posen": {
+      "sitzend": { "datei": "vogel.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "aufschlag": { "datei": "flugpose-1-aufschlag.webp", "breite": 1536, "hoehe": 1024, "auge": [570, 390] },
+      "gleiten": { "datei": "flugpose-2-gleiten.webp", "breite": 1536, "hoehe": 1024, "auge": [578, 375] },
+      "abschlag": { "datei": "flugpose-3-abschlag.webp", "breite": 1536, "hoehe": 1024, "auge": [595, 318] },
+      "landeanflug": { "datei": "flugpose-4-landeanflug.webp", "breite": 1536, "hoehe": 1024, "auge": [591, 378] },
+      "schnabel-halb": { "datei": null, "platzhalter": "neigen" },
+      "schnabel-offen": { "datei": null, "platzhalter": "neigen" },
+      "lauschend": { "datei": null, "platzhalter": "neigen" },
+      "zwitschernd": { "datei": null, "platzhalter": "neigen" }
+    }
+  },
+  "signalton": {
+    "datei": null,
+    "rueckfall": null,
+    "lautstaerke": 0.35
+  },
+  "stimme": {
+    "anbieter": "elevenlabs",
+    "voiceId": "",
+    "modell": "eleven_flash_v2_5",
+    "rueckfall": "browser"
+  },
+  "farben": {
+    "akzent": "#0B3D2E",
+    "linie": "#B8724F",
+    "papier": "#F3EFE5"
+  },
+  "kiosk": {
+    "groesse": 0.82,
+    "hintergrund": "papier",
+    "untertitel": true,
+    "zwitschern": { "an": true, "abklingzeit_s": 30, "entfernung_m": [1, 3] }
+  }
+}

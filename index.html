@@ -32,11 +32,11 @@
   document.documentElement.classList.add('js');
   if (new URLSearchParams(location.search).get('landschaft') === 'aus') document.documentElement.classList.add('landscape-off');
 </script>
-<link rel="preload" as="image" href="assets/vogel.webp" fetchpriority="high">
-<link rel="preload" as="image" href="assets/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="assets/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="assets/flugpose-3-abschlag.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="assets/flugpose-4-landeanflug.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/vogel.webp" fetchpriority="high">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-3-abschlag.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-4-landeanflug.webp" media="(prefers-reduced-motion: no-preference)">
 <style>
   @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
   [hidden] { display: none !important; }
@@ -476,7 +476,7 @@
   .grundsaetze[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
-<script src="landscape.js?v=20261010"></script>
+<script src="landscape.js?v=20261023"></script>
 </head>
 <body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
@@ -510,13 +510,14 @@
     <div class="perch">
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
       <span class="bird-move" aria-hidden="true"><span class="bird-tilt">
-        <img class="bird-frame bird-rest" data-pose="rest" src="assets/vogel.webp" alt="" width="1153" height="637" fetchpriority="high">
-        <img class="bird-frame bird-flight bird-up" data-pose="up" data-src="assets/flugpose-1-aufschlag.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="assets/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="assets/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="assets/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-rest" data-pose="rest" src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" fetchpriority="high">
+        <img class="bird-frame bird-flight bird-up" data-pose="up" data-src="figuren/goch/bilder/flugpose-1-aufschlag.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="figuren/goch/bilder/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="figuren/goch/bilder/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="figuren/goch/bilder/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
       </span></span>
-      <!-- Vogel und Ast: assets/bestand/ = Fassung ohne Landschaft (kurzer Ast, Vogel mit weißem Grund, multiply); assets/ = Fassung mit Landschaft (langer Ast, freigestellter Vogel).
+      <!-- Vogel und Ast: …/bestand/ = Fassung ohne Landschaft (kurzer Ast, Vogel mit weißem Grund, multiply), sonst Fassung mit Landschaft (langer Ast, freigestellter Vogel).
+           Der Vogel liegt seit 23.10.2026 im Figurenpaket figuren/goch/bilder/, der Ast als Teil der Szene in assets/.
            Die Redaktion schreibt beim Umschalten beide Pfade und data-landschaft am <body> um (worker/src/admin.js, applyLandscape); ?landschaft=an|aus tauscht nur zur Laufzeit. -->
       <span class="branch" aria-hidden="true"><img src="assets/ast.webp" alt="" width="2800" height="167" fetchpriority="high"></span>
     </button>

@@ -20,7 +20,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `site.js` – Einwilligung (Speichern, Widerruf, Ablauf) und Cal.com-Einbettung in der gewählten Sprache
 - `assets/fonts/eb-garamond-latin.woff2` – EB Garamond lokal (variable Schrift, Latin), Lizenz `OFL.txt` daneben
 - `bird-flight.js` – Flugbahn, Bildwechsel und Landung, ohne Animationsbibliothek
-- `assets/flugpose-*.webp` – vier verlustfreie Flugposen
+- `figuren/goch/` – Figurenpaket von Goch (seit 23.10.2026): `figur.json`, `bilder/` (Sitzpose und vier Flugposen, `bilder/bestand/` ohne Landschaft), `RECHTE.md`; Anleitung für weitere Figuren in `FIGUREN.md`, Prüfung mit `tools/figur-pruefen.mjs`
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation; `tests/im-browser.html` führt sie ohne Node im Browser aus
 - `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
 - `goch.js` – Goch: Sprechblase am Ast (Einwilligung, Gespräch, Nachricht an Robin)
@@ -32,7 +32,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter, Sätze aus `assets/landschaften/` (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tools/landschaft-schablone.py` – Schablone für Bildagenten; `tests/landscape.test.cjs`, `tests/site_test.mjs`
 - `tests/bundle_check.mjs` – prüft vor dem Deploy das gebündelte Worker-Paket (eingebetteter Renderer läuft ohne Bündler-Helfer, Seitenskript der Redaktion)
 - `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
-- `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
+- `figuren/goch/bilder/vogel.webp` – Vogel-Ebene (Sitzpose; `bilder/bestand/vogel.webp` WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante); bis 22.10.2026 unter `assets/`
 - `assets/ast.webp` – Ast-Ebene (verlustfreies WebP mit Transparenz, 48 KB), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
 - `assets/favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`
@@ -68,7 +68,7 @@ Anflug nach 3,9 s → Landung; die Sitzpose war vorher nie sichtbar.
 Bei `prefers-reduced-motion` bleibt die Sitzpose statisch; Flugbilder werden beim
 initialen Laden dieser Einstellung nicht angefordert. Inhalte bleiben sofort benutzbar.
 
-Die vier Dateien `assets/flugpose-1-aufschlag.webp` bis `assets/flugpose-4-landeanflug.webp`
+Die vier Dateien `flugpose-1-aufschlag.webp` bis `flugpose-4-landeanflug.webp` (seit 23.10.2026 in `figuren/goch/bilder/`)
 sind Website-Kopien der Entwürfe aus `Second Brain/90_Meta/Design/Entwuerfe/` (13_Flugpose_*.png).
 Die vier Dateien sind WebP mit Qualität 86 (visuell verlustfrei), zusammen rund 430 KB; die verlustfreien Originale liegen als PNG im Vault.
 Die Darstellung nutzt `mix-blend-mode: multiply`, damit Weiß mit dem Papier verschmilzt;
@@ -686,6 +686,42 @@ FiBu lite läuft es **direkt auf der Seite** (`app: "erechnung"` in `WERKZEUGE`)
   `tools/erechnung/lizenzen/` und ausgeliefert als `assets/erechnung/LIZENZEN.txt` sowie im Fuß der Datei.
 - **Nach dem Zusammenführen:** Worker neu ausrollen (`cd worker && npm run deploy`), damit die Redaktion die neuen Seiten kennt
   (`werkzeugEr`, `werkzeugErEn`) und Sitemap und Newsletter-Feeds beim nächsten Neubau die neuen Werkzeuge behalten.
+
+## Figuren-Struktur (23.10.2026)
+
+Goch ist der Prototyp einer austauschbaren Figur (Auftrag „Sprechender Goch“, Teil A). Alles Figurenspezifische liegt in
+`figuren/goch/`: `figur.json` (Name, Rolle, Sprachen, Verweise auf die Texte in `language.js`, Wissen, Posen mit
+Augenpunkt, Signalton, Stimme, Farben, Kiosk), `bilder/` und `RECHTE.md` (Herkunft, Werkzeug, Lizenz je Datei).
+Weitere Maskottchen oder Logos für Kundenvorführungen kommen als Paket dazu, ohne Codeänderung – Anleitung mit
+Bildvorgaben, Pflichtposen, Prompt-Vorlage, Stimme, Signalton und Rechte-Eintrag in `FIGUREN.md`.
+
+- **Sichtbar ändert sich nichts.** Die Vogelbilder sind von `assets/` und `assets/bestand/` nach `figuren/goch/bilder/` und
+  `figuren/goch/bilder/bestand/` umgezogen; der Ast gehört zur Szene und bleibt in `assets/`. `landscape.js` und
+  `applyLandscape` (Redaktion) schalten jetzt je Ordner nur `bestand/` um und erkennen alte und neue Pfade.
+  `tools/landschaft-bilder.py` liest und schreibt die Vogelbilder im Paket. Die Szene in `index.html` bleibt festes
+  Markup (kein zusätzlicher Abruf vor dem ersten Bild); `figur.json` beschreibt sie, `figur-pruefen --html` hält beides
+  deckungsgleich.
+- **Reihenfolge beim Deploy:** erst den Worker deployen (`cd worker && npx wrangler deploy`), dann den PR mergen. Ein alter
+  Worker fände die neuen Bildpfade nicht und würde beim Umschalten der Landschaft den Vogel nicht mittauschen.
+- **Gochs Wissen** bleibt in `worker/profile.md`, `aktuell.md` und `links.md` (dorthin schreibt die Redaktion);
+  `figur.json` verweist darauf.
+- **Kundenfiguren** kommen nie ins Repository: `.gitignore` sperrt `figuren/*` außer `goch/`, und `figur-pruefen`
+  meldet eine versionierte Kundenfigur als Fehler.
+
+Prüfen:
+
+```sh
+node tools/figur-pruefen.mjs figuren/goch --html index.html
+node tests/figur_pruefen_test.mjs
+node tests/site_test.mjs
+# Bildvergleich vorher/nachher (Desktop 1440 und Handy 390, Tag und Nacht, mit und ohne Landschaft, jede Pose einzeln):
+python3 -m http.server 8791 --bind 127.0.0.1   # im alten Stand
+python3 -m http.server 8792 --bind 127.0.0.1   # im neuen Stand
+python3 tests/figur_bildvergleich.py http://127.0.0.1:8791 http://127.0.0.1:8792 /tmp/figur-vergleich
+```
+
+Ergebnis am 23.10.2026 gegen `main` (b49edec): 16 von 16 Ansichten identisch oder höchstens eine Farbstufe abweichend
+(Rauschen der Papierkachel, das Chrome auch bei zwei Aufnahmen derselben Seite zeigt).
 
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 

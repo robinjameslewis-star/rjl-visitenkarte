@@ -150,8 +150,8 @@ damit Goch etwa sein Lieblingslied beim Namen nennen kann; das Profil verweist d
 **Landschaften** (`site`- und `landschaften`-API in `src/admin.js`, Logik in `src/landscapes.js`): Schalter, Wahl
 des Satzes, Bestand, Editor. „Veröffentlichen“ = Commit auf `index.html`: `applyLandscape(html, wish, satz)` setzt
 `data-landschaft="an|aus"` und `data-landschaft-satz="<satz>"` am `<body>` **und** die Bildpfade von Vogel und Ast in
-einem Zug – `assets/bestand/` (ohne Landschaft: kurzer Ast 1153 px, Vogel auf Weiß) oder `assets/` (mit Landschaft:
-langer Ast 2800 px, freigestellter Vogel) – in der Szene und in den `<link rel="preload">` des `<head>`, dazu die
+einem Zug – `…/bestand/` (ohne Landschaft: kurzer Ast 1153 px, Vogel auf Weiß) oder ohne `bestand/` (mit Landschaft:
+langer Ast 2800 px, freigestellter Vogel); der Ast liegt in `assets/`, der Vogel seit 23.10.2026 in `figuren/goch/bilder/` – in der Szene und in den `<link rel="preload">` des `<head>`, dazu die
 Astbreite. So steht vom ersten Bild an das Richtige in der Seite; `landscape.js` tauscht nur noch für die
 Vorschau-Links (`?landschaft=an|aus|<satz>`) zur Laufzeit.
 Bestand: `GET landschaften` listet die Ordner unter `assets/landschaften/` mit ihrer `landschaft.json`

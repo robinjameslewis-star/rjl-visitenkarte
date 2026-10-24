@@ -582,20 +582,21 @@ async function gochApi(api, request, env, deps, session) {
   return json({ error: "Nicht gefunden." }, 404);
 }
 // Startseite: Schalter der Landschaft – Lesen und Umschalten per Commit. Umgeschaltet werden data-landschaft und
-// data-landschaft-satz am <body> und in einem Zug die Bildpfade der Szene: assets/bestand/ = ohne Landschaft (kurzer
-// Ast, 1153 px breit, Vogel auf Weiß), assets/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht
+// data-landschaft-satz am <body> und in einem Zug die Bildpfade der Szene: …/bestand/ = ohne Landschaft (kurzer
+// Ast, 1153 px breit, Vogel auf Weiß), ohne bestand/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht
 // vom ersten Bild an das Richtige in der Seite; landscape.js tauscht nur noch für ?landschaft=an|aus zur Laufzeit.
+// Der Ast liegt in assets/, der Vogel seit 23.10.2026 im Figurenpaket figuren/goch/bilder/; beide Ordner werden erkannt.
 const LANDSCAPE_ATTR = /data-landschaft="(an|aus)"/;
 const LANDSCAPE_SET_ATTR = /data-landschaft-satz="([a-z0-9-]*)"/;
 const SCENE = /<button class="scene"[\s\S]*?<\/button>/;
 export function applyLandscape(html, wish, satz) {
-  const on = wish === "an", folder = on ? "assets/" : "assets/bestand/";
+  const on = wish === "an", bestand = on ? "" : "bestand/";
   let out = html.replace(LANDSCAPE_ATTR, `data-landschaft="${on ? "an" : "aus"}"`);
   if (satz) out = LANDSCAPE_SET_ATTR.test(out) ? out.replace(LANDSCAPE_SET_ATTR, `data-landschaft-satz="${satz}"`) : out.replace(LANDSCAPE_ATTR, m => `${m} data-landschaft-satz="${satz}"`);
   return out
-    .replace(/(<link rel="preload" as="image" href=")assets\/(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1${folder}$2`) // Vorabladen im <head>
+    .replace(/(<link rel="preload" as="image" href=")((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1$2${bestand}$3`) // Vorabladen im <head>
     .replace(SCENE, scene => scene
-      .replace(/(src|data-src)="assets\/(?:bestand\/)?([^"]+)"/g, (_, attr, name) => `${attr}="${folder}${name}"`)
+      .replace(/(src|data-src)="((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?([^"]+)"/g, (_, attr, dir, name) => `${attr}="${dir}${bestand}${name}"`)
       .replace(/(<img src="assets\/(?:bestand\/)?ast\.webp"[^>]*?width=")\d+"/, `$1${on ? 2800 : 1153}"`));
 }
 async function siteState(env) {

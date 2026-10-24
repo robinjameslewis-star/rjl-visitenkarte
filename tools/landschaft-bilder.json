@@ -26,7 +26,7 @@
       229
     ],
     "crop_coordinates": "[links, oben, rechts exklusiv, unten exklusiv]",
-    "fallback": "assets/bestand enthält byteidentische Originale aus Git 1204f11."
+    "fallback": "bestand/ (assets/ für den Ast, figuren/goch/bilder/ für den Vogel) enthält byteidentische Originale aus Git 1204f11."
   },
   "originals": {
     "ast.webp": {
@@ -290,7 +290,7 @@
       ]
     },
     {
-      "source": "assets/bestand/vogel.webp",
+      "source": "figuren/goch/bilder/bestand/vogel.webp",
       "source_sha256": "aa83e830d9d9cba3847e67d778d3eb163ad3da0caece99f978187ac1eebc8576",
       "source_bytes": 66458,
       "source_size": [
@@ -321,7 +321,7 @@
       ],
       "outputs": [
         {
-          "file": "assets/vogel.webp",
+          "file": "figuren/goch/bilder/vogel.webp",
           "size": [
             1153,
             637
@@ -341,7 +341,7 @@
       ]
     },
     {
-      "source": "assets/bestand/flugpose-1-aufschlag.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-1-aufschlag.webp",
       "source_sha256": "89632a73b3c5b07d97a1d5831ed069218501cbb265f773dc09ae9415fab63682",
       "source_bytes": 103286,
       "source_size": [
@@ -372,7 +372,7 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-1-aufschlag.webp",
+          "file": "figuren/goch/bilder/flugpose-1-aufschlag.webp",
           "size": [
             1536,
             1024
@@ -392,7 +392,7 @@
       ]
     },
     {
-      "source": "assets/bestand/flugpose-2-gleiten.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-2-gleiten.webp",
       "source_sha256": "ccaa59ed3d1a6440b517aadcfe6f62db8125438e735f5972877ecc80b2ba04f9",
       "source_bytes": 113332,
       "source_size": [
@@ -423,7 +423,7 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-2-gleiten.webp",
+          "file": "figuren/goch/bilder/flugpose-2-gleiten.webp",
           "size": [
             1536,
             1024
@@ -443,7 +443,7 @@
       ]
     },
     {
-      "source": "assets/bestand/flugpose-3-abschlag.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-3-abschlag.webp",
       "source_sha256": "d4f05c80bd5eedbb9eb898688ba112fec0237233b49b53afee73b0ecf74673e9",
       "source_bytes": 76802,
       "source_size": [
@@ -474,7 +474,7 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-3-abschlag.webp",
+          "file": "figuren/goch/bilder/flugpose-3-abschlag.webp",
           "size": [
             1536,
             1024
@@ -494,7 +494,7 @@
       ]
     },
     {
-      "source": "assets/bestand/flugpose-4-landeanflug.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-4-landeanflug.webp",
       "source_sha256": "2f5a953d78db8e0a812111bc434f86ca4d7531b2467c654718b394352438dd00",
       "source_bytes": 144982,
       "source_size": [
@@ -525,7 +525,7 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-4-landeanflug.webp",
+          "file": "figuren/goch/bilder/flugpose-4-landeanflug.webp",
           "size": [
             1536,
             1024
