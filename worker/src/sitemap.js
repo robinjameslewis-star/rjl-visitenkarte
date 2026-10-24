@@ -3,13 +3,13 @@
 // tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten, damit kein Importkreis entsteht.
 // Feste Seiten je Sprache (ueber_mich.js, workshops.js, smartformular.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
 export const SEITEN = [
-  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-18" },
-  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-18" },
-  { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-23" },
-  { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-23" },
+  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-24" },
+  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-24" },
+  { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-24" },
+  { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-24" },
   // Produktseite SmartFormular unter den Werkzeugen (smartformular.js, seit 18.10.2026)
-  { id: "smartformular", lang: "de", adresse: "werkzeuge/smartformular/", stand: "2026-10-18" },
-  { id: "smartformular", lang: "en", adresse: "werkzeuge/smartformular/en/", stand: "2026-10-18" },
+  { id: "smartformular", lang: "de", adresse: "werkzeuge/smartformular/", stand: "2026-10-24" },
+  { id: "smartformular", lang: "en", adresse: "werkzeuge/smartformular/en/", stand: "2026-10-24" },
 ];
 
 const x = s => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
