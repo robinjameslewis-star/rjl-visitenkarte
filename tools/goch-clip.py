@@ -42,7 +42,12 @@ def vertonen(endpunkt, text, lang, ablage):
     if not os.path.exists(pfad):
         anfrage = urllib.request.Request(endpunkt + '/_vertonen', data=json.dumps({'text': text, 'lang': lang}).encode(),
                                          headers={'content-type': 'application/json'}, method='POST')
-        d = json.load(urllib.request.urlopen(anfrage, timeout=60))
+        for versuch in range(5):  # vorübergehende Fehler bei ElevenLabs (502 über die Attrappe): kurz warten, erneut
+            try: d = json.load(urllib.request.urlopen(anfrage, timeout=60)); break
+            except urllib.error.HTTPError as fehler:
+                if fehler.code not in (429, 500, 502, 503) or versuch == 4: raise
+                print(f'  Stimme vorübergehend nicht da ({fehler.code}), neuer Versuch in {5 * 2 ** versuch} s', flush=True)
+                time.sleep(5 * 2 ** versuch)
         open(pfad, 'wb').write(base64.b64decode(d['daten']))
         print(f'  vertont ({stimme}): {text[:60]}', flush=True)
     return pfad
