@@ -28,6 +28,7 @@ import { oeffentlicheFigur } from "./figuren.js";
 import { stimmeFuerAntwort, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
 import { handleListen } from "./hoeren.js";
 import { handleKiosk, kundenSystem, GOCH_AM_GERAET } from "./kiosk.js";
+import { laden as seitenLaden, prompt as seitenPrompt, links as seitenLinks } from "./seitenwissen.js";
 // Durable Object des Messegeräts (Gerätebudget, src/kiosk.js) – muss vom Hauptmodul exportiert werden
 export { Geraetebudget } from "./kiosk.js";
 
@@ -220,7 +221,7 @@ const worker = {
 
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
     const system = kunde ? kundenSystem(intern.figur, lang)
-      : content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
+      : content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
     const zeigen = body.kannZeigen === true && !intern && !kunde;
     // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
     const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
@@ -575,7 +576,10 @@ async function loadContent(env, ctx) {
     if (env.GITHUB_REPO && ctx && (!checked || Date.now() - +checked > 300_000)) ctx.waitUntil(refreshContent(env, { profile: p, aktuell: a, links: l }));
   }
   const links = parseLinks(linksMd);
-  return { profile, aktuell, links, linkIds: links.map(x => x.id) };
+  // Seitenwissen (seitenwissen.js): alle Inhalte der Website, im Hintergrund aufgefrischt; jede Seite auch als Link
+  const seiten = await seitenLaden(env, ctx);
+  const alle = links.concat(seitenLinks(seiten, links));
+  return { profile, aktuell, seiten, links: alle, linkIds: alle.map(x => x.id) };
 }
 async function refreshContent(env, known) {
   await env.USAGE.put("content:checked", String(Date.now()), { expirationTtl: 3600 }).catch(() => {});
@@ -811,7 +815,7 @@ function json(obj, status, headers) {
 // aber ohne Tageszähler, ohne Draht-Logik. Liefert Antwort und Verbrauch, damit Robin sieht, was verbunden ist.
 async function testGoch(env, question, settings, lang = "de") {
   const content = await loadContent(env, null);
-  const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
+  const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT;
   lastUsage = null;
   const text = await complete(env, system, [{ role: "user", content: String(question || (lang === "en" ? "Who is Robin?" : "Wer ist Robin?")).slice(0, 600) }], content.linkIds, settings);
   const out = parse(text, content.linkIds);

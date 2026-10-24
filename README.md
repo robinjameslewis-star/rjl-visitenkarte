@@ -813,6 +813,14 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   90 KB beim ersten Laden, die Schnabelköpfe (je 18 KB) erst mit der Stimme; nur `transform` und `opacity`. Ohne
   Skript, bei reduzierter Bewegung und im Flug bleibt alles wie vorher. Das Messegerät nutzt dieselben Teile
   (`figur.js`). Test: `python3 tests/goch_leben_test.py http://localhost:8788/`.
+- **Seitenwissen (24.10.2026, `worker/src/seitenwissen.js`):** Goch kennt alle Inhalte der Website, wie sie gerade live
+  sind. Der Worker liest die Sitemap von `SITE_URL`, holt jede deutsche Seite (englische Doppel und das Regel-Lexikon nicht),
+  zieht den sichtbaren Text aus `<main>` (ohne Verborgenes, Navigation, Skripte; gleiche Absätze nur einmal; höchstens
+  40 Seiten, 8.000 Zeichen je Seite, 70.000 insgesamt) und speichert ihn im KV (`content:seiten`). Neu eingelesen wird im
+  Hintergrund, wenn der Stand älter als sechs Stunden ist (höchstens ein Versuch je zehn Minuten), oder in der Redaktion
+  unter „Goch – Profil“ mit „Jetzt neu einlesen“ – nie während einer Antwort. Der Text steht im Systemprompt nach „Woran
+  Robin gerade arbeitet“; jede Seite ist zugleich ein Link (`seite-…`), sofern `links.md` die Adresse nicht schon führt.
+  Am 24.10.2026: 12 Seiten, rund 6.700 Wörter. Test: `node tests/goch_seitenwissen_test.mjs`.
 - **Clips mit Goch (24.10.2026, `tools/goch-clip.py`):** aus einem Drehbuch (JSON: Sätze, Aussprache, Karten,
   Kopfhaltung) ein MP4 in 4:5 – jeder Satz einzeln vertont über die Attrappe (`POST /_vertonen`, Stimme aus
   `GOCH_VOICE_ID`, Schlüssel bleibt in der Attrappe), zwischengespeichert; Goch Bild für Bild synchron zum Ton auf
