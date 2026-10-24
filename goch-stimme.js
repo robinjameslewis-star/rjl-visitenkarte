@@ -48,6 +48,8 @@
   const nameVon = f => f.dataset.pose || f.dataset.mundpose;
   function zeige(pose) {
     if (scene.dataset.state !== 'rest') return false;
+    const leben = window.GochLeben && window.GochLeben.fuer(scene); // Teile statt ganzer Posen (goch-leben.js)
+    if (leben && leben.aktiv()) return leben.kopf(pose);
     const frames = [...scene.querySelectorAll('.bird-frame[data-pose], .bird-frame[data-mundpose]')];
     const ziel = frames.find(f => nameVon(f) === pose && (f.dataset.pose || (f.complete && f.naturalWidth > 0)));
     if (!ziel) return false;
@@ -55,6 +57,8 @@
     return true;
   }
   function posenLaden() {
+    const leben = window.GochLeben && window.GochLeben.fuer(scene);
+    if (leben && leben.aktiv()) { leben.posenLaden(); return; } // nur die kleinen Köpfe statt ganzer Posen
     scene.querySelectorAll('.bird-frame[data-src-spaet]').forEach(f => { if (!f.getAttribute('src')) f.src = f.dataset.srcSpaet; });
   }
   function mund(stufe) { // 'zu' | 'halb' | 'offen'

@@ -125,6 +125,10 @@
   .js .bird-rest { opacity: 0; } /* bird-flight.js blendet per Inline-Stil ein */
   .bird-flight { width: 133.2177%; }
   .bird-mund { left: 0; top: 0; width: 100%; clip-path: inset(0 0 2.5% 0); transition-duration: 0ms; } /* wie .bird-rest, nur unsichtbar bis zum Sprechen */
+  /* Goch lebt (goch-leben.js, 24.10.2026): Sind Körper, Kopf und Schwanz geladen, ersetzen sie im Sitzen Sitzpose und
+     Schnabelposen (zusammengesetzt deckungsgleich); im Flug bleiben die Flugposen. */
+  .scene[data-leben][data-state="rest"] .bird-rest, .scene[data-leben][data-state="rest"] .bird-mund { visibility: hidden; }
+  .scene:not([data-state="rest"]) .leben { display: none !important; }
   .bird-up { left: -14.7441%; top: -40.8451%; }
   .bird-glide { left: -15.4380%; top: -38.7324%; }
   .bird-down { left: -16.9124%; top: -30.7042%; }
@@ -895,6 +899,7 @@
 <script src="site.js?v=20261016b" defer></script>
 <script src="goch.js?v=20261023" defer></script>
 <script src="goch-audio.js?v=20261023" defer></script>
+<script src="goch-leben.js?v=20261024" defer></script>
 <script src="goch-stimme.js?v=20261023" defer></script>
 <script src="goch-zwitschern.js?v=20261023" defer></script>
 <script src="goch-gespraech.js?v=20261023" defer></script>

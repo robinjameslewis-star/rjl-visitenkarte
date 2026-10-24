@@ -20,7 +20,7 @@ import radar_ld2410  # noqa: E402
 
 VERSION = '1'
 # Was die Seite braucht – sonst nichts aus dem Repository
-SEITE = re.compile(r'^(kiosk\.html|kiosk\.js|figur\.js|goch-audio\.js|language\.js|assets/papier\.jpg|assets/fonts/[A-Za-z0-9._-]+)$')
+SEITE = re.compile(r'^(kiosk\.html|kiosk\.js|figur\.js|goch-audio\.js|goch-leben\.js|language\.js|assets/papier\.jpg|assets/fonts/[A-Za-z0-9._-]+)$')
 KONFIG_FUER_SEITE = ('figur', 'fassung', 'sprache', 'sprachwahl', 'lautstaerke', 'zwitschern', 'ruhezeiten', 'inaktivitaet_s', 'taste',
                      'aufnahme_s', 'stimme', 'groesse', 'zeiger')
 CONFIRM = re.compile(r'^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b', re.I)

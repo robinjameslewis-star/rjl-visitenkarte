@@ -37,6 +37,7 @@ Abrufbar sind sie nur über die authentifizierte Kiosk-Route, nie über `/chat`.
 | `animation.fassungen` | Ordner je Fassung, z. B. `{"standard": "bilder/"}`; Goch hat zwei (mit und ohne Landschaft) |
 | `animation.posen` | je Pose `datei`, `breite`, `hoehe`, `auge`; fehlt eine Pose noch: `{"datei": null, "platzhalter": "neigen"}` |
 | `animation.ebenen` | optional: feste Bilder in der Bühne, z. B. Gochs Ast – je `name`, `datei`, `breite`, `hoehe`, `links`, `oben` (Pixel der Bühne), `vorne` (über der Figur), wahlweise `fassungen` und `css` (Gegenstück in der Szene der Startseite, wird mit `--html` verglichen). Ebenen kippen und zwitschern nicht mit |
+| `animation.teile` | optional (24.10.2026): Körper, Kopf und Schwanz aus der Sitzpose für die Bewegung auf der Seite (`goch-leben.js`) – `ordner`, `koerper`, `kopf` (`schnitt`: Punkte der Halslinie von links nach rechts, `rampe`, `rand`, `drehpunkt`, `winkel`, `posen` je Kopfpose), `schwanz` (Gerade über die Schwanzwurzel, sonst wie Kopf, `datei`). Erzeugt mit `tools/figur-teile.py`; zusammen höchstens 200 KB |
 | `animation.logo`, `animation.puls` | bei `logo`: `datei`, `breite`, `hoehe`; Puls zwischen `min` und `max` (Standard 1,00–1,06) |
 | `signalton` | `datei` (Ogg/Opus), `rueckfall` (MP3), `lautstaerke` 0–1; `null`, solange es keinen gibt |
 | `stimme` | `anbieter` (`elevenlabs`, `browser`, `keine`), `voiceId`, `modell` (`eleven_v4` …), `einstellungen`, `seed`, `charakter`, `rueckfall` (`keine` = ohne Server-Stimme nur Text; `browser` = lokale Gerätestimme), `browser` |
@@ -169,8 +170,15 @@ Weitere Teile: **Körper ohne Kopf und Schwanz** (verdeckte Ansätze ausgemalt),
 **Unterschnabel**. Bildgeneratoren treffen die Lage dabei selten pixelgenau; ausgerichtet wird am Augenpunkt bzw. mit
 einem Skript, notfalls werden die Teile aus der Sitzpose geschnitten und nur die verdeckten Stellen ergänzt.
 
-Danach wie oben: messen, WebP, `figur.json`, `RECHTE.md`, prüfen. Neue Posen und Ebenen brauchen auf der Seite noch
-Code (Einbau, Bewegungsplan, kleinere Fassungen fürs Handy, Nachladen). Die Vorlage gilt sinngemäß für Kundenfiguren (eigene Maße, eigene Tierart).
+Danach wie oben: messen, WebP, `figur.json`, `RECHTE.md`, prüfen. Neue Posen brauchen auf der Seite noch Code (Einbau,
+Bewegungsplan, kleinere Fassungen fürs Handy).
+
+**Schon gebaut (24.10.2026): Teile aus der Sitzpose.** Für Neigen, Knicksen, Schwanzzucken, Blinzeln und Atmen braucht
+es keine neuen Bilder: `python3 tools/figur-teile.py figuren/<id>` schneidet Körper, Kopf (je Kopfpose) und Schwanz nach
+den Linien in `animation.teile` und prüft, dass sie zusammengesetzt die Sitzpose ergeben. Für eine Kundenfigur: Halslinie
+und Schwanzwurzel einmal festlegen (Punkte in Pixeln der Sitzpose), Drehpunkte in die Mitte der Linien, Winkel klein
+halten (Kopf 6°, Schwanz 8°). Von der Liste oben bleiben damit vor allem `zum-betrachter`, `erklaert`, `zeigt-links` und
+`zwitschernd`. Die Vorlage gilt sinngemäß für Kundenfiguren (eigene Maße, eigene Tierart).
 
 ## Stimme – dieselbe für alle
 

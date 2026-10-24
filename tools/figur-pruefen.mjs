@@ -15,7 +15,7 @@ export const POSEN = { sitzend: "rest", aufschlag: "up", gleiten: "glide", absch
 export const PFLICHT = ["sitzend", "schnabel-halb", "schnabel-offen", "lauschend"];
 export const FLUG = ["aufschlag", "gleiten", "abschlag", "landeanflug"];
 export const PLATZHALTER = ["neigen", "keiner"]; // neigen: leichte Kopfbewegung über .bird-tilt, bis die Pose da ist
-export const GRENZEN = { bild: 250 * 1024, fassung: 1536 * 1024, ton: 50 * 1024, tonMin: 0.5, tonMax: 1.5 };
+export const GRENZEN = { bild: 250 * 1024, fassung: 1536 * 1024, teile: 200 * 1024, ton: 50 * 1024, tonMin: 0.5, tonMax: 1.5 };
 const SPRACHEN = ["de", "en"];
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
@@ -202,6 +202,29 @@ export function pruefen(ordner, { html } = {}) {
       if (!m || m.breite !== e.breite || m.hoehe !== e.hoehe) f(`${wo} (${n}): ${m ? m.breite + " × " + m.hoehe : "kein Bild"}, laut figur.json ${e.breite} × ${e.hoehe}`);
       if (buf.length > GRENZEN.bild) f(`${wo} (${n}): ${kb(buf.length)}, höchstens ${kb(GRENZEN.bild)}`);
     }
+  }
+
+  // Teile (optional, goch-leben.js): Körper, Kopf und Schwanz aus der Sitzpose, gleiche Leinwand, zusammen klein
+  const teile = a.teile, sitz = a.posen && a.posen.sitzend;
+  const teilDatei = d => istText(d) && /^[a-z0-9][a-z0-9.-]*\.(webp|png)$/.test(d);
+  if (teile != null && (a.art !== "posen" || !sitz)) f("animation.teile: nur für Figuren mit Posen und Sitzpose");
+  else if (teile != null && (!istText(teile.ordner) || !teilDatei(teile.koerper) || !teile.kopf || !teile.kopf.posen || !teilDatei(teile.kopf.posen.sitzend) || !teile.schwanz || !teilDatei(teile.schwanz.datei)))
+    f("animation.teile: ordner, koerper, kopf.posen.sitzend, schwanz.datei");
+  else if (teile != null) {
+    for (const [name, g] of [["kopf", teile.kopf], ["schwanz", teile.schwanz]]) {
+      if (!Array.isArray(g.schnitt) || g.schnitt.length < 2 || !g.schnitt.every(istPunkt) || !istPunkt(g.drehpunkt)) f(`animation.teile.${name}: schnitt (Punkte) und drehpunkt`);
+      if (!(g.winkel > 0 && g.winkel <= 15)) f(`animation.teile.${name}.winkel: 1–15 Grad`);
+    }
+    for (const p of Object.keys(teile.kopf.posen)) if (!a.posen[p] || !a.posen[p].datei) f(`animation.teile.kopf.posen: Pose „${p}“ fehlt`);
+    let zusammen = 0;
+    for (const d of [teile.koerper, teile.schwanz.datei, ...Object.values(teile.kopf.posen)]) {
+      const pfad = join(paket, teile.ordner, d);
+      if (!existsSync(pfad)) { f(`Teil ${teile.ordner}${d} fehlt (tools/figur-teile.py)`); continue; }
+      const buf = readFileSync(pfad), m = bildmasse(buf);
+      if (!m || m.breite !== sitz.breite || m.hoehe !== sitz.hoehe) f(`Teil ${d}: ${m ? m.breite + " × " + m.hoehe : "kein Bild"}, Sitzpose ${sitz.breite} × ${sitz.hoehe}`);
+      zusammen += buf.length;
+    }
+    if (zusammen > GRENZEN.teile) f(`Teile zusammen ${kb(zusammen)}, höchstens ${kb(GRENZEN.teile)}`);
   }
 
   // Signalton: Ogg/Opus mit MP3-Rückfall, kurz, klein

@@ -230,6 +230,7 @@
     const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
     let huelle = 0, haltung = 0, leiseSeit = 0, gewechselt = true, blickAn = false, timer = 0, aus = 0, imBlick = false;
     let basis = 0, basisHub = 0;
+    const leben = () => window.GochLeben && window.GochLeben.fuer(ziel); // Kopf nickt mit (goch-leben.js)
     const setzen = (neigung, hub) => {
       clearTimeout(aus); ziel.dataset.bewegt = '1';
       ziel.style.setProperty('--goch-neigung', neigung.toFixed(2) + 'deg');
@@ -261,13 +262,14 @@
           if (!gewechselt && jetzt - leiseSeit > 250) { haltung = (Math.random() * 2 - 1) * 1.1; gewechselt = true; }
         } else { leiseSeit = 0; gewechselt = false; }
         setzen(basis + haltung - Math.min(1.4, huelle * 9), basisHub - Math.min(.5, huelle * 3));
+        const l = leben(); if (l) l.stimme(rms);
       },
       richten(grad, hub = 0) { // Grundhaltung, z. B. dem Gegenüber zugewandt (goch-blick.js)
         if (ruhig.matches) { grad = 0; hub = 0; }
         basis = grad; basisHub = hub;
         if (!ziel.dataset.spricht && !imBlick) zurueck();
       },
-      ende() { huelle = 0; haltung = 0; if (ziel.dataset.spricht) { delete ziel.dataset.spricht; zurueck(); } },
+      ende() { huelle = 0; haltung = 0; const l = leben(); if (l) l.ende(); if (ziel.dataset.spricht) { delete ziel.dataset.spricht; zurueck(); } },
       blicken(an) {
         if (an === blickAn) return;
         blickAn = an;

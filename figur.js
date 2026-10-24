@@ -62,10 +62,23 @@
       img.dataset.ebene = e.name;
       if (e.vorne) buehne.append(img); else buehne.insertBefore(img, kippen);
     }
+    // Goch lebt (goch-leben.js, 24.10.2026): Körper, Kopf und Schwanz statt ganzer Posen, sobald geladen
+    let leben = null;
+    if (a.art !== 'logo' && a.teile && a.posen && a.posen.sitzend && window.GochLeben && !ruhig.matches) {
+      const s = a.posen.sitzend, v = versatz(figur, 'sitzend'), halter = document.createElement('div');
+      halter.className = 'figur-leben';
+      Object.assign(halter.style, { position: 'absolute', left: v.links + '%', top: v.oben + '%', width: v.breite + '%' });
+      kippen.append(halter);
+      leben = window.GochLeben.bauen({ ziel: halter, basis, teile: a.teile, breite: s.breite, hoehe: s.hoehe,
+        bereit: () => { buehne.dataset.leben = '1'; } });
+      buehne.__gochLeben = leben;
+      leben.laden().then(ok => { if (ok) { leben.posenLaden(); leben.start(); } });
+    }
     const puls = a.puls || { min: 1, max: 1.06 };
     // Bewegung zur Stimme und Blicke in Pausen (goch-audio.js), nur für Figuren mit Posen
     const koerper = a.art !== 'logo' && window.GochAudio && window.GochAudio.bewegung ? window.GochAudio.bewegung(buehne) : null;
     function zeige(pose) {
+      if (leben && leben.aktiv()) return leben.kopf(pose);
       const ziel = frames[pose];
       if (!ziel) return false;
       Object.values(frames).forEach(f => { f.style.opacity = f === ziel ? '1' : '0'; });
@@ -105,6 +118,7 @@
       blinzeln,
       lauschen(an) {
         lauscht = an && !ruhig.matches;
+        if (leben) leben.lauschen(lauscht);
         if (lauscht) { if (!zeige('lauschen')) buehne.dataset.lauscht = '1'; }
         else { delete buehne.dataset.lauscht; zeige('rest'); }
       },

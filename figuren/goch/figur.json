@@ -44,7 +44,16 @@
     "ebenen": [
       { "name": "ast", "datei": "ast.webp", "breite": 1153, "hoehe": 167, "links": 0, "oben": 543, "vorne": true,
         "fassungen": ["ohne-landschaft"], "css": ".branch" }
-    ]
+    ],
+    "teile": {
+      "quelle": "sitzend", "ordner": "bilder/teile/", "koerper": "koerper.webp",
+      "kopf": { "schnitt": [[250, 195], [300, 190], [380, 205], [460, 200], [540, 175], [620, 150], [700, 130]],
+        "rampe": 24, "rand": 18, "drehpunkt": [455, 185], "winkel": 6,
+        "posen": { "sitzend": "kopf.webp", "schnabel-halb": "kopf-schnabel-halb.webp",
+          "schnabel-offen": "kopf-schnabel-offen.webp", "blinzelnd": "kopf-blinzelnd.webp" } },
+      "schwanz": { "schnitt": [[790, 428], [742, 494]], "rampe": 16, "rand": 10, "drehpunkt": [766, 461], "winkel": 8,
+        "datei": "schwanz.webp" }
+    }
   },
   "signalton": {
     "datei": "zwitschern.ogg",

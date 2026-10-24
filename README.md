@@ -805,6 +805,18 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Safari, nicht im Browser-Bereich der Claude-App.
 - **Höhe der Sprechblase:** Mit Sprachschaltern wird die Blase so hoch wie ihr Inhalt plus Platz für den Verlauf
   (`goch.js`, `mindesthoehe`); vorher ragte die Fußzeile bei eingeschalteter Landschaft über die Seite.
+- **Goch lebt (24.10.2026, `goch-leben.js`):** Körper, Kopf und Schwanz sind eigene Teile aus der Sitzpose
+  (`tools/figur-teile.py`, `figur.json` → `animation.teile`); zusammengesetzt ergeben sie genau die Sitzpose. Sitzt Goch,
+  übernehmen sie: kurze, ruckartige Kopfbewegungen mit Pausen, Knicksen mit gehobenem Schwanz, Schwanzzucken,
+  Blinzeln, kaum sichtbares Atmen – um die Fußlinie, die Füße bleiben auf dem Ast. Mit der Stimme nickt der Kopf,
+  beim Zuhören senkt er sich leicht; Schnabel und Blinzeln wechseln nur den Kopf (statt ganzer Posen). Daten: rund
+  90 KB beim ersten Laden, die Schnabelköpfe (je 18 KB) erst mit der Stimme; nur `transform` und `opacity`. Ohne
+  Skript, bei reduzierter Bewegung und im Flug bleibt alles wie vorher. Das Messegerät nutzt dieselben Teile
+  (`figur.js`). Test: `python3 tests/goch_leben_test.py http://localhost:8788/`.
+- **Clips mit Goch (24.10.2026, `tools/goch-clip.py`):** aus einem Drehbuch (JSON: Sätze, Aussprache, Karten,
+  Kopfhaltung) ein MP4 in 4:5 – jeder Satz einzeln vertont über die Attrappe (`POST /_vertonen`, Stimme aus
+  `GOCH_VOICE_ID`, Schlüssel bleibt in der Attrappe), zwischengespeichert; Goch Bild für Bild synchron zum Ton auf
+  `tools/goch-clip/clip.html`, Untertitel und Karten, Zwitschern am Anfang und Ende. Kein Teil der Website.
 
 ### Messegerät (Kiosk)
 

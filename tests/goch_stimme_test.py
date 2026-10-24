@@ -68,6 +68,8 @@ window.__mund = []; window.__bewegt = [];
     new MutationObserver(() => { if (s.dataset.bewegt) __bewegt.push(getComputedStyle(s).getPropertyValue('--goch-neigung') || s.style.getPropertyValue('--goch-neigung')); }).observe(s, { attributes: true, attributeFilter: ['data-bewegt', 'style'] });
     // Schnabelposen als Bilder: sichtbar geschaltete Pose mitschreiben
     s.querySelectorAll('.bird-frame[data-mundpose]').forEach(f => new MutationObserver(() => { if (f.style.opacity === '1') __mund.push(f.dataset.mundpose); }).observe(f, { attributes: true, attributeFilter: ['style'] }));
+    // Goch lebt (goch-leben.js): dann wechselt nur der Kopf
+    new MutationObserver(rs => rs.forEach(r => { const f = r.target; if (f.dataset && f.dataset.kopf && f.dataset.kopf !== 'rest' && f.style.opacity === '1') __mund.push(f.dataset.kopf); })).observe(s, { attributes: true, attributeFilter: ['style'], subtree: true });
   });
 })();
 """
@@ -213,7 +215,7 @@ async def main():
             check(await ev("document.getElementById('goch-laut').getAttribute('aria-pressed')") == 'true' and await sichtbar('#goch-ki'), "Stimme an, Hinweis „KI · künstliche Stimme“ sichtbar")
             check(zz['play'] == 2 and zz['gum'] == 0, "Bestätigung als leises Zwitschern, weiter kein Mikrofon", zz)
             await pump(0.6)
-            check(await ev("[...document.querySelectorAll('.bird-mund')].every(f => f.complete && f.naturalWidth === 1153)"), "Schnabelposen nach dem Einschalten geladen")
+            check(await ev("document.getElementById('scene').dataset.leben ? [...document.querySelectorAll('.leben-kopf img')].every(f => f.complete && f.naturalWidth === 1153) : [...document.querySelectorAll('.bird-mund')].every(f => f.complete && f.naturalWidth === 1153)"), "Schnabelposen nach dem Einschalten geladen (mit Teilen: nur die Köpfe)")
             check(await ev("Object.keys(sessionStorage).concat(Object.keys(localStorage)).every(k => !/einwill|consent-stimme|stimme-erlaubt/i.test(k))"), "Einwilligung nirgends im Browser gespeichert")
 
             print("4. Frage mit Stimme: KI-Hinweis, Ton, Schnabel; Text bleibt")
@@ -226,7 +228,7 @@ async def main():
             zz = await z(); mund = await ev("__mund")
             check(zz['start'] == 1, "Stimme abgespielt", zz['start'])
             check('offen' in mund and 'halb' in mund, "Schnabel folgt der Lautstärke: Posen halb und offen im Wechsel", mund[:8])
-            check(await ev("!document.getElementById('scene').dataset.mund && [...document.querySelectorAll('.bird-mund')].every(f => f.style.opacity !== '1') && document.querySelector('.bird-rest').style.opacity === '1'"), "nach dem Ende wieder geschlossen (Sitzpose)")
+            check(await ev("!document.getElementById('scene').dataset.mund && [...document.querySelectorAll('.bird-mund')].every(f => f.style.opacity !== '1') && document.querySelector('.bird-rest').style.opacity === '1' && [...document.querySelectorAll('.leben-kopf img')].every(f => (f.style.opacity === '1') === (f.dataset.kopf === 'rest'))"), "nach dem Ende wieder geschlossen (Sitzpose bzw. Kopf in Ruhe)")
             bewegt = await ev("__bewegt")
             check(any(b.strip() not in ('', '0.00deg', '0deg') for b in bewegt), "Goch bewegt sich mit der Stimme (Neigung)", bewegt[:4])
             check(await ev("!document.getElementById('scene').dataset.spricht && (document.getElementById('scene').style.getPropertyValue('--goch-neigung') || '0.00deg') === '0.00deg'"), "danach wieder aufrecht")
