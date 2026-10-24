@@ -884,12 +884,13 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar" style="margin:0"><input id="spprobe" style="flex:1;min-width:200px"><button class="quiet" id="spanhoeren">Anhören</button><span class="msg" id="mSP"></span></div>
 <audio id="spaudio" controls hidden style="width:100%;margin-top:8px"></audio></div></section>
 
-<section id="fgsec"><h2>Figuren für Vorführungen <span class="note">(Kunden, nur am Messegerät)</span></h2>
+<section id="fgsec"><h2>Figuren für Vorführungen <span class="note">(Kunden und Workshops, nur am angemeldeten Gerät)</span></h2>
 <p class="note" style="margin:0 0 6px">Kundenfiguren liegen nur hier im Speicher des Workers – nie auf GitHub, nie auf der Website. Abrufbar sind sie nur über das angemeldete Messegerät; Bilder und Töne liegen auf dem Gerät (FIGUREN.md). Wissen nur aus Angaben, die der Kunde freigibt oder die öffentlich sind – robots.txt und Vorbehalte gegen Text- und Data-Mining beachten, Quellen mit Datum festhalten.</p>
 <ul class="q" id="fglist"></ul>
 <div class="bar"><button class="quiet" id="fgnew">Neue Figur</button></div>
 <div id="fgedit" hidden style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
 <div class="row"><div><label for="fgid">Kennung (kunde-…, wie der Ordner auf dem Gerät)</label><input id="fgid" autocomplete="off"></div><div><label for="fgtag">Antworten je Tag (Grenze des Geräts für diese Figur)</label><input id="fgtag" type="number" min="1" max="5000"></div></div>
+<label for="fgeinsatz">Einsatz <span class="note">(bestimmt, wo die Figur sich sieht und an wen sie verweist)</span></label><select id="fgeinsatz"><option value="messe">Messe – Stand, verweist an das Standpersonal</option><option value="workshop">Workshop – Schulung, erklärt Regeln allgemein, verweist an die Workshopleitung</option></select>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="fgan" style="width:auto;margin:0"> Figur an (das Messegerät darf sie laden)</label>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="fgde" style="width:auto;margin:0"> Deutsch <input type="checkbox" id="fgen" style="width:auto;margin:0 0 0 14px"> Englisch</label>
 <div class="row"><div><label for="fgnamede">Name (DE)</label><input id="fgnamede"></div><div><label for="fgnameen">Name (EN)</label><input id="fgnameen"></div></div>
@@ -1104,16 +1105,16 @@ $('spsave').onclick=async()=>{const body={sprache:{hoeren:$('sphoeren').checked,
  try{const r=await api('goch','PUT',body);renderGoch(r);say('mS','Gespeichert – gilt ab der nächsten Frage (spätestens nach einer Minute).',true);}catch(e){say('mS',e.message);}};
 // ---- Figuren für Vorführungen (Kunden, nur KV) ----
 const NL=String.fromCharCode(10);let F=[],fEdit=null;
-function renderFiguren(d){F=d.figuren||[];$('fglist').innerHTML=F.length?F.map(f=>'<li><b>'+esc(f.name.de||f.name.en||f.id)+'</b> <span class="note">'+esc(f.id)+' · '+(f.an?'an':'aus')+' · '+esc(f.sprachen.join('/'))+' · '+f.wissenWorte+' Wörter Wissen · geändert '+fmt(f.geaendert)+'</span> <button class="quiet" data-fg="'+esc(f.id)+'">Bearbeiten</button></li>').join(''):'<li class="note">Noch keine Kundenfigur.</li>';}
+function renderFiguren(d){F=d.figuren||[];$('fglist').innerHTML=F.length?F.map(f=>'<li><b>'+esc(f.name.de||f.name.en||f.id)+'</b> <span class="note">'+esc(f.id)+' · '+(f.einsatz==='workshop'?'Workshop':'Messe')+' · '+(f.an?'an':'aus')+' · '+esc(f.sprachen.join('/'))+' · '+f.wissenWorte+' Wörter Wissen · geändert '+fmt(f.geaendert)+'</span> <button class="quiet" data-fg="'+esc(f.id)+'">Bearbeiten</button></li>').join(''):'<li class="note">Noch keine Kundenfigur.</li>';}
 function fgOpen(f){fEdit=f||null;const v=f||{id:'kunde-',an:true,sprachen:['de'],name:{},rolle:{},begruessung:{},fragen:{},antwortenTag:200};
- $('fgedit').hidden=false;$('fgid').value=v.id;$('fgid').disabled=!!f;$('fgan').checked=v.an!==false;$('fgde').checked=v.sprachen.includes('de');$('fgen').checked=v.sprachen.includes('en');
+ $('fgedit').hidden=false;$('fgid').value=v.id;$('fgid').disabled=!!f;$('fgeinsatz').value=v.einsatz||'messe';$('fgan').checked=v.an!==false;$('fgde').checked=v.sprachen.includes('de');$('fgen').checked=v.sprachen.includes('en');
  for(const l of ['de','en']){$('fgname'+l).value=(v.name||{})[l]||'';$('fgrolle'+l).value=(v.rolle||{})[l]||'';$('fggruss'+l).value=(v.begruessung||{})[l]||'';$('fgfragen'+l).value=((v.fragen||{})[l]||[]).join(NL);}
  $('fgpers').value=v.persoenlichkeit||'';$('fgwissen').value=v.wissen||'';$('fgquellen').value=v.quellen||'';$('fgvoice').value=v.voiceId||'';$('fgtag').value=v.antwortenTag||200;$('fgdelete').hidden=!f;}
 $('fglist').onclick=e=>{const b=e.target.closest('button[data-fg]');if(b){fgOpen(F.find(f=>f.id===b.dataset.fg));$('fgedit').scrollIntoView({block:'start'});}};
 $('fgnew').onclick=()=>{fgOpen(null);$('fgid').focus();};
 $('fgclose').onclick=()=>{$('fgedit').hidden=true;};
 $('fgsave').onclick=async()=>{const per=k=>Object.fromEntries(['de','en'].map(l=>[l,$(k+l).value]));
- const body={id:$('fgid').value.trim().toLowerCase(),an:$('fgan').checked,sprachen:[...($('fgde').checked?['de']:[]),...($('fgen').checked?['en']:[])],name:per('fgname'),rolle:per('fgrolle'),begruessung:per('fggruss'),
+ const body={id:$('fgid').value.trim().toLowerCase(),an:$('fgan').checked,einsatz:$('fgeinsatz').value,sprachen:[...($('fgde').checked?['de']:[]),...($('fgen').checked?['en']:[])],name:per('fgname'),rolle:per('fgrolle'),begruessung:per('fggruss'),
   fragen:Object.fromEntries(['de','en'].map(l=>[l,$('fgfragen'+l).value.split(NL).map(x=>x.trim()).filter(Boolean)])),persoenlichkeit:$('fgpers').value,wissen:$('fgwissen').value,quellen:$('fgquellen').value,voiceId:$('fgvoice').value.trim(),antwortenTag:+$('fgtag').value};
  try{const r=await api('figuren','PUT',body);renderFiguren(r);fgOpen(r.figuren.find(f=>f.id===body.id));say('mF','Gespeichert – das Messegerät holt die Figur beim nächsten Gespräch.',true);}catch(e){say('mF',e.message);}};
 $('fgdelete').onclick=async()=>{if(!fEdit||!confirm('Figur „'+fEdit.id+'“ löschen? Das Messegerät kann sie danach nicht mehr laden.'))return;try{const r=await api('figuren','DELETE',{id:fEdit.id});renderFiguren(r);$('fgedit').hidden=true;}catch(e){say('mF',e.message);}};

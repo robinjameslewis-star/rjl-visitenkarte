@@ -116,6 +116,16 @@ console.log("Kundenfiguren nur am freigegebenen Gerät");
   check(r.status === 200 && a.reply === "Wir bauen Prüfgeräte." && a.action === null && a.link === null, "Antwort der Kundenfigur, ohne Draht und Links", JSON.stringify(a));
   check(sys.includes("Du bist Muster, der Empfang der Muster GmbH") && sys.includes("Prüfgeräte für Kanzleien") && sys.includes("Freundlich, trocken humorvoll") && !sys.includes("Woran Robin gerade arbeitet"), "eigener Systemprompt mit Wissen und Persönlichkeit, ohne Gochs Profil");
   check(mails.length === mailsVorher && !e.USAGE.map.has("draht:" + new Date().toISOString().slice(0, 10)), "kein Draht für Kundenfiguren");
+  // Einsatz (24.10.2026): ohne Angabe Messestand wie bisher; „workshop“ für Schulungen
+  check(sys.includes("Messestand") && sys.includes("Standpersonal"), "ohne Einsatz: Rahmen Messestand wie bisher");
+  await speichereKundenfigur(e, { ...kunde, einsatz: "workshop" });
+  await kiosk(e, "/kiosk/chat", alle, { figur: "kunde-muster", lang: "de", messages: [{ role: "user", content: "Was bieten Sie an?" }] });
+  const sysW = prompts.at(-1).system[0].text;
+  check(sysW.includes("in einer Schulung, einem Workshop") && sysW.includes("Workshopleitung") && sysW.includes("Zum Einzelfall gibst du keine Auskunft")
+    && !sysW.includes("Messestand") && !sysW.includes("Standpersonal") && sysW.includes("Prüfgeräte für Kanzleien"), "Einsatz Workshop: Schulung, Workshopleitung, Regeln allgemein, kein Einzelfall – Wissen bleibt");
+  let falsch = ""; try { await speichereKundenfigur(e, { ...kunde, einsatz: "zirkus" }); } catch (x) { falsch = x.message; }
+  check(falsch.startsWith("Einsatz"), "unbekannter Einsatz wird abgelehnt", falsch);
+  await speichereKundenfigur(e, kunde);
   const pub = await worker.fetch(new Request("https://goch.robin.vision/chat", { method: "POST", headers: { "content-type": "application/json", Origin: "https://robin.vision", "CF-Connecting-IP": "1.2.3.4" },
     body: JSON.stringify({ figur: "kunde-muster", lang: "de", messages: frage }) }), e, ctx);
   check(pub.status === 400, "über die öffentliche Route /chat weiterhin 400");

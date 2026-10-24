@@ -714,8 +714,11 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
   auch eine Kundenfigur, die im KV liegt.
 - **Redaktion:** Abschnitt „Goch – Stimme und Spracheingabe“ (Schalter, Modell im Sprachmodus, Stimmmodell, Voice ID,
   Grenzen, Zähler, Antwortzeiten, „Stimme anhören“: Probesatz mit der eingetragenen Voice ID, vor dem Speichern,
-  zählt zur Monatsgrenze) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
-  Persönlichkeit, Wissen, Quellen, Voice ID, Tagesgrenze – nur im KV, nie GitHub). Beides ist ab Werk aus.
+  zählt zur Monatsgrenze) und „Figuren für Vorführungen“ (Kundenfiguren: Einsatz Messe oder Workshop, Name, Rolle,
+  Begrüßung, Einstiegsfragen, Persönlichkeit, Wissen, Quellen, Voice ID, Tagesgrenze – nur im KV, nie GitHub). Beides ist
+  ab Werk aus. Der Einsatz bestimmt den Rahmen im Systemprompt (`worker/src/kiosk.js`, `kundenSystem`): am Messestand
+  verweist die Figur an das Standpersonal, im Workshop erklärt sie die Regeln aus dem Wissen allgemein, gibt keine Auskunft
+  zum Einzelfall und verweist an die Workshopleitung (24.10.2026).
 
 Deploy (Robin, lokal): `cd worker && npx wrangler secret put ELEVENLABS_API_KEY`, dann `npx wrangler deploy`; danach in
 der Redaktion Voice ID eintragen und einschalten. Prüfen: `node tests/goch_stimme_test.mjs` (Workers AI, ElevenLabs,

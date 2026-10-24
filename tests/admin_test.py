@@ -219,6 +219,9 @@ async def main():
             await ev("document.getElementById('fgwissen').value='Die Muster GmbH berät Kanzleien. '.repeat(12); document.getElementById('fgsave').click()"); await wait(600)
             check(await ev("document.getElementById('fglist').textContent.includes('kunde-muster')") and await ev("document.getElementById('fgid').disabled"), "Figur gespeichert, Kennung danach fest")
             check(await ev("document.getElementById('fgfragende').value") == "Was bieten Sie an?\nWo finde ich Sie?", "Einstiegsfragen je Zeile")
+            check(await ev("document.getElementById('fgeinsatz').value") == "messe" and "Messe" in await ev("document.getElementById('fglist').textContent"), "Einsatz ohne Wahl: Messe")
+            await ev("document.getElementById('fgeinsatz').value='workshop'; document.getElementById('fgsave').click()"); await wait(600)
+            check("Workshop" in await ev("document.getElementById('fglist').textContent"), "Einsatz Workshop gespeichert und in der Liste")
             await ev("window.confirm=()=>true; document.getElementById('fgdelete').click()"); await wait(500)
             check(await ev("document.getElementById('fglist').textContent.includes('Noch keine Kundenfigur')"), "Figur gelöscht")
 

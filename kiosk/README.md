@@ -68,8 +68,11 @@ Stimme, Pegel) und `figur.js` (Figurenpaket). Der Dienst liefert nur diese Datei
 
 - Paket nach `FIGUREN.md` bauen und auf dem Mac prüfen: `node tools/figur-pruefen.mjs <ordner>` (Freigabe des Kunden in
   `RECHTE.md`). Danach nur auf das Gerät kopieren: `/var/lib/goch-kiosk/figuren/<kunde-…>/`. **Nie ins Repository.**
-- Redaktion → „Figuren für Vorführungen“: Name, Rolle, Begrüßung, Einstiegsfragen, Persönlichkeit, Wissen (nur Freigegebenes
-  oder Öffentliches, Quellen mit Datum), Voice ID, Tagesgrenze.
+- Redaktion → „Figuren für Vorführungen“: Einsatz, Name, Rolle, Begrüßung, Einstiegsfragen, Persönlichkeit, Wissen (nur
+  Freigegebenes oder Öffentliches, Quellen mit Datum), Voice ID, Tagesgrenze. **Einsatz** (24.10.2026): „Messe“ (Stand,
+  verweist an das Standpersonal; Voreinstellung) oder „Workshop“ (Schulung am Bildschirm oder in der Videokonferenz: erklärt
+  die Regeln aus dem Wissen allgemein, gibt keine Auskunft zum Einzelfall, verweist an die Workshopleitung). Für Workshops
+  läuft dieselbe Kiosk-Seite am Laptop, mit `"taste": "Space"` und ohne Radar.
 - Redaktion → „Messegeräte“: Figur für das Gerät freigeben; in `konfiguration.json` `"figur": "kunde-…"` setzen, Dienst neu
   starten. Über die öffentliche Route `/chat` ist eine Kundenfigur nie erreichbar.
 
