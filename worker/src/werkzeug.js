@@ -99,8 +99,8 @@ export const FRAGEN = {
 // „Was kommt“ je Werkzeug
 const AUSBLICK = {
   fibu: {
-    de: "FiBu lite ist das erste SmartFormular. Zwei weitere entstehen: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel des Monats – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten; <strong>SmartFormular Deklaration</strong> ist das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet. Beta-Zugang im Memberbereich auf Anfrage.",
-    en: "FiBu lite is the first SmartFormular. Two more are in the making: <strong>SmartFormular FiBu</strong> turns bank statements and documents into the checked booking batch of the month – for bank, payables and receivables, linked to your open items; <strong>SmartFormular Deklaration</strong> is the working paper for year-end accounts that thinks ahead and does the groundwork. Beta access in the member area on request.",
+    de: "Kostenlos gibt es außerdem <strong><a href='../e-rechnung-pruefen/'>E-Rechnung lite</a></strong>: E-Rechnungen lesen, prüfen und per GiroCode bezahlen. Als Beta entstehen zwei weitere: <strong>SmartFormular FiBu</strong> macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel des Monats – für Bank, Kreditoren und Debitoren, mit Bezug zu den offenen Posten; <strong>SmartFormular Deklaration</strong> ist das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet. Beta-Zugang im Memberbereich auf Anfrage.",
+    en: "Also free: <strong><a href='../e-invoice-viewer/'>E-Rechnung lite</a></strong> – read, check and pay e-invoices by GiroCode. Two more are in the making as a beta: <strong>SmartFormular FiBu</strong> turns bank statements and documents into the checked booking batch of the month – for bank, payables and receivables, linked to your open items; <strong>SmartFormular Deklaration</strong> is the working paper for year-end accounts that thinks ahead and does the groundwork. Beta access in the member area on request.",
   },
   erechnung: {
     de: "E-Rechnung lite liest und prüft E-Rechnungen. <strong>SmartFormular FiBu</strong> geht weiter: Es liest Rechnungen als PDF oder E-Rechnung, ordnet sie den Zahlungen auf dem Kontoauszug zu und macht daraus den geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren. Kostenlos gibt es außerdem <strong>FiBu lite</strong> für Kontoauszüge. Beta-Zugang zu FiBu im Memberbereich auf Anfrage.",
@@ -141,7 +141,7 @@ export function werkzeugFelder(html) {
 
 const T = {
   de: {
-    home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeugkasten", toolsHref: "werkzeuge/", sfHref: "werkzeuge/smartformular/", about: "Über mich", aboutHref: "ueber-mich/",
+    home: "", blog: "Impulse", blogHref: "blog/", tools: "Robins Werkzeugkasten", toolsHref: "werkzeuge/", sfHref: "werkzeuge/smartformular/", about: "Über mich", aboutHref: "ueber-mich/",
     fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
@@ -153,12 +153,12 @@ const T = {
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
   en: {
-    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Toolbox", toolsHref: "werkzeuge/en/", sfHref: "werkzeuge/smartformular/en/", about: "About", aboutHref: "about/",
+    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Robin's Tech Stack", toolsHref: "werkzeuge/en/", sfHref: "werkzeuge/smartformular/en/", about: "About", aboutHref: "about/",
     fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",
     kurz: "SmartFormular", seitentitel: "SmartFormular by robin.vision: FiBu lite free, FiBu and Deklaration in beta – bookkeeping and year-end accounts with AI, human in the loop | robin.vision",
-    lead: "A SmartFormular looks like a familiar form, helps you fill it in, guarantees completeness and starts the actual casework while you type. It supports accounting staff and does not replace them: every suggestion carries its origin, and people do the checking. FiBu lite is free today; FiBu and Deklaration are in the making – beta access in the member area on request.",
+    lead: "A SmartFormular looks like a familiar form, helps you fill it in, checks for completeness and starts the actual casework while you type. It supports accounting staff and does not replace them: every suggestion carries its origin, and people do the checking. FiBu lite is free today; FiBu and Deklaration are in the making – beta access in the member area on request.",
     andereUebersicht: "Deutsch", leer: "No SmartFormular yet.", ausblick: "What's next", beta: "Request beta access", betaLead: "FiBu and Deklaration are being tested in the robin.vision member area – with test data and your feedback, before they are finished. I reply personally by email.",
     lite: "Download for free", inEntwicklung: "In development · beta 2027", fertig: "Free · ready", ki: "A language model can, but need not, be involved: hosted in the EU, no training on customer data, no vendor lock-in – the program gives the model fixed instructions as skills, while calculating and checking stay with rules and people.",
     produkte: PRODUKTE.en,

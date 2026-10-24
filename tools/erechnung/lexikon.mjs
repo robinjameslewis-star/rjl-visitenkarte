@@ -28,7 +28,7 @@ const nat = s => s.replace(/\d+/g, d => d.padStart(5, "0"));
 
 const T = {
   de: {
-    lexikon: "Prüfregeln", werkzeug: "SmartFormular E-Rechnung lite", kasten: "Werkzeugkasten",
+    lexikon: "Prüfregeln", werkzeug: "SmartFormular E-Rechnung lite", kasten: "Robins Werkzeugkasten",
     titelIndex: "Prüfregeln der E-Rechnung verständlich erklärt",
     seitentitelIndex: "Prüfregeln der E-Rechnung erklärt: BR-DE, BR-CO, PEPPOL | SmartFormular E-Rechnung lite",
     untertitelIndex: "Was Meldungen wie BR-DE-15, BR-CO-26 oder PEPPOL-EN16931-R010 bedeuten – und was der Rechnungssteller ändern muss.",
@@ -49,7 +49,7 @@ const T = {
     anzahl: n => `${n} Regeln`,
   },
   en: {
-    lexikon: "Validation rules", werkzeug: "SmartFormular E-Rechnung lite", kasten: "Toolbox",
+    lexikon: "Validation rules", werkzeug: "SmartFormular E-Rechnung lite", kasten: "Robin's Tech Stack",
     titelIndex: "E-invoice validation rules explained",
     seitentitelIndex: "E-invoice validation rules explained: BR-DE, BR-CO, PEPPOL | SmartFormular E-Rechnung lite",
     untertitelIndex: "What messages such as BR-DE-15, BR-CO-26 or PEPPOL-EN16931-R010 mean – and what the issuer needs to change.",
