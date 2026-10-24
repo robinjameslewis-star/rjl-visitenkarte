@@ -2,3 +2,4 @@
 # Figuren: nur öffentliche Pakete gehören ins Repo. Kundenfiguren liegen ausschließlich auf dem Gerät (FIGUREN.md).
 figuren/*
 !figuren/goch/
+__pycache__/

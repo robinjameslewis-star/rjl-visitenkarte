@@ -235,7 +235,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   // Bild an das Richtige steht; nur ?landschaft=an|aus tauscht hier zur Laufzeit.
   const SCENE_PATH = /^((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?(.+)$/;
   const use = bestand => document.querySelectorAll('.scene img').forEach(img => {
-    ['src', 'data-src'].forEach(attr => {
+    ['src', 'data-src', 'data-src-spaet'].forEach(attr => {
       const src = img.getAttribute(attr), m = src && src.match(SCENE_PATH);
       const want = m && m[1] + (bestand ? 'bestand/' : '') + m[2];
       if (m && src !== want) img.setAttribute(attr, want);

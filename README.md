@@ -740,11 +740,16 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
 - **Stimme** (`worker/src/stimme.js`): `/chat` mit `stimme` antwortet als NDJSON – Zeile 1 die Antwort wie immer (die Seite
   zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Vertont wird nur diese eigene Antwort;
   eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
-  sonst aus `figur.json`); bei `aus` oder `fehler` liest die Seite mit einer lokalen Browserstimme vor.
+  sonst aus `figur.json`), Modell Eleven v4, Regler und fester Startwert (`seed`) aus `figur.json` – jeder Besucher hört
+  dieselbe Stimme. Ohne Stimme (`aus`, `fehler`, `grenze`) antwortet Goch nur als Text; eine Gerätestimme gibt es nur
+  für Figuren mit `stimme.rueckfall: "browser"`. Für Goch schaltet die Seite dann Stimme, Mikrofon und Kamera ab und
+  schreibt in den Chat nur „Sprechen geht gerade nicht – ein Gespräch ist im Moment nur hier im Chat möglich.“ Den Grund
+  (etwa die Meldung von ElevenLabs) sieht kein Besucher; er steht nur im Protokoll des Workers.
 - **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
   Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
 - **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus
-  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Antwortzeiten von Modell und Stimme werden je
+  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ in den
+  Systemprompt (kurze Sätze, keine Aufzählungen, Zahlen wie gesprochen). Antwortzeiten von Modell und Stimme werden je
   Monat gezählt und in der Redaktion gezeigt.
 - **Kostenbremsen:** vertonte Zeichen je Monat (`MAX_STIMME_ZEICHEN_MONAT`, 30.000) und Audiominuten je Tag
   (`MAX_HOEREN_MINUTEN_TAG`, 20), eigene Zähler im KV (`stimme:monat:…`, `hoeren:tag:…`, je ein Schreibzugriff). Ist
@@ -753,12 +758,15 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
 - **Figur-ID:** `/chat` nimmt `figur`; öffentlich gilt nur `goch` (`worker/src/figuren.js`), alles andere ergibt 400 –
   auch eine Kundenfigur, die im KV liegt.
 - **Redaktion:** Abschnitt „Goch – Stimme und Spracheingabe“ (Schalter, Modell im Sprachmodus, Stimmmodell, Voice ID,
-  Grenzen, Zähler, Antwortzeiten) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
+  Grenzen, Zähler, Antwortzeiten, „Stimme anhören“: Probesatz mit der eingetragenen Voice ID, vor dem Speichern,
+  zählt zur Monatsgrenze) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
   Persönlichkeit, Wissen, Quellen, Voice ID, Tagesgrenze – nur im KV, nie GitHub). Beides ist ab Werk aus.
 
 Deploy (Robin, lokal): `cd worker && npx wrangler secret put ELEVENLABS_API_KEY`, dann `npx wrangler deploy`; danach in
 der Redaktion Voice ID eintragen und einschalten. Prüfen: `node tests/goch_stimme_test.mjs` (Workers AI, ElevenLabs,
 Anthropic und Resend abgefangen), `node tests/bundle_check.mjs`, `python3 tests/admin_test.py` gegen `node tests/admin_fake.mjs 8789`.
+Vorführung ohne Worker: `python3 tests/goch_fake_worker.py 8787 --stimme mac` (macOS-Stimme serverseitig, für alle gleich;
+nur Platzhalter) oder `--stimme elevenlabs` mit `ELEVENLABS_API_KEY` und `GOCH_VOICE_ID` als Umgebungsvariablen.
 
 ### Startseite: Sprachmodus und Zwitschern
 
@@ -769,31 +777,121 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Einschalten fragt eine eigene Einwilligung (getrennt von der des Gesprächs); sie gilt nur für diesen Besuch, liegt nur im
   Speicher der Seite und endet mit „Sprechen beenden“. Ohne Einschalten: kein `getUserMedia`, kein Ton, kein AudioContext,
   keine Anfrage an `/listen` oder die Stimme (geprüft).
-- **Sprechen:** Knopf „Sprechen“ halten oder tippen – sprechen – tippen, Leertaste oder Enter genauso; höchstens 20 s mit
-  Pegel und Restzeit. Das Mikrofon ist nur während der Aufnahme offen. Die Seite nimmt PCM über Web Audio auf, rechnet auf
-  16 kHz mono herunter und schickt ein WAV an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über
-  `/chat` (`gesprochen: true`). Der Knopf hält den Zeiger fest (`setPointerCapture`), damit das Loslassen auch ankommt,
-  wenn sich die Sprechblase während der Aufnahme verschiebt.
+- **Sprechen – Gespräch ohne Knopf** (Robin, 23.10.2026): Ist „Mit Goch sprechen“ an, hört Goch zu. Der Browser erkennt
+  selbst an der Lautstärke, wann jemand spricht und wann er nach einer kurzen Pause (0,9 s) fertig ist (`goch-audio.js`,
+  `erkenner` und `zuhoeren`; Grundrauschen = leisester Block der letzten 1,5 s, kurze Geräusche unter 0,25 s werden
+  verworfen). Erst dann geht der gesprochene Abschnitt mit kurzem Vor- und Nachlauf als WAV (16 kHz mono, höchstens 20 s)
+  an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über `/chat` (`gesprochen: true`). Während Goch
+  versteht, denkt oder spricht, hört er nicht zu; danach wieder. Der Knopf heißt je nach Lage „Pause“, „Fertig“ (sendet
+  sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, mit „Pause“, beim
+  Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
+  `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
 - **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
-  das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen). Bis Robins Posen da
-  sind, neigt sich der Vogel nur leicht (`data-mund`, `data-lauscht` an der Szene, CSS über `.bird-tilt`); während der
-  Aufnahme zeigt er die Lauschpose. Ohne Stimme vom Server liest der Browser vor – nur mit lokalen Stimmen des Geräts.
-  Grenze erreicht: nur Text, kein Hinweis. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
+  das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
+  dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
+  `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Dazu neigt er sich mit betonten Silben
+  leicht nach vorn, wechselt an Satzpausen die Kopfhaltung und schaut in Gesprächspausen ab und zu kurz zur Seite
+  (`goch-audio.js`, `bewegung`: CSS-Variablen `--goch-neigung`, `--goch-hub`, gedreht um die Füße). Lauschen: leichte
+  Neigung (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
+  Hinweis – keine Gerätestimme, damit alle dieselbe Stimme hören. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
 - **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
+- **Zwitscher-Ton:** `figuren/goch/toene/zwitschern.ogg` und `.mp3` (selbst erzeugt, Stil „frage“: `tools/figur-zwitschern.py --erzeugen frage`),
+  eingeschaltet mit `data-goch-signalton="figuren/goch/toene/zwitschern"` am `<body>`; am Messegerät aus `figur.json`.
 - **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
   höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die
   Noten. Hörbar nur nach einer Handlung: leise beim Öffnen des Gesprächs und als Bestätigung beim Einschalten der Stimme;
-  „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Solange es keine
+  „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Im offenen Gespräch zu
+  Beginn und in Pausen ab und zu (nach 30–70 s Ruhe, höchstens viermal je Gespräch), nie während Goch denkt, spricht oder
+  zuhört und nie während getippt wird; hörbar nur mit „Goch spricht laut“. Solange es keine
   Tondatei gibt (`data-goch-signalton` leer), zwitschert Goch nur sichtbar. Datei: `figuren/goch/toene/zwitschern.ogg`
   und `.mp3`, dann `data-goch-signalton="figuren/goch/toene/zwitschern"`.
-- **Handy:** Mit Sprachschaltern darf das Blatt 80 % der Höhe nutzen, damit der Verlauf lesbar bleibt.
+- **Handy:** Mit Sprachschaltern oder deren Einwilligung darf das Blatt 80 % der Höhe nutzen, damit Verlauf und Knöpfe
+  sichtbar bleiben.
+- **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
+  Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
+  das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch
+  wird zur Leiste, die Seite scrollt zur Stelle und hebt sie kurz hervor; ein Tipp auf den kleinen Goch holt ihn zurück.
+- **Goch zeigt** (Worker: `zeigen`, feste Liste `ZIELE`): nur wenn die Seite `kannZeigen` meldet (Sprachfunktion an), sonst
+  bleibt alles wie vorher. In der Antwort steht ein Verweis („Werkzeuge ansehen“); auf großen Bildschirmen führt nur er hin.
+- **Blinzeln** (`vogel-blinzeln.webp`, abgeleitet mit `tools/figur-augen.py`): im offenen Gespräch alle paar Sekunden,
+  ab und zu doppelt, nie während Goch spricht oder jemand zu ihm spricht.
+- **Blickkontakt** (`goch-blick.js`, `goch-kamera.html`, `goch-kamera.js`, `goch-blickrechnung.js`): dritter Schalter mit
+  eigener Einwilligung. Die Kamera wird nur im eigenen Rahmen `goch-kamera.html` ausgewertet – Content-Security-Policy
+  `connect-src 'self'`, MediaPipe Face Landmarker aus `vendor/mediapipe/` (selbst ausgeliefert, Nutzungsmeldung an Google
+  abgeschaltet, siehe `vendor/mediapipe/HINWEIS.md` und `tools/mediapipe-uebernehmen.py`). An die Seite gehen nur Zahlen:
+  da, Lage, Größe, Kopfrichtung, schaut her – keine Bilder, keine Ausdruckswerte, keine Wiedererkennung. Goch bemerkt sein
+  Gegenüber (blinzelt doppelt, richtet sich auf), wendet sich ihm sichtbar zu, wird bei Blickkontakt aufmerksam und hört
+  im Gesprächsmodus nur zu, wenn er angesehen wird. Kontakt suchen (Robin, 23.10.2026): Kommt jemand an den Bildschirm
+  (neu oder nach 6 s Abwesenheit), zwitschert Goch und spricht ihn an; steht jemand weiter weg (Gesicht schmal), lockt er
+  erst mit Zwitschern (höchstens dreimal) und spricht beim Näherkommen oder Herschauen an; schaut jemand her und schweigt
+  15 s, fragt er nach (höchstens zweimal). Alles feste Sätze vom Worker (`anlass` „angekommen“, „zurueck“, „nachfrage“,
+  kein Modellaufruf, zählt zur Grenze je IP); gegrüßt höchstens alle 30 s, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
+  Vorschaubild (Robin, 23.10.2026: störte) – den Zustand zeigen der Schalter und die Kamera-Anzeige des Browsers; aus mit
+  „Blickkontakt“, beim Schließen und mit „Sprechen beenden“ – beim Tabwechsel bleiben Kamera und Mikrofon an (Robin, 23.10.2026). Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
+  zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
   wenn die Funktion an ist. Die Einwilligung des Gesprächs (`rjl-goch-consent`) bleibt unverändert, weil ihr Text weiter
   stimmt; die Sprach-Einwilligung wird nicht gespeichert, also gibt es keine Version hochzuzählen.
-- **Robins Posen einbauen:** Dateien in `figuren/goch/bilder/bestand/` (auf Weiß) und freigestellt in `figuren/goch/bilder/`
-  (`tools/landschaft-bilder.py`), in `figur.json` bei `schnabel-halb`, `schnabel-offen`, `lauschend` eintragen, in der Szene
-  von `index.html` je ein `<img class="bird-frame bird-rest" data-pose="halb|offen|lauschen" … style="opacity:0">`
-  ergänzen; `goch-stimme.js` wechselt dann das Bild statt zu neigen. Prüfen mit `node tools/figur-pruefen.mjs figuren/goch --html index.html`.
+- **Schnabelposen (23.10.2026):** `vogel-schnabel-halb.webp` und `vogel-schnabel-offen.webp` in beiden Fassungen, abgeleitet
+  aus der Sitzpose mit `tools/figur-schnabel.py` (Unterschnabel 7° bzw. 14° aufgeklappt, Rachen und Zunge ergänzt) –
+  Zwischenlösung, bis gezeichnete Posen da sind; Kehle und Kopf bewegen sich nicht mit. In der Szene als
+  `data-mundpose` mit `data-src-spaet`: geladen erst, wenn ein Besucher Stimme oder Spracheingabe einschaltet; die Landschaft
+  schaltet die Pfade mit. Gezeichnete Posen (Nano Banana oder ChatGPT, Prompt in `FIGUREN.md`) ersetzen die Dateien gleichen
+  Namens – ohne Codeänderung; nach `tools/landschaft-bilder.py` auch `tools/figur-schnabel.py` neu laufen lassen, solange die
+  abgeleiteten Posen gelten. Die Lauschpose fehlt noch (Platzhalter: leichtes Neigen).
+- **Stimme warm, weich, männlich (Robin, 23.10.2026):** ElevenLabs ab Werk mit Multilingual v2 und den Einstellungen aus
+  `figur.json` (`stability` 0,5, `similarity_boost` 0,8, `style` 0,15, `speed` 0,95); Prompt für Voice Design in `FIGUREN.md`.
+  Rückfall im Browser: bevorzugt Markus, Yannick, Viktor, Martin (Premium vor einfach), sonst Reed oder Eddy; Englisch
+  Daniel; etwas tiefer und ruhiger (`stimme.browser`).
+- **Vorführung am Mac mit echter Spracherkennung:** Die Attrappe erkennt auf Wunsch lokal mit faster-whisper
+  (`python3 tests/goch_fake_worker.py 8787 --whisper <Modellordner>`, Modell „base“ rund 145 MB, `pip install faster-whisper
+  numpy`); nichts verlässt den Rechner. Die Antworten bleiben die festen Texte der Attrappe. Mikrofon nur in Chrome oder
+  Safari, nicht im Browser-Bereich der Claude-App.
+- **Höhe der Sprechblase:** Mit Sprachschaltern wird die Blase so hoch wie ihr Inhalt plus Platz für den Verlauf
+  (`goch.js`, `mindesthoehe`); vorher ragte die Fußzeile bei eingeschalteter Landschaft über die Seite.
+- **Goch lebt (24.10.2026, `goch-leben.js`):** Körper, Kopf und Schwanz sind eigene Teile aus der Sitzpose
+  (`tools/figur-teile.py`, `figur.json` → `animation.teile`); zusammengesetzt ergeben sie genau die Sitzpose. Sitzt Goch,
+  übernehmen sie: kurze, ruckartige Kopfbewegungen mit Pausen, Knicksen mit gehobenem Schwanz, Schwanzzucken,
+  Blinzeln, kaum sichtbares Atmen – um die Fußlinie, die Füße bleiben auf dem Ast. Mit der Stimme nickt der Kopf,
+  beim Zuhören senkt er sich leicht; Schnabel und Blinzeln wechseln nur den Kopf (statt ganzer Posen). Daten: rund
+  90 KB beim ersten Laden, die Schnabelköpfe (je 18 KB) erst mit der Stimme; nur `transform` und `opacity`. Ohne
+  Skript, bei reduzierter Bewegung und im Flug bleibt alles wie vorher. Das Messegerät nutzt dieselben Teile
+  (`figur.js`). Test: `python3 tests/goch_leben_test.py http://localhost:8788/`.
+- **Clips mit Goch (24.10.2026, `tools/goch-clip.py`):** aus einem Drehbuch (JSON: Sätze, Aussprache, Karten,
+  Kopfhaltung) ein MP4 in 4:5 – jeder Satz einzeln vertont über die Attrappe (`POST /_vertonen`, Stimme aus
+  `GOCH_VOICE_ID`, Schlüssel bleibt in der Attrappe), zwischengespeichert; Goch Bild für Bild synchron zum Ton auf
+  `tools/goch-clip/clip.html`, Untertitel und Karten, Zwitschern am Anfang und Ende. Kein Teil der Website.
+  Layout „vortrag“ (16:9, 24.10.2026) für Workshops: `tools/goch-vortrag.py` schreibt aus Skript (Markdown) und Folien
+  (HTML mit `data-bloecke` je Folie) ein Drehbuch je Kapitel – Folie zum Absatz, Aussprache von Paragrafen und
+  Gesetzesnamen; erster Einsatz: Unterweisung KI-Kompetenz, Kanzlei-Fassung (Vault). Port für Chrome mit
+  `GOCH_CLIP_PORT`.
+
+### Messegerät (Kiosk)
+
+Einrichtung, Betrieb und Datenschutz am Gerät stehen in `kiosk/README.md`; Hinweisschild in `kiosk/hinweisschild.md`.
+
+- **Seite** `kiosk.html` + `kiosk.js`: derselbe Code wie die Website – `language.js` (Texte), `goch-audio.js` (Aufnahme als WAV,
+  Stimme, Pegel; seit 23.10.2026 auch von `goch-stimme.js` genutzt) und `figur.js` (lädt ein Figurenpaket: Posen am Auge
+  ausgerichtet oder ein Logo, das mit der Stimme pulsiert). Hochformat 1080 × 1920 und 2160 × 3840, große Figur, Gespräch als
+  Untertitel. Bedienung: Touch und ein USB-Taster (F13). Erster Druck zeigt den Hinweis, der zweite ist die Einwilligung;
+  nach 60 s ohne Aktivität ist alles zurückgesetzt. Nichts wird im Browser gespeichert. Läuft nur unter localhost.
+- **Lokaler Dienst** `kiosk/dienst/goch_kiosk.py` (Python, Standardbibliothek): liefert nur die Dateien des Kiosks aus
+  einem festen Commit aus, reicht `/kiosk/*` mit dem Gerätenachweis an den Worker weiter (der Nachweis liegt nur dort),
+  puffert ohne Netz bestätigte Nachrichten an Robin, meldet Radar (HLK-LD2410, `radar_ld2410.py`) und Netz als Ereignisse,
+  schickt Lebenszeichen. systemd mit Watchdog, Wächter für Chromium, Chromium-Richtlinien in `kiosk/chromium/`.
+- **Worker** `worker/src/kiosk.js`: `/kiosk/chat`, `/kiosk/listen`, `/kiosk/figur`, `/kiosk/lebenszeichen` mit
+  Geräteanmeldung (Nachweis aus der Redaktion, im KV nur als SHA-256; wahlweise Client-Zertifikat, `KIOSK_MTLS`).
+  Gerätebudget im Durable Object `Geraetebudget` statt der IP-Grenzen der Website. Kundenfiguren nur hier und nur für
+  freigegebene Geräte: eigener Systemprompt aus Persönlichkeit und Wissen der Redaktion, ohne Draht, Links und Newsletter,
+  Stimme mit ihrer eigenen `voiceId`. Goch am Gerät antwortet kürzer, ohne Links und ohne Newsletter-Feld.
+- **Redaktion:** Abschnitt „Messegeräte“ (Gerät anlegen, Nachweis einmal anzeigen oder erneuern, freigegebene Figuren,
+  Tagesbudget, Fingerabdruck des Zertifikats, Lebenszeichen und Verbrauch heute).
+- **Offline:** vorbereitete Antworten mit Stimme erzeugt `kiosk/dienst/offline_antworten.py` auf dem Gerät; sie bleiben dort.
+
+Deploy: Der nächste `npx wrangler deploy` legt das Durable Object an (Migration `v1-geraetebudget` in `wrangler.toml`).
+Prüfen: `node tests/kiosk_worker_test.mjs`, `python3 tests/kiosk_dienst_test.py`, `python3 tests/kiosk_test.py` (startet
+Dienst und Attrappe selbst; Bildschirmfotos im Hochformat).
 
 Prüfen: `python3 tests/goch_stimme_test.py http://localhost:8788/ http://localhost:8787` (Seite und
 `tests/goch_fake_worker.py` wie beim Goch-Test; Chromes Testmikrofon, 14 Gruppen: vor jeder Handlung, Öffnen, Einwilligung,

@@ -124,6 +124,11 @@
   .bird-rest { left: 0; top: 0; width: 100%; opacity: 1; clip-path: inset(0 0 2.5% 0); }
   .js .bird-rest { opacity: 0; } /* bird-flight.js blendet per Inline-Stil ein */
   .bird-flight { width: 133.2177%; }
+  .bird-mund { left: 0; top: 0; width: 100%; clip-path: inset(0 0 2.5% 0); transition-duration: 0ms; } /* wie .bird-rest, nur unsichtbar bis zum Sprechen */
+  /* Goch lebt (goch-leben.js, 24.10.2026): Sind Körper, Kopf und Schwanz geladen, ersetzen sie im Sitzen Sitzpose und
+     Schnabelposen (zusammengesetzt deckungsgleich); im Flug bleiben die Flugposen. */
+  .scene[data-leben][data-state="rest"] .bird-rest, .scene[data-leben][data-state="rest"] .bird-mund { visibility: hidden; }
+  .scene:not([data-state="rest"]) .leben { display: none !important; }
   .bird-up { left: -14.7441%; top: -40.8451%; }
   .bird-glide { left: -15.4380%; top: -38.7324%; }
   .bird-down { left: -16.9124%; top: -30.7042%; }
@@ -134,6 +139,7 @@
     .scene .bird-move, .scene .branch { transform: none !important; }
     .scene .bird-move, .scene .bird-rest { opacity: 1 !important; }
     .scene .bird-flight { display: none; }
+    .scene .bird-mund { opacity: 0 !important; }
   }
 
 
@@ -166,6 +172,12 @@
   .goch-thinking { color: var(--ink-muted); letter-spacing: .2em; }
   .goch-action { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--copper); padding-bottom: 1px; white-space: nowrap; }
   .goch-consent p { margin: 0 0 10px; font-size: 14px; }
+  /* Einwilligungen zu Stimme und Kamera im Gespräch: Die Beispielfragen weichen, der Text scrollt bei Bedarf, die Knöpfe
+     bleiben immer im Fenster (Robin, 23.10.2026: Knöpfe rutschten über den Seitentext) */
+  .goch:has(#goch-stimme-consent:not([hidden])) :is(#goch-starters, #goch-form), .goch:has(#goch-kamera-consent:not([hidden])) :is(#goch-starters, #goch-form) { display: none; }
+  #goch-stimme-consent:not([hidden]), #goch-kamera-consent:not([hidden]) { display: flex; flex-direction: column; min-height: 0; flex-shrink: .1; } /* erst weicht der Verlauf */
+  #goch-stimme-consent p, #goch-kamera-consent p { min-height: 0; overflow-y: auto; }
+  #goch-stimme-consent .consent-actions, #goch-kamera-consent .consent-actions { flex: none; }
   .goch-starters { display: flex; flex-wrap: wrap; gap: 6px; }
   .goch-starter { border: 1px solid var(--copper); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
   .goch-starter:hover { background: var(--hover); }
@@ -212,15 +224,52 @@
   .goch-noten.an span { animation: goch-note 2.4s ease-out forwards; }
   .goch-noten.an span + span { animation-delay: .35s; }
   @keyframes goch-note { 0% { opacity: 0; transform: translate(0, 8px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-16px, -28px) rotate(-12deg); } }
-  .scene.zwitschert[data-state="rest"] .bird-tilt { animation: goch-zucken .3s ease-in-out 2; }
-  @keyframes goch-zucken { 50% { transform: rotate(-2deg); } }
+  /* Zucken beim Zwitschern: geneigt über der Fußlinie (44 % / 85 % der Szene), damit die Füße auf dem Ast bleiben */
+  .scene.zwitschert[data-state="rest"] .bird-tilt { transform-origin: 44% 85%; animation: goch-zucken .3s ease-in-out 2; }
+  @keyframes goch-zucken { 50% { transform: skewX(3deg) scaleY(1.012); } }
   @media (prefers-reduced-motion: reduce) { .goch-noten.an span { opacity: 1; } }
-  @media (max-width: 720px) { .goch:has(#goch-sprache:not([hidden])), .goch:has(#goch-mikro:not([hidden])) { max-height: 80dvh; } } /* Handy: Platz für den Verlauf trotz Schaltern */
+  /* Goch zeigt eine Stelle der Seite (goch-gespraech.js): Verweis in der Antwort, die Stelle leuchtet kurz auf */
+  .goch-zeigen { white-space: nowrap; }
+  .goch-zeigen::before { content: "→ "; }
+  .goch-gezeigt { animation: goch-gezeigt 3.2s ease-out; border-radius: 10px; }
+  @keyframes goch-gezeigt { 0%, 60% { box-shadow: 0 0 0 3px var(--copper); } 100% { box-shadow: 0 0 0 3px transparent; } }
+  .goch-papier, .goch-mini { display: none; }
+  /* Blickkontakt (goch-blick.js): Kamerarahmen unsichtbar (ein sichtbares Vorschaubild störte, Robin 23.10.2026); er muss
+     aber gezeichnet werden, sonst liefert das Video keine Bilder. Den Zustand zeigen Schalter und Browser. */
+  .goch-kamera-platz { position: absolute; top: 0; right: 0; width: 2px; height: 2px; overflow: hidden; opacity: 0; pointer-events: none; }
+  .goch-kamera-platz[hidden] { display: none; }
+  .goch-kamera-platz iframe { display: block; width: 100%; height: 100%; border: 0; }
+  @media (max-width: 720px) {
+    /* Gesprächsmodus auf dem Handy: Papier über der Seite, Goch groß oben, darunter das Gespräch */
+    html.goch-fokus, html.goch-fokus body { overflow: hidden; }
+    html.goch-fokus .goch-papier { display: block; position: fixed; inset: 0; z-index: 18; background: var(--paper) url("assets/papier.jpg"); }
+    html.goch-fokus .stage, html.goch-fokus .perch { z-index: auto !important; isolation: auto !important; } /* sonst bliebe Goch unter dem Papier */
+    html.goch-fokus .scene { position: fixed; z-index: 19; left: 5vw; top: calc(env(safe-area-inset-top) + 28px); width: 90vw; }
+    html.goch-fokus .goch { max-height: min(56dvh, calc(100dvh - 90vw * 0.616 - 52px)) !important; } /* Goch oben bleibt frei */
+    html.goch-fokus .goch-log .goch-bubble { font-size: 16px; }
+    /* Goch zeigt etwas: klein in der Ecke, das Gespräch als schmale Leiste */
+    html.goch-unterwegs .goch { max-height: 32dvh !important; }
+    html.goch-unterwegs .goch-log > :not(:last-child), html.goch-unterwegs #goch-starters, html.goch-unterwegs #goch-form,
+      html.goch-unterwegs #goch-sprache, html.goch-unterwegs .goch-note { display: none; }
+    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; position: fixed; z-index: 21; right: 4vw; bottom: calc(32dvh + 16px); width: 96px;
+      padding: 0; border: 0; background: transparent; cursor: pointer; }
+    .goch-mini img { display: block; width: 100%; height: auto; transform-origin: 45% 80%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
+    .goch-mini.spricht img { animation: goch-mini 0.45s ease-in-out infinite alternate; }
+    @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }
+  }
+  @media (max-width: 720px) and (prefers-reduced-motion: reduce) { .goch-mini.spricht img { animation: none; } }
+  @media (max-width: 720px) { .goch:has(#goch-sprache:not([hidden])), .goch:has(#goch-mikro:not([hidden])), .goch:has(#goch-stimme-consent:not([hidden])) { max-height: 80dvh; }
+    #goch-stimme-consent { min-height: 0; flex-shrink: 1; overflow-y: auto; } } /* Handy: Platz für Verlauf und Einwilligung trotz Schaltern */
   @media (prefers-reduced-motion: no-preference) {
     .scene[data-state="rest"] .bird-tilt { transition: transform 90ms ease-out; }
     .scene[data-state="rest"][data-mund="halb"] .bird-tilt { transform: rotate(-1.4deg); }
     .scene[data-state="rest"][data-mund="offen"] .bird-tilt { transform: rotate(-2.6deg) translateY(-.4%); }
-    .scene[data-state="rest"][data-lauscht="1"] .bird-tilt { transform: rotate(3deg); }
+    .scene[data-state="rest"][data-lauscht="1"] .bird-tilt { transform-origin: 44% 85%; transform: skewX(-2.5deg) scaleY(1.01); }
+    /* Bewegung zur Stimme und kurze Blicke in Pausen (goch-audio.js, bewegung): geneigt (skewX) und gestreckt (scaleY) über der
+       Fußlinie statt gedreht und angehoben – was auf der Linie liegt, bewegt sich nicht, die Füße bleiben auf dem Ast
+       (Robin, 23.10.2026). Negative --goch-neigung = nach vorn (zum Schnabel hin). */
+    .scene[data-state="rest"][data-bewegt] .bird-tilt { transform-origin: 44% 85%; transform: skewX(calc(var(--goch-neigung, 0deg) * -1)) scaleY(var(--goch-streck, 1)); transition: transform 160ms ease-out; }
+    .scene[data-state="rest"][data-bewegt][data-lauscht="1"] .bird-tilt { transform: skewX(-2.5deg) scaleY(1.01); }
   }
 
   /* ---------- Terminbereich ---------- */
@@ -511,7 +560,7 @@
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
 <script src="landscape.js?v=20261023"></script>
 </head>
-<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
+<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-goch-signalton="figuren/goch/toene/zwitschern" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
 <header class="kopf start">
@@ -548,6 +597,10 @@
         <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="figuren/goch/bilder/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
         <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="figuren/goch/bilder/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
         <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="figuren/goch/bilder/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
+        <!-- Schnabelposen für den sprechenden Goch (23.10.2026): erst geladen, wenn ein Besucher Stimme oder Spracheingabe einschaltet (goch-stimme.js) -->
+        <img class="bird-frame bird-mund" data-mundpose="halb" data-src-spaet="figuren/goch/bilder/vogel-schnabel-halb.webp" alt="" width="1153" height="637" decoding="async">
+        <img class="bird-frame bird-mund" data-mundpose="offen" data-src-spaet="figuren/goch/bilder/vogel-schnabel-offen.webp" alt="" width="1153" height="637" decoding="async">
+        <img class="bird-frame bird-mund" data-mundpose="blinzeln" data-src-spaet="figuren/goch/bilder/vogel-blinzeln.webp" alt="" width="1153" height="637" decoding="async">
       </span></span>
       <!-- Vogel und Ast: …/bestand/ = Fassung ohne Landschaft (kurzer Ast, Vogel mit weißem Grund, multiply), sonst Fassung mit Landschaft (langer Ast, freigestellter Vogel).
            Der Vogel liegt seit 23.10.2026 im Figurenpaket figuren/goch/bilder/, der Ast als Teil der Szene in assets/.
@@ -563,6 +616,7 @@
         <button class="goch-close" id="goch-close" type="button" aria-label="Gespräch schließen" data-i18n-aria="gochClose">×</button>
       </div>
       <p class="goch-ki" id="goch-ki" data-i18n="gochKi" hidden>KI · künstliche Stimme</p>
+      <span class="goch-kamera-platz" id="goch-kamera-platz" hidden></span>
       <div class="goch-log" id="goch-log" role="log" aria-live="polite"></div>
       <div class="goch-consent" id="goch-consent" hidden>
         <p data-i18n="gochConsentText">Goch antwortet mit einem Sprachmodell. Was Sie hier schreiben, geht an einen Cloudflare-Server und an das Modell, auch in die USA. Gespeichert wird nichts; die Entscheidung gilt 180 Tage. Einverstanden?</p>
@@ -584,22 +638,31 @@
       </form>
       <!-- Sprechender Goch (23.10.2026, goch-stimme.js): nur mit data-goch-stimme="an" am <body>; eigene Einwilligung, nur für diesen Besuch -->
       <div class="goch-mikro" id="goch-mikro" hidden>
-        <button class="goch-send goch-mikro-knopf" id="goch-mikro-knopf" type="button" aria-pressed="false" aria-describedby="goch-mikro-status" data-i18n="gochMikroKnopf">Sprechen</button>
+        <button class="goch-send goch-mikro-knopf" id="goch-mikro-knopf" type="button" aria-pressed="false" aria-describedby="goch-mikro-status" data-i18n="gochMikroKnopf">Weiter zuhören</button>
         <span class="goch-pegel" aria-hidden="true"><span id="goch-pegel"></span></span>
         <span class="goch-mikro-status" id="goch-mikro-status" role="status" aria-live="polite"></span>
       </div>
       <div class="goch-sprache" id="goch-sprache" hidden>
         <button class="goch-schalter" id="goch-mikro-an" type="button" aria-pressed="false" data-i18n="gochMikroAn">Mit Goch sprechen</button>
         <button class="goch-schalter" id="goch-laut" type="button" aria-pressed="false" data-i18n="gochLaut">Goch spricht laut</button>
+        <button class="goch-schalter" id="goch-blick-an" type="button" aria-pressed="false" data-i18n="gochBlickAn">Blickkontakt</button>
       </div>
       <div class="goch-consent" id="goch-stimme-consent" hidden>
-        <p data-i18n="gochStimmeConsentText">Sprechen mit Goch: Ihre Aufnahme geht an Cloudflare und wird dort in Text umgewandelt, auch in den USA; gespeichert wird sie nicht. Gochs Antworten spricht eine künstliche Stimme von ElevenLabs (USA) – dorthin geht nur Gochs Antworttext. Die Einwilligung gilt nur für diesen Besuch und lässt sich jederzeit beenden. Einverstanden?</p>
+        <p data-i18n="gochStimmeConsentText">Sprechen mit Goch: Solange „Mit Goch sprechen“ an ist, ist Ihr Mikrofon offen; nur gesprochene Abschnitte gehen an Cloudflare (auch USA) und werden in Text umgewandelt, gespeichert wird nichts. Nach einer Minute Stille geht es aus. Gochs Antworten spricht eine künstliche Stimme von ElevenLabs (USA), die nur seinen Antworttext erhält. Gilt nur für diesen Besuch, jederzeit beendbar. Einverstanden?</p>
         <div class="consent-actions">
           <button class="consent-button" id="goch-stimme-allow" type="button" data-i18n="gochStimmeAllow">Sprechen erlauben</button>
           <button class="consent-link" id="goch-stimme-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
         </div>
       </div>
-      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button> <button class="consent-link goch-withdraw" id="goch-stimme-ende" type="button" data-i18n="gochStimmeEnde" hidden>Sprechen beenden</button> <button class="consent-link goch-withdraw" id="goch-stumm" type="button" hidden>Zwitschern aus</button></p>
+      <!-- Blickkontakt (goch-blick.js): eigene Einwilligung; die Kamera wird nur im Rahmen goch-kamera.html ausgewertet -->
+      <div class="goch-consent" id="goch-kamera-consent" hidden>
+        <p data-i18n="gochKameraConsentText">Blickkontakt mit Goch: Ihre Kamera bleibt auf diesem Gerät. Goch erkennt nur, ob ein Gesicht da ist, wo es ist und ob es zu ihm schaut – kein Bild verlässt das Gerät, nichts wird gespeichert, keine Mimik, keine Gefühle, keine Wiedererkennung. Kommt jemand an den Bildschirm, zwitschert Goch und spricht ihn an. Gilt nur für diesen Besuch. Einverstanden?</p>
+        <div class="consent-actions">
+          <button class="consent-button" id="goch-kamera-allow" type="button" data-i18n="gochKameraAllow">Kamera erlauben</button>
+          <button class="consent-link" id="goch-kamera-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
+        </div>
+      </div>
+      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button> <button class="consent-link goch-withdraw" id="goch-stimme-ende" type="button" data-i18n="gochStimmeEnde" hidden>Sprechen beenden</button> <button class="consent-link goch-withdraw" id="goch-stumm" type="button" hidden>Zwitschern aus</button> <button class="consent-link goch-withdraw" id="goch-zur-seite" type="button" data-i18n="gochZurSeite" hidden>Seite ansehen</button></p>
     </section>
     </div>
   </section>
@@ -795,6 +858,9 @@
     </form>
   </section>
 </main>
+<!-- Gesprächsmodus auf dem Handy (goch-gespraech.js): Papier über der Seite, kleiner Goch, wenn er eine Stelle zeigt -->
+<div class="goch-papier" aria-hidden="true"></div>
+<button class="goch-mini" id="goch-mini" type="button" aria-label="Zurück zu Goch" data-i18n-aria="gochMini" hidden><img data-src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"></button>
 
 <footer>
   <details id="privacy">
@@ -810,7 +876,8 @@
       <p data-i18n="privacyCal">Nach Freigabe verarbeitet Cal.com, Inc. IP-Adresse und Browserdaten, bei einer Buchung zusätzlich Kontakt- und Termindaten. Sicherheitscookies wie __cf_bm schützen vor Missbrauch. Cal.com verarbeitet Buchungsdaten im Auftrag und auch in den USA; laut Anbieter gelten dafür Standardvertragsklauseln oder ein Angemessenheitsmechanismus. Termine werden im verbundenen Google-Kalender verwaltet; bei Videoterminen kommt Google Meet hinzu.</p>
       <p><a href="https://cal.com/privacy" data-i18n="calPrivacy">Datenschutz bei Cal.com</a> · <a href="https://policies.google.com/privacy" data-i18n="googlePrivacy">Datenschutz bei Google</a></p>
       <p data-i18n="privacyGoch">Gespräch mit Goch: Das Gespräch mit dem Rotkehlchen ist freiwillig und beginnt erst nach Zustimmung (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO); die Auswahl wird wie beim Kalender für 180 Tage lokal im Browser gespeichert und ist im Gespräch jederzeit widerrufbar. Eingegebene Texte und die IP-Adresse werden an einen Cloudflare Worker (Cloudflare, Inc.) übertragen und von dort an das Sprachmodell Claude von Anthropic, PBC (USA) weitergegeben, das die Antwort erzeugt; Anthropic verwendet API-Eingaben laut seinen Bedingungen nicht zum Training. Der Worker speichert keine Gespräche, nur einen Tageszähler ohne Personenbezug sowie Fragen, die Goch nicht beantworten konnte – ohne Bezug zur fragenden Person, für 30 Tage, damit Robin das Profil ergänzen kann. Eine Nachricht an Robin wird erst nach ausdrücklicher Bestätigung mit Name und E-Mail-Adresse über den Versanddienst Resend (Resend, Inc., USA) per E-Mail zugestellt – zusammen mit dem Gesprächsverlauf dieser Sitzung, damit Robin den Zusammenhang kennt – und wie Kontaktdaten behandelt. Feedback zu den Werkzeugen geht nach ausdrücklicher Bestätigung genauso per E-Mail an Robin, aber ohne Gesprächsverlauf und ohne Name und Adresse, sofern Sie sie nicht selbst nennen. Bietet Goch die Anmeldung zum Newsletter an, geht die Adresse aus dem Feld darunter direkt an die Anmeldung (siehe Newsletter), nicht an das Sprachmodell. Antworten des Sprachmodells sind automatisch erzeugt und keine verbindliche Auskunft.</p>
-      <p id="privacy-goch-stimme" data-goch-stimme-text hidden><span data-i18n="privacyGochStimme">Sprechen mit Goch: Spracheingabe und Stimme sind freiwillig und beginnen erst, wenn Sie im Gespräch „Mit Goch sprechen“ oder „Goch spricht laut“ einschalten und dafür eigens einwilligen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Die Einwilligung gilt nur für diesen Besuch, wird nicht im Browser gespeichert und lässt sich im Gespräch jederzeit beenden. Das Mikrofon ist nur offen, solange Sie den Knopf halten oder bis Sie erneut tippen, höchstens 20 Sekunden. Die Aufnahme geht mit Ihrer IP-Adresse an einen Cloudflare Worker und wird dort mit Workers AI (Cloudflare, Inc., auch in den USA) in Text umgewandelt; weder Aufnahme noch Text werden gespeichert, gezählt wird nur die Gesamtdauer je Tag. Der erkannte Text erscheint im Gespräch und wird wie getippter Text verarbeitet. Gochs Antworten spricht eine künstlich erzeugte Stimme von ElevenLabs (Eleven Labs, Inc., USA); dafür erhält ElevenLabs als Auftragsverarbeiter nur Gochs Antworttext, nie Ihre Eingaben. Steht diese Stimme nicht zur Verfügung, liest Ihr Browser mit einer Stimme Ihres Geräts vor; dabei wird nichts übertragen. Bei der ersten gesprochenen Antwort sagt Goch, dass er eine KI mit künstlich erzeugter Stimme ist; ein Hinweis im Gespräch zeigt das dauerhaft an.</span> <a href="https://elevenlabs.io/privacy-policy" data-i18n="elevenlabsPrivacy">Datenschutz bei ElevenLabs</a></p>
+      <p id="privacy-goch-stimme" data-goch-stimme-text hidden><span data-i18n="privacyGochStimme">Sprechen mit Goch: Spracheingabe und Stimme sind freiwillig und beginnen erst, wenn Sie im Gespräch „Mit Goch sprechen“ oder „Goch spricht laut“ einschalten und dafür eigens einwilligen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Die Einwilligung gilt nur für diesen Besuch, wird nicht im Browser gespeichert und lässt sich im Gespräch jederzeit beenden. Solange „Mit Goch sprechen“ eingeschaltet ist, ist das Mikrofon offen. Ob Sie sprechen, erkennt Ihr Browser selbst an der Lautstärke; erst wenn Sie kurz innehalten, geht der gesprochene Abschnitt (höchstens 20 Sekunden) weiter, Stille und Geräusche dazwischen nicht. Während Goch antwortet, hört er nicht zu. Nach einer Minute ohne Sprache, mit „Pause“, beim Schließen des Gesprächs, beim Verlassen der Seite und mit „Sprechen beenden“ wird das Mikrofon geschlossen; beim Wechsel in einen anderen Tab bleibt es an. Jeder Abschnitt geht mit Ihrer IP-Adresse an einen Cloudflare Worker und wird dort mit Workers AI (Cloudflare, Inc., auch in den USA) in Text umgewandelt; weder Abschnitt noch Text werden gespeichert, gezählt wird nur die Gesamtdauer je Tag. Der erkannte Text erscheint im Gespräch und wird wie getippter Text verarbeitet. Gochs Antworten spricht eine künstlich erzeugte Stimme von ElevenLabs (Eleven Labs, Inc., USA); dafür erhält ElevenLabs als Auftragsverarbeiter nur Gochs Antworttext, nie Ihre Eingaben. Steht diese Stimme nicht zur Verfügung, antwortet Goch nur als Text. Bei der ersten gesprochenen Antwort sagt Goch, dass er eine KI mit künstlich erzeugter Stimme ist; ein Hinweis im Gespräch zeigt das dauerhaft an.</span> <a href="https://elevenlabs.io/privacy-policy" data-i18n="elevenlabsPrivacy">Datenschutz bei ElevenLabs</a></p>
+      <p id="privacy-goch-blick" data-goch-stimme-text hidden><span data-i18n="privacyGochBlick">Blickkontakt mit Goch: freiwillig; beginnt erst, wenn Sie im Gespräch „Blickkontakt“ einschalten und eigens einwilligen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Das Kamerabild wird ausschließlich in Ihrem Browser ausgewertet, mit MediaPipe von Google (Apache-2.0), das robin.vision selbst ausliefert; dessen Nutzungsmeldung an Google ist abgeschaltet, Verbindungen zu fremden Servern sind technisch gesperrt. Ausgewertet wird nur, ob ein Gesicht im Bild ist, wo es ist und ob es zum Bildschirm schaut; danach bewegt sich Goch, und im Gesprächsmodus hört er nur zu, wenn Sie ihn ansehen. Es gibt keine Mimik- oder Gefühlserkennung und keine Wiedererkennung; weder Bilder noch Messwerte verlassen Ihr Gerät, nichts wird gespeichert. Kommt jemand an den Bildschirm, zwitschert Goch und begrüßt ihn; dafür fragt die Seite bei Gochs Server einen festen Begrüßungssatz an – wie bei einer Frage, ohne Kamerabild oder Messwerte. Solange die Kamera an ist, ist der Schalter „Blickkontakt“ gedrückt, und Ihr Browser zeigt seine Kamera-Anzeige. Sie geht aus mit „Blickkontakt“, beim Schließen des Gesprächs, beim Verlassen der Seite und mit „Sprechen beenden“; beim Wechsel in einen anderen Tab bleibt sie an.</span></p>
       <p data-i18n="privacyContact">Kontaktformular: Name, E-Mail-Adresse, freiwillig Telefonnummer und der Nachrichtentext werden beim Absenden über einen Cloudflare Worker (Cloudflare, Inc.) und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich zugestellt und ausschließlich zur Beantwortung verwendet (Art. 6 Abs. 1 lit. b und f DSGVO). Es werden keine Cookies gesetzt und keine Eingaben auf dem Server gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
       <p data-i18n="privacyYoutube">Eingebettete Videos von YouTube (Google Ireland Ltd.) werden erst geladen, wenn Sie auf den Platzhalter klicken (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Dabei verarbeitet Google Ihre IP-Adresse und Browserdaten, auch in den USA; es wird die Variante ohne Cookies zur Wiedergabeverfolgung („youtube-nocookie“) verwendet. Ohne Klick wird keine Verbindung zu YouTube aufgebaut.</p>
       <p data-i18n="privacyNewsletter">Newsletter: Er bringt die Impulse und Neues zu den Werkzeugen und Workshops (neue Fassungen, Beta-Zugänge, Termine). Bei der Anmeldung geht die E-Mail-Adresse über einen Cloudflare Worker (Cloudflare, Inc.) an den Versanddienst Brevo (Sendinblue SAS, Paris, Frankreich). Brevo schickt eine Bestätigungsmail; erst nach dem Klick auf den Link ist die Adresse angemeldet (Double-Opt-In). Gespeichert werden die Adresse, die Sprache sowie Zeitpunkt und IP-Adresse von Anmeldung und Bestätigung, damit die Einwilligung nachweisbar ist. Grundlage ist die Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie lässt sich jederzeit über den Abmeldelink in jeder Ausgabe oder per E-Mail widerrufen; danach wird die Adresse gelöscht oder, soweit sie zum Nachweis nötig ist, gesperrt. Öffnungen und Klicks werden nicht personenbezogen ausgewertet. Brevo verarbeitet die Daten in meinem Auftrag. Die Ausgaben mit den Impulsen erstellt Brevo aus dem Blog-Feed mit dem Dienst Integry (USA), den Brevo als Unterauftragsverarbeiter einsetzt. Eine Verarbeitung in den USA ist dabei möglich; laut Brevo gelten dafür Standardvertragsklauseln.</p>
@@ -847,8 +914,12 @@
 <script src="language.js?v=20261023" defer></script>
 <script src="site.js?v=20261016b" defer></script>
 <script src="goch.js?v=20261023" defer></script>
+<script src="goch-audio.js?v=20261023" defer></script>
+<script src="goch-leben.js?v=20261024" defer></script>
 <script src="goch-stimme.js?v=20261023" defer></script>
 <script src="goch-zwitschern.js?v=20261023" defer></script>
+<script src="goch-gespraech.js?v=20261023" defer></script>
+<script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
 </body>

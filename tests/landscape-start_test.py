@@ -36,7 +36,7 @@ requestAnimationFrame(sample);
 """
 
 async def main():
-    process = subprocess.Popen([CHROME, '--headless=new', '--remote-debugging-port=9368',
+    process = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', '--remote-debugging-port=9368',
         '--user-data-dir=' + tempfile.mkdtemp(prefix='nachtstart-chrome-'), '--no-first-run',
         'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:

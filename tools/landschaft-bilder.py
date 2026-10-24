@@ -40,6 +40,9 @@ ORIGINALS = {
 }
 BIRD_DIR = 'figuren/goch/bilder'  # Figurenpaket von Goch (FIGUREN.md); der Ast gehört zur Szene und bleibt in assets/
 PAPER = np.array([243, 239, 229], dtype=np.float32)
+# Augenpunkte der Vogelbilder (figuren/goch/figur.json): der Lichtpunkt im Auge ist kein Loch
+EYES = {'vogel.webp': (400, 100), 'flugpose-1-aufschlag.webp': (570, 390), 'flugpose-2-gleiten.webp': (578, 375),
+        'flugpose-3-abschlag.webp': (595, 318), 'flugpose-4-landeanflug.webp': (591, 378)}
 ALPHA_QUALITY_BIRDS = 90  # deckende Silhouette mit weicher Kante: verlustarmes Alpha, sonst fransen die Ränder
 
 
@@ -84,7 +87,44 @@ def white_to_alpha(image: Image.Image) -> Image.Image:
     return Image.fromarray(np.rint(out).astype(np.uint8), 'RGBA')
 
 
-def opaque_cutout(image: Image.Image, background: int = 246, rim: int = 2, reach: float = 3.0) -> Image.Image:
+def enclosed_holes(low: np.ndarray, exterior: np.ndarray, background: int, keep: tuple = (), dark: float = 160.0) -> np.ndarray:
+    """Eingeschlossene weiße Flächen, die die Flutfüllung vom Bildrand nicht erreicht – zwischen Zehen, Beinen und
+    Federn (Robin, 23.10.2026: „zwischen seinen Füßen ist weiß“). Loch = weiß (min(R,G,B) >= background) und ringsum
+    dunkle Umrisse (min(R,G,B) < dark) statt hellem Bauch: ab 12 Pixeln zu mindestens 30 %, kleine Flecken ab 4 Pixeln
+    zu mindestens 50 %; nie am Auge (keep: Augenpunkte; der Lichtpunkt im Auge bleibt)."""
+    candidate = (low >= background) & ~exterior
+    height, width = low.shape
+    seen = np.zeros_like(candidate)
+    holes = np.zeros_like(candidate)
+    for y0, x0 in zip(*np.nonzero(candidate)):
+        if seen[y0, x0]:
+            continue
+        stack, points = [(y0, x0)], []
+        seen[y0, x0] = True
+        while stack:
+            y, x = stack.pop()
+            points.append((y, x))
+            for ny, nx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):
+                if 0 <= ny < height and 0 <= nx < width and candidate[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        if len(points) < 4:
+            continue
+        ys, xs = np.array(points).T
+        if any((xs.mean() - ex) ** 2 + (ys.mean() - ey) ** 2 < 30 ** 2 for ex, ey in keep):
+            continue
+        top, left = max(ys.min() - 3, 0), max(xs.min() - 3, 0)
+        bottom, right = min(ys.max() + 4, height), min(xs.max() + 4, width)
+        part = np.zeros((bottom - top, right - left), dtype=np.uint8)
+        part[ys - top, xs - left] = 255
+        ring = (np.asarray(Image.fromarray(part).filter(ImageFilter.MaxFilter(5))) == 255) & (part == 0)
+        share = (low[top:bottom, left:right][ring] < dark).mean()
+        if share >= (0.3 if len(points) >= 12 else 0.5):
+            holes[ys, xs] = True
+    return holes
+
+
+def opaque_cutout(image: Image.Image, background: int = 246, rim: int = 2, reach: float = 3.0, keep: tuple = ()) -> Image.Image:
     """Deckende Freistellung für Figuren (Vögel, Ast). Weiß-zu-Alpha allein macht helle Flächen wie den
     Bauch durchsichtig; hier wird die Silhouette per Flutfüllung vom Bildrand bestimmt (Hintergrund =
     min(R,G,B) >= background, 4er-Nachbarschaft). Innen: Alpha 1, Originalfarbe. Außen: Alpha 0.
@@ -100,6 +140,7 @@ def opaque_cutout(image: Image.Image, background: int = 246, rim: int = 2, reach
     mask.paste(Image.fromarray(np.where(low >= background, 255, 0).astype(np.uint8)), (1, 1))
     ImageDraw.floodfill(mask, (0, 0), 128)
     exterior = np.asarray(mask)[1:-1, 1:-1] == 128
+    exterior = exterior | enclosed_holes(low, exterior, background, keep)  # eingeschlossenes Weiß zählt als Hintergrund
     inside = Image.fromarray(np.where(exterior, 0, 255).astype(np.uint8))
     core = np.asarray(inside.filter(ImageFilter.MinFilter(2*rim+1))) == 255  # sicher voll bedeckt
     lower = 1.0 - low / 255.0  # Weiß-zu-Alpha ist eine harte Untergrenze der Deckung
@@ -306,11 +347,12 @@ def build_birds(repo: Path, output: Path) -> list[dict]:
             continue
         path = repo / BIRD_DIR / 'bestand' / name
         source = Image.open(path)
-        cutout = remove_white_fringe(opaque_cutout(source))  # deckend: der helle Bauch darf Blätter und Nachthimmel nicht durchscheinen lassen
+        keep = (EYES[name],) if name in EYES else ()
+        cutout = remove_white_fringe(opaque_cutout(source, keep=keep))  # deckend: der helle Bauch darf Blätter und Nachthimmel nicht durchscheinen lassen
         report = source_stats(path, source)
         report['matte'] = 'opaque_cutout + remove_white_fringe: deckende Innenfläche, 3px Saum vom Weiß befreit'
         report['crop'] = [0, 0, *source.size]
-        report['outputs'] = [export(cutout, output/name, 82, alpha_quality=ALPHA_QUALITY_BIRDS)]
+        report['outputs'] = [export(cutout, output/name, 81, alpha_quality=ALPHA_QUALITY_BIRDS)]  # 81: mit freien Löchern zwischen den Zehen bleibt die Summe unter 600 KB
         reports.append(report)
     total = sum(r['outputs'][0]['bytes'] for r in reports)
     if total > 600000:

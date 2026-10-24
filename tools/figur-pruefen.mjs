@@ -11,11 +11,11 @@ import { fileURLToPath } from "node:url";
 
 // Posen der Figur und ihre Namen in der Szene (data-pose in index.html, kiosk.html)
 export const POSEN = { sitzend: "rest", aufschlag: "up", gleiten: "glide", abschlag: "down", landeanflug: "landing",
-  "schnabel-halb": "halb", "schnabel-offen": "offen", lauschend: "lauschen", zwitschernd: "zwitschern" };
+  "schnabel-halb": "halb", "schnabel-offen": "offen", lauschend: "lauschen", zwitschernd: "zwitschern", blinzelnd: "blinzeln" };
 export const PFLICHT = ["sitzend", "schnabel-halb", "schnabel-offen", "lauschend"];
 export const FLUG = ["aufschlag", "gleiten", "abschlag", "landeanflug"];
 export const PLATZHALTER = ["neigen", "keiner"]; // neigen: leichte Kopfbewegung über .bird-tilt, bis die Pose da ist
-export const GRENZEN = { bild: 250 * 1024, fassung: 1536 * 1024, ton: 50 * 1024, tonMin: 0.5, tonMax: 1.5 };
+export const GRENZEN = { bild: 250 * 1024, fassung: 1536 * 1024, teile: 200 * 1024, ton: 50 * 1024, tonMin: 0.5, tonMax: 1.5 };
 const SPRACHEN = ["de", "en"];
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
@@ -184,6 +184,49 @@ export function pruefen(ordner, { html } = {}) {
     if (!(puls.min >= 0.8 && puls.max <= 1.25 && puls.min < puls.max)) f("animation.puls: min ≥ 0,8, max ≤ 1,25, min < max");
   } else f("animation.art: „posen“ oder „logo“");
 
+  // Ebenen (optional, z. B. Gochs Ast): fest in der Bühne, Lage in Pixeln der Bühne bzw. des Logos
+  const flaeche = a.art === "logo" ? a.logo || {} : a.buehne || {};
+  if (a.ebenen != null && !Array.isArray(a.ebenen)) f("animation.ebenen: Liste");
+  for (const [i, e] of (Array.isArray(a.ebenen) ? a.ebenen : []).entries()) {
+    const wo = `Ebene ${i + 1}${e && e.name ? " „" + e.name + "“" : ""}`;
+    if (!e || !/^[a-z0-9-]{1,30}$/.test(e.name || "")) { f(`${wo}: name a–z, 0–9, Bindestrich`); continue; }
+    if (!istText(e.datei) || !/^[a-z0-9][a-z0-9.-]*\.(webp|png)$/.test(e.datei) || !istZahl(e.breite) || !istZahl(e.hoehe)) { f(`${wo}: datei (.webp/.png), breite, hoehe`); continue; }
+    if (![e.links, e.oben].every(Number.isFinite) || e.links < 0 || e.oben < 0 || e.links + e.breite > flaeche.breite + 0.5 || e.oben > flaeche.hoehe) f(`${wo}: links/oben in Pixeln innerhalb der Bühne`);
+    if (typeof e.vorne !== "boolean") f(`${wo}: vorne true (über der Figur) oder false (dahinter)`);
+    const nur = e.fassungen == null ? fassungen.map(([n]) => n) : e.fassungen;
+    if (!Array.isArray(nur) || !nur.length || !nur.every(n => a.fassungen && a.fassungen[n])) { f(`${wo}: fassungen nur aus animation.fassungen`); continue; }
+    for (const n of nur) {
+      const pfad = join(paket, a.fassungen[n], e.datei);
+      if (!existsSync(pfad)) { f(`${wo} (${n}): ${a.fassungen[n]}${e.datei} fehlt`); continue; }
+      const buf = readFileSync(pfad), m = bildmasse(buf);
+      if (!m || m.breite !== e.breite || m.hoehe !== e.hoehe) f(`${wo} (${n}): ${m ? m.breite + " × " + m.hoehe : "kein Bild"}, laut figur.json ${e.breite} × ${e.hoehe}`);
+      if (buf.length > GRENZEN.bild) f(`${wo} (${n}): ${kb(buf.length)}, höchstens ${kb(GRENZEN.bild)}`);
+    }
+  }
+
+  // Teile (optional, goch-leben.js): Körper, Kopf und Schwanz aus der Sitzpose, gleiche Leinwand, zusammen klein
+  const teile = a.teile, sitz = a.posen && a.posen.sitzend;
+  const teilDatei = d => istText(d) && /^[a-z0-9][a-z0-9.-]*\.(webp|png)$/.test(d);
+  if (teile != null && (a.art !== "posen" || !sitz)) f("animation.teile: nur für Figuren mit Posen und Sitzpose");
+  else if (teile != null && (!istText(teile.ordner) || !teilDatei(teile.koerper) || !teile.kopf || !teile.kopf.posen || !teilDatei(teile.kopf.posen.sitzend) || !teile.schwanz || !teilDatei(teile.schwanz.datei)))
+    f("animation.teile: ordner, koerper, kopf.posen.sitzend, schwanz.datei");
+  else if (teile != null) {
+    for (const [name, g] of [["kopf", teile.kopf], ["schwanz", teile.schwanz]]) {
+      if (!Array.isArray(g.schnitt) || g.schnitt.length < 2 || !g.schnitt.every(istPunkt) || !istPunkt(g.drehpunkt)) f(`animation.teile.${name}: schnitt (Punkte) und drehpunkt`);
+      if (!(g.winkel > 0 && g.winkel <= 15)) f(`animation.teile.${name}.winkel: 1–15 Grad`);
+    }
+    for (const p of Object.keys(teile.kopf.posen)) if (!a.posen[p] || !a.posen[p].datei) f(`animation.teile.kopf.posen: Pose „${p}“ fehlt`);
+    let zusammen = 0;
+    for (const d of [teile.koerper, teile.schwanz.datei, ...Object.values(teile.kopf.posen)]) {
+      const pfad = join(paket, teile.ordner, d);
+      if (!existsSync(pfad)) { f(`Teil ${teile.ordner}${d} fehlt (tools/figur-teile.py)`); continue; }
+      const buf = readFileSync(pfad), m = bildmasse(buf);
+      if (!m || m.breite !== sitz.breite || m.hoehe !== sitz.hoehe) f(`Teil ${d}: ${m ? m.breite + " × " + m.hoehe : "kein Bild"}, Sitzpose ${sitz.breite} × ${sitz.hoehe}`);
+      zusammen += buf.length;
+    }
+    if (zusammen > GRENZEN.teile) f(`Teile zusammen ${kb(zusammen)}, höchstens ${kb(GRENZEN.teile)}`);
+  }
+
   // Signalton: Ogg/Opus mit MP3-Rückfall, kurz, klein
   const ton = figur.signalton || {};
   if (ton.datei == null) h("kein Signalton – die Figur macht sich nur sichtbar bemerkbar");
@@ -209,6 +252,20 @@ export function pruefen(ordner, { html } = {}) {
   if (!["browser", "keine"].includes(st.rueckfall)) f("stimme.rueckfall: „browser“ oder „keine“");
   if (st.anbieter === "elevenlabs" && !istText(st.voiceId)) h("stimme.voiceId leer – in der Redaktion eintragen");
   if (kunde && istText(st.voiceId)) h("stimme.voiceId einer Kundenfigur gehört in die Redaktion, nicht in die Datei");
+  const ein = st.einstellungen || {}, bereich = { stability: [0, 1], similarity_boost: [0, 1], style: [0, 1], speed: [0.7, 1.2] };
+  for (const [k, v] of Object.entries(ein)) {
+    if (k === "use_speaker_boost") { if (typeof v !== "boolean") f("stimme.einstellungen.use_speaker_boost: true oder false"); }
+    else if (!bereich[k]) f(`stimme.einstellungen.${k}: unbekannt (erlaubt: ${Object.keys(bereich).join(", ")}, use_speaker_boost)`);
+    else if (!(v >= bereich[k][0] && v <= bereich[k][1])) f(`stimme.einstellungen.${k}: ${bereich[k][0]} bis ${bereich[k][1]}`);
+  }
+  if (st.seed != null && !(Number.isInteger(st.seed) && st.seed >= 0 && st.seed <= 4294967295)) f("stimme.seed: ganze Zahl ab 0");
+  if (st.rueckfall === "keine" && st.browser) h("stimme.browser wird nicht genutzt (rueckfall „keine“: nur die Stimme vom Server)");
+  const br = st.browser;
+  if (br) {
+    for (const s of ["de", "en"]) if (br[s] != null && !(Array.isArray(br[s]) && br[s].every(istText))) f(`stimme.browser.${s}: Liste von Stimmnamen`);
+    if (br.tonhoehe != null && !(br.tonhoehe >= 0.5 && br.tonhoehe <= 1.5)) f("stimme.browser.tonhoehe: 0,5 bis 1,5");
+    if (br.tempo != null && !(br.tempo >= 0.5 && br.tempo <= 1.5)) f("stimme.browser.tempo: 0,5 bis 1,5");
+  }
 
   // Farben und Kiosk
   for (const [k, v] of Object.entries(figur.farben || {})) if (!HEX.test(v)) f(`farben.${k}: #RRGGBB`);
@@ -255,9 +312,11 @@ function pruefeSzene(figur, paket, htmlPfad, f) {
   const prefix = relative(resolve(htmlPfad, ".."), paket).split("\\").join("/") + "/bilder/";
   for (const [k, p] of Object.entries(a.posen)) {
     if (!p || !p.datei) continue;
-    const img = (szene.match(new RegExp(`<img[^>]*data-pose="${POSEN[k]}"[^>]*>`)) || [""])[0];
-    if (!img) { f(`Szene: Bild für Pose „${k}“ (data-pose="${POSEN[k]}") fehlt`); continue; }
-    const src = (img.match(/(?:data-src|src)="([^"]+)"/) || [])[1] || "";
+    // Schnabelposen und Blinzeln lädt die Startseite erst beim Sprechen: data-mundpose und data-src-spaet statt data-pose und src
+    const attr = k.startsWith("schnabel-") || k === "blinzelnd" ? "data-mundpose" : "data-pose";
+    const img = (szene.match(new RegExp(`<img[^>]*${attr}="${POSEN[k]}"[^>]*>`)) || [""])[0];
+    if (!img) { f(`Szene: Bild für Pose „${k}“ (${attr}="${POSEN[k]}") fehlt`); continue; }
+    const src = (img.match(/ (?:data-src-spaet|data-src|src)="([^"]+)"/) || [])[1] || "";
     if (!src.startsWith(prefix) || !src.endsWith("/" + p.datei)) f(`Szene: Pose „${k}“ zeigt auf ${src}, erwartet ${prefix}…${p.datei}`);
     const w = +(img.match(/width="(\d+)"/) || [])[1], hh = +(img.match(/height="(\d+)"/) || [])[1];
     if (w !== p.breite || hh !== p.hoehe) f(`Szene: Pose „${k}“ hat width/height ${w} × ${hh}, laut figur.json ${p.breite} × ${p.hoehe}`);
@@ -269,6 +328,12 @@ function pruefeSzene(figur, paket, htmlPfad, f) {
   if (flug.length) {
     const breite = prozent(regel(".bird-flight"), "width"), soll = rund(versatz(figur, flug[0]).breite);
     if (Math.abs(breite - soll) > 0.0002) f(`CSS .bird-flight: width ${breite}%, aus figur.json ${soll}%`);
+  }
+  // Ebenen mit Gegenstück in der Szene (css, z. B. ".branch"): gleiche Höhe wie im CSS der Seite
+  for (const e of a.ebenen || []) {
+    if (!e || !e.css) continue;
+    const oben = prozent(regel(e.css), "top"), soll = e.oben / a.buehne.hoehe * 100;
+    if (!(Math.abs(oben - soll) <= 0.01)) f(`CSS ${e.css}: top ${oben}%, aus figur.json ${rund(soll)}% (Ebene „${e.name}“)`);
   }
   for (const k of flug) {
     const v = versatz(figur, k), r = regel(".bird-" + POSEN[k]);

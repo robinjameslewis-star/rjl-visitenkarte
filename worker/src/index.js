@@ -2,7 +2,9 @@
 // POST /chat  { lang: "de"|"en", messages: [{role:"user"|"assistant", content:"…"}, …] }
 // Antwort:    { reply: "…", action: null | "calendar" | "contact" | "message" | "newsletter", sent: true|false|undefined,
 //               (newsletter: die Seite zeigt unter der Antwort ein Feld zur Anmeldung, die Adresse geht nie an das Modell)
-//               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“) }
+//               link: null | { label: "…", url: "https://…" }, link2: wie link (nur bei „Was gibt's Neues?“),
+//               zeigen: null | Stelle der Startseite aus ZIELE (die Seite führt dorthin, während Goch spricht) }
+// Mit anlass "angekommen" | "zurueck" | "nachfrage" (Blickkontakt) antwortet der Worker ohne Modell mit einem festen Satz.
 //               – Links nur aus links.md, nie vom Modell erfunden
 // Sprechender Goch (23.10.2026): { figur: "goch" } wählt die Figur (öffentlich nur Goch); { gesprochen: true } – die Frage
 // kam per Spracheingabe – oder { stimme: {erste} } schaltet das schnellere Modell des Sprachmodus ein. Mit „stimme“
@@ -23,8 +25,11 @@ import { handleAufbau } from "./aufbau.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
-import { stimmeFuerAntwort, KI_HINWEIS } from "./stimme.js";
+import { stimmeFuerAntwort, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
 import { handleListen } from "./hoeren.js";
+import { handleKiosk, kundenSystem, GOCH_AM_GERAET } from "./kiosk.js";
+// Durable Object des Messegeräts (Gerätebudget, src/kiosk.js) – muss vom Hauptmodul exportiert werden
+export { Geraetebudget } from "./kiosk.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -36,6 +41,13 @@ const TEXT = {
     // Wenn das Modell nicht antworten kann oder soll (Tagesgrenze, Störung, Guthaben): kein Wort davon zum
     // Besucher – Goch leitet in den gewohnten Draht über, der Worker führt ihn ohne Modell zu Ende.
     quiet: "Das richte ich lieber direkt an Robin weiter. Was soll ich Robin ausrichten? Oder schreiben Sie ihm selbst: robin@robin.vision",
+    // Goch spricht von sich aus an, wenn jemand an den Bildschirm kommt (Blickkontakt) – feste Sätze, kein Modell
+    angekommen: ["Hallo! Schön, dass Sie vorbeischauen. Fragen Sie mich gern, woran Robin gerade arbeitet.",
+      "Ah, hallo! Ich bin Goch, Robins Rotkehlchen. Womit kann ich Ihnen helfen?",
+      "Da sind Sie ja! Möchten Sie wissen, was Robin gerade baut?"],
+    zurueck: ["Da sind Sie wieder! Wo waren wir stehen geblieben?", "Schön, Sie wiederzusehen. Haben Sie noch eine Frage?"],
+    nachfrage: ["Möchten Sie wissen, woran Robin gerade arbeitet?", "Fragen Sie mich ruhig etwas – zum Beispiel, was das SmartFormular kann.",
+      "Soll ich Ihnen von Robins Workshops erzählen?"],
     sent: e => `Ausgerichtet. Robin antwortet Ihnen persönlich per E-Mail an ${e}.`,
     summary: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Unser Gespräch schicke ich mit, damit Robin den Zusammenhang kennt; wenn Sie das nicht möchten, sagen Sie es. Soll ich das so senden?`,
     summaryBare: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Ohne unser Gespräch, nur diese Nachricht. Soll ich das so senden?`,
@@ -53,9 +65,16 @@ const TEXT = {
     // Feedback zu den Werkzeugen (Robin, 15.10.2026): ohne Pflicht zu Name und Adresse, ohne Gesprächsverlauf
     feedbackSummary: f => `Ich gebe Robin dieses Feedback weiter: „${f.text}“${f.email ? ` – Von: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Soll ich das so senden?`,
     feedbackSent: "Weitergegeben, danke. Robin liest jedes Feedback.",
+    geraetStill: "Gerade antworte ich nicht. Fragen Sie gern das Standpersonal.", // Kundenfigur am Messegerät
   },
   en: {
     quiet: "I'd rather pass that on to Robin directly. What should I pass on to Robin? Or write to him yourself: robin@robin.vision",
+    angekommen: ["Hello! Nice of you to drop by. Feel free to ask me what Robin is working on.",
+      "Oh, hello! I'm Goch, Robin's robin. How can I help?",
+      "There you are! Would you like to know what Robin is building right now?"],
+    zurueck: ["There you are again! Where were we?", "Nice to see you again. Anything else you'd like to ask?"],
+    nachfrage: ["Would you like to know what Robin is working on?", "Feel free to ask me something – for example, what SmartFormular can do.",
+      "Shall I tell you about Robin's workshops?"],
     sent: e => `Passed on. Robin will reply to you personally by email at ${e}.`,
     summary: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. I'll include our conversation so Robin has the context; if you'd rather not, just say so. Shall I send it like this?`,
     summaryBare: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. Without our conversation, just this message. Shall I send it like this?`,
@@ -72,6 +91,7 @@ const TEXT = {
     failed: "Passing it on didn't work. Please write to Robin directly by email.",
     feedbackSummary: f => `I'll pass this feedback on to Robin: “${f.text}”${f.email ? ` – From: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Shall I send it like this?`,
     feedbackSent: "Passed on – thank you. Robin reads all feedback.",
+    geraetStill: "I can't answer just now. Do ask the staff on the stand.",
   },
 };
 
@@ -87,7 +107,12 @@ const worker = {
     return worker.handle(request, env, ctx);
   },
 
-  async handle(request, env, ctx) {
+  // intern: Aufruf der Kiosk-Route (src/kiosk.js) mit angemeldetem Gerät – { geraet, figur, kunde, lang }. Dann gelten statt
+  // Herkunft, IP- und Tagesgrenze der Website das Gerätebudget; Kundenfiguren antworten mit eigenem Systemprompt, ohne
+  // Draht, Links und Newsletter.
+  async handle(request, env, ctx, intern = null) {
+    // Messegerät: eigene Route mit Geräteanmeldung, ruft für das Gespräch wieder handle() auf (intern)
+    if (!intern && new URL(request.url).pathname.startsWith("/kiosk/")) return handleKiosk(request, env, ctx, { handle: worker.handle, mitStimme });
     // Aufbau aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Booking Batch Generator“): offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
     if (new URL(request.url).pathname === "/aufbau") return handleAufbau(request, env, ctx);
     const origin = request.headers.get("Origin") || "";
@@ -107,7 +132,7 @@ const worker = {
         profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch });
     }
     if (request.method !== "POST" || !["/chat", "/contact", "/newsletter", "/listen"].includes(url.pathname)) return json({ error: "Nicht gefunden." }, 404, cors);
-    if (allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
+    if (!intern && allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);
     // Kontaktformular: zweiter Eingang neben Goch, gleiche Zustellung per Resend (src/contact.js)
     if (url.pathname === "/contact") return handleContact(request, env, ctx, cors);
     // Newsletter „Impulse“: Anmeldung mit Double-Opt-In über Brevo (src/newsletter.js)
@@ -123,7 +148,19 @@ const worker = {
     let body; try { body = await request.json(); } catch { return json({ error: "Ungültige Anfrage." }, 400, cors); }
     const lang = body.lang === "en" ? "en" : "de", t = TEXT[lang];
     // Figur: über diese öffentliche Route nur Figuren aus dem Repository (Goch). Kundenfiguren nie hier, nur am Kiosk.
-    if (!oeffentlicheFigur(body.figur)) return json({ error: "Unbekannte Figur." }, 400, cors);
+    if (!intern && !oeffentlicheFigur(body.figur)) return json({ error: "Unbekannte Figur." }, 400, cors);
+    const kunde = !!(intern && intern.kunde);
+    // Goch beginnt das Gespräch, wenn jemand an den Bildschirm kommt (Blickkontakt der Startseite, Robin, 23.10.2026):
+    // fester Satz des Workers, kein Modellaufruf, keine Eingabe des Besuchers – die Stimme vertont also wieder nur Gochs
+    // eigenen Text. Zählt wie eine Frage (Grenze je IP und Stunde); an der Grenze schweigt Goch (leere Antwort).
+    if (!intern && ["angekommen", "zurueck", "nachfrage"].includes(body.anlass)) {
+      const ip = request.headers.get("CF-Connecting-IP") || "0", jetzt = Date.now();
+      const hits = (perIp.get(ip) || []).filter(x => jetzt - x < 3600_000);
+      if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12)) return json({ reply: "", action: null }, 200, cors);
+      hits.push(jetzt); perIp.set(ip, hits);
+      const saetze = t[body.anlass];
+      return json({ reply: saetze[Math.floor(Math.random() * saetze.length)], action: null, anlass: body.anlass }, 200, cors);
+    }
     // Sprachmodus: schnelleres Modell aus der Redaktion (nur bei Anthropic; andere Anbieter behalten ihr Modell)
     const sprachmodus = body.gesprochen === true || !!body.stimme;
     const modelSettings = sprachmodus && settings.provider === "anthropic" && settings.sprache && settings.sprache.modell
@@ -138,15 +175,17 @@ const worker = {
     // Grenzen
     const ip = request.headers.get("CF-Connecting-IP") || "0";
     const now = Date.now(), hour = 3600_000, day = 86400_000;
-    const hits = (perIp.get(ip) || []).filter(x => now - x < hour);
-    if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12)) return json({ reply: t.quiet, action: null }, 200, cors);
-    hits.push(now); perIp.set(ip, hits);
+    if (!intern) { // Messegerät: Gerätebudget statt IP-Grenze (src/kiosk.js)
+      const hits = (perIp.get(ip) || []).filter(x => now - x < hour);
+      if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12)) return json({ reply: t.quiet, action: null }, 200, cors);
+      hits.push(now); perIp.set(ip, hits);
+    }
 
     // Antwort auf die eigene Rückfrage („Soll ich das so senden?“) versteht der Worker selbst:
     // Ja → senden; Nein → nichts; „ohne Gespräch“ → neue Zusammenfassung ohne Verlauf. Kein Modellaufruf nötig.
     const previous = messages.length >= 2 ? messages[messages.length - 2] : null;
     const lastText = messages[messages.length - 1].content;
-    if (previous && previous.role === "assistant" && previous.content.includes(t.marker)) {
+    if (!kunde && previous && previous.role === "assistant" && previous.content.includes(t.marker)) {
       const feedback = fromFeedback(previous.content);
       if (feedback && CONFIRM.test(lastText) && !DECLINE.test(lastText)) return await deliverFeedback(env, feedback, lang, ip, now, day, t, cors);
       const fields = fromSummary(previous.content);
@@ -164,26 +203,30 @@ const worker = {
     const userTurns = messages.filter(x => x.role === "user").length;
     const closingAsked = previous && previous.role === "assistant" && (previous.content.includes(t.closingMarker) || previous.content.includes(t.askWhat));
     const whoAsked = previous && previous.role === "assistant" && previous.content.includes(t.whoMarker);
-    if (whoAsked) return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), true), action: null }, 200, cors);
-    if (closingAsked) {
+    if (!kunde && whoAsked) return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), true), action: null }, 200, cors);
+    if (!kunde && closingAsked) {
       if (DECLINE.test(lastText)) return json({ reply: t.cancelled, action: null }, 200, cors);
       return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), false), action: null }, 200, cors);
     }
-    if (userTurns > maxTurns) return json({ reply: t.closing, action: null }, 200, cors);
+    if (!kunde && userTurns > maxTurns) return json({ reply: t.closing, action: null }, 200, cors);
 
-    // Tagesgrenze: zählt nur Modellaufrufe (die kosten), nicht die Antworten des Workers selbst.
-    if (env.USAGE) {
+    // Tagesgrenze: zählt nur Modellaufrufe (die kosten), nicht die Antworten des Workers selbst. Messegerät: Gerätebudget.
+    if (env.USAGE && !intern) {
       const key = "usage:" + new Date().toISOString().slice(0, 10);
       const used = +(await env.USAGE.get(key) || 0);
       if (used >= +(env.MAX_PER_DAY || 60)) return json({ reply: t.quiet, action: null }, 200, cors);
       ctx.waitUntil(env.USAGE.put(key, String(used + 1), { expirationTtl: 35 * 86400 }));
     }
 
-    const content = await loadContent(env, ctx);
-    const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT;
+    const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
+    const system = kunde ? kundenSystem(intern.figur, lang)
+      : content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
+    const zeigen = body.kannZeigen === true && !intern && !kunde;
+    // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
+    const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
     let text;
     try {
-      text = await complete(env, system, messages, content.linkIds, modelSettings);
+      text = await complete(env, systemText, messages, content.linkIds, modelSettings);
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -191,18 +234,23 @@ const worker = {
       if (/credit balance|insufficient credit|billing/i.test(detail)) ctx.waitUntil(notifyOnce(env, "credit",
         "Goch: Guthaben bei Anthropic aufgebraucht",
         "Die Anthropic-API meldet: " + detail + "\n\nGoch leitet Besucher bis auf Weiteres in den Draht (Nachricht per E-Mail), ohne Modell. Guthaben aufladen unter console.anthropic.com → Billing. Diese Nachricht kommt erst wieder, wenn danach eine Antwort gelungen ist und das Guthaben erneut ausgeht."));
-      return json({ reply: t.quiet, action: null }, 200, cors);
+      return json({ reply: kunde ? t.geraetStill : t.quiet, action: null }, 200, cors);
     }
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
     ctx.waitUntil(rememberStatus(env, lastUsage, settings.provider));
     msLetzterModellaufruf = lastUsage && lastUsage.ms || null;
     const out = parse(text, content.linkIds);
+    // Kundenfigur am Messegerät: nur Text, höchstens „contact“; kein Draht, keine Links, keine Rückkopplung in Gochs Profil.
+    if (kunde) return json({ reply: out.reply, action: out.action === "contact" ? "contact" : null, link: null, link2: null }, 200, cors);
+    // Goch am Messegerät: keine Links und keine Anmeldung zum Newsletter (kein Feld am Gerät)
+    if (!zeigen) out.zeigen = null;
+    if (intern) { out.link = null; out.link2 = null; if (out.action === "newsletter") out.action = null; }
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
     if (env.USAGE && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
     // Link: das Modell nennt nur eine Kennung, die Adresse kommt aus links.md. Jeder Link einmal je Gespräch –
     // die Seite hängt „(Link: Text)“ an den Verlauf, daran erkennt der Worker, was schon angeboten wurde.
-    out.link = resolveLink(out.link, lang, messages, content.links);
+    if (!intern) out.link = resolveLink(out.link, lang, messages, content.links);
     // Zweiter Link nur zusammen mit einem ersten und nicht derselbe (Antwort auf „Was gibt's Neues?“)
     out.link2 = out.link && out.link2 ? resolveLink(out.link2, lang, messages, content.links) : null;
     if (out.link2 && out.link2.url === out.link.url) out.link2 = null;
@@ -228,8 +276,9 @@ export default worker;
 
 // Antwort von /chat um die Stimme ergänzen: Zeile 1 sofort (die Seite zeigt den Text), Zeile 2 mit dem MP3, sobald es
 // da ist. Bei der ersten gesprochenen Antwort einer Sitzung stellt der Worker den KI-Hinweis voran (Art. 50 KI-VO) –
-// im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme steht nur der Text da.
-async function mitStimme(response, body, env, ctx) {
+// im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme nur { stimme: null, grund }, nie ein
+// Fehlertext des Anbieters; die Seite zeigt den Text und den allgemeinen Hinweis, dass es gerade nur im Chat geht.
+async function mitStimme(response, body, env, ctx, optionen = {}) {
   let out;
   try { out = await response.json(); } catch { return response; }
   if (!out || typeof out.reply !== "string" || !out.reply.trim()) return new Response(JSON.stringify(out), response);
@@ -247,11 +296,15 @@ async function mitStimme(response, body, env, ctx) {
       await writer.write(enc.encode(JSON.stringify(out) + "\n"));
       const settings = await loadSettings(env);
       const figur = oeffentlicheFigur(body.figur) || oeffentlicheFigur();
-      const voiceId = (settings.sprache && settings.sprache.voiceId) || (figur.stimme && figur.stimme.voiceId) || "";
-      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell });
+      const voiceId = optionen.voiceId !== undefined ? optionen.voiceId // Kundenfigur: ihre eigene Stimme aus der Redaktion
+        : (settings.sprache && settings.sprache.voiceId) || (figur.stimme && figur.stimme.voiceId) || "";
+      // Stimmcharakter: Goch aus figur.json (warm, weich), Kundenfiguren mit den Ausgangswerten
+      const einstellungen = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.einstellungen;
+      const seed = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.seed; // gleichbleibender Klang
+      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed });
       if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
         "Goch: Monatsgrenze für die Stimme erreicht",
-        "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text, ohne Hinweis an die Besucher. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
+        "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
       await writer.write(enc.encode(JSON.stringify(r) + "\n"));
     } catch (e) {
       console.error("Stimme (Antwort)", String(e && e.message || e).slice(0, 300));
@@ -294,7 +347,8 @@ async function notifyOnce(env, kind, subject, text) {
 // je Adresse (nur je Instanz) eine Tagesgrenze über alle Besucher im KV, wie beim Kontaktformular.
 async function deliver(env, m, lang, messages, withTranscript, ip, now, day, t, cors) {
   const sentToday = (perIpMessages.get(ip) || []).filter(x => now - x < day);
-  if (sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
+  // Messegerät („kiosk:…“): viele Besucher hinter einer Kennung – nur die Tagesgrenze insgesamt gilt
+  if (!String(ip).startsWith("kiosk:") && sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
   const dayKey = "draht:" + new Date(now).toISOString().slice(0, 10);
   const used = env.USAGE ? +(await env.USAGE.get(dayKey) || 0) : 0;
   if (used >= +(env.MAX_DRAHT_PER_DAY || 20)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
@@ -325,7 +379,8 @@ function fromFeedback(text) {
 // Feedback zustellen: gleiche Grenzen wie der Draht (je Adresse und Tag, insgesamt je Tag), ohne Gesprächsverlauf.
 async function deliverFeedback(env, f, lang, ip, now, day, t, cors) {
   const sentToday = (perIpMessages.get(ip) || []).filter(x => now - x < day);
-  if (sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
+  // Messegerät („kiosk:…“): viele Besucher hinter einer Kennung – nur die Tagesgrenze insgesamt gilt
+  if (!String(ip).startsWith("kiosk:") && sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
   const dayKey = "draht:" + new Date(now).toISOString().slice(0, 10);
   const used = env.USAGE ? +(await env.USAGE.get(dayKey) || 0) : 0;
   if (used >= +(env.MAX_DRAHT_PER_DAY || 20)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
@@ -378,6 +433,17 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
 "link" ist null oder eine Kennung aus „Links, die du anbieten darfst“ (falls vorhanden).
 "link2" ist null – außer bei „Was gibt's Neues?“: dann die zweite Kennung (siehe Profil).
 "reply" ist immer dein Text an den Besucher, in dessen Sprache.`;
+
+// Stellen der Startseite, zu denen Goch führen darf (Robin, 23.10.2026: Goch zeigt, während er spricht). Die Seite kennt
+// dieselben Kennungen (goch.js, ZIELE); alles andere wird verworfen.
+export const ZIELE = ["werkzeuge", "workshops", "ueber-mich", "blog", "newsletter", "nachricht", "grundsaetze"];
+// Nur wenn die Seite meldet, dass sie dorthin führen kann (kannZeigen, Sprachmodus der Startseite) – sonst bleibt alles wie vorher.
+const ZEIGEN = `# Seite zeigen
+
+Zusätzliches Feld "zeigen": null oder eine Stelle dieser Seite, zu der die Seite den Besucher führt, während du sprichst –
+wenn er etwas sehen möchte („Zeig mir …“, „Wo finde ich …“) oder es deine Antwort klar unterstützt: "werkzeuge" (Werkzeuge
+im Überblick), "workshops", "ueber-mich" (über Robin), "blog" (Impulse), "newsletter", "nachricht" (Robin schreiben),
+"grundsaetze" (Robins Grundsätze). Dann sag in "reply" kurz, was dort zu sehen ist. Sonst null.`;
 
 const CONFIRM = /^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b/i;
 const DECLINE = /^\s*(nein|no|nope|lieber nicht|doch nicht|abbrechen|cancel|stop)\b|\b(nicht|don't|do not|not)\s+(senden|schicken|abschicken|send)\b/i;
@@ -561,6 +627,7 @@ const gochOutput = linkIds => z.object({
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
   link2: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
+  zeigen: z.enum(ZIELE).nullable(),
 });
 
 export async function complete(env, system, messages, linkIds = [], settings = null) {
@@ -635,6 +702,7 @@ const schemaFor = linkIds => ({
     reply: { type: "string" },
     action: { type: ["string", "null"], enum: ["calendar", "contact", "message", null] },
     link: { type: ["string", "null"], enum: [...linkIds, null] },
+    zeigen: { type: ["string", "null"], enum: [...ZIELE, null] },
     message: { type: ["object", "null"], properties: { name: { type: "string" }, email: { type: "string" }, text: { type: "string" } }, required: ["name", "email", "text"] },
   },
   required: ["reply", "action"],
@@ -662,7 +730,7 @@ function parse(text, linkIds = []) {
       const o = JSON.parse(m[0]);
       const action = ["calendar", "contact", "message", "newsletter", "feedback"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
-      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null };
+      const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null, zeigen: ZIELE.includes(o.zeigen) ? o.zeigen : null };
       if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = o.message;
       return out;
     } catch {}
@@ -672,7 +740,8 @@ function parse(text, linkIds = []) {
     const reply = (text.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)/) || [])[1] || "";
     const action = (text.match(/"action"\s*:\s*"(calendar|contact|message|newsletter|feedback)"/) || [])[1] || null;
     const link = (text.match(/"link"\s*:\s*"([a-z0-9-]+)"/) || [])[1] || null;
-    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null };
+    const zeigen = (text.match(/"zeigen"\s*:\s*"([a-z-]+)"/) || [])[1] || null;
+    const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null, zeigen: ZIELE.includes(zeigen) ? zeigen : null };
     if (action === "message" || action === "feedback") {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";

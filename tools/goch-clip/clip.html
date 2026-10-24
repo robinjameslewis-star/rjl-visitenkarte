@@ -1,0 +1,151 @@
+<!doctype html>
+<!-- Bühne für Clips mit Goch (tools/goch-clip.py, Robin 24.10.2026): 4:5, als CSS 540 × 675 bei Pixeldichte 2 aufgenommen;
+     Layout „vortrag“ (Workshops): 16:9, CSS 960 × 540 – Folie groß, Goch rechts daneben, Untertitel darunter.
+     Kein eigenes Timing: Das Skript ruft je Bild zeige(i) auf und macht dann ein Bildschirmfoto. Goch besteht aus seinen
+     Teilen (figur.json animation.teile) wie auf der Seite; Schnabel, Kopf, Schwanz, Knicks und Neigung kommen je Bild aus
+     dem Zeitplan (?daten=…), berechnet aus dem Ton. Nicht Teil der Website. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Goch – Clip</title>
+<style>
+  @font-face { font-family: "EB Garamond"; font-weight: 400 500; src: url("../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+  :root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --line: #D6D9D6; --paper: #F3EFE5;
+    --serif: "EB Garamond", Georgia, serif; --sans: "Helvetica Neue", Arial, sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 540px; height: 675px; overflow: hidden; }
+  body { background: var(--paper) url("../../assets/papier.jpg") center / cover; color: var(--ink); font-family: var(--sans); position: relative; }
+  .kopfzeile { position: absolute; top: 16px; left: 22px; right: 22px; display: flex; justify-content: space-between; align-items: center; }
+  .marke { font: 500 19px/1 var(--serif); color: var(--green); letter-spacing: .01em; }
+  .ki { font: 500 10.5px/1 var(--sans); color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; background: rgba(255,255,255,.55); }
+  .buehne { position: absolute; left: 50%; top: 42px; width: 430px; aspect-ratio: 1153 / 710; transform: translateX(-50%); }
+  .buehne img { position: absolute; display: block; max-width: none; pointer-events: none; }
+  .ast { left: 0; width: 100%; mix-blend-mode: multiply; }
+  .goch { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1153 / 637; transform-origin: 44% 85%; }
+  .goch > .knicks, .glied { position: absolute; inset: 0; }
+  .knicks { transform-origin: 44% 94%; }
+  .goch img { left: 0; top: 0; width: 100%; height: 100%; }
+  .untertitel { position: absolute; top: 320px; left: 26px; right: 26px; height: 74px; display: flex; align-items: center; justify-content: center;
+    text-align: center; font: 600 21px/1.27 var(--sans); color: var(--ink); text-wrap: balance; }
+  .karte { position: absolute; left: 20px; right: 20px; top: 404px; bottom: 22px; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 10px 28px rgba(31,31,31,.16), 0 1px 3px rgba(31,31,31,.12); }
+  .karte > div { position: absolute; inset: 0; opacity: 0; }
+  .k-bild { background: #14111c; }
+  .k-bild img { position: absolute; left: 0; top: 0; width: 100%; transform-origin: 0 0; }
+  .k-hell { background: #fffdf8; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px 26px; }
+  .k-gruen { background: var(--green); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px 26px; }
+  /* Layout „vortrag“ (Workshop-Videos, 1920 × 1080) */
+  html.vortrag, html.vortrag body { width: 960px; height: 540px; }
+  .vortrag .kopfzeile { top: 12px; left: 24px; right: 24px; }
+  .vortrag .karte { left: 24px; top: 40px; right: auto; bottom: auto; width: 704px; height: 396px; border-radius: 6px; }
+  .vortrag .buehne { left: auto; right: 2px; top: 286px; width: 252px; transform: none; }
+  .vortrag .untertitel { top: 448px; left: 24px; right: auto; width: 704px; height: 80px; font-size: 19px; }
+  .kapitel { display: none; }
+  .vortrag .kapitel { display: block; position: absolute; left: 748px; right: 22px; top: 52px; font: 500 12px/1.35 var(--sans);
+    color: var(--copper); letter-spacing: .06em; text-transform: uppercase; }
+  .vortrag .kapitel b { display: block; margin-top: 6px; font: 500 21px/1.2 var(--serif); color: var(--green); letter-spacing: 0; text-transform: none; }
+  .k-folie { background: var(--paper); }
+  .k-folie img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: contain; }
+  .k-befund { background: #1a1623; color: #e9e6f2; padding: 26px 26px 0 24px; border-left: 6px solid #f28b82; }
+  .datei { width: 92px; height: 116px; border: 2px solid var(--ink-soft); border-radius: 6px 26px 6px 6px; position: relative; display: flex; align-items: center;
+    justify-content: center; font: 500 58px/1 var(--serif); color: var(--copper); background: #fff; }
+  .datei-name { margin-top: 12px; font: 600 15px/1 var(--sans); color: var(--ink-soft); letter-spacing: .02em; }
+  .gross { font: 500 52px/1 var(--serif); color: var(--green); }
+  .titel { font: 500 34px/1.1 var(--serif); }
+  .zeile { font: 500 15px/1.35 var(--sans); color: var(--ink-soft); margin-top: 10px; }
+  .k-gruen .zeile { color: rgba(255,255,255,.82); }
+  .adresse { font: 700 16px/1.3 var(--sans); margin-top: 14px; color: #fff; }
+  .befund-kopf { font: 700 13px/1 ui-monospace, Menlo, monospace; color: #f28b82; letter-spacing: .06em; }
+  .befund-kopf span { color: #b9a8f5; font-weight: 500; margin-left: 8px; }
+  .befund p { margin: 16px 0 0; font: 400 16.5px/1.38 var(--sans); }
+  .befund b { font-weight: 700; color: #fff; }
+</style>
+</head>
+<body>
+<div class="kopfzeile"><span class="marke">robin.vision</span><span class="ki">KI-Figur · künstliche Stimme</span></div>
+<div class="buehne" id="buehne"></div>
+<div class="kapitel" id="kapitel"></div>
+<div class="untertitel" id="untertitel"></div>
+<div class="karte" id="karte"></div>
+<script>
+(async () => {
+  const daten = await (await fetch(new URLSearchParams(location.search).get('daten'))).json();
+  if (daten.layout === 'vortrag') {
+    document.documentElement.classList.add('vortrag');
+    const k = document.getElementById('kapitel');
+    k.textContent = daten.kapitel || ''; if (daten.kapiteltitel) { const b = document.createElement('b'); b.textContent = daten.kapiteltitel; k.append(b); }
+  }
+  const figur = await (await fetch('../../figuren/goch/figur.json')).json();
+  const a = figur.animation, t = a.teile, s = a.posen.sitzend, basis = '../../figuren/goch/';
+  const pz = (v, g) => (v / g * 100).toFixed(3) + '%';
+  const buehne = document.getElementById('buehne'), untertitel = document.getElementById('untertitel'), karte = document.getElementById('karte');
+  const bilder = [];
+  const bild = (src, klasse) => { const i = new Image(); i.src = src; if (klasse) i.className = klasse; bilder.push(i); return i; };
+  // Ast (Ebene aus figur.json) und Goch aus seinen Teilen
+  for (const e of a.ebenen || []) {
+    const i = bild(basis + a.fassungen['ohne-landschaft'] + e.datei, 'ast');
+    Object.assign(i.style, { top: pz(e.oben, a.buehne.hoehe), width: pz(e.breite, a.buehne.breite), left: pz(e.links, a.buehne.breite) });
+    buehne.append(i);
+  }
+  const goch = document.createElement('div'); goch.className = 'goch';
+  const knicks = document.createElement('div'); knicks.className = 'knicks';
+  const glied = cfg => { const g = document.createElement('div'); g.className = 'glied'; g.style.transformOrigin = pz(cfg.drehpunkt[0], s.breite) + ' ' + pz(cfg.drehpunkt[1], s.hoehe); return g; };
+  const schwanz = glied(t.schwanz), kopf = glied(t.kopf);
+  schwanz.append(bild(basis + t.ordner + t.schwanz.datei));
+  const koepfe = {};
+  const NAMEN = { sitzend: 'zu', 'schnabel-halb': 'halb', 'schnabel-offen': 'offen', blinzelnd: 'blinzeln' };
+  for (const [pose, datei] of Object.entries(t.kopf.posen)) kopf.append(koepfe[NAMEN[pose]] = bild(basis + t.ordner + datei));
+  knicks.append(bild(basis + t.ordner + t.koerper), schwanz, kopf);
+  goch.append(knicks); buehne.append(goch);
+
+  // Karten
+  const el = (tag, klasse, text) => { const e = document.createElement(tag); if (klasse) e.className = klasse; if (text != null) e.textContent = text; return e; };
+  const karten = daten.karten.map(k => {
+    let d;
+    if (k.art === 'bild') { d = el('div', 'k-bild'); const i = bild(k.src); d.append(i); d._img = i; }
+    else if (k.art === 'folie') { d = el('div', 'k-folie'); d.append(bild(k.src)); }
+    else if (k.art === 'datei') { d = el('div', 'k-hell'); d.append(el('div', 'datei', '?'), el('div', 'datei-name', k.name)); }
+    else if (k.art === 'name') { d = el('div', 'k-hell'); d.append(el('div', 'gross', k.titel), el('div', 'zeile', k.zeile1), el('div', 'zeile', k.zeile2)); }
+    else if (k.art === 'fakt') { d = el('div', 'k-hell'); d.append(el('div', 'gross', k.zahl), el('div', 'titel', k.titel), el('div', 'zeile', k.zeile)); d.querySelector('.titel').style.color = 'var(--ink)'; }
+    else if (k.art === 'befund') {
+      d = el('div', 'k-befund befund'); const h = el('div', 'befund-kopf', k.stufe); h.append(el('span', null, k.regel)); d.append(h);
+      for (const [fett, rest] of k.zeilen) { const p = el('p'); p.append(el('b', null, fett + ' '), rest); d.append(p); }
+    } else if (k.art === 'ende') { d = el('div', 'k-gruen'); d.append(el('div', 'titel', k.titel), el('div', 'adresse', k.adresse), el('div', 'zeile', k.zeile)); }
+    karte.append(d);
+    return { ...k, d };
+  });
+  await document.fonts.load('500 20px "EB Garamond"');
+  await Promise.all(bilder.map(i => i.decode().catch(() => {})));
+
+  const sanft = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+  // Bild i zeigen: alles aus dem Zeitplan, nichts läuft von selbst
+  window.zeige = i => {
+    const zeit = i / daten.fps, r = daten.rahmen[i];
+    const [kw, sw, kn, mund, neigung, streck] = r;
+    kopf.style.transform = `rotate(${kw}deg)`;
+    schwanz.style.transform = `rotate(${sw}deg)`;
+    const atmen = 1 + .002 * Math.sin(zeit * 2 * Math.PI / 1.5);
+    knicks.style.transform = `scaleY(${((1 - .035 * kn) * atmen).toFixed(4)}) skewX(${(1.2 * kn).toFixed(2)}deg)`;
+    goch.style.transform = `skewX(${-neigung}deg) scaleY(${streck})`;
+    for (const [n, img] of Object.entries(koepfe)) img.style.opacity = n === mund ? '1' : '0';
+    const u = daten.untertitel.find(x => zeit >= x.von && zeit < x.bis);
+    const text = u ? u.text : '';
+    if (untertitel.textContent !== text) untertitel.textContent = text;
+    for (const k of karten) {
+      const auf = sanft((zeit - k.von) / .25), zu = sanft((k.bis - zeit) / .25);
+      const o = Math.min(auf, zu);
+      k.d.style.opacity = o.toFixed(3);
+      if (k.d._img && o > 0) { // langsam heranzoomen: von „von“ zu „nach“ (Maßstab, Versatz in Prozent der Bildbreite)
+        const p = sanft((zeit - k.von) / Math.max(.1, k.bis - k.von)), z0 = k.zoom || [1, 0, 0], z1 = k.zoomNach || z0;
+        const m = z0[0] + (z1[0] - z0[0]) * p, x = z0[1] + (z1[1] - z0[1]) * p, y = z0[2] + (z1[2] - z0[2]) * p;
+        k.d._img.style.transform = `translate(${-x}%, ${-y}%) scale(${m})`;
+      }
+    }
+    return true;
+  };
+  window.bereit = true;
+})();
+</script>
+</body>
+</html>

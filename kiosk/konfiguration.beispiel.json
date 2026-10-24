@@ -1,0 +1,15 @@
+{
+  "figur": "goch",
+  "fassung": "ohne-landschaft",
+  "sprache": "de",
+  "sprachwahl": true,
+  "lautstaerke": 0.8,
+  "stimme": true,
+  "groesse": 0.82,
+  "inaktivitaet_s": 60,
+  "aufnahme_s": 20,
+  "taste": "F13",
+  "zwitschern": { "an": true, "abklingzeit_s": 30, "entfernung_m": [1, 3], "lautstaerke": 0.5, "pause_s": [12, 25] },
+  "ruhezeiten": [{ "von": "18:30", "bis": "09:00" }],
+  "radar": { "port": "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller-if00-port0", "baud": 256000 }
+}

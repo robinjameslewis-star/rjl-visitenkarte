@@ -12,8 +12,9 @@ import * as blog from "./blog.js";
 import * as land from "./landscapes.js";
 import * as cfg from "./settings.js";
 import * as fig from "./figuren.js";
-import { stimmeMonat, TTS_MODELLE } from "./stimme.js";
+import { stimmeMonat, TTS_MODELLE, vertonen, zeichenBuchen, PROBESATZ } from "./stimme.js";
 import { hoerenTag } from "./hoeren.js";
+import * as kiosk from "./kiosk.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
@@ -67,6 +68,7 @@ export async function handleAdmin(request, env, ctx, deps) {
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
   if (api === "figuren") return figurenApi(request, env);
+  if (api === "geraete" || api === "geraete/geheimnis") return geraeteApi(api, request, env);
   if (api === "site") return siteApi(request, env);
   if (api.startsWith("landschaften")) return landscapesApi(api, request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
@@ -575,6 +577,22 @@ async function gochApi(api, request, env, deps, session) {
       }
       return json({ ...(await gochState(env)), note });
     }
+    // Hörprobe der Stimme (nur Robin, angemeldet): Voice ID und Modell aus den Feldern, auch ungespeichert; zählt zur Monatsgrenze
+    if (api === "goch/stimmprobe" && request.method === "POST") {
+      const body = await readJson(request), sp = (await cfg.loadSettings(env, true)).sprache;
+      const voiceId = String(body.voiceId || sp.voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
+      const lang = body.lang === "en" ? "en" : "de";
+      if (!env.ELEVENLABS_API_KEY) return json({ error: "Für die Stimme fehlt das Geheimnis ELEVENLABS_API_KEY im Worker." }, 400);
+      if (!/^[A-Za-z0-9]{10,40}$/.test(voiceId)) return json({ error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
+      if (!cfg.TTS_MODELL_ID.test(modell)) return json({ error: "Stimmmodell von ElevenLabs beginnt mit „eleven_“." }, 400);
+      const text = String(body.text || PROBESATZ[lang]).replace(/\s+/g, " ").trim().slice(0, 300);
+      const stimme = fig.oeffentlicheFigur("goch").stimme || {};
+      try {
+        const a = await vertonen(env, text, { voiceId, modell, lang, einstellungen: stimme.einstellungen, seed: stimme.seed });
+        await zeichenBuchen(env, text.length);
+        return json({ ...a, zeichen: text.length, modell });
+      } catch (e) { return json({ error: "ElevenLabs: " + String(e.message || e).slice(0, 200) }, 502); }
+    }
     if (api === "goch/test" && request.method === "POST") {
       const body = await readJson(request);
       const settings = await cfg.loadSettings(env, true);
@@ -600,7 +618,7 @@ export function applyLandscape(html, wish, satz) {
   return out
     .replace(/(<link rel="preload" as="image" href=")((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1$2${bestand}$3`) // Vorabladen im <head>
     .replace(SCENE, scene => scene
-      .replace(/(src|data-src)="((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?([^"]+)"/g, (_, attr, dir, name) => `${attr}="${dir}${bestand}${name}"`)
+      .replace(/(src|data-src|data-src-spaet)="((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?([^"]+)"/g, (_, attr, dir, name) => `${attr}="${dir}${bestand}${name}"`)
       .replace(/(<img src="assets\/(?:bestand\/)?ast\.webp"[^>]*?width=")\d+"/, `$1${on ? 2800 : 1153}"`));
 }
 async function siteState(env) {
@@ -661,6 +679,18 @@ async function gochState(env) {
       keys: { elevenlabs: !!env.ELEVENLABS_API_KEY, ai: !!env.AI } } };
 }
 
+// Messegeräte (src/kiosk.js): Nachweis nur beim Anlegen oder Erneuern sichtbar, gespeichert nur als Hash
+async function geraeteApi(api, request, env) {
+  const liste = async () => Promise.all((await kiosk.geraete(env)).map(async g => ({ ...g, stand: env.GERAETE ? await kiosk.geraetStand(env, g.id) : null })));
+  try {
+    if (api === "geraete" && request.method === "GET") return json({ geraete: await liste(), mtls: env.KIOSK_MTLS === "an" });
+    if (api === "geraete" && request.method === "PUT") { const r = await kiosk.speichereGeraet(env, await readJson(request)); return json({ geraete: await liste(), token: r.token }); }
+    if (api === "geraete/geheimnis" && request.method === "POST") { const r = await kiosk.speichereGeraet(env, { id: (await readJson(request)).id }, true); return json({ geraete: await liste(), token: r.token }); }
+    if (api === "geraete" && request.method === "DELETE") { await kiosk.loescheGeraet(env, (await readJson(request)).id); return json({ geraete: await liste() }); }
+  } catch (e) { return json({ error: e.message }, 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
+
 // Figuren für Vorführungen (Kunden): nur KV, nie GitHub (src/figuren.js)
 async function figurenApi(request, env) {
   try {
@@ -685,7 +715,7 @@ function html(s, env) {
   let site = ""; try { site = env && env.SITE_URL ? " " + new URL(env.SITE_URL).origin : ""; } catch {} // Vorschau der Startseite (Landschaften) im Rahmen
   return new Response(s, { status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
     "x-frame-options": "DENY", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow",
-    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
+    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; media-src blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
 }
 
 // ---------- Seiten ----------
@@ -862,7 +892,10 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="stats"><div class="stat"><b id="spzmonat">–</b><span>Zeichen vertont in diesem Monat (Grenze)</span></div>
 <div class="stat"><b id="spminheute">–</b><span>Minuten Spracheingabe heute (Grenze)</span></div>
 <div class="stat"><b id="spzeit">–</b><span>Antwortzeit im Sprachmodus, Modell und Stimme (Mittel des Monats)</span></div></div>
-<p class="note" id="spmeta"></p></section>
+<p class="note" id="spmeta"></p>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><label for="spprobe">Stimme anhören <span class="note">(mit Voice ID und Stimmmodell aus den Feldern oben, auch ungespeichert; zählt zu den vertonten Zeichen)</span></label>
+<div class="bar" style="margin:0"><input id="spprobe" style="flex:1;min-width:200px"><button class="quiet" id="spanhoeren">Anhören</button><span class="msg" id="mSP"></span></div>
+<audio id="spaudio" controls hidden style="width:100%;margin-top:8px"></audio></div></section>
 
 <section id="fgsec"><h2>Figuren für Vorführungen <span class="note">(Kunden, nur am Messegerät)</span></h2>
 <p class="note" style="margin:0 0 6px">Kundenfiguren liegen nur hier im Speicher des Workers – nie auf GitHub, nie auf der Website. Abrufbar sind sie nur über das angemeldete Messegerät; Bilder und Töne liegen auf dem Gerät (FIGUREN.md). Wissen nur aus Angaben, die der Kunde freigibt oder die öffentlich sind – robots.txt und Vorbehalte gegen Text- und Data-Mining beachten, Quellen mit Datum festhalten.</p>
@@ -881,6 +914,20 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <label for="fgquellen">Quellen des Wissens <span class="note">(Freigabe des Kunden mit Datum, öffentliche Seiten mit Abrufdatum)</span></label><textarea id="fgquellen" style="min-height:70px"></textarea>
 <label for="fgvoice">Voice ID bei ElevenLabs <span class="note">(leer: Stimme des Geräts)</span></label><input id="fgvoice" autocomplete="off">
 <div class="bar"><button id="fgsave">Speichern</button><button class="quiet" id="fgclose">Schließen</button><button class="quiet" id="fgdelete" style="margin-left:auto;color:var(--warn)">Figur löschen</button><span class="msg" id="mF" style="margin-left:0;flex-basis:100%"></span></div>
+</div></section>
+
+<section id="mgsec"><h2>Messegeräte <span class="note">(Kiosk: Gerätenachweis, Tagesbudget, Lebenszeichen)</span></h2>
+<p class="note" style="margin:0 0 6px">Jedes Messegerät meldet sich mit einem eigenen Nachweis an. Er steht nur einmal hier und gehört auf dem Gerät in /etc/goch-kiosk/geraet.json (kiosk/README.md) – nie in den Browser, nie in eine E-Mail. Statt der Grenzen der Website gilt das Tagesbudget des Geräts; Stimme und Spracheingabe schalten die Schalter oben für Website und Geräte gemeinsam.</p>
+<ul class="q" id="mglist"></ul>
+<div class="bar"><button class="quiet" id="mgnew">Neues Gerät</button></div>
+<div id="mgedit" hidden style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+<div class="row"><div><label for="mgid">Kennung (z. B. messe-1)</label><input id="mgid" autocomplete="off"></div><div><label for="mgname">Name (z. B. „Stele Messe Stuttgart“)</label><input id="mgname"></div></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="mgan" style="width:auto;margin:0"> Gerät an (darf sich anmelden)</label>
+<label for="mgfiguren">Freigegebene Figuren <span class="note">(durch Komma getrennt: goch, kunde-…; * für alle)</span></label><input id="mgfiguren" autocomplete="off">
+<div class="row"><div><label for="mgantworten">Antworten je Tag</label><input id="mgantworten" type="number" min="0" max="5000"></div><div><label for="mgminuten">Minuten Spracheingabe je Tag</label><input id="mgminuten" type="number" min="0" max="1440"></div></div>
+<label for="mgzert">Fingerabdruck des Client-Zertifikats <span class="note">(SHA-256, nur wenn KIOSK_MTLS = „an“; leer = jedes gültige Zertifikat)</span></label><input id="mgzert" autocomplete="off">
+<p class="note" id="mgtoken" hidden style="font-family:ui-monospace,Menlo,monospace;color:var(--ink);background:#fff;border:1px solid var(--line);padding:10px;border-radius:6px;word-break:break-all"></p>
+<div class="bar"><button id="mgsave">Speichern</button><button class="quiet" id="mgrotate">Neuen Nachweis erzeugen</button><button class="quiet" id="mgclose">Schließen</button><button class="quiet" id="mgdelete" style="margin-left:auto;color:var(--warn)">Gerät löschen</button><span class="msg" id="mMG" style="margin-left:0;flex-basis:100%"></span></div>
 </div></section>
 
 <section><h2>Goch – Übersicht</h2><div class="stats">
@@ -1061,6 +1108,12 @@ function renderSprache(g){const sp=g.settings.sprache||{},x=g.sprache||{},st=x.s
  $('spzeit').textContent=st.antworten?Math.round((st.msModell+st.msStimme)/st.antworten)+' ms':'–';
  $('spstat').innerHTML='Spracheingabe <b>'+(sp.hoeren?'an':'aus')+'</b> · Stimme <b>'+(sp.stimme?'an':'aus')+'</b>'+(keys.elevenlabs?'':' · <span style="color:var(--warn)">Geheimnis ELEVENLABS_API_KEY fehlt</span>')+(keys.ai?'':' · <span style="color:var(--warn)">Workers AI fehlt</span>');
  $('spmeta').textContent=(st.letzte?'Letzte vertonte Antwort '+fmt(st.letzte.at)+': '+st.letzte.zeichen+' Zeichen, Modell '+(st.letzte.msModell==null?'–':st.letzte.msModell+' ms')+', Stimme '+st.letzte.msStimme+' ms. ':'Noch keine vertonte Antwort in diesem Monat. ')+'Spracheingabe heute: '+(ho.anfragen||0)+' Aufnahmen'+(ho.anfragen?', Erkennung im Mittel '+Math.round(ho.ms/ho.anfragen)+' ms':'')+'.';}
+$('spprobe').value='Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. Ich bin Goch, das Rotkehlchen von Robin – fragen Sie mich gern, woran er gerade arbeitet.';
+$('spanhoeren').onclick=async()=>{$('spanhoeren').disabled=true;say('mSP','erzeugt …',true);
+ try{const r=await api('goch/stimmprobe','POST',{text:$('spprobe').value,voiceId:$('spvoice').value.trim(),ttsModell:$('sptts').value});
+  const bin=atob(r.daten),b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);
+  const a=$('spaudio');if(a.src)URL.revokeObjectURL(a.src);a.src=URL.createObjectURL(new Blob([b],{type:r.mime}));a.hidden=false;a.play().catch(()=>{});
+  say('mSP',r.modell+' · '+r.ms+' ms · '+r.zeichen+' Zeichen',true);const g=await api('goch');renderGoch(g);}catch(e){say('mSP',e.message);}finally{$('spanhoeren').disabled=false;}};
 $('spsave').onclick=async()=>{const body={sprache:{hoeren:$('sphoeren').checked,stimme:$('spstimme').checked,modell:$('spmodell').value,ttsModell:$('sptts').value,voiceId:$('spvoice').value.trim(),zeichenMonat:+$('spzeichen').value,minutenTag:+$('spminuten').value}};
  try{const r=await api('goch','PUT',body);renderGoch(r);say('mS','Gespeichert – gilt ab der nächsten Frage (spätestens nach einer Minute).',true);}catch(e){say('mS',e.message);}};
 // ---- Figuren für Vorführungen (Kunden, nur KV) ----
@@ -1079,6 +1132,20 @@ $('fgsave').onclick=async()=>{const per=k=>Object.fromEntries(['de','en'].map(l=
  try{const r=await api('figuren','PUT',body);renderFiguren(r);fgOpen(r.figuren.find(f=>f.id===body.id));say('mF','Gespeichert – das Messegerät holt die Figur beim nächsten Gespräch.',true);}catch(e){say('mF',e.message);}};
 $('fgdelete').onclick=async()=>{if(!fEdit||!confirm('Figur „'+fEdit.id+'“ löschen? Das Messegerät kann sie danach nicht mehr laden.'))return;try{const r=await api('figuren','DELETE',{id:fEdit.id});renderFiguren(r);$('fgedit').hidden=true;}catch(e){say('mF',e.message);}};
 api('figuren').then(d=>d&&renderFiguren(d)).catch(e=>{$('fglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
+// ---- Messegeräte (Kiosk, 23.10.2026) ----
+let MG=[],mgEdit=null;
+function renderGeraete(d){MG=d.geraete||[];$('mglist').innerHTML=MG.length?MG.map(g=>{const s=g.stand||{},l=s.lebenszeichen,h=s.heute||{};return '<li><b>'+esc(g.name)+'</b> <span class="note">'+esc(g.id)+' · '+(g.an?'an':'aus')+' · Figuren: '+esc(g.figuren.join(', '))+' · heute '+(h.antworten||0)+' von '+g.antwortenTag+' Antworten, '+Math.round((h.sekunden||0)/60)+' von '+g.minutenTag+' Min. · '+(l?'Lebenszeichen '+fmt(l.at)+(l.online===false?' (offline)':'')+(l.commit?', Stand '+esc(String(l.commit).slice(0,7)):'')+(l.puffer?', '+l.puffer+' Nachricht(en) gepuffert':''):'noch kein Lebenszeichen')+'</span> <button class="quiet" data-mg="'+esc(g.id)+'">Bearbeiten</button></li>';}).join(''):'<li class="note">Noch kein Messegerät.</li>';}
+function mgOpen(g){mgEdit=g||null;const v=g||{id:'messe-',name:'',an:true,figuren:['goch'],antwortenTag:300,minutenTag:60,zertifikat:''};
+ $('mgedit').hidden=false;$('mgid').value=v.id;$('mgid').disabled=!!g;$('mgname').value=v.name;$('mgan').checked=v.an!==false;$('mgfiguren').value=v.figuren.join(', ');$('mgantworten').value=v.antwortenTag;$('mgminuten').value=v.minutenTag;$('mgzert').value=v.zertifikat||'';$('mgdelete').hidden=!g;$('mgrotate').hidden=!g;$('mgtoken').hidden=true;}
+function mgToken(t){if(!t)return;$('mgtoken').hidden=false;$('mgtoken').textContent='Gerätenachweis – nur jetzt sichtbar, auf dem Gerät in /etc/goch-kiosk/geraet.json eintragen: '+t;}
+$('mglist').onclick=e=>{const b=e.target.closest('button[data-mg]');if(b){mgOpen(MG.find(g=>g.id===b.dataset.mg));$('mgedit').scrollIntoView({block:'start'});}};
+$('mgnew').onclick=()=>{mgOpen(null);$('mgid').focus();};
+$('mgclose').onclick=()=>{$('mgedit').hidden=true;};
+$('mgsave').onclick=async()=>{const body={id:$('mgid').value.trim().toLowerCase(),name:$('mgname').value,an:$('mgan').checked,figuren:$('mgfiguren').value.split(',').map(x=>x.trim()).filter(Boolean),antwortenTag:+$('mgantworten').value,minutenTag:+$('mgminuten').value,zertifikat:$('mgzert').value};
+ try{const r=await api('geraete','PUT',body);renderGeraete(r);mgOpen(r.geraete.find(g=>g.id===body.id));mgToken(r.token);say('mMG','Gespeichert.',true);}catch(e){say('mMG',e.message);}};
+$('mgrotate').onclick=async()=>{if(!mgEdit||!confirm('Neuen Nachweis erzeugen? Der alte gilt sofort nicht mehr – das Gerät braucht dann den neuen.'))return;try{const r=await api('geraete/geheimnis','POST',{id:mgEdit.id});renderGeraete(r);mgToken(r.token);}catch(e){say('mMG',e.message);}};
+$('mgdelete').onclick=async()=>{if(!mgEdit||!confirm('Gerät „'+mgEdit.name+'“ löschen? Es kann sich danach nicht mehr anmelden.'))return;try{const r=await api('geraete','DELETE',{id:mgEdit.id});renderGeraete(r);$('mgedit').hidden=true;}catch(e){say('mMG',e.message);}};
+api('geraete').then(d=>d&&renderGeraete(d)).catch(e=>{$('mglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
 // ---- Blog ----
 let B=null,editing=null;
 function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;

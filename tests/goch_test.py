@@ -29,7 +29,7 @@ def check(cond, label):
 
 async def main():
     profile = tempfile.mkdtemp(prefix='rjl-goch-')
-    proc = subprocess.Popen([CHROME, '--headless=new', f'--remote-debugging-port={PORT}', f'--user-data-dir={profile}',
+    proc = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={PORT}', f'--user-data-dir={profile}',
                              '--no-first-run', '--no-default-browser-check', '--window-size=1280,1100', 'about:blank'],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:

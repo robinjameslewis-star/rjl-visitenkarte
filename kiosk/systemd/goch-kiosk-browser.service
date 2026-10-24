@@ -1,0 +1,22 @@
+# Chromium im Kiosk-Modus unter cage (Wayland-Kiosk-Compositor) auf tty1, als Benutzer „kiosk“.
+# Das Browserprofil wird bei jedem Start gelöscht: nichts bleibt im Browser. Richtlinien: kiosk/chromium/goch-kiosk.json.
+[Unit]
+Description=Goch Messegerät – Chromium im Kiosk-Modus
+After=goch-kiosk.service systemd-user-sessions.service
+Wants=goch-kiosk.service
+Conflicts=getty@tty1.service
+
+[Service]
+User=kiosk
+PAMName=login
+TTYPath=/dev/tty1
+StandardInput=tty
+UtmpIdentifier=tty1
+UtmpMode=user
+ExecStartPre=/bin/rm -rf /home/kiosk/.cache/goch-chromium
+ExecStart=/usr/bin/cage -s -- /usr/bin/chromium --kiosk --app=http://localhost:8080/kiosk.html --user-data-dir=/home/kiosk/.cache/goch-chromium --ozone-platform=wayland --noerrdialogs --disable-session-crashed-bubble --disable-infobars --no-first-run --check-for-update-interval=31536000 --overscroll-history-navigation=0 --disable-pinch --touch-events=enabled
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical.target
