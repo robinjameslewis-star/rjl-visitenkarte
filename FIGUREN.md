@@ -103,6 +103,75 @@ Danach: Maße und Augenpunkt messen, als WebP speichern
 (`python3 -c "from PIL import Image; Image.open('in.png').save('out.webp', quality=90)"`), in `figur.json` eintragen,
 `RECHTE.md` ergänzen, prüfen.
 
+### Prompt-Vorlage für mehr Bewegung (Robin, 24.10.2026)
+
+Ziel: Goch so lebendig wie möglich, begrenzt nur durch die Datenmenge – er soll auf dem Handy und im Browser schnell
+laden und ohne Ruckeln laufen. Realismus entsteht vor allem aus **Haltungen echter Rotkehlchen und dem Timing**
+(kurze, ruckartige Bewegungen mit Pausen, Knicksen, Flügelzucken), nicht aus vielen Einzelbildern. Die Seite blendet
+zwischen Posen über und bewegt sie nur mit `transform` und `opacity` (Grafikkarte, kein Video, kein Canvas je Bild).
+
+**Datenbudget:** Erste Ansicht wie heute (Sitzpose und Ast, rund 110 KB). Das Bewegungspaket lädt erst nach dem ersten
+Bild bzw. beim Öffnen des Gesprächs: höchstens 600 KB am Rechner, 250 KB auf dem Handy (kleinere Fassung, etwa 600 px
+breit; Werkzeug und Nachladen sind noch zu bauen). Alle Posen einer Fassung zusammen bleiben unter 1,5 MB (siehe Bildvorgaben). Reicht das
+Budget nicht, gilt die Reihenfolge der Liste.
+
+Jede Pose in einer **neuen Nachricht, mit der Sitzpose als Anhang** (nie mit dem letzten Ergebnis). Rahmen:
+
+> **Rolle und Ziel:** Du zeichnest Posen für „Goch“, ein gezeichnetes Rotkehlchen, das auf einer Website und auf
+> Smartphones als sprechender Gesprächspartner auftritt. Die Seite setzt seine Bewegung aus Standbildern zusammen: Sie
+> blendet zwischen Posen über und neigt oder streckt sie leicht. Je mehr passende Posen, desto lebendiger wirkt Goch –
+> aber jede Pose kostet Ladezeit. Deshalb zählen zwei Dinge gleich viel: Jede Pose passt exakt auf die Vorlage, und sie
+> lässt sich klein speichern.
+>
+> **Vorlage:** das angehängte Bild (Sitzpose, 1153 × 637 Pixel, Blick nach links). Nimm immer diese Vorlage als
+> Grundlage, nie dein letztes Ergebnis.
+>
+> **Feste Regeln für jedes Bild:**
+> 1. Gleicher Zeichenstrich, gleiche Farben, gleiches Gefieder, gleiche Lichtrichtung, gleiche Größe des Vogels. Der
+>    gezeichnete Stil bleibt; „realistisch“ heißt Haltung und Bewegung wie bei einem echten Rotkehlchen (Erithacus
+>    rubecula), nicht fotorealistisch.
+> 2. Genau 1153 × 637 Pixel. Der Vogel bleibt an derselben Stelle; die Füße stehen genau dort auf dem Ast wie in der
+>    Vorlage (Ausnahme: Hüpfen). Der Ast bleibt unverändert.
+> 3. Das Auge bleibt an derselben Stelle. Verlangt die Pose eine Kopfbewegung, dreht sich nur der Kopf um den Halsansatz.
+> 4. Hintergrund reines Weiß (#FFFFFF): kein Bodenschatten, keine Unschärfe, kein Verlauf, kein Text, kein Rahmen.
+> 5. Klein speicherbar: klare Flächen, saubere Konturen; keine Papierstruktur, kein Rauschen, keine Sprenkel oder
+>    Glanzlichter, die die Vorlage nicht hat.
+> 6. Blick nach links wie in der Vorlage, nie spiegeln.
+> 7. Gib nur das Bild aus, als PNG in voller Größe.
+>
+> **Ändere nur:** _Zeile aus der Liste_
+
+| Nr. | Pose | „Ändere nur …“ |
+|---|---|---|
+| 1 | `lauschend` | den Kopf: etwa 15° zur Seite geneigt, Blick aufmerksam, Schnabel geschlossen |
+| 2 | `zwitschernd` | den Schnabel und die Kehle: Schnabel geöffnet, Kehle gehoben und leicht gebläht, Kopf etwas nach oben |
+| 3 | `zum-betrachter` | den Kopf: zu drei Vierteln zum Betrachter gedreht, beide Augen sichtbar, freundlicher Blick direkt nach vorn; Körper unverändert |
+| 4 | `knicks` | die Haltung: Körper kurz abgesenkt, Beine gebeugt, Schwanz leicht gehoben – das typische Knicksen des Rotkehlchens |
+| 5 | `fluegelzucken` | Flügel und Schwanz: beide Flügelspitzen leicht vom Körper abgespreizt und gesenkt, Schwanz leicht gefächert |
+| 6 | `erklaert` | den vorderen Flügel: leicht vom Körper gehoben, offene Haltung wie bei einem Vortrag, Schnabel halb offen |
+| 7 | `zeigt-links` | den vorderen Flügel: nach links ausgestreckt, als zeige er auf etwas; Kopf und Blick in dieselbe Richtung |
+| 8 | `schnabel-weit` | den Schnabel: weit geöffnet wie bei einem Ausruf, Kehle sichtbar gedehnt |
+| 9 | `blinzeln-halb` | das Augenlid: halb geschlossen (Zwischenbild beim Blinzeln) |
+| 10 | `umschauen` | den Kopf: über die Schulter nach hinten (rechts) gedreht, als höre er etwas hinter sich |
+| 11 | `aufgeplustert` | das Gefieder: leicht aufgeplustert, Körper runder, Kopf etwas eingezogen |
+| 12 | `putzen` | Kopf und Schnabel: Kopf gedreht, Schnabel im Brustgefieder, als putze er sich |
+| 13 | `huepfen-absprung` | die Haltung: Körper tief geduckt, kurz vor dem Absprung (nur zusammen mit 14) |
+| 14 | `huepfen-flug` | die Haltung: Füße knapp über dem Ast, Flügel leicht geöffnet (nur zusammen mit 13) |
+
+**Ebenen (größter Gewinn je Kilobyte, optional):** Statt ganzer Posen einzelne Teile auf derselben Leinwand – dann kann
+die Seite Kopf, Schwanz und Flügel einzeln bewegen, fast ohne zusätzliche Daten. Rahmen wie oben, Regel 2 bis 7 gelten;
+statt „Ändere nur“:
+
+> Zeichne nur **den Kopf mit Schnabel und Auge**, genau an seiner Stelle in der Vorlage; den Halsansatz ein wenig länger
+> als sichtbar, damit beim Drehen keine Lücke entsteht. Alles andere reines Weiß.
+
+Weitere Teile: **Körper ohne Kopf und Schwanz** (verdeckte Ansätze ausgemalt), **Schwanz**, **vorderer Flügel**,
+**Unterschnabel**. Bildgeneratoren treffen die Lage dabei selten pixelgenau; ausgerichtet wird am Augenpunkt bzw. mit
+einem Skript, notfalls werden die Teile aus der Sitzpose geschnitten und nur die verdeckten Stellen ergänzt.
+
+Danach wie oben: messen, WebP, `figur.json`, `RECHTE.md`, prüfen. Neue Posen und Ebenen brauchen auf der Seite noch
+Code (Einbau, Bewegungsplan, kleinere Fassungen fürs Handy, Nachladen). Die Vorlage gilt sinngemäß für Kundenfiguren (eigene Maße, eigene Tierart).
+
 ## Stimme – dieselbe für alle
 
 Grundsatz (Robin, 23.10.2026): Jeder Besucher hört dieselbe Stimme, menschlich und passend zur Figur. Deshalb vertont nur
