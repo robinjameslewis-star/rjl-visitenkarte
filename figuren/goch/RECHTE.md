@@ -44,8 +44,9 @@ Vorher:
 - Verworfen: „Wolf Spencer – Rough and Deep“ (Aufschlag 0,20 $ je 1.000 Credits, Anklang an eine bekannte
   Synchronstimme).
 
-**Offen:** Am 23.10.2026 lief das Konto noch im kostenlosen Tarif, der keine kommerzielle Lizenz enthält. Vor dem
-ersten Einsatz einen bezahlten Tarif abschließen (Robin) und hier Tarif und Datum eintragen. Für Piet aus der Voice
+**Tarif:** Starter (bezahlt, mit kommerzieller Lizenz), laut Robin am 24.10.2026 abgeschlossen.
+
+**Offen:** Für Piet aus der Voice
 Library nachtragen: genauer Name, Ersteller, Aufschlag je Zeichen, Live-Moderation, Kündigungsfrist des Erstellers
 sowie die Bedingungen (Fundstelle, Abrufdatum); Piet zu „Meine Stimmen“ hinzufügen. Außerdem: Konto
 (E-Mail-Adresse) bestätigen, Widerspruch gegen Training, Auftragsverarbeitung, Fundstelle der Lizenzbedingungen mit
