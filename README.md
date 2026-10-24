@@ -760,6 +760,47 @@ Deploy (Robin, lokal): `cd worker && npx wrangler secret put ELEVENLABS_API_KEY`
 der Redaktion Voice ID eintragen und einschalten. Prüfen: `node tests/goch_stimme_test.mjs` (Workers AI, ElevenLabs,
 Anthropic und Resend abgefangen), `node tests/bundle_check.mjs`, `python3 tests/admin_test.py` gegen `node tests/admin_fake.mjs 8789`.
 
+### Startseite: Sprachmodus und Zwitschern
+
+Alles ist aus, bis `data-goch-stimme="an"` am `<body>` steht (zum Testen lokal `?stimme=an`). Robin setzt das Attribut,
+wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redaktion eingeschaltet sind.
+
+- **Schalter** (`goch-stimme.js`): im geöffneten Gespräch „Mit Goch sprechen“ und „Goch spricht laut“. Beim ersten
+  Einschalten fragt eine eigene Einwilligung (getrennt von der des Gesprächs); sie gilt nur für diesen Besuch, liegt nur im
+  Speicher der Seite und endet mit „Sprechen beenden“. Ohne Einschalten: kein `getUserMedia`, kein Ton, kein AudioContext,
+  keine Anfrage an `/listen` oder die Stimme (geprüft).
+- **Sprechen:** Knopf „Sprechen“ halten oder tippen – sprechen – tippen, Leertaste oder Enter genauso; höchstens 20 s mit
+  Pegel und Restzeit. Das Mikrofon ist nur während der Aufnahme offen. Die Seite nimmt PCM über Web Audio auf, rechnet auf
+  16 kHz mono herunter und schickt ein WAV an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über
+  `/chat` (`gesprochen: true`). Der Knopf hält den Zeiger fest (`setPointerCapture`), damit das Loslassen auch ankommt,
+  wenn sich die Sprechblase während der Aufnahme verschiebt.
+- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
+  das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen). Bis Robins Posen da
+  sind, neigt sich der Vogel nur leicht (`data-mund`, `data-lauscht` an der Szene, CSS über `.bird-tilt`); während der
+  Aufnahme zeigt er die Lauschpose. Ohne Stimme vom Server liest der Browser vor – nur mit lokalen Stimmen des Geräts.
+  Grenze erreicht: nur Text, kein Hinweis. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
+- **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
+- **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
+  höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die
+  Noten. Hörbar nur nach einer Handlung: leise beim Öffnen des Gesprächs und als Bestätigung beim Einschalten der Stimme;
+  „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Solange es keine
+  Tondatei gibt (`data-goch-signalton` leer), zwitschert Goch nur sichtbar. Datei: `figuren/goch/toene/zwitschern.ogg`
+  und `.mp3`, dann `data-goch-signalton="figuren/goch/toene/zwitschern"`.
+- **Handy:** Mit Sprachschaltern darf das Blatt 80 % der Höhe nutzen, damit der Verlauf lesbar bleibt.
+- **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
+  wenn die Funktion an ist. Die Einwilligung des Gesprächs (`rjl-goch-consent`) bleibt unverändert, weil ihr Text weiter
+  stimmt; die Sprach-Einwilligung wird nicht gespeichert, also gibt es keine Version hochzuzählen.
+- **Robins Posen einbauen:** Dateien in `figuren/goch/bilder/bestand/` (auf Weiß) und freigestellt in `figuren/goch/bilder/`
+  (`tools/landschaft-bilder.py`), in `figur.json` bei `schnabel-halb`, `schnabel-offen`, `lauschend` eintragen, in der Szene
+  von `index.html` je ein `<img class="bird-frame bird-rest" data-pose="halb|offen|lauschen" … style="opacity:0">`
+  ergänzen; `goch-stimme.js` wechselt dann das Bild statt zu neigen. Prüfen mit `node tools/figur-pruefen.mjs figuren/goch --html index.html`.
+
+Prüfen: `python3 tests/goch_stimme_test.py http://localhost:8788/ http://localhost:8787` (Seite und
+`tests/goch_fake_worker.py` wie beim Goch-Test; Chromes Testmikrofon, 14 Gruppen: vor jeder Handlung, Öffnen, Einwilligung,
+Stimme, Grenze, Mikrofon, 20 s, Spracheingabe aus/Grenze, Beenden, reduzierte Bewegung, Englisch, ohne Schalter, Handy,
+Konsole). `tests/goch_test.py` und der Bildvergleich (`tests/figur_bildvergleich.py`) belegen, dass ohne Schalter alles
+bleibt wie vorher.
+
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 
 GitHub Pages sendet keine eigenen Sicherheits-Kopfzeilen (kein HSTS, keine CSP); dafür bräuchte es den Cloudflare-Proxy
