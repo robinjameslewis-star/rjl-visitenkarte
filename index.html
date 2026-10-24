@@ -460,6 +460,12 @@
     width: 36%; padding: 0; z-index: 3;
   }
   .landscape-on .bird-move { mix-blend-mode: normal; }
+  /* Einstieg mit Landschaft (Welle 2, 24.10.2026): Die Wortmarke steht fest, der Block darunter wächst nach oben. Damit Zeile und
+     Name frei bleiben: Knöpfe auf dem Rechner in einer Reihe, auf Tablets die Wortmarke im Fluss (dort überdeckte sie Zeile und
+     Namen schon vorher), auf breiten Bildschirmen wachsen Rand und Abstand nicht weiter. Einstiegszeile höchstens 5 Zeilen. */
+  @media (min-width: 721px) { .landscape-on .intro .cta { flex-wrap: nowrap; } .landscape-on .intro .cta a { white-space: nowrap; } }
+  @media (min-width: 721px) and (max-width: 1023px) { .landscape-on .name { position: static; width: auto; } .landscape-on .intro .cta { flex-wrap: wrap; } }
+  @media (min-width: 1600px) { .stage { padding-left: 86px; padding-right: 86px; column-gap: 58px; } .landscape-on .name { left: 86px; } }
   /* Sprachwahl und Menü oben links: ein Lichthof aus Papierfarbe hält sie vor Himmel und Blättern lesbar. */
   .landscape-on .language-nav .flag, .landscape-on .kopf .hauptnav a { filter: drop-shadow(0 0 3px var(--paper)); }
   .landscape-on .kopf .termin { background: color-mix(in srgb, var(--paper) 88%, transparent); }
@@ -591,7 +597,7 @@
     <div class="intro">
       <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a></h1>
       <p class="byline" data-i18n="byline">Robin James Lewis · Balingen</p>
-      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt – in Rechnungswesen, Verwaltung und weiteren Geschäftsprozessen. Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
+      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
       <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshop für Ihr Team</a></p>
     </div>
     <div class="perch">
