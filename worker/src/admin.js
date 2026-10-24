@@ -15,6 +15,7 @@ import * as fig from "./figuren.js";
 import { stimmeMonat, TTS_MODELLE, vertonen, zeichenBuchen, PROBESATZ } from "./stimme.js";
 import { hoerenTag } from "./hoeren.js";
 import * as kiosk from "./kiosk.js";
+import * as seiten from "./seitenwissen.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
@@ -577,6 +578,12 @@ async function gochApi(api, request, env, deps, session) {
       }
       return json({ ...(await gochState(env)), note });
     }
+    // Seitenwissen (seitenwissen.js): Stand ansehen oder sofort neu einlesen
+    if (api === "goch/seitenwissen" && (request.method === "GET" || request.method === "POST")) {
+      const w = request.method === "POST" ? await seiten.neuEinlesen(env) : await seiten.laden(env, null);
+      if (w && w.error) return json({ error: "Neu einlesen fehlgeschlagen: " + w.error }, 502);
+      return json(seiten.stand(w));
+    }
     // Hörprobe der Stimme (nur Robin, angemeldet): Voice ID und Modell aus den Feldern, auch ungespeichert; zählt zur Monatsgrenze
     if (api === "goch/stimmprobe" && request.method === "POST") {
       const body = await readJson(request), sp = (await cfg.loadSettings(env, true)).sprache;
@@ -963,6 +970,7 @@ ${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Eng
 <section><h2>Goch – Profil <span class="note">(wer Robin ist, wie Goch spricht, was er nie tut)</span></h2><p class="src" id="psrc"></p>
 <p class="note" style="margin:0 0 6px">Das ist Gochs Systemprompt – jeder Satz hier wird sein Wissen und sein Ton. Alles darin darf öffentlich sein: keine Namen aus der Familie, keine Adresse, nichts zu Finanzen oder Gesundheit, keine Mandanten. Nach dem Veröffentlichen antwortet Goch sofort mit der neuen Fassung; „Vorige Fassung“ holt den Stand davor zurück.</p>
 <textarea id="ptext" style="min-height:460px" spellcheck="true"></textarea>
+<p class="note" id="swstat"></p>
 <div class="bar"><button id="saveP">Veröffentlichen</button><button class="quiet" id="prevP">Vorige Fassung</button><a class="note" id="histP" target="_blank" rel="noopener">Verlauf</a><span class="note" id="pwords"></span><span class="msg" id="mP2"></span></div></section>
 
 <script>
@@ -1335,6 +1343,9 @@ for(const [x,key] of WK){
 $('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
 function pwords(){const n=$('ptext').value.split(/\\s+/).filter(Boolean).length;$('pwords').textContent=n+' Wörter (≈ '+Math.round(n*4.4/100)*100+' Tokens)';}
 $('ptext').oninput=pwords;
+function renderSW(w){$('swstat').innerHTML=(w&&w.stand?'Seitenwissen: '+w.seiten.length+' Seiten der Website, '+w.woerter+' Wörter, eingelesen '+fmt(w.stand)+'. Goch kennt sie zusätzlich zu diesem Profil; neu eingelesen wird alle sechs Stunden von selbst. ':'Seitenwissen: noch nicht eingelesen. ')+'<button class="quiet" id="swneu" type="button">Jetzt neu einlesen</button> <span class="msg" id="mSW"></span>';
+ $('swneu').onclick=async()=>{say('mSW','Liest ein …',true);try{renderSW(await api('goch/seitenwissen','POST'));say('mSW','Neu eingelesen.',true);}catch(e){say('mSW',e.message);}};}
+api('goch/seitenwissen').then(renderSW).catch(()=>renderSW(null));
 $('saveP').onclick=()=>{if(confirm('Gochs Profil jetzt veröffentlichen? Goch antwortet danach sofort mit dieser Fassung.'))publish('profile','mP2',{text:$('ptext').value});};
 $('prevP').onclick=async()=>{if(!confirm('Vorige Fassung des Profils wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/profile','POST'));say('mP2','Vorige Fassung ist live.',true);}catch(e){say('mP2',e.message);}};
 $('saveL').onclick=()=>{if(confirm('Links jetzt veröffentlichen?'))publish('links','mL',{rows:rows()});};
