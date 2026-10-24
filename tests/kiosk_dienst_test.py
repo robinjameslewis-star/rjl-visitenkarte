@@ -1,7 +1,8 @@
 """Prüft den lokalen Dienst des Messegeräts (kiosk/dienst/goch_kiosk.py, 23.10.2026) gegen die Worker-Attrappe:
 nur die Dateien des Kiosks, Host-Prüfung, Weiterleitung mit Gerätenachweis (nie zur Seite), Lebenszeichen, Ereignisse
 (Radar, Netz), Puffer bestätigter Nachrichten ohne Netz und Nachsenden, Zwischenspeicher der Figurentexte, keine
-Gesprächsinhalte im Protokoll; dazu der Rahmenleser des Radars HLK-LD2410.
+Gesprächsinhalte im Protokoll; dazu der Rahmenleser des Radars HLK-LD2410. Workshop-Bühne (24.10.2026): buehne.html,
+Kapitelliste und Videos mit Range aus dem Vortragsordner (--vortrag), als Strom, Abbrüche ohne Traceback.
 
 Aufruf:  python3 tests/kiosk_dienst_test.py      (startet Attrappe und Dienst selbst; nur Standardbibliothek)"""
 import http.client, json, os, socket, stat, struct, subprocess, sys, tempfile, threading, time
@@ -63,6 +64,16 @@ open(os.path.join(figuren, 'kunde-test', 'figur.json'), 'w').write('{"format":1,
 geraet = os.path.join(tmp, 'geraet.json')
 fd = os.open(geraet, os.O_WRONLY | os.O_CREAT, 0o600)
 with os.fdopen(fd, 'w') as f: json.dump({'worker': f'http://127.0.0.1:{UP}', 'token': TOKEN}, f)
+vortrag = os.path.join(tmp, 'vortrag'); os.makedirs(os.path.join(vortrag, 'folien'))
+VIDEO = bytes(range(256)) * 40  # 10.240 Bytes, kein echtes Video – es geht um Range
+open(os.path.join(vortrag, 'Kapitel_00_Test.mp4'), 'wb').write(VIDEO)
+GROSS = bytes(range(256)) * 12288  # 3 MB: Antworten gehen als Strom in Blöcken hinaus
+open(os.path.join(vortrag, 'Kapitel_01_Gross.mp4'), 'wb').write(GROSS)
+open(os.path.join(vortrag, 'folien', 'folie-01.jpg'), 'wb').write(b'\xff\xd8\xff')
+json.dump({'kapitel': 'Kapitel 0', 'titel': 'Test', 'video': 'Kapitel_00_Test.mp4', 'dauer': 3.0,
+           'absaetze': [{'id': '0.0', 'von': 0, 'bis': 1.2, 'text': 'Hallo.', 'folie': 'folie-01.jpg'}]},
+          open(os.path.join(vortrag, 'Kapitel_00_Test.marken.json'), 'w'))
+open(os.path.join(tmp, 'geheim.txt'), 'w').write('nicht ausliefern')
 konfig = os.path.join(tmp, 'konfiguration.json')
 json.dump({'figur': 'goch', 'sprache': 'de', 'inaktivitaet_s': 60, 'zwitschern': {'an': True, 'entfernung_m': [1, 3]}, 'radar': {}}, open(konfig, 'w'))
 PY = sys.executable
@@ -70,7 +81,7 @@ fake = lambda: subprocess.Popen([PY, os.path.join(ROOT, 'tests', 'goch_fake_work
 up = fake(); warte_port(UP)
 logdatei = open(os.path.join(tmp, 'dienst.log'), 'w')
 dienst = subprocess.Popen([PY, os.path.join(ROOT, 'kiosk', 'dienst', 'goch_kiosk.py'), '--seite', ROOT, '--figuren', figuren, '--daten', daten,
-                           '--geraet', geraet, '--konfiguration', konfig, '--port', str(DIENST), '--lebenszeichen-takt', '1', '--test'],
+                           '--geraet', geraet, '--konfiguration', konfig, '--vortrag', vortrag, '--port', str(DIENST), '--lebenszeichen-takt', '1', '--test'],
                           stdout=logdatei, stderr=subprocess.STDOUT)
 try:
     check(warte_port(DIENST), 'Dienst lauscht auf 127.0.0.1')
@@ -87,6 +98,61 @@ try:
     check(anfrage('GET', '/kiosk.html', host='boese.example')[0] == 403 and anfrage('GET', '/kiosk.html', host='127.0.0.1:' + str(DIENST))[0] == 200, 'fremder Host-Kopf: 403 (DNS-Rebinding)')
     k = json.loads(anfrage('GET', '/kiosk/konfiguration')[2])
     check(k['figur'] == 'goch' and k['figurBasis'] == '/figur/goch/' and 'radar' not in k and TOKEN not in json.dumps(k), 'Konfiguration für die Seite ohne Nachweis und Radar-Port')
+
+    print('Workshop-Bühne: Seite, Kapitelliste, Videos mit Range')
+    check(anfrage('GET', '/buehne.html')[0] == 200 and anfrage('GET', '/buehne.js')[0] == 200, 'buehne.html und buehne.js')
+    s, h, d = anfrage('GET', '/vortrag/liste')
+    check(s == 200 and json.loads(d) == [{'marken': 'Kapitel_00_Test.marken.json', 'kapitel': 'Kapitel 0', 'titel': 'Test', 'video': 'Kapitel_00_Test.mp4', 'dauer': 3.0}], 'Kapitelliste aus den Absatzmarken', d[:120])
+    def bereich(r, datei='Kapitel_00_Test.mp4'):
+        c = http.client.HTTPConnection('127.0.0.1', DIENST, timeout=10)
+        c.request('GET', '/vortrag/' + datei, headers={'Host': f'localhost:{DIENST}', **({'Range': r} if r else {})})
+        x = c.getresponse(); b = x.read(); c.close(); return x.status, dict(x.getheaders()), b
+    s, h, d = bereich(None)
+    check(s == 200 and d == VIDEO and h.get('Content-Type') == 'video/mp4' and h.get('Accept-Ranges') == 'bytes', 'Video ganz (200, Accept-Ranges)')
+    s, h, d = bereich('bytes=1000-1999')
+    check(s == 206 and d == VIDEO[1000:2000] and h.get('Content-Range') == f'bytes 1000-1999/{len(VIDEO)}', 'Bereich 1000–1999 (206)', h.get('Content-Range'))
+    s, h, d = bereich('bytes=10000-')
+    check(s == 206 and d == VIDEO[10000:], 'offener Bereich bis zum Ende')
+    s, h, d = bereich('bytes=-240')
+    check(s == 206 and d == VIDEO[-240:], 'letzte 240 Bytes')
+    check(bereich('bytes=20000-')[0] == 416, 'Bereich hinter dem Ende: 416')
+    check(bereich('bytes=-0')[0] == 416, 'leerer Endbereich „bytes=-0“: 416')
+    for r in ('bytes=0-1,5-6', 'bytes=abc', 'bytes=5-3', 'bytes=-'):
+        s, h, d = bereich(r)
+        if s != 200 or d != VIDEO: check(False, 'ganze Datei bei ' + r, s)
+    check(True, 'kaputte oder mehrfache Bereiche: ganze Datei (200)')
+    s, h, d = bereich('bytes=1000000-2999999', 'Kapitel_01_Gross.mp4')
+    check(s == 206 and d == GROSS[1000000:3000000] and h.get('Content-Length') == '2000000' and h.get('Content-Range') == f'bytes 1000000-2999999/{len(GROSS)}'
+          and h.get('X-Content-Type-Options') == 'nosniff' and h.get('Cache-Control') == 'no-store', 'geschlossener Bereich aus 3 MB genau (206, Strom)', h.get('Content-Range'))
+    s, h, d = bereich(f'bytes=0-{len(GROSS) - 1}', 'Kapitel_01_Gross.mp4')
+    check(s == 206 and d == GROSS and h.get('Content-Range') == f'bytes 0-{len(GROSS) - 1}/{len(GROSS)}', 'ganze 3 MB als Bereich wie bei Safari (206)')
+    s, h, d = bereich(None, 'Kapitel_01_Gross.mp4')
+    check(s == 200 and d == GROSS and h.get('Content-Length') == str(len(GROSS)) and h.get('Accept-Ranges') == 'bytes', '3 MB ganz (200, Strom)')
+    v = socket.socket(); v.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4096); v.connect(('127.0.0.1', DIENST))
+    v.sendall(f'GET /vortrag/Kapitel_01_Gross.mp4 HTTP/1.1\r\nHost: localhost:{DIENST}\r\nRange: bytes=0-\r\n\r\n'.encode())
+    erste = v.recv(64); v.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0)); v.close(); time.sleep(0.5)
+    protokoll = open(os.path.join(tmp, 'dienst.log')).read()
+    check(b' 206 ' in erste[:16] and 'Traceback' not in protokoll and anfrage('GET', '/vortrag/liste')[0] == 200, 'abgebrochener Abruf (Sprung im Video): kein Traceback, Dienst läuft weiter', protokoll.count('Traceback'))
+    json.dump({'kapitel': 'Kapitel 1', 'titel': 'Gross', 'video': 'Kapitel_01_Gross.mp4', 'dauer': 9.5}, open(os.path.join(vortrag, 'Kapitel_01_Gross.marken.json'), 'w'))
+    json.dump([1, 2], open(os.path.join(vortrag, 'Kapitel_02_Liste.marken.json'), 'w'))
+    json.dump('nur Text', open(os.path.join(vortrag, 'Kapitel_03_Text.marken.json'), 'w'))
+    s, h, d = anfrage('GET', '/vortrag/liste')
+    check(s == 200 and [k['marken'] for k in json.loads(d)] == ['Kapitel_00_Test.marken.json', 'Kapitel_01_Gross.marken.json'], 'Absatzmarken ohne Objekt (Liste, Text) übersprungen, gültige bleiben', d[:160])
+    os.rename(vortrag, vortrag + '-weg')
+    s, h, d = anfrage('GET', '/vortrag/liste')
+    os.rename(vortrag + '-weg', vortrag)
+    check(s == 503 and 'error' in json.loads(d), 'Vortragsordner weg (Stick gezogen): 503 mit Fehler', s)
+    check(anfrage('GET', '/vortrag/folien/folie-01.jpg')[0] == 200, 'Folienbild')
+    for pfad in ('/vortrag/../geheim.txt', '/vortrag/%2e%2e/geheim.txt', '/vortrag/folien/../../geheim.txt', '/vortrag/fehlt.mp4'):
+        if anfrage('GET', pfad)[0] != 404: check(False, 'gesperrt: ' + pfad)
+    check(True, 'nichts außerhalb des Vortragsordners (..)')
+    try:  # eigener kurzer Start auf anderem Port: fehlender Vortragsordner bricht mit Hinweis ab
+        r = subprocess.run([PY, os.path.join(ROOT, 'kiosk', 'dienst', 'goch_kiosk.py'), '--seite', ROOT, '--figuren', figuren, '--daten', os.path.join(tmp, 'daten-2'),
+                            '--geraet', geraet, '--konfiguration', konfig, '--vortrag', os.path.join(tmp, 'vortrag-fehlt'), '--port', '8761'], capture_output=True, text=True, timeout=5)
+        start = (r.returncode, r.stderr.strip())
+    except subprocess.TimeoutExpired:
+        start = (0, 'läuft trotzdem')
+    check(start[0] != 0 and 'Vortragsordner nicht gefunden' in start[1] and not os.path.exists(os.path.join(tmp, 'daten-2')), 'fehlender Vortragsordner: Abbruch beim Start mit Hinweis', start[1][-120:])
 
     print('Weiterleitung an den Worker mit Gerätenachweis')
     s, h, d = anfrage('POST', '/kiosk/chat', json.dumps({'figur': 'goch', 'lang': 'de', 'messages': [{'role': 'user', 'content': 'Wer ist Robin? Geheimes Anliegen 4711'}]}))

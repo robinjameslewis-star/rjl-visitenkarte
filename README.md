@@ -823,7 +823,23 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Layout „vortrag“ (16:9, 24.10.2026) für Workshops: `tools/goch-vortrag.py` schreibt aus Skript (Markdown) und Folien
   (HTML mit `data-bloecke` je Folie) ein Drehbuch je Kapitel – Folie zum Absatz, Aussprache von Paragrafen und
   Gesetzesnamen; erster Einsatz: Unterweisung KI-Kompetenz, Kanzlei-Fassung (Vault). Port für Chrome mit
-  `GOCH_CLIP_PORT`.
+  `GOCH_CLIP_PORT`. Neben jedem Video entstehen Absatzmarken (`<video>.marken.json`: je Absatz und Satz Anfang, Ende,
+  Text, Folie, dazu die Stimme), erst wenn das Video fertig ist; `--nur-marken [--stimme-id <id>]` schreibt sie neu nur
+  aus dem Ton-Zwischenspeicher – ohne Rendern, ohne Stimmdienst, und ohne etwas zu schreiben, wenn ein Satz fehlt.
+- **Workshop-Bühne (24.10.2026, `buehne.html` + `buehne.js`):** Robin: „die perfekte Mischung aus Videos und freiem
+  Sprechen, wenn Fragen gestellt werden“. Gochs Vortrag läuft als Kapitelvideo (geprüfter Text); meldet sich jemand
+  (H oder kurz die Taste), spricht Goch zu Ende wie ein Referent – bis zum Absatzende, wenn das höchstens 12 s entfernt
+  ist, sonst bis zum Satzende –, und an derselben Stelle erscheint er live im selben Layout (Karte, Kapitel, Goch auf dem
+  Ast, Untertitel). Er beantwortet die Frage frei aus dem Wissen der Workshop-Figur und kennt dabei den Stand des
+  Vortrags (`vortrag` in `/kiosk/chat`: Kapitel, gerade Gesagtes, was als Nächstes kommt, Fragen bisher). Mit W leitet er
+  über und es geht dort weiter, wo er aufgehört hat – oder dahinter, wenn die Antwort den nächsten Teil schon abdeckte
+  (Worker: `weiter: "ueberspringen"`); Esc ohne Überleitung. Im letzten Kapitel blickt er vor der Zusammenfassung kurz auf
+  die Fragen zurück. Läuft am Laptop über den lokalen Dienst (`--vortrag <Ordner>`), Einrichtung in `kiosk/README.md`.
+  Im Worker (`kundenVortrag` in `worker/src/kiosk.js`): der feste Systemprompt der Figur bleibt Block 1 (gecacht), der
+  Stand des Vortrags kommt als Block 2 dazu; die Fragen der Teilnehmenden stehen nie im Systemprompt, sondern als
+  Zitat vor der letzten Nutzernachricht; `weiter` nur bei der Überleitung und nur, wenn es etwas zu überspringen gibt.
+  Ohne Antwort des Modells (Fehler, Grenze, aus) sagt eine Workshop-Figur einen eigenen Satz mit `fehler: true`, ohne
+  Stimme. Test: `python3 tests/buehne_test.py` (braucht zusätzlich PyAV).
 
 ### Messegerät (Kiosk)
 

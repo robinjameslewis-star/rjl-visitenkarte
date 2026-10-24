@@ -5,8 +5,11 @@ Aufruf:  python3 tests/goch_fake_worker.py [Port, Standard 8787]
 Seite:   http://localhost:8788/?goch=http://localhost:8787/chat
 Prüfen:  GET /_sent liefert die „versendeten“ Nachrichten als JSON, GET /_last die letzte Anfrage.
 Sprechender Goch (23.10.2026): POST /listen nimmt ein WAV und liefert einen festen Text; /chat mit „stimme“ antwortet als
-NDJSON mit einem kurzen WAV-Ton als Stimme (KI-Hinweis bei „erste“). GET /_modus?stimme=ok|grenze|fehler&hoeren=ok|grenze|aus
-stellt das Verhalten um, GET /_listen und /_chats liefern, was ankam.
+NDJSON mit einem kurzen WAV-Ton als Stimme (KI-Hinweis bei „erste“). Mit „vortrag“ (Workshop-Bühne) feste Sätze für
+Zwischenfrage, Überleitung (weiter nur, wenn vortrag.danach nicht leer ist: „ueberspringen“, wenn eine Frage „überspringen“
+enthält, sonst „naechster“) und Rückblick. Eine Frage, die mit „fehler“ beginnt, erzwingt einen Serverfehler (500); mit
+„still“ die Ersatzantwort der Workshop-Figur ohne Modell ({reply, fehler: true}, als JSON ohne Stimme).
+GET /_modus?stimme=ok|grenze|fehler&hoeren=ok|grenze|aus stellt das Verhalten um, GET /_listen und /_chats liefern, was ankam.
 Messegerät: /kiosk/chat, /kiosk/listen, /kiosk/figur und /kiosk/lebenszeichen wie der Worker; GET /_auth liefert die
 Authorization-Kopfzeilen, die ankamen (der lokale Dienst muss den Gerätenachweis mitschicken).
 
@@ -23,7 +26,7 @@ figur.json; Schlüssel und Voice ID nur aus der Umgebung (ELEVENLABS_API_KEY, GO
 Stimmen durchprobieren ohne Neustart (23.10.2026): GET /_stimmen?suche=<Name> sucht in der Voice Library und unter den
 eigenen Stimmen (Name, Voice ID, ob im Gratistarif nutzbar), GET /_stimme?id=<Voice ID> wechselt die Stimme. Der Schlüssel
 bleibt im Prozess; die Attrappe hört nur auf 127.0.0.1. POST /_vertonen {text, lang} vertont einen eigenen Text mit der
-eingestellten Stimme (Clips, tools/goch-clip.py; höchstens 600 Zeichen je Aufruf).
+eingestellten Stimme und nennt sie (voice; Clips, tools/goch-clip.py; höchstens 600 Zeichen je Aufruf).
 Ohne --stimme: kurzer Sinuston (Tests)."""
 import base64, io, json, math, os, re, struct, subprocess, sys, tempfile, threading, time, urllib.parse, urllib.request, wave
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -66,7 +69,7 @@ def mac_stimme(lang):
                            for t in [[n for n in stimmen if n == basis or n.startswith(basis + ' (')]] if t), None)
     return _mac[lang]
 
-def vertonen(text, lang):
+def vertonen(text, lang, voice=None):
     """Antwort als Stimme: (mime, base64) oder None. Ohne --stimme der Sinuston der Tests."""
     if STIMME == 'mac':
         name = mac_stimme(lang)
@@ -77,7 +80,7 @@ def vertonen(text, lang):
             if r.returncode or not os.path.exists(ziel): return None
             return 'audio/wav', base64.b64encode(open(ziel, 'rb').read()).decode()
     if STIMME == 'elevenlabs':
-        schluessel, voice = os.environ.get('ELEVENLABS_API_KEY', ''), STIMM_ID['id']
+        schluessel, voice = os.environ.get('ELEVENLABS_API_KEY', ''), voice if voice is not None else STIMM_ID['id']
         if not schluessel or not voice: return None
         cfg = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'figuren', 'goch', 'figur.json'))).get('stimme', {})
         modell = os.environ.get('GOCH_TTS_MODELL') or cfg.get('modell') or 'eleven_v4'
@@ -127,6 +130,11 @@ GRUSS = {'de': {'angekommen': 'Hallo! Schön, dass Sie vorbeischauen. Fragen Sie
                 'nachfrage': 'Möchten Sie wissen, woran Robin gerade arbeitet?'},
          'en': {'angekommen': "Hello! Nice of you to drop by. Feel free to ask me what Robin is working on.", 'zurueck': 'There you are again! Where were we?',
                 'nachfrage': 'Would you like to know what Robin is working on?'}}
+VORTRAG = {'de': {'frage': 'Gute Frage: „{frage}“. Kurz gesagt: Im Zweifel keine Klardaten – fragen Sie die Workshopleitung.',
+                  'ueberleitung': 'Damit zurück zum Vortrag.', 'rueckblick': 'Sie haben {n} Fragen gestellt – danke dafür. Zum Schluss das Wichtigste.'},
+           'en': {'frage': 'Good question: “{frage}”. In short: when in doubt, no clear data – ask the workshop lead.',
+                  'ueberleitung': 'Back to the talk.', 'rueckblick': 'You asked {n} questions – thank you. Finally, the key points.'}}
+STILL = {'de': 'Gerade antworte ich nicht. Das nimmt gleich die Workshopleitung auf.', 'en': "I can't answer just now. The workshop lead will pick this up in a moment."}  # wie TEXT_WORKSHOP in worker/src/kiosk.js
 KI = {'de': 'Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. ', 'en': "Just so you know: I'm an AI, and my voice is artificially generated. "}
 
 def ton(sekunden=0.6, hz=440):
@@ -231,8 +239,9 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))) or b'{}')
             text = str(body.get('text', '')).strip()
             if not text or len(text) > 600: return self.reply({'error': 'Text fehlt oder länger als 600 Zeichen.'}, 400)
-            r = vertonen(text, 'en' if body.get('lang') == 'en' else 'de')
-            return self.reply({'mime': r[0], 'daten': r[1]} if r else {'error': 'Keine Stimme.'}, 200 if r else 502)
+            voice = STIMM_ID['id']  # einmal je Satz: goch-clip prüft, dass es die Stimme seines Laufs ist
+            r = vertonen(text, 'en' if body.get('lang') == 'en' else 'de', voice)
+            return self.reply({'mime': r[0], 'daten': r[1], 'voice': voice} if r else {'error': 'Keine Stimme.'}, 200 if r else 502)
         if self.path.startswith('/kiosk/'):  # Messegerät: wie /chat und /listen, Nachweis merken
             AUTH.append(self.headers.get('Authorization', ''))
             if self.path == '/kiosk/lebenszeichen':
@@ -285,6 +294,18 @@ class Handler(BaseHTTPRequestHandler):
         low = last.lower()
         if low.startswith('fehler'):  # Testhaken: Serverfehler erzwingen
             return self.reply({'error': 'kaputt'}, 500)
+        if low.startswith('still'):  # Testhaken: Ersatzantwort wie beim Modellfehler im Workshop – fehler: true, ohne Stimme
+            self.stimme = None
+            return self.reply({'reply': STILL[lang], 'action': None, 'fehler': True})
+        v = body.get('vortrag') if isinstance(body.get('vortrag'), dict) else None
+        if v and v.get('zweck') in VORTRAG[lang]:  # Workshop-Bühne: Zwischenfrage, Überleitung, Rückblick (feste Sätze)
+            T2 = VORTRAG[lang]
+            if v['zweck'] == 'frage': return self.reply({'reply': T2['frage'].format(frage=last[:80]), 'action': None})
+            if v['zweck'] == 'rueckblick': return self.reply({'reply': T2['rueckblick'].format(n=len(v.get('fragen') or [])), 'action': None})
+            if not str(v.get('danach') or '').strip():  # nichts mehr zum Überspringen: ohne „weiter“, wie der Worker
+                return self.reply({'reply': T2['ueberleitung'], 'action': None})
+            schon = any('überspring' in m['content'].lower() or 'skip' in m['content'].lower() for m in msgs if m['role'] == 'user')
+            return self.reply({'reply': T2['ueberleitung'], 'action': None, 'weiter': 'ueberspringen' if schon else 'naechster'})
         # Nachricht an Robin: "name: …, email: …, text: …" → Zusammenfassung; "ja"/"yes" danach → gesendet
         if low in ('ja', 'ja.', 'yes', 'yes.') and len(msgs) >= 2 and ('Soll ich das so senden' in msgs[-2]['content'] or 'Shall I send' in msgs[-2]['content']):
             prev = [m for m in msgs if m['role'] == 'user'][-2]['content']

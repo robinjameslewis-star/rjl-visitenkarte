@@ -14,6 +14,16 @@ In den Pausen zwischen den Sätzen knickst, blinzelt oder zuckt Goch – fest ge
 Braucht Google Chrome und Python mit numpy, Pillow, websockets und PyAV (`pip install av numpy pillow websockets`).
 
   python3 tools/goch-clip.py <drehbuch.json> <ausgabe.mp4>
+  python3 tools/goch-clip.py <drehbuch.json> <ausgabe.mp4> --nur-marken [--stimme-id <id>]   # nur die Absatzmarken
+
+Tragen die Sätze ein Feld „absatz“ (tools/goch-vortrag.py), entsteht neben dem Video <ausgabe>.marken.json, erst wenn
+das Video fertig ist: je Absatz Anfang, Ende, Text, Folie (des ersten Satzes) und die Sätze mit Anfang, Ende und eigener
+Folie, dazu die Stimmen-ID – für die Workshop-Bühne (buehne.html, Robin 24.10.2026).
+--nur-marken nimmt den Ton nur aus dem Zwischenspeicher und vertont nie: fehlt ein Satz, bricht es ab, ohne etwas zu
+schreiben. Die Stimmen-ID (Teil des Schlüssels im Zwischenspeicher) kommt aus --stimme-id oder aus den bisherigen Marken
+neben dem Video – nie vom Stimmdienst; zur Gegenprobe muss der Ton so lang sein wie das Video (±0,2 s).
+Beim Rendern nennt die Attrappe zu jedem Satz die Stimme; wechselt sie während des Laufs, bricht er ab. Tragen die Sätze
+kein „absatz“ mehr, werden alte Marken neben dem Video beiseitegelegt (.alt).
 """
 import asyncio, base64, hashlib, io, json, os, re, subprocess, sys, tempfile, threading, time, urllib.request
 from functools import partial
@@ -35,11 +45,29 @@ def ton(quelle):
     c.close()
     return np.concatenate(teile).astype(np.float32)
 
-def vertonen(endpunkt, text, lang, ablage):
-    stimme = json.load(urllib.request.urlopen(endpunkt + '/_stimme')).get('voice', '')
+def stimme_ermitteln(db, ausgabe, nur_marken, stimme_id=None):
+    """Stimmen-ID einmal je Lauf. Mit --nur-marken nur --stimme-id oder die der bisherigen Marken – nie die gerade
+    eingestellte Stimme, die nicht die des Videos sein muss; beim Rendern immer die Stimme, die auch vertont."""
+    if nur_marken:
+        if stimme_id is None:
+            try: stimme_id = json.load(open(os.path.splitext(ausgabe)[0] + '.marken.json', encoding='utf-8'))['stimme']
+            except (OSError, ValueError, KeyError, TypeError): pass
+        if not stimme_id: sys.exit('Keine Stimmen-ID in den bisherigen Marken – --stimme-id <Voice ID des Videos> angeben. Nichts geschrieben.')
+        return stimme_id
+    try: return json.load(urllib.request.urlopen(db['stimme'] + '/_stimme', timeout=10)).get('voice', '')
+    except OSError as fehler:
+        sys.exit(f'Stimme {db["stimme"]} nicht erreichbar ({fehler})' + (' – mit --stimme-id <id> geht es ohne' if nur_marken else ''))
+
+def vertonen(endpunkt, stimme, text, lang, ablage, nur_ablage=False):
+    """Ton eines Satzes aus dem Zwischenspeicher (Schlüssel: Stimme, Sprache, Text), sonst von der Stimme. Mit `nur_ablage`
+    (--nur-marken) nie die Stimme: fehlt der Ton, bricht der Lauf ab, bevor etwas geschrieben ist."""
     schluessel = hashlib.sha1(f'{stimme}|{lang}|{text}'.encode()).hexdigest()[:16]
     pfad = os.path.join(ablage, f'satz-{schluessel}.mp3')
     if not os.path.exists(pfad):
+        if nur_ablage:
+            raise SystemExit(f'Kein Ton im Zwischenspeicher {ablage} für Stimme „{stimme}“, Satz: „{text}“ – Stimmen-ID '
+                             'prüfen (--stimme-id) oder ohne --nur-marken neu vertonen. Nichts geschrieben.')
+        os.makedirs(ablage, exist_ok=True)
         anfrage = urllib.request.Request(endpunkt + '/_vertonen', data=json.dumps({'text': text, 'lang': lang}).encode(),
                                          headers={'content-type': 'application/json'}, method='POST')
         for versuch in range(5):  # vorübergehende Fehler bei ElevenLabs (502 über die Attrappe): kurz warten, erneut
@@ -48,6 +76,8 @@ def vertonen(endpunkt, text, lang, ablage):
                 if fehler.code not in (429, 500, 502, 503) or versuch == 4: raise
                 print(f'  Stimme vorübergehend nicht da ({fehler.code}), neuer Versuch in {5 * 2 ** versuch} s', flush=True)
                 time.sleep(5 * 2 ** versuch)
+        if d.get('voice', stimme) != stimme:  # Stimme während des Laufs gewechselt: nicht unter falschem Schlüssel ablegen
+            raise SystemExit(f'Stimme während des Laufs gewechselt ({stimme} → {d["voice"]}) – Satz nicht gespeichert: „{text}“')
         open(pfad, 'wb').write(base64.b64decode(d['daten']))
         print(f'  vertont ({stimme}): {text[:60]}', flush=True)
     return pfad
@@ -173,14 +203,53 @@ async def aufnehmen(url, n, schreiben, breite=1080, hoehe=1350):
     finally:
         proc.terminate()
 
-def main(pfad_db, ausgabe):
+def folie_von(karte):
+    """Folie einer Karte; teilen sich mehrere Karten den Satz, die letzte (sie steht am Satzende)."""
+    if isinstance(karte, list): karte = karte[-1] if karte else None
+    return (karte or {}).get('src', '')
+
+def absatzmarken(db, zeiten, dauer, ausgabe, stimme):
+    """Absatzmarken für die Workshop-Bühne: je Absatz Anfang und Ende der Sprache, Text, Folie des ersten Satzes und die
+    Sätze mit eigener Folie (goch-vortrag.py verteilt einen Absatz auf mehrere Folien), dazu die Stimmen-ID für spätere
+    Läufe mit --nur-marken (die Bühne hält bei einer Zwischenfrage am Absatzende oder, wenn das noch weit ist, am nächsten
+    Satzende). Ohne Feld „absatz“ in allen Sätzen: None."""
+    if not all('absatz' in s for s in db['saetze']): return None
+    absaetze = []
+    for s, (a, b) in zip(db['saetze'], zeiten):
+        satz = {'von': round(a, 3), 'bis': round(b, 3), 'text': s['text'], 'folie': folie_von(s.get('karte'))}
+        if absaetze and absaetze[-1]['id'] == s['absatz']:
+            absaetze[-1]['bis'] = round(b, 3); absaetze[-1]['text'] += ' ' + s['text']; absaetze[-1]['saetze'].append(satz)
+        else:
+            absaetze.append({'id': s['absatz'], 'von': round(a, 3), 'bis': round(b, 3), 'text': s['text'],
+                             'folie': satz['folie'], 'saetze': [satz]})
+    return {'kapitel': db.get('kapitel', ''), 'titel': db.get('kapiteltitel', ''), 'video': os.path.basename(ausgabe),
+            'dauer': round(dauer, 3), 'stimme': stimme, 'absaetze': absaetze}
+
+def marken_schreiben(marken, ausgabe):
+    """<ausgabe>.marken.json über <…>.marken.json.tmp und os.replace() – nie halb geschrieben."""
+    ziel = os.path.splitext(ausgabe)[0] + '.marken.json'
+    with open(ziel + '.tmp', 'w', encoding='utf-8') as f: json.dump(marken, f, ensure_ascii=False, indent=1)
+    os.replace(ziel + '.tmp', ziel)
+    return ziel
+
+def main(pfad_db, ausgabe, nur_marken=False, stimme_id=None):
     db = json.load(open(pfad_db)); basis = os.path.dirname(os.path.abspath(pfad_db))
     fps, lang = db.get('fps', 30), db.get('sprache', 'de')
-    ablage = os.path.join(basis, '.ton'); os.makedirs(ablage, exist_ok=True)
-    clip = tempfile.mkdtemp(prefix='goch-clip-daten-')
-    print('Ton:', flush=True)
-    saetze_ton = [ton(vertonen(db['stimme'], s.get('sprechen', s['text']), lang, ablage)) for s in db['saetze']]
+    ablage = os.path.join(basis, '.ton')
+    stimme_id = stimme_ermitteln(db, ausgabe, nur_marken, stimme_id)
+    print(f'Ton (Stimme {stimme_id}):', flush=True)
+    saetze_ton = [ton(vertonen(db['stimme'], stimme_id, s.get('sprechen', s['text']), lang, ablage, nur_marken)) for s in db['saetze']]
     stimme, zeiten, rahmen = zeitplan(db, saetze_ton, fps)
+    marken = absatzmarken(db, zeiten, len(stimme) / RATE, ausgabe, stimme_id)  # beim Rendern erst nach dem fertigen Video
+    if nur_marken:
+        # Gegenprobe ohne Stimmdienst: der Ton aus dem Zwischenspeicher muss so lang sein wie das Video
+        try:
+            with av.open(ausgabe) as v: laenge = v.duration / 1e6
+        except (OSError, av.error.FFmpegError, TypeError): sys.exit(f'Video {ausgabe} nicht lesbar – Marken gehören neben das gerenderte Video. Nichts geschrieben.')
+        if abs(laenge - len(stimme) / RATE) > .2:
+            sys.exit(f'Ton {len(stimme) / RATE:.2f} s, Video {laenge:.2f} s – passt nicht zusammen (andere Stimme oder anderes Drehbuch?). Nichts geschrieben.')
+        print(f'Marken → {marken_schreiben(marken, ausgabe)}' if marken else 'Keine Marken: nicht alle Sätze tragen „absatz“'); return
+    clip = tempfile.mkdtemp(prefix='goch-clip-daten-')
     # Zwitschern am Anfang und am Ende (Gochs Signalton aus dem Figurenpaket)
     zw = ton(os.path.join(WZ, 'figuren', 'goch', 'toene', 'zwitschern.mp3')) * db.get('zwitschern', .35)
     mix = stimme.copy()
@@ -230,8 +299,18 @@ def main(pfad_db, ausgabe):
         for p in au.encode(f): out.mux(p)
     for p in au.encode(None): out.mux(p)
     out.close(); srv.shutdown()
+    if marken: print(f'Marken → {marken_schreiben(marken, ausgabe)}')  # erst jetzt: bricht der Lauf ab, bleiben die alten
+    elif os.path.exists(alt := os.path.splitext(ausgabe)[0] + '.marken.json'):  # alte Marken passen nicht zum neuen Video
+        os.replace(alt, alt + '.alt'); print(f'Alte Marken beiseitegelegt ({alt}.alt): nicht alle Sätze tragen „absatz“')
     print(f'→ {ausgabe} ({os.path.getsize(ausgabe) / 1e6:.1f} MB)')
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3: sys.exit(__doc__)
-    main(sys.argv[1], sys.argv[2])
+    args, stimme_id = [a for a in sys.argv[1:] if a != '--nur-marken'], None
+    nur_marken = '--nur-marken' in sys.argv
+    if '--stimme-id' in args:
+        i = args.index('--stimme-id')
+        if i + 1 >= len(args): sys.exit(__doc__)
+        stimme_id = args[i + 1]; del args[i:i + 2]
+        if not nur_marken: sys.exit('--stimme-id gilt nur mit --nur-marken (beim Rendern zählt die Stimme, die vertont)')
+    if len(args) != 2: sys.exit(__doc__)
+    main(args[0], args[1], nur_marken, stimme_id)

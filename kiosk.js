@@ -265,8 +265,9 @@
     // Höchstens so breit, dass die Figur in die Höhe des Feldes passt (cqh); ohne Container-Einheiten bleibt der Rückfall.
     $('scene').style.width = 'min(' + (groesse * 100) + 'vw, ' + (48 * verhaeltnis).toFixed(2) + 'vh)';
     $('scene').style.width = 'min(' + (groesse * 100) + 'vw, ' + (100 * verhaeltnis).toFixed(2) + 'cqh)';
-    // Texte: Goch aus language.js, Kundenfiguren aus der Redaktion (über den lokalen Dienst, offline zwischengespeichert)
-    if (daten.texte && daten.texte.quelle === 'language.js' && L) {
+    // Texte: Goch aus language.js, Kundenfiguren aus der Redaktion (über den lokalen Dienst, offline zwischengespeichert).
+    // Mit „paket“ (Bilder von Goch, es antwortet eine Workshop-Figur) zählen die Texte der antwortenden Figur.
+    if (daten.texte && daten.texte.quelle === 'language.js' && L && (!K.paket || K.paket === K.figur)) {
       const k = daten.texte.schluessel;
       texte = { name: L.t(k.name) || daten.name[sprache], rolle: L.t(k.rolle) || daten.rolle[sprache], begruessung: L.t(k.begruessung), fragen: k.einstiegsfragen.map(x => L.t(x)) };
     } else {

@@ -27,7 +27,7 @@ import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
 import { stimmeFuerAntwort, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
 import { handleListen } from "./hoeren.js";
-import { handleKiosk, kundenSystem, GOCH_AM_GERAET } from "./kiosk.js";
+import { handleKiosk, kundenSystem, kundenVortrag, stillAntwort, GOCH_AM_GERAET } from "./kiosk.js";
 // Durable Object des Messegeräts (Gerätebudget, src/kiosk.js) – muss vom Hauptmodul exportiert werden
 export { Geraetebudget } from "./kiosk.js";
 
@@ -65,7 +65,6 @@ const TEXT = {
     // Feedback zu den Werkzeugen (Robin, 15.10.2026): ohne Pflicht zu Name und Adresse, ohne Gesprächsverlauf
     feedbackSummary: f => `Ich gebe Robin dieses Feedback weiter: „${f.text}“${f.email ? ` – Von: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Soll ich das so senden?`,
     feedbackSent: "Weitergegeben, danke. Robin liest jedes Feedback.",
-    geraetStill: "Gerade antworte ich nicht. Fragen Sie gern das Standpersonal.", // Kundenfigur am Messegerät
   },
   en: {
     quiet: "I'd rather pass that on to Robin directly. What should I pass on to Robin? Or write to him yourself: robin@robin.vision",
@@ -91,7 +90,6 @@ const TEXT = {
     failed: "Passing it on didn't work. Please write to Robin directly by email.",
     feedbackSummary: f => `I'll pass this feedback on to Robin: “${f.text}”${f.email ? ` – From: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Shall I send it like this?`,
     feedbackSent: "Passed on – thank you. Robin reads all feedback.",
-    geraetStill: "I can't answer just now. Do ask the staff on the stand.",
   },
 };
 
@@ -224,9 +222,14 @@ const worker = {
     const zeigen = body.kannZeigen === true && !intern && !kunde;
     // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
     const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
+    // Workshop-Bühne (src/kiosk.js): Stand des Vortrags als zweiter Systemblock nach dem gecachten; die Fragen der Teilnehmenden
+    // nur als Zitat vor ihrer letzten Nachricht. Bei der Überleitung entscheidet das Modell zusätzlich über das Überspringen.
+    const vortrag = kunde ? kundenVortrag(intern.figur, body.vortrag) : null;
+    const anModell = vortrag && vortrag.fragen
+      ? messages.map((m, i) => i === messages.length - 1 ? { ...m, content: vortrag.fragen + "\n\n" + m.content } : m) : messages;
     let text;
     try {
-      text = await complete(env, systemText, messages, content.linkIds, modelSettings);
+      text = await complete(env, vortrag ? [systemText, vortrag.system] : systemText, anModell, content.linkIds, modelSettings, vortrag ? { buehne: true, weiter: vortrag.weiter } : {});
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -234,14 +237,18 @@ const worker = {
       if (/credit balance|insufficient credit|billing/i.test(detail)) ctx.waitUntil(notifyOnce(env, "credit",
         "Goch: Guthaben bei Anthropic aufgebraucht",
         "Die Anthropic-API meldet: " + detail + "\n\nGoch leitet Besucher bis auf Weiteres in den Draht (Nachricht per E-Mail), ohne Modell. Guthaben aufladen unter console.anthropic.com → Billing. Diese Nachricht kommt erst wieder, wenn danach eine Antwort gelungen ist und das Guthaben erneut ausgeht."));
-      return json({ reply: kunde ? t.geraetStill : t.quiet, action: null }, 200, cors);
+      // Kundenfigur: fester Satz; im Workshop mit fehler: true, ohne Stimme (mitStimme)
+      return json(kunde ? stillAntwort(intern.figur, lang, "still") : { reply: t.quiet, action: null }, 200, cors);
     }
     if (env.USAGE) ctx.waitUntil(env.USAGE.delete("alert:credit").catch(() => {})); // Antwort gelungen: Merker zurücksetzen
     ctx.waitUntil(rememberStatus(env, lastUsage, settings.provider));
     msLetzterModellaufruf = lastUsage && lastUsage.ms || null;
     const out = parse(text, content.linkIds);
+    // Workshop-Bühne: leere Antwort (Ablehnung, „“) wie ein Fehler – sonst stünde ein leerer Zug im Verlauf der Bühne
+    if (vortrag && !out.reply.trim()) return json(stillAntwort(intern.figur, lang, "still"), 200, cors);
     // Kundenfigur am Messegerät: nur Text, höchstens „contact“; kein Draht, keine Links, keine Rückkopplung in Gochs Profil.
-    if (kunde) return json({ reply: out.reply, action: out.action === "contact" ? "contact" : null, link: null, link2: null }, 200, cors);
+    if (kunde) return json({ reply: out.reply, action: out.action === "contact" ? "contact" : null, link: null, link2: null,
+      ...(vortrag && vortrag.weiter ? { weiter: out.weiter || "naechster" } : {}) }, 200, cors);
     // Goch am Messegerät: keine Links und keine Anmeldung zum Newsletter (kein Feld am Gerät)
     if (!zeigen) out.zeigen = null;
     if (intern) { out.link = null; out.link2 = null; if (out.action === "newsletter") out.action = null; }
@@ -281,7 +288,8 @@ export default worker;
 async function mitStimme(response, body, env, ctx, optionen = {}) {
   let out;
   try { out = await response.json(); } catch { return response; }
-  if (!out || typeof out.reply !== "string" || !out.reply.trim()) return new Response(JSON.stringify(out), response);
+  // ohne Stimme: leere Antwort, oder fehler: true (Kundenfigur im Workshop ohne Modellantwort – die Bühne zeigt ihre eigene Zeile)
+  if (!out || typeof out.reply !== "string" || !out.reply.trim() || out.fehler === true) return new Response(JSON.stringify(out), response);
   const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme;
   if (wunsch && wunsch.erste === true) out.reply = KI_HINWEIS[lang] + " " + out.reply;
   out.ki = true; // die Seite zeigt den Hinweis „KI · künstliche Stimme“ dauerhaft an
@@ -621,19 +629,26 @@ function resolveLink(id, lang, messages, links) {
 }
 
 // Antwortschema: das Modell kann nur dieses Format liefern – kein kaputtes JSON, keine Platzhalter im Aufbau.
-const gochOutput = linkIds => z.object({
+// Workshop-Bühne: „weiter“ steht in jedem Aufruf der Bühne im Schema (sonst bräche der Wechsel des Schemas zwischen
+// Zwischenfrage und Überleitung den Prompt-Cache); verlangt wird es nur bei der Überleitung, sonst bleibt es null.
+const gochOutput = (linkIds, { buehne = false } = {}) => z.object({
   reply: z.string(),
   action: z.enum(["calendar", "contact", "message", "newsletter", "feedback"]).nullable(),
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
   link2: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
   zeigen: z.enum(ZIELE).nullable(),
+  ...(buehne ? { weiter: z.enum(["naechster", "ueberspringen"]).nullable() } : {}),
 });
 
-export async function complete(env, system, messages, linkIds = [], settings = null) {
+// system: Text oder Liste von Textblöcken – gecacht wird nur der erste (gleichbleibende), z. B. die Kundenfigur ohne den Stand
+// des Vortrags. Andere Anbieter bekommen die Blöcke als einen Text.
+export async function complete(env, system, messages, linkIds = [], settings = null, ausgabe = {}) {
   settings = settings || { provider: env.PROVIDER || "anthropic", model: env.MODEL || "claude-opus-5-5", cache: true, custom: {} };
   const provider = settings.provider;
   const started = Date.now();
+  const bloecke = (Array.isArray(system) ? system : [system]).filter(Boolean);
+  system = bloecke.join("\n\n");
   if (provider === "anthropic") {
     if (!env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY fehlt");
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
@@ -642,10 +657,10 @@ export async function complete(env, system, messages, linkIds = [], settings = n
       max_tokens: 1024,
       // Das Profil ist bei jeder Frage identisch → Prompt-Caching: ab der zweiten Frage ein Zehntel des Preises.
       // In der Redaktion abschaltbar (zum Vergleich der Kosten oder bei Problemen).
-      system: [{ type: "text", text: system, ...(settings.cache !== false ? { cache_control: { type: "ephemeral" } } : {}) }],
+      system: bloecke.map((text, i) => ({ type: "text", text, ...(i === 0 && settings.cache !== false ? { cache_control: { type: "ephemeral" } } : {}) })),
       messages,
       // Kurze Gesprächsantworten brauchen wenig Denkarbeit; das Schema erzwingt das Antwortformat.
-      output_config: { effort: "low", format: zodOutputFormat(gochOutput(linkIds)) },
+      output_config: { effort: "low", format: zodOutputFormat(gochOutput(linkIds, ausgabe)) },
       // Empfehlung von Anthropic: bei einer seltenen Ablehnung durch die Sicherheitsprüfung
       // beantwortet ein Schwestermodell die Anfrage im selben Aufruf.
       betas: ["server-side-fallback-2026-07-01"],
@@ -686,7 +701,7 @@ export async function complete(env, system, messages, linkIds = [], settings = n
     repetition_penalty: 1.15, frequency_penalty: 0.4 };
   let d, first;
   try {
-    d = await env.AI.run(model, { ...input, response_format: { type: "json_schema", json_schema: schemaFor(linkIds) } });
+    d = await env.AI.run(model, { ...input, response_format: { type: "json_schema", json_schema: schemaFor(linkIds, ausgabe) } });
   } catch (e) {
     first = e;
     try { d = await env.AI.run(model, input); }
@@ -696,7 +711,7 @@ export async function complete(env, system, messages, linkIds = [], settings = n
   return asText(d);
 }
 
-const schemaFor = linkIds => ({
+const schemaFor = (linkIds, { weiter = false } = {}) => ({
   type: "object",
   properties: {
     reply: { type: "string" },
@@ -704,8 +719,9 @@ const schemaFor = linkIds => ({
     link: { type: ["string", "null"], enum: [...linkIds, null] },
     zeigen: { type: ["string", "null"], enum: [...ZIELE, null] },
     message: { type: ["object", "null"], properties: { name: { type: "string" }, email: { type: "string" }, text: { type: "string" } }, required: ["name", "email", "text"] },
+    ...(weiter ? { weiter: { type: "string", enum: ["naechster", "ueberspringen"] } } : {}), // wie gochOutput
   },
-  required: ["reply", "action"],
+  required: ["reply", "action", ...(weiter ? ["weiter"] : [])],
 });
 
 // Workers AI antwortet je nach Modell und Modus mit Text, { response: Text }, { response: Objekt }
@@ -732,6 +748,7 @@ function parse(text, linkIds = []) {
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
       const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null, zeigen: ZIELE.includes(o.zeigen) ? o.zeigen : null };
       if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = o.message;
+      if (o.weiter === "naechster" || o.weiter === "ueberspringen") out.weiter = o.weiter;
       return out;
     } catch {}
   }
@@ -742,6 +759,8 @@ function parse(text, linkIds = []) {
     const link = (text.match(/"link"\s*:\s*"([a-z0-9-]+)"/) || [])[1] || null;
     const zeigen = (text.match(/"zeigen"\s*:\s*"([a-z-]+)"/) || [])[1] || null;
     const out = { reply: tidy(reply.replace(/\\"/g, '"').replace(/\\n/g, " ")), action, link: linkIds.includes(link) ? link : null, zeigen: ZIELE.includes(zeigen) ? zeigen : null };
+    const weiter = (text.match(/"weiter"\s*:\s*"(naechster|ueberspringen)"/) || [])[1];
+    if (weiter) out.weiter = weiter;
     if (action === "message" || action === "feedback") {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
