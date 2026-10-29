@@ -6,7 +6,7 @@ import { Buffer } from "node:buffer";
 
 export const MODELL = "@cf/openai/whisper-large-v3-turbo";
 export const MAX_SEKUNDEN = 20;
-const MAX_BYTES = 44 + MAX_SEKUNDEN * 48000 * 2 + 4096; // Kopf + 20 s bei höchstens 48 kHz mono, etwas Spielraum
+export const MAX_BYTES = 44 + MAX_SEKUNDEN * 48000 * 2 + 4096; // Kopf + 20 s bei höchstens 48 kHz mono, etwas Spielraum
 const perIp = new Map(); // weiche Grenze je Instanz: ip -> [Zeitpunkte]
 
 // Begriffe, die Whisper sonst gern verhört; als Kontext, nicht als Vorgabe.

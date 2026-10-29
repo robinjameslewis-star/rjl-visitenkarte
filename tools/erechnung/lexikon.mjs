@@ -22,7 +22,7 @@ const WERKZEUG = { de: "werkzeuge/e-rechnung-pruefen/", en: "werkzeuge/e-invoice
 const KASTEN = { de: "werkzeuge/", en: "werkzeuge/en/" };
 const SITE = "https://robin.vision/";
 const QUELLE_URL = { en16931: "https://github.com/ConnectingEurope/eInvoicing-EN16931", xrechnung: "https://github.com/itplr-kosit/xrechnung-schematron" };
-const datum = s => s.split("-").reverse().join(".");
+const datum = (s, lang) => lang === "en" ? new Date(s + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : s.split("-").reverse().join(".");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const nat = s => s.replace(/\d+/g, d => d.padStart(5, "0"));
 
@@ -139,7 +139,7 @@ ${felder.length ? `<h2>${t.felder}</h2>\n<ul class="lx-felder">${felder.map(f =>
 ${e.technik.map(x => `<p><strong>${x.syntax.toUpperCase()}</strong></p><pre>${t.kontext}: ${esc(x.kontext)}\n${t.test}: ${esc(x.test)}</pre>`).join("\n")}
 </details>
 ${verwandt.length ? `<h2>${t.verwandt}</h2>\n<ul class="lx-gruppe">${verwandt.map(v => `<li><a href="../${regelSlug(v.id)}/">${esc(v.id)}</a><span>${esc(ersterSatz(erklaeren(v.id, originalText(v), lang)[0], 110))}</span></li>`).join("")}</ul>\n` : ""}<p><a href="../">${t.alle}</a></p>
-<p class="meta hinweis">${esc(t.hinweis(datum(META.stand)))}</p>
+<p class="meta hinweis">${esc(t.hinweis(datum(META.stand, lang)))}</p>
 </article>
 ${newsletterKasten(lang, up, "impuls")}`;
   const ld = [{ "@context": "https://schema.org", "@type": "DefinedTerm", name: e.id, termCode: e.id, description: `${was} ${tun}`, url, inLanguage: lang,
@@ -163,7 +163,7 @@ function indexSeite(lang, liste) {
 <div class="download"><a class="knopf" href="../#werkzeug">${t.knopf}</a></div>
 <ul class="lx-inhalt">${gruppen.map(([g, l]) => `<li><a href="#${g}">${esc(t.gruppen[g])}</a> · ${t.anzahl(l.length)}</li>`).join("")}</ul>
 ${gruppen.map(([g, l]) => `<h2 id="${g}">${esc(t.gruppen[g])}</h2>\n<ul class="lx-gruppe">${l.map(x => `<li><a href="${regelSlug(x.id)}/">${esc(x.id)}</a><span>${esc(ersterSatz(erklaeren(x.id, originalText(x), lang)[0], 120))}</span></li>`).join("")}</ul>`).join("\n")}
-<p class="meta hinweis">${esc(t.hinweis(datum(META.stand)))}</p>
+<p class="meta hinweis">${esc(t.hinweis(datum(META.stand, lang)))}</p>
 </article>
 ${newsletterKasten(lang, up, "impuls")}`;
   const ld = { "@context": "https://schema.org", "@type": "DefinedTermSet", name: t.titelIndex, url: LEXIKON[lang], inLanguage: lang,

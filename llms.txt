@@ -1,6 +1,6 @@
 # robin.vision
 
-> Website von Robin James Lewis (Balingen, Deutschland): kostenlose Werkzeuge für Rechnungswesen und Verwaltung unter dem Namen SmartFormular, Robins Werkzeugkasten mit Vergleich von Software und KI-Lösungen, wöchentliche Impulse und Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Sprache: Deutsch, mit englischen Fassungen.
+> Website von Robin James Lewis (Balingen, Deutschland): Werkzeuge für Rechnungswesen und Jahresabschluss unter dem Namen SmartFormular (FiBu lite und E-Rechnung lite kostenlos), Robins Werkzeugkasten mit Vergleich von Software und KI-Lösungen, wöchentliche Impulse und Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Sprache: Deutsch, mit englischen Fassungen.
 
 Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochgeladen. Sie ersetzen keine Steuer- oder Rechtsberatung.
 

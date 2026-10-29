@@ -37,6 +37,9 @@ const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Na
 let lastUsage = null;            // Verbrauch des letzten Modellaufrufs (Status und Testfrage in der Redaktion)
 let msLetzterModellaufruf = null; // Antwortzeit des Modells für die Statistik des Sprachmodus (je Instanz, ungefähr)
 
+// Die Kommentarzeilen am Anfang von profile.md (Änderungshistorie, interne Begründungen) gehören nicht in den Systemprompt.
+const ohneKommentarkopf = s => String(s).replace(/^(?:#[^\n]*\n)+\s*/, "");
+
 const TEXT = {
   de: {
     // Wenn das Modell nicht antworten kann oder soll (Tagesgrenze, Störung, Guthaben): kein Wort davon zum
@@ -221,7 +224,7 @@ const worker = {
 
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
     const system = kunde ? kundenSystem(intern.figur, lang)
-      : content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
+      : ohneKommentarkopf(content.profile) + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
     const zeigen = body.kannZeigen === true && !intern && !kunde;
     // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
     const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
@@ -283,8 +286,12 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
   let out;
   try { out = await response.json(); } catch { return response; }
   if (!out || typeof out.reply !== "string" || !out.reply.trim()) return new Response(JSON.stringify(out), response);
-  const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme;
-  if (wunsch && wunsch.erste === true) out.reply = KI_HINWEIS[lang] + " " + out.reply;
+  const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme, t = TEXT[lang];
+  // Draht und Feedback: Der Text zeigt die Zusammenfassung mit Name, Adresse und Nachricht; gesprochen wird nur ein neutraler
+  // Satz – ElevenLabs erhält nie die Eingaben des Besuchers (Datenschutzabsatz „Sprechen mit Goch“).
+  const istDraht = out.reply.includes(t.marker) || out.reply.startsWith(lang === "en" ? "I'll pass this feedback on to Robin" : "Ich gebe Robin dieses Feedback weiter");
+  let gesprochen = istDraht ? (lang === "en" ? "I've noted your message and your details – shall I send it like this?" : "Ich habe Ihre Nachricht und Ihre Angaben notiert – soll ich das so senden?") : out.reply;
+  if (wunsch && wunsch.erste === true) { out.reply = KI_HINWEIS[lang] + " " + out.reply; gesprochen = KI_HINWEIS[lang] + " " + gesprochen; }
   out.ki = true; // die Seite zeigt den Hinweis „KI · künstliche Stimme“ dauerhaft an
   const msModell = msLetzterModellaufruf; msLetzterModellaufruf = null;
   const { readable, writable } = new TransformStream();
@@ -302,7 +309,7 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
       // Stimmcharakter: Goch aus figur.json (warm, weich), Kundenfiguren mit den Ausgangswerten
       const einstellungen = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.einstellungen;
       const seed = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.seed; // gleichbleibender Klang
-      const r = await stimmeFuerAntwort(env, ctx, out.reply, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed });
+      const r = await stimmeFuerAntwort(env, ctx, gesprochen, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed });
       if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
         "Goch: Monatsgrenze für die Stimme erreicht",
         "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
@@ -815,7 +822,7 @@ function json(obj, status, headers) {
 // aber ohne Tageszähler, ohne Draht-Logik. Liefert Antwort und Verbrauch, damit Robin sieht, was verbunden ist.
 async function testGoch(env, question, settings, lang = "de") {
   const content = await loadContent(env, null);
-  const system = content.profile + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT;
+  const system = ohneKommentarkopf(content.profile) + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT;
   lastUsage = null;
   const text = await complete(env, system, [{ role: "user", content: String(question || (lang === "en" ? "Who is Robin?" : "Wer ist Robin?")).slice(0, 600) }], content.linkIds, settings);
   const out = parse(text, content.linkIds);

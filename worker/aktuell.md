@@ -36,7 +36,7 @@
    Article 4 of the EU AI Act: afterwards an online course with practical tasks for each participant's own desk,
    a test and a certificate per person. Enquiries for 2027 are already welcome.
 3. **SmartFormular.** Two tools are available free of charge on the site: SmartFormular FiBu lite turns
-   bank statements into booking batches in the DATEV format, offline in the browser; new is SmartFormular
+   bank statements into booking batches in the DATEV format, offline in the browser; the latest addition is SmartFormular
    E-Rechnung lite, which reads and checks e-invoices (XRechnung, ZUGFeRD) and creates a GiroCode for payment.
    In preparation as a beta:
    SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and

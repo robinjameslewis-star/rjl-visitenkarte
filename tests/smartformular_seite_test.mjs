@@ -14,7 +14,7 @@ const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEH
 const root = new URL("..", import.meta.url).pathname;
 const lesen = p => readFileSync(root + p, "utf8");
 
-const PRIVAT = /0151|684660|gmail|googlemail|Höchststr|1988|Hechingen/i;
+const PRIVAT = /\b01[5-7]\d[ \-]?\d{3}[ \-]?\d{3,}\b|gmail|googlemail|Höchststr|\b19[5-9]\d\b/i;
 const UEBERTRIEBEN = /revolution|einzigartig|unique|best in class|!/i;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));

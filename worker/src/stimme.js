@@ -30,7 +30,7 @@ const monat = (now = Date.now()) => new Date(now).toISOString().slice(0, 7);
 export async function stimmeMonat(env, now = Date.now()) {
   const leer = { monat: monat(now), zeichen: 0, antworten: 0, msModell: 0, msStimme: 0, letzte: null };
   if (!env.USAGE) return leer;
-  try { return { ...leer, ...JSON.parse(await env.USAGE.get("stimme:monat:" + monat(now))) }; } catch { return leer; }
+  try { return { ...leer, ...JSON.parse(await env.USAGE.get("stimme:monat:" + monat(now))) }; } catch { return { ...leer, fehler: true }; }
 }
 
 // Ein Aufruf beim Anbieter. Liefert MP3 als Base64 (passt in eine Zeile der NDJSON-Antwort) und die Dauer des Aufrufs.
@@ -69,6 +69,7 @@ export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang
   if (!sprache || !sprache.stimme || !env.ELEVENLABS_API_KEY || !voiceId) return { stimme: null, grund: "aus" };
   const zeichen = text.length;
   const now = Date.now(), stand = await stimmeMonat(env, now);
+  if (stand.fehler) return { stimme: null, grund: "fehler" }; // KV nicht lesbar: lieber keine Stimme als ohne Deckel
   if (stand.zeichen + zeichen > (sprache.zeichenMonat || 0)) return { stimme: null, grund: "grenze" };
   let a;
   try { a = await vertonen(env, text, { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }); }

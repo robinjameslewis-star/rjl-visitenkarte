@@ -1,6 +1,6 @@
 # Rechte – Figur „Goch“
 
-Stand 23.10.2026. Je Datei: Herkunft, Werkzeug, Bearbeitung, Nutzungsrechte. Was nicht belegt ist, steht als **offen** da.
+Stand 24.10.2026. Je Datei: Herkunft, Werkzeug, Bearbeitung, Nutzungsrechte. Was nicht belegt ist, steht als **offen** da.
 Keine Rechtsberatung; die Angaben dienen der Investor-Checkliste (Punkt 2: Rechte an Code und Marke).
 
 ## Bilder

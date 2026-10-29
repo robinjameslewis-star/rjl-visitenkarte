@@ -31,7 +31,7 @@ check(["BR-DE-15", "BR-CO-26", "PEPPOL-EN16931-R010", "BR-E-10", "BR-DE-19", "UB
 check(["UBL-CR-001", "BR-DEC-12", "CII-SR-001"].every(id => !existsSync(join(root, LEXIKON_PFAD.de, regelSlug(id)))), "keine Seiten für Regeln, die nur über Vorlagen erklärt werden");
 
 console.log("\nRegelseiten");
-const BERATUNG = /rechtssicher|GoBD-konform|amtlich geprüft|garantiert/i, DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i, PRIVAT = /googlemail|\+49 ?151|0151 ?684|684 ?660|Höchststr/i;
+const BERATUNG = /rechtssicher|GoBD-konform|amtlich geprüft|garantiert/i, DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i, PRIVAT = /googlemail|gmail|\+49 ?1[5-7]\d|\b01[5-7]\d[ \-]?\d{3}[ \-]?\d{3,}\b|Höchststr/i;
 const fehler = { titel: [], canonical: [], beschr: [], ld: [], verweis: [], sprache: [], text: [] };
 for (const e of liste) for (const lang of ["de", "en"]) {
   const pfad = `${LEXIKON_PFAD[lang]}${regelSlug(e.id)}/index.html`, html = lesen(pfad), url = `${LEXIKON[lang]}${regelSlug(e.id)}/`, andere = lang === "en" ? "de" : "en";

@@ -598,13 +598,11 @@ Termine 2027 auf Anfrage, Link); Kanalbeschreibung „Impulse, SmartFormular und
 
 **Workshops.** Der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem
 Teil (Abzeichen unter der Überschrift, eigener Kasten „Teil dieses Workshops“), als eigene Seite `workshops/` (englisch
-`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt: drei Teile (Workshop mit Robin –
-Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Browser-Werkzeug bauen –, Online-Lehrgang im Memberbereich,
-Test mit Zertifikat), für wen, sieben Kapitel, zwei Formate mit Preisen (Vorschlag aus dem Konzept im Vault, netto; Lehrgang ohne
-Workshop erst nach FernUSG-Zulassung), Ablauf in sieben Schritten, Nachweis und Zertifikat (prüfbar unter
-member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der robin.vision UG als „in Gründung, Januar
-2027“, neun Fragen als FAQPage, Terminbuchung über Cal.com (Robins Ereignistypen, `CAL` in workshops.js; das Einbettungsskript lädt
-erst nach Klick, mit Hinweis auf Cal.com, Inc.), ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
+`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt (Stand 24.10.2026): drei Teile (Workshop mit Robin –
+Hemmschwellen nehmen, Anwendungsfälle entwickeln –, Online-Lehrgang im Memberbereich, Test mit Zertifikat), für wen, sieben
+Kapitel, Kasten „Wer den Workshop leitet“, zwei Formate (online, vor Ort; Preise auf Anfrage), Ablauf in sieben Schritten,
+Nachweis und Zertifikat (prüfbar unter member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der
+robin.vision UG als „in Gründung, Januar 2027“, sieben Fragen als FAQPage, ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
 zu einer Nachricht, Bot-Falle `website`, Ladezeitpunkt `t`), strukturierte Daten als `Course` mit zwei Durchführungen. Menüpunkt
 „Workshops“ im Seitenkopf (`worker/src/kopf.js`) vor „Über mich“, Abschnitt auf der Startseite zwischen SmartFormular und Über mich,
 Einträge in `sitemap.xml` (`worker/src/sitemap.js`, SEITEN) und in Gochs Linkliste (`worker/links.md`, Kennung `workshops`); Abschnitt „Werkzeuge im Workshop“ mit

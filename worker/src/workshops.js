@@ -81,7 +81,7 @@ const TEXT = {
     leitungTitel: "Wer den Workshop leitet",
     leitung: [
       "Ich bin Robin James Lewis aus Balingen. In einer Steuerkanzlei betreue ich einen eigenen Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss und automatisiere Abläufe mit Importen, Schnittstellen und Python.",
-      "Die kostenlosen Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 abgelegt. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
+      "Die kostenlosen Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
     ],
     leitungMehr: "Mehr über mich",
     leitungAlt: "Robin James Lewis, Porträt",
@@ -123,8 +123,8 @@ const TEXT = {
       ["Ist der Workshop Rechtsberatung?", "Nein. Er erklärt Pflichten allgemein und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."],
     ],
     anfrageLead: "Fünf Angaben genügen. Sie erhalten Angebot und Terminvorschläge persönlich per E-Mail, in der Regel innerhalb von zwei Werktagen.",
-    felder: { firma: "Unternehmen oder Kanzlei", name: "Ansprechpartnerin oder Ansprechpartner", email: "E-Mail-Adresse", format: "Online oder vor Ort", personen: "Teilnehmerzahl", zeitraum: "Wunschtermin 2027", optional: "(freiwillig)" },
-    formatOptionen: [["live", "Online (Videokonferenz)"], ["praesenz", "Vor Ort bei uns"], ["offen", "Noch offen"]],
+    felder: { firma: "Unternehmen oder Kanzlei", name: "Ansprechpartnerin oder Ansprechpartner", email: "E-Mail-Adresse", format: "Online oder vor Ort", personen: "Teilnehmerzahl", zeitraum: "Wunschtermin 2027", zeitraumBeispiel: "z. B. Februar 2027", optional: "(freiwillig)" },
+    formatOptionen: [["live", "Online (Videokonferenz)"], ["praesenz", "Vor Ort bei Ihnen"], ["offen", "Noch offen"]],
     senden: "Anfrage senden", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
     ungueltig: "Bitte Unternehmen, Ansprechperson, eine gültige E-Mail-Adresse und die Teilnehmerzahl angeben.",
@@ -232,8 +232,8 @@ const TEXT = {
       ["Is the workshop legal advice?", "No. It explains obligations in general terms and refers to tax advisers, lawyers and data protection officers for individual cases."],
     ],
     anfrageLead: "Five details are enough. You receive a quote and proposed dates personally by email, usually within two working days.",
-    felder: { firma: "Company or firm", name: "Contact person", email: "Email address", format: "Online or on site", personen: "Number of participants", zeitraum: "Preferred date in 2027", optional: "(optional)" },
-    formatOptionen: [["live", "Online (video call)"], ["praesenz", "On site at our premises"], ["offen", "Not decided yet"]],
+    felder: { firma: "Company or firm", name: "Contact person", email: "Email address", format: "Online or on site", personen: "Number of participants", zeitraum: "Preferred date in 2027", zeitraumBeispiel: "e.g. February 2027", optional: "(optional)" },
+    formatOptionen: [["live", "Online (video call)"], ["praesenz", "On site at your premises"], ["offen", "Not decided yet"]],
     senden: "Send enquiry", sendet: "Sending …",
     gesendet: "Thank you – your enquiry has arrived. I will get back to you by email.",
     ungueltig: "Please give your company, a contact person, a valid email address and the number of participants.",
@@ -425,7 +425,7 @@ ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 <div><label for="a-email">${esc(t.felder.email)}</label><input type="email" id="a-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="a-format">${esc(t.felder.format)}</label><select id="a-format" name="format">${t.formatOptionen.map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}</select></div>
 <div><label for="a-personen">${esc(t.felder.personen)}</label><input type="number" id="a-personen" name="personen" min="1" max="500" value="10" required></div>
-<div><label for="a-zeitraum">${esc(t.felder.zeitraum)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="z. B. Februar 2027"></div>
+<div><label for="a-zeitraum">${esc(t.felder.zeitraum)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="${esc(t.felder.zeitraumBeispiel)}"></div>
 </div>
 <div class="falle" aria-hidden="true"><label for="a-website">Website</label><input type="text" id="a-website" name="website" tabindex="-1" autocomplete="off"></div>
 <button type="submit" id="anfrage-senden">${esc(t.senden)}</button>
@@ -437,7 +437,7 @@ ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 ${newsletterKasten(lang, up, "impuls")}
 </article>
 ${SKRIPT(lang, t)}`;
-  const kurs = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: `${t.titel} – ${t.abzeichen}`, description: t.beschr, url: canonical, inLanguage: "de",
+  const kurs = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: `${t.titel} – ${t.abzeichen}`, description: t.beschr, url: canonical, inLanguage: lang,
     provider: { "@type": "Person", "@id": SITE + "#person", name: "Robin James Lewis", url: SITE },
     educationalLevel: "Beginner", timeRequired: "PT3H", teaches: t.kapitel.map(k => k[0]),
     hasCourseInstance: [

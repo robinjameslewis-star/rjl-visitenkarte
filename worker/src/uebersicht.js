@@ -106,7 +106,7 @@ const TEXT = {
         daten: "A single file in your browser, offline; the data stays on your computer", sitz: "Germany", ki: "No, works with rules",
         schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free, no sign-up",
         nachweise: "Checksum for every version; nothing is uploaded" },
-      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "10/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Firms, companies, the self-employed",
+      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "10/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Accounting firms, companies and the self-employed",
         daten: "In the browser on the page or as an offline file; nothing is uploaded", sitz: "Germany", ki: "No, official CEN and KoSIT validation rules",
         schnittstellen: "Reads XRechnung (UBL, CII) and ZUGFeRD/Factur-X; check report, GiroCode", preis: "Free, no sign-up",
         nachweise: "Compared with the official validation on thousands of test invoices" },
