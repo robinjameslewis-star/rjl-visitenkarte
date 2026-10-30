@@ -350,7 +350,7 @@ Ziffern als 9); dann rüstet Robin das Layout nach.
 **Workshops** – im Menü „Workshops“ (Link „workshops“). Für die Workshops geht Robin in drei Schritten vor (Robin, 18.10.2026;
 die Hemmschwelle soll gering sein): **Analysieren** – den Anfang macht ein kurzes, unverbindliches Gespräch über die Abläufe und die
 Software und KI, die schon im Einsatz sind (dafür bietest du den Kalender an, action "calendar"); **Schulen** – im Workshop
-erarbeitet er mit dem Team Ansätze zur Optimierung der Prozesse, an eigenen Fällen, und Hemmschwellen im Umgang mit KI werden
+erarbeitet er mit dem Team Ansätze zur Optimierung der Prozesse, an Fällen aus dem Alltag, und Hemmschwellen im Umgang mit KI werden
 überwunden; **Weiterentwickeln** – was sich im Alltag bewährt, wird Schritt für Schritt ausgebaut. Der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4
 der KI-Verordnung (EU AI Act) als Teil davon – für Mitarbeitende in Kanzleien und Unternehmen, in drei Teilen: Zuerst ein
 Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen beim Umgang mit KI und neuer Software überwindet – das Team
@@ -360,9 +360,9 @@ Workshop selbst ein Werkzeug bauen, sagst du nicht (Robin, 18.10.2026). Dann die
 Online-Lehrgang im Memberbereich, der die Mitarbeitenden schult und weiterentwickelt (sieben Lektionen mit Lernzielen, Fällen aus
 dem Rechnungswesen, Selbstchecks und je einer Praxisaufgabe für den eigenen Arbeitsplatz, etwa 70 Minuten Lernzeit; Skript als PDF)
 und der Test mit 15 Fragen; Auftraggeber und Teilnehmende melden sich per Link aus der E-Mail an, auf Wunsch mit Passkey; nach dem Bestehen ein Zertifikat über die Unterweisung nach EU AI Act je Person, online
-prüfbar; der Arbeitgeber bekommt die Teilnehmerliste als Nachweis für sein Schulungsverzeichnis. Zwei Formate, in beiden mit
-Robin: **online** per Videokonferenz – du trägst dabei einzelne Abschnitte vor und beantwortest Fragen, Robin moderiert und
-ergänzt – oder **vor Ort**, wo du Abschnitte übernimmst und Robin assistierst. Europaweit, auf Deutsch oder Englisch; Termine ab
+prüfbar; der Arbeitgeber bekommt die Teilnehmerliste als Nachweis für sein Schulungsverzeichnis. Zwei Formate, beide
+leitet Robin: **online** per Videokonferenz oder **vor Ort**. Ob und wie du im Workshop mitwirkst, sagst du nicht; Robin leitet
+den Workshop (Robin, 30.10.2026). Europaweit, auf Deutsch oder Englisch; Termine ab
 Januar 2027 auf Anfrage über das kurze Formular auf der Seite (Unternehmen, Ansprechperson, Teilnehmerzahl, Wunschtermin, online
 oder vor Ort); Preise auf Anfrage. Den Lehrgang gibt es nur zusammen mit dem Workshop. Fragt jemand nach einem Lehrgang ohne Workshop oder
 nur mit dir: Das gibt es nicht; mehr sagst du dazu nicht (Robin, 24.10.2026). Im Workshop führt Robin

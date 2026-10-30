@@ -39,7 +39,7 @@ const TEXT = {
     schritteTitel: "Wie wir zusammenarbeiten",
     schritte: [
       ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen."],
-      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Ihren eigenen Fällen. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
+      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Fällen aus Ihrem Alltag. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
       ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter."],
     ],
     teileTitel: "Drei Teile, ein Ergebnis",
@@ -90,7 +90,7 @@ const TEXT = {
     formate: [
       { name: "Workshop online", text: "90 Minuten per Videokonferenz mit Ihrem Team. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
         preis: "Preis auf Anfrage", klein: "für Teams bis etwa 12 Personen; größere Gruppen nach Absprache" },
-      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen, mit Übungen an eigenen Fällen und ausgewählten Werkzeugen. Danach der Zugang für alle.",
+      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen, mit Übungen an Fällen aus Ihrem Alltag und ausgewählten Werkzeugen. Danach der Zugang für alle.",
         preis: "Preis auf Anfrage", klein: "für Teams bis etwa 15 Personen, zuzüglich Fahrtkosten" },
     ],
     auffrischung: "Werkzeuge und Regeln ändern sich. Deshalb gibt es jährlich eine Auffrischung mit neuer Fassung, Test und Zertifikat – damit Ihr Nachweis aktuell bleibt.",
@@ -149,7 +149,7 @@ const TEXT = {
     schritteTitel: "How we work together",
     schritte: [
       ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes and of the software and AI you already use."],
-      ["Train", "In the workshop we develop ways to improve your processes together, using your own cases – and overcome any hesitation about working with AI."],
+      ["Train", "In the workshop we develop ways to improve your processes together, using cases from your day-to-day work – and overcome any hesitation about working with AI."],
       ["Develop", "We build step by step on what works in practice – your processes, rules and templates evolve with your team."],
     ],
     teileTitel: "Three parts, one result",
@@ -199,7 +199,7 @@ const TEXT = {
     formate: [
       { name: "Online workshop", text: "90 minutes by video call with your team. Then access for everyone: online course, handout, test and certificate.",
         preis: "Price on request", klein: "for teams of up to about 12 people; larger groups by arrangement" },
-      { name: "On-site workshop", text: "Half a day at your premises, with exercises on your own cases and selected tools. Then access for everyone.",
+      { name: "On-site workshop", text: "Half a day at your premises, with exercises on cases from your day-to-day work and selected tools. Then access for everyone.",
         preis: "Price on request", klein: "for teams of up to about 15 people, plus travel costs" },
     ],
     auffrischung: "Tools and rules change. That is why there is an annual refresher with a new edition, test and certificate – so that your evidence stays current.",
