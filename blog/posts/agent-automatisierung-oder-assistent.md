@@ -2,7 +2,7 @@
 title: "Agent, Automatisierung oder Assistent?"
 date: 2026-10-30
 lang: de
-status: draft
+status: published
 summary: "Nicht jede Aufgabe braucht einen KI-Agenten: Wer Software auswählt, sollte zuerst fragen, was sie selbst entscheidet – und wo sie anhält."
 ---
 
