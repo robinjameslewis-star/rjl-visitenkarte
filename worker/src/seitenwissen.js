@@ -76,7 +76,8 @@ export async function aufbauen(basis, holen) {
   const seiten = [], gesehen = new Set();
   let zeichen = 0;
   for (const s of liste.slice(0, GRENZEN.seiten)) {
-    const html = await holen(s.url);
+    let html = null;
+    try { html = await holen(s.url); } catch { html = null; } // eine langsame Seite hält nicht das ganze Einlesen auf
     if (!html) continue;
     const { lang, titel, text } = seiteLesen(html);
     if (lang === "en") continue; // englische Fassung ohne hreflang in der Sitemap (Impulse): Goch übersetzt selbst

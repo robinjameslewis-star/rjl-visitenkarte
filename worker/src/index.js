@@ -289,7 +289,7 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
   const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme, t = TEXT[lang];
   // Draht und Feedback: Der Text zeigt die Zusammenfassung mit Name, Adresse und Nachricht; gesprochen wird nur ein neutraler
   // Satz – ElevenLabs erhält nie die Eingaben des Besuchers (Datenschutzabsatz „Sprechen mit Goch“).
-  const istDraht = out.reply.includes(t.marker) || out.reply.startsWith(lang === "en" ? "I'll pass this feedback on to Robin" : "Ich gebe Robin dieses Feedback weiter");
+  const istDraht = out.reply.includes(t.marker) || out.reply.includes("@") || out.reply.startsWith(lang === "en" ? "I'll pass this feedback on to Robin" : "Ich gebe Robin dieses Feedback weiter");
   let gesprochen = istDraht ? (lang === "en" ? "I've noted your message and your details – shall I send it like this?" : "Ich habe Ihre Nachricht und Ihre Angaben notiert – soll ich das so senden?") : out.reply;
   if (wunsch && wunsch.erste === true) { out.reply = KI_HINWEIS[lang] + " " + out.reply; gesprochen = KI_HINWEIS[lang] + " " + gesprochen; }
   out.ki = true; // die Seite zeigt den Hinweis „KI · künstliche Stimme“ dauerhaft an

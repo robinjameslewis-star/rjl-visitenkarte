@@ -56,6 +56,7 @@ export async function vertonen(env, text, { voiceId, modell, lang, einstellungen
 export async function zeichenBuchen(env, zeichen, now = Date.now()) {
   if (!env.USAGE) return;
   const stand = await stimmeMonat(env, now);
+  if (stand.fehler) return; // KV nicht lesbar: Zähler nicht mit einem Nullstand überschreiben
   await env.USAGE.put("stimme:monat:" + monat(now), JSON.stringify({ ...stand, zeichen: stand.zeichen + zeichen }), { expirationTtl: 70 * 86400 }).catch(() => {});
 }
 export const PROBESATZ = {
