@@ -16,7 +16,7 @@
    Deklaration für den Jahresabschluss. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
 4. **Werkzeuge und Partner.** Unter „Robins Werkzeugkasten“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
-   Verwaltung und weitere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
+   Verwaltung und andere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
    Lösungen kommen nach und nach dazu. Anbieter können sich über „Partner werden“ melden.
 5. **Impulse.** Jeden Freitag erscheint ein neuer Impuls zu Automatisierung und KI im Rechnungswesen,
    auf der Seite und im Newsletter.

@@ -24,15 +24,15 @@ export const ALTE_MARKEN = ["produkte", "fibu-lite", "fibu", "deklaration", "men
 
 const TEXT = {
   de: {
-    titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
+    titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und andere Geschäftsprozesse",
     seitentitel: "Robins Werkzeugkasten: Software und KI fürs Rechnungswesen im Vergleich | robin.vision",
-    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
+    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
     untertitel: "Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
     ueberblickTitel: "Werkzeuge im Überblick",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite und E-Rechnung lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung in Robins Werkzeugkasten",
-      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, ab 2027 auch in Workshops und auf Fachmessen – Wettbewerber mit denselben Angaben nebeneinander.",
+      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, ab 2027 auch in Workshops und auf Fachmessen – Wettbewerber mit denselben Angaben nebeneinander.",
       chips: ["Website", "Workshops", "Fachmessen"], knopf: "Partner werden" },
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     vergleichTitel: "Im Vergleich",
