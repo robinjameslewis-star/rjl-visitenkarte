@@ -1,21 +1,20 @@
 ---
-title: "Agent, Automatisierung oder Assistent?"
+title: "Agent, automation or assistant?"
 date: 2026-10-30
-lang: de
+lang: en
 status: published
-summary: "Nicht jede Aufgabe braucht einen KI-Agenten: Wer Software auswählt, sollte zuerst fragen, was sie selbst entscheidet – und wo sie anhält."
+summary: "Not every task needs an AI agent. When choosing software, first ask what it decides on its own – and where it stops."
 ---
 
-![Illustration: Ein grün gestrichelter Datenstrom teilt sich in drei Wege. Oben läuft er durch eine Regelkarte und weiter, in der Mitte endet er an einer Sprechblase, auf der ein Rotkehlchen sitzt, unten führt er zu einer Raute und hält an einer kupfernen Schranke.](bilder/agent-automatisierung-oder-assistent.jpg)
+![](bilder/agent-automatisierung-oder-assistent.jpg)
+When I compare tools for robin.vision, the word "agent" turns up in a great many product descriptions. It can mean very different things – and that difference is exactly what matters when you choose.
 
-Wenn ich Werkzeuge für den Werkzeugkasten auf robin.vision vergleiche, steht in vielen Beschreibungen das Wort Agent. Gemeint ist damit sehr Unterschiedliches – und für die Auswahl ist genau dieser Unterschied entscheidend.
+Three kinds of software tend to get lumped together at the moment. Automation follows fixed rules: same input, same result. It is fast and can be checked, but it only knows what someone has set up in advance. An assistant answers questions and makes suggestions; a person decides and acts. An agent, by contrast, pursues a goal, decides on the next step itself and carries it out – even where no rule has been laid down.
 
-Drei Arten von Software werden gerade gern in einen Topf geworfen. Eine Automatisierung führt feste Regeln aus: gleiche Eingabe, gleiches Ergebnis. Sie ist schnell und prüfbar, kennt aber nur, was jemand vorher festgelegt hat. Ein Assistent beantwortet Fragen und macht Vorschläge; entscheiden und handeln tut der Mensch. Ein Agent dagegen verfolgt ein Ziel, entscheidet selbst über den nächsten Schritt und führt ihn aus – auch dort, wo keine Regel vorgegeben ist.
+Gartner calls the confusion "agent washing": existing products such as AI assistants, robotic process automation or chatbots are rebranded as agents without any substantial agentic capabilities. Gartner estimates that only about 130 of the thousands of agentic AI vendors are the real thing (press release, 25 June 2025). Many use cases sold as agentic today, it says, do not need an agent at all. Its advice is down to earth: agents where decisions are needed, automation for routine work, assistants for simple look-ups.
 
-Gartner nennt die Verwechslung „Agent Washing“: Vorhandene Produkte wie KI-Assistenten, Robotic Process Automation oder Chatbots werden als Agenten vermarktet, ohne nennenswerte agentische Fähigkeiten. Nach Schätzung von Gartner sind von Tausenden Anbietern agentischer KI nur etwa 130 echt (Pressemitteilung vom 25.06.2025). Viele Anwendungsfälle, die heute als agentisch gelten, benötigten gar keinen Agenten. Die Empfehlung dort ist nüchtern: Agenten, wo Entscheidungen nötig sind, Automatisierung für Routine, Assistenten für einfache Abfragen.
+A made-up example: a vendor advertises an AI agent for incoming invoices. In testing, the software assigns every invoice to an account based on the sender – a fixed rule of the kind many accounting packages already offer. Useful, but not an agent. An invoice that matches no purchase order is a different matter: it calls for a decision. An agent could prepare that decision, draft the query to the supplier and put the case on hold until a person has decided.
 
-Ein erfundenes Beispiel: Ein Anbieter wirbt mit einem KI-Agenten für den Belegeingang. Im Test ordnet die Software jede Rechnung anhand des Absenders einem Konto zu – eine feste Regel, wie sie viele Buchhaltungsprogramme kennen. Das ist nützlich, aber kein Agent. Anders bei einer Rechnung, die zu keiner Bestellung passt: Hier ist eine Entscheidung nötig. Ein Agent dürfte sie vorbereiten, die Rückfrage an den Lieferanten formulieren und den Vorgang anhalten, bis ein Mensch entschieden hat.
+That gives you one simple question for every vendor: what does your agent decide on its own, and where does it stop? If the answer is "nothing", you are looking at automation – often the better choice, because it can be checked. As I wrote in "[Mistakes multiply](https://robin.vision/blog/mistakes-multiply/)", rules repeat their mistakes; an agent can make new ones as well. Either way, someone needs to keep an eye on it.
 
-Für die Auswahl folgt daraus eine einfache Prüffrage an jeden Anbieter: Was entscheidet Ihr Agent selbst, und wo hält er an? Lautet die Antwort „nichts“, ist es eine Automatisierung – und die ist oft die bessere Wahl, weil sie sich prüfen lässt. Wie im Impuls [„Fehler skalieren“](https://robin.vision/blog/fehler-skalieren/) beschrieben, wiederholen Regeln ihre Fehler; ein Agent kann zusätzlich neue machen. Beides braucht jemanden, der hinschaut.
-
-Wo würde in Ihrer Kanzlei ein Agent wirklich etwas entscheiden – und wo reicht eine gute Regel?
+Where in your practice would an agent genuinely make a decision – and where would a good rule do?
