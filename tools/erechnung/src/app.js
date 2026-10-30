@@ -22,7 +22,7 @@ const ersetze = (s, w) => s.replace(/\{(\w+)\}/g, (_, k) => w[k] ?? "");
 const geld = (n, w) => {
   if (n == null) return "";
   try { return new Intl.NumberFormat(L, { style: "currency", currency: w || "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n); }
-  catch { return `${new Intl.NumberFormat(L, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)} ${w || ""}`.trim(); }
+  catch { return `${new Intl.NumberFormat(L, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)} ${esc(w || "")}`.trim(); } // Währungscode stammt aus der Rechnung: nur maskiert ausgeben
 };
 const zahl = (n, max = 4) => n == null ? "" : new Intl.NumberFormat(L, { maximumFractionDigits: max }).format(n);
 const prozent = n => n == null ? "" : `${zahl(n, 2)} %`;

@@ -57,5 +57,5 @@ export function qrSvg(text, titel) {
   let pfad = "";
   for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.getModule(x, y)) pfad += `M${x + rand},${y + rand}h1v1h-1z`;
   const g = n + 2 * rand;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g} ${g}" role="img" aria-label="${titel.replace(/"/g, "&quot;")}" shape-rendering="crispEdges"><rect width="${g}" height="${g}" fill="#fff"/><path d="${pfad}" fill="#000"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${g} ${g}" role="img" aria-label="${String(titel).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]))}" shape-rendering="crispEdges"><rect width="${g}" height="${g}" fill="#fff"/><path d="${pfad}" fill="#000"/></svg>`;
 }
