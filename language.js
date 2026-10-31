@@ -64,7 +64,7 @@
       workshopsLeitung: 'Ich leite die Workshops selbst – aus der Praxis einer Steuerkanzlei und mit Ausbildereignung (IHK).',
       anbieterTitle: 'Für Anbieter', anbieterKnopf: 'Partner werden',
       anbieterText: 'Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Stellen Sie sie in Robins Werkzeugkasten vor.',
-      aboutText: 'Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Nebenher digitalisiere ich Kanzleiprozesse und baue Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation: für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.',
+      aboutText: 'Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Aus der operativen Arbeit und der Einarbeitung neuer Mitarbeitender in Verwaltung und Rechnungswesen verschiedener Branchen kenne ich die Stellen, an denen Daten doppelt erfasst werden und sich Abläufe vereinfachen oder automatisieren lassen. Daraus entwickle ich Werkzeuge, die sich in den Arbeitsalltag einfügen – und gebe dieses Wissen in Workshops weiter.',
       language: 'Sprache', replay: 'Rotkehlchen noch einmal anfliegen lassen', replayTitle: 'Noch einmal anfliegen lassen',
       reloadTitle: 'Seite neu laden',
       // Goch, das Rotkehlchen von Robin (17.09.2026)
@@ -173,7 +173,7 @@
       workshopsLeitung: 'I run the workshops myself – drawing on daily practice at a tax firm, and with the IHK trainer qualification.',
       anbieterTitle: 'For providers', anbieterKnopf: 'Become a partner',
       anbieterText: "Do you develop software or AI solutions for accounting, administration or other business processes? Present them in Robin's Tech Stack.",
-      aboutText: "I'm Robin James Lewis from Balingen, Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. Alongside, I digitise the firm's processes and build tools for everyday work outside the perfect process, in the middle of the transformation: for the days when the bank feed fails and the books still have to be done. First for myself, then for everyone doing the same work.",
+      aboutText: "I'm Robin James Lewis from Balingen, Germany. After thirteen years in retail and three years running the administration of a cultural centre, I am becoming a certified tax clerk, with my own set of clients in bookkeeping, payroll and annual accounts at a tax firm in Balingen. Working hands-on and training new staff in administration and accounting across different industries, I have learned where data gets entered twice and where processes can be simplified or automated. From this I build tools that fit into the working day – and pass this knowledge on in workshops.",
       language: 'Language', replay: 'Let the robin fly in again', replayTitle: 'Watch the robin fly in again',
       reloadTitle: 'Reload the page',
       // Goch, Robin's robin (17.09.2026)

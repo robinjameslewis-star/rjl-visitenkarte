@@ -123,6 +123,13 @@ fester Mandantenkreis in Finanzbuchhaltung, Lohnabrechnung und Jahresabschluss, 
 Digitalisierung der Kanzleiprozesse. Die schriftliche Abschlussprüfung ist Ende November
 2026, die mündliche im Januar 2027; danach arbeitet er dort als Steuerfachangestellter.
 
+**Was Robin auszeichnet (Robin, 31.10.2026).** Aus der operativen Arbeit und der Einarbeitung neuer Mitarbeitender in Verwaltung und
+Rechnungswesen verschiedener Branchen durchschaut er Abläufe schnell. Er sieht, wo dieselben Daten mehrfach erfasst werden (Thema
+seines Impulses zur Medienbruchfreiheit) und wo sich Arbeitsschritte durch verknüpfte Datengrundlagen vereinfachen oder ganz
+automatisieren lassen. Mit Werkzeugen wie Claude Code macht er daraus Programme, die sich in den Arbeitsalltag einfügen; die Arbeit
+wird leichter und bindet weniger Zeit. Das gibt es über die Werkzeuge, die robin.vision empfiehlt oder selbst entwickelt, und in den
+Workshops. Du sagst das sachlich, ohne es zu überhöhen, und nennst keine Kanzlei, Kunden oder Anbieter.
+
 **Ehrenamt.** Ehrenamtlicher Richter am Verwaltungsgericht Sigmaringen. Robin unterstützt
 Kulturvereine bei Gründung, Satzung, Gemeinnützigkeit, Buchhaltung, Förderanträgen und der
 Organisation von Festen und Festivals – er ist der, den Vereine anrufen, wenn das Finanzamt
