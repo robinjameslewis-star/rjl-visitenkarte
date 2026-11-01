@@ -19,8 +19,8 @@ const UEBERTRIEBEN = /revolution|einzigartig|unique|best in class|!/i;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
 const T = {
-  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Robins Werkzeugkasten<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Robins Werkzeugkasten</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
-  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Robin's Tech Stack<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Robin\'s Tech Stack</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
+  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Robins Werkzeugkasten<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Robins Werkzeugkasten</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite herunterladen – kostenlos testen bis 31.12.2026" },
+  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Robin's Tech Stack<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Robin\'s Tech Stack</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite – free to try until 31 December 2026" },
 };
 for (const lang of ["de", "en"]) {
   const t = T[lang], pfad = SMARTFORMULAR_PFAD[lang], html = lesen(pfad), P = PRODUKTE[lang];

@@ -29,7 +29,7 @@ export const anzeigeHref = (lang, up) => `${up}${lang === "en" ? "?lang=en" : ""
 export const kennzeichen = (lang, href, anbieter, klasse) =>
   `<p class="${klasse}"><a href="${esc(href)}">${ANZEIGE[lang]}</a> · <span>${esc(anbieter)}</span></p>`;
 // Kennzeichen eigener kostenloser Werkzeuge, gleich gestaltet, ohne Verweis
-export const KOSTENLOS = { de: "Kostenlos", en: "Free" };
+export const KOSTENLOS = { de: "Kostenlos testen bis 31.12.2026", en: "Free trial until 31 Dec 2026" };
 export const kostenlos = (lang, klasse) => `<p class="${klasse}">${KOSTENLOS[lang]}</p>`;
 
 // Liste der Partnerangebote für eine Seite – leer: der Hinweis, dass Partnerangebote folgen

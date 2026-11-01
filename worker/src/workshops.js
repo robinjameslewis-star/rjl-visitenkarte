@@ -81,7 +81,7 @@ const TEXT = {
     leitungTitel: "Wer den Workshop leitet",
     leitung: [
       "Ich bin Robin James Lewis aus Balingen. In einer Steuerkanzlei betreue ich einen eigenen Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss und automatisiere Abläufe mit Importen, Schnittstellen und Python.",
-      "Die kostenlosen Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
+      "Die Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
     ],
     leitungMehr: "Mehr über mich",
     leitungAlt: "Robin James Lewis, Porträt",
@@ -190,7 +190,7 @@ const TEXT = {
     leitungTitel: "Who runs the workshop",
     leitung: [
       "I am Robin James Lewis from Balingen, Germany. At a tax firm I look after my own set of clients in bookkeeping, payroll and year-end accounts, and I automate processes with imports, interfaces and Python.",
-      "I developed the free tools FiBu lite and E-Rechnung lite, and I passed the IHK trainer aptitude examination in 2017. I use language models under one fixed rule: they prepare, I decide.",
+      "I developed the tools FiBu lite and E-Rechnung lite, and I passed the IHK trainer aptitude examination in 2017. I use language models under one fixed rule: they prepare, I decide.",
     ],
     leitungMehr: "More about me",
     leitungAlt: "Robin James Lewis, portrait",

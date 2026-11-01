@@ -66,7 +66,7 @@ Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle: [§ 14 Um
 
 **Anbieter.** Robin James Lewis, Höchststr. 32, 72336 Balingen ([Impressum](https://robin.vision/#privacy)).
 
-**Nutzung.** Sie dürfen das Werkzeug kostenlos nutzen, auf dieser Seite und als Datei, für sich selbst und in Ihrem Unternehmen oder Ihrer Kanzlei, und die unveränderte Datei weitergeben. Nicht erlaubt ist, es zu verändern, zu verkaufen oder als eigenes Angebot zu vertreiben.
+**Nutzung.** Bis zum 31.12.2026 dürfen Sie das Werkzeug kostenlos testen, auf dieser Seite und als Datei, für sich selbst und in Ihrem Unternehmen oder Ihrer Kanzlei, und die unveränderte Datei weitergeben. Nicht erlaubt ist, es zu verändern, zu verkaufen oder als eigenes Angebot zu vertreiben. Wer es danach weiter verwenden möchte, braucht eine Lizenz; die Bedingungen stehen rechtzeitig vorher auf dieser Seite.
 
 **Keine Beratung, Ergebnis prüfen.** Das Werkzeug prüft technisch gegen Formate und Regeln. Es ist keine Steuer- oder Rechtsberatung und keine Prüfung der Rechnung auf inhaltliche Richtigkeit. Die rechtliche Einordnung nennt Fundstellen mit Stand; maßgeblich sind das Gesetz und die Originaldatei der Rechnung, nicht die Ansicht. Prüfen Sie vor jeder Überweisung Empfänger, IBAN und Betrag in Ihrer Banking-App.
 
@@ -128,7 +128,7 @@ The tool classifies the format technically and names the source: [section 14 of 
 
 **Provider.** Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany ([legal notice](https://robin.vision/?lang=en#privacy)).
 
-**Use.** You may use the tool free of charge, on this page and as a file, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.
+**Use.** Until 31 December 2026 you may try the tool free of charge, on this page and as a file, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering. Continued use after that requires a licence; the terms will be posted on this page in good time.
 
 **No advice, check the result.** The tool checks technically against formats and rules. It is not tax or legal advice and does not check the invoice for accuracy of content. The legal classification names sources and their date; the law and the original invoice file prevail, not the view. Before every transfer, check payee, IBAN and amount in your banking app.
 
