@@ -587,7 +587,8 @@ async function gochApi(api, request, env, deps, session) {
     // Hörprobe der Stimme (nur Robin, angemeldet): Voice ID und Modell aus den Feldern, auch ungespeichert; zählt zur Monatsgrenze
     if (api === "goch/stimmprobe" && request.method === "POST") {
       const body = await readJson(request), sp = (await cfg.loadSettings(env, true)).sprache;
-      const voiceId = String(body.voiceId || sp.voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
+      // ohne Eintrag dieselbe Stimme wie auf der Website: die aus Gochs Figurenpaket (figur.json)
+      const voiceId = String(body.voiceId || sp.voiceId || (fig.oeffentlicheFigur("goch").stimme || {}).voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
       const lang = body.lang === "en" ? "en" : "de";
       if (!env.ELEVENLABS_API_KEY) return json({ error: "Für die Stimme fehlt das Geheimnis ELEVENLABS_API_KEY im Worker." }, 400);
       if (!/^[A-Za-z0-9]{10,40}$/.test(voiceId)) return json({ error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
