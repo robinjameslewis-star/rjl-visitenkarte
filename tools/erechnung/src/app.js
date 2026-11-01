@@ -70,6 +70,18 @@ const ergebnisse = document.getElementById("ewz-ergebnisse");
 const uebersicht = document.getElementById("ewz-uebersicht");
 const sagen = s => { status.textContent = s; };
 
+// ---------- Testzeitraum ----------
+// Robin, 01.11.2026: bis 31.12.2026 kostenlos testen, danach nur mit Lizenz (die Lizenzprüfung folgt mit der Anmeldung per Code).
+// Ab 1. Januar 2027 (Ortszeit) steht statt der Ablage der Hinweis mit dem Weg zur Lizenz – auf der Seite und in der Datei.
+const TESTENDE = new Date(2027, 0, 1);
+const testBeendet = () => new Date() >= TESTENDE;
+function testendeZeigen() {
+  wurzel.querySelector(".ewz-start .ewz-inhalt").innerHTML = `<span class="ewz-label">${t.testEnde}</span>
+<h2 id="ewz-h1">${t.testEndeTitel}</h2>
+<p>${t.testEndeText} <a href="${t.testEndeSeite}" rel="noopener">${t.testEndeSeite.replace("https://", "")}</a></p>`;
+  uebersicht.innerHTML = ""; ergebnisse.innerHTML = "";
+}
+
 // ---------- Prüfkern und Regeln (laden beim ersten Prüfen nach) ----------
 let kernVersprechen = null;
 const saetze = new Map();
@@ -99,6 +111,7 @@ const eintraege = [];
 let warteschlange = Promise.resolve();
 
 async function annehmen(dateien) {
+  if (testBeendet()) { testendeZeigen(); return; }
   const neu = Array.from(dateien);
   if (!neu.length) return;
   sagen(t.liest);
@@ -537,5 +550,6 @@ wurzel.addEventListener("click", async ev => {
     case "alle-entfernen": eintraege.length = 0; ergebnisse.innerHTML = ""; uebersichtZeichnen(); eingabe.focus(); break;
   }
 });
+if (testBeendet()) testendeZeigen();
 // Für Tests: Zustand lesbar machen (keine Daten nach außen)
-window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG };
+window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, TESTENDE };
