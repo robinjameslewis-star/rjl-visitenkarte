@@ -9,7 +9,7 @@
    Unternehmen an, online oder vor Ort, auf Deutsch oder Englisch – mit der Unterweisung nach Art. 4
    der KI-Verordnung (EU AI Act): danach ein Online-Lehrgang mit Praxisaufgaben für den eigenen
    Arbeitsplatz, ein Test und ein Zertifikat je Person. Anfragen für 2027 sind schon möglich.
-3. **SmartFormular.** Zwei Werkzeuge stehen kostenlos auf der Seite: SmartFormular FiBu lite macht aus
+3. **SmartFormular.** Zwei Werkzeuge lassen sich bis 31.12.2026 kostenlos testen: SmartFormular FiBu lite macht aus
    Kontoauszügen Buchungsstapel im DATEV-Format, offline im Browser; neu ist SmartFormular E-Rechnung lite – es
    liest und prüft E-Rechnungen (XRechnung, ZUGFeRD) und macht einen GiroCode zum Bezahlen. Als Beta in Vorbereitung: SmartFormular FiBu
    (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
@@ -35,7 +35,7 @@
    companies, online or on site, in German or English – including training that documents your measures under
    Article 4 of the EU AI Act: afterwards an online course with practical tasks for each participant's own desk,
    a test and a certificate per person. Enquiries for 2027 are already welcome.
-3. **SmartFormular.** Two tools are available free of charge on the site: SmartFormular FiBu lite turns
+3. **SmartFormular.** Two tools are free to try until 31 December 2026: SmartFormular FiBu lite turns
    bank statements into booking batches in the DATEV format, offline in the browser; the latest addition is SmartFormular
    E-Rechnung lite, which reads and checks e-invoices (XRechnung, ZUGFeRD) and creates a GiroCode for payment.
    In preparation as a beta:
