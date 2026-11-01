@@ -98,7 +98,7 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
   const start = "Ich möchte Robin etwas ausrichten.";
 
   let r = await say("de", start, ask, "Er soll mich wegen des Vortrags anrufen.");
-  check(r === `Ich richte Robin aus: „Er soll mich wegen des Vortrags anrufen.“. ${hint} Soll ich das so senden?`, `Draht: ohne Name und Adresse sofort die Zusammenfassung mit Hinweis aufs Formular (${r.slice(0, 90)})`);
+  check(r === `Ich richte Robin aus: „Er soll mich wegen des Vortrags anrufen.“ ${hint} Soll ich das so senden?`, `Draht: ohne Name und Adresse sofort die Zusammenfassung mit Hinweis aufs Formular (${r.slice(0, 90)})`);
   check(!/E-Mail-Adresse kann Robin|wie heißen Sie/.test(r), "Draht: fragt nicht nach Name und Adresse");
 
   r = await say("de", start, ask, "eva, eva.muster@example.test, hallo ich teste diese funktion");
@@ -125,7 +125,7 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
 {
   const e = env();
   const hint = "Möchten Sie eine Antwort, schreiben Sie Robin am besten über das Kontaktformular auf der Website.";
-  const summary = `Ich richte Robin aus: „Der Vortrag war gut.“. ${hint} Soll ich das so senden?`;
+  const summary = `Ich richte Robin aus: „Der Vortrag war gut.“ ${hint} Soll ich das so senden?`;
   const before = mails.length;
   let r = await (await chat(e, { lang: "de", messages: [{ role: "user", content: "Richte Robin aus: Der Vortrag war gut." },
     { role: "assistant", content: summary }, { role: "user", content: "ja" }] }, "7.7.7.1")).json();
@@ -144,7 +144,7 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
   // Deckel: acht Modellantworten und vier Draht-Schritte – der Draht zählt nicht, die nächste Frage geht noch ans Modell
   const verlauf = [];
   for (let i = 0; i < 8; i++) verlauf.push({ role: "user", content: "Frage " + i }, { role: "assistant", content: "Antwort " + i });
-  verlauf.push({ role: "user", content: "Richte Robin aus: Danke." }, { role: "assistant", content: "Ich richte Robin aus: „Danke.“. " + hint + " Soll ich das so senden?" },
+  verlauf.push({ role: "user", content: "Richte Robin aus: Danke." }, { role: "assistant", content: "Ich richte Robin aus: „Danke.“ " + hint + " Soll ich das so senden?" },
     { role: "user", content: "ja" }, { role: "assistant", content: "Ausgerichtet. Robin bekommt Ihre Nachricht." });
   r = await (await chat(e, { lang: "de", messages: [...verlauf, { role: "user", content: "Noch eine Frage?" }] }, "7.7.7.3")).json();
   check(!/genug erzählt/.test(r.reply), `Deckel: Draht-Schritte zählen nicht mit (${r.reply.slice(0, 60)})`);

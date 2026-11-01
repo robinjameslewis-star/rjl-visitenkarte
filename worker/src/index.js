@@ -42,6 +42,8 @@ const ohneKommentarkopf = s => String(s).replace(/^(?:#[^\n]*\n)+\s*/, "");
 
 // „ – Von: Name, Adresse“ in der Zusammenfassung, nur mit dem, was der Besucher genannt hat
 const von = (m, label) => { const v = [m.name, m.email].filter(Boolean).join(", "); return v ? ` – ${label}: ${v}` : ""; };
+// Satzpunkt nach dem Zitat nur, wenn der Text nicht schon mit einem Satzzeichen endet („…“. vermeiden)
+const schluss = (m, label) => { const v = von(m, label); return v ? v + "." : /[.!?…]$/.test(m.text) ? "" : "."; };
 
 const TEXT = {
   de: {
@@ -59,7 +61,7 @@ const TEXT = {
     // wer eine Antwort möchte, schreibt am besten über das Kontaktformular.
     sent: e => e ? `Ausgerichtet. Robin kann Ihnen per E-Mail an ${e} antworten.` : "Ausgerichtet. Robin bekommt Ihre Nachricht.",
     sentPrefix: "Ausgerichtet.",
-    summary: m => `Ich richte Robin aus: „${m.text}“${von(m, "Von")}. ${m.email ? "" : "Möchten Sie eine Antwort, schreiben Sie Robin am besten über das Kontaktformular auf der Website. "}Soll ich das so senden?`,
+    summary: m => `Ich richte Robin aus: „${m.text}“${schluss(m, "Von")} ${m.email ? "" : "Möchten Sie eine Antwort, schreiben Sie Robin am besten über das Kontaktformular auf der Website. "}Soll ich das so senden?`,
     marker: "Soll ich das so senden",
     cancelled: "In Ordnung, ich sende nichts. Wenn Sie es anders formulieren möchten, sagen Sie es mir.",
     closing: "Für heute habe ich genug erzählt – mehr weiß Robin selbst. Soll ich ihm etwas ausrichten? Dann schreiben Sie mir, was.",
@@ -83,7 +85,7 @@ const TEXT = {
       "Shall I tell you about Robin's workshops?"],
     sent: e => e ? `Passed on. Robin can reply to you by email at ${e}.` : "Passed on. Robin will get your message.",
     sentPrefix: "Passed on.",
-    summary: m => `I'll pass on to Robin: “${m.text}”${von(m, "From")}. ${m.email ? "" : "If you'd like a reply, the contact form on the website is the best way to reach Robin. "}Shall I send it like this?`,
+    summary: m => `I'll pass on to Robin: “${m.text}”${schluss(m, "From")} ${m.email ? "" : "If you'd like a reply, the contact form on the website is the best way to reach Robin. "}Shall I send it like this?`,
     marker: "Shall I send it like this",
     cancelled: "All right, I won't send anything. If you'd like to phrase it differently, tell me.",
     closing: "That's enough from me for today – Robin knows the rest himself. Shall I pass something on to him? Then tell me what.",
@@ -411,7 +413,7 @@ async function deliverFeedback(env, f, lang, ip, now, day, t, cors) {
 
 // Die Felder aus der eigenen Zusammenfassung lesen – zuverlässiger als jede Modellausgabe.
 function fromSummary(text) {
-  const m = String(text).match(/^(?:Ich richte Robin aus|I'll pass on to Robin): [„“]([\s\S]*?)[“”](?: – (?:Von|From): (.*?))?\. (?:Möchten Sie|If you'd like|Soll ich|Shall I)/);
+  const m = String(text).match(/^(?:Ich richte Robin aus|I'll pass on to Robin): [„“]([\s\S]*?)[“”](?: – (?:Von|From): (.*?))?\.? (?:Möchten Sie|If you'd like|Soll ich|Shall I)/);
   if (!m || m[1].trim().length < 3) return null;
   const v = (m[2] || "").trim(), hit = v.match(EMAIL_ANY), email = hit && EMAIL.test(hit[0]) ? hit[0] : "";
   const name = (email ? v.replace(hit[0], "") : v).replace(/[,\s]+$/, "").trim();
