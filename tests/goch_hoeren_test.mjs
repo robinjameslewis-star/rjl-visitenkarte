@@ -1,5 +1,5 @@
 // Prüft die Sprecherkennung im Browser (goch-audio.js, erkenner; Robin, 23.10.2026: Gespräch ohne Knopf) mit künstlichen
-// Blöcken: Beginn nach kurzer Lautheit, Ende nach einer Pause von 0,9 s, kurze Geräusche verworfen, Grundrauschen
+// Blöcken: Beginn nach kurzer Lautheit, Ende nach einer Pause von 1,3 s (beim Diktieren länger), kurze Geräusche verworfen, Grundrauschen
 // als leisester Block der letzten 1,5 s, höchstens 20 s, „Fertig“ beendet sofort. Aufruf: node tests/goch_hoeren_test.mjs
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -36,7 +36,7 @@ let e = erkenner({ rate: RATE });
 let ev = abspielen(e, [[1500, 0], [2000, .15], [1500, 0]]);
 const start = ev.find(x => "start" in x), ende = ev.find(x => "ende" in x);
 check(start && start.start >= 1500 && start.start <= 1700, "Beginn kurz nach dem ersten Laut", start && start.start);
-check(ende && ende.ende >= 3500 + 850 && ende.ende <= 3500 + 1000, "Ende nach knapp einer Sekunde Pause", ende && ende.ende);
+check(ende && ende.ende >= 3500 + 1200 && ende.ende <= 3500 + 1400, "Ende nach gut einer Sekunde Pause", ende && ende.ende);
 check(ende && !ende.zuKurz && Math.abs(ende.sprechMs - 2300) < 200, "gesprochene Dauer mit Vorlauf (gut 2 s)", ende && ende.sprechMs);
 // Vorlauf 0,3 s vor dem erkannten Beginn (der 0,12 s nach dem ersten Laut liegt), Rede, 0,25 s Nachlauf
 check(ende && Math.abs(ende.teile * MS - (300 + 2000 - 120 + 250)) < 160, "Abschnitt: Vorlauf, Rede, kurzer Nachlauf – lange Stille abgeschnitten", ende && Math.round(ende.teile * MS));
@@ -46,10 +46,10 @@ console.log("2. Kurze Geräusche und Atempausen");
 e = erkenner({ rate: RATE });
 ev = abspielen(e, [[1000, 0], [60, .3], [1500, 0]]);
 check(!ev.length, "Klick unter 0,1 s: kein Beginn");
-ev = abspielen(e, [[150, .3], [1200, 0]]);
+ev = abspielen(e, [[150, .3], [1600, 0]]);
 check(ev.length === 2 && ev[1].zuKurz, "kurzes Räuspern: Beginn, aber als zu kurz verworfen", JSON.stringify(ev[1]));
 e = erkenner({ rate: RATE });
-ev = abspielen(e, [[1000, 0], [1200, .15], [500, 0], [1200, .15], [1200, 0]]);
+ev = abspielen(e, [[1000, 0], [1200, .15], [500, 0], [1200, .15], [1600, 0]]);
 check(ev.filter(x => "ende" in x).length === 1 && ev.find(x => "ende" in x).sprechMs > 2600, "Atempause von 0,5 s beendet die Frage nicht", JSON.stringify(ev));
 
 console.log("3. Grundrauschen");
@@ -58,6 +58,14 @@ ev = abspielen(e, [[4000, 0, .03]]);
 check(!ev.length, "gleichmäßiges Rauschen (Lüfter) gilt nicht als Sprache");
 ev = abspielen(e, [[1500, .2, .03], [1500, 0, .03]]);
 check(ev.some(x => "start" in x) && ev.some(x => "ende" in x && !x.zuKurz), "Rede über dem Rauschen wird erkannt und beendet", JSON.stringify(ev));
+
+console.log("3b. Diktat: längere Pause");
+e = erkenner({ rate: RATE }); e.pause(2500);
+ev = abspielen(e, [[500, 0], [1500, .15], [1800, 0], [1500, .15], [2800, 0]]);
+check(ev.filter(x => "ende" in x).length === 1 && ev.find(x => "ende" in x).sprechMs > 4500, "beim Diktieren beendet eine Pause von 1,8 s den Abschnitt nicht", JSON.stringify(ev));
+e.pause(0);
+ev = abspielen(e, [[1500, .15], [1800, 0]]);
+check(ev.filter(x => "ende" in x).length === 1, "danach wieder die normale Pause", JSON.stringify(ev));
 
 console.log("4. Höchstens 20 Sekunden, „Fertig“");
 e = erkenner({ rate: RATE });

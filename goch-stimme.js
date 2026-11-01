@@ -115,6 +115,12 @@
     return true;
   }
 
+  // Fragt Goch nach Angaben, die man buchstabiert oder diktiert (E-Mail-Adresse, Name, Telefon), wartet der nächste Abschnitt
+  // länger auf das Ende, damit eine kurze Pause beim Diktieren nicht mitten in der Adresse abschickt (Robin, 01.11.2026).
+  const DIKTAT_PAUSE_MS = 2500;
+  let diktat = false;
+  const fragtNachAngaben = text => /\?/.test(text || '') && /e-?mail|mail-?adresse|ihren? namen?|your name|telefon|phone|nummer|number/i.test(text || '');
+
   // ---------- Anfrage und Antwort (aus goch.js) ----------
   window.GochStimme = {
     anfrage(opts) {
@@ -130,6 +136,7 @@
     },
     async rest(reader, buf, dec, antwort) {
       restLaeuft = true;
+      diktat = fragtNachAngaben(antwort && antwort.reply);
       try {
         for (;;) {
           const i = buf.indexOf('\n');
@@ -255,6 +262,7 @@
     if (!ohr || zustand !== 'denkt') return;
     setTimeout(() => {
       if (!ohr || zustand !== 'denkt' || denkt || restLaeuft || spielt) return;
+      ohr.pause(diktat ? DIKTAT_PAUSE_MS : 0); diktat = false; // nach einer Frage nach E-Mail, Name oder Telefon länger warten
       ohr.weiter(); setzeZustand('hoert', text || t('gochZuhoeren'));
     }, 400);
   }
