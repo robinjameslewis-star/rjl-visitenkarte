@@ -59,7 +59,7 @@ Gemessen (17.09.2026): das Profil sind rund 9.500 Token; ab der zweiten Frage ko
 dem Zwischenspeicher. Ein Besucher mit 6 Fragen kostet bei Opus rund 9–10 ct (der erste Aufruf
 schreibt den Zwischenspeicher, allein 5,5 ct), bei Sonnet 5 rund 4 ct. 20 Besucher im Monat:
 ≈ 22–25 € im Jahr (Opus), ≈ 10 € (Sonnet 5: `MODEL = "claude-sonnet-5"`). Deckel: `MAX_TURNS`
-Fragen je Gespräch, danach führt der Worker ohne Modell zum Draht; `MAX_PER_IP_PER_HOUR` (12);
+Antworten des Modells je Gespräch (10), danach führt der Worker ohne Modell zum Draht; `MAX_PER_IP_PER_HOUR` (12);
 `MAX_PER_DAY` (60, Zähler in KV `USAGE`). Erreicht ein Deckel, oder antwortet das Modell nicht
 (Störung, Guthaben leer), erfährt der Besucher nichts davon: Goch leitet in den gewohnten Draht
 über. Bei leerem Guthaben bekommt Robin einmal eine Mail (Merker in KV, 30 Tage; zurückgesetzt,
@@ -75,10 +75,11 @@ Danach `npx wrangler deploy`. Beim Anbieterwechsel den Datenschutzabsatz auf der
 
 ## Was der Worker selbst entscheidet (nicht das Modell)
 
-Das Modell sammelt nur; das Protokoll gehört dem Worker: Er ergänzt Name und E-Mail notfalls
-aus dem Verlauf, schreibt die Zusammenfassung („… Soll ich das so senden?“), versteht darauf
-Ja / Nein / „ohne Gespräch“ selbst, sendet nur nach Ja, und führt nach `MAX_TURNS` Fragen ohne
-Modell zum Draht. Abgeschnittene oder wiederholte Modellantworten werden gerettet und gekürzt.
+Das Modell sammelt nur; das Protokoll gehört dem Worker: Er richtet aus, was der Besucher sagt
+(Robin, 01.11.2026) – Name und E-Mail nur, wenn der Besucher sie nennt, sonst mit dem Hinweis aufs
+Kontaktformular –, schreibt die Zusammenfassung („… Soll ich das so senden?“), versteht darauf Ja / Nein
+selbst, sendet nur nach Ja und ohne Gesprächsverlauf, und führt nach `MAX_TURNS` Antworten des Modells
+ohne Modell zum Draht (Schritte des Drahts zählen nicht; nach dem Senden kein neues Angebot). Abgeschnittene oder wiederholte Modellantworten werden gerettet und gekürzt.
 
 ## Grenzen und Kosten
 

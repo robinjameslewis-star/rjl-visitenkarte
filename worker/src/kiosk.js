@@ -152,7 +152,7 @@ export const GOCH_AM_GERAET = `# Am Messegerät
 Du sprichst gerade nicht auf der Website, sondern an einem Bildschirm an einem Messestand; der Besucher steht vor dir und
 hört dich. Antworte kürzer als sonst – zwei bis drei Sätze –, ohne Links ("link" und "link2" null) und ohne Anmeldung
 zum Newsletter ("action" nie "newsletter"; erzähl davon, dann merkt man sich robin.vision). Wer Robin etwas ausrichten
-möchte, nennt Namen und E-Mail-Adresse; bitte um Buchstabieren, wenn die Adresse unklar klingt.`;
+möchte, dem richtest du es aus; nennt er eine E-Mail-Adresse für eine Antwort, bitte um Buchstabieren, wenn sie unklar klingt.`;
 
 function antwort(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });

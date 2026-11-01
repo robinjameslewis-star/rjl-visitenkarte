@@ -40,6 +40,9 @@ let msLetzterModellaufruf = null; // Antwortzeit des Modells für die Statistik 
 // Die Kommentarzeilen am Anfang von profile.md (Änderungshistorie, interne Begründungen) gehören nicht in den Systemprompt.
 const ohneKommentarkopf = s => String(s).replace(/^(?:#[^\n]*\n)+\s*/, "");
 
+// „ – Von: Name, Adresse“ in der Zusammenfassung, nur mit dem, was der Besucher genannt hat
+const von = (m, label) => { const v = [m.name, m.email].filter(Boolean).join(", "); return v ? ` – ${label}: ${v}` : ""; };
+
 const TEXT = {
   de: {
     // Wenn das Modell nicht antworten kann oder soll (Tagesgrenze, Störung, Guthaben): kein Wort davon zum
@@ -52,18 +55,17 @@ const TEXT = {
     zurueck: ["Da sind Sie wieder! Wo waren wir stehen geblieben?", "Schön, Sie wiederzusehen. Haben Sie noch eine Frage?"],
     nachfrage: ["Möchten Sie wissen, woran Robin gerade arbeitet?", "Fragen Sie mich ruhig etwas – zum Beispiel, was das SmartFormular kann.",
       "Soll ich Ihnen von Robins Workshops erzählen?"],
-    sent: e => `Ausgerichtet. Robin antwortet Ihnen persönlich per E-Mail an ${e}.`,
-    summary: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Unser Gespräch schicke ich mit, damit Robin den Zusammenhang kennt; wenn Sie das nicht möchten, sagen Sie es. Soll ich das so senden?`,
-    summaryBare: m => `Ich richte Robin aus: ${m.text} – Von: ${m.name}, ${m.email}. Ohne unser Gespräch, nur diese Nachricht. Soll ich das so senden?`,
+    // Der Draht (Robin, 01.11.2026): Goch richtet aus, was der Besucher sagt – Name und Adresse nur, wenn er sie selbst nennt;
+    // wer eine Antwort möchte, schreibt am besten über das Kontaktformular.
+    sent: e => e ? `Ausgerichtet. Robin kann Ihnen per E-Mail an ${e} antworten.` : "Ausgerichtet. Robin bekommt Ihre Nachricht.",
+    sentPrefix: "Ausgerichtet.",
+    summary: m => `Ich richte Robin aus: „${m.text}“${von(m, "Von")}. ${m.email ? "" : "Möchten Sie eine Antwort, schreiben Sie Robin am besten über das Kontaktformular auf der Website. "}Soll ich das so senden?`,
     marker: "Soll ich das so senden",
-    bareMarker: "Ohne unser Gespräch",
     cancelled: "In Ordnung, ich sende nichts. Wenn Sie es anders formulieren möchten, sagen Sie es mir.",
     closing: "Für heute habe ich genug erzählt – mehr weiß Robin selbst. Soll ich ihm etwas ausrichten? Dann schreiben Sie mir, was.",
+    closingSent: "Ihre Nachricht ist bei Robin. Für heute habe ich genug erzählt – alles Weitere am besten über das Kontaktformular auf der Website.",
     askWhat: "Was soll ich Robin ausrichten?",
-    askWho: "Und wie heißen Sie, und unter welcher E-Mail-Adresse kann Robin Ihnen persönlich antworten?",
     closingMarker: "Soll ich ihm etwas ausrichten",
-    whoMarker: "unter welcher E-Mail-Adresse kann Robin Ihnen persönlich antworten",
-    invalid: "Damit Robin Ihnen persönlich antworten kann, brauche ich Ihren Namen und eine gültige E-Mail-Adresse.",
     tooMany: "Mehr richte ich heute nicht aus – schreiben Sie Robin bitte direkt.",
     failed: "Das Ausrichten hat nicht geklappt. Schreiben Sie Robin bitte direkt per E-Mail.",
     // Feedback zu den Werkzeugen (Robin, 15.10.2026): ohne Pflicht zu Name und Adresse, ohne Gesprächsverlauf
@@ -79,18 +81,15 @@ const TEXT = {
     zurueck: ["There you are again! Where were we?", "Nice to see you again. Anything else you'd like to ask?"],
     nachfrage: ["Would you like to know what Robin is working on?", "Feel free to ask me something – for example, what SmartFormular can do.",
       "Shall I tell you about Robin's workshops?"],
-    sent: e => `Passed on. Robin will reply to you personally by email at ${e}.`,
-    summary: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. I'll include our conversation so Robin has the context; if you'd rather not, just say so. Shall I send it like this?`,
-    summaryBare: m => `I'll pass on to Robin: ${m.text} – From: ${m.name}, ${m.email}. Without our conversation, just this message. Shall I send it like this?`,
+    sent: e => e ? `Passed on. Robin can reply to you by email at ${e}.` : "Passed on. Robin will get your message.",
+    sentPrefix: "Passed on.",
+    summary: m => `I'll pass on to Robin: “${m.text}”${von(m, "From")}. ${m.email ? "" : "If you'd like a reply, the contact form on the website is the best way to reach Robin. "}Shall I send it like this?`,
     marker: "Shall I send it like this",
-    bareMarker: "Without our conversation",
     cancelled: "All right, I won't send anything. If you'd like to phrase it differently, tell me.",
     closing: "That's enough from me for today – Robin knows the rest himself. Shall I pass something on to him? Then tell me what.",
+    closingSent: "Your message is with Robin. That's enough from me for today – for anything else, the contact form on the website is the best way.",
     askWhat: "What should I pass on to Robin?",
-    askWho: "And what's your name, and which email address can Robin reply to?",
     closingMarker: "Shall I pass something on to him",
-    whoMarker: "which email address can Robin reply to",
-    invalid: "For Robin to reply to you personally I need your name and a valid email address.",
     tooMany: "I won't pass on more than that today – please write to Robin directly.",
     failed: "Passing it on didn't work. Please write to Robin directly by email.",
     feedbackSummary: f => `I'll pass this feedback on to Robin: “${f.text}”${f.email ? ` – From: ${f.name || f.email}, ${f.email}.` : /[.!?…]$/.test(f.text) ? "" : "."} Shall I send it like this?`,
@@ -169,7 +168,7 @@ const worker = {
     const sprachmodus = body.gesprochen === true || !!body.stimme;
     const modelSettings = sprachmodus && settings.provider === "anthropic" && settings.sprache && settings.sprache.modell
       ? { ...settings, model: settings.sprache.modell } : settings;
-    const maxChars = +(env.MAX_INPUT_CHARS || 600), maxTurns = +(env.MAX_TURNS || 8);
+    const maxChars = +(env.MAX_INPUT_CHARS || 600), maxTurns = +(env.MAX_TURNS || 10);
     const messages = (Array.isArray(body.messages) ? body.messages : [])
       .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
       .slice(-24)
@@ -186,33 +185,32 @@ const worker = {
     }
 
     // Antwort auf die eigene Rückfrage („Soll ich das so senden?“) versteht der Worker selbst:
-    // Ja → senden; Nein → nichts; „ohne Gespräch“ → neue Zusammenfassung ohne Verlauf. Kein Modellaufruf nötig.
+    // Ja → senden; Nein → nichts; nennt der Besucher jetzt noch eine Adresse → neue Zusammenfassung. Kein Modellaufruf nötig.
     const previous = messages.length >= 2 ? messages[messages.length - 2] : null;
     const lastText = messages[messages.length - 1].content;
     if (!kunde && previous && previous.role === "assistant" && previous.content.includes(t.marker)) {
       const feedback = fromFeedback(previous.content);
       if (feedback && CONFIRM.test(lastText) && !DECLINE.test(lastText)) return await deliverFeedback(env, feedback, lang, ip, now, day, t, cors);
       const fields = fromSummary(previous.content);
-      const noTranscript = NO_TRANSCRIPT.test(lastText);
-      const bare = previous.content.includes(t.bareMarker) || noTranscript;
-      if (fields && noTranscript && !CONFIRM.test(lastText)) return json({ reply: t.summaryBare(fields), action: null }, 200, cors);
       if (DECLINE.test(lastText)) return json({ reply: t.cancelled, action: null }, 200, cors);
-      if (fields && CONFIRM.test(lastText)) {
-        return await deliver(env, fields, lang, messages, !bare, ip, now, day, t, cors);
-      }
+      const extra = fields && !fields.email ? splitVisitorMessage(lastText) : null;
+      if (extra) return json({ reply: t.summary({ ...fields, email: extra.email, name: extra.name || fields.name }), action: null }, 200, cors);
+      if (fields && CONFIRM.test(lastText)) return await deliver(env, fields, lang, ip, now, day, t, cors);
     }
 
-    // Deckel je Gespräch: nach MAX_TURNS Fragen übernimmt der Worker und führt nur noch zum Draht –
-    // Anliegen, Name, E-Mail, Zusammenfassung – ohne Modell. Das begrenzt die Kosten je Besucher.
-    const userTurns = messages.filter(x => x.role === "user").length;
+    // Deckel je Gespräch: nach MAX_TURNS Antworten des Modells übernimmt der Worker und führt nur noch zum Draht –
+    // Anliegen, Zusammenfassung – ohne Modell. Das begrenzt die Kosten je Besucher. Schritte, die der Worker selbst
+    // beantwortet (Draht, Rückfragen, Begrüßung), kosten nichts und zählen nicht mit. Gezählt wird im Fenster der
+    // letzten 24 Nachrichten, das die Seite schickt.
+    const modelReplies = messages.filter(x => x.role === "assistant" && !vomWorker(t, x.content)).length;
+    const sentBefore = messages.some(x => x.role === "assistant" && (x.content.includes(t.sentPrefix) || x.content.includes(t.feedbackSent)));
     const closingAsked = previous && previous.role === "assistant" && (previous.content.includes(t.closingMarker) || previous.content.includes(t.askWhat));
-    const whoAsked = previous && previous.role === "assistant" && previous.content.includes(t.whoMarker);
-    if (!kunde && whoAsked) return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), true), action: null }, 200, cors);
     if (!kunde && closingAsked) {
       if (DECLINE.test(lastText)) return json({ reply: t.cancelled, action: null }, 200, cors);
-      return json({ reply: nextDrahtReply(t, gatherMessage(null, messages), false), action: null }, 200, cors);
+      return json({ reply: nextDrahtReply(t, gatherMessage(null, messages)), action: null }, 200, cors);
     }
-    if (!kunde && userTurns > maxTurns) return json({ reply: t.closing, action: null }, 200, cors);
+    // Schon ausgerichtet: kein neues Angebot, nur der Hinweis aufs Kontaktformular
+    if (!kunde && modelReplies >= maxTurns) return json({ reply: sentBefore ? t.closingSent : t.closing, action: null }, 200, cors);
 
     // Tagesgrenze: zählt nur Modellaufrufe (die kosten), nicht die Antworten des Workers selbst. Messegerät: Gerätebudget.
     if (env.USAGE && !intern) {
@@ -264,7 +262,7 @@ const worker = {
     // nur, wenn der Besucher auf genau diese Zusammenfassung mit Ja geantwortet hat.
     if (out.action === "message") {
       // Das Modell sammelt nur; gesendet wird erst nach Ja auf die Zusammenfassung des Workers (siehe oben).
-      return json({ reply: nextDrahtReply(t, gatherMessage(out.message, messages), false), action: null }, 200, cors);
+      return json({ reply: nextDrahtReply(t, gatherMessage(out.message, messages)), action: null }, 200, cors);
     }
     // Feedback zu den Werkzeugen: Zusammenfassung schreibt der Worker, gesendet wird erst nach Ja (siehe oben)
     if (out.action === "feedback") {
@@ -353,14 +351,14 @@ async function notifyOnce(env, kind, subject, text) {
 
 // Der Verlauf kommt vom Browser – wer die Rückfrage fälscht, landet hier ohne Modellaufruf. Darum neben der Grenze
 // je Adresse (nur je Instanz) eine Tagesgrenze über alle Besucher im KV, wie beim Kontaktformular.
-async function deliver(env, m, lang, messages, withTranscript, ip, now, day, t, cors) {
+async function deliver(env, m, lang, ip, now, day, t, cors) {
   const sentToday = (perIpMessages.get(ip) || []).filter(x => now - x < day);
   // Messegerät („kiosk:…“): viele Besucher hinter einer Kennung – nur die Tagesgrenze insgesamt gilt
   if (!String(ip).startsWith("kiosk:") && sentToday.length >= +(env.MAX_MESSAGES_PER_IP_PER_DAY || 3)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
   const dayKey = "draht:" + new Date(now).toISOString().slice(0, 10);
   const used = env.USAGE ? +(await env.USAGE.get(dayKey) || 0) : 0;
   if (used >= +(env.MAX_DRAHT_PER_DAY || 20)) return json({ reply: t.tooMany, action: "contact" }, 200, cors);
-  const result = await sendMail(env, m, lang, messages, withTranscript);
+  const result = await sendMail(env, m, lang);
   if (!result.ok) {
     console.error("Resend-Fehler", result.status, result.detail);
     return json({ reply: t.failed, action: "contact", sent: false }, 200, cors);
@@ -413,10 +411,15 @@ async function deliverFeedback(env, f, lang, ip, now, day, t, cors) {
 
 // Die Felder aus der eigenen Zusammenfassung lesen – zuverlässiger als jede Modellausgabe.
 function fromSummary(text) {
-  const m = text.match(/^(?:Ich richte Robin aus|I'll pass on to Robin): ([\s\S]*?) – (?:Von|From): (.*?), (\S+@\S+?)\.(?:\s|$)/);
-  if (!m || !EMAIL.test(m[3])) return null;
-  return { text: m[1].trim(), name: m[2].trim(), email: m[3] };
+  const m = String(text).match(/^(?:Ich richte Robin aus|I'll pass on to Robin): [„“]([\s\S]*?)[“”](?: – (?:Von|From): (.*?))?\. (?:Möchten Sie|If you'd like|Soll ich|Shall I)/);
+  if (!m || m[1].trim().length < 3) return null;
+  const v = (m[2] || "").trim(), hit = v.match(EMAIL_ANY), email = hit && EMAIL.test(hit[0]) ? hit[0] : "";
+  const name = (email ? v.replace(hit[0], "") : v).replace(/[,\s]+$/, "").trim();
+  return { text: m[1].trim(), name, email };
 }
+// Antworten, die der Worker selbst schreibt (ohne Modell) – sie zählen nicht für den Deckel je Gespräch
+const vomWorker = (t, c) => c.includes(t.marker) || [t.askWhat, t.cancelled, t.closing, t.closingSent, t.tooMany, t.failed,
+  t.feedbackSent, t.quiet, t.sentPrefix, ...t.angekommen, ...t.zurueck, ...t.nachfrage].some(x => c.includes(x));
 
 const FORMAT = `# Antwortformat
 
@@ -425,10 +428,11 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
 - "calendar": der Besucher möchte ein Gespräch oder einen Termin.
 - "contact": der Besucher fragt nach Kontaktdaten.
 - "message": der Besucher möchte Robin etwas ausrichten (oder hat Ja gesagt, als du angeboten hast, Robin zu fragen)
-  UND hat seinen Namen und seine E-Mail-Adresse bereits genannt. Dann zusätzlich:
-  "message": {"name": "…", "email": "…", "text": "…"} – Name und E-Mail-Adresse wörtlich aus den Nachrichten des
-  Besuchers, "text" die Frage oder das Anliegen in seinen Worten. Nie Platzhalter wie "?" oder "unbekannt" eintragen.
-  Fehlt Name oder E-Mail-Adresse: kein "message", sondern in "reply" danach fragen.
+  und du weißt, was. Dann zusätzlich:
+  "message": {"name": "", "email": "", "text": "…"} – "text" die Frage oder das Anliegen in seinen Worten. Name und
+  E-Mail-Adresse nur, wenn er sie selbst genannt hat, wörtlich; sonst leer lassen. Du fragst nicht danach.
+  Nie Platzhalter wie "?" oder "unbekannt" eintragen. Ist unklar, was er ausrichten möchte: kein "message", sondern
+  in "reply" einmal danach fragen.
   Zusammenfassung, Rückfrage „Soll ich das so senden?“ und die Bestätigung „Ausgerichtet“ schreibt der Worker –
   du schreibst diese Sätze nie selbst.
 - "newsletter": du bietest die Anmeldung zum Newsletter an, und der Besucher möchte sie (oder fragt, wie er von neuen
@@ -455,7 +459,6 @@ im Überblick), "workshops", "ueber-mich" (über Robin), "blog" (Impulse), "news
 
 const CONFIRM = /^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b/i;
 const DECLINE = /^\s*(nein|no|nope|lieber nicht|doch nicht|abbrechen|cancel|stop)\b|\b(nicht|don't|do not|not)\s+(senden|schicken|abschicken|send)\b/i;
-const NO_TRANSCRIPT = /(ohne|nicht|kein|keinen|no|without|don't|do not|nur die nachricht|only the message)[^.!?]{0,60}(gespräch|verlauf|unterhaltung|chat|conversation|transcript|history)|(gespräch|verlauf|unterhaltung|conversation|transcript|history)[^.!?]{0,40}(nicht|weglassen|raus|weg|out|off|leave)/i;
 const EMAIL_ANY = /[^\s@<>,;:"']+@[^\s@<>,;:"']+\.[^\s@<>,;:"']{2,}/;
 
 // Felder für den Draht sammeln: Name, E-Mail-Adresse, Anliegen. Was das Modell liefert, gilt, wenn es brauchbar ist;
@@ -496,13 +499,14 @@ function gatherMessage(m, messages) {
   }
   return out;
 }
-const hasSender = m => m.name.length >= 2 && !/[?]/.test(m.name) && EMAIL.test(m.email);
-const isComplete = m => hasSender(m) && m.text.length >= 3;
-// Nächste Antwort im Draht: Zusammenfassung, wenn alles da ist – sonst genau nach dem fragen, was fehlt.
-function nextDrahtReply(t, m, whoAsked) {
-  if (isComplete(m)) return t.summary(m);
-  if (!hasSender(m)) return whoAsked ? t.invalid : t.askWho;
-  return t.askWhat;
+// Nächste Antwort im Draht: Zusammenfassung, sobald ein Anliegen da ist – Name und Adresse nur, wenn der Besucher
+// sie genannt hat (Robin, 01.11.2026). Anführungszeichen im Text werden einfach, damit die Zusammenfassung lesbar bleibt.
+function nextDrahtReply(t, m) {
+  const text = m.text.replace(/[\p{C}]/gu, " ").replace(/[„“”"]/g, "'").replace(/\s+/g, " ").trim();
+  if (text.length < 3) return t.askWhat;
+  const email = EMAIL.test(m.email) ? m.email : "";
+  const name = m.name.length >= 2 && !/[?,]/.test(m.name) ? m.name.replace(/[\p{C}]/gu, " ").trim() : "";
+  return t.summary({ text, name, email });
 }
 
 const GREETING = /^(hallo|hi|hey|moin|servus|grüß gott|guten (tag|morgen|abend)|liebe[rs]?|hello|dear|good (morning|afternoon|evening))\b/i;
@@ -780,20 +784,16 @@ function tidy(reply) {
 }
 
 // Versand über Resend (kostenloser Tarif; Absender resend.dev, bis eine eigene Domain da ist).
-// Nichts wird gespeichert. Robin bekommt die bestätigte Nachricht und – auf seinen Wunsch – den
-// Gesprächsverlauf dieser Runde, damit er den Zusammenhang kennt (steht so im Datenschutztext
-// und in der Rückfrage an den Besucher).
-async function sendMail(env, m, lang, messages, withTranscript = true) {
+// Nichts wird gespeichert. Robin bekommt genau die bestätigte Nachricht, ohne Gesprächsverlauf (Robin, 01.11.2026);
+// Name und Adresse nur, wenn der Besucher sie genannt hat – dann geht „Antworten“ direkt an ihn.
+async function sendMail(env, m, lang) {
   if (!env.RESEND_API_KEY || !env.MAIL_TO) return { ok: false, status: 0, detail: "RESEND_API_KEY oder MAIL_TO fehlt" };
   const when = new Date().toLocaleString("de-DE", { timeZone: "Europe/Berlin" });
-  const transcript = messages.slice(0, -1) // die Bestätigung selbst ist kein Inhalt
-    .map(x => (x.role === "user" ? "Besucher: " : "Goch: ") + x.content.replace(/\s+/g, " ").trim()).join("\n");
   const text = [
     `Goch richtet aus (${lang === "en" ? "Englisch" : "Deutsch"}, ${when} Uhr):`, "",
     m.text, "",
-    `Von: ${m.name} <${m.email}>`, "",
-    "Der Besucher erwartet eine persönliche Antwort. „Antworten“ geht direkt an ihn (Antwort-an ist gesetzt).", "",
-    withTranscript ? "— Gesprächsverlauf —\n" + transcript : "(Der Besucher wollte den Gesprächsverlauf nicht mitschicken.)",
+    m.email ? `Von: ${m.name || "–"} <${m.email}> („Antworten“ geht direkt an ihn)` : m.name ? `Von: ${m.name} (ohne Adresse)` : "Ohne Namen und Adresse.", "",
+    "Ohne Gesprächsverlauf; der Besucher hat genau diesen Text bestätigt.",
   ].join("\n");
   try {
     const r = await fetch("https://api.resend.com/emails", {
@@ -802,8 +802,8 @@ async function sendMail(env, m, lang, messages, withTranscript = true) {
       body: JSON.stringify({
         from: env.MAIL_FROM || "Goch <onboarding@resend.dev>",
         to: [env.MAIL_TO],
-        reply_to: m.email,
-        subject: `Goch: Nachricht von ${m.name}`,
+        ...(m.email ? { reply_to: m.email } : {}),
+        subject: m.name ? `Goch: Nachricht von ${m.name}` : "Goch: Nachricht",
         text,
       }),
     });
