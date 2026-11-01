@@ -51,7 +51,7 @@ for (const w of WERKZEUGE) {
   check(html.includes(`href="${f.datei.name}" download="${f.datei.name}"`), "Download-Knopf mit download-Attribut");
   check(html.includes(`<h2 id="nutzungsbedingungen">${s.nutzung}</h2>`) && s.haftung.test(html), "Nutzungsbedingungen auf der Seite");
   check(a.marke.test(html), "Markenhinweis");
-  check(html.includes(`<p class="kennz">${w.lang === "en" ? "Free until 31 Dec 2026" : "Kostenlos bis 31.12.2026"}</p>\n<h1>`) && !/class="kennz"><a [^>]*>(Anzeige|Ad)<\/a>/.test(html), "Kennzeichen „Kostenlos“ statt „Anzeige“ über dem Titel (Robin, 23.10.2026)");
+  check(html.includes(`<p class="kennz">${w.lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>\n<h1>`) && !/class="kennz"><a [^>]*>(Anzeige|Ad)<\/a>/.test(html), "Kennzeichen „Kostenlos“ statt „Anzeige“ über dem Titel (Robin, 23.10.2026)");
   check(!/ADDISON|Kontoauszug-Konverter|Bank Statement Converter|Posting Batch Generator/.test(html), "kein ADDISON-Bezug, kein alter Name");
   const nl = html.indexOf('id="newsletter"'), dl = html.indexOf('id="download"'), nb = html.indexOf('id="nutzungsbedingungen"');
   check(dl > 0 && nl > dl && nl < nb && html.indexOf("<h2", dl) === html.indexOf('<h2 id="newsletter-title"'), "Newsletter direkt unter dem Download, vor allem anderen");
