@@ -150,8 +150,8 @@
   // jemand spricht und wann er fertig ist. Grundrauschen = leisester Block der letzten 1,5 s (ein Lüfter gilt so nicht als
   // Sprache); zu kurz ist, was weniger als minMs wirklich laut war (Räuspern, Klopfen). Reine Rechnung, ohne Mikrofon prüfbar.
   // block(Float32Array) liefert { rms }, beim Beginn { start: true } und am Ende { ende: true, teile, sprechMs, zuKurz }.
-  function erkenner({ rate, pauseMs = 900, minMs = 250, maxMs = 20000, vorlaufMs = 300, startMs = 120, fensterMs = 1500 } = {}) {
-    let spricht = false, laut = 0, leise = 0, dauer = 0, stimmhaft = 0, vorlauf = [], teile = [], verlauf = [];
+  function erkenner({ rate, pauseMs = 1300, minMs = 250, maxMs = 20000, vorlaufMs = 300, startMs = 120, fensterMs = 1500 } = {}) {
+    let spricht = false, laut = 0, leise = 0, dauer = 0, stimmhaft = 0, vorlauf = [], teile = [], verlauf = [], pause = pauseMs;
     const abschluss = (weg = 0) => {
       const r = { ende: true, teile: teile.slice(0, teile.length - weg), sprechMs: dauer - leise, zuKurz: stimmhaft < minMs };
       spricht = false; laut = leise = dauer = stimmhaft = 0; teile = [];
@@ -159,6 +159,8 @@
     };
     return {
       get spricht() { return spricht; },
+      // Pause bis zum Ende eines Abschnitts ändern, z. B. länger, wenn jemand eine E-Mail-Adresse diktiert (Robin, 01.11.2026)
+      pause(ms) { pause = ms > 0 ? ms : pauseMs; },
       zuruecksetzen() { spricht = false; laut = leise = dauer = stimmhaft = 0; vorlauf = []; teile = []; },
       fertig() { return spricht ? abschluss() : null; },
       block(d) {
@@ -180,7 +182,7 @@
         teile.push(d); dauer += ms;
         if (rms >= schwelle) stimmhaft += ms;
         leise = rms < schwelle * .7 ? leise + ms : 0;
-        if (leise >= pauseMs || dauer >= maxMs) return { rms, ...abschluss(Math.max(0, Math.floor((leise - 250) / ms))) };
+        if (leise >= pause || dauer >= maxMs) return { rms, ...abschluss(Math.max(0, Math.floor((leise - 250) / ms))) };
         return { rms };
       },
     };
@@ -209,6 +211,7 @@
     src.connect(proc); proc.connect(still); still.connect(c.destination);
     return {
       get spricht() { return e.spricht; },
+      pause(ms) { e.pause(ms); },
       anhalten() { angehalten = true; e.zuruecksetzen(); },
       weiter() { angehalten = false; },
       fertig() { melden(e.fertig()); },
