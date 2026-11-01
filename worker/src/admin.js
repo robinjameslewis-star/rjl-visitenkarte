@@ -333,7 +333,7 @@ export const CONTENT = {
 async function state(env, deps) {
   const github = gh.configured(env);
   const out = { github, repo: env.GITHUB_REPO || "", content: {}, usage: [], unanswered: [], alert: null,
-    limits: { perDay: +(env.MAX_PER_DAY || 60), perHour: +(env.MAX_PER_IP_PER_HOUR || 12), turns: +(env.MAX_TURNS || 8) },
+    limits: { perDay: +(env.MAX_PER_DAY || 60), perHour: +(env.MAX_PER_IP_PER_HOUR || 12), turns: +(env.MAX_TURNS || 10) },
     profileWords: deps.profileWords, model: env.MODEL || "" };
   for (const [key, c] of Object.entries(CONTENT)) {
     // Fassung: Repository (mit Schlüssel), sonst KV-Kopie, sonst die mitgelieferte Datei.
