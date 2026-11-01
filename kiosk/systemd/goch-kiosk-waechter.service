@@ -1,0 +1,7 @@
+# Startet Chromium neu, wenn die Seite kein Lebenszeichen mehr schickt (kiosk/dienst/waechter.sh).
+[Unit]
+Description=Goch Messegerät – Wächter der Seite
+
+[Service]
+Type=oneshot
+ExecStart=/opt/goch-kiosk/seite/kiosk/dienst/waechter.sh

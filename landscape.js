@@ -229,21 +229,24 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   const api = window.RJLLandscape, stage = scene.closest('.stage');
   const wish = new URLSearchParams(location.search).get('landschaft'); // 'aus' schaltet ab; 'an' oder ein Satzname übersteuert den Schalter der Redaktion
   const wantOn = !!wish && wish !== 'aus';
-  // Vogel und Ast gibt es zweimal: assets/bestand/ (ohne Landschaft: kurzer Ast, Vogel auf Weiß) und assets/
-  // (mit Landschaft: langer Ast, freigestellter Vogel). Die Startseite trägt die Pfade der eingeschalteten Fassung,
-  // damit vom ersten Bild an das Richtige steht; nur ?landschaft=an|aus tauscht hier zur Laufzeit.
-  const use = folder => document.querySelectorAll('.scene img').forEach(img => {
-    ['src', 'data-src'].forEach(attr => {
-      const src = img.getAttribute(attr), m = src && src.match(/^assets\/(?:bestand\/)?(.+)$/);
-      if (m && src !== folder + m[1]) img.setAttribute(attr, folder + m[1]);
+  // Vogel und Ast gibt es zweimal: …/bestand/ (ohne Landschaft: kurzer Ast, Vogel auf Weiß) und ohne bestand/
+  // (mit Landschaft: langer Ast, freigestellter Vogel). Der Ast liegt in assets/, der Vogel seit 23.10.2026 im
+  // Figurenpaket figuren/goch/bilder/. Die Startseite trägt die Pfade der eingeschalteten Fassung, damit vom ersten
+  // Bild an das Richtige steht; nur ?landschaft=an|aus tauscht hier zur Laufzeit.
+  const SCENE_PATH = /^((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?(.+)$/;
+  const use = bestand => document.querySelectorAll('.scene img').forEach(img => {
+    ['src', 'data-src', 'data-src-spaet'].forEach(attr => {
+      const src = img.getAttribute(attr), m = src && src.match(SCENE_PATH);
+      const want = m && m[1] + (bestand ? 'bestand/' : '') + m[2];
+      if (m && src !== want) img.setAttribute(attr, want);
     });
   });
   if (!wantOn && (root.classList.contains('landscape-off') || document.body.dataset.landschaft === 'aus')) {
     root.classList.add('landscape-off');
-    use('assets/bestand/');
+    use(true);
     return;
   }
-  root.classList.remove('landscape-off'); use('assets/');
+  root.classList.remove('landscape-off'); use(false);
   scene.dataset.flightRoute = 'under-branch';
   // Welcher Satz: ?landschaft=<satz> zeigt einen bestimmten (Vorschau), sonst der von der Redaktion gesetzte.
   const slug = wish && wish !== 'an' && /^[a-z0-9-]{1,40}$/.test(wish) ? wish : (document.body.dataset.landschaftSatz || 'burgberg-herbst');

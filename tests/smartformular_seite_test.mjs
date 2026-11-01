@@ -1,5 +1,5 @@
 // Produktseite „SmartFormular“ (worker/src/smartformular.js; Robin, 17.10.2026, seit 18.10.2026 unter werkzeuge/smartformular/): beide Sprachfassungen entstehen genau aus dem Modul und den
-// Feldern der Werkzeugseiten, tragen Wortmarke, Abzeichen, drei Produktkacheln, FiBu lite mit Download und Fassung, die geplanten
+// Feldern der Werkzeugseiten, tragen Wortmarke, Abzeichen, vier Produktkacheln, FiBu lite mit Download und Fassung, E-Rechnung lite (seit 23.10.2026), die geplanten
 // Funktionen von FiBu und Deklaration, Mensch und Maschine, Sprachmodell, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
 // SoftwareApplication), die Beta-Anfrage an Gochs Kontakt-Endpunkt, die Brotkrume zur Übersicht und den Kopf mit aktivem Menüpunkt
 // „Werkzeuge“; keine Preise. Kein Netz.
@@ -14,13 +14,13 @@ const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEH
 const root = new URL("..", import.meta.url).pathname;
 const lesen = p => readFileSync(root + p, "utf8");
 
-const PRIVAT = /0151|684660|gmail|googlemail|Höchststr|1988|Hechingen/i;
+const PRIVAT = /\b01[5-7]\d[ \-]?\d{3}[ \-]?\d{3,}\b|gmail|googlemail|Höchststr|\b19[5-9]\d\b/i;
 const UEBERTRIEBEN = /revolution|einzigartig|unique|best in class|!/i;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
 const T = {
-  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Werkzeugkasten<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Werkzeugkasten</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
-  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Toolbox<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Toolbox</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
+  de: { up: "../../", nav: /<a href="\.\.\/\.\.\/werkzeuge\/" aria-current="page">Robins Werkzeugkasten<\/a>/, home: "../../", brotkrume: '<p class="brotkrume"><a href="../../werkzeuge/">Robins Werkzeugkasten</a> › SmartFormular</p>', abzeichen: "Formulare, die mitarbeiten", titel: "SmartFormular: Buchhaltung und Jahresabschluss", kasten: "Mensch und Maschine", knopf: "FiBu lite kostenlos herunterladen" },
+  en: { up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/werkzeuge\/en\/" aria-current="page">Robin's Tech Stack<\/a>/, home: "../../../?lang=en", brotkrume: '<p class="brotkrume"><a href="../../../werkzeuge/en/">Robin\'s Tech Stack</a> › SmartFormular</p>', abzeichen: "Forms that work with you", titel: "SmartFormular: bookkeeping and year-end accounts", kasten: "People and machine", knopf: "Download FiBu lite for free" },
 };
 for (const lang of ["de", "en"]) {
   const t = T[lang], pfad = SMARTFORMULAR_PFAD[lang], html = lesen(pfad), P = PRODUKTE[lang];
@@ -32,13 +32,15 @@ for (const lang of ["de", "en"]) {
   check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: Werkzeuge aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
   check(html.includes(t.brotkrume) && html.indexOf(t.brotkrume) < html.indexOf("<h1"), "Brotkrume „Werkzeuge › SmartFormular“ über der Wortmarke");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "ohne „Produkt von robin.vision“ (Robin, 18.10.2026)");
-  check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 3 && (html.match(/class="sf-stand">/g) || []).length >= 3, "drei Produktkacheln mit Stand und Anker");
-  const lite = WERKZEUGE.find(w => w.lang === lang), d = felder[lite.id].datei;
+  check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 4 && (html.match(/class="sf-stand">/g) || []).length >= 4, "vier Produktkacheln mit Stand und Anker");
+  const lite = WERKZEUGE.find(w => w.lang === lang && !w.app), d = felder[lite.id].datei;
+  const er = WERKZEUGE.find(w => w.lang === lang && w.app === "erechnung"), de = felder[er.id].datei;
+  check(/<h2 id="e-rechnung">SmartFormular E-Rechnung lite<\/h2>/.test(html) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${er.id}/">`) && html.includes(`${de.fassung}`) && html.indexOf('id="e-rechnung"') < html.indexOf('<h2 id="fibu"'), "E-Rechnung lite: eigener Abschnitt mit Knopf zum Werkzeug und Fassung, vor FiBu");
   check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "FiBu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
   check((html.match(/<ol class="sf-liste">/g) || []).length === 4 && (html.match(/<span class="nr">0\d<\/span>/g) || []).length === 6 + 7 + 3 + 3, "Listen: sechs Punkte FiBu (Bank mit OPOS-Bezug, Kreditoren und Debitoren, Umsatzsteuer-Überschlag), sieben Punkte Deklaration, drei zu den Programmen, drei zum Sprachmodell");
   check(/<h2 id="deklaration">[^<]*<\/h2>\n<p class="untertitel">(Das Arbeitspapier, das mitdenkt und vorarbeitet\.|The working paper that thinks ahead and does the groundwork\.)<\/p>/.test(html), "Deklaration mit dem Claim „Das Arbeitspapier, das mitdenkt und vorarbeitet“");
   check(/<h2 id="programme">/.test(html) && /DATEV/.test(html.match(/<h2 id="programme">[\s\S]*?<h2 id="sprachmodell">/)[0]), "Abschnitt „Offen für jedes Buchhaltungsprogramm“ vor dem Sprachmodell");
-  check(html.includes(`<h2 id="mensch">${t.kasten}</h2>`) && (html.match(/<ul class="fakten">/g) || []).length === 2, "Kasten „Mensch und Maschine“ und zwei Faktenleisten");
+  check(html.includes(`<h2 id="mensch">${t.kasten}</h2>`) && (html.match(/<ul class="fakten">/g) || []).length === 3, "Kasten „Mensch und Maschine“ und drei Faktenleisten");
   check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 3 && !/2027|Q1|Stufe|stage/.test((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0]), "„So geht es weiter“ in drei Schritten, ohne Termine");
   check(/DATEV eG/.test(html) && /Mandanten- oder Personendaten|client or personal data/.test(html) && !/UG \(haftungsbeschränkt\)|Bedrock|Azure|Ollama/.test(html), "Daten und Recht: Marke, Testdaten-Regel, ohne interne Planung und Anbieterlisten");
   const sichtbar = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
@@ -61,8 +63,8 @@ for (const lang of ["de", "en"]) {
 console.log("\nProduktdaten");
 for (const lang of ["de", "en"]) {
   const P = PRODUKTE[lang];
-  check(P.length === 3 && P.map(p => p.id).join() === "fibu-lite,fibu,deklaration" && P.every(p => p.name && p.text && p.kurz && ["fertig", "beta"].includes(p.stand)), `${lang}: drei Produkte mit Name, Text, Kurztext und Stand`);
-  check(P[0].stand === "fertig" && P[0].href && P.slice(1).every(p => p.stand === "beta" && Array.isArray(p.punkte)) && P[1].punkte.length === 5 && P[2].punkte.length === 4, `${lang}: FiBu lite fertig mit Verweis, FiBu (fünf Punkte) und Deklaration (vier Punkte) als Beta`);
+  check(P.length === 4 && P.map(p => p.id).join() === "fibu-lite,e-rechnung-lite,fibu,deklaration" && P.every(p => p.name && p.text && p.kurz && ["fertig", "beta"].includes(p.stand)), `${lang}: vier Produkte mit Name, Text, Kurztext und Stand`);
+  check(P.slice(0, 2).every(p => p.stand === "fertig" && p.href) && P.slice(2).every(p => p.stand === "beta" && Array.isArray(p.punkte)) && P[2].punkte.length === 5 && P[3].punkte.length === 4, `${lang}: FiBu lite und E-Rechnung lite fertig mit Verweis, FiBu (fünf Punkte) und Deklaration (vier Punkte) als Beta`);
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nSeite „SmartFormular“ in Ordnung.");

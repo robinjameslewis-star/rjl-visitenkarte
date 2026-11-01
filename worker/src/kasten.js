@@ -9,13 +9,14 @@ export const NEWSLETTER_SKRIPT = "newsletter.js?v=20261016";
 const TEXT = {
   de: {
     impuls: ["Impulse, Werkzeuge und Workshops per E-Mail", "Jeden Freitag der neue Impuls, dazu Neues zu den Werkzeugen und Workshops. Jederzeit abbestellbar."],
-    werkzeug: ["Neues zu den Werkzeugen per E-Mail", "Der Newsletter informiert über neue Werkzeuge, neue Fassungen und die Workshops, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig."],
+    // Werkzeugseiten (Textprüfung, Hebel 9): Versprechen für Werkzeugnutzer, der Impuls als Zusatz
+    werkzeug: ["Neue Fassungen und neue kostenlose Werkzeuge per E-Mail", "Der Newsletter meldet neue Fassungen und neue kostenlose Werkzeuge, dazu jeden Freitag den neuen Impuls und Neues zu den Workshops. Für den Download ist keine Anmeldung nötig.", "Abonnieren"],
     email: "E-Mail-Adresse", senden: "Anmelden",
     hinweis: privacy => `Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="${privacy}">Datenschutz</a>.`,
   },
   en: {
     impuls: ["Food for Thought, tools and workshops by email", "The new post every Friday, plus news of the tools and workshops. Unsubscribe at any time."],
-    werkzeug: ["News of the tools by email", "The newsletter reports on new tools, new versions and the workshops, plus the new post every Friday. No sign-up is needed for the download."],
+    werkzeug: ["New versions and new free tools by email", "The newsletter announces new versions and new free tools, plus the new post every Friday and news of the workshops. No sign-up is needed for the download.", "Subscribe"],
     email: "Email address", senden: "Subscribe",
     hinweis: privacy => `After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="${privacy}">Privacy</a>.`,
   },
@@ -23,7 +24,7 @@ const TEXT = {
 
 // up: Weg zur Startseite („../../“); art: "impuls" oder "werkzeug"
 export function newsletterKasten(lang, up, art = "impuls") {
-  const t = TEXT[lang === "en" ? "en" : "de"], [titel, text] = t[art] || t.impuls;
+  const t = TEXT[lang === "en" ? "en" : "de"], [titel, text, knopf = t.senden] = t[art] || t.impuls;
   const privacy = up + (lang === "en" ? "?lang=en" : "") + "#privacy";
   return `<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
 <h2 id="newsletter-title">${titel}</h2>
@@ -31,7 +32,7 @@ export function newsletterKasten(lang, up, art = "impuls") {
 <form id="newsletter-form" novalidate>
 <div class="field"><label for="nl-email">${t.email}</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="${t.email}"></div>
 <div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-<button type="submit" id="nl-send">${t.senden}</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<button type="submit" id="nl-send">${knopf}</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
 <p class="hint">${t.hinweis(privacy)}</p>
 </form>
 </section>`;

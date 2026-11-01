@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>robin.vision – Werkzeuge und Workshops zur KI-Kompetenz</title>
-<meta name="description" content="Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
+<meta name="description" content="Kostenlose Werkzeuge fürs Rechnungswesen: E-Rechnungen prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.">
 <link rel="canonical" href="https://robin.vision/">
 <link rel="alternate" hreflang="de" href="https://robin.vision/">
 <link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="robin.vision – Werkzeuge und Workshops zur KI-Kompetenz">
-<meta property="og:description" content="Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen – darunter SmartFormular, FiBu lite kostenlos. Workshops mit Unterweisung nach EU AI Act für Unternehmen, Kanzleien und Organisationen. Jeden Freitag ein Impuls.">
+<meta property="og:description" content="Kostenlose Werkzeuge fürs Rechnungswesen: E-Rechnungen prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.">
 <meta property="og:url" content="https://robin.vision/">
 <meta property="og:image" content="https://robin.vision/assets/teilen.jpg">
 <meta property="og:image:width" content="1200">
@@ -32,11 +32,11 @@
   document.documentElement.classList.add('js');
   if (new URLSearchParams(location.search).get('landschaft') === 'aus') document.documentElement.classList.add('landscape-off');
 </script>
-<link rel="preload" as="image" href="assets/vogel.webp" fetchpriority="high">
-<link rel="preload" as="image" href="assets/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="assets/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="assets/flugpose-3-abschlag.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="assets/flugpose-4-landeanflug.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/vogel.webp" fetchpriority="high">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-3-abschlag.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-4-landeanflug.webp" media="(prefers-reduced-motion: no-preference)">
 <style>
   @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
   [hidden] { display: none !important; }
@@ -124,6 +124,11 @@
   .bird-rest { left: 0; top: 0; width: 100%; opacity: 1; clip-path: inset(0 0 2.5% 0); }
   .js .bird-rest { opacity: 0; } /* bird-flight.js blendet per Inline-Stil ein */
   .bird-flight { width: 133.2177%; }
+  .bird-mund { left: 0; top: 0; width: 100%; clip-path: inset(0 0 2.5% 0); transition-duration: 0ms; } /* wie .bird-rest, nur unsichtbar bis zum Sprechen */
+  /* Goch lebt (goch-leben.js, 24.10.2026): Sind Körper, Kopf und Schwanz geladen, ersetzen sie im Sitzen Sitzpose und
+     Schnabelposen (zusammengesetzt deckungsgleich); im Flug bleiben die Flugposen. */
+  .scene[data-leben][data-state="rest"] .bird-rest, .scene[data-leben][data-state="rest"] .bird-mund { visibility: hidden; }
+  .scene:not([data-state="rest"]) .leben { display: none !important; }
   .bird-up { left: -14.7441%; top: -40.8451%; }
   .bird-glide { left: -15.4380%; top: -38.7324%; }
   .bird-down { left: -16.9124%; top: -30.7042%; }
@@ -134,6 +139,7 @@
     .scene .bird-move, .scene .branch { transform: none !important; }
     .scene .bird-move, .scene .bird-rest { opacity: 1 !important; }
     .scene .bird-flight { display: none; }
+    .scene .bird-mund { opacity: 0 !important; }
   }
 
 
@@ -166,6 +172,12 @@
   .goch-thinking { color: var(--ink-muted); letter-spacing: .2em; }
   .goch-action { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--copper); padding-bottom: 1px; white-space: nowrap; }
   .goch-consent p { margin: 0 0 10px; font-size: 14px; }
+  /* Einwilligungen zu Stimme und Kamera im Gespräch: Die Beispielfragen weichen, der Text scrollt bei Bedarf, die Knöpfe
+     bleiben immer im Fenster (Robin, 23.10.2026: Knöpfe rutschten über den Seitentext) */
+  .goch:has(#goch-stimme-consent:not([hidden])) :is(#goch-starters, #goch-form), .goch:has(#goch-kamera-consent:not([hidden])) :is(#goch-starters, #goch-form) { display: none; }
+  #goch-stimme-consent:not([hidden]), #goch-kamera-consent:not([hidden]) { display: flex; flex-direction: column; min-height: 0; flex-shrink: .1; } /* erst weicht der Verlauf */
+  #goch-stimme-consent p, #goch-kamera-consent p { min-height: 0; overflow-y: auto; }
+  #goch-stimme-consent .consent-actions, #goch-kamera-consent .consent-actions { flex: none; }
   .goch-starters { display: flex; flex-wrap: wrap; gap: 6px; }
   .goch-starter { border: 1px solid var(--copper); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
   .goch-starter:hover { background: var(--hover); }
@@ -189,6 +201,76 @@
     .goch::after { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .goch-log { scroll-behavior: auto; } }
+  /* Sprechender Goch (23.10.2026): Schalter, Mikrofon, Hinweis „KI · künstliche Stimme“, Zwitschern, Schnabel-Platzhalter */
+  .goch-sprache { display: flex; flex-wrap: wrap; gap: 6px; }
+  .goch-schalter { border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-soft); font: inherit; font-size: 13px; padding: 5px 11px; cursor: pointer; }
+  .goch-schalter::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; border: 1px solid currentColor; vertical-align: 1px; }
+  .goch-schalter[aria-pressed="true"] { border-color: var(--copper); color: var(--ink); }
+  .goch-schalter[aria-pressed="true"]::before { background: var(--copper); border-color: var(--copper); }
+  .goch-schalter:hover { background: var(--hover); }
+  .goch-schalter:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
+  .goch-mikro { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+  .goch-mikro-knopf { touch-action: none; user-select: none; -webkit-user-select: none; }
+  .goch-mikro-knopf[aria-pressed="true"] { border-color: var(--green); background: var(--hover); }
+  .goch-pegel { flex: 1 1 80px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .goch-pegel span { display: block; width: 0; height: 100%; background: var(--copper); transition: width 60ms linear; }
+  .goch-mikro-knopf { flex: 0 0 auto; }
+  .goch-mikro-status { flex-basis: 100%; font-size: 13px; color: var(--ink-soft); }
+  .goch-mikro-status:empty { display: none; }
+  .goch-ki { align-self: flex-start; margin: -4px 0 0; font: 12px/1.3 var(--sans); color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+  .scene .goch-noten { position: absolute; left: 17%; top: 1%; z-index: 3; font: 400 clamp(16px, 2.2vw, 26px)/1 var(--serif); color: var(--copper); pointer-events: none; }
+  .goch-noten span { display: inline-block; opacity: 0; }
+  .goch-noten span + span { margin-left: .2em; }
+  .goch-noten.an span { animation: goch-note 2.4s ease-out forwards; }
+  .goch-noten.an span + span { animation-delay: .35s; }
+  @keyframes goch-note { 0% { opacity: 0; transform: translate(0, 8px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-16px, -28px) rotate(-12deg); } }
+  /* Zucken beim Zwitschern: geneigt über der Fußlinie (44 % / 85 % der Szene), damit die Füße auf dem Ast bleiben */
+  .scene.zwitschert[data-state="rest"] .bird-tilt { transform-origin: 44% 85%; animation: goch-zucken .3s ease-in-out 2; }
+  @keyframes goch-zucken { 50% { transform: skewX(3deg) scaleY(1.012); } }
+  @media (prefers-reduced-motion: reduce) { .goch-noten.an span { opacity: 1; } }
+  /* Goch zeigt eine Stelle der Seite (goch-gespraech.js): Verweis in der Antwort, die Stelle leuchtet kurz auf */
+  .goch-zeigen { white-space: nowrap; }
+  .goch-zeigen::before { content: "→ "; }
+  .goch-gezeigt { animation: goch-gezeigt 3.2s ease-out; border-radius: 10px; }
+  @keyframes goch-gezeigt { 0%, 60% { box-shadow: 0 0 0 3px var(--copper); } 100% { box-shadow: 0 0 0 3px transparent; } }
+  .goch-papier, .goch-mini { display: none; }
+  /* Blickkontakt (goch-blick.js): Kamerarahmen unsichtbar (ein sichtbares Vorschaubild störte, Robin 23.10.2026); er muss
+     aber gezeichnet werden, sonst liefert das Video keine Bilder. Den Zustand zeigen Schalter und Browser. */
+  .goch-kamera-platz { position: absolute; top: 0; right: 0; width: 2px; height: 2px; overflow: hidden; opacity: 0; pointer-events: none; }
+  .goch-kamera-platz[hidden] { display: none; }
+  .goch-kamera-platz iframe { display: block; width: 100%; height: 100%; border: 0; }
+  @media (max-width: 720px) {
+    /* Gesprächsmodus auf dem Handy: Papier über der Seite, Goch groß oben, darunter das Gespräch */
+    html.goch-fokus, html.goch-fokus body { overflow: hidden; }
+    html.goch-fokus .goch-papier { display: block; position: fixed; inset: 0; z-index: 18; background: var(--paper) url("assets/papier.jpg"); }
+    html.goch-fokus .stage, html.goch-fokus .perch { z-index: auto !important; isolation: auto !important; } /* sonst bliebe Goch unter dem Papier */
+    html.goch-fokus .scene { position: fixed; z-index: 19; left: 5vw; top: calc(env(safe-area-inset-top) + 28px); width: 90vw; }
+    html.goch-fokus .goch { max-height: min(56dvh, calc(100dvh - 90vw * 0.616 - 52px)) !important; } /* Goch oben bleibt frei */
+    html.goch-fokus .goch-log .goch-bubble { font-size: 16px; }
+    /* Goch zeigt etwas: klein in der Ecke, das Gespräch als schmale Leiste */
+    html.goch-unterwegs .goch { max-height: 32dvh !important; }
+    html.goch-unterwegs .goch-log > :not(:last-child), html.goch-unterwegs #goch-starters, html.goch-unterwegs #goch-form,
+      html.goch-unterwegs #goch-sprache, html.goch-unterwegs .goch-note { display: none; }
+    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; position: fixed; z-index: 21; right: 4vw; bottom: calc(32dvh + 16px); width: 96px;
+      padding: 0; border: 0; background: transparent; cursor: pointer; }
+    .goch-mini img { display: block; width: 100%; height: auto; transform-origin: 45% 80%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
+    .goch-mini.spricht img { animation: goch-mini 0.45s ease-in-out infinite alternate; }
+    @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }
+  }
+  @media (max-width: 720px) and (prefers-reduced-motion: reduce) { .goch-mini.spricht img { animation: none; } }
+  @media (max-width: 720px) { .goch:has(#goch-sprache:not([hidden])), .goch:has(#goch-mikro:not([hidden])), .goch:has(#goch-stimme-consent:not([hidden])) { max-height: 80dvh; }
+    #goch-stimme-consent { min-height: 0; flex-shrink: 1; overflow-y: auto; } } /* Handy: Platz für Verlauf und Einwilligung trotz Schaltern */
+  @media (prefers-reduced-motion: no-preference) {
+    .scene[data-state="rest"] .bird-tilt { transition: transform 90ms ease-out; }
+    .scene[data-state="rest"][data-mund="halb"] .bird-tilt { transform: rotate(-1.4deg); }
+    .scene[data-state="rest"][data-mund="offen"] .bird-tilt { transform: rotate(-2.6deg) translateY(-.4%); }
+    .scene[data-state="rest"][data-lauscht="1"] .bird-tilt { transform-origin: 44% 85%; transform: skewX(-2.5deg) scaleY(1.01); }
+    /* Bewegung zur Stimme und kurze Blicke in Pausen (goch-audio.js, bewegung): geneigt (skewX) und gestreckt (scaleY) über der
+       Fußlinie statt gedreht und angehoben – was auf der Linie liegt, bewegt sich nicht, die Füße bleiben auf dem Ast
+       (Robin, 23.10.2026). Negative --goch-neigung = nach vorn (zum Schnabel hin). */
+    .scene[data-state="rest"][data-bewegt] .bird-tilt { transform-origin: 44% 85%; transform: skewX(calc(var(--goch-neigung, 0deg) * -1)) scaleY(var(--goch-streck, 1)); transition: transform 160ms ease-out; }
+    .scene[data-state="rest"][data-bewegt][data-lauscht="1"] .bird-tilt { transform: skewX(-2.5deg) scaleY(1.01); }
+  }
 
   /* ---------- Terminbereich ---------- */
   .contact { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
@@ -223,6 +305,7 @@
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
   .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
   .blog-teaser p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
+  .blog-teaser p.lead + p.lead.zeile { margin-top: -16px; }
   .blog-teaser ul { list-style: none; margin: 0; padding: 0; max-width: 680px; }
   /* Das Werkzeug als Karte – es ist das Angebot der Seite; die Impulse bleiben eine Liste mit Hairlines */
   #werkzeuge li { border: 1px solid var(--line); border-radius: 3px; padding: 20px 22px; background: rgba(255,255,255,.45); }
@@ -254,6 +337,12 @@
   .blog-teaser .all a { display: inline-block; min-height: 44px; padding: 10px 16px; border: 1px solid var(--copper); border-radius: 3px; color: var(--ink); text-decoration: none; line-height: 1.4; }
   .blog-teaser .all a:hover { background: var(--hover); }
   .blog-teaser .all a:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+  /* Workshops auf der Startseite (Option B, Robin 23.10.2026): drei Teile, Leitung, zwei Knöpfe; Hinweis für Anbieter kurz und ruhig */
+  .ws-teile li { color: var(--ink-soft); font-size: 16px; line-height: 1.55; }
+  .ws-teile strong { color: var(--green); font-weight: 500; }
+  .ws-leitung { margin: 18px 0 0; max-width: 60ch; color: var(--ink); }
+  .blog-teaser .cta { justify-content: flex-start; margin-top: 22px; }
+  .blog-teaser.anbieter > h2 { font-size: clamp(21px, 2.3vw, 24px); }
 
   /* Seitenkopf (Robin, 16.10.2026): Sprachwahl links, drei Seiten, Termin als Knopf, auf schmalen Bildschirmen ein Menü. Stile wie in
      worker/src/kopf.js (KOPF_CSS; tests/kopf_test.mjs hält beides gleich). Der Verweis auf die Impulse steht zwischen den Marken der Redaktion. */
@@ -372,6 +461,12 @@
     width: 36%; padding: 0; z-index: 3;
   }
   .landscape-on .bird-move { mix-blend-mode: normal; }
+  /* Einstieg mit Landschaft (Welle 2, 24.10.2026): Die Wortmarke steht fest, der Block darunter wächst nach oben. Damit Zeile und
+     Name frei bleiben: Knöpfe auf dem Rechner in einer Reihe, auf Tablets die Wortmarke im Fluss (dort überdeckte sie Zeile und
+     Namen schon vorher), auf breiten Bildschirmen wachsen Rand und Abstand nicht weiter. Einstiegszeile höchstens 5 Zeilen. */
+  @media (min-width: 721px) { .landscape-on .intro .cta { flex-wrap: nowrap; } .landscape-on .intro .cta a { white-space: nowrap; } }
+  @media (min-width: 721px) and (max-width: 1023px) { .landscape-on .name { position: static; width: auto; } .landscape-on .intro .cta { flex-wrap: wrap; } }
+  @media (min-width: 1600px) { .stage { padding-left: 86px; padding-right: 86px; column-gap: 58px; } .landscape-on .name { left: 86px; } }
   /* Sprachwahl und Menü oben links: ein Lichthof aus Papierfarbe hält sie vor Himmel und Blättern lesbar. */
   .landscape-on .language-nav .flag, .landscape-on .kopf .hauptnav a { filter: drop-shadow(0 0 3px var(--paper)); }
   .landscape-on .kopf .termin { background: color-mix(in srgb, var(--paper) 88%, transparent); }
@@ -456,7 +551,6 @@
   .wzs-karte .wzs-fuss { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 10px; }
   .wzs-bereich { font: 500 11px/1.6 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--copper); }
   .wzs-fuss a { white-space: nowrap; font-size: 15px; color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .25em; }
-  .wzs-platzhalter { border: 1.5px dashed var(--copper); background: rgba(255,255,255,.4); background: color-mix(in srgb, rgba(255,255,255,.4), #242D3B var(--nacht-prozent, 0%)); }
   .wzs-steuerung { display: flex; align-items: center; gap: 14px; margin: 4px 0 0; }
   .wzs-pfeil { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,255,255,.7); background: color-mix(in srgb, rgba(255,255,255,.7), #293241 var(--nacht-prozent, 0%)); color: var(--green); font: 400 17px/1 var(--sans); cursor: pointer; }
   .wzs-pfeil:hover { border-color: var(--green); }
@@ -476,9 +570,9 @@
   .grundsaetze[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
-<script src="landscape.js?v=20261010"></script>
+<script src="landscape.js?v=20261023"></script>
 </head>
-<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-version="20261010">
+<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-goch-signalton="figuren/goch/toene/zwitschern" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
 <header class="kopf start">
@@ -487,10 +581,10 @@
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
   <a href="?lang=en" data-language="en" lang="en" hreflang="en" title="English"><svg class="flag" viewBox="0 0 60 30" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><clipPath id="flag-uk-quarters"><path d="M30 15h30v15zv15H30zH0V15zV0h30z"/></clipPath><rect width="60" height="30" fill="#1B3A73"/><path d="M0 0l60 30m0-30L0 30" stroke="#F6F1E8" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-quarters)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#F6F1E8" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg><span class="visually-hidden">English</span></a>
 </nav>
-<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeugkasten</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Robins Werkzeugkasten</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
 <a class="termin" href="#kontakt" data-i18n="navContact">Termin</a>
 <details class="menue"><summary aria-label="Menü" data-i18n-aria="menuLabel"><span></span></summary>
-<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeugkasten</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Robins Werkzeugkasten</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 </details>
 </header>
 
@@ -504,20 +598,26 @@
     <div class="intro">
       <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a></h1>
       <p class="byline" data-i18n="byline">Robin James Lewis · Balingen</p>
-      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen. Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
-      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeugkasten</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshops</a></p>
+      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
+      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshop für Ihr Team</a></p>
     </div>
     <div class="perch">
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
       <span class="bird-move" aria-hidden="true"><span class="bird-tilt">
-        <img class="bird-frame bird-rest" data-pose="rest" src="assets/vogel.webp" alt="" width="1153" height="637" fetchpriority="high">
-        <img class="bird-frame bird-flight bird-up" data-pose="up" data-src="assets/flugpose-1-aufschlag.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="assets/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="assets/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
-        <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="assets/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-rest" data-pose="rest" src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" fetchpriority="high">
+        <img class="bird-frame bird-flight bird-up" data-pose="up" data-src="figuren/goch/bilder/flugpose-1-aufschlag.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-flight bird-glide" data-pose="glide" data-src="figuren/goch/bilder/flugpose-2-gleiten.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-flight bird-down" data-pose="down" data-src="figuren/goch/bilder/flugpose-3-abschlag.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="bird-frame bird-flight bird-landing" data-pose="landing" data-src="figuren/goch/bilder/flugpose-4-landeanflug.webp" alt="" width="1536" height="1024" decoding="async">
+        <!-- Schnabelposen für den sprechenden Goch (23.10.2026): erst geladen, wenn ein Besucher Stimme oder Spracheingabe einschaltet (goch-stimme.js) -->
+        <img class="bird-frame bird-mund" data-mundpose="halb" data-src-spaet="figuren/goch/bilder/vogel-schnabel-halb.webp" alt="" width="1153" height="637" decoding="async">
+        <img class="bird-frame bird-mund" data-mundpose="offen" data-src-spaet="figuren/goch/bilder/vogel-schnabel-offen.webp" alt="" width="1153" height="637" decoding="async">
+        <img class="bird-frame bird-mund" data-mundpose="blinzeln" data-src-spaet="figuren/goch/bilder/vogel-blinzeln.webp" alt="" width="1153" height="637" decoding="async">
       </span></span>
-      <!-- Vogel und Ast: assets/bestand/ = Fassung ohne Landschaft (kurzer Ast, Vogel mit weißem Grund, multiply); assets/ = Fassung mit Landschaft (langer Ast, freigestellter Vogel).
+      <!-- Vogel und Ast: …/bestand/ = Fassung ohne Landschaft (kurzer Ast, Vogel mit weißem Grund, multiply), sonst Fassung mit Landschaft (langer Ast, freigestellter Vogel).
+           Der Vogel liegt seit 23.10.2026 im Figurenpaket figuren/goch/bilder/, der Ast als Teil der Szene in assets/.
            Die Redaktion schreibt beim Umschalten beide Pfade und data-landschaft am <body> um (worker/src/admin.js, applyLandscape); ?landschaft=an|aus tauscht nur zur Laufzeit. -->
+      <span class="goch-noten" id="goch-noten" aria-hidden="true" hidden><span>♪</span><span>♫</span></span>
       <span class="branch" aria-hidden="true"><img src="assets/ast.webp" alt="" width="2800" height="167" fetchpriority="high"></span>
     </button>
 
@@ -527,6 +627,8 @@
         <h2 class="goch-title" id="goch-title"><span data-i18n="gochName">Goch</span> <small data-i18n="gochRole">das Rotkehlchen von Robin</small></h2>
         <button class="goch-close" id="goch-close" type="button" aria-label="Gespräch schließen" data-i18n-aria="gochClose">×</button>
       </div>
+      <p class="goch-ki" id="goch-ki" data-i18n="gochKi" hidden>KI · künstliche Stimme</p>
+      <span class="goch-kamera-platz" id="goch-kamera-platz" hidden></span>
       <div class="goch-log" id="goch-log" role="log" aria-live="polite"></div>
       <div class="goch-consent" id="goch-consent" hidden>
         <p data-i18n="gochConsentText">Goch antwortet mit einem Sprachmodell. Was Sie hier schreiben, geht an einen Cloudflare-Server und an das Modell, auch in die USA. Gespeichert wird nichts; die Entscheidung gilt 180 Tage. Einverstanden?</p>
@@ -546,7 +648,33 @@
         <textarea id="goch-input" rows="2" maxlength="600" placeholder="Schreiben Sie Goch …" data-i18n-placeholder="gochPlaceholder" autocomplete="off"></textarea>
         <button class="goch-send" id="goch-send" type="submit" data-i18n="gochSend">Senden</button>
       </form>
-      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button></p>
+      <!-- Sprechender Goch (23.10.2026, goch-stimme.js): nur mit data-goch-stimme="an" am <body>; eigene Einwilligung, nur für diesen Besuch -->
+      <div class="goch-mikro" id="goch-mikro" hidden>
+        <button class="goch-send goch-mikro-knopf" id="goch-mikro-knopf" type="button" aria-pressed="false" aria-describedby="goch-mikro-status" data-i18n="gochMikroKnopf">Weiter zuhören</button>
+        <span class="goch-pegel" aria-hidden="true"><span id="goch-pegel"></span></span>
+        <span class="goch-mikro-status" id="goch-mikro-status" role="status" aria-live="polite"></span>
+      </div>
+      <div class="goch-sprache" id="goch-sprache" hidden>
+        <button class="goch-schalter" id="goch-mikro-an" type="button" aria-pressed="false" data-i18n="gochMikroAn">Mit Goch sprechen</button>
+        <button class="goch-schalter" id="goch-laut" type="button" aria-pressed="false" data-i18n="gochLaut">Goch spricht laut</button>
+        <button class="goch-schalter" id="goch-blick-an" type="button" aria-pressed="false" data-i18n="gochBlickAn">Blickkontakt</button>
+      </div>
+      <div class="goch-consent" id="goch-stimme-consent" hidden>
+        <p data-i18n="gochStimmeConsentText">Sprechen mit Goch: Solange „Mit Goch sprechen“ an ist, ist Ihr Mikrofon offen; nur gesprochene Abschnitte gehen an Cloudflare (auch USA) und werden in Text umgewandelt, gespeichert wird nichts. Nach einer Minute Stille geht es aus. Gochs Antworten spricht eine künstliche Stimme von ElevenLabs (USA), die nur seinen Antworttext erhält. Gilt nur für diesen Besuch, jederzeit beendbar. Einverstanden?</p>
+        <div class="consent-actions">
+          <button class="consent-button" id="goch-stimme-allow" type="button" data-i18n="gochStimmeAllow">Sprechen erlauben</button>
+          <button class="consent-link" id="goch-stimme-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
+        </div>
+      </div>
+      <!-- Blickkontakt (goch-blick.js): eigene Einwilligung; die Kamera wird nur im Rahmen goch-kamera.html ausgewertet -->
+      <div class="goch-consent" id="goch-kamera-consent" hidden>
+        <p data-i18n="gochKameraConsentText">Blickkontakt mit Goch: Ihre Kamera bleibt auf diesem Gerät. Goch erkennt nur, ob ein Gesicht da ist, wo es ist und ob es zu ihm schaut – kein Bild verlässt das Gerät, nichts wird gespeichert, keine Mimik, keine Gefühle, keine Wiedererkennung. Kommt jemand an den Bildschirm, zwitschert Goch und spricht ihn an. Gilt nur für diesen Besuch. Einverstanden?</p>
+        <div class="consent-actions">
+          <button class="consent-button" id="goch-kamera-allow" type="button" data-i18n="gochKameraAllow">Kamera erlauben</button>
+          <button class="consent-link" id="goch-kamera-deny" type="button" data-i18n="gochDeny">Lieber nicht</button>
+        </div>
+      </div>
+      <p class="goch-note"><span data-i18n="gochNote">Goch antwortet automatisch aus einem Text, den Robin freigegeben hat; nichts wird gespeichert. Keine steuerliche oder rechtliche Auskunft.</span> <a href="#privacy" data-i18n="privacyDetails">Impressum &amp; Datenschutz</a> <button class="consent-link goch-withdraw" id="goch-withdraw" type="button" data-i18n="gochWithdraw" hidden>Einwilligung widerrufen</button> <button class="consent-link goch-withdraw" id="goch-stimme-ende" type="button" data-i18n="gochStimmeEnde" hidden>Sprechen beenden</button> <button class="consent-link goch-withdraw" id="goch-stumm" type="button" hidden>Zwitschern aus</button> <button class="consent-link goch-withdraw" id="goch-zur-seite" type="button" data-i18n="gochZurSeite" hidden>Seite ansehen</button></p>
     </section>
     </div>
   </section>
@@ -554,18 +682,25 @@
 
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeugkasten</a></h2>
-    <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
+    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Robins Werkzeugkasten</a></h2>
+    <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
     <div class="wzs-rahmen">
 <!-- werkzeuge:liste -->
-    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeugkasten">
+    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Robins Werkzeugkasten">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
-          <p class="wzs-kennz"><a href="#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
+          <p class="wzs-kennz">Kostenlos</p>
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>FiBu lite</h3>
-          <p>Kontoauszüge zu Buchungsstapeln – kostenlos, offline im Browser.</p>
+          <p>Kontoauszüge zu Buchungsstapeln – offline im Browser.</p>
           <p class="wzs-fuss"><span class="wzs-bereich">Rechnungswesen</span><a href="werkzeuge/buchungsstapel-generator/">Zum Produkt</a></p>
+        </article>
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Kostenlos</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>E-Rechnung lite</h3>
+          <p>E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Rechnungswesen</span><a href="werkzeuge/e-rechnung-pruefen/">Zum Produkt</a></p>
         </article>
         <article class="wzs-karte">
           <p class="wzs-kennz"><a href="#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
@@ -581,23 +716,24 @@
           <p>Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.</p>
           <p class="wzs-fuss"><span class="wzs-bereich">Jahresabschluss</span><a href="werkzeuge/smartformular/#deklaration">Zum Produkt</a></p>
         </article>
-        <article class="wzs-karte wzs-platzhalter">
-          <div class="wzs-logo" aria-hidden="true">Ihr Logo</div>
-          <h3>Hier könnte Ihr Produkt stehen</h3>
-          <p>Ihre Lösung für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse – vorgestellt auf der Website, in Workshops und auf Fachmessen.</p>
-          <p class="wzs-fuss"><span class="wzs-bereich">Partner</span><a href="werkzeuge/#partner">Partner werden</a></p>
-        </article>
       </div>
       <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
     </div>
-    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Toolbox">
+    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Robin's Tech Stack">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
-          <p class="wzs-kennz"><a href="#anzeigen">Ad</a> · <span>robin.vision</span></p>
+          <p class="wzs-kennz">Free</p>
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>FiBu lite</h3>
-          <p>Bank statements into booking batches – free, offline in your browser.</p>
+          <p>Bank statements into booking batches – offline in your browser.</p>
           <p class="wzs-fuss"><span class="wzs-bereich">Accounting</span><a href="werkzeuge/booking-batch-generator/">To the product</a></p>
+        </article>
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Free</p>
+          <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
+          <h3>E-Rechnung lite</h3>
+          <p>Read, check and pay e-invoices by GiroCode – in your browser.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Accounting</span><a href="werkzeuge/e-invoice-viewer/">To the product</a></p>
         </article>
         <article class="wzs-karte">
           <p class="wzs-kennz"><a href="#anzeigen">Ad</a> · <span>robin.vision</span></p>
@@ -613,12 +749,6 @@
           <p>The working paper for year-end accounts that thinks ahead and does the groundwork.</p>
           <p class="wzs-fuss"><span class="wzs-bereich">Year-end accounts</span><a href="werkzeuge/smartformular/en/#deklaration">To the product</a></p>
         </article>
-        <article class="wzs-karte wzs-platzhalter">
-          <div class="wzs-logo" aria-hidden="true">Your logo</div>
-          <h3>Your product could be here</h3>
-          <p>Your solution for accounting, administration or other business processes – presented on the website, in workshops and at trade fairs.</p>
-          <p class="wzs-fuss"><span class="wzs-bereich">Partner</span><a href="werkzeuge/en/#partner">Become a partner</a></p>
-        </article>
       </div>
       <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Previous">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Next">→</button></div>
     </div>
@@ -627,41 +757,42 @@
     <p class="all"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsAll">Alle Werkzeuge im Überblick und im Vergleich</a></p>
   </section>
 
+  <!-- Workshops (Robin, 17.10.2026; nach Option B direkt nach den Werkzeugen und ausführlicher, Robin 23.10.2026): KI-Workshop für Teams
+       mit Unterweisung nach EU AI Act; die ganze Seite baut tools/workshops-bauen.mjs (workshops/, workshops/en/) -->
+  <section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">
+    <h2 id="workshops-title"><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsTitle">Workshops</a></h2>
+    <p class="lead" data-i18n="workshopsLead">KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch. Termine ab Januar 2027; Anfragen sind schon möglich.</p>
+    <ul class="ws-teile">
+      <li><strong data-i18n="workshopsTeil1Titel">Workshop:</strong> <span data-i18n="workshopsTeil1">90 Minuten online oder ein halber Tag vor Ort – Hemmschwellen abbauen, Anwendungsfälle aus Ihrem Alltag.</span></li>
+      <li><strong data-i18n="workshopsTeil2Titel">Online-Lehrgang:</strong> <span data-i18n="workshopsTeil2">sieben Lektionen, etwa 70 Minuten, mit Praxisaufgaben am eigenen Arbeitsplatz.</span></li>
+      <li><strong data-i18n="workshopsTeil3Titel">Test und Zertifikat:</strong> <span data-i18n="workshopsTeil3">je Person, online prüfbar, als Nachweis Ihrer Maßnahme nach Art. 4 KI-Verordnung.</span></li>
+    </ul>
+    <p class="ws-leitung" data-i18n="workshopsLeitung">Ich leite die Workshops selbst – aus der Praxis einer Steuerkanzlei und mit Ausbildereignung (IHK).</p>
+    <p class="cta"><a class="cta-primary" href="workshops/#anfrage" data-href-de="workshops/#anfrage" data-href-en="workshops/en/#anfrage" data-i18n="workshopsAnfrage">Workshop anfragen</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsMore">Mehr zum Workshop</a></p>
+  </section>
+
   <!-- grundsaetze -->
   <section class="blog-teaser grundsaetze" id="grundsaetze-de" data-langs="de" aria-labelledby="grundsaetze-titel-de">
-    <h2 id="grundsaetze-titel-de">Zwei Grundsätze für Werkzeugkasten und Workshops</h2>
+    <h2 id="grundsaetze-titel-de">Zwei Grundsätze für Robins Werkzeugkasten und die Workshops</h2>
     <div class="grundsaetze-reihe">
-    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Klardaten</span><span class="gs-titel">Sensible Klardaten, rechtssicher verarbeitet</span><p class="gs-text frei">Werkzeugkasten und Workshops sind auf die rechtssichere Verarbeitung sensibler Klardaten ausgerichtet – Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></article>
+    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Echte Daten</span><span class="gs-titel">Echte Daten nur in Werkzeuge, die dafür gemacht sind</span><p class="gs-text frei">In Kanzlei und Rechnungswesen geht es um Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Danach richten sich Robins Werkzeugkasten und die Workshops: Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></article>
     <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg></span><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern.</p></article>
     </div>
   </section>
   <section class="blog-teaser grundsaetze" id="grundsaetze-en" data-langs="en" hidden aria-labelledby="grundsaetze-titel-en">
-    <h2 id="grundsaetze-titel-en">Two principles behind our toolbox and workshops</h2>
+    <h2 id="grundsaetze-titel-en">Two principles behind Robin&#39;s Tech Stack and the workshops</h2>
     <div class="grundsaetze-reihe">
-    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Plaintext data</span><span class="gs-titel">Sensitive plaintext data, handled lawfully</span><p class="gs-text frei">Our toolbox and workshops are designed for the lawful processing of sensitive plaintext data – client, personnel and financial data that has not been anonymised. Data protection, confidentiality duties and the EU AI Act are the starting point, not an afterthought.</p></article>
+    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Real data</span><span class="gs-titel">Real data only in tools built for it</span><p class="gs-text frei">Accounting work means client, staff and financial data that has not been anonymised. Robin&#39;s Tech Stack and the workshops are built around that: data protection, professional confidentiality and the EU AI Act are the starting point, not an afterthought.</p></article>
     <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg></span><span class="gs-kicker">No lock-in</span><span class="gs-titel">Model-agnostic, no <span class="gs-nb">vendor lock-in</span></span><p class="gs-text frei">Solutions that work with different language models and providers take priority. You keep the choice – and can switch when prices, rules or models change.</p></article>
     </div>
   </section>
 <!-- /grundsaetze -->
 
-  <!-- Workshops (Robin, 17.10.2026): KI-Workshop für Teams mit Unterweisung nach EU AI Act; die ganze Seite baut tools/workshops-bauen.mjs (workshops/, workshops/en/) -->
-  <section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">
-    <h2 id="workshops-title"><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsTitle">Workshops</a></h2>
-    <p class="lead" data-i18n="workshopsLead">KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch. Termine ab Januar 2027.</p>
-    <p class="all"><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsMore">Zum Workshop mit Unterweisung nach EU AI Act</a></p>
-  </section>
-
-  <!-- Über mich (Robin, 16.10.2026): drei Sätze, Fakten aus Gochs Profil, ohne Charakterurteile; die ganze Seite baut tools/ueber-mich-bauen.mjs (ueber-mich/, about/) -->
-  <section class="blog-teaser about" id="ueber-mich" aria-labelledby="about-title">
-    <h2 id="about-title"><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="aboutTitle">Über mich</a></h2>
-    <p class="lead" data-i18n="aboutText">Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Nebenher digitalisiere ich Kanzleiprozesse und baue Werkzeuge für den Alltag außerhalb des perfekten Prozesses, mitten in der Realität der Transformation: für die Tage, an denen der Bankabruf ausfällt und trotzdem gebucht werden muss. Zuerst für mich, dann für alle, die dieselbe Arbeit tun.</p>
-    <p class="all"><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="aboutMore">Mehr über mich</a></p>
-  </section>
-
   <!-- redaktion:blog-section -->
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="de en">
     <h2 id="blog-title"><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a></h2>
     <p class="lead" data-title-de="Auf dem Datenfluss der Wertschöpfung surfen" data-title-en="Riding the data flow of value creation">Auf dem Datenfluss der Wertschöpfung surfen</p>
+    <p class="lead zeile" data-title-de="Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen." data-title-en="What automation and AI change in accounting – every Friday, with sources.">Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen.</p>
     <ul>
       <li lang="de"><span class="when"><time datetime="2026-10-30">30. Oktober 2026</time></span><a href="blog/agent-automatisierung-oder-assistent/">Agent, Automatisierung oder Assistent?</a><p>Nicht jede Aufgabe braucht einen KI-Agenten: Wer Software auswählt, sollte zuerst fragen, was sie selbst entscheidet – und wo sie anhält.</p></li>
       <li lang="de"><span class="when"><time datetime="2026-10-23">23. Oktober 2026</time></span><a href="blog/die-stelle-die-sich-nicht-besetzen-laesst/">Die Stelle, die sich nicht besetzen lässt</a><p>Wer die Routine automatisiert, schafft die Lehrzeit ab – gegen den Fachkräftemangel hilft Software nur, wenn Kanzleien das Lernen neu organisieren.</p></li>
@@ -690,9 +821,16 @@
     </form>
   </section>
 
+  <!-- Über mich (Robin, 16.10.2026): drei Sätze, Fakten aus Gochs Profil, ohne Charakterurteile; die ganze Seite baut tools/ueber-mich-bauen.mjs (ueber-mich/, about/) -->
+  <section class="blog-teaser about" id="ueber-mich" aria-labelledby="about-title">
+    <h2 id="about-title"><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="aboutTitle">Über mich</a></h2>
+    <p class="lead" data-i18n="aboutText">Ich bin Robin James Lewis aus Balingen. Nach dreizehn Jahren im Handel und drei Jahren als Verwaltungsleiter eines Kulturzentrums werde ich Steuerfachangestellter, mit festem Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss in einer Balinger Kanzlei. Aus der operativen Arbeit und der Einarbeitung neuer Mitarbeitender in Verwaltung und Rechnungswesen verschiedener Branchen kenne ich die Stellen, an denen Daten doppelt erfasst werden und sich Abläufe vereinfachen oder automatisieren lassen. Daraus entwickle ich Werkzeuge, die sich in den Arbeitsalltag einfügen – und gebe dieses Wissen in Workshops weiter.</p>
+    <p class="all"><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="aboutMore">Mehr über mich</a></p>
+  </section>
+
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
+    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team oder eine Partnerschaft in Robins Werkzeugkasten. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
@@ -727,7 +865,17 @@
       <p class="hint" data-i18n="messageNote">Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.</p>
     </form>
   </section>
+
+  <!-- Hinweis für Anbieter (Robin, 23.10.2026, Option B): bis Welle 2 die letzte Karte im Werkzeug-Slider -->
+  <section class="blog-teaser anbieter" id="anbieter" aria-labelledby="anbieter-title">
+    <h2 id="anbieter-title" data-i18n="anbieterTitle">Für Anbieter</h2>
+    <p class="lead" data-i18n="anbieterText">Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Stellen Sie sie in Robins Werkzeugkasten vor.</p>
+    <p class="all"><a href="werkzeuge/#partner" data-href-de="werkzeuge/#partner" data-href-en="werkzeuge/en/#partner" data-i18n="anbieterKnopf">Partner werden</a></p>
+  </section>
 </main>
+<!-- Gesprächsmodus auf dem Handy (goch-gespraech.js): Papier über der Seite, kleiner Goch, wenn er eine Stelle zeigt -->
+<div class="goch-papier" aria-hidden="true"></div>
+<button class="goch-mini" id="goch-mini" type="button" aria-label="Zurück zu Goch" data-i18n-aria="gochMini" hidden><img data-src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"></button>
 
 <footer>
   <details id="privacy">
@@ -743,6 +891,8 @@
       <p data-i18n="privacyCal">Nach Freigabe verarbeitet Cal.com, Inc. IP-Adresse und Browserdaten, bei einer Buchung zusätzlich Kontakt- und Termindaten. Sicherheitscookies wie __cf_bm schützen vor Missbrauch. Cal.com verarbeitet Buchungsdaten im Auftrag und auch in den USA; laut Anbieter gelten dafür Standardvertragsklauseln oder ein Angemessenheitsmechanismus. Termine werden im verbundenen Google-Kalender verwaltet; bei Videoterminen kommt Google Meet hinzu.</p>
       <p><a href="https://cal.com/privacy" data-i18n="calPrivacy">Datenschutz bei Cal.com</a> · <a href="https://policies.google.com/privacy" data-i18n="googlePrivacy">Datenschutz bei Google</a></p>
       <p data-i18n="privacyGoch">Gespräch mit Goch: Das Gespräch mit dem Rotkehlchen ist freiwillig und beginnt erst nach Zustimmung (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO); die Auswahl wird wie beim Kalender für 180 Tage lokal im Browser gespeichert und ist im Gespräch jederzeit widerrufbar. Eingegebene Texte und die IP-Adresse werden an einen Cloudflare Worker (Cloudflare, Inc.) übertragen und von dort an das Sprachmodell Claude von Anthropic, PBC (USA) weitergegeben, das die Antwort erzeugt; Anthropic verwendet API-Eingaben laut seinen Bedingungen nicht zum Training. Der Worker speichert keine Gespräche, nur einen Tageszähler ohne Personenbezug sowie Fragen, die Goch nicht beantworten konnte – ohne Bezug zur fragenden Person, für 30 Tage, damit Robin das Profil ergänzen kann. Eine Nachricht an Robin wird erst nach ausdrücklicher Bestätigung mit Name und E-Mail-Adresse über den Versanddienst Resend (Resend, Inc., USA) per E-Mail zugestellt – zusammen mit dem Gesprächsverlauf dieser Sitzung, damit Robin den Zusammenhang kennt – und wie Kontaktdaten behandelt. Feedback zu den Werkzeugen geht nach ausdrücklicher Bestätigung genauso per E-Mail an Robin, aber ohne Gesprächsverlauf und ohne Name und Adresse, sofern Sie sie nicht selbst nennen. Bietet Goch die Anmeldung zum Newsletter an, geht die Adresse aus dem Feld darunter direkt an die Anmeldung (siehe Newsletter), nicht an das Sprachmodell. Antworten des Sprachmodells sind automatisch erzeugt und keine verbindliche Auskunft.</p>
+      <p id="privacy-goch-stimme" data-goch-stimme-text hidden><span data-i18n="privacyGochStimme">Sprechen mit Goch: Spracheingabe und Stimme sind freiwillig und beginnen erst, wenn Sie im Gespräch „Mit Goch sprechen“ oder „Goch spricht laut“ einschalten und dafür eigens einwilligen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Die Einwilligung gilt nur für diesen Besuch, wird nicht im Browser gespeichert und lässt sich im Gespräch jederzeit beenden. Solange „Mit Goch sprechen“ eingeschaltet ist, ist das Mikrofon offen. Ob Sie sprechen, erkennt Ihr Browser selbst an der Lautstärke; erst wenn Sie kurz innehalten, geht der gesprochene Abschnitt (höchstens 20 Sekunden) weiter, Stille und Geräusche dazwischen nicht. Während Goch antwortet, hört er nicht zu. Nach einer Minute ohne Sprache, mit „Pause“, beim Schließen des Gesprächs, beim Verlassen der Seite und mit „Sprechen beenden“ wird das Mikrofon geschlossen; beim Wechsel in einen anderen Tab bleibt es an. Jeder Abschnitt geht mit Ihrer IP-Adresse an einen Cloudflare Worker und wird dort mit Workers AI (Cloudflare, Inc., auch in den USA) in Text umgewandelt; weder Abschnitt noch Text werden gespeichert, gezählt wird nur die Gesamtdauer je Tag. Der erkannte Text erscheint im Gespräch und wird wie getippter Text verarbeitet. Gochs Antworten spricht eine künstlich erzeugte Stimme von ElevenLabs (Eleven Labs, Inc., USA); dafür erhält ElevenLabs als Auftragsverarbeiter nur Gochs Antworttext, nie Ihre Eingaben. Steht diese Stimme nicht zur Verfügung, antwortet Goch nur als Text. Bei der ersten gesprochenen Antwort sagt Goch, dass er eine KI mit künstlich erzeugter Stimme ist; ein Hinweis im Gespräch zeigt das dauerhaft an.</span> <a href="https://elevenlabs.io/privacy-policy" data-i18n="elevenlabsPrivacy">Datenschutz bei ElevenLabs</a></p>
+      <p id="privacy-goch-blick" data-goch-stimme-text hidden><span data-i18n="privacyGochBlick">Blickkontakt mit Goch: freiwillig; beginnt erst, wenn Sie im Gespräch „Blickkontakt“ einschalten und eigens einwilligen (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Das Kamerabild wird ausschließlich in Ihrem Browser ausgewertet, mit MediaPipe von Google (Apache-2.0), das robin.vision selbst ausliefert; dessen Nutzungsmeldung an Google ist abgeschaltet, Verbindungen zu fremden Servern sind technisch gesperrt. Ausgewertet wird nur, ob ein Gesicht im Bild ist, wo es ist und ob es zum Bildschirm schaut; danach bewegt sich Goch, und im Gesprächsmodus hört er nur zu, wenn Sie ihn ansehen. Es gibt keine Mimik- oder Gefühlserkennung und keine Wiedererkennung; weder Bilder noch Messwerte verlassen Ihr Gerät, nichts wird gespeichert. Kommt jemand an den Bildschirm, zwitschert Goch und begrüßt ihn; dafür fragt die Seite bei Gochs Server einen festen Begrüßungssatz an – wie bei einer Frage, ohne Kamerabild oder Messwerte. Solange die Kamera an ist, ist der Schalter „Blickkontakt“ gedrückt, und Ihr Browser zeigt seine Kamera-Anzeige. Sie geht aus mit „Blickkontakt“, beim Schließen des Gesprächs, beim Verlassen der Seite und mit „Sprechen beenden“; beim Wechsel in einen anderen Tab bleibt sie an.</span></p>
       <p data-i18n="privacyContact">Kontaktformular: Name, E-Mail-Adresse, freiwillig Telefonnummer und der Nachrichtentext werden beim Absenden über einen Cloudflare Worker (Cloudflare, Inc.) und den Versanddienst Resend (Resend, Inc., USA) per E-Mail an mich zugestellt und ausschließlich zur Beantwortung verwendet (Art. 6 Abs. 1 lit. b und f DSGVO). Es werden keine Cookies gesetzt und keine Eingaben auf dem Server gespeichert; ein Tageszähler ohne Personenbezug begrenzt Missbrauch.</p>
       <p data-i18n="privacyYoutube">Eingebettete Videos von YouTube (Google Ireland Ltd.) werden erst geladen, wenn Sie auf den Platzhalter klicken (§ 25 Abs. 1 TDDDG, Art. 6 Abs. 1 lit. a DSGVO). Dabei verarbeitet Google Ihre IP-Adresse und Browserdaten, auch in den USA; es wird die Variante ohne Cookies zur Wiedergabeverfolgung („youtube-nocookie“) verwendet. Ohne Klick wird keine Verbindung zu YouTube aufgebaut.</p>
       <p data-i18n="privacyNewsletter">Newsletter: Er bringt die Impulse und Neues zu den Werkzeugen und Workshops (neue Fassungen, Beta-Zugänge, Termine). Bei der Anmeldung geht die E-Mail-Adresse über einen Cloudflare Worker (Cloudflare, Inc.) an den Versanddienst Brevo (Sendinblue SAS, Paris, Frankreich). Brevo schickt eine Bestätigungsmail; erst nach dem Klick auf den Link ist die Adresse angemeldet (Double-Opt-In). Gespeichert werden die Adresse, die Sprache sowie Zeitpunkt und IP-Adresse von Anmeldung und Bestätigung, damit die Einwilligung nachweisbar ist. Grundlage ist die Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie lässt sich jederzeit über den Abmeldelink in jeder Ausgabe oder per E-Mail widerrufen; danach wird die Adresse gelöscht oder, soweit sie zum Nachweis nötig ist, gesperrt. Öffnungen und Klicks werden nicht personenbezogen ausgewertet. Brevo verarbeitet die Daten in meinem Auftrag. Die Ausgaben mit den Impulsen erstellt Brevo aus dem Blog-Feed mit dem Dienst Integry (USA), den Brevo als Unterauftragsverarbeiter einsetzt. Eine Verarbeitung in den USA ist dabei möglich; laut Brevo gelten dafür Standardvertragsklauseln.</p>
@@ -776,9 +926,15 @@
     zeigen();
   })();
 </script>
-<script src="language.js?v=20261019a" defer></script>
+<script src="language.js?v=20261023" defer></script>
 <script src="site.js?v=20261016b" defer></script>
-<script src="goch.js?v=20261016c" defer></script>
+<script src="goch.js?v=20261023" defer></script>
+<script src="goch-audio.js?v=20261023" defer></script>
+<script src="goch-leben.js?v=20261024" defer></script>
+<script src="goch-stimme.js?v=20261023" defer></script>
+<script src="goch-zwitschern.js?v=20261023" defer></script>
+<script src="goch-gespraech.js?v=20261023" defer></script>
+<script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
 </body>

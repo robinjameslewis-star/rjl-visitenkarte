@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="">
+<title>Goch – Messegerät</title>
+<!-- Kiosk-Modus für das Messegerät (Robin, 23.10.2026): läuft nur unter localhost, ausgeliefert vom lokalen Dienst
+     (kiosk/dienst/goch_kiosk.py), der /kiosk/* an den Worker weiterreicht. Hochformat 1080 × 1920 oder 2160 × 3840.
+     Dieselben Bausteine wie die Startseite: language.js (Texte), goch-audio.js (Aufnahme, Stimme), figur.js (Figurenpaket). -->
+<link rel="preload" href="assets/fonts/eb-garamond-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face { font-family: "EB Garamond"; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); font-weight: 400 500; font-display: swap; }
+  :root {
+    --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --line: #D6D9D6; --paper: #F3EFE5; --surface: #FBF9F4;
+    --serif: "EB Garamond", Georgia, serif; --sans: "Helvetica Neue", Arial, sans-serif;
+  }
+  [hidden] { display: none !important; } /* sonst überdeckt ein verborgenes Element mit display: grid den Bildschirm und schluckt Berührungen */
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { background: var(--paper) url("assets/papier.jpg"); color: var(--ink); font-family: var(--sans); user-select: none; -webkit-user-select: none; touch-action: none; }
+  body.kiosk-geraet { cursor: none; }
+  .language-nav, #name-link { display: none !important; } /* nur für language.js */
+  /* Papier auch im festen Rahmen: multiply braucht im selben Stapelkontext einen Hintergrund, sonst bleibt das Weiß der Bilder */
+  main { position: fixed; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 2vh; padding: 4vh 6vw 3vh; box-sizing: border-box; background: var(--paper) url("assets/papier.jpg"); }
+  header { display: flex; align-items: flex-start; gap: 1.6vh; }
+  .name { margin: 0 auto 0 0; font: 400 4.6vh/1.1 var(--serif); color: var(--green); letter-spacing: .02em; }
+  .name small { display: block; margin-top: .6vh; font: 2vh/1.3 var(--sans); color: var(--ink-soft); letter-spacing: 0; }
+  .kopf-rechts { display: flex; flex-direction: column; align-items: flex-end; gap: 1vh; }
+  .marke { font: 400 2.2vh/1 var(--serif); color: var(--green); }
+  .marke .punkt { color: var(--copper); }
+  .pille { font: 1.7vh/1.2 var(--sans); color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: .5vh 1.3vh; background: color-mix(in srgb, var(--paper) 80%, transparent); }
+  .offline { color: var(--copper); border-color: var(--copper); }
+  .sprachen { display: flex; gap: 1vh; }
+  .sprachen button { font: 1.8vh/1 var(--sans); padding: .9vh 1.4vh; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--ink-soft); }
+  .sprachen button[aria-current="true"] { border-color: var(--copper); color: var(--ink); }
+  /* Feld für die Figur: so hoch wie die freie Zeile; die Figur passt hinein, ohne ihr Seitenverhältnis zu verlieren
+     (sonst rutscht im Querformat der Ast, dessen Lage in Prozent der Höhe steht). Breite setzt kiosk.js. */
+  .feld { container-type: size; min-height: 0; display: grid; place-items: center; }
+  #scene { position: relative; width: 82vw; }
+  .figur-kippen { position: absolute; inset: 0; transform-origin: 47% 42%; }
+  .figur-bild { position: absolute; display: block; max-width: none; height: auto; mix-blend-mode: multiply; pointer-events: none; transition: opacity 60ms linear; }
+  .figur-logo .figur-kippen, .figur-logo { position: relative; }
+  .figur-ebene { position: absolute; display: block; max-width: none; height: auto; pointer-events: none; } /* z. B. Gochs Ast (figur.json, ebenen) */
+  .figur-vorne { z-index: 2; }
+  .figur-logo .figur-bild { position: static; width: 100%; transition: transform 70ms linear; }
+  .figur[data-leben] .figur-bild { visibility: hidden; } /* Körper, Kopf und Schwanz übernehmen (goch-leben.js) */
+  .noten { position: absolute; left: 15%; top: 0; font: 400 5vh/1 var(--serif); color: var(--copper); pointer-events: none; }
+  .noten span { display: inline-block; opacity: 0; }
+  .noten span + span { margin-left: .25em; }
+  .zwitschert .noten span { animation: note 2.4s ease-out forwards; }
+  .zwitschert .noten span + span { animation-delay: .35s; }
+  @keyframes note { 0% { opacity: 0; transform: translate(0, 1vh); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-2vh, -4vh) rotate(-12deg); } }
+  .figur.zwitschert .figur-kippen { transform-origin: 44% 85%; animation: zucken .3s ease-in-out 2; } /* über der Fußlinie, Füße bleiben auf dem Ast */
+  @keyframes zucken { 50% { transform: skewX(3deg) scaleY(1.012); } }
+  @media (prefers-reduced-motion: no-preference) {
+    .figur-posen .figur-kippen { transition: transform 90ms ease-out; }
+    .figur[data-mund="halb"] .figur-kippen { transform: rotate(-1.4deg); }
+    .figur[data-mund="offen"] .figur-kippen { transform: rotate(-2.6deg) translateY(-.4%); }
+    /* Bewegung zur Stimme und kurze Blicke in Pausen (goch-audio.js, bewegung): um die Füße gedreht – sie bleibt auf dem Ast */
+    .figur[data-bewegt] .figur-kippen { transform-origin: 44% 85%; transform: skewX(calc(var(--goch-neigung, 0deg) * -1)) scaleY(var(--goch-streck, 1)); transition: transform 160ms ease-out; }
+    .figur[data-bewegt][data-lauscht="1"] .figur-kippen { transform-origin: 44% 85%; transform: skewX(-2.5deg) scaleY(1.01); }
+    .figur[data-lauscht="1"] .figur-kippen { transform: rotate(3deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .zwitschert .noten span { animation: none; opacity: 1; } .figur.zwitschert .figur-kippen { animation: none; } }
+  .untertitel { min-height: 22vh; max-height: 40vh; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 1.4vh; }
+  .besucher { margin: 0; font: 2.4vh/1.35 var(--sans); color: var(--ink-soft); }
+  .besucher::before { content: "„"; } .besucher::after { content: "“"; }
+  :lang(en) .besucher::before { content: "“"; } :lang(en) .besucher::after { content: "”"; }
+  .antwort { margin: 0; font: 400 3.5vh/1.3 var(--serif); color: var(--ink); }
+  .antwort.lang { font-size: 2.9vh; } .antwort.sehr-lang { font-size: 2.4vh; } /* lange Antworten passen ganz auf den Bildschirm */
+  .leiste { display: grid; gap: 1.2vh; }
+  .anleitung { margin: 0; font: 2.3vh/1.35 var(--sans); color: var(--ink); }
+  .pegel { height: .8vh; border-radius: .4vh; background: var(--line); overflow: hidden; }
+  .pegel span { display: block; width: 0; height: 100%; background: var(--copper); transition: width 60ms linear; }
+  .pegel[hidden] { display: none; }
+  .beispiele { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 1vh; }
+  .beispiele li, .beispiele button { font: 2vh/1.3 var(--sans); color: var(--ink-soft); border: 1px solid var(--copper); border-radius: 999px; padding: .8vh 1.6vh; background: transparent; }
+  .beispiele button { color: var(--ink); }
+  .karte { position: fixed; inset: auto 6vw 14vh; padding: 3.2vh 3.6vh; border: 1px solid var(--line); border-left: 3px solid var(--copper); border-radius: 6px; background: var(--surface); box-shadow: 0 1vh 3vh rgba(0,0,0,.08); }
+  .karte h2 { margin: 0 0 1.2vh; font: 400 3.4vh/1.2 var(--serif); color: var(--green); }
+  .karte p { margin: 0 0 1.6vh; font: 2.2vh/1.45 var(--sans); }
+  .karte button { font: 2.4vh/1 var(--sans); padding: 1.8vh 3vh; border: 1px solid var(--green); border-radius: 4px; background: var(--green); color: var(--paper); }
+  .nur-geraet { position: fixed; inset: 0; display: grid; place-items: center; font: 2.4vh/1.4 var(--sans); color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<nav class="language-nav" hidden><a data-language="de" href="?lang=de"></a><a data-language="en" href="?lang=en"></a></nav>
+<a id="name-link" href="./" hidden></a>
+<main id="kiosk" hidden>
+  <header>
+    <h1 class="name"><span id="k-name">Goch</span><small id="k-rolle"></small></h1>
+    <div class="kopf-rechts">
+      <div class="sprachen" id="k-sprachen" hidden><button type="button" data-lang="de">Deutsch</button><button type="button" data-lang="en">English</button></div>
+      <span class="pille" id="k-ki">KI · künstliche Stimme</span>
+      <span class="pille offline" id="k-offline" hidden>offline</span>
+    </div>
+  </header>
+  <div class="feld"><div id="scene" role="img" aria-label=""></div></div>
+  <section class="untertitel" id="k-untertitel" aria-live="polite"></section>
+  <div class="leiste">
+    <p class="anleitung" id="k-anleitung"></p>
+    <div class="pegel" id="k-pegel" hidden><span></span></div>
+    <ul class="beispiele" id="k-beispiele"></ul>
+    <p class="marke">robin<span class="punkt">.</span>vision</p>
+  </div>
+  <div class="karte" id="k-hinweis" hidden role="dialog" aria-labelledby="k-hinweis-titel">
+    <h2 id="k-hinweis-titel"></h2>
+    <p id="k-hinweis-text"></p>
+    <p id="k-hinweis-weiter"></p>
+    <button type="button" id="k-start"></button>
+  </div>
+</main>
+<p class="nur-geraet" id="k-nur-geraet" hidden></p>
+<script src="language.js?v=20261023" defer></script>
+<script src="goch-audio.js?v=20261023" defer></script>
+<script src="goch-leben.js?v=20261024" defer></script>
+<script src="figur.js?v=20261024" defer></script>
+<script src="kiosk.js?v=20261023" defer></script>
+</body>
+</html>

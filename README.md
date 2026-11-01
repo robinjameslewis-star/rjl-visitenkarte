@@ -20,7 +20,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `site.js` – Einwilligung (Speichern, Widerruf, Ablauf) und Cal.com-Einbettung in der gewählten Sprache
 - `assets/fonts/eb-garamond-latin.woff2` – EB Garamond lokal (variable Schrift, Latin), Lizenz `OFL.txt` daneben
 - `bird-flight.js` – Flugbahn, Bildwechsel und Landung, ohne Animationsbibliothek
-- `assets/flugpose-*.webp` – vier verlustfreie Flugposen
+- `figuren/goch/` – Figurenpaket von Goch (seit 23.10.2026): `figur.json`, `bilder/` (Sitzpose und vier Flugposen, `bilder/bestand/` ohne Landschaft), `RECHTE.md`; Anleitung für weitere Figuren in `FIGUREN.md`, Prüfung mit `tools/figur-pruefen.mjs`
 - `tests/bird-flight.test.cjs` – Verhaltenstests für die Animation; `tests/im-browser.html` führt sie ohne Node im Browser aus
 - `tests/consent_test.py` – Prüfung der Einwilligung in einem frischen Headless-Chrome
 - `goch.js` – Goch: Sprechblase am Ast (Einwilligung, Gespräch, Nachricht an Robin)
@@ -32,7 +32,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter, Sätze aus `assets/landschaften/` (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tools/landschaft-schablone.py` – Schablone für Bildagenten; `tests/landscape.test.cjs`, `tests/site_test.mjs`
 - `tests/bundle_check.mjs` – prüft vor dem Deploy das gebündelte Worker-Paket (eingebetteter Renderer läuft ohne Bündler-Helfer, Seitenskript der Redaktion)
 - `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
-- `assets/vogel.webp` – Vogel-Ebene (Sitzpose, WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante)
+- `figuren/goch/bilder/vogel.webp` – Vogel-Ebene (Sitzpose; `bilder/bestand/vogel.webp` WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante); bis 22.10.2026 unter `assets/`
 - `assets/ast.webp` – Ast-Ebene (verlustfreies WebP mit Transparenz, 48 KB), liegt vor dem Vogel
 - `assets/papier.jpg` – nahtlose Papierkachel
 - `assets/favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`
@@ -68,7 +68,7 @@ Anflug nach 3,9 s → Landung; die Sitzpose war vorher nie sichtbar.
 Bei `prefers-reduced-motion` bleibt die Sitzpose statisch; Flugbilder werden beim
 initialen Laden dieser Einstellung nicht angefordert. Inhalte bleiben sofort benutzbar.
 
-Die vier Dateien `assets/flugpose-1-aufschlag.webp` bis `assets/flugpose-4-landeanflug.webp`
+Die vier Dateien `flugpose-1-aufschlag.webp` bis `flugpose-4-landeanflug.webp` (seit 23.10.2026 in `figuren/goch/bilder/`)
 sind Website-Kopien der Entwürfe aus `Second Brain/90_Meta/Design/Entwuerfe/` (13_Flugpose_*.png).
 Die vier Dateien sind WebP mit Qualität 86 (visuell verlustfrei), zusammen rund 430 KB; die verlustfreien Originale liegen als PNG im Vault.
 Die Darstellung nutzt `mix-blend-mode: multiply`, damit Weiß mit dem Papier verschmilzt;
@@ -598,13 +598,11 @@ Termine 2027 auf Anfrage, Link); Kanalbeschreibung „Impulse, SmartFormular und
 
 **Workshops.** Der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem
 Teil (Abzeichen unter der Überschrift, eigener Kasten „Teil dieses Workshops“), als eigene Seite `workshops/` (englisch
-`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt: drei Teile (Workshop mit Robin –
-Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Browser-Werkzeug bauen –, Online-Lehrgang im Memberbereich,
-Test mit Zertifikat), für wen, sieben Kapitel, zwei Formate mit Preisen (Vorschlag aus dem Konzept im Vault, netto; Lehrgang ohne
-Workshop erst nach FernUSG-Zulassung), Ablauf in sieben Schritten, Nachweis und Zertifikat (prüfbar unter
-member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der robin.vision UG als „in Gründung, Januar
-2027“, neun Fragen als FAQPage, Terminbuchung über Cal.com (Robins Ereignistypen, `CAL` in workshops.js; das Einbettungsskript lädt
-erst nach Klick, mit Hinweis auf Cal.com, Inc.), ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
+`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt (Stand 24.10.2026): drei Teile (Workshop mit Robin –
+Hemmschwellen nehmen, Anwendungsfälle entwickeln –, Online-Lehrgang im Memberbereich, Test mit Zertifikat), für wen, sieben
+Kapitel, Kasten „Wer den Workshop leitet“, zwei Formate (online, vor Ort; Preise auf Anfrage), Ablauf in sieben Schritten,
+Nachweis und Zertifikat (prüfbar unter member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der
+robin.vision UG als „in Gründung, Januar 2027“, sieben Fragen als FAQPage, ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
 zu einer Nachricht, Bot-Falle `website`, Ladezeitpunkt `t`), strukturierte Daten als `Course` mit zwei Durchführungen. Menüpunkt
 „Workshops“ im Seitenkopf (`worker/src/kopf.js`) vor „Über mich“, Abschnitt auf der Startseite zwischen SmartFormular und Über mich,
 Einträge in `sitemap.xml` (`worker/src/sitemap.js`, SEITEN) und in Gochs Linkliste (`worker/links.md`, Kennung `workshops`); Abschnitt „Werkzeuge im Workshop“ mit
@@ -641,6 +639,274 @@ stehen“ und die Spalte „Ihr Produkt“ tragen keins. „Anzeige“ verweist 
 deren Vorstellung es vergütet wird. Gestaltung dezent (Robin, 18.10.2026: „noch zu groß“): normale Schreibung, nicht fett, ohne
 Sperrung, Unterstreichung nur beim Darüberfahren, Grau #767676 auf Papier (lesbar bleiben – sonst verfehlt es den Zweck).
 Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
+
+**Ausnahme für eigene kostenlose Werkzeuge (Robin, 23.10.2026):** FiBu lite und E-Rechnung lite tragen statt „Anzeige · robin.vision“
+einfach „Kostenlos“ (englisch „Free“, ohne Verweis) – über dem Titel ihrer Seiten, auf ihren Karten im Startseiten-Slider und im Kopf
+ihrer Spalte im Vergleich (`kostenlos` in `worker/src/partner.js`, Kennung `frei: true` in `slider.js` und `uebersicht.js`). Anlass: In der
+Laien-Textprüfung wirkte „Anzeige“ an einem kostenlosen Werkzeug wie Werbung oder ein Bezahlangebot. Partner, die Beta-Produkte FiBu und
+Deklaration und die Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), behalten „Anzeige“.
+Die Zeile unter dem Titel der Werkzeugseiten nennt nur noch Fassung und Datum („Kostenlos“ steht schon darüber).
+
+## Werkzeug: SmartFormular E-Rechnung lite (23.10.2026)
+
+Zweites kostenloses SmartFormular-Werkzeug (Robin, 23.10.2026, Option A „verstehen und bezahlen“): E-Rechnungen als XRechnung
+(UBL, CII) und ZUGFeRD/Factur-X lesen, drucken, mit den offiziellen Regeln prüfen und per GiroCode bezahlen. Seiten
+`werkzeuge/e-rechnung-pruefen/` (deutsch) und `werkzeuge/e-invoice-viewer/` (englisch, „E-invoice viewer and validator“). Anders als
+FiBu lite läuft es **direkt auf der Seite** (`app: "erechnung"` in `WERKZEUGE`) und zusätzlich als **eine Datei offline**
+(`E-Rechnung-lite.html`, `E-Invoice-Viewer.html`). Quelle: `tools/erechnung/` in diesem Repository.
+
+- **Datenschutz:** Rechnungen werden nur im Browser gelesen. Die Seite lädt Oberfläche und – erst beim ersten Prüfen – Prüfkern und
+  Regeln von robin.vision (`assets/erechnung/`), sonst nichts; eine CSP im Seitenkopf erlaubt Skripte und Verbindungen nur von
+  robin.vision (`goch.robin.vision` für die Newsletter-Anmeldung). Die Datei hat `connect-src 'none'` und enthält Regeln und Beispiele.
+- **Prüfregeln:** die Schematron-Regeln der KoSIT-Validator-Konfiguration (EN 16931 von CEN, XRechnung von KoSIT), als JSON
+  (`assets/erechnung/regeln/`) aus den kompilierten XSLT übertragen (`tools/erechnung/regeln-bauen.mjs`, Quellen mit SHA-256 in
+  `quellen.json`). Ausgewertet von einem eigenen Schematron-Interpreter (`src/pruefung.js`) auf fontoxpath (MIT) mit Anpassungen für
+  exakte Dezimalrechnung und Saxon-gleiches Verhalten (`fxpatch.mjs`, jede Ersetzung muss genau einmal greifen). Nicht geprüft:
+  XML-Schema (XSD).
+- **Texte:** Antwort „Ist das eine E-Rechnung?“ mit Fundstellen und Stand in `src/recht.js` (`STAND`); Erklärung je Regel in
+  `src/regeltexte.js` (was nicht stimmt, was der Rechnungssteller ändern muss); Oberfläche in `src/texte.js`. Keine Steuer- oder
+  Rechtsberatung, keine Worte wie „rechtssicher“. **Bei neuen BMF-Schreiben oder Gesetzesänderungen** `recht.js` anpassen und `STAND`
+  setzen, Starttexte und Fragen der Seiten (`werkzeug.js`, Redaktion) mitziehen.
+- **Bauen:** `cd tools/erechnung && npm ci && node regeln-bauen.mjs && node bauen.mjs` (Fassung = letzter Commit in
+  `tools/erechnung`; mit ungesicherten Änderungen nur `--entwurf`). Danach
+  `node tools/werkzeug-uebernehmen.mjs tools/erechnung/.cache/dist/E-Rechnung-lite.html tools/erechnung/.cache/dist/E-Invoice-Viewer.html`
+  und „Was ist neu“ in Sätze bringen. Bilder zum Teilen (auch FiBu lite): `node tools/erechnung/teilen-bilder.mjs`.
+- **Abgleich mit der offiziellen Prüfung:** `node tools/erechnung/testdaten-holen.mjs`, `node tests/erechnung_korpus.mjs`,
+  `tools/erechnung/.cache/venv/bin/python tests/erechnung_referenz.py 8` (saxonche, `pip install saxonche`), dann
+  `node tests/erechnung_regeln_test.mjs`: dieselben Regelnummern im Browser wie mit Saxon, jede Abweichung ist ein Fehler.
+- **Kundenreisen, Datenschutz, axe, Tastatur:** `node tests/erechnung_reisen_test.mjs` (Chrome über playwright-core; Fotos, Druck-PDF
+  und Berichte in `tools/erechnung/.cache/reisen/`); nach dem Deploy mit `--basis https://robin.vision`.
+- **Regel-Lexikon** (Robin, 23.10.2026): je Prüfregel mit eigener Erklärung (`eigeneErklaerung` in `src/regeltexte.js`, derzeit 290)
+  eine Seite unter `werkzeuge/e-rechnung-pruefen/regeln/<id>/` und `werkzeuge/e-invoice-viewer/rules/<id>/`, je eine Übersicht und
+  `sitemap-regeln.xml` (in `robots.txt`). Im Werkzeug führt jeder solche Befund über „Mehr zu dieser Regel“ dorthin. Nach Änderungen an
+  Regeln oder Erklärtexten: `node tools/erechnung/lexikon.mjs`; Prüfung: `node tests/erechnung_lexikon_test.mjs`.
+- **Lizenzen:** EUPL 1.2 (Regeln CEN), Apache 2.0 (KoSIT), MIT (fontoxpath, xspattern, whynot, prsc, Nayuki QR); Texte in
+  `tools/erechnung/lizenzen/` und ausgeliefert als `assets/erechnung/LIZENZEN.txt` sowie im Fuß der Datei.
+- **Nach dem Zusammenführen:** Worker neu ausrollen (`cd worker && npm run deploy`), damit die Redaktion die neuen Seiten kennt
+  (`werkzeugEr`, `werkzeugErEn`) und Sitemap und Newsletter-Feeds beim nächsten Neubau die neuen Werkzeuge behalten.
+
+## Figuren-Struktur (23.10.2026)
+
+Goch ist der Prototyp einer austauschbaren Figur (Auftrag „Sprechender Goch“, Teil A). Alles Figurenspezifische liegt in
+`figuren/goch/`: `figur.json` (Name, Rolle, Sprachen, Verweise auf die Texte in `language.js`, Wissen, Posen mit
+Augenpunkt, Signalton, Stimme, Farben, Kiosk), `bilder/` und `RECHTE.md` (Herkunft, Werkzeug, Lizenz je Datei).
+Weitere Maskottchen oder Logos für Kundenvorführungen kommen als Paket dazu, ohne Codeänderung – Anleitung mit
+Bildvorgaben, Pflichtposen, Prompt-Vorlage, Stimme, Signalton und Rechte-Eintrag in `FIGUREN.md`.
+
+- **Sichtbar ändert sich nichts.** Die Vogelbilder sind von `assets/` und `assets/bestand/` nach `figuren/goch/bilder/` und
+  `figuren/goch/bilder/bestand/` umgezogen; der Ast gehört zur Szene und bleibt in `assets/`. `landscape.js` und
+  `applyLandscape` (Redaktion) schalten jetzt je Ordner nur `bestand/` um und erkennen alte und neue Pfade.
+  `tools/landschaft-bilder.py` liest und schreibt die Vogelbilder im Paket. Die Szene in `index.html` bleibt festes
+  Markup (kein zusätzlicher Abruf vor dem ersten Bild); `figur.json` beschreibt sie, `figur-pruefen --html` hält beides
+  deckungsgleich.
+- **Reihenfolge beim Deploy:** erst den Worker deployen (`cd worker && npx wrangler deploy`), dann den PR mergen. Ein alter
+  Worker fände die neuen Bildpfade nicht und würde beim Umschalten der Landschaft den Vogel nicht mittauschen.
+- **Gochs Wissen** bleibt in `worker/profile.md`, `aktuell.md` und `links.md` (dorthin schreibt die Redaktion);
+  `figur.json` verweist darauf.
+- **Kundenfiguren** kommen nie ins Repository: `.gitignore` sperrt `figuren/*` außer `goch/`, und `figur-pruefen`
+  meldet eine versionierte Kundenfigur als Fehler.
+
+Prüfen:
+
+```sh
+node tools/figur-pruefen.mjs figuren/goch --html index.html
+node tests/figur_pruefen_test.mjs
+node tests/site_test.mjs
+# Bildvergleich vorher/nachher (Desktop 1440 und Handy 390, Tag und Nacht, mit und ohne Landschaft, jede Pose einzeln):
+python3 -m http.server 8791 --bind 127.0.0.1   # im alten Stand
+python3 -m http.server 8792 --bind 127.0.0.1   # im neuen Stand
+python3 tests/figur_bildvergleich.py http://127.0.0.1:8791 http://127.0.0.1:8792 /tmp/figur-vergleich
+```
+
+Ergebnis am 23.10.2026 gegen `main` (b49edec): 16 von 16 Ansichten identisch oder höchstens eine Farbstufe abweichend
+(Rauschen der Papierkachel, das Chrome auch bei zwei Aufnahmen derselben Seite zeigt).
+
+## Sprechender Goch (23.10.2026, Entwurf – noch nicht veröffentlicht)
+
+Auftrag Robin, 23.10.2026: Goch spricht auf der Startseite, aber erst, wenn ein Besucher das bewusst einschaltet; ein
+sichtbares Zwitschern macht dezent darauf aufmerksam; dazu ein Kiosk-Modus für ein Messegerät. Keine Kamera, keine
+Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker, Startseite, Kiosk).
+
+### Worker: Spracheingabe, Stimme, Figur-ID
+
+- **`POST /listen?lang=de|en`** (`worker/src/hoeren.js`): ein WAV (PCM 16 Bit, mono, höchstens 20 s). Die Seite wandelt jede
+  Aufnahme selbst in WAV um – so kommt jedes Browserformat gleich an, und die Dauer steht exakt im Kopf. Erkennung mit
+  Whisper large-v3-turbo über Workers AI (Bindung `AI`), Begriffe wie robin.vision und SmartFormular als Kontext; was
+  Whisper bei Stille erfindet („Untertitel im Auftrag …“), gilt als leer. Nichts wird gespeichert, gezählt werden nur
+  Sekunden je Tag. Der erkannte Text erscheint als Besuchertext und läuft über `/chat` – Draht, Newsletter, Links und
+  Grenzen bleiben unverändert.
+- **Stimme** (`worker/src/stimme.js`): `/chat` mit `stimme` antwortet als NDJSON – Zeile 1 die Antwort wie immer (die Seite
+  zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Vertont wird nur diese eigene Antwort;
+  eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
+  sonst aus `figur.json`), Modell Eleven v4, Regler und fester Startwert (`seed`) aus `figur.json` – jeder Besucher hört
+  dieselbe Stimme. Ohne Stimme (`aus`, `fehler`, `grenze`) antwortet Goch nur als Text; eine Gerätestimme gibt es nur
+  für Figuren mit `stimme.rueckfall: "browser"`. Für Goch schaltet die Seite dann Stimme, Mikrofon und Kamera ab und
+  schreibt in den Chat nur „Sprechen geht gerade nicht – ein Gespräch ist im Moment nur hier im Chat möglich.“ Den Grund
+  (etwa die Meldung von ElevenLabs) sieht kein Besucher; er steht nur im Protokoll des Workers.
+- **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
+  Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
+- **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus
+  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ in den
+  Systemprompt (kurze Sätze, keine Aufzählungen, Zahlen wie gesprochen). Antwortzeiten von Modell und Stimme werden je
+  Monat gezählt und in der Redaktion gezeigt.
+- **Kostenbremsen:** vertonte Zeichen je Monat (`MAX_STIMME_ZEICHEN_MONAT`, 30.000) und Audiominuten je Tag
+  (`MAX_HOEREN_MINUTEN_TAG`, 20), eigene Zähler im KV (`stimme:monat:…`, `hoeren:tag:…`, je ein Schreibzugriff). Ist
+  eine Grenze erreicht, antwortet Goch nur als Text bzw. bietet Tippen an – ohne Fehlermeldung; Robin bekommt einmal im
+  Monat eine E-Mail.
+- **Figur-ID:** `/chat` nimmt `figur`; öffentlich gilt nur `goch` (`worker/src/figuren.js`), alles andere ergibt 400 –
+  auch eine Kundenfigur, die im KV liegt.
+- **Redaktion:** Abschnitt „Goch – Stimme und Spracheingabe“ (Schalter, Modell im Sprachmodus, Stimmmodell, Voice ID,
+  Grenzen, Zähler, Antwortzeiten, „Stimme anhören“: Probesatz mit der eingetragenen Voice ID, vor dem Speichern,
+  zählt zur Monatsgrenze) und „Figuren für Vorführungen“ (Kundenfiguren: Name, Rolle, Begrüßung, Einstiegsfragen,
+  Persönlichkeit, Wissen, Quellen, Voice ID, Tagesgrenze – nur im KV, nie GitHub). Beides ist ab Werk aus.
+
+Deploy (Robin, lokal): `cd worker && npx wrangler secret put ELEVENLABS_API_KEY`, dann `npx wrangler deploy`; danach in
+der Redaktion Voice ID eintragen und einschalten. Prüfen: `node tests/goch_stimme_test.mjs` (Workers AI, ElevenLabs,
+Anthropic und Resend abgefangen), `node tests/bundle_check.mjs`, `python3 tests/admin_test.py` gegen `node tests/admin_fake.mjs 8789`.
+Vorführung ohne Worker: `python3 tests/goch_fake_worker.py 8787 --stimme mac` (macOS-Stimme serverseitig, für alle gleich;
+nur Platzhalter) oder `--stimme elevenlabs` mit `ELEVENLABS_API_KEY` und `GOCH_VOICE_ID` als Umgebungsvariablen.
+
+### Startseite: Sprachmodus und Zwitschern
+
+Alles ist aus, bis `data-goch-stimme="an"` am `<body>` steht (zum Testen lokal `?stimme=an`). Robin setzt das Attribut,
+wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redaktion eingeschaltet sind.
+
+- **Schalter** (`goch-stimme.js`): im geöffneten Gespräch „Mit Goch sprechen“ und „Goch spricht laut“. Beim ersten
+  Einschalten fragt eine eigene Einwilligung (getrennt von der des Gesprächs); sie gilt nur für diesen Besuch, liegt nur im
+  Speicher der Seite und endet mit „Sprechen beenden“. Ohne Einschalten: kein `getUserMedia`, kein Ton, kein AudioContext,
+  keine Anfrage an `/listen` oder die Stimme (geprüft).
+- **Sprechen – Gespräch ohne Knopf** (Robin, 23.10.2026): Ist „Mit Goch sprechen“ an, hört Goch zu. Der Browser erkennt
+  selbst an der Lautstärke, wann jemand spricht und wann er nach einer kurzen Pause (0,9 s) fertig ist (`goch-audio.js`,
+  `erkenner` und `zuhoeren`; Grundrauschen = leisester Block der letzten 1,5 s, kurze Geräusche unter 0,25 s werden
+  verworfen). Erst dann geht der gesprochene Abschnitt mit kurzem Vor- und Nachlauf als WAV (16 kHz mono, höchstens 20 s)
+  an `/listen`; der erkannte Text erscheint als Besuchertext und läuft über `/chat` (`gesprochen: true`). Während Goch
+  versteht, denkt oder spricht, hört er nicht zu; danach wieder. Der Knopf heißt je nach Lage „Pause“, „Fertig“ (sendet
+  sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, mit „Pause“, beim
+  Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
+  `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
+- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
+  das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
+  dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
+  `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Dazu neigt er sich mit betonten Silben
+  leicht nach vorn, wechselt an Satzpausen die Kopfhaltung und schaut in Gesprächspausen ab und zu kurz zur Seite
+  (`goch-audio.js`, `bewegung`: CSS-Variablen `--goch-neigung`, `--goch-hub`, gedreht um die Füße). Lauschen: leichte
+  Neigung (`data-lauscht`, `.bird-tilt`), bis Robins Pose da ist. Ohne Stimme vom Server antwortet Goch nur als Text, ohne
+  Hinweis – keine Gerätestimme, damit alle dieselbe Stimme hören. Ab der ersten gesprochenen Antwort steht „KI · künstliche Stimme“ im Gespräch.
+- **iOS/Safari:** AudioContext und Sprachausgabe werden in der Berührung des Schalters bzw. Knopfs freigeschaltet.
+- **Zwitscher-Ton:** `figuren/goch/toene/zwitschern.ogg` und `.mp3` (selbst erzeugt, Stil „frage“: `tools/figur-zwitschern.py --erzeugen frage`),
+  eingeschaltet mit `data-goch-signalton="figuren/goch/toene/zwitschern"` am `<body>`; am Messegerät aus `figur.json`.
+- **Zwitschern** (`goch-zwitschern.js`): sichtbar kleine Noten und ein Schnabelzucken, 1,5 s nach der Landung, danach
+  höchstens alle 60 s, insgesamt dreimal je Seitenaufruf; vorbei, sobald Goch offen ist. Bei reduzierter Bewegung nur die
+  Noten. Hörbar nur nach einer Handlung: leise beim Öffnen des Gesprächs und als Bestätigung beim Einschalten der Stimme;
+  „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Im offenen Gespräch zu
+  Beginn und in Pausen ab und zu (nach 30–70 s Ruhe, höchstens viermal je Gespräch), nie während Goch denkt, spricht oder
+  zuhört und nie während getippt wird; hörbar nur mit „Goch spricht laut“. Solange es keine
+  Tondatei gibt (`data-goch-signalton` leer), zwitschert Goch nur sichtbar. Datei: `figuren/goch/toene/zwitschern.ogg`
+  und `.mp3`, dann `data-goch-signalton="figuren/goch/toene/zwitschern"`.
+- **Handy:** Mit Sprachschaltern oder deren Einwilligung darf das Blatt 80 % der Höhe nutzen, damit Verlauf und Knöpfe
+  sichtbar bleiben.
+- **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
+  Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
+  das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch
+  wird zur Leiste, die Seite scrollt zur Stelle und hebt sie kurz hervor; ein Tipp auf den kleinen Goch holt ihn zurück.
+- **Goch zeigt** (Worker: `zeigen`, feste Liste `ZIELE`): nur wenn die Seite `kannZeigen` meldet (Sprachfunktion an), sonst
+  bleibt alles wie vorher. In der Antwort steht ein Verweis („Werkzeuge ansehen“); auf großen Bildschirmen führt nur er hin.
+- **Blinzeln** (`vogel-blinzeln.webp`, abgeleitet mit `tools/figur-augen.py`): im offenen Gespräch alle paar Sekunden,
+  ab und zu doppelt, nie während Goch spricht oder jemand zu ihm spricht.
+- **Blickkontakt** (`goch-blick.js`, `goch-kamera.html`, `goch-kamera.js`, `goch-blickrechnung.js`): dritter Schalter mit
+  eigener Einwilligung. Die Kamera wird nur im eigenen Rahmen `goch-kamera.html` ausgewertet – Content-Security-Policy
+  `connect-src 'self'`, MediaPipe Face Landmarker aus `vendor/mediapipe/` (selbst ausgeliefert, Nutzungsmeldung an Google
+  abgeschaltet, siehe `vendor/mediapipe/HINWEIS.md` und `tools/mediapipe-uebernehmen.py`). An die Seite gehen nur Zahlen:
+  da, Lage, Größe, Kopfrichtung, schaut her – keine Bilder, keine Ausdruckswerte, keine Wiedererkennung. Goch bemerkt sein
+  Gegenüber (blinzelt doppelt, richtet sich auf), wendet sich ihm sichtbar zu, wird bei Blickkontakt aufmerksam und hört
+  im Gesprächsmodus nur zu, wenn er angesehen wird. Kontakt suchen (Robin, 23.10.2026): Kommt jemand an den Bildschirm
+  (neu oder nach 6 s Abwesenheit), zwitschert Goch und spricht ihn an; steht jemand weiter weg (Gesicht schmal), lockt er
+  erst mit Zwitschern (höchstens dreimal) und spricht beim Näherkommen oder Herschauen an; schaut jemand her und schweigt
+  15 s, fragt er nach (höchstens zweimal). Alles feste Sätze vom Worker (`anlass` „angekommen“, „zurueck“, „nachfrage“,
+  kein Modellaufruf, zählt zur Grenze je IP); gegrüßt höchstens alle 30 s, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
+  Vorschaubild (Robin, 23.10.2026: störte) – den Zustand zeigen der Schalter und die Kamera-Anzeige des Browsers; aus mit
+  „Blickkontakt“, beim Schließen und mit „Sprechen beenden“ – beim Tabwechsel bleiben Kamera und Mikrofon an (Robin, 23.10.2026). Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  **Eigener Schalter (24.10.2026):** Der Blickkontakt erscheint nur mit `data-goch-blick="an"` am `<body>` (lokal zum Testen
+  `?blick=an`), unabhängig von `data-goch-stimme`. Ohne ihn fehlen der Knopf und der Datenschutzabsatz zur Kamera – so kann
+  die Stimme live gehen, bevor der Blickkontakt auf iPhone und Mac erprobt ist.
+  Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
+  zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
+- **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
+  wenn die Funktion an ist. Die Einwilligung des Gesprächs (`rjl-goch-consent`) bleibt unverändert, weil ihr Text weiter
+  stimmt; die Sprach-Einwilligung wird nicht gespeichert, also gibt es keine Version hochzuzählen.
+- **Schnabelposen (23.10.2026):** `vogel-schnabel-halb.webp` und `vogel-schnabel-offen.webp` in beiden Fassungen, abgeleitet
+  aus der Sitzpose mit `tools/figur-schnabel.py` (Unterschnabel 7° bzw. 14° aufgeklappt, Rachen und Zunge ergänzt) –
+  Zwischenlösung, bis gezeichnete Posen da sind; Kehle und Kopf bewegen sich nicht mit. In der Szene als
+  `data-mundpose` mit `data-src-spaet`: geladen erst, wenn ein Besucher Stimme oder Spracheingabe einschaltet; die Landschaft
+  schaltet die Pfade mit. Gezeichnete Posen (Nano Banana oder ChatGPT, Prompt in `FIGUREN.md`) ersetzen die Dateien gleichen
+  Namens – ohne Codeänderung; nach `tools/landschaft-bilder.py` auch `tools/figur-schnabel.py` neu laufen lassen, solange die
+  abgeleiteten Posen gelten. Die Lauschpose fehlt noch (Platzhalter: leichtes Neigen).
+- **Stimme warm, weich, männlich (Robin, 23.10.2026):** ElevenLabs ab Werk mit Multilingual v2 und den Einstellungen aus
+  `figur.json` (`stability` 0,5, `similarity_boost` 0,8, `style` 0,15, `speed` 0,95); Prompt für Voice Design in `FIGUREN.md`.
+  Rückfall im Browser: bevorzugt Markus, Yannick, Viktor, Martin (Premium vor einfach), sonst Reed oder Eddy; Englisch
+  Daniel; etwas tiefer und ruhiger (`stimme.browser`).
+- **Vorführung am Mac mit echter Spracherkennung:** Die Attrappe erkennt auf Wunsch lokal mit faster-whisper
+  (`python3 tests/goch_fake_worker.py 8787 --whisper <Modellordner>`, Modell „base“ rund 145 MB, `pip install faster-whisper
+  numpy`); nichts verlässt den Rechner. Die Antworten bleiben die festen Texte der Attrappe. Mikrofon nur in Chrome oder
+  Safari, nicht im Browser-Bereich der Claude-App.
+- **Höhe der Sprechblase:** Mit Sprachschaltern wird die Blase so hoch wie ihr Inhalt plus Platz für den Verlauf
+  (`goch.js`, `mindesthoehe`); vorher ragte die Fußzeile bei eingeschalteter Landschaft über die Seite.
+- **Goch lebt (24.10.2026, `goch-leben.js`):** Körper, Kopf und Schwanz sind eigene Teile aus der Sitzpose
+  (`tools/figur-teile.py`, `figur.json` → `animation.teile`); zusammengesetzt ergeben sie genau die Sitzpose. Sitzt Goch,
+  übernehmen sie: kurze, ruckartige Kopfbewegungen mit Pausen, Knicksen mit gehobenem Schwanz, Schwanzzucken,
+  Blinzeln, kaum sichtbares Atmen – um die Fußlinie, die Füße bleiben auf dem Ast. Mit der Stimme nickt der Kopf,
+  beim Zuhören senkt er sich leicht; Schnabel und Blinzeln wechseln nur den Kopf (statt ganzer Posen). Daten: rund
+  90 KB beim ersten Laden, die Schnabelköpfe (je 18 KB) erst mit der Stimme; nur `transform` und `opacity`. Ohne
+  Skript, bei reduzierter Bewegung und im Flug bleibt alles wie vorher. Das Messegerät nutzt dieselben Teile
+  (`figur.js`). Test: `python3 tests/goch_leben_test.py http://localhost:8788/`.
+- **Seitenwissen (24.10.2026, `worker/src/seitenwissen.js`):** Goch kennt alle Inhalte der Website, wie sie gerade live
+  sind. Der Worker liest die Sitemap von `SITE_URL`, holt jede deutsche Seite (englische Doppel und das Regel-Lexikon nicht),
+  zieht den sichtbaren Text aus `<main>` (ohne Verborgenes, Navigation, Skripte; gleiche Absätze nur einmal; höchstens
+  40 Seiten, 8.000 Zeichen je Seite, 70.000 insgesamt) und speichert ihn im KV (`content:seiten`). Neu eingelesen wird im
+  Hintergrund, wenn der Stand älter als sechs Stunden ist (höchstens ein Versuch je zehn Minuten), oder in der Redaktion
+  unter „Goch – Profil“ mit „Jetzt neu einlesen“ – nie während einer Antwort. Der Text steht im Systemprompt nach „Woran
+  Robin gerade arbeitet“; jede Seite ist zugleich ein Link (`seite-…`), sofern `links.md` die Adresse nicht schon führt.
+  Am 24.10.2026: 12 Seiten, rund 6.700 Wörter. Test: `node tests/goch_seitenwissen_test.mjs`.
+- **Clips mit Goch (24.10.2026, `tools/goch-clip.py`):** aus einem Drehbuch (JSON: Sätze, Aussprache, Karten,
+  Kopfhaltung) ein MP4 in 4:5 – jeder Satz einzeln vertont über die Attrappe (`POST /_vertonen`, Stimme aus
+  `GOCH_VOICE_ID`, Schlüssel bleibt in der Attrappe), zwischengespeichert; Goch Bild für Bild synchron zum Ton auf
+  `tools/goch-clip/clip.html`, Untertitel und Karten, Zwitschern am Anfang und Ende. Kein Teil der Website.
+  Layout „vortrag“ (16:9, 24.10.2026) für Workshops: `tools/goch-vortrag.py` schreibt aus Skript (Markdown) und Folien
+  (HTML mit `data-bloecke` je Folie) ein Drehbuch je Kapitel – Folie zum Absatz, Aussprache von Paragrafen und
+  Gesetzesnamen; erster Einsatz: Unterweisung KI-Kompetenz, Kanzlei-Fassung (Vault). Port für Chrome mit
+  `GOCH_CLIP_PORT`.
+
+### Messegerät (Kiosk)
+
+Einrichtung, Betrieb und Datenschutz am Gerät stehen in `kiosk/README.md`; Hinweisschild in `kiosk/hinweisschild.md`.
+
+- **Seite** `kiosk.html` + `kiosk.js`: derselbe Code wie die Website – `language.js` (Texte), `goch-audio.js` (Aufnahme als WAV,
+  Stimme, Pegel; seit 23.10.2026 auch von `goch-stimme.js` genutzt) und `figur.js` (lädt ein Figurenpaket: Posen am Auge
+  ausgerichtet oder ein Logo, das mit der Stimme pulsiert). Hochformat 1080 × 1920 und 2160 × 3840, große Figur, Gespräch als
+  Untertitel. Bedienung: Touch und ein USB-Taster (F13). Erster Druck zeigt den Hinweis, der zweite ist die Einwilligung;
+  nach 60 s ohne Aktivität ist alles zurückgesetzt. Nichts wird im Browser gespeichert. Läuft nur unter localhost.
+- **Lokaler Dienst** `kiosk/dienst/goch_kiosk.py` (Python, Standardbibliothek): liefert nur die Dateien des Kiosks aus
+  einem festen Commit aus, reicht `/kiosk/*` mit dem Gerätenachweis an den Worker weiter (der Nachweis liegt nur dort),
+  puffert ohne Netz bestätigte Nachrichten an Robin, meldet Radar (HLK-LD2410, `radar_ld2410.py`) und Netz als Ereignisse,
+  schickt Lebenszeichen. systemd mit Watchdog, Wächter für Chromium, Chromium-Richtlinien in `kiosk/chromium/`.
+- **Worker** `worker/src/kiosk.js`: `/kiosk/chat`, `/kiosk/listen`, `/kiosk/figur`, `/kiosk/lebenszeichen` mit
+  Geräteanmeldung (Nachweis aus der Redaktion, im KV nur als SHA-256; wahlweise Client-Zertifikat, `KIOSK_MTLS`).
+  Gerätebudget im Durable Object `Geraetebudget` statt der IP-Grenzen der Website. Kundenfiguren nur hier und nur für
+  freigegebene Geräte: eigener Systemprompt aus Persönlichkeit und Wissen der Redaktion, ohne Draht, Links und Newsletter,
+  Stimme mit ihrer eigenen `voiceId`. Goch am Gerät antwortet kürzer, ohne Links und ohne Newsletter-Feld.
+- **Redaktion:** Abschnitt „Messegeräte“ (Gerät anlegen, Nachweis einmal anzeigen oder erneuern, freigegebene Figuren,
+  Tagesbudget, Fingerabdruck des Zertifikats, Lebenszeichen und Verbrauch heute).
+- **Offline:** vorbereitete Antworten mit Stimme erzeugt `kiosk/dienst/offline_antworten.py` auf dem Gerät; sie bleiben dort.
+
+Deploy: Der nächste `npx wrangler deploy` legt das Durable Object an (Migration `v1-geraetebudget` in `wrangler.toml`).
+Prüfen: `node tests/kiosk_worker_test.mjs`, `python3 tests/kiosk_dienst_test.py`, `python3 tests/kiosk_test.py` (startet
+Dienst und Attrappe selbst; Bildschirmfotos im Hochformat).
+
+Prüfen: `python3 tests/goch_stimme_test.py http://localhost:8788/ http://localhost:8787` (Seite und
+`tests/goch_fake_worker.py` wie beim Goch-Test; Chromes Testmikrofon, 14 Gruppen: vor jeder Handlung, Öffnen, Einwilligung,
+Stimme, Grenze, Mikrofon, 20 s, Spracheingabe aus/Grenze, Beenden, reduzierte Bewegung, Englisch, ohne Schalter, Handy,
+Konsole). `tests/goch_test.py` und der Bildvergleich (`tests/figur_bildvergleich.py`) belegen, dass ohne Schalter alles
+bleibt wie vorher.
 
 ## Sicherheit der Auslieferung (Stand 16.10.2026)
 

@@ -1,0 +1,83 @@
+{
+  "format": 1,
+  "id": "goch",
+  "name": { "de": "Goch", "en": "Goch" },
+  "rolle": { "de": "das Rotkehlchen von Robin", "en": "Robin's robin" },
+  "sprachen": ["de", "en"],
+  "oeffentlich": true,
+  "texte": {
+    "quelle": "language.js",
+    "schluessel": {
+      "name": "gochName",
+      "rolle": "gochRole",
+      "begruessung": "gochGreeting",
+      "einstiegsfragen": ["gochQ1", "gochQ2", "gochQ3", "gochQ4"]
+    }
+  },
+  "wissen": {
+    "quelle": "repository",
+    "profil": "worker/profile.md",
+    "aktuell": "worker/aktuell.md",
+    "links": "worker/links.md"
+  },
+  "animation": {
+    "art": "posen",
+    "buehne": { "breite": 1153, "hoehe": 710 },
+    "auge": [400, 100],
+    "blick": "links",
+    "fassungen": {
+      "mit-landschaft": "bilder/",
+      "ohne-landschaft": "bilder/bestand/"
+    },
+    "posen": {
+      "sitzend": { "datei": "vogel.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "aufschlag": { "datei": "flugpose-1-aufschlag.webp", "breite": 1536, "hoehe": 1024, "auge": [570, 390] },
+      "gleiten": { "datei": "flugpose-2-gleiten.webp", "breite": 1536, "hoehe": 1024, "auge": [578, 375] },
+      "abschlag": { "datei": "flugpose-3-abschlag.webp", "breite": 1536, "hoehe": 1024, "auge": [595, 318] },
+      "landeanflug": { "datei": "flugpose-4-landeanflug.webp", "breite": 1536, "hoehe": 1024, "auge": [591, 378] },
+      "schnabel-halb": { "datei": "vogel-schnabel-halb.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "schnabel-offen": { "datei": "vogel-schnabel-offen.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "blinzelnd": { "datei": "vogel-blinzeln.webp", "breite": 1153, "hoehe": 637, "auge": [400, 100] },
+      "lauschend": { "datei": null, "platzhalter": "neigen" },
+      "zwitschernd": { "datei": null, "platzhalter": "neigen" }
+    },
+    "ebenen": [
+      { "name": "ast", "datei": "ast.webp", "breite": 1153, "hoehe": 167, "links": 0, "oben": 543, "vorne": true,
+        "fassungen": ["ohne-landschaft"], "css": ".branch" }
+    ],
+    "teile": {
+      "quelle": "sitzend", "ordner": "bilder/teile/", "koerper": "koerper.webp",
+      "kopf": { "schnitt": [[250, 195], [300, 190], [380, 205], [460, 200], [540, 175], [620, 150], [700, 130]],
+        "rampe": 24, "rand": 18, "drehpunkt": [455, 185], "winkel": 6,
+        "posen": { "sitzend": "kopf.webp", "schnabel-halb": "kopf-schnabel-halb.webp",
+          "schnabel-offen": "kopf-schnabel-offen.webp", "blinzelnd": "kopf-blinzelnd.webp" } },
+      "schwanz": { "schnitt": [[790, 428], [742, 494]], "rampe": 16, "rand": 10, "drehpunkt": [766, 461], "winkel": 8,
+        "datei": "schwanz.webp" }
+    }
+  },
+  "signalton": {
+    "datei": "zwitschern.ogg",
+    "rueckfall": "zwitschern.mp3",
+    "lautstaerke": 0.35
+  },
+  "stimme": {
+    "anbieter": "elevenlabs",
+    "voiceId": "2QhwfRSog8ArO9AfgYMU",
+    "modell": "eleven_v4",
+    "charakter": "nachdenklich, im Gesprächston (Piet, ElevenLabs Voice Library)",
+    "einstellungen": { "stability": 0.5, "similarity_boost": 0.8, "style": 0.15, "use_speaker_boost": true, "speed": 0.95 },
+    "seed": 4711,
+    "rueckfall": "keine"
+  },
+  "farben": {
+    "akzent": "#0B3D2E",
+    "linie": "#B8724F",
+    "papier": "#F3EFE5"
+  },
+  "kiosk": {
+    "groesse": 0.82,
+    "hintergrund": "papier",
+    "untertitel": true,
+    "zwitschern": { "an": true, "abklingzeit_s": 30, "entfernung_m": [1, 3] }
+  }
+}

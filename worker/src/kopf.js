@@ -2,10 +2,11 @@
 // bleibt): Wortmarke robin.vision, drei Seiten (Werkzeuge, Impulse, Über mich), Termin als Knopf, auf schmalen Bildschirmen ein
 // Menü (details/summary, ohne Skript) mit denselben Seiten, Nachricht und der anderen Sprache. Seit 17.10.2026 heißen die Seiten SmartFormular, Impulse, Workshops (mit Unterweisung nach EU AI Act), Über mich (Robin); seit 18.10.2026 „Werkzeuge“ statt „SmartFormular“ (robin.vision stellt Werkzeuge vor, SmartFormular ist eines davon). Genutzt von werkzeug.js (rahmen)
 // und blog.js (shell); die Startseite trägt denselben Aufbau von Hand (index.html: Sprachwahl statt Wortmarke, Texte je Sprache
-// über language.js), tests/kopf_test.mjs hält beides zusammen.
+// über language.js), tests/kopf_test.mjs hält beides zusammen. Seit Welle 2 der Textprüfung heißt der Werkzeugkasten
+// „Robins Werkzeugkasten“, englisch „Robin's Tech Stack“ (Robin, 23.10.2026).
 const T = {
-  de: { tools: "Werkzeugkasten", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
-  en: { tools: "Toolbox", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
+  de: { tools: "Robins Werkzeugkasten", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
+  en: { tools: "Robin's Tech Stack", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
 };
 // Ziele je Sprache, relativ zur Wurzel der Website
 export const ZIELE = {

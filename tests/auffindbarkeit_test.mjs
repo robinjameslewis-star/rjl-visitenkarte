@@ -23,9 +23,10 @@ check(/application\/rss\+xml/.test(html), "Feeds im Kopf angekündigt");
 
 console.log("Startseite: Aufbau");
 const pos = id => html.indexOf(`id="${id}"`);
-check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("ueber-mich") && pos("ueber-mich") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("kontakt") && pos("kontakt") < pos("nachricht"),
-  "Reihenfolge: Werkzeuge, Über mich, Impulse, Newsletter, Termin, Nachricht");
-check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für den Alltag in Rechnungswesen, Verwaltung und anderen Geschäftsprozessen\. Workshops für Teams/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
+// Option B (Robin, 23.10.2026): Workshops direkt nach den Werkzeugen, Hinweis für Anbieter ganz unten
+check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("workshops") && pos("workshops") < pos("grundsaetze-de") && pos("grundsaetze-de") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("ueber-mich") && pos("ueber-mich") < pos("kontakt") && pos("kontakt") < pos("nachricht") && pos("nachricht") < pos("anbieter"),
+  "Reihenfolge: Werkzeugkasten, Workshops, Grundsätze, Impulse, Newsletter, Über mich, Termin, Nachricht, Hinweis für Anbieter");
+check(/<p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen/.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");
@@ -54,6 +55,8 @@ const posts = readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md")).map(n
 const published = posts.filter(p => p.status === "published" && p.date), drafts = posts.filter(p => p.status !== "published");
 check(published.every(p => sitemap.includes(`<loc>https://robin.vision/blog/${p.slug}/</loc>`)), `sitemap.xml nennt alle ${published.length} veröffentlichten Impulse`);
 check(drafts.every(p => !sitemap.includes(`/blog/${p.slug}/`)), `sitemap.xml ohne Entwürfe (${drafts.length})`);
+const llms = lesen("llms.txt");
+check(/^# robin\.vision\n\n> /.test(llms) && WERKZEUGE.every(w => llms.includes(`(https://robin.vision/werkzeuge/${w.id}/)`)) && llms.includes("(https://robin.vision/sitemap.xml)") && !/googlemail|0151|Höchststr/.test(llms), "llms.txt für KI-Assistenten: Überblick, jedes Werkzeug verlinkt, keine privaten Daten");
 check(WERKZEUGE.every(w => sitemap.includes(`<loc>https://robin.vision/werkzeuge/${w.id}/</loc>`)) && sitemap.includes("<loc>https://robin.vision/werkzeuge/en/</loc>"), "sitemap.xml nennt Werkzeuge und Übersichten");
 check(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap) && (sitemap.match(/<url>/g) || []).length === (sitemap.match(/<\/url>/g) || []).length, "sitemap.xml wohlgeformt mit lastmod");
 check(/Sitemap: https:\/\/robin\.vision\/sitemap\.xml/.test(lesen("robots.txt")), "robots.txt verweist auf die Sitemap");
@@ -72,7 +75,12 @@ for (const w of WERKZEUGE) {
   check(d && d["@type"] === "SoftwareApplication" && d.name === w.titel && d.offers.price === "0" && /^[0-9a-f]{7}$/.test(d.softwareVersion), `${w.id}: SoftwareApplication mit Fassung und Preis 0`);
   const alle = [...seite.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
   check(alle.some(x => x && x["@type"] === "FAQPage" && x.mainEntity.length >= 5), `${w.id}: FAQPage mit Fragen und Antworten`);
-  check(/<title>[^<]*DATEV[^<]*<\/title>/.test(seite) && /<meta name="description" content="[^"]*(Kontoausz|bank statement)[^"]*DATEV/.test(seite), `${w.id}: Titel und Beschreibung tragen die Suchbegriffe`);
+  const such = w.app === "erechnung"
+    ? (w.lang === "en" ? [/<title>[^<]*E-invoice viewer and validator[^<]*XRechnung[^<]*ZUGFeRD/, /<meta name="description" content="[^"]*E-invoice viewer[^"]*XRechnung[^"]*ZUGFeRD/]
+      : [/<title>[^<]*E-Rechnung prüfen[^<]*XRechnung öffnen und anzeigen[^<]*ZUGFeRD prüfen/, /<meta name="description" content="[^"]*E-Rechnung prüfen[^"]*XRechnung öffnen und anzeigen[^"]*ZUGFeRD prüfen/])
+    : [/<title>[^<]*DATEV[^<]*<\/title>/, /<meta name="description" content="[^"]*(Kontoausz|bank statement)[^"]*DATEV/];
+  check(such.every(r => r.test(seite)), `${w.id}: Titel und Beschreibung tragen die Suchbegriffe`);
+  check(/<meta property="og:image" content="https:\/\/robin\.vision\/assets\/teilen-[a-z-]+\.jpg">/.test(seite) && seite.includes('<meta property="og:image:width" content="1200">'), `${w.id}: Bild zum Teilen 1200 × 630`);
 }
 for (const [l, p] of Object.entries({ de: "werkzeuge/index.html", en: "werkzeuge/en/index.html" })) check(/<title>[^<]*(Rechnungswesen|accounting)[^<]*<\/title>/.test(lesen(p)), `${p}: Übersicht der Werkzeuge mit eigenem Suchtitel`);
 for (const [l, p] of Object.entries({ de: "werkzeuge/smartformular/index.html", en: "werkzeuge/smartformular/en/index.html" })) check(/<title>[^<]*(Buchhaltung|bookkeeping)[^<]*<\/title>/.test(lesen(p)), `${p}: Produktseite SmartFormular mit eigenem Suchtitel`);

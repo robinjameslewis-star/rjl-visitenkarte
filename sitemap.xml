@@ -2,20 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://robin.vision/</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-01</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robin.vision/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/en/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
   </url>
@@ -32,38 +32,50 @@
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
   </url>
   <url>
+    <loc>https://robin.vision/werkzeuge/e-rechnung-pruefen/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/e-invoice-viewer/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/e-invoice-viewer/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/e-invoice-viewer/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/"/>
+  </url>
+  <url>
     <loc>https://robin.vision/ueber-mich/</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/ueber-mich/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/about/"/>
   </url>
   <url>
     <loc>https://robin.vision/about/</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/ueber-mich/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/about/"/>
   </url>
   <url>
     <loc>https://robin.vision/workshops/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/workshops/en/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/smartformular/</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/smartformular/en/</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
   </url>

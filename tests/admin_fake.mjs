@@ -8,6 +8,8 @@ import { extname, join, normalize } from "node:path";
 import { PAGE, CONTENT } from "../worker/src/admin.js";
 import * as blog from "../worker/src/blog.js";
 import landscape from "../landscape.js";
+import { pruefeKundenfigur } from "../worker/src/figuren.js";
+import { TTS_MODELLE } from "../worker/src/stimme.js";
 
 const port = +(process.argv[2] || 8789);
 const settings = { enabled: true, title: { de: "Neuigkeiten", en: "News" }, intro: { de: "", en: "" } };
@@ -15,6 +17,14 @@ const posts = [{ slug: "erster-beitrag", title: "Erster Beitrag", date: "2026-09
   body: "Erster Absatz mit etwas Text.\n\nZweiter Absatz.\n\n## Eine Überschrift\n\nDritter Absatz." }];
 const images = [{ name: "beispiel.jpg", size: 1234 }];
 const saved = []; // was PUT blog/post erhielt
+// Goch: Betrieb und Sprache (Stimme, Spracheingabe) – Speichern merkt sich die Sprache; Kundenfiguren nur im Speicher, geprüft mit der echten Regel
+let sprache = { stimme: false, hoeren: false, modell: "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_v4", zeichenMonat: 30000, minutenTag: 20 };
+const figuren = [];
+const gochState = () => ({ settings: { enabled: true, provider: "anthropic", model: "claude-opus-5", cache: true, sprache,
+    custom: { baseUrl: "", model: "", key: "", keySet: false, keyHint: "", keySource: "" } }, providers: { anthropic: "Anthropic (Claude)" },
+    models: [{ id: "claude-opus-5", label: "Claude Opus 5" }, { id: "claude-haiku-5-5", label: "Claude Haiku 5.5" }], keys: { anthropic: true, workersAi: true }, status: null, pageOn: true,
+    sprache: { stimme: { zeichen: 1234, antworten: 4, msModell: 3200, msStimme: 1800, letzte: { at: "2026-10-23T08:00:00Z", zeichen: 310, msModell: 800, msStimme: 450 } },
+      hoeren: { sekunden: 95, anfragen: 7, ms: 4900 }, ttsModelle: TTS_MODELLE, keys: { elevenlabs: true, ai: true } } });
 // Landschaften: der echte Herbst-Satz aus dem Repository plus alles, was die Oberfläche anlegt (nur im Speicher; Bilder werden nicht abgelegt)
 const sets = [{ slug: "burgberg-herbst", ...landscape.normalizeSet(JSON.parse(await readFile(new URL("../assets/landschaften/burgberg-herbst/landschaft.json", import.meta.url), "utf8"))) }];
 let site = { landschaft: "aus", satz: "burgberg-herbst" };
@@ -73,9 +83,21 @@ http.createServer(async (req, res) => {
   if (api === "landschaften/ebene" && req.method === "DELETE") { const f = await readBody(req); const s = sets.find(x => x.slug === f.slug); if (!s || !s.ebenen[f.saison] || !s.ebenen[f.saison][f.ebene]) return json(res, { error: "Diese Ebene gibt es nicht." }, 400);
     delete s.ebenen[f.saison][f.ebene]; if (!Object.keys(s.ebenen[f.saison]).length) delete s.ebenen[f.saison]; return json(res, { slug: s.slug, commit: null }); }
   if (api === "passkeys") return json(res, { passkeys: [{ id: "k1", name: "MacBook", at: "2026-09-19T08:00:00Z" }] });
-  if (api === "goch") return json(res, { settings: { enabled: true, provider: "anthropic", model: "claude-opus-5", cache: true,
-    custom: { baseUrl: "", model: "", key: "", keySet: false, keyHint: "", keySource: "" } }, providers: { anthropic: "Anthropic (Claude)" },
-    models: [{ id: "claude-opus-5", label: "Claude Opus 5" }], keys: { anthropic: true, workersAi: false }, status: null, pageOn: true });
+  if (api === "goch" && req.method === "PUT") { const f = await readBody(req);
+    if (f.sprache) { if (f.sprache.stimme && !f.sprache.voiceId) return json(res, { error: "Für die Stimme bitte die Voice ID von ElevenLabs eintragen." }, 400); sprache = { ...sprache, ...f.sprache }; }
+    return json(res, { ...gochState(), note: "Gespeichert (Attrappe)." }); }
+  if (api === "goch") return json(res, gochState());
+  if (api === "goch/stimmprobe" && req.method === "POST") { const f = await readBody(req); // kurzer Sinuston als WAV statt ElevenLabs
+    if (!/^[A-Za-z0-9]{10,40}$/.test(f.voiceId || "")) return json(res, { error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
+    const n = 8000, b = Buffer.alloc(44 + n * 2); b.write("RIFF", 0); b.writeUInt32LE(36 + n * 2, 4); b.write("WAVEfmt ", 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22);
+    b.writeUInt32LE(16000, 24); b.writeUInt32LE(32000, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write("data", 36); b.writeUInt32LE(n * 2, 40);
+    for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(8000 * Math.sin(2 * Math.PI * 220 * i / 16000)), 44 + i * 2);
+    return json(res, { mime: "audio/wav", daten: b.toString("base64"), ms: 420, zeichen: String(f.text || "").length, modell: f.ttsModell }); }
+  if (api === "figuren" && req.method === "GET") return json(res, { figuren });
+  if (api === "figuren" && req.method === "PUT") { try { const f = pruefeKundenfigur(await readBody(req)); const i = figuren.findIndex(x => x.id === f.id);
+    const eintrag = { ...f, wissenWorte: f.wissen.split(/\s+/).filter(Boolean).length }; if (i >= 0) figuren[i] = eintrag; else figuren.push(eintrag); return json(res, { figuren }); }
+    catch (e) { return json(res, { error: e.message }, 400); } }
+  if (api === "figuren" && req.method === "DELETE") { const f = await readBody(req); const i = figuren.findIndex(x => x.id === f.id); if (i >= 0) figuren.splice(i, 1); return json(res, { figuren }); }
   if (api === "blog" && req.method === "GET") return json(res, blogState());
   if (api === "blog/images") return json(res, { images });
   if (api === "blog/post" && req.method === "GET") { const p = posts.find(p => p.slug === u.searchParams.get("slug")); return p ? json(res, { post: p, hasPrev: false, historyUrl: "" }) : json(res, { error: "Nicht gefunden." }, 404); }

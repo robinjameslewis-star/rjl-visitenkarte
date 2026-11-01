@@ -1,0 +1,22 @@
+# robin.vision
+
+> Website von Robin James Lewis (Balingen, Deutschland): Werkzeuge für Rechnungswesen und Jahresabschluss unter dem Namen SmartFormular (FiBu lite und E-Rechnung lite kostenlos), Robins Werkzeugkasten mit Vergleich von Software und KI-Lösungen, wöchentliche Impulse und Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Sprache: Deutsch, mit englischen Fassungen.
+
+Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochgeladen. Sie ersetzen keine Steuer- oder Rechtsberatung.
+
+## Werkzeuge
+
+- [SmartFormular E-Rechnung lite – E-Rechnung prüfen, XRechnung öffnen, ZUGFeRD prüfen](https://robin.vision/werkzeuge/e-rechnung-pruefen/): Kostenlos, im Browser, ohne Upload, auch als Datei offline. Sagt, ob eine Datei eine E-Rechnung ist (mit Fundstelle im Umsatzsteuergesetz und Umsatzsteuer-Anwendungserlass, Einordnung von Fehlern nach dem BMF-Schreiben vom 15.10.2026), zeigt XRechnung (UBL, CII) und ZUGFeRD/Factur-X lesbar und druckbar, prüft mit den offiziellen Regeln der EN 16931 (CEN) und der XRechnung (KoSIT), erklärt jede Fehlermeldung (zum Beispiel BR-DE-15, BR-CO-26) in einfachen Worten und erzeugt einen GiroCode zum Bezahlen. Mit denselben Regeldateien wie das Prüfprogramm der KoSIT, an 6.715 Testrechnungen abgeglichen: dieselben Regelnummern. Das XML-Schema prüft das Werkzeug nicht.
+- [Prüfregeln der E-Rechnung verständlich erklärt](https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/): Regel-Lexikon zu 290 Prüfregeln der XRechnung und der EN 16931 (zum Beispiel BR-DE-15, BR-CO-26, PEPPOL-EN16931-R010): was die Meldung bedeutet, was der Rechnungssteller ändern muss, betroffene Felder, Originaltext. Englisch: [E-invoice validation rules explained](https://robin.vision/werkzeuge/e-invoice-viewer/rules/).
+- [E-invoice viewer and validator (English)](https://robin.vision/werkzeuge/e-invoice-viewer/): Englische Fassung von SmartFormular E-Rechnung lite – read, check and pay German e-invoices (XRechnung, ZUGFeRD) in the browser, free, no upload.
+- [SmartFormular FiBu lite – Buchungsstapel-Generator](https://robin.vision/werkzeuge/buchungsstapel-generator/): Kostenlos, offline im Browser. Macht aus Kontoauszügen (PDF, Scan, CAMT, MT940, CSV) Buchungsstapel im DATEV-Format, nach dem Muster des Vormonats, mit Summenprüfung.
+- [Booking Batch Generator (English)](https://robin.vision/werkzeuge/booking-batch-generator/): Englische Fassung von FiBu lite.
+- [SmartFormular](https://robin.vision/werkzeuge/smartformular/): Überblick über die SmartFormular-Werkzeuge (FiBu lite, E-Rechnung lite, FiBu und Deklaration als Beta).
+- [Robins Werkzeugkasten](https://robin.vision/werkzeuge/): Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen.
+
+## Weitere Seiten
+
+- [Impulse](https://robin.vision/blog/): Wöchentliche Beiträge zu Rechnungswesen, Verwaltung und KI im Alltag.
+- [Workshops](https://robin.vision/workshops/): KI-Kompetenz für Teams mit Unterweisung nach EU AI Act.
+- [Über mich](https://robin.vision/ueber-mich/): Werdegang von Robin James Lewis.
+- [Sitemap](https://robin.vision/sitemap.xml)

@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://robin.vision/sitemap.xml
+Sitemap: https://robin.vision/sitemap-regeln.xml

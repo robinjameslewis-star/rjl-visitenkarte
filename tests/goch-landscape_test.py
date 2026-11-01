@@ -8,7 +8,7 @@ import websockets
 BASE=(sys.argv[1] if len(sys.argv)>1 else 'http://127.0.0.1:8788').rstrip('/')
 OUT=Path(sys.argv[2] if len(sys.argv)>2 else tempfile.mkdtemp(prefix='goch-repair-'));OUT.mkdir(parents=True,exist_ok=True)
 async def main():
- proc=subprocess.Popen(['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','--headless=new','--remote-debugging-port=9356','--user-data-dir='+tempfile.mkdtemp(prefix='goch-chrome-'),'--no-first-run','about:blank'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+ proc=subprocess.Popen(['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome','--headless=new','--mute-audio','--remote-debugging-port=9356','--user-data-dir='+tempfile.mkdtemp(prefix='goch-chrome-'),'--no-first-run','about:blank'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
  try:
   for _ in range(50):
    try: pages=json.load(urllib.request.urlopen('http://127.0.0.1:9356/json'));break

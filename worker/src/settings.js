@@ -2,11 +2,15 @@
 // ein zweiter Anbieter über eine OpenAI-kompatible Schnittstelle. Liegen im KV (settings:goch); die
 // Werte aus wrangler.toml sind der Ausgangspunkt. Der Schlüssel des zweiten Anbieters liegt ebenfalls im
 // KV (nur für den Worker lesbar) – alternativ als Geheimnis CUSTOM_API_KEY, das dann Vorrang hat.
+// Seit 23.10.2026 dazu „sprache“: Stimme (ElevenLabs) und Spracheingabe (Whisper) an/aus, ein eigenes, schnelleres
+// Modell für den Sprachmodus, voiceId und die Kostenbremsen (vertonte Zeichen je Monat, Audiominuten je Tag).
 
 export const ANTHROPIC_MODELS = [
   { id: "claude-opus-5-5", label: "Claude Opus 5.5 – stärkstes Opus, günstiger als Opus 5 (Standard)" },
   { id: "claude-opus-5", label: "Claude Opus 5 – Vorgänger" },
+  { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5 – schnell, deutlich günstiger" },
   { id: "claude-sonnet-5", label: "Claude Sonnet 5 – schnell, deutlich günstiger" },
+  { id: "claude-haiku-5-5", label: "Claude Haiku 5.5 – am schnellsten (Vorschlag für den Sprachmodus)" },
   { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5 – am günstigsten, knapper" },
 ];
 export const PROVIDERS = {
@@ -14,6 +18,8 @@ export const PROVIDERS = {
   openai: "Anderer Anbieter, OpenAI-kompatible Schnittstelle",
   "workers-ai": "Cloudflare Workers AI (kostenlos, Llama)",
 };
+
+export const TTS_MODELL_ID = /^eleven_[a-z0-9_]+$/;
 
 let memo = { at: 0, value: null }; // je Instanz eine Minute gemerkt, damit nicht jede Frage den KV liest
 
@@ -24,6 +30,9 @@ export function defaults(env) {
     model: env.MODEL || "claude-opus-5-5",
     cache: true,
     custom: { baseUrl: "", model: "", key: "" },
+    // Aus, bis Robin in der Redaktion einschaltet: ohne Schalter weder Spracheingabe noch Stimme vom Server.
+    sprache: { stimme: false, hoeren: false, modell: env.SPRACH_MODEL || "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_v4",
+      zeichenMonat: +(env.MAX_STIMME_ZEICHEN_MONAT || 30000), minutenTag: +(env.MAX_HOEREN_MINUTEN_TAG || 20) },
   };
 }
 
@@ -47,13 +56,25 @@ function merge(base, stored) {
     model: typeof stored.model === "string" && stored.model.trim() ? stored.model.trim() : base.model,
     cache: stored.cache !== false,
     custom: { baseUrl: str(custom.baseUrl), model: str(custom.model), key: str(custom.key) },
+    sprache: mergeSprache(base.sprache, stored.sprache),
   };
 }
 const str = v => typeof v === "string" ? v.trim() : "";
+const zahl = (v, fallback) => Number.isFinite(+v) && v !== "" && v !== null ? Math.round(+v) : fallback;
+function mergeSprache(base, stored) {
+  const s = stored && typeof stored === "object" ? stored : {};
+  return {
+    stimme: s.stimme === true, hoeren: s.hoeren === true,
+    modell: str(s.modell) || base.modell, voiceId: typeof s.voiceId === "string" ? s.voiceId.trim() : base.voiceId,
+    ttsModell: str(s.ttsModell) || base.ttsModell,
+    zeichenMonat: zahl(s.zeichenMonat, base.zeichenMonat), minutenTag: zahl(s.minutenTag, base.minutenTag),
+  };
+}
 
 // Prüfen und speichern. `previous` liefert den alten Schlüssel, wenn keiner mitgeschickt wird.
 export async function saveSettings(env, input, previous) {
-  const s = merge(defaults(env), { ...previous, ...input, custom: { ...previous.custom, ...(input.custom || {}) } });
+  const s = merge(defaults(env), { ...previous, ...input, custom: { ...previous.custom, ...(input.custom || {}) },
+    sprache: { ...previous.sprache, ...(input.sprache && typeof input.sprache === "object" ? input.sprache : {}) } });
   if (input.custom && input.custom.key === "") s.custom.key = previous.custom.key; // leer = unverändert
   if (s.provider === "anthropic") {
     if (!/^claude-[a-z0-9.-]+$/.test(s.model)) throw new Error("Modellname für Anthropic muss mit „claude-“ beginnen.");
@@ -65,6 +86,18 @@ export async function saveSettings(env, input, previous) {
     if (!s.custom.key && !env.CUSTOM_API_KEY) throw new Error("Für den anderen Anbieter fehlt der API-Schlüssel.");
   }
   if (s.provider === "workers-ai" && !env.AI) throw new Error("Workers AI ist in diesem Worker nicht eingebunden.");
+  // Sprache nur prüfen, wenn sie mitgeschickt wird: Speichern des Betriebs scheitert nicht an einem später entfernten Schlüssel.
+  const sp = s.sprache;
+  if (input.sprache) {
+    if (!/^claude-[a-z0-9.-]+$/.test(sp.modell)) throw new Error("Modell für den Sprachmodus muss mit „claude-“ beginnen.");
+    if (sp.voiceId && !/^[A-Za-z0-9]{10,40}$/.test(sp.voiceId)) throw new Error("Voice ID: nur Buchstaben und Ziffern, wie bei ElevenLabs angezeigt.");
+    if (!TTS_MODELL_ID.test(sp.ttsModell)) throw new Error("Stimmmodell von ElevenLabs beginnt mit „eleven_“.");
+    if (!(sp.zeichenMonat >= 0 && sp.zeichenMonat <= 2_000_000)) throw new Error("Vertonte Zeichen je Monat: 0 bis 2.000.000.");
+    if (!(sp.minutenTag >= 0 && sp.minutenTag <= 1440)) throw new Error("Audiominuten je Tag: 0 bis 1440.");
+    if (sp.stimme && !env.ELEVENLABS_API_KEY) throw new Error("Für die Stimme fehlt das Geheimnis ELEVENLABS_API_KEY im Worker.");
+    if (sp.stimme && !sp.voiceId) throw new Error("Für die Stimme bitte die Voice ID von ElevenLabs eintragen.");
+    if (sp.hoeren && !env.AI) throw new Error("Für die Spracheingabe fehlt Workers AI (Bindung AI) im Worker.");
+  }
   await env.USAGE.put("settings:goch", JSON.stringify(s));
   memo = { at: 0, value: null };
   return s;

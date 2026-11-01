@@ -128,6 +128,14 @@
   const nameLink = document.getElementById('name-link');
   const narrow = matchMedia('(max-width: 720px)');
   const panelHome = panel.parentNode;
+  // Mit Sprachschaltern (goch-stimme.js) braucht die Blase mehr Platz: so hoch wie ihr Inhalt plus Raum für den Verlauf,
+  // sonst schrumpft der Verlauf auf null und die Fußzeile ragt über die Seite (Robin, 23.10.2026).
+  function mindesthoehe() {
+    if (!panel.querySelector('#goch-sprache:not([hidden]), #goch-mikro:not([hidden])')) return 0;
+    const s = getComputedStyle(panel), abstand = parseFloat(s.rowGap) || 10;
+    const kinder = [...panel.children].filter(k => k !== log && !k.hidden && getComputedStyle(k).display !== 'none');
+    return kinder.reduce((h, k) => h + k.offsetHeight + abstand, parseFloat(s.paddingTop) + parseFloat(s.paddingBottom) + 2) + 150;
+  }
   function place() {
     // Das feste Handyfenster gehört auf die Seitenebene, nicht in die isolierte Landschaft.
     // Desktop: zurück an den Ast. Ereignisse und Gesprächszustand bleiben am selben DOM-Knoten.
@@ -144,10 +152,10 @@
       // Mit Landschaft steht der Name oben im Himmel: Die Blase hängt unter ihm, vor der fernen Landschaft.
       panel.style.bottom = 'auto';
       panel.style.top = (nameBox.bottom - base.top + 16) + 'px';
-      panel.style.maxHeight = Math.max(240, Math.min(520, base.bottom - nameBox.bottom + 120)) + 'px';
+      panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(520, base.bottom - nameBox.bottom + 120)) + 'px';
     } else {
       panel.style.bottom = (base.bottom - nameBox.top + 14) + 'px';
-      panel.style.maxHeight = Math.max(240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
+      panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
     }
   }
   function open() {
@@ -176,7 +184,25 @@
     form.hidden = true; starters.hidden = true;
     document.getElementById('goch-allow').focus();
   }
-  async function ask(text) {
+  // Sprechender Goch (23.10.2026): goch-stimme.js ergänzt die Anfrage nur, wenn der Besucher Spracheingabe oder Stimme
+  // eingeschaltet hat (gesprochen, stimme, figur); sonst bleibt sie wie vorher. Mit Stimme antwortet der Worker als NDJSON:
+  // die erste Zeile ist die gewohnte Antwort, den Rest (die Stimme) liest goch-stimme.js.
+  const zusatz = opts => (window.GochStimme && window.GochStimme.anfrage(opts)) || {};
+  async function ersteZeile(r) {
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (value) buf += dec.decode(value, { stream: true });
+      const i = buf.indexOf('\n');
+      if (i >= 0 || done) {
+        const first = JSON.parse(i >= 0 ? buf.slice(0, i) : buf);
+        if (window.GochStimme && !done) window.GochStimme.rest(reader, buf.slice(i + 1), dec, first); else if (!done) reader.cancel();
+        return first;
+      }
+    }
+  }
+  async function ask(text, opts = {}) {
     text = text.trim().slice(0, 600);
     if (!text || busy) return;
     if (!choice || !choice.allowed) { askConsent(text); return; }
@@ -189,11 +215,11 @@
     try {
       const r = await fetch(endpoint, {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ lang: language.current, messages: history.slice(-24) })
+        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), ...zusatz(opts) })
       });
       if (r.status === 503) { switchOff(); return; } // in der Redaktion ausgeschaltet: Vogel fliegt wieder statt zu sprechen
       if (!r.ok) throw new Error(String(r.status));
-      data = await r.json();
+      data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r) : await r.json();
       if (!data || typeof data.reply !== 'string') throw new Error('format');
     } catch (_) {
       thinking.remove();
@@ -201,6 +227,7 @@
       p.append(link('mailto:robin@robin.vision', 'robin@robin.vision'));
       history.pop();
       busy = false; setAvailability(); input.focus();
+      window.dispatchEvent(new CustomEvent('goch-fertig'));
       return;
     }
     thinking.classList.remove('goch-thinking');
@@ -219,12 +246,35 @@
         remembered += ' (Link: ' + l.label + ')';
       }
     }
+    // Sprachmodus (goch-gespraech.js): Verweis zur Stelle der Seite, die Goch zeigt; auf dem Handy führt die Seite hin
+    if (data.zeigen && window.GochZeigen) thinking.append(' ', window.GochZeigen.link(data.zeigen));
     history.push({ role: 'assistant', content: remembered });
+    window.dispatchEvent(new CustomEvent('goch-antwort', { detail: data }));
     const nl = data.action === 'newsletter' ? newsletterForm() : null;
     if (nl) log.append(nl);
     log.scrollTop = log.scrollHeight;
     busy = false; setAvailability();
     (nl ? nl.querySelector('input') : input).focus();
+    window.dispatchEvent(new CustomEvent('goch-fertig')); // goch-stimme.js: danach wieder zuhören
+  }
+
+  // Goch beginnt das Gespräch von sich aus (goch-blick.js: jemand kommt an den Bildschirm). Fester Satz vom Worker
+  // (anlass „angekommen“ oder „zurueck“), erscheint als Gochs Antwort und steht im Verlauf; mit Stimme wird er vorgelesen.
+  // Nur mit Einwilligung ins Gespräch und wenn gerade nichts läuft.
+  async function begruessen(anlass) {
+    if (busy || !choice || !choice.allowed || panel.hidden || form.hidden) return false;
+    busy = true; setAvailability();
+    let data = null;
+    try {
+      const r = await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), anlass, ...zusatz({}) }) });
+      if (r.ok) data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r) : await r.json();
+    } catch (_) { data = null; }
+    busy = false; setAvailability();
+    const ok = !!(data && typeof data.reply === 'string' && data.reply.trim());
+    if (ok) { bubble('goch', data.reply); history.push({ role: 'assistant', content: data.reply }); log.scrollTop = log.scrollHeight; }
+    window.dispatchEvent(new CustomEvent('goch-fertig'));
+    return ok;
   }
 
   // Goch ausgeschaltet (Worker antwortet 503, z. B. weil die Seite noch aus dem Cache kommt): Gespräch schließen,
@@ -261,6 +311,9 @@
     bubble('goch', t('gochWithdrawn'));
     input.focus();
   });
+  // Für goch-stimme.js: erkannten Text als Besuchertext senden, Endpunkt für /listen ableiten.
+  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen,
+    begonnen: () => history.some(m => m.role === 'user') };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });
   narrow.addEventListener('change', place);

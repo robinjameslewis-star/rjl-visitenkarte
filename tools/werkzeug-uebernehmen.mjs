@@ -20,6 +20,7 @@ import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformu
 import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 import { startSlider } from "../worker/src/slider.js";
 import { startGrundsaetze } from "../worker/src/grundsaetze.js";
+import { START_ERECHNUNG } from "./erechnung/starttexte.mjs";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
@@ -124,6 +125,8 @@ German law applies. These terms are a translation; in case of doubt, the German 
     hinweis: `Eine deutsche Fassung des Werkzeugs gibt es als [Buchungsstapel-Generator](https://robin.vision/werkzeuge/buchungsstapel-generator/): gleiche Funktionen, deutsche Oberfläche.`,
   },
 };
+
+Object.assign(START, START_ERECHNUNG);
 
 const lesen = id => existsSync(werkzeugPfad(id)) ? werkzeugFelder(readFileSync(werkzeugPfad(id), "utf8")) : null;
 

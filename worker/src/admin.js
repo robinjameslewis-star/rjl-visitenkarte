@@ -11,6 +11,11 @@ import * as pk from "./passkey.js";
 import * as blog from "./blog.js";
 import * as land from "./landscapes.js";
 import * as cfg from "./settings.js";
+import * as fig from "./figuren.js";
+import { stimmeMonat, TTS_MODELLE, vertonen, zeichenBuchen, PROBESATZ } from "./stimme.js";
+import { hoerenTag } from "./hoeren.js";
+import * as kiosk from "./kiosk.js";
+import * as seiten from "./seitenwissen.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
@@ -63,6 +68,8 @@ export async function handleAdmin(request, env, ctx, deps) {
   }
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
+  if (api === "figuren") return figurenApi(request, env);
+  if (api === "geraete" || api === "geraete/geheimnis") return geraeteApi(api, request, env);
   if (api === "site") return siteApi(request, env);
   if (api.startsWith("landschaften")) return landscapesApi(api, request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
@@ -308,6 +315,19 @@ export const CONTENT = {
     join: f => werkzeugSeite(f, "booking-batch-generator"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
+  // SmartFormular E-Rechnung lite (23.10.2026): Seite mit dem Werkzeug selbst, Texte wie bei FiBu lite
+  werkzeugEr: {
+    path: werkzeugPfad("e-rechnung-pruefen"), title: "Werkzeug „E-Rechnung lite“",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f, "e-rechnung-pruefen"),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
+  },
+  werkzeugErEn: {
+    path: werkzeugPfad("e-invoice-viewer"), title: "Werkzeug „E-Rechnung lite“ (englisch)",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f, "e-invoice-viewer"),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
+  },
 };
 
 async function state(env, deps) {
@@ -353,7 +373,7 @@ async function save(key, request, env, deps, session) {
     await gh.putFile(env, c.path, md, `Dashboard: ${c.title} – ${summary}`, current && current.sha);
     await cache(env, key, md, session.email);
     // Werkzeugseiten: „Was ist neu“ steht auch im Newsletter-Feed – Feeds (und Sitemap) gleich mit neu schreiben
-    if (key === "werkzeug" || key === "werkzeugEn") await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
+    if (/^werkzeug/.test(key)) await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
   } catch (e) { return json({ error: e.message }, 502); }
   return json(await state(env, deps));
 }
@@ -558,6 +578,28 @@ async function gochApi(api, request, env, deps, session) {
       }
       return json({ ...(await gochState(env)), note });
     }
+    // Seitenwissen (seitenwissen.js): Stand ansehen oder sofort neu einlesen
+    if (api === "goch/seitenwissen" && (request.method === "GET" || request.method === "POST")) {
+      const w = request.method === "POST" ? await seiten.neuEinlesen(env) : await seiten.laden(env, null);
+      if (w && w.error) return json({ error: "Neu einlesen fehlgeschlagen: " + w.error }, 502);
+      return json(seiten.stand(w));
+    }
+    // Hörprobe der Stimme (nur Robin, angemeldet): Voice ID und Modell aus den Feldern, auch ungespeichert; zählt zur Monatsgrenze
+    if (api === "goch/stimmprobe" && request.method === "POST") {
+      const body = await readJson(request), sp = (await cfg.loadSettings(env, true)).sprache;
+      const voiceId = String(body.voiceId || sp.voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
+      const lang = body.lang === "en" ? "en" : "de";
+      if (!env.ELEVENLABS_API_KEY) return json({ error: "Für die Stimme fehlt das Geheimnis ELEVENLABS_API_KEY im Worker." }, 400);
+      if (!/^[A-Za-z0-9]{10,40}$/.test(voiceId)) return json({ error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
+      if (!cfg.TTS_MODELL_ID.test(modell)) return json({ error: "Stimmmodell von ElevenLabs beginnt mit „eleven_“." }, 400);
+      const text = String(body.text || PROBESATZ[lang]).replace(/\s+/g, " ").trim().slice(0, 300);
+      const stimme = fig.oeffentlicheFigur("goch").stimme || {};
+      try {
+        const a = await vertonen(env, text, { voiceId, modell, lang, einstellungen: stimme.einstellungen, seed: stimme.seed });
+        await zeichenBuchen(env, text.length);
+        return json({ ...a, zeichen: text.length, modell });
+      } catch (e) { return json({ error: "ElevenLabs: " + String(e.message || e).slice(0, 200) }, 502); }
+    }
     if (api === "goch/test" && request.method === "POST") {
       const body = await readJson(request);
       const settings = await cfg.loadSettings(env, true);
@@ -569,20 +611,21 @@ async function gochApi(api, request, env, deps, session) {
   return json({ error: "Nicht gefunden." }, 404);
 }
 // Startseite: Schalter der Landschaft – Lesen und Umschalten per Commit. Umgeschaltet werden data-landschaft und
-// data-landschaft-satz am <body> und in einem Zug die Bildpfade der Szene: assets/bestand/ = ohne Landschaft (kurzer
-// Ast, 1153 px breit, Vogel auf Weiß), assets/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht
+// data-landschaft-satz am <body> und in einem Zug die Bildpfade der Szene: …/bestand/ = ohne Landschaft (kurzer
+// Ast, 1153 px breit, Vogel auf Weiß), ohne bestand/ = mit Landschaft (langer Ast, 2800 px, freigestellter Vogel). So steht
 // vom ersten Bild an das Richtige in der Seite; landscape.js tauscht nur noch für ?landschaft=an|aus zur Laufzeit.
+// Der Ast liegt in assets/, der Vogel seit 23.10.2026 im Figurenpaket figuren/goch/bilder/; beide Ordner werden erkannt.
 const LANDSCAPE_ATTR = /data-landschaft="(an|aus)"/;
 const LANDSCAPE_SET_ATTR = /data-landschaft-satz="([a-z0-9-]*)"/;
 const SCENE = /<button class="scene"[\s\S]*?<\/button>/;
 export function applyLandscape(html, wish, satz) {
-  const on = wish === "an", folder = on ? "assets/" : "assets/bestand/";
+  const on = wish === "an", bestand = on ? "" : "bestand/";
   let out = html.replace(LANDSCAPE_ATTR, `data-landschaft="${on ? "an" : "aus"}"`);
   if (satz) out = LANDSCAPE_SET_ATTR.test(out) ? out.replace(LANDSCAPE_SET_ATTR, `data-landschaft-satz="${satz}"`) : out.replace(LANDSCAPE_ATTR, m => `${m} data-landschaft-satz="${satz}"`);
   return out
-    .replace(/(<link rel="preload" as="image" href=")assets\/(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1${folder}$2`) // Vorabladen im <head>
+    .replace(/(<link rel="preload" as="image" href=")((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?((?:vogel|flugpose-[^"]+|ast)\.webp")/g, `$1$2${bestand}$3`) // Vorabladen im <head>
     .replace(SCENE, scene => scene
-      .replace(/(src|data-src)="assets\/(?:bestand\/)?([^"]+)"/g, (_, attr, name) => `${attr}="${folder}${name}"`)
+      .replace(/(src|data-src|data-src-spaet)="((?:assets|figuren\/[a-z0-9-]+\/bilder)\/)(?:bestand\/)?([^"]+)"/g, (_, attr, dir, name) => `${attr}="${dir}${bestand}${name}"`)
       .replace(/(<img src="assets\/(?:bestand\/)?ast\.webp"[^>]*?width=")\d+"/, `$1${on ? 2800 : 1153}"`));
 }
 async function siteState(env) {
@@ -638,7 +681,31 @@ async function gochState(env) {
   let pageOn = null;
   if (gh.configured(env)) { try { const home = await gh.getFile(env, "index.html"); const m = home && home.content.match(ENDPOINT_ATTR); pageOn = m ? /https?:/.test(m[0]) : null; } catch {} }
   return { settings: cfg.publicSettings(settings, env), status: await cfg.readStatus(env), models: cfg.ANTHROPIC_MODELS, providers: cfg.PROVIDERS,
-    pageOn, keys: { anthropic: !!env.ANTHROPIC_API_KEY, custom: !!env.CUSTOM_API_KEY, workersAi: !!env.AI } };
+    pageOn, keys: { anthropic: !!env.ANTHROPIC_API_KEY, custom: !!env.CUSTOM_API_KEY, workersAi: !!env.AI },
+    sprache: { stimme: await stimmeMonat(env), hoeren: await hoerenTag(env), ttsModelle: TTS_MODELLE,
+      keys: { elevenlabs: !!env.ELEVENLABS_API_KEY, ai: !!env.AI } } };
+}
+
+// Messegeräte (src/kiosk.js): Nachweis nur beim Anlegen oder Erneuern sichtbar, gespeichert nur als Hash
+async function geraeteApi(api, request, env) {
+  const liste = async () => Promise.all((await kiosk.geraete(env)).map(async g => ({ ...g, stand: env.GERAETE ? await kiosk.geraetStand(env, g.id) : null })));
+  try {
+    if (api === "geraete" && request.method === "GET") return json({ geraete: await liste(), mtls: env.KIOSK_MTLS === "an" });
+    if (api === "geraete" && request.method === "PUT") { const r = await kiosk.speichereGeraet(env, await readJson(request)); return json({ geraete: await liste(), token: r.token }); }
+    if (api === "geraete/geheimnis" && request.method === "POST") { const r = await kiosk.speichereGeraet(env, { id: (await readJson(request)).id }, true); return json({ geraete: await liste(), token: r.token }); }
+    if (api === "geraete" && request.method === "DELETE") { await kiosk.loescheGeraet(env, (await readJson(request)).id); return json({ geraete: await liste() }); }
+  } catch (e) { return json({ error: e.message }, 400); }
+  return json({ error: "Nicht gefunden." }, 404);
+}
+
+// Figuren für Vorführungen (Kunden): nur KV, nie GitHub (src/figuren.js)
+async function figurenApi(request, env) {
+  try {
+    if (request.method === "GET") return json({ figuren: await fig.kundenfiguren(env) });
+    if (request.method === "PUT") { await fig.speichereKundenfigur(env, await readJson(request)); return json({ figuren: await fig.kundenfiguren(env) }); }
+    if (request.method === "DELETE") { await fig.loescheKundenfigur(env, (await readJson(request)).id); return json({ figuren: await fig.kundenfiguren(env) }); }
+  } catch (e) { return json({ error: e.message }, 400); }
+  return json({ error: "Nicht gefunden." }, 404);
 }
 
 // ---------- Helfer ----------
@@ -655,7 +722,7 @@ function html(s, env) {
   let site = ""; try { site = env && env.SITE_URL ? " " + new URL(env.SITE_URL).origin : ""; } catch {} // Vorschau der Startseite (Landschaften) im Rahmen
   return new Response(s, { status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store",
     "x-frame-options": "DENY", "referrer-policy": "no-referrer", "x-robots-tag": "noindex, nofollow",
-    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
+    "content-security-policy": `default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' https: blob:; media-src blob:; font-src https:; frame-src 'self' about: https://www.youtube-nocookie.com${site}; form-action 'none'; base-uri 'none'` } });
 }
 
 // ---------- Seiten ----------
@@ -821,6 +888,55 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar" style="margin:0"><input id="gq" value="Wer ist Robin?" style="flex:1;min-width:200px"><button class="quiet" id="gtest">Fragen</button><span class="msg" id="mT"></span></div>
 <p id="gout" style="margin:10px 0 0;font-size:14px;white-space:pre-wrap"></p></div></section>
 
+<section id="spsec"><h2>Goch – Stimme und Spracheingabe</h2><p class="src" id="spstat"></p>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="sphoeren" style="width:auto;margin:0"> Spracheingabe an (Besucher können Goch ihre Frage sagen – Whisper über Cloudflare Workers AI)</label>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="spstimme" style="width:auto;margin:0"> Stimme an (Goch spricht seine Antworten – ElevenLabs)</label>
+<p class="note" style="margin:0 0 10px">Beides wirkt erst, wenn ein Besucher es im Gespräch ausdrücklich einschaltet (eigene Einwilligung). Ohne Stimme vom Server liest der Browser mit einer Stimme des Geräts vor. Ist eine Grenze erreicht, antwortet Goch nur als Text – ohne Hinweis an die Besucher; Robin bekommt einmal im Monat eine E-Mail.</p>
+<div class="row"><div><label for="spmodell">Modell im Sprachmodus (antwortet schneller)</label><select id="spmodell" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"></select></div><div><label for="sptts">Stimmmodell bei ElevenLabs</label><select id="sptts" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"></select></div></div>
+<label for="spvoice">Voice ID <span class="note">(ElevenLabs → Voices → Stimme → ID kopieren)</span></label><input id="spvoice" autocomplete="off" placeholder="z. B. 21m00Tcm4TlvDq8ikWAM">
+<div class="row"><div><label for="spzeichen">Vertonte Zeichen je Monat (Grenze)</label><input id="spzeichen" type="number" min="0" max="2000000" step="1000"></div><div><label for="spminuten">Minuten Spracheingabe je Tag (Grenze)</label><input id="spminuten" type="number" min="0" max="1440"></div></div>
+<div class="bar"><button id="spsave">Speichern</button><span class="msg" id="mS"></span></div>
+<div class="stats"><div class="stat"><b id="spzmonat">–</b><span>Zeichen vertont in diesem Monat (Grenze)</span></div>
+<div class="stat"><b id="spminheute">–</b><span>Minuten Spracheingabe heute (Grenze)</span></div>
+<div class="stat"><b id="spzeit">–</b><span>Antwortzeit im Sprachmodus, Modell und Stimme (Mittel des Monats)</span></div></div>
+<p class="note" id="spmeta"></p>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)"><label for="spprobe">Stimme anhören <span class="note">(mit Voice ID und Stimmmodell aus den Feldern oben, auch ungespeichert; zählt zu den vertonten Zeichen)</span></label>
+<div class="bar" style="margin:0"><input id="spprobe" style="flex:1;min-width:200px"><button class="quiet" id="spanhoeren">Anhören</button><span class="msg" id="mSP"></span></div>
+<audio id="spaudio" controls hidden style="width:100%;margin-top:8px"></audio></div></section>
+
+<section id="fgsec"><h2>Figuren für Vorführungen <span class="note">(Kunden, nur am Messegerät)</span></h2>
+<p class="note" style="margin:0 0 6px">Kundenfiguren liegen nur hier im Speicher des Workers – nie auf GitHub, nie auf der Website. Abrufbar sind sie nur über das angemeldete Messegerät; Bilder und Töne liegen auf dem Gerät (FIGUREN.md). Wissen nur aus Angaben, die der Kunde freigibt oder die öffentlich sind – robots.txt und Vorbehalte gegen Text- und Data-Mining beachten, Quellen mit Datum festhalten.</p>
+<ul class="q" id="fglist"></ul>
+<div class="bar"><button class="quiet" id="fgnew">Neue Figur</button></div>
+<div id="fgedit" hidden style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+<div class="row"><div><label for="fgid">Kennung (kunde-…, wie der Ordner auf dem Gerät)</label><input id="fgid" autocomplete="off"></div><div><label for="fgtag">Antworten je Tag (Grenze des Geräts für diese Figur)</label><input id="fgtag" type="number" min="1" max="5000"></div></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="fgan" style="width:auto;margin:0"> Figur an (das Messegerät darf sie laden)</label>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="fgde" style="width:auto;margin:0"> Deutsch <input type="checkbox" id="fgen" style="width:auto;margin:0 0 0 14px"> Englisch</label>
+<div class="row"><div><label for="fgnamede">Name (DE)</label><input id="fgnamede"></div><div><label for="fgnameen">Name (EN)</label><input id="fgnameen"></div></div>
+<div class="row"><div><label for="fgrollede">Rolle (DE), z. B. „der Empfang der Muster GmbH“</label><input id="fgrollede"></div><div><label for="fgrolleen">Rolle (EN)</label><input id="fgrolleen"></div></div>
+<div class="row"><div><label for="fggrussde">Begrüßung (DE)</label><textarea id="fggrussde" style="min-height:70px"></textarea></div><div><label for="fggrussen">Begrüßung (EN)</label><textarea id="fggrussen" style="min-height:70px"></textarea></div></div>
+<div class="row"><div><label for="fgfragende">Einstiegsfragen (DE), eine je Zeile, höchstens vier</label><textarea id="fgfragende" style="min-height:90px"></textarea></div><div><label for="fgfragenen">Einstiegsfragen (EN)</label><textarea id="fgfragenen" style="min-height:90px"></textarea></div></div>
+<label for="fgpers">Persönlichkeit <span class="note">(wie die Figur spricht, was sie nie tut – Sie-Form)</span></label><textarea id="fgpers" style="min-height:140px"></textarea>
+<label for="fgwissen">Wissen <span class="note">(was die Figur erzählen darf; nur Freigegebenes oder Öffentliches)</span></label><textarea id="fgwissen" style="min-height:260px"></textarea>
+<label for="fgquellen">Quellen des Wissens <span class="note">(Freigabe des Kunden mit Datum, öffentliche Seiten mit Abrufdatum)</span></label><textarea id="fgquellen" style="min-height:70px"></textarea>
+<label for="fgvoice">Voice ID bei ElevenLabs <span class="note">(leer: Stimme des Geräts)</span></label><input id="fgvoice" autocomplete="off">
+<div class="bar"><button id="fgsave">Speichern</button><button class="quiet" id="fgclose">Schließen</button><button class="quiet" id="fgdelete" style="margin-left:auto;color:var(--warn)">Figur löschen</button><span class="msg" id="mF" style="margin-left:0;flex-basis:100%"></span></div>
+</div></section>
+
+<section id="mgsec"><h2>Messegeräte <span class="note">(Kiosk: Gerätenachweis, Tagesbudget, Lebenszeichen)</span></h2>
+<p class="note" style="margin:0 0 6px">Jedes Messegerät meldet sich mit einem eigenen Nachweis an. Er steht nur einmal hier und gehört auf dem Gerät in /etc/goch-kiosk/geraet.json (kiosk/README.md) – nie in den Browser, nie in eine E-Mail. Statt der Grenzen der Website gilt das Tagesbudget des Geräts; Stimme und Spracheingabe schalten die Schalter oben für Website und Geräte gemeinsam.</p>
+<ul class="q" id="mglist"></ul>
+<div class="bar"><button class="quiet" id="mgnew">Neues Gerät</button></div>
+<div id="mgedit" hidden style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+<div class="row"><div><label for="mgid">Kennung (z. B. messe-1)</label><input id="mgid" autocomplete="off"></div><div><label for="mgname">Name (z. B. „Stele Messe Stuttgart“)</label><input id="mgname"></div></div>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="mgan" style="width:auto;margin:0"> Gerät an (darf sich anmelden)</label>
+<label for="mgfiguren">Freigegebene Figuren <span class="note">(durch Komma getrennt: goch, kunde-…; * für alle)</span></label><input id="mgfiguren" autocomplete="off">
+<div class="row"><div><label for="mgantworten">Antworten je Tag</label><input id="mgantworten" type="number" min="0" max="5000"></div><div><label for="mgminuten">Minuten Spracheingabe je Tag</label><input id="mgminuten" type="number" min="0" max="1440"></div></div>
+<label for="mgzert">Fingerabdruck des Client-Zertifikats <span class="note">(SHA-256, nur wenn KIOSK_MTLS = „an“; leer = jedes gültige Zertifikat)</span></label><input id="mgzert" autocomplete="off">
+<p class="note" id="mgtoken" hidden style="font-family:ui-monospace,Menlo,monospace;color:var(--ink);background:#fff;border:1px solid var(--line);padding:10px;border-radius:6px;word-break:break-all"></p>
+<div class="bar"><button id="mgsave">Speichern</button><button class="quiet" id="mgrotate">Neuen Nachweis erzeugen</button><button class="quiet" id="mgclose">Schließen</button><button class="quiet" id="mgdelete" style="margin-left:auto;color:var(--warn)">Gerät löschen</button><span class="msg" id="mMG" style="margin-left:0;flex-basis:100%"></span></div>
+</div></section>
+
 <section><h2>Goch – Übersicht</h2><div class="stats">
 <div class="stat"><b id="today">–</b><span>Antworten heute (Grenze <span id="perDay">–</span>)</span></div>
 <div class="stat"><b id="month">–</b><span>Antworten in 30 Tagen</span></div>
@@ -841,7 +957,8 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
-${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
+${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"],
+  ["R", "E-Rechnung lite", "e-rechnung-pruefen", "Hinweis auf Englisch"], ["RE", "E-Rechnung lite (englische Seite)", "e-invoice-viewer", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
 <p class="note" id="wdatei${x}"></p>
 <label for="wbeschr${x}">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr${x}" style="min-height:320px"></textarea>
 <label for="wneu${x}">Was ist neu <span class="note">(je Fassung eine Überschrift „### Fassung a1b2c3d vom 15.10.2026“ bzw. „### Version a1b2c3d, 15 October 2026“, darunter Stichpunkte; die neueste zuerst – sie steht auch im Newsletter)</span></label><textarea id="wneu${x}" style="min-height:160px"></textarea>
@@ -853,6 +970,7 @@ ${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Eng
 <section><h2>Goch – Profil <span class="note">(wer Robin ist, wie Goch spricht, was er nie tut)</span></h2><p class="src" id="psrc"></p>
 <p class="note" style="margin:0 0 6px">Das ist Gochs Systemprompt – jeder Satz hier wird sein Wissen und sein Ton. Alles darin darf öffentlich sein: keine Namen aus der Familie, keine Adresse, nichts zu Finanzen oder Gesundheit, keine Mandanten. Nach dem Veröffentlichen antwortet Goch sofort mit der neuen Fassung; „Vorige Fassung“ holt den Stand davor zurück.</p>
 <textarea id="ptext" style="min-height:460px" spellcheck="true"></textarea>
+<p class="note" id="swstat"></p>
 <div class="bar"><button id="saveP">Veröffentlichen</button><button class="quiet" id="prevP">Vorige Fassung</button><a class="note" id="histP" target="_blank" rel="noopener">Verlauf</a><span class="note" id="pwords"></span><span class="msg" id="mP2"></span></div></section>
 
 <script>
@@ -971,7 +1089,7 @@ async function encodeWebp(canvas,budget){for(const q of [.83,.76,.7,.62,.55,.48]
 api('landschaften').then(d=>d&&renderLand(d)).catch(e=>{$('lstat').textContent='Nicht ladbar: '+e.message;});
 // ---- Goch: Betrieb ----
 let G=null;
-function renderGoch(g){G=g;const s=g.settings;$('genabled').checked=s.enabled;
+function renderGoch(g){G=g;const s=g.settings;renderSprache(g);$('genabled').checked=s.enabled;
  $('gprovider').innerHTML=Object.entries(g.providers).map(([k,v])=>'<option value="'+k+'"'+(k===s.provider?' selected':'')+(k==='anthropic'&&!g.keys.anthropic?' disabled':'')+(k==='workers-ai'&&!g.keys.workersAi?' disabled':'')+'>'+esc(v)+'</option>').join('');
  $('gmodel').innerHTML=g.models.map(m=>'<option value="'+m.id+'"'+(m.id===s.model?' selected':'')+'>'+esc(m.label)+'</option>').join('')+(g.models.some(m=>m.id===s.model)?'':'<option value="'+esc(s.model)+'" selected>'+esc(s.model)+'</option>');
  $('gcache').checked=s.cache;$('gurl').value=s.custom.baseUrl;$('gcmodel').value=s.custom.model;$('gkey').value='';$('gkeyhint').textContent=s.custom.keySet?'(hinterlegt '+s.custom.keyHint+', Quelle: '+s.custom.keySource+')':'(fehlt)';
@@ -987,6 +1105,55 @@ $('gsave').onclick=async()=>{const p=$('gprovider').value;const body={enabled:$(
  try{const r=await api('goch','PUT',body);renderGoch(r);say('mG',r.note,true);}catch(e){say('mG',e.message);}};
 $('gtest').onclick=async()=>{$('gtest').disabled=true;$('gout').textContent='';say('mT','fragt …');try{const r=await api('goch/test','POST',{question:$('gq').value});$('gout').textContent=r.reply+(r.link?'\\n[Link: '+r.link.label+']':'');say('mT','Antwort von '+(r.model||'?')+' in '+r.ms+' ms'+(r.usage&&r.usage.cache_read!=null?' · Cache gelesen '+r.usage.cache_read:'')+(r.usage&&r.usage.output!=null?' · Ausgabe '+r.usage.output+' Tokens':''),true);const g=await api('goch');renderGoch(g);}catch(e){say('mT',e.message);}finally{$('gtest').disabled=false;}};
 api('goch').then(g=>g&&renderGoch(g)).catch(e=>{$('gstat').textContent='Betrieb nicht ladbar: '+e.message;});
+// ---- Goch: Stimme und Spracheingabe (23.10.2026) ----
+function renderSprache(g){const sp=g.settings.sprache||{},x=g.sprache||{},st=x.stimme||{},ho=x.hoeren||{},keys=x.keys||{};
+ $('sphoeren').checked=!!sp.hoeren;$('spstimme').checked=!!sp.stimme;
+ $('spmodell').innerHTML=g.models.map(m=>'<option value="'+m.id+'"'+(m.id===sp.modell?' selected':'')+'>'+esc(m.label)+'</option>').join('')+(g.models.some(m=>m.id===sp.modell)?'':'<option value="'+esc(sp.modell||'')+'" selected>'+esc(sp.modell||'')+'</option>');
+ $('sptts').innerHTML=(x.ttsModelle||[]).map(m=>'<option value="'+m.id+'"'+(m.id===sp.ttsModell?' selected':'')+'>'+esc(m.label)+'</option>').join('');
+ $('spvoice').value=sp.voiceId||'';$('spzeichen').value=sp.zeichenMonat;$('spminuten').value=sp.minutenTag;
+ $('spzmonat').textContent=Number(st.zeichen||0).toLocaleString('de-DE')+' / '+Number(sp.zeichenMonat||0).toLocaleString('de-DE');
+ $('spminheute').textContent=((ho.sekunden||0)/60).toFixed(1).replace('.',',')+' / '+sp.minutenTag;
+ $('spzeit').textContent=st.antworten?Math.round((st.msModell+st.msStimme)/st.antworten)+' ms':'–';
+ $('spstat').innerHTML='Spracheingabe <b>'+(sp.hoeren?'an':'aus')+'</b> · Stimme <b>'+(sp.stimme?'an':'aus')+'</b>'+(keys.elevenlabs?'':' · <span style="color:var(--warn)">Geheimnis ELEVENLABS_API_KEY fehlt</span>')+(keys.ai?'':' · <span style="color:var(--warn)">Workers AI fehlt</span>');
+ $('spmeta').textContent=(st.letzte?'Letzte vertonte Antwort '+fmt(st.letzte.at)+': '+st.letzte.zeichen+' Zeichen, Modell '+(st.letzte.msModell==null?'–':st.letzte.msModell+' ms')+', Stimme '+st.letzte.msStimme+' ms. ':'Noch keine vertonte Antwort in diesem Monat. ')+'Spracheingabe heute: '+(ho.anfragen||0)+' Aufnahmen'+(ho.anfragen?', Erkennung im Mittel '+Math.round(ho.ms/ho.anfragen)+' ms':'')+'.';}
+$('spprobe').value='Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt. Ich bin Goch, das Rotkehlchen von Robin – fragen Sie mich gern, woran er gerade arbeitet.';
+$('spanhoeren').onclick=async()=>{$('spanhoeren').disabled=true;say('mSP','erzeugt …',true);
+ try{const r=await api('goch/stimmprobe','POST',{text:$('spprobe').value,voiceId:$('spvoice').value.trim(),ttsModell:$('sptts').value});
+  const bin=atob(r.daten),b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);
+  const a=$('spaudio');if(a.src)URL.revokeObjectURL(a.src);a.src=URL.createObjectURL(new Blob([b],{type:r.mime}));a.hidden=false;a.play().catch(()=>{});
+  say('mSP',r.modell+' · '+r.ms+' ms · '+r.zeichen+' Zeichen',true);const g=await api('goch');renderGoch(g);}catch(e){say('mSP',e.message);}finally{$('spanhoeren').disabled=false;}};
+$('spsave').onclick=async()=>{const body={sprache:{hoeren:$('sphoeren').checked,stimme:$('spstimme').checked,modell:$('spmodell').value,ttsModell:$('sptts').value,voiceId:$('spvoice').value.trim(),zeichenMonat:+$('spzeichen').value,minutenTag:+$('spminuten').value}};
+ try{const r=await api('goch','PUT',body);renderGoch(r);say('mS','Gespeichert – gilt ab der nächsten Frage (spätestens nach einer Minute).',true);}catch(e){say('mS',e.message);}};
+// ---- Figuren für Vorführungen (Kunden, nur KV) ----
+const NL=String.fromCharCode(10);let F=[],fEdit=null;
+function renderFiguren(d){F=d.figuren||[];$('fglist').innerHTML=F.length?F.map(f=>'<li><b>'+esc(f.name.de||f.name.en||f.id)+'</b> <span class="note">'+esc(f.id)+' · '+(f.an?'an':'aus')+' · '+esc(f.sprachen.join('/'))+' · '+f.wissenWorte+' Wörter Wissen · geändert '+fmt(f.geaendert)+'</span> <button class="quiet" data-fg="'+esc(f.id)+'">Bearbeiten</button></li>').join(''):'<li class="note">Noch keine Kundenfigur.</li>';}
+function fgOpen(f){fEdit=f||null;const v=f||{id:'kunde-',an:true,sprachen:['de'],name:{},rolle:{},begruessung:{},fragen:{},antwortenTag:200};
+ $('fgedit').hidden=false;$('fgid').value=v.id;$('fgid').disabled=!!f;$('fgan').checked=v.an!==false;$('fgde').checked=v.sprachen.includes('de');$('fgen').checked=v.sprachen.includes('en');
+ for(const l of ['de','en']){$('fgname'+l).value=(v.name||{})[l]||'';$('fgrolle'+l).value=(v.rolle||{})[l]||'';$('fggruss'+l).value=(v.begruessung||{})[l]||'';$('fgfragen'+l).value=((v.fragen||{})[l]||[]).join(NL);}
+ $('fgpers').value=v.persoenlichkeit||'';$('fgwissen').value=v.wissen||'';$('fgquellen').value=v.quellen||'';$('fgvoice').value=v.voiceId||'';$('fgtag').value=v.antwortenTag||200;$('fgdelete').hidden=!f;}
+$('fglist').onclick=e=>{const b=e.target.closest('button[data-fg]');if(b){fgOpen(F.find(f=>f.id===b.dataset.fg));$('fgedit').scrollIntoView({block:'start'});}};
+$('fgnew').onclick=()=>{fgOpen(null);$('fgid').focus();};
+$('fgclose').onclick=()=>{$('fgedit').hidden=true;};
+$('fgsave').onclick=async()=>{const per=k=>Object.fromEntries(['de','en'].map(l=>[l,$(k+l).value]));
+ const body={id:$('fgid').value.trim().toLowerCase(),an:$('fgan').checked,sprachen:[...($('fgde').checked?['de']:[]),...($('fgen').checked?['en']:[])],name:per('fgname'),rolle:per('fgrolle'),begruessung:per('fggruss'),
+  fragen:Object.fromEntries(['de','en'].map(l=>[l,$('fgfragen'+l).value.split(NL).map(x=>x.trim()).filter(Boolean)])),persoenlichkeit:$('fgpers').value,wissen:$('fgwissen').value,quellen:$('fgquellen').value,voiceId:$('fgvoice').value.trim(),antwortenTag:+$('fgtag').value};
+ try{const r=await api('figuren','PUT',body);renderFiguren(r);fgOpen(r.figuren.find(f=>f.id===body.id));say('mF','Gespeichert – das Messegerät holt die Figur beim nächsten Gespräch.',true);}catch(e){say('mF',e.message);}};
+$('fgdelete').onclick=async()=>{if(!fEdit||!confirm('Figur „'+fEdit.id+'“ löschen? Das Messegerät kann sie danach nicht mehr laden.'))return;try{const r=await api('figuren','DELETE',{id:fEdit.id});renderFiguren(r);$('fgedit').hidden=true;}catch(e){say('mF',e.message);}};
+api('figuren').then(d=>d&&renderFiguren(d)).catch(e=>{$('fglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
+// ---- Messegeräte (Kiosk, 23.10.2026) ----
+let MG=[],mgEdit=null;
+function renderGeraete(d){MG=d.geraete||[];$('mglist').innerHTML=MG.length?MG.map(g=>{const s=g.stand||{},l=s.lebenszeichen,h=s.heute||{};return '<li><b>'+esc(g.name)+'</b> <span class="note">'+esc(g.id)+' · '+(g.an?'an':'aus')+' · Figuren: '+esc(g.figuren.join(', '))+' · heute '+(h.antworten||0)+' von '+g.antwortenTag+' Antworten, '+Math.round((h.sekunden||0)/60)+' von '+g.minutenTag+' Min. · '+(l?'Lebenszeichen '+fmt(l.at)+(l.online===false?' (offline)':'')+(l.commit?', Stand '+esc(String(l.commit).slice(0,7)):'')+(l.puffer?', '+esc(String(l.puffer))+' Nachricht(en) gepuffert':''):'noch kein Lebenszeichen')+'</span> <button class="quiet" data-mg="'+esc(g.id)+'">Bearbeiten</button></li>';}).join(''):'<li class="note">Noch kein Messegerät.</li>';}
+function mgOpen(g){mgEdit=g||null;const v=g||{id:'messe-',name:'',an:true,figuren:['goch'],antwortenTag:300,minutenTag:60,zertifikat:''};
+ $('mgedit').hidden=false;$('mgid').value=v.id;$('mgid').disabled=!!g;$('mgname').value=v.name;$('mgan').checked=v.an!==false;$('mgfiguren').value=v.figuren.join(', ');$('mgantworten').value=v.antwortenTag;$('mgminuten').value=v.minutenTag;$('mgzert').value=v.zertifikat||'';$('mgdelete').hidden=!g;$('mgrotate').hidden=!g;$('mgtoken').hidden=true;}
+function mgToken(t){if(!t)return;$('mgtoken').hidden=false;$('mgtoken').textContent='Gerätenachweis – nur jetzt sichtbar, auf dem Gerät in /etc/goch-kiosk/geraet.json eintragen: '+t;}
+$('mglist').onclick=e=>{const b=e.target.closest('button[data-mg]');if(b){mgOpen(MG.find(g=>g.id===b.dataset.mg));$('mgedit').scrollIntoView({block:'start'});}};
+$('mgnew').onclick=()=>{mgOpen(null);$('mgid').focus();};
+$('mgclose').onclick=()=>{$('mgedit').hidden=true;};
+$('mgsave').onclick=async()=>{const body={id:$('mgid').value.trim().toLowerCase(),name:$('mgname').value,an:$('mgan').checked,figuren:$('mgfiguren').value.split(',').map(x=>x.trim()).filter(Boolean),antwortenTag:+$('mgantworten').value,minutenTag:+$('mgminuten').value,zertifikat:$('mgzert').value};
+ try{const r=await api('geraete','PUT',body);renderGeraete(r);mgOpen(r.geraete.find(g=>g.id===body.id));mgToken(r.token);say('mMG','Gespeichert.',true);}catch(e){say('mMG',e.message);}};
+$('mgrotate').onclick=async()=>{if(!mgEdit||!confirm('Neuen Nachweis erzeugen? Der alte gilt sofort nicht mehr – das Gerät braucht dann den neuen.'))return;try{const r=await api('geraete/geheimnis','POST',{id:mgEdit.id});renderGeraete(r);mgToken(r.token);}catch(e){say('mMG',e.message);}};
+$('mgdelete').onclick=async()=>{if(!mgEdit||!confirm('Gerät „'+mgEdit.name+'“ löschen? Es kann sich danach nicht mehr anmelden.'))return;try{const r=await api('geraete','DELETE',{id:mgEdit.id});renderGeraete(r);$('mgedit').hidden=true;}catch(e){say('mMG',e.message);}};
+api('geraete').then(d=>d&&renderGeraete(d)).catch(e=>{$('mglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
 // ---- Blog ----
 let B=null,editing=null;
 function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;
@@ -1169,13 +1336,16 @@ function addRow(r={}){const tr=document.createElement('tr');tr.innerHTML=['id','
 function rows(){return [...$('rows').querySelectorAll('tr')].map(tr=>Object.fromEntries([...tr.querySelectorAll('input')].map(i=>[i.dataset.k,i.value])));}
 $('addRow').onclick=()=>addRow();
 async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
-const WK=[['','werkzeug'],['E','werkzeugEn']],WD={};
+const WK=[['','werkzeug'],['E','werkzeugEn'],['R','werkzeugEr'],['RE','werkzeugErEn']],WD={};
 for(const [x,key] of WK){
  $('saveW'+x).onclick=()=>{if(confirm('Texte der Werkzeug-Seite jetzt veröffentlichen?'))publish(key,'mW'+x,{beschreibung:$('wbeschr'+x).value,neuigkeiten:$('wneu'+x).value,nutzung:$('wnutz'+x).value,hinweis:$('wen'+x).value,datei:WD[x]});};
  $('prevW'+x).onclick=async()=>{if(!confirm('Vorige Fassung der Werkzeug-Seite wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/'+key,'POST'));say('mW'+x,'Vorige Fassung ist live.',true);}catch(e){say('mW'+x,e.message);}};}
 $('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
 function pwords(){const n=$('ptext').value.split(/\\s+/).filter(Boolean).length;$('pwords').textContent=n+' Wörter (≈ '+Math.round(n*4.4/100)*100+' Tokens)';}
 $('ptext').oninput=pwords;
+function renderSW(w){$('swstat').innerHTML=(w&&w.stand?'Seitenwissen: '+w.seiten.length+' Seiten der Website, '+w.woerter+' Wörter, eingelesen '+fmt(w.stand)+'. Goch kennt sie zusätzlich zu diesem Profil; neu eingelesen wird alle sechs Stunden von selbst. ':'Seitenwissen: noch nicht eingelesen. ')+'<button class="quiet" id="swneu" type="button">Jetzt neu einlesen</button> <span class="msg" id="mSW"></span>';
+ $('swneu').onclick=async()=>{say('mSW','Liest ein …',true);try{renderSW(await api('goch/seitenwissen','POST'));say('mSW','Neu eingelesen.',true);}catch(e){say('mSW',e.message);}};}
+api('goch/seitenwissen').then(renderSW).catch(()=>renderSW(null));
 $('saveP').onclick=()=>{if(confirm('Gochs Profil jetzt veröffentlichen? Goch antwortet danach sofort mit dieser Fassung.'))publish('profile','mP2',{text:$('ptext').value});};
 $('prevP').onclick=async()=>{if(!confirm('Vorige Fassung des Profils wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/profile','POST'));say('mP2','Vorige Fassung ist live.',true);}catch(e){say('mP2',e.message);}};
 $('saveL').onclick=()=>{if(confirm('Links jetzt veröffentlichen?'))publish('links','mL',{rows:rows()});};

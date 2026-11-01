@@ -9,7 +9,7 @@
   "method": {
     "color_to_alpha": "a = 1 - min(R,G,B)/255; f = (rgb - (1-a)*255)/a",
     "near_white_cleanup": "min(R,G,B) >= 250 und max(rgb)-min(rgb) <= 5 → Alpha 0",
-    "figure_matte": "Vögel und Ast-Verlängerung: Silhouette per Flutfüllung vom Bildrand (min(R,G,B) >= 246 = Hintergrund), innen Alpha 1 mit Originalfarbe, Saum 2 px: Deckung aus naher Innenfarbe geschätzt (kleinste Quadrate, Umkreis 3 px), Untergrenze Farbe-zu-Alpha, Saumfarbe vom Weiß befreit. Krone und Ferne bleiben Farbe-zu-Alpha (Papier scheint durch).",
+    "figure_matte": "Vögel und Ast-Verlängerung: Silhouette per Flutfüllung vom Bildrand (min(R,G,B) >= 246 = Hintergrund), innen Alpha 1 mit Originalfarbe, Saum 2 px: Deckung aus naher Innenfarbe geschätzt (kleinste Quadrate, Umkreis 3 px), Untergrenze Farbe-zu-Alpha, Saumfarbe vom Weiß befreit. Krone und Ferne bleiben Farbe-zu-Alpha (Papier scheint durch). Eingeschlossene weiße Flächen zwischen Zehen, Beinen und Federn (von dunklen Umrissen umgeben, nicht am Auge) zählen ebenfalls als Hintergrund (enclosed_holes, 23.10.2026).",
     "fringe_cleanup": "3px Alpha-Randsaum bei Vögeln und gesamtem Ast zusätzlich Farbe-zu-Alpha; deckende Innenflächen unverändert.",
     "existing_alpha": "Ausgangsalpha wird multipliziert; Vögel immer aus unverändertem Bestand.",
     "resampling": "Lanczos; source RGB vor CTA; Ast RGBA/Pillow (vorgewichtetes Alpha)",
@@ -26,7 +26,7 @@
       229
     ],
     "crop_coordinates": "[links, oben, rechts exklusiv, unten exklusiv]",
-    "fallback": "assets/bestand enthält byteidentische Originale aus Git 1204f11."
+    "fallback": "bestand/ (assets/ für den Ast, figuren/goch/bilder/ für den Vogel) enthält byteidentische Originale aus Git 1204f11."
   },
   "originals": {
     "ast.webp": {
@@ -290,7 +290,7 @@
       ]
     },
     {
-      "source": "assets/bestand/vogel.webp",
+      "source": "figuren/goch/bilder/bestand/vogel.webp",
       "source_sha256": "aa83e830d9d9cba3847e67d778d3eb163ad3da0caece99f978187ac1eebc8576",
       "source_bytes": 66458,
       "source_size": [
@@ -321,27 +321,27 @@
       ],
       "outputs": [
         {
-          "file": "assets/vogel.webp",
+          "file": "figuren/goch/bilder/vogel.webp",
           "size": [
             1153,
             637
           ],
-          "bytes": 62354,
-          "quality": 82,
+          "bytes": 60734,
+          "quality": 81,
           "alpha_quality": 90,
-          "sha256": "884dcd027832d58d184bb24332a4f1954c9285e7d84cbdb78b9ab728879101db",
+          "sha256": "d5378fcc22285b00f6cf0022bf50974f3e3f43e85c5c5bb461cd31ca2a16fdfa",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.71429,
+          "paper_composite_mean_abs_error_rgb": 0.73373,
           "alpha_min": 0,
           "alpha_max": 255,
-          "alpha_mean": 45.5785,
-          "transparent_fraction": 0.810077,
-          "partial_alpha_fraction": 0.024317
+          "alpha_mean": 45.4896,
+          "transparent_fraction": 0.810371,
+          "partial_alpha_fraction": 0.024675
         }
       ]
     },
     {
-      "source": "assets/bestand/flugpose-1-aufschlag.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-1-aufschlag.webp",
       "source_sha256": "89632a73b3c5b07d97a1d5831ed069218501cbb265f773dc09ae9415fab63682",
       "source_bytes": 103286,
       "source_size": [
@@ -372,27 +372,27 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-1-aufschlag.webp",
+          "file": "figuren/goch/bilder/flugpose-1-aufschlag.webp",
           "size": [
             1536,
             1024
           ],
-          "bytes": 125900,
-          "quality": 82,
+          "bytes": 125038,
+          "quality": 81,
           "alpha_quality": 90,
-          "sha256": "4271e18d3346a0baf198088da756d9b8a7a33fc0029c65c12ef98a7700262f1e",
+          "sha256": "9cfa232db4bc47e91b6656b0748c86f56c192a3591bf7f7f56bd0e151f919a0b",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.56618,
+          "paper_composite_mean_abs_error_rgb": 0.61623,
           "alpha_min": 0,
           "alpha_max": 255,
-          "alpha_mean": 49.2349,
-          "transparent_fraction": 0.797918,
-          "partial_alpha_fraction": 0.017753
+          "alpha_mean": 48.9605,
+          "transparent_fraction": 0.798325,
+          "partial_alpha_fraction": 0.019309
         }
       ]
     },
     {
-      "source": "assets/bestand/flugpose-2-gleiten.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-2-gleiten.webp",
       "source_sha256": "ccaa59ed3d1a6440b517aadcfe6f62db8125438e735f5972877ecc80b2ba04f9",
       "source_bytes": 113332,
       "source_size": [
@@ -423,27 +423,27 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-2-gleiten.webp",
+          "file": "figuren/goch/bilder/flugpose-2-gleiten.webp",
           "size": [
             1536,
             1024
           ],
-          "bytes": 134594,
-          "quality": 82,
+          "bytes": 132034,
+          "quality": 81,
           "alpha_quality": 90,
-          "sha256": "74898debdfb9d70233f760577dfbe58c7df8f0754756709551a12435cf3db9a5",
+          "sha256": "0868ad8d67070ecbe41d48772abba6ccafde51ed87bdf0df3f808593251bc246",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.63349,
+          "paper_composite_mean_abs_error_rgb": 0.83421,
           "alpha_min": 0,
           "alpha_max": 255,
-          "alpha_mean": 53.6256,
-          "transparent_fraction": 0.780537,
-          "partial_alpha_fraction": 0.018666
+          "alpha_mean": 53.4796,
+          "transparent_fraction": 0.780699,
+          "partial_alpha_fraction": 0.019665
         }
       ]
     },
     {
-      "source": "assets/bestand/flugpose-3-abschlag.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-3-abschlag.webp",
       "source_sha256": "d4f05c80bd5eedbb9eb898688ba112fec0237233b49b53afee73b0ecf74673e9",
       "source_bytes": 76802,
       "source_size": [
@@ -474,27 +474,27 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-3-abschlag.webp",
+          "file": "figuren/goch/bilder/flugpose-3-abschlag.webp",
           "size": [
             1536,
             1024
           ],
-          "bytes": 95474,
-          "quality": 82,
+          "bytes": 94102,
+          "quality": 81,
           "alpha_quality": 90,
-          "sha256": "1d2003239f0009bf6a52ca5499ac9b52e900853379d8b5206f68a2a7f1aa26a3",
+          "sha256": "b74f92a390497599f7b02fbb5697b98adc7c09521e998a9c8bf302b0461f8d96",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.44908,
+          "paper_composite_mean_abs_error_rgb": 0.4898,
           "alpha_min": 0,
           "alpha_max": 255,
-          "alpha_mean": 39.9794,
-          "transparent_fraction": 0.835841,
-          "partial_alpha_fraction": 0.015214
+          "alpha_mean": 39.8397,
+          "transparent_fraction": 0.83599,
+          "partial_alpha_fraction": 0.016179
         }
       ]
     },
     {
-      "source": "assets/bestand/flugpose-4-landeanflug.webp",
+      "source": "figuren/goch/bilder/bestand/flugpose-4-landeanflug.webp",
       "source_sha256": "2f5a953d78db8e0a812111bc434f86ca4d7531b2467c654718b394352438dd00",
       "source_bytes": 144982,
       "source_size": [
@@ -525,22 +525,22 @@
       ],
       "outputs": [
         {
-          "file": "assets/flugpose-4-landeanflug.webp",
+          "file": "figuren/goch/bilder/flugpose-4-landeanflug.webp",
           "size": [
             1536,
             1024
           ],
-          "bytes": 176814,
-          "quality": 82,
+          "bytes": 172630,
+          "quality": 81,
           "alpha_quality": 90,
-          "sha256": "97da5a88de92b09a2806800cfbf59795c9367cf55c2380e5ed6239788aabc753",
+          "sha256": "568147f2c23e0516ce2034aca9fe0dc7d6b5e8d4caa3fb965ba5aa252649c641",
           "byte_limit": null,
-          "paper_composite_mean_abs_error_rgb": 0.74719,
+          "paper_composite_mean_abs_error_rgb": 0.82846,
           "alpha_min": 0,
           "alpha_max": 255,
-          "alpha_mean": 64.1949,
-          "transparent_fraction": 0.735627,
-          "partial_alpha_fraction": 0.025522
+          "alpha_mean": 64.0649,
+          "transparent_fraction": 0.735729,
+          "partial_alpha_fraction": 0.026428
         }
       ]
     },
@@ -610,6 +610,6 @@
     "herbst",
     "winter"
   ],
-  "total_output_bytes": 1384511,
-  "bird_webp_bytes": 595136
+  "total_output_bytes": 1373913,
+  "bird_webp_bytes": 584538
 }
