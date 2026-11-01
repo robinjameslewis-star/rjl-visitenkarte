@@ -93,6 +93,14 @@ console.log("Spracheingabe /listen");
   for (let i = 0; i < 3; i++) { await listen(w, e, wav(19)); await Promise.all(ctx.pending); }
   const vorher = ai.aufrufe.length, g = await (await listen(w, e, wav(19))).json();
   check(g.grenze === true && g.text === "" && ai.aufrufe.length === vorher, "Tagesgrenze erreicht: leerer Text, keine Erkennung, kein Fehler");
+  w = await frisch(); e = env({ MAX_HOEREN_ANFRAGEN_TAG: "2" }, sprache({ hoeren: true, minutenTag: 20 }));
+  for (let i = 0; i < 2; i++) { await listen(w, e, wav(1)); await Promise.all(ctx.pending); }
+  const vor2 = ai.aufrufe.length, ag = await (await listen(w, e, wav(1))).json();
+  check(ag.grenze === true && ai.aufrufe.length === vor2, "Anfragengrenze je Tag erreicht: keine Erkennung");
+  w = await frisch(); e = env({}, sprache({ hoeren: true, minutenTag: 20 }));
+  e.USAGE.map.set("hoeren:tag:" + new Date().toISOString().slice(0, 10), "{kaputt");
+  const vor3 = ai.aufrufe.length, k = await (await listen(w, e, wav(2))).json();
+  check(k.grenze === true && ai.aufrufe.length === vor3, "Zähler nicht lesbar: keine Erkennung (fail-closed)");
 }
 
 console.log("Antwort und Figur");

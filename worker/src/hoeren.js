@@ -60,7 +60,7 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
   const dauer = wavDauer(buf);
   if (dauer == null) return antwort({ error: "Bitte als WAV (PCM, 16 Bit) senden." }, 415, cors);
   if (dauer > MAX_SEKUNDEN + 0.5) return antwort({ error: `Höchstens ${MAX_SEKUNDEN} Sekunden.` }, 413, cors);
-  if (dauer < 0.3) return antwort({ text: "", sekunden: 0 }, 200, cors);
+  if (dauer < 0.5) return antwort({ text: "", sekunden: 0 }, 200, cors);
 
   // Grenzen: weich je Adresse und Instanz, hart je Tag in Sekunden (KV). Erreicht: leerer Text, die Seite bietet Tippen an.
   const now = Date.now();
@@ -72,8 +72,13 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
   }
   const tagKey = zaehler + new Date(now).toISOString().slice(0, 10);
   let stand = { sekunden: 0, anfragen: 0, ms: 0 };
-  if (env.USAGE && zaehlen) try { stand = { ...stand, ...JSON.parse(await env.USAGE.get(tagKey)) }; } catch {}
+  if (env.USAGE && zaehlen) {
+    // Zähler nicht lesbar: lieber keine Erkennung als ohne Deckel (fail-closed, wie bei der Stimme)
+    try { stand = { ...stand, ...JSON.parse(await env.USAGE.get(tagKey)) }; } catch { return antwort({ text: "", grenze: true }, 200, cors); }
+  }
   if (zaehlen && stand.sekunden + dauer > (sprache.minutenTag || 0) * 60) return antwort({ text: "", grenze: true }, 200, cors);
+  // Zweiter Deckel: Zahl der Aufnahmen je Tag (viele sehr kurze Aufnahmen kosten KV-Schreibvorgänge und Erkennungen)
+  if (zaehlen && stand.anfragen >= +(env.MAX_HOEREN_ANFRAGEN_TAG || 400)) return antwort({ text: "", grenze: true }, 200, cors);
 
   const started = Date.now();
   let out;
