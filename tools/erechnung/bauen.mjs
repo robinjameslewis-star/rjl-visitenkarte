@@ -2,8 +2,8 @@
 //   cd tools/erechnung && npm install && node regeln-bauen.mjs && node bauen.mjs [--entwurf]
 // Schreibt nach assets/erechnung/: app.js und app.css (Oberfläche), pruefung.js (Prüfkern: fontoxpath mit exakter Dezimalrechnung und
 // der Interpreter; lädt erst beim ersten Prüfen), regeln/*.json (regeln-bauen.mjs), beispiele/ und LIZENZEN.txt. Dazu je Sprache die
-// einzelne Datei zum Herunterladen (alles eingebettet, läuft offline und als lokale Datei; eine Content-Security-Policy sperrt jede
-// Verbindung ins Netz). Die Fassung ist der letzte Git-Stand von tools/erechnung; mit ungesicherten Änderungen nur als --entwurf.
+// einzelne Datei zum Herunterladen (alles eingebettet, läuft offline und als lokale Datei; eine Content-Security-Policy erlaubt nur
+// die Lizenzprüfung bei goch.robin.vision, die erst ab 2027 anläuft). Die Fassung ist der letzte Git-Stand von tools/erechnung; mit ungesicherten Änderungen nur als --entwurf.
 // Danach: node tools/werkzeug-uebernehmen.mjs <beide Dateien> (Seiten, Übersichten, Sitemap neu) und die Tests.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -14,13 +14,18 @@ import { patchen } from "./fxpatch.mjs";
 
 const HIER = dirname(fileURLToPath(import.meta.url));
 const WURZEL = join(HIER, "..", "..");
-const ZIEL = join(WURZEL, "assets", "erechnung");
+// Für Tests (tests/lizenz_browser_test.mjs): anderes Ziel und eigener Prüfschlüssel über ERECHNUNG_ZIEL und LIZENZ_SCHLUESSEL_DATEI
+const ZIEL = process.env.ERECHNUNG_ZIEL || join(WURZEL, "assets", "erechnung");
 const entwurf = process.argv.includes("--entwurf");
 const git = (...a) => execFileSync("git", ["-C", WURZEL, ...a], { encoding: "utf8" }).trim();
 
 const geaendert = git("status", "--porcelain", "--", "tools/erechnung").split("\n").filter(Boolean);
 if (geaendert.length && !entwurf) { console.error("Ungesicherte Änderungen in tools/erechnung – erst committen oder mit --entwurf bauen:\n" + geaendert.join("\n")); process.exit(1); }
 const FASSUNG = entwurf && geaendert.length ? "entwurf" : git("log", "-1", "--format=%h", "--abbrev=7", "--", "tools/erechnung");
+// Öffentlicher Schlüssel der Lizenzprüfung (vom Worker, GET goch.robin.vision/lizenz/schluessel); fehlt er, sperrt das Werkzeug ab 2027.
+const SCHLUESSEL_DATEI = process.env.LIZENZ_SCHLUESSEL_DATEI || join(WURZEL, "tools", "lizenz", "oeffentlich.json");
+const LIZENZ_SCHLUESSEL = existsSync(SCHLUESSEL_DATEI) ? JSON.stringify(JSON.parse(readFileSync(SCHLUESSEL_DATEI, "utf8"))) : "null";
+if (LIZENZ_SCHLUESSEL === "null") console.warn("Achtung: tools/lizenz/oeffentlich.json fehlt – ab 1.1.2027 sperrt das Werkzeug.");
 const DATUM = git("log", "-1", "--format=%cs", "--", "tools/erechnung");
 console.log(`Fassung ${FASSUNG} vom ${DATUM}${entwurf ? " (Entwurf)" : ""}`);
 
@@ -35,7 +40,7 @@ const fxPlugin = {
     });
   },
 };
-const gemeinsam = { bundle: true, minify: true, format: "iife", target: ["chrome100", "safari16", "firefox110"], legalComments: "none", logLevel: "warning", define: { __FASSUNG__: JSON.stringify(FASSUNG) }, loader: { ".json": "json", ".ts": "ts" } };
+const gemeinsam = { bundle: true, minify: true, format: "iife", target: ["chrome100", "safari16", "firefox110"], legalComments: "none", logLevel: "warning", define: { __FASSUNG__: JSON.stringify(FASSUNG), __LIZENZ_SCHLUESSEL__: LIZENZ_SCHLUESSEL }, loader: { ".json": "json", ".ts": "ts" } };
 const banner = teil => `/*! SmartFormular E-Rechnung lite ${FASSUNG} – ${teil} · robin.vision · Lizenzen und Quellen: LIZENZEN.txt */`;
 
 mkdirSync(join(ZIEL, "beispiele"), { recursive: true });
@@ -76,8 +81,8 @@ writeFileSync(join(ZIEL, "LIZENZEN.txt"), LIZENZEN);
 
 // Einzelne Datei je Sprache
 const SEITE = {
-  de: { datei: "E-Rechnung-lite.html", id: "e-rechnung-pruefen", fassung: "Fassung", offline: "Läuft offline in diesem Browserfenster; die Datei baut keine Verbindung ins Internet auf.", lizenzen: "Lizenzen und Quellen", seite: "Nutzungsbedingungen, neue Fassungen und Fragen" },
-  en: { datei: "E-Invoice-Viewer.html", id: "e-invoice-viewer", fassung: "Version", offline: "Runs offline in this browser window; the file makes no connection to the internet.", lizenzen: "Licences and sources", seite: "Terms of use, new versions and questions" },
+  de: { datei: "E-Rechnung-lite.html", id: "e-rechnung-pruefen", fassung: "Fassung", offline: "Läuft offline in diesem Browserfenster. Ab 1. Januar 2027 verbindet sich die Datei nur zur Anmeldung und Lizenzprüfung mit robin.vision; Rechnungen werden nie übertragen.", lizenzen: "Lizenzen und Quellen", seite: "Nutzungsbedingungen, neue Fassungen und Fragen" },
+  en: { datei: "E-Invoice-Viewer.html", id: "e-invoice-viewer", fassung: "Version", offline: "Runs offline in this browser window. From 1 January 2027 the file connects to robin.vision only to sign in and check the licence; invoices are never transmitted.", lizenzen: "Licences and sources", seite: "Terms of use, new versions and questions" },
 };
 const T = (await import("./src/texte.js")).T;
 const ohneSchluss = s => s.replace(/<\/(script)/gi, "<\\/$1");
@@ -92,7 +97,7 @@ for (const [lang, s] of Object.entries(SEITE)) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://goch.robin.vision; form-action 'none'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <title>${t.titel}</title>
 <style>
@@ -129,7 +134,7 @@ ${CSS}
 </body>
 </html>
 `;
-  const ordner = join(HIER, ".cache", "dist");
+  const ordner = process.env.ERECHNUNG_ZIEL ? join(ZIEL, "dist") : join(HIER, ".cache", "dist");
   mkdirSync(ordner, { recursive: true });
   writeFileSync(join(ordner, s.datei), html);
   console.log(`${s.datei}: ${(Buffer.byteLength(html) / 1e6).toFixed(2)} MB → tools/erechnung/.cache/dist/`);

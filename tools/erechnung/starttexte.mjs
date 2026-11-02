@@ -57,7 +57,7 @@ ${ABGLEICH_DE}
 
 ## Datenschutz
 
-Die Rechnungen werden nur in Ihrem Browserfenster gelesen und geprüft. Von robin.vision werden das Werkzeug und beim ersten Prüfen die Prüfregeln geladen; Rechnungsdaten werden nicht übertragen und nicht gespeichert, es gibt kein Tracking. Eine Sicherheitsrichtlinie der Seite (Content Security Policy) erlaubt Verbindungen nur zu robin.vision. Die Datei zum Herunterladen kann gar keine Verbindung ins Internet aufbauen.
+Die Rechnungen werden nur in Ihrem Browserfenster gelesen und geprüft. Von robin.vision werden das Werkzeug und beim ersten Prüfen die Prüfregeln geladen; Rechnungsdaten werden nicht übertragen und nicht gespeichert, es gibt kein Tracking. Eine Sicherheitsrichtlinie der Seite (Content Security Policy) erlaubt Verbindungen nur zu robin.vision. Die Datei zum Herunterladen verbindet sich ab dem 1. Januar 2027 nur zur Anmeldung und Lizenzprüfung mit robin.vision (E-Mail-Adresse und Lizenzstand, nie Rechnungen).
 
 ## Rechtliche Einordnung
 
@@ -119,7 +119,7 @@ ${ABGLEICH_EN}
 
 ## Privacy
 
-Invoices are read and checked only in your browser window. The tool, and on the first check the validation rules, are loaded from robin.vision; no invoice data is transmitted or stored, and there is no tracking. A security policy on the page (Content Security Policy) allows connections to robin.vision only. The downloadable file cannot connect to the internet at all.
+Invoices are read and checked only in your browser window. The tool, and on the first check the validation rules, are loaded from robin.vision; no invoice data is transmitted or stored, and there is no tracking. A security policy on the page (Content Security Policy) allows connections to robin.vision only. From 1 January 2027 the downloadable file connects to robin.vision only to sign in and check the licence (email address and licence status, never invoices).
 
 ## Legal classification
 

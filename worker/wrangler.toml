@@ -29,6 +29,13 @@ MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
 MAX_DRAHT_PER_DAY = "20"    # Goch: Nachrichten an Robin je Tag insgesamt (Review 25.09.2026)
 MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldungen je Tag insgesamt (src/aufbau.js)
+# Lizenzen SmartFormular ab 01.01.2027 (src/lizenz.js): Code per E-Mail, Test vier Wochen, Lizenz ein Jahr je Person.
+# Stripe (später, Robin): Secrets STRIPE_SECRET_KEY und STRIPE_WEBHOOK_SECRET; Preis-IDs als STRIPE_PREIS_ERECHNUNG / STRIPE_PREIS_FIBU.
+# Ohne Stripe und mit LIZENZ_TESTKAUF = "1" schaltet „Lizenz kaufen“ sofort frei (nur zum Durchspielen, nie öffentlich an).
+LIZENZ_PREIS = ""                  # Text im Werkzeug neben „Lizenz kaufen“, z. B. "199 € je Benutzer und Jahr" – erst, wenn der Preis auf der Website steht
+LIZENZ_TESTKAUF = "0"
+LIZENZ_GERAETE = "3"               # angemeldete Geräte je Person
+MAX_LIZENZ_CODES_PER_DAY = "300"   # Anmeldecodes je Tag insgesamt (Kostenbremse Resend)
 # Sprechender Goch (23.10.2026): Spracheingabe POST /listen über Workers AI (Whisper large-v3-turbo, Bindung AI),
 # Stimme über ElevenLabs. Schalter, Modell des Sprachmodus, voiceId und Grenzen in der Redaktion – beides ist aus,
 # bis Robin einschaltet; hier nur die Ausgangswerte der Grenzen.

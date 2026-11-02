@@ -7,8 +7,9 @@ import { dateiLesen } from "./lesen.js";
 import { erklaeren, STEUERKATEGORIE, eigeneErklaerung, regelSlug, LEXIKON } from "./regeltexte.js";
 import { zahlung, qrSvg, ibanLesbar, ibanGueltig } from "./girocode.js";
 import META from "./generiert/meta.json";
+import { lizenzTor, LIZENZ_CSS } from "../../lizenz/lizenz-client.js";
 
-/* global __FASSUNG__ */
+/* global __FASSUNG__, __LIZENZ_SCHLUESSEL__ */
 const FASSUNG = typeof __FASSUNG__ === "string" ? __FASSUNG__ : "dev";
 const wurzel = document.getElementById("erechnung");
 const lang = (wurzel.dataset.lang || document.documentElement.lang || "de").startsWith("en") ? "en" : "de";
@@ -49,6 +50,7 @@ const istGutschrift = d => zahlung(d).grund === "gutschrift-dokument";
 
 // ---------- Gerüst ----------
 wurzel.innerHTML = `
+<div id="ewz-lizenz"></div>
 <section class="ewz-abschnitt ewz-start" aria-labelledby="ewz-h1">
   <div class="ewz-n" aria-hidden="true">01</div>
   <div class="ewz-inhalt">
@@ -70,17 +72,20 @@ const ergebnisse = document.getElementById("ewz-ergebnisse");
 const uebersicht = document.getElementById("ewz-uebersicht");
 const sagen = s => { status.textContent = s; };
 
-// ---------- Testzeitraum ----------
-// Robin, 01.11.2026: bis 31.12.2026 kostenlos testen, danach nur mit Lizenz (die Lizenzprüfung folgt mit der Anmeldung per Code).
-// Ab 1. Januar 2027 (Ortszeit) steht statt der Ablage der Hinweis mit dem Weg zur Lizenz – auf der Seite und in der Datei.
-const TESTENDE = new Date(2027, 0, 1);
-const testBeendet = () => new Date() >= TESTENDE;
-function testendeZeigen() {
-  wurzel.querySelector(".ewz-start .ewz-inhalt").innerHTML = `<span class="ewz-label">${t.testEnde}</span>
-<h2 id="ewz-h1">${t.testEndeTitel}</h2>
-<p>${t.testEndeText} <a href="${t.testEndeSeite}" rel="noopener">${t.testEndeSeite.replace("https://", "")}</a></p>`;
-  uebersicht.innerHTML = ""; ergebnisse.innerHTML = "";
-}
+// ---------- Testzeitraum und Lizenz ----------
+// Robin, 01.11.2026: bis 31.12.2026 ohne Anmeldung kostenlos testen; ab 1. Januar 2027 Anmeldung per Code, vier Wochen Test, danach
+// Lizenz (tools/lizenz/lizenz-client.js, Worker src/lizenz.js). Bis das Tor offen ist, nimmt die Ablage nichts an.
+let freigegeben = false;
+const leiste = document.createElement("p");
+leiste.className = "rvl-leiste"; leiste.hidden = true;
+wurzel.querySelector(".ewz-start .ewz-inhalt").prepend(leiste);
+const lizenzStil = document.createElement("style");
+lizenzStil.textContent = LIZENZ_CSS;
+document.head.appendChild(lizenzStil);
+const start = wurzel.querySelector(".ewz-start");
+start.hidden = true;
+const lizenzBereit = lizenzTor({ werkzeug: "erechnung", lang, oeffentlich: typeof __LIZENZ_SCHLUESSEL__ === "object" ? __LIZENZ_SCHLUESSEL__ : null,
+  wurzel: document.getElementById("ewz-lizenz"), leiste }).then(r => { freigegeben = true; document.getElementById("ewz-lizenz").innerHTML = ""; start.hidden = false; return r; });
 
 // ---------- Prüfkern und Regeln (laden beim ersten Prüfen nach) ----------
 let kernVersprechen = null;
@@ -111,7 +116,7 @@ const eintraege = [];
 let warteschlange = Promise.resolve();
 
 async function annehmen(dateien) {
-  if (testBeendet()) { testendeZeigen(); return; }
+  if (!freigegeben) return;
   const neu = Array.from(dateien);
   if (!neu.length) return;
   sagen(t.liest);
@@ -550,6 +555,5 @@ wurzel.addEventListener("click", async ev => {
     case "alle-entfernen": eintraege.length = 0; ergebnisse.innerHTML = ""; uebersichtZeichnen(); eingabe.focus(); break;
   }
 });
-if (testBeendet()) testendeZeigen();
 // Für Tests: Zustand lesbar machen (keine Daten nach außen)
-window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, TESTENDE };
+window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, lizenzBereit };

@@ -2,9 +2,6 @@
 export const T = {
   de: {
     titel: "SmartFormular E-Rechnung lite",
-    testEnde: "Test beendet", testEndeTitel: "Der kostenlose Test lief bis zum 31.12.2026.",
-    testEndeText: "Wer E-Rechnung lite weiter verwenden möchte, braucht eine Lizenz. Wie Sie sie bekommen, steht auf der Seite des Werkzeugs:",
-    testEndeSeite: "https://robin.vision/werkzeuge/e-rechnung-pruefen/",
     kurz: "E-Rechnungen verstehen und bezahlen",
     lead: "Ziehen Sie eine XRechnung oder ZUGFeRD-Rechnung hierher: Sie sehen sofort, ob es eine E-Rechnung ist, was darin steht, was fehlt – und können sie per GiroCode bezahlen. Alles geschieht in diesem Browserfenster; Ihre Rechnungen verlassen den Rechner nicht.",
     schritt1: "Rechnung", schritt1t: "E-Rechnung hineinziehen",
@@ -91,9 +88,6 @@ export const T = {
   },
   en: {
     titel: "SmartFormular E-Rechnung lite",
-    testEnde: "Trial ended", testEndeTitel: "The free trial ran until 31 December 2026.",
-    testEndeText: "To keep using E-Rechnung lite you need a licence. How to get one is explained on the tool's page:",
-    testEndeSeite: "https://robin.vision/werkzeuge/e-invoice-viewer/",
     kurz: "E-invoice viewer and validator",
     lead: "Drag an XRechnung or ZUGFeRD invoice here: you see at once whether it is an e-invoice, what it says and what is missing – and you can pay it with a GiroCode. Everything happens in this browser window; your invoices never leave your computer.",
     schritt1: "Invoice", schritt1t: "Drop in an e-invoice",
