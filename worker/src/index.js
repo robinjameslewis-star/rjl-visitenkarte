@@ -22,6 +22,7 @@ import { handleAdmin } from "./admin.js";
 import { raw as githubRaw } from "./github.js";
 import { handleContact } from "./contact.js";
 import { handleAufbau } from "./aufbau.js";
+import { handleLizenz } from "./lizenz.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
@@ -120,6 +121,8 @@ const worker = {
     if (!intern && new URL(request.url).pathname.startsWith("/kiosk/")) return handleKiosk(request, env, ctx, { handle: worker.handle, mitStimme });
     // Aufbau aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Booking Batch Generator“): offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
     if (new URL(request.url).pathname === "/aufbau") return handleAufbau(request, env, ctx);
+    // Lizenzen der SmartFormular-Werkzeuge ab 2027: Anmeldung per Code, Status, Kauf, Stripe-Webhook – offen für jede Herkunft (src/lizenz.js)
+    if (new URL(request.url).pathname.startsWith("/lizenz/")) return handleLizenz(request, env, ctx);
     const origin = request.headers.get("Origin") || "";
     const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
     const cors = {
