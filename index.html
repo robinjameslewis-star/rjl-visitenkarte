@@ -247,6 +247,13 @@
     html.goch-fokus .scene { position: fixed; z-index: 19; left: 5vw; top: calc(env(safe-area-inset-top) + 28px); width: 90vw; }
     html.goch-fokus .goch { max-height: min(56dvh, calc(100dvh - 90vw * 0.616 - 52px)) !important; } /* Goch oben bleibt frei */
     html.goch-fokus .goch-log .goch-bubble { font-size: 16px; }
+    /* Im Sprechmodus reichte die Höhe auf dem iPhone nicht: Vorschläge, Eingabe und Mikrofon schoben die Schalter unter den
+       Bildschirmrand (Robin, 02.11.2026). Vorschläge daher in einer waagrechten Zeile zum Wischen; was trotzdem nicht passt,
+       lässt sich im Blatt scrollen. */
+    html.goch-fokus #goch-starters { flex-wrap: nowrap; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; margin: 0 -14px; padding: 0 14px; }
+    html.goch-fokus #goch-starters::-webkit-scrollbar { display: none; }
+    html.goch-fokus .goch-starter { flex: 0 0 auto; white-space: nowrap; }
+    html.goch-fokus .goch { overflow-y: auto; overscroll-behavior: contain; }
     /* Goch zeigt etwas: klein in der Ecke, das Gespräch als schmale Leiste */
     html.goch-unterwegs .goch { max-height: 32dvh !important; }
     html.goch-unterwegs .goch-log > :not(:last-child), html.goch-unterwegs #goch-starters, html.goch-unterwegs #goch-form,
