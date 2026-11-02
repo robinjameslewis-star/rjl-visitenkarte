@@ -1,9 +1,12 @@
 // Lizenz-Tor im echten Chrome (playwright-core, Kanal „chrome“) mit gestellter Uhr: SmartFormular E-Rechnung lite als Datei zum
 // Herunterladen, gebaut mit eigenem Prüfschlüssel in einen Temp-Ordner. Der Worker (src/lizenz.js) läuft in Node und beantwortet
 // die Anfragen an goch.robin.vision/lizenz/ über page.route; Resend wird abgefangen. Kein Netz, das Repository bleibt unberührt.
+// Liegt FiBu lite daneben (FIBU_REPO, Standard ~/Developer/buchungsstapel-lokal), wird auch dessen Datei mit demselben Schlüssel
+// gebaut und geprüft, und die Kopie browser/src/lizenz.js muss dem Client hier gleichen.
 //   node tests/lizenz_browser_test.mjs
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, cpSync, readFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, cpSync, readFileSync, existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -121,6 +124,32 @@ check(true, "Abmelden führt zur Anmeldung");
 const en = pathToFileURL(join(tmp, "dist", "E-Invoice-Viewer.html")).href;
 await page.goto(en); await page.waitForTimeout(400);
 check(/Sign in to keep working/.test(await text(".rvl-maske")), "englische Datei: englische Maske");
+
+// i) FiBu lite
+const FIBU = process.env.FIBU_REPO || join(homedir(), "Developer", "buchungsstapel-lokal");
+if (existsSync(join(FIBU, "browser", "build.py"))) {
+  const kopie = readFileSync(join(FIBU, "browser", "src", "lizenz.js"), "utf8").split("\n").slice(1).join("\n");
+  check(kopie === readFileSync(join(WURZEL, "tools", "lizenz", "lizenz-client.js"), "utf8"), "FiBu lite: Kopie des Clients ist aktuell");
+  execFileSync("python3", [join(FIBU, "browser", "build.py")], { env: { ...process.env, FIBU_ZIEL: join(tmp, "fibu"), LIZENZ_SCHLUESSEL_DATEI: join(tmp, "schluessel.json") }, stdio: "pipe" });
+  const fibu = pathToFileURL(join(tmp, "fibu", "Buchungsstapel-Generator.html")).href;
+  const fibuLaden = async () => { await page.goto(fibu); await page.waitForTimeout(800); };
+  await zeit("2026-12-15T09:00:00+01:00"); anfragen = [];
+  await fibuLaden();
+  check(await sichtbar("main") && !(await page.locator(".rvl-maske").count()) && anfragen.length === 0, "FiBu 15.12.2026: frei, ohne Anfrage");
+  await zeit("2027-01-04T09:00:00+01:00");
+  await fibuLaden();
+  check(await sichtbar(".rvl-maske") && !(await sichtbar("main")), "FiBu 4.1.2027: Anmeldemaske, Arbeitsfläche verborgen");
+  await page.fill("#rvl-email", "buero@beispiel.de");
+  await page.click("#rvl-senden");
+  await page.waitForSelector("#rvl-code");
+  await page.fill("#rvl-code", mails.at(-1).subject.match(/\d{6}/)[0]);
+  await page.click("#rvl-anmelden");
+  await page.waitForSelector("main:not([hidden])");
+  check(/Test bis 01\.02\.2027/.test(await text(".rvl-leiste")), "FiBu: angemeldet, eigener Test bis 01.02.2027");
+  check(await page.locator("#ablage_auszug").isVisible(), "FiBu: Ablage für Auszüge bereit");
+  await page.goto(pathToFileURL(join(tmp, "fibu", "Booking-Batch-Generator.html")).href); await page.waitForTimeout(800);
+  check(/Signed in as buero@beispiel\.de · Trial until 1 Feb 2027/.test(await text(".rvl-leiste")), "FiBu englisch: dieselbe Anmeldung, englische Leiste");
+} else console.log("  –    FiBu lite nicht gefunden, übersprungen");
 
 await browser.close();
 Date.now = echtesNow;

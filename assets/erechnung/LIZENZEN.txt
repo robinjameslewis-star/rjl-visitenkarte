@@ -1,4 +1,4 @@
-SmartFormular E-Rechnung lite – Lizenzen und Quellen (Fassung f44b34b)
+SmartFormular E-Rechnung lite – Lizenzen und Quellen (Fassung 53d733a)
 Anbieter: Robin James Lewis, robin.vision. Das Werkzeug selbst: Nutzungsbedingungen auf https://robin.vision/werkzeuge/e-rechnung-pruefen/
 
 Enthaltene Bestandteile:

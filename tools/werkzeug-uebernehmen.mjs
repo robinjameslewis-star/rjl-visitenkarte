@@ -52,7 +52,7 @@ Vor dem ersten Einsatz mit einem Testmandanten prüfen.
 
 ## Datenschutz
 
-Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei kann keine Verbindung ins Internet aufbauen, mit einer Ausnahme, die Sie selbst auslösen: Erkennt der Generator einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9) an robin.vision senden. Sie sehen vorher genau, was gesendet wird.`,
+Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei verbindet sich nur in zwei Fällen mit robin.vision: ab dem 1. Januar 2027 zur Anmeldung und Lizenzprüfung (E-Mail-Adresse und Lizenzstand, nie Auszüge oder Buchungen) und wenn Sie den Aufbau eines nicht erkannten Auszugs ohne Inhalt (Buchstaben als x, Ziffern als 9) selbst senden. Sie sehen vorher genau, was gesendet wird.`,
     nutzung: `Stand: 15. Oktober 2026
 
 **Anbieter.** Robin James Lewis, Höchststr. 32, 72336 Balingen ([Impressum](https://robin.vision/#privacy)).
@@ -104,7 +104,7 @@ Each booking batch is a CSV file in the DATEV format, also known as EXTF or Date
 
 ## Privacy
 
-Bank statements, template and postings are processed only in your browser window. The file cannot connect to the internet, with one exception that you trigger yourself: if the generator does not recognise a statement, you can send its layout without content (letters as x, digits as 9) to robin.vision. You see exactly what will be sent beforehand.`,
+Bank statements, template and postings are processed only in your browser window. The file connects to robin.vision in two cases only: from 1 January 2027 to sign in and check the licence (email address and licence status, never statements or postings), and when you yourself send the layout of an unrecognised statement without content (letters as x, digits as 9). You see exactly what will be sent beforehand.`,
     nutzung: `As of: 16 October 2026
 
 **Provider.** Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany ([legal notice](https://robin.vision/?lang=en#privacy)).
