@@ -3,7 +3,7 @@
 // Schreibt nach assets/erechnung/: app.js und app.css (Oberfläche), pruefung.js (Prüfkern: fontoxpath mit exakter Dezimalrechnung und
 // der Interpreter; lädt erst beim ersten Prüfen), regeln/*.json (regeln-bauen.mjs), beispiele/ und LIZENZEN.txt. Dazu je Sprache die
 // einzelne Datei zum Herunterladen (alles eingebettet, läuft offline und als lokale Datei; eine Content-Security-Policy erlaubt nur
-// die Lizenzprüfung bei goch.robin.vision, die erst ab 2027 anläuft). Die Fassung ist der letzte Git-Stand von tools/erechnung; mit ungesicherten Änderungen nur als --entwurf.
+// die Lizenzprüfung bei goch.robin.vision, die erst ab 2027 anläuft). Die Fassung ist der letzte Git-Stand von tools/erechnung und tools/lizenz (Lizenz-Client, Prüfschlüssel); mit ungesicherten Änderungen nur als --entwurf.
 // Danach: node tools/werkzeug-uebernehmen.mjs <beide Dateien> (Seiten, Übersichten, Sitemap neu) und die Tests.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -19,14 +19,14 @@ const ZIEL = process.env.ERECHNUNG_ZIEL || join(WURZEL, "assets", "erechnung");
 const entwurf = process.argv.includes("--entwurf");
 const git = (...a) => execFileSync("git", ["-C", WURZEL, ...a], { encoding: "utf8" }).trim();
 
-const geaendert = git("status", "--porcelain", "--", "tools/erechnung").split("\n").filter(Boolean);
+const geaendert = git("status", "--porcelain", "--", "tools/erechnung", "tools/lizenz").split("\n").filter(Boolean);
 if (geaendert.length && !entwurf) { console.error("Ungesicherte Änderungen in tools/erechnung – erst committen oder mit --entwurf bauen:\n" + geaendert.join("\n")); process.exit(1); }
-const FASSUNG = entwurf && geaendert.length ? "entwurf" : git("log", "-1", "--format=%h", "--abbrev=7", "--", "tools/erechnung");
+const FASSUNG = entwurf && geaendert.length ? "entwurf" : git("log", "-1", "--format=%h", "--abbrev=7", "--", "tools/erechnung", "tools/lizenz");
 // Öffentlicher Schlüssel der Lizenzprüfung (vom Worker, GET goch.robin.vision/lizenz/schluessel); fehlt er, sperrt das Werkzeug ab 2027.
 const SCHLUESSEL_DATEI = process.env.LIZENZ_SCHLUESSEL_DATEI || join(WURZEL, "tools", "lizenz", "oeffentlich.json");
 const LIZENZ_SCHLUESSEL = existsSync(SCHLUESSEL_DATEI) ? JSON.stringify(JSON.parse(readFileSync(SCHLUESSEL_DATEI, "utf8"))) : "null";
 if (LIZENZ_SCHLUESSEL === "null") console.warn("Achtung: tools/lizenz/oeffentlich.json fehlt – ab 1.1.2027 sperrt das Werkzeug.");
-const DATUM = git("log", "-1", "--format=%cs", "--", "tools/erechnung");
+const DATUM = git("log", "-1", "--format=%cs", "--", "tools/erechnung", "tools/lizenz");
 console.log(`Fassung ${FASSUNG} vom ${DATUM}${entwurf ? " (Entwurf)" : ""}`);
 
 // fontoxpath mit Dezimal-Patch als virtuelles Modul
