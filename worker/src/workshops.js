@@ -359,6 +359,7 @@ export function workshopsSeite(lang) {
 <div class="einleitung">
 ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 </div>
+${grundsaetze(lang)}
 <ul class="wege">
 <li><a class="knopf" href="#anfrage">${esc(t.anfrageTitel)}</a></li>
 <li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
@@ -367,7 +368,6 @@ ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <ol class="schritte">
 ${t.schritte.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
 </ol>
-${grundsaetze(lang)}
 <h2 id="teile">${esc(t.teileTitel)}</h2>
 <div class="teile">
 ${t.teile.map(([titel, text]) => `<section class="teil"><h3>${esc(titel)}</h3><p class="frei">${esc(text)}</p></section>`).join("\n")}

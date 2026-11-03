@@ -15,7 +15,7 @@ export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
 export const SMARTFORMULAR_PFAD = { de: "werkzeuge/smartformular/index.html", en: "werkzeuge/smartformular/en/index.html" };
 export const smartformularUrl = lang => `${SITE}${SMARTFORMULAR_PFAD[lang].replace(/index\.html$/, "")}`;
 // Brotkrume zurück zur Übersicht der Werkzeuge
-const BROTKRUME = { de: { text: "Robins Werkzeugkasten", href: "werkzeuge/" }, en: { text: "Robin's Tech Stack", href: "werkzeuge/en/" } };
+const BROTKRUME = { de: { text: "Werkzeuge", href: "werkzeuge/" }, en: { text: "Tools", href: "werkzeuge/en/" } };
 
 const TEXT = {
   de: {

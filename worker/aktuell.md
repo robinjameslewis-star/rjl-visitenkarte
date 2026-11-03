@@ -15,7 +15,7 @@
    (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
    Deklaration für den Jahresabschluss. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
-4. **Werkzeuge und Partner.** Unter „Robins Werkzeugkasten“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
+4. **Werkzeuge und Partner.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
    Verwaltung und andere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
    Lösungen kommen nach und nach dazu. Anbieter können sich über „Partner werden“ melden.
 5. **Impulse.** Jeden Freitag erscheint ein neuer Impuls zu Automatisierung und KI im Rechnungswesen,
@@ -42,7 +42,7 @@
    SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and
    SmartFormular Deklaration for year-end accounts. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
-4. **Tools and partners.** Under "Robin's Tech Stack" Robin presents and compares software and AI solutions for
+4. **Tools and partners.** Under "Tools" Robin presents and compares software and AI solutions for
    accounting, administration and other business processes – including SmartFormular; more solutions
    will follow step by step. Providers can get in touch via "Become a partner".
 5. **Food for Thought.** Every Friday a new post on automation and AI in accounting, on the site and in

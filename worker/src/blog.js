@@ -157,10 +157,10 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Robins Werkzeugkasten", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge.",
+  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge.",
     liste: "Jeden Freitag ein kurzer Beitrag zu Automatisierung, KI und E-Rechnung im Rechnungswesen – mit Quellen. Von Robin James Lewis.",
     zeile: "Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen." },
-  en: { back: "Robin James Lewis", all: "All posts", tools: "Robin's Tech Stack", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet.",
+  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet.",
     liste: "Food for Thought: a short post every Friday on automation, AI and e-invoicing in accounting – with sources. By Robin James Lewis.",
     zeile: "What automation and AI change in accounting – every Friday, with sources." },
 };
@@ -344,10 +344,10 @@ ${items}
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
   de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", oeffnen: "Zum Werkzeug", fassung: "Fassung", vom: "vom",
-    sf: "Robins Werkzeugkasten", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
+    sf: "Werkzeuge", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
     ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Mehr zum Workshop" },
   en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", oeffnen: "To the tool", fassung: "Version", vom: "of",
-    sf: "Robin's Tech Stack", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
+    sf: "Tools", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
     ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "More about the workshop" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen
