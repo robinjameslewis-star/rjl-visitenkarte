@@ -349,6 +349,7 @@ const appAbschnitt = (w, lang, up, fassung) => `<section class="ewz-rahmen" id="
 export const SF_CSS = `:root { --green: #EDE9FE; --copper: #A78BFA; --ink: #EDE9FE; --ink-soft: #C4B5FD; --ink-muted: #8B83A8; --line: #2A2340; --paper: #0E0B14; }
 body { background: #0E0B14; color: #EDE9FE; }
 .kopf .termin { border-color: #A78BFA; color: #EDE9FE; } .kopf .termin:hover { background: #7C3AED; color: #fff; }
+.kopf .marke { margin-left: -10px; padding: 6px 10px 7px; border-radius: 3px; background: #F3EFE5; color: #0B3D2E; } .kopf .marke .punkt { color: #B8724F; } /* Wortmarke immer grün mit kupfernem Punkt (Robin 03.11.2026) */
 .kopf .menue nav { background: #1C1726; box-shadow: 0 10px 30px rgba(0,0,0,.5); } .kopf .menue nav a:hover { background: rgba(255,255,255,.06); }
 .sf-marke { margin: 0 0 6px; font: 500 15px/1.2 var(--sans); letter-spacing: .02em; color: #fff; } .sf-marke span, .sf-wortmarke span { color: #A78BFA; }
 .sf-kacheln { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 28px 0 18px; }
