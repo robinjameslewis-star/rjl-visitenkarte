@@ -489,9 +489,10 @@
   .landscape-on .goch::after { bottom: auto; top: 28px; }
   .landscape-on .branch { width: 242.8447528%; transform-origin: 20.5892857% 35%; }
   .landscape-on .branch img { max-width: none; }
-  /* Native Filter auf den einzelnen Bildern: keine SVG-Filterfläche auf dem bewegten Flugcontainer.
-     So werden auch außerhalb der Szene liegende Flugposen vom ersten Frame an gleich abgedunkelt. */
-  .landscape-on .bird-frame, .landscape-on .branch img {
+  /* Nachts nur der Ast abgedunkelt (native Filter, keine SVG-Filterfläche). Goch bleibt hell: Die Teile von goch-leben.js
+     (Kopf, Schwanz) trugen nie einen Filter, deshalb wurde er nach der Landung plötzlich hell; so soll er aussehen, jetzt
+     auch im Anflug (Robin, 03.11.2026). */
+  .landscape-on .branch img {
     filter: brightness(calc(1 - var(--nacht) * .40)) saturate(calc(1 - var(--nacht) * .18));
   }
   .landscape-picture, .landscape-particles { filter: url(#landscape-moonlight); }
