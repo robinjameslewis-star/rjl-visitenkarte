@@ -9,7 +9,7 @@
 // Produkte haben eigene Seiten unter werkzeuge/<produkt>/ (SmartFormular: smartformular.js). Weitere Lösungen kommen aus partner.js. Alte Sprungmarken der früheren SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Produktseite weiter.
 // tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen; Vorlage war der Entwurf auf dem Zweig claude/werkzeuge-entwurf
 // (tools/entwuerfe/werkzeuge-2026-10-18/). Welle 2 der Textprüfung (Robin, 23.10.2026): „Werkzeuge“ im Seitentitel,
-// Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne Workshops und Fachmessen, Robin).
+// Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
 import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, KOSTENLOS, kostenlos } from "./partner.js";
@@ -33,7 +33,8 @@ const TEXT = {
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite und E-Rechnung lite lassen sich bis 31.12.2026 kostenlos testen; FiBu und Deklaration kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
-      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor. Im Vergleich steht jede mit denselben Angaben, auch neben Wettbewerbern.",
+      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, auch in Workshops und auf Fachmessen. Im Vergleich steht jede mit denselben Angaben, auch neben Wettbewerbern.",
+      chips: ["Website", "Workshops", "Fachmessen"],
       knopf: "Partner werden" },
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     vergleichTitel: "Im Vergleich",
@@ -65,7 +66,7 @@ const TEXT = {
     ],
     ihrProduktText: "Ihre Lösung – auch als Komplettlösung aus einer Hand",
     formTitel: "Partner werden",
-    formLead: "Stellen Sie Ihre Lösung hier vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
+    formLead: "Stellen Sie Ihre Lösung hier vor – auch in meinen Workshops und bei Auftritten auf Fachmessen und Netzwerkveranstaltungen. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
     felder: { firma: "Unternehmen", name: "Ansprechperson", email: "E-Mail-Adresse", produkt: "Produkt oder Website", nachricht: "Worum geht es?", optional: "(freiwillig)",
       fuer: "Für wen", standort: "Wo liegen die Daten?", waehlen: "Bitte wählen" },
     // Zwei freiwillige Auswahlfelder für die erste Einschätzung (Recherche Vergleich, 18.10.2026); die übrigen Angaben folgen nach der
@@ -92,7 +93,8 @@ const TEXT = {
     sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite and E-Rechnung lite are free to try until 31 December 2026; FiBu and Deklaration are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
     platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
-      text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here. In the comparison, each one has the same details, even next to competitors.",
+      text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here, also in workshops and at trade fairs. In the comparison, each one has the same details, even next to competitors.",
+      chips: ["Website", "Workshops", "Trade fairs"],
       knopf: "Become a partner" },
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     vergleichTitel: "Comparison",
@@ -124,7 +126,7 @@ const TEXT = {
     ],
     ihrProduktText: "Your solution – including all-in-one suites",
     formTitel: "Become a partner",
-    formLead: "Present your solution here. Tell me briefly about your product; I will get back to you personally by email.",
+    formLead: "Present your solution here – also in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
     felder: { firma: "Company", name: "Contact person", email: "Email address", produkt: "Product or website", nachricht: "What is it about?", optional: "(optional)",
       fuer: "For whom", standort: "Where is the data kept?", waehlen: "Please choose" },
     fuerWerte: ["Accounting firms", "Companies", "Organisations", "Several of these"],
@@ -264,6 +266,7 @@ ${kennz(p.anbieter)}
 <span class="wz-logo" aria-hidden="true">${esc(t.platzhalter.logo)}</span>
 <h3>${esc(t.platzhalter.titel)}</h3>
 <p class="frei">${esc(t.platzhalter.text)}</p>
+${chips(t.platzhalter.chips)}
 <p class="frei"><a class="wz-knopf zweit" href="#partner">${esc(t.platzhalter.knopf)}</a></p>
 </article>`;
   return { sf, partner: [...partner, platz].join("\n") };
