@@ -101,6 +101,11 @@
   .cta-secondary { border: 1px solid var(--copper); color: var(--ink); }
   .cta-secondary:hover { background: var(--hover); }
   .cta a:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+  /* Einstieg: beide Knöpfe gleich groß, beim Workshop klein der Zusatz (Robin, 03.11.2026) */
+  .intro .cta { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: max-content; max-width: 100%; }
+  .intro .cta a { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .cta a small { display: block; margin-top: 1px; font-size: 12px; line-height: 1.3; color: var(--ink-soft); }
+  @media (max-width: 720px) { .intro .cta { grid-auto-flow: row; grid-auto-rows: 1fr; margin-left: auto; margin-right: auto; } }
   .name a { color: inherit; text-decoration: none; }
   .name a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-decoration-thickness: 1px; text-underline-offset: .4em; }
   .name a:focus-visible { outline: 1px solid var(--copper); outline-offset: 8px; border-radius: 2px; }
@@ -599,7 +604,7 @@
     <div class="intro">
       <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a></h1>
       <p class="claim" data-i18n="claim">Werkzeuge und Workshops für Unternehmen und Kanzleien.</p>
-      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshop für Ihr Team</a></p>
+      <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/"><span data-i18n="ctaWorkshops">Workshop für Ihr Team</span><small data-i18n="ctaWorkshopsZusatz">mit Unterweisung nach EU AI Act</small></a></p>
     </div>
     <div class="perch">
     <button class="scene" id="scene" type="button" aria-label="Rotkehlchen noch einmal anfliegen lassen" title="Noch einmal anfliegen lassen" aria-controls="goch" aria-expanded="false">
