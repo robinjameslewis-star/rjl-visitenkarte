@@ -243,6 +243,13 @@
     /* Gesprächsmodus auf dem Handy: Papier über der Seite, Goch groß oben, darunter das Gespräch */
     html.goch-fokus, html.goch-fokus body { overflow: hidden; }
     html.goch-fokus .goch-papier { display: block; position: fixed; inset: 0; z-index: 18; background: var(--paper) url("assets/papier.jpg"); }
+    /* Papier und Himmel wie auf der Seite in diesem Moment (Robin, 03.11.2026): Farbe der Tageszeit, Textur multipliziert, oben der Himmel */
+    html.landscape-on.goch-fokus .goch-papier {
+      background: radial-gradient(ellipse at var(--sun-side, 80%) 18%, color-mix(in srgb, var(--sky-glow) 45%, transparent), transparent 50%),
+        linear-gradient(color-mix(in srgb, var(--sky-top) 52%, transparent), color-mix(in srgb, var(--sky-bottom) 40%, transparent) 38%, transparent 70%),
+        var(--paper) url("assets/papier.jpg");
+      background-size: auto, auto, 512px; background-blend-mode: normal, normal, multiply;
+    }
     html.goch-fokus .stage, html.goch-fokus .perch { z-index: auto !important; isolation: auto !important; } /* sonst bliebe Goch unter dem Papier */
     html.goch-fokus .scene { position: fixed; z-index: 19; left: 5vw; top: calc(env(safe-area-inset-top) + 28px); width: 90vw; }
     html.goch-fokus .goch { max-height: min(56dvh, calc(100dvh - 90vw * 0.616 - 52px)) !important; } /* Goch oben bleibt frei */
