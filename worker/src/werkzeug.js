@@ -141,7 +141,7 @@ export function werkzeugFelder(html) {
 
 const T = {
   de: {
-    home: "", blog: "Impulse", blogHref: "blog/", tools: "Robins Werkzeugkasten", toolsHref: "werkzeuge/", sfHref: "werkzeuge/smartformular/", about: "Über mich", aboutHref: "ueber-mich/",
+    home: "", blog: "Impulse", blogHref: "blog/", tools: "Werkzeuge", toolsHref: "werkzeuge/", sfHref: "werkzeuge/smartformular/", about: "Über mich", aboutHref: "ueber-mich/",
     fassung: "Fassung", vom: "vom", laden: "Herunterladen", datei: "Datei",
     agb: "Mit dem Herunterladen gelten die Nutzungsbedingungen unten. Unter Windows lässt sich die Prüfsumme in der PowerShell mit <code>Get-FileHash</code> vergleichen.",
     nutzung: "Nutzungsbedingungen", andere: "In English", legal: "Impressum · Datenschutz", fragen: "Fragen und Antworten", neu: "Was ist neu",
@@ -153,7 +153,7 @@ const T = {
     zuLang: "Ein Text ist zu lang (höchstens 12.000 Zeichen).",
   },
   en: {
-    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Robin's Tech Stack", toolsHref: "werkzeuge/en/", sfHref: "werkzeuge/smartformular/en/", about: "About", aboutHref: "about/",
+    home: "?lang=en", blog: "Food for Thought", blogHref: "blog/en/", tools: "Tools", toolsHref: "werkzeuge/en/", sfHref: "werkzeuge/smartformular/en/", about: "About", aboutHref: "about/",
     fassung: "Version", vom: "of", laden: "Download", datei: "File",
     agb: "The terms of use below apply to the download. On Windows, you can compare the checksum in PowerShell with <code>Get-FileHash</code>.",
     nutzung: "Terms of use", andere: "Auf Deutsch", legal: "Legal notice · Privacy", fragen: "Questions and answers", neu: "What's new",

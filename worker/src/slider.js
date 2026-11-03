@@ -9,7 +9,7 @@ import { PARTNER, ROBIN_VISION, kennzeichen, kostenlos } from "./partner.js";
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const TEXT = {
-  de: { label: "Robins Werkzeugkasten", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter",
+  de: { label: "Werkzeuge", rolle: "Karussell", zurueck: "Zurück", weiter: "Weiter",
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     produkte: [
       { frei: true, name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
@@ -17,7 +17,7 @@ const TEXT = {
       { name: "FiBu", text: "Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.", bereich: "Rechnungswesen", href: "werkzeuge/smartformular/#fibu" },
       { name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#deklaration" },
     ] },
-  en: { label: "Robin's Tech Stack", rolle: "Carousel", zurueck: "Previous", weiter: "Next",
+  en: { label: "Tools", rolle: "Carousel", zurueck: "Previous", weiter: "Next",
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     produkte: [
       { frei: true, name: "FiBu lite", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
@@ -26,6 +26,9 @@ const TEXT = {
       { name: "Deklaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#deklaration" },
     ] },
 };
+
+// Produkte je Sprache, auch für die Kartenreihe auf der Seite Werkzeuge (uebersicht.js; Robin, 03.11.2026)
+export const PRODUKTE = { de: TEXT.de.produkte, en: TEXT.en.produkte };
 
 const karte = ({ kennz = "", logo, name, text, bereich, href, link, sponsored = false }) => `        <article class="wzs-karte">
           ${kennz ? kennz + "\n          " : ""}${logo}

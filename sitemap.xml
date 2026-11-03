@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://robin.vision/</loc>
-    <lastmod>2026-11-02</lastmod>
+    <lastmod>2026-11-03</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/?lang=en"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://robin.vision/"/>
@@ -100,12 +100,36 @@
     <lastmod>2026-10-30</lastmod>
   </url>
   <url>
+    <loc>https://robin.vision/blog/die-stelle-die-sich-nicht-besetzen-laesst/</loc>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/the-position-that-can-t-be-filled/</loc>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/fehler-skalieren/</loc>
+    <lastmod>2026-10-16</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/mistakes-multiply/</loc>
+    <lastmod>2026-10-16</lastmod>
+  </url>
+  <url>
     <loc>https://robin.vision/blog/das-ende-des-erp/</loc>
     <lastmod>2026-10-09</lastmod>
   </url>
   <url>
-    <loc>https://robin.vision/blog/die-stelle-die-sich-nicht-besetzen-laesst/</loc>
-    <lastmod>2026-10-23</lastmod>
+    <loc>https://robin.vision/blog/the-end-of-erp/</loc>
+    <lastmod>2026-10-09</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/</loc>
+    <lastmod>2026-10-02</lastmod>
+  </url>
+  <url>
+    <loc>https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/</loc>
+    <lastmod>2026-10-02</lastmod>
   </url>
   <url>
     <loc>https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/</loc>
@@ -114,29 +138,5 @@
   <url>
     <loc>https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/</loc>
     <lastmod>2026-09-25</lastmod>
-  </url>
-  <url>
-    <loc>https://robin.vision/blog/fehler-skalieren/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
-    <loc>https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/</loc>
-    <lastmod>2026-10-02</lastmod>
-  </url>
-  <url>
-    <loc>https://robin.vision/blog/mistakes-multiply/</loc>
-    <lastmod>2026-10-16</lastmod>
-  </url>
-  <url>
-    <loc>https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/</loc>
-    <lastmod>2026-10-02</lastmod>
-  </url>
-  <url>
-    <loc>https://robin.vision/blog/the-end-of-erp/</loc>
-    <lastmod>2026-10-09</lastmod>
-  </url>
-  <url>
-    <loc>https://robin.vision/blog/the-position-that-can-t-be-filled/</loc>
-    <lastmod>2026-10-23</lastmod>
   </url>
 </urlset>

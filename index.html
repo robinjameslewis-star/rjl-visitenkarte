@@ -563,18 +563,6 @@
   .wzs-pfeil:hover { border-color: var(--green); }
   .wzs-punkte { display: flex; gap: 6px; } .wzs-punkte i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); } .wzs-punkte i.an { background: var(--green); }
   .wzs[hidden] { display: none; }
-  /* Zwei Grundsätze (Robin, 19.10.2026; Quelle der Stile: worker/src/grundsaetze.js, GRUNDSAETZE_CSS) */
-  .grundsaetze-reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 8px 0 10px; padding: 0; }
-  .gs-karte { position: relative; overflow: hidden; margin: 0; padding: 24px 24px 22px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.6); background: var(--surface, rgba(255,255,255,.6)); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 28px -18px rgba(11,61,46,.35); }
-  .gs-karte::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--copper); }
-  .gs-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0 0 14px; border-radius: 50%; color: var(--green); background: rgba(11,61,46,.07); background: color-mix(in srgb, var(--green) 10%, transparent); border: 1px solid rgba(11,61,46,.16); border-color: color-mix(in srgb, var(--green) 22%, transparent); }
-  .gs-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .grundsaetze .gs-kicker { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
-  .grundsaetze .gs-titel { display: block; font: 500 21px/1.3 var(--serif); color: var(--green); margin: 4px 0 8px; }
-  .grundsaetze .gs-text { margin: 0; max-width: none; font-size: 15px; line-height: 1.6; color: var(--ink-soft); text-align: left; hyphens: manual; }
-  .grundsaetze .gs-nb { white-space: nowrap; }
-  @media (max-width: 720px) { .grundsaetze-reihe { grid-template-columns: 1fr; gap: 14px; } .gs-karte { padding: 20px 20px 18px; } }
-  .grundsaetze[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
 <script src="landscape.js?v=20261023"></script>
@@ -588,10 +576,10 @@
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
   <a href="?lang=en" data-language="en" lang="en" hreflang="en" title="English"><svg class="flag" viewBox="0 0 60 30" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><clipPath id="flag-uk-quarters"><path d="M30 15h30v15zv15H30zH0V15zV0h30z"/></clipPath><rect width="60" height="30" fill="#1B3A73"/><path d="M0 0l60 30m0-30L0 30" stroke="#F6F1E8" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-quarters)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#F6F1E8" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg><span class="visually-hidden">English</span></a>
 </nav>
-<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Robins Werkzeugkasten</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
 <a class="termin" href="#kontakt" data-i18n="navContact">Termin</a>
 <details class="menue"><summary aria-label="Menü" data-i18n-aria="menuLabel"><span></span></summary>
-<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Robins Werkzeugkasten</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 </details>
 </header>
 
@@ -605,7 +593,7 @@
     <div class="intro">
       <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a></h1>
       <p class="byline" data-i18n="byline">Robin James Lewis · Balingen</p>
-      <p class="claim" data-i18n="claim">Mitten in der Transformation: Werkzeuge für die Tage, an denen der Prozess hakt, und Workshops für Teams, die KI sicher nutzen wollen – mit Unterweisung nach EU AI Act.</p>
+      <p class="claim" data-i18n="claim">Werkzeuge und Workshops für Unternehmen und Kanzleien.</p>
       <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="ctaWorkshops">Workshop für Ihr Team</a></p>
     </div>
     <div class="perch">
@@ -689,11 +677,11 @@
 
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
-    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Robins Werkzeugkasten</a></h2>
+    <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeuge</a></h2>
     <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
     <div class="wzs-rahmen">
 <!-- werkzeuge:liste -->
-    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Robins Werkzeugkasten">
+    <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeuge">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
           <p class="wzs-kennz">Kostenlos testen bis 31.12.2026</p>
@@ -726,7 +714,7 @@
       </div>
       <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
     </div>
-    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Robin's Tech Stack">
+    <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Tools">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
           <p class="wzs-kennz">Free trial until 31 Dec 2026</p>
@@ -778,22 +766,6 @@
     <p class="cta"><a class="cta-primary" href="workshops/#anfrage" data-href-de="workshops/#anfrage" data-href-en="workshops/en/#anfrage" data-i18n="workshopsAnfrage">Workshop anfragen</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="workshopsMore">Mehr zum Workshop</a></p>
   </section>
 
-  <!-- grundsaetze -->
-  <section class="blog-teaser grundsaetze" id="grundsaetze-de" data-langs="de" aria-labelledby="grundsaetze-titel-de">
-    <h2 id="grundsaetze-titel-de">Zwei Grundsätze für Robins Werkzeugkasten und die Workshops</h2>
-    <div class="grundsaetze-reihe">
-    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Echte Daten</span><span class="gs-titel">Echte Daten nur in Werkzeuge, die dafür gemacht sind</span><p class="gs-text frei">In Kanzlei und Rechnungswesen geht es um Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Danach richten sich Robins Werkzeugkasten und die Workshops: Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></article>
-    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg></span><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern.</p></article>
-    </div>
-  </section>
-  <section class="blog-teaser grundsaetze" id="grundsaetze-en" data-langs="en" hidden aria-labelledby="grundsaetze-titel-en">
-    <h2 id="grundsaetze-titel-en">Two principles behind Robin&#39;s Tech Stack and the workshops</h2>
-    <div class="grundsaetze-reihe">
-    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Real data</span><span class="gs-titel">Real data only in tools built for it</span><p class="gs-text frei">Accounting work means client, staff and financial data that has not been anonymised. Robin&#39;s Tech Stack and the workshops are built around that: data protection, professional confidentiality and the EU AI Act are the starting point, not an afterthought.</p></article>
-    <article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg></span><span class="gs-kicker">No lock-in</span><span class="gs-titel">Model-agnostic, no <span class="gs-nb">vendor lock-in</span></span><p class="gs-text frei">Solutions that work with different language models and providers take priority. You keep the choice – and can switch when prices, rules or models change.</p></article>
-    </div>
-  </section>
-<!-- /grundsaetze -->
 
   <!-- redaktion:blog-section -->
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="de en">
@@ -837,7 +809,7 @@
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team oder eine Partnerschaft in Robins Werkzeugkasten. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
+    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team oder eine Partnerschaft bei den Werkzeugen. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
@@ -876,7 +848,7 @@
   <!-- Hinweis für Anbieter (Robin, 23.10.2026, Option B): bis Welle 2 die letzte Karte im Werkzeug-Slider -->
   <section class="blog-teaser anbieter" id="anbieter" aria-labelledby="anbieter-title">
     <h2 id="anbieter-title" data-i18n="anbieterTitle">Für Anbieter</h2>
-    <p class="lead" data-i18n="anbieterText">Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Stellen Sie sie in Robins Werkzeugkasten vor.</p>
+    <p class="lead" data-i18n="anbieterText">Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Stellen Sie sie auf robin.vision vor.</p>
     <p class="all"><a href="werkzeuge/#partner" data-href-de="werkzeuge/#partner" data-href-en="werkzeuge/en/#partner" data-i18n="anbieterKnopf">Partner werden</a></p>
   </section>
 </main>

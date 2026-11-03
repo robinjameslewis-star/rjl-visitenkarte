@@ -12,7 +12,7 @@ import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
 import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
 import { PARTNER } from "../worker/src/partner.js";
-import { grundsaetze, startGrundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
+import { grundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
 
 let fails = 0;
 const check = (ok, label) => { console.log((ok ? "  ok   " : "  FEHLT ") + label); if (!ok) fails++; };
@@ -21,15 +21,15 @@ const lesen = p => readFileSync(root + p, "utf8");
 const anzahl = (s, re) => (s.match(re) || []).length;
 
 const T = {
-  de: { titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und andere Geschäftsprozesse",
-    platz: "Ihre Lösung in Robins Werkzeugkasten", knopf: "Partner werden",
-    sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Robins Werkzeugkasten</a>',
+  de: { titel: "Werkzeuge",
+    platz: "Ihre Lösung auf robin.vision", knopf: "Partner werden",
+    sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>',
     zeilen: ["Aufgabe", "Für wen", "Betrieb und Daten", "Sitz des Anbieters", "KI", "Schnittstellen", "Preis und Test", "Nachweise"], stand: "Stand",
     quelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.", partnerSatz: "Partner zahlen für die Vorstellung.",
     anzeige: "Anzeige", erkl: "../#anzeigen" },
-  en: { titel: "Efficient tools for accounting, administration and other business processes",
-    platz: "Your solution in Robin&#39;s Tech Stack", knopf: "Become a partner",
-    sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Robin\'s Tech Stack</a>',
+  en: { titel: "Tools",
+    platz: "Your solution on robin.vision", knopf: "Become a partner",
+    sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>',
     zeilen: ["Task", "For whom", "Operation and data", "Provider based in", "AI", "Interfaces", "Price and trial", "Assurance"], stand: "As of",
     quelle: "Details supplied by the providers, dated per column; listed in the order they joined.", partnerSatz: "Partners pay to be presented.",
     anzeige: "Ad", erkl: "../../?lang=en#anzeigen" },
@@ -49,12 +49,14 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(!html.includes('class="wz-filter"') && !html.includes("data-bereich") && !html.includes('wz-frei"'), "keine Aufteilung nach Bereichen: kein Filter, keine freien Plätze je Bereich (Robin, 18.10.2026)");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");
   const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<h2/)?.[0] || "";
-  check(raster.includes(`<article class="wz-karte">\n${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf"`) && raster.includes(t.sf), "Karte SmartFormular: Kennzeichen „Anzeige · robin.vision“ mit Verweis auf die Erläuterung, Knopf zur Produktseite (Option C)");
+  const reihe = html.match(/<div class="wz-reihe" tabindex="0" role="region"[\s\S]*?<\/div>\n<p class="frei wz-mehr">/)?.[0] || "";
+  check((reihe.match(/<article class="wz-karte">/g) || []).length === 4 && reihe.includes(`${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf"`) && (reihe.match(/wz-logo-sf/g) || []).length === 4, "SmartFormular als wischbare Reihe: vier Produkte, Kennzeichen wie im Slider (Robin, 03.11.2026)");
+  check(html.indexOf('id="ueberblick"') < html.indexOf('class="wz-reihe"') && html.indexOf('class="wz-reihe"') < html.indexOf('id="partner-anzeigen"') && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="wz-raster"'), "erst SmartFormular, dann die Partner (Robin, 03.11.2026)");
   check(!/Partnerangebot|Partner offer|Advertisement|Eigene Produkte|Own products|eigene Produkte|own products|Partnerlösungen|partner solutions/.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "keine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026)");
   check(!(raster.match(/<article class="wz-karte wz-platzhalter">[\s\S]*?<\/article>/)?.[0] || "wz-kennz").includes("wz-kennz"), "Platzhalter ohne Kennzeichen");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
-  check(raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Partnerkarte „Ihre Lösung in Robins Werkzeugkasten“ mit Weg zum Formular");
-  check((raster.match(/<article class="wz-karte/g) || []).length === 2, "zwei Karten: SmartFormular und der Platzhalter");
+  check(raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Partnerkarte „Ihre Lösung auf robin.vision“ mit Weg zum Formular");
+  check((raster.match(/<article class="wz-karte/g) || []).length === 1, "ohne Partner nur der Platzhalter");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Verweis mit rel=sponsored");
   const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
   const zeilen = [...tabelle.matchAll(/<tr><th scope="row">([^<]*)<\/th>/g)].map(m => m[1].replace(/\u00AD/g, ""));
@@ -112,13 +114,11 @@ check([start, lesen("language.js"), lesen("werkzeuge/index.html")].every(h => h.
 
 console.log("\nGrundsätze (Robin, 19.10.2026)");
 const startHtml = lesen("index.html");
-check(startHtml.includes("<!-- grundsaetze -->\n" + startGrundsaetze() + "\n") && /id="grundsaetze-de" data-langs="de"/.test(startHtml) && /id="grundsaetze-en" data-langs="en" hidden/.test(startHtml)
-  && startHtml.indexOf('id="grundsaetze-de"') > startHtml.indexOf('id="workshops"') && startHtml.indexOf('id="grundsaetze-de"') < startHtml.indexOf('id="blog"'), "Startseite: Grundsätze je Sprache nach den Workshops, vor den Impulsen (Option B)");
-check(/<section class="blog-teaser anbieter" id="anbieter"/.test(startHtml) && /data-i18n="anbieterText">[^<]*Robins Werkzeugkasten vor\.</.test(startHtml) && /href="werkzeuge\/#partner" data-href-de="werkzeuge\/#partner" data-href-en="werkzeuge\/en\/#partner" data-i18n="anbieterKnopf">Partner werden</.test(startHtml), "Startseite: Hinweis für Anbieter mit „Partner werden“ (Option B)");
-check(GRUNDSAETZE_CSS.split("\n").every(z => startHtml.includes("  " + z)), "Startseite: Stile der Grundsätze wie in grundsaetze.js");
+check(!startHtml.includes("grundsaetze") && !startHtml.includes("gs-karte"), "Startseite ohne Grundsätze (Robin, 03.11.2026)");
+check(/<section class="blog-teaser anbieter" id="anbieter"/.test(startHtml) && /data-i18n="anbieterText">[^<]*robin.vision vor\.</.test(startHtml) && /href="werkzeuge\/#partner" data-href-de="werkzeuge\/#partner" data-href-en="werkzeuge\/en\/#partner" data-i18n="anbieterKnopf">Partner werden</.test(startHtml), "Startseite: Hinweis für Anbieter mit „Partner werden“ (Option B)");
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
-  check(html.includes(grundsaetze(lang)) && html.indexOf('id="grundsaetze-titel"') < html.indexOf('id="ueberblick"') && /Echte Daten|Real data/.test(html) && !/rechtssicher|Klardaten|plaintext/i.test(html) && /Vendor-Lock-in|vendor lock-in/.test(html), `${pfad}: Grundsätze vor dem Überblick`);
+  check(html.includes(grundsaetze(lang)) && html.indexOf('class="untertitel"') < html.indexOf('class="grundsatz-zeile"') && html.indexOf('class="grundsatz-zeile"') < html.indexOf('id="ueberblick"') && html.includes(GRUNDSAETZE_CSS) && !html.includes("gs-karte"), `${lang}: Grundsätze als ruhige Zeile unter der Einleitung (Robin, 03.11.2026)`);
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");

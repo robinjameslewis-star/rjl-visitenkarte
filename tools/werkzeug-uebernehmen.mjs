@@ -19,7 +19,6 @@ import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
 import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
 import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 import { startSlider } from "../worker/src/slider.js";
-import { startGrundsaetze } from "../worker/src/grundsaetze.js";
 import { START_ERECHNUNG } from "./erechnung/starttexte.mjs";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
@@ -178,7 +177,7 @@ const einsetzen = (html, name, inhalt) => {
   if (i < 0 || j < i) { console.error(`index.html: Marken ${START_MARKE} fehlen.`); process.exit(1); }
   return html.slice(0, i + START_MARKE.length) + "\n" + inhalt + "\n" + html.slice(j);
 };
-writeFileSync("index.html", einsetzen(einsetzen(readFileSync("index.html", "utf8"), "werkzeuge:liste", startSlider()), "grundsaetze", startGrundsaetze()));
+writeFileSync("index.html", einsetzen(readFileSync("index.html", "utf8"), "werkzeuge:liste", startSlider()));
 // Weiterleitungen alter Adressen
 for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true }); writeFileSync(a.pfad, weiterleitung(a.ziel)); }
 // sitemap.xml mit dem Datum der Fassungen (dieselbe Datei schreibt die Redaktion beim Veröffentlichen eines Impulses)
