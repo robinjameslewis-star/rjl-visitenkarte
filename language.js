@@ -21,7 +21,7 @@
       privacyRights: "Nach Maßgabe der DSGVO bestehen Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch, insbesondere gegen Verarbeitungen auf Grundlage berechtigter Interessen. Anfragen sind an die oben genannte E-Mail-Adresse möglich. Außerdem besteht ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde.",
       privacyAuthority: "Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg",
 
-      navContact: 'Termin', navTools: 'Werkzeuge', navPages: 'Seiten', menuLabel: 'Menü', byline: 'Robin James Lewis · Balingen',
+      navContact: 'Termin', navTools: 'Werkzeuge', navPages: 'Seiten', menuLabel: 'Menü',
       navMessage: 'Nachricht', messageTitle: 'Nachricht schreiben',
       messageLead: 'Ich antworte persönlich per E-Mail.',
       fieldName: 'Name', fieldEmail: 'E-Mail-Adresse', fieldPhone: 'Telefon', optional: '(freiwillig)', fieldMessage: 'Nachricht',
@@ -52,7 +52,7 @@
       title: 'robin.vision – Werkzeuge und Workshops zur KI-Kompetenz',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
       claim: 'Werkzeuge und Workshops für Unternehmen und Kanzleien.',
-      ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshop für Ihr Team',
+      ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshop für Ihr Team', ctaWorkshopsZusatz: 'mit Unterweisung nach EU AI Act',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
       navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'Mehr zum Workshop', workshopsAnfrage: 'Workshop anfragen',
@@ -131,7 +131,7 @@
       privacyRights: "Subject to the GDPR, rights include access, rectification, erasure, restriction, data portability and objection, especially to processing based on legitimate interests. Requests can be sent to the email address above. There is also a right to complain to a data protection authority.",
       privacyAuthority: "Data protection authority for Baden-Württemberg",
 
-      navContact: 'Appointment', navTools: "Tools", navPages: 'Pages', menuLabel: 'Menu', byline: 'Robin James Lewis · Balingen, Germany',
+      navContact: 'Appointment', navTools: "Tools", navPages: 'Pages', menuLabel: 'Menu',
       navMessage: 'Message', messageTitle: 'Write a message',
       messageLead: 'I reply personally by email.',
       fieldName: 'Name', fieldEmail: 'Email address', fieldPhone: 'Phone', optional: '(optional)', fieldMessage: 'Message',
@@ -161,7 +161,7 @@
       description: 'Accounting tools, free to try until 31 December 2026: check and pay e-invoices, turn bank statements into booking batches. AI literacy workshops with EU AI Act training. New Food for Thought every Friday.',
       title: 'robin.vision – Tools and AI literacy workshops',
       claim: 'Tools and workshops for businesses and accounting firms.',
-      ctaTool: 'Try the tools', ctaWorkshops: 'Workshop for your team',
+      ctaTool: 'Try the tools', ctaWorkshops: 'Workshop for your team', ctaWorkshopsZusatz: 'with EU AI Act training',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
       navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'More about the workshop', workshopsAnfrage: 'Enquire about a workshop',
