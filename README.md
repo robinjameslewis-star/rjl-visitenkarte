@@ -536,7 +536,7 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 ## „Was ist neu“ und Newsletter-Feed (16.10.2026)
 
 *Ergänzt 17.10.2026:* Jede Ausgabe im Feed hat jetzt den Aufbau Impuls → „Neu im SmartFormular FiBu lite“ (neueste Fassung) →
-„SmartFormular“ (FiBu lite kostenlos, FiBu und Deklaration als Beta, Link zur Seite) → „Workshops“ (Unterweisung nach EU AI Act,
+„SmartFormular“ (FiBu lite kostenlos, FiBu und Abschluss als Beta, Link zur Seite) → „Workshops“ (Unterweisung nach EU AI Act,
 Termine 2027 auf Anfrage, Link); Kanalbeschreibung „Impulse, SmartFormular und Workshops per E-Mail“. Prüfung:
 `node tests/newsletter_feed_test.mjs`. Die Brevo-Vorlage muss nichts wissen – sie nimmt die Beschreibung des Eintrags als HTML.
 
@@ -616,13 +616,13 @@ Profil (`worker/profile.md`) kennt das Angebot und bietet es aktiv an. Die Durch
 Seite `werkzeuge/` (englisch `werkzeuge/en/`) ist eine eigene, ausführliche Unterseite aus `worker/src/smartformular.js` im
 SmartFormular-Erscheinungsbild (Nacht und Violett, `SF_CSS` in `werkzeug.js`), so umfangreich wie die Seite „Workshops“: Einleitung,
 drei Produktkacheln, „FiBu lite heute“ mit Download, „Was SmartFormular FiBu dazulernt“ (sieben geplante Funktionen), „SmartFormular
-Deklaration“ (sechs Punkte), Kasten „Mensch und Maschine“, Sprachmodell optional, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
+Abschluss“ (sechs Punkte), Kasten „Mensch und Maschine“, Sprachmodell optional, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
 dazu SoftwareApplication für FiBu lite), Beta-Anfrage, Downloads. Keine Preise (auf Anfrage). Die Produktdaten liegen in
 `worker/src/produkte.js` (auch für die Werkzeugseite und die Startseite). Startseite: FiBu lite als Karte im
-SmartFormular-Erscheinungsbild mit Knopf zum Werkzeug, darunter die Ankündigungen FiBu und Deklaration (`tools/werkzeug-uebernehmen.mjs`).
+SmartFormular-Erscheinungsbild mit Knopf zum Werkzeug, darunter die Ankündigungen FiBu und Abschluss (`tools/werkzeug-uebernehmen.mjs`).
 Alter Stand der Übersicht: drei
 Kacheln – SmartFormular FiBu lite (bisher Buchungsstapel-Generator, kostenlos, fertig), SmartFormular FiBu und SmartFormular
-Deklaration (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
+Abschluss (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
 kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von FiBu lite trägt den Abschnitt „Was kommt“ mit dem Ausblick.
 Gochs Linkliste kennt `smartformular-fibu` und `smartformular-deklaration` (Anker auf der Übersicht). Prüfung:
 `node tests/werkzeug_seite_test.mjs`, `node tests/goch_werkzeuge_test.mjs`.
@@ -644,7 +644,7 @@ Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seit
 einfach „Kostenlos“ (englisch „Free“, ohne Verweis) – über dem Titel ihrer Seiten, auf ihren Karten im Startseiten-Slider und im Kopf
 ihrer Spalte im Vergleich (`kostenlos` in `worker/src/partner.js`, Kennung `frei: true` in `slider.js` und `uebersicht.js`). Anlass: In der
 Laien-Textprüfung wirkte „Anzeige“ an einem kostenlosen Werkzeug wie Werbung oder ein Bezahlangebot. Partner, die Beta-Produkte FiBu und
-Deklaration und die Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), behalten „Anzeige“.
+Abschluss und die Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), behalten „Anzeige“.
 Die Zeile unter dem Titel der Werkzeugseiten nennt nur noch Fassung und Datum („Kostenlos“ steht schon darüber).
 
 ## Werkzeug: SmartFormular E-Rechnung lite (23.10.2026)

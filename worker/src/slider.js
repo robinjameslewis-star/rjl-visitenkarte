@@ -15,7 +15,7 @@ const TEXT = {
       { frei: true, name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
       { frei: true, name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
       { name: "FiBu", text: "Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.", bereich: "Rechnungswesen", href: "werkzeuge/smartformular/#fibu" },
-      { name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#deklaration" },
+      { name: "Abschluss", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#abschluss" },
     ] },
   en: { label: "Tools", rolle: "Carousel", zurueck: "Previous", weiter: "Next",
     zumProdukt: "To the product", zumAnbieter: "To the provider",
@@ -23,7 +23,7 @@ const TEXT = {
       { frei: true, name: "FiBu lite", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
       { frei: true, name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
       { name: "FiBu", text: "Post bank, payables and receivables – linked to your open items.", bereich: "Accounting", href: "werkzeuge/smartformular/en/#fibu" },
-      { name: "Deklaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#deklaration" },
+      { name: "Abschluss", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#abschluss" },
     ] },
 };
 

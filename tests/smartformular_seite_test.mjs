@@ -1,6 +1,6 @@
 // Produktseite „SmartFormular“ (worker/src/smartformular.js; Robin, 17.10.2026, seit 18.10.2026 unter werkzeuge/smartformular/): beide Sprachfassungen entstehen genau aus dem Modul und den
 // Feldern der Werkzeugseiten, tragen Wortmarke, Abzeichen, vier Produktkacheln, FiBu lite mit Download und Fassung, E-Rechnung lite (seit 23.10.2026), die geplanten
-// Funktionen von FiBu und Deklaration, Mensch und Maschine, Sprachmodell, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
+// Funktionen von FiBu und Abschluss (bis 04.11.2026 Deklaration), Mensch und Maschine, Sprachmodell, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
 // SoftwareApplication), die Beta-Anfrage an Gochs Kontakt-Endpunkt, die Brotkrume zur Übersicht und den Kopf mit aktivem Menüpunkt
 // „Werkzeuge“; keine Preise. Kein Netz.
 //   node tests/smartformular_seite_test.mjs
@@ -38,7 +38,7 @@ for (const lang of ["de", "en"]) {
   check(/<h2 id="e-rechnung">SmartFormular E-Rechnung lite<\/h2>/.test(html) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${er.id}/">`) && html.includes(`${de.fassung}`) && html.indexOf('id="e-rechnung"') < html.indexOf('<h2 id="fibu"'), "E-Rechnung lite: eigener Abschnitt mit Knopf zum Werkzeug und Fassung, vor FiBu");
   check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "FiBu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
   check((html.match(/<ol class="sf-liste">/g) || []).length === 4 && (html.match(/<span class="nr">0\d<\/span>/g) || []).length === 6 + 7 + 3 + 3, "Listen: sechs Punkte FiBu (Bank mit OPOS-Bezug, Kreditoren und Debitoren, Umsatzsteuer-Überschlag), sieben Punkte Deklaration, drei zu den Programmen, drei zum Sprachmodell");
-  check(/<h2 id="deklaration">[^<]*<\/h2>\n<p class="untertitel">(Das Arbeitspapier, das mitdenkt und vorarbeitet\.|The working paper that thinks ahead and does the groundwork\.)<\/p>/.test(html), "Deklaration mit dem Claim „Das Arbeitspapier, das mitdenkt und vorarbeitet“");
+  check(/<h2 id="abschluss">[^<]*<\/h2>\n<p class="untertitel">(Das Arbeitspapier, das mitdenkt und vorarbeitet\.|The working paper that thinks ahead and does the groundwork\.)<\/p>/.test(html), "Deklaration mit dem Claim „Das Arbeitspapier, das mitdenkt und vorarbeitet“");
   check(/<h2 id="programme">/.test(html) && /DATEV/.test(html.match(/<h2 id="programme">[\s\S]*?<h2 id="sprachmodell">/)[0]), "Abschnitt „Offen für jedes Buchhaltungsprogramm“ vor dem Sprachmodell");
   check(html.includes(`<h2 id="mensch">${t.kasten}</h2>`) && (html.match(/<ul class="fakten">/g) || []).length === 3, "Kasten „Mensch und Maschine“ und drei Faktenleisten");
   check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 3 && !/2027|Q1|Stufe|stage/.test((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0]), "„So geht es weiter“ in drei Schritten, ohne Termine");

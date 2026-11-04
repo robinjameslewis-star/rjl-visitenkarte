@@ -13,7 +13,7 @@
    Kontoauszügen Buchungsstapel im DATEV-Format, offline im Browser; neu ist SmartFormular E-Rechnung lite – es
    liest und prüft E-Rechnungen (XRechnung, ZUGFeRD) und macht einen GiroCode zum Bezahlen. Als Beta in Vorbereitung: SmartFormular FiBu
    (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
-   Deklaration für den Jahresabschluss. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
+   Abschluss für den Jahresabschluss, mit den Daten aus FiBu. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
 4. **Werkzeuge und Partner.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
    Verwaltung und andere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
@@ -40,7 +40,7 @@
    E-Rechnung lite, which reads and checks e-invoices (XRechnung, ZUGFeRD) and creates a GiroCode for payment.
    In preparation as a beta:
    SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and
-   SmartFormular Deklaration for year-end accounts. The aim is to exchange data with every accounting
+   SmartFormular Abschluss for year-end accounts, using the data from FiBu. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
 4. **Tools and partners.** Under "Tools" Robin presents and compares software and AI solutions for
    accounting, administration and other business processes – including SmartFormular; more solutions
