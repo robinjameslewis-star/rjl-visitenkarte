@@ -48,7 +48,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(!html.includes("wz-rolle") && !/<strong>(Analysieren|Analyse)<\/strong>/.test(html), "keine drei Schritte auf der Übersicht – sie stehen bei den Workshops (Robin, 18.10.2026)");
   check(!html.includes('class="wz-filter"') && !html.includes("data-bereich") && !html.includes('wz-frei"'), "keine Aufteilung nach Bereichen: kein Filter, keine freien Plätze je Bereich (Robin, 18.10.2026)");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");
-  const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<h2/)?.[0] || "";
+  const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<(?:h2|section)/)?.[0] || "";
   const reihe = html.match(/<div class="wz-reihe" tabindex="0" role="region"[\s\S]*?<\/div>\n<p class="frei wz-mehr">/)?.[0] || "";
   check((reihe.match(/<article class="wz-karte">/g) || []).length === 4 && reihe.includes(`${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf"`) && (reihe.match(/wz-logo-sf/g) || []).length === 4, "SmartFormular als wischbare Reihe: vier Produkte, Kennzeichen wie im Slider (Robin, 03.11.2026)");
   check(html.indexOf('id="ueberblick"') < html.indexOf('class="wz-reihe"') && html.indexOf('class="wz-reihe"') < html.indexOf('id="partner-anzeigen"') && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="wz-raster"'), "erst SmartFormular, dann die Partner (Robin, 03.11.2026)");
@@ -118,7 +118,7 @@ check(!startHtml.includes("grundsaetze") && !startHtml.includes("gs-karte"), "St
 check(/<section class="blog-teaser anbieter" id="anbieter"/.test(startHtml) && /data-i18n="anbieterText">[^<]*robin.vision vor\.</.test(startHtml) && /href="werkzeuge\/#partner" data-href-de="werkzeuge\/#partner" data-href-en="werkzeuge\/en\/#partner" data-i18n="anbieterKnopf">Partner werden</.test(startHtml), "Startseite: Hinweis für Anbieter mit „Partner werden“ (Option B)");
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
-  check(html.includes(grundsaetze(lang)) && html.indexOf('class="untertitel"') < html.indexOf('class="grundsatz-zeile"') && html.indexOf('class="grundsatz-zeile"') < html.indexOf('id="ueberblick"') && html.includes(GRUNDSAETZE_CSS) && !html.includes("gs-karte"), `${lang}: Grundsätze als ruhige Zeile unter der Einleitung (Robin, 03.11.2026)`);
+  check(html.includes(grundsaetze(lang)) && html.includes(GRUNDSAETZE_CSS) && html.indexOf('class="grundsaetze"') < html.indexOf('id="vergleich"') && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="grundsaetze"') && (lang === "en" || html.includes("Klardaten nur in Werkzeuge")) && !html.includes("gs-karte"), `${lang}: zwei Grundsätze als ruhiger Block vor dem Vergleich, mit „Klardaten“ (Robin, 04.11.2026)`);
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");
