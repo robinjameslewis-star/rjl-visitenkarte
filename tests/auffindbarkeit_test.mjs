@@ -13,7 +13,7 @@ const lesen = p => readFileSync(root + p, "utf8");
 const html = lesen("index.html");
 
 console.log("Startseite: Kopfdaten");
-check(/<title>robin\.vision – Werkzeuge und Workshops zur KI-Kompetenz<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt Werkzeuge und Workshops");
+check(/<title>robin\.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien<\/title>/.test(html) && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt Werkzeuge und Workshops");
 check(/<link rel="canonical" href="https:\/\/robin\.vision\/">/.test(html), "canonical");
 check(["de", "en", "x-default"].every(l => html.includes(`hreflang="${l}"`)), "hreflang de, en, x-default");
 check(/property="og:title"/.test(html) && /property="og:image" content="https:\/\/robin\.vision\/assets\/teilen\.jpg"/.test(html) && existsSync(root + "assets/teilen.jpg"), "Open Graph mit Bild zum Teilen, Bild vorhanden");
@@ -26,7 +26,7 @@ const pos = id => html.indexOf(`id="${id}"`);
 // Option B (Robin, 23.10.2026): Workshops direkt nach den Werkzeugen, Hinweis für Anbieter ganz unten
 check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("workshops") && pos("workshops") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("ueber-mich") && pos("ueber-mich") < pos("kontakt") && pos("kontakt") < pos("nachricht") && pos("nachricht") < pos("anbieter"),
   "Reihenfolge: Werkzeuge, Workshops, Impulse, Newsletter, Über mich, Termin, Nachricht, Hinweis für Anbieter");
-check(/<p class="claim" data-i18n="claim">Werkzeuge und Workshops für Unternehmen und Kanzleien\./.test(html) && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
+check(!html.includes('class="claim"') && html.includes("<title>robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien</title>") && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Werkzeugen und Workshops über der Falz, Ziele je Sprache");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");

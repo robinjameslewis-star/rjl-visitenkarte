@@ -44,7 +44,7 @@ check(start.includes('<a class="termin" href="#kontakt" data-i18n="navContact">T
 check(start.includes('<a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>\n</details>'), "Nachricht im Menü");
 const startCss = start.replace(/^  /gm, "");
 check(KOPF_CSS.split("\n").every(z => startCss.includes(z)), "Stile der Startseite enthalten KOPF_CSS Zeile für Zeile");
-check(start.includes(`<h1 class="name"><a id="name-link" href="./" title="Seite neu laden">${MARKE}</a></h1>`) && !start.includes('class="byline"'), "Wortmarke robin.vision als Überschrift, ohne Zeile „Robin James Lewis · Balingen“ (Robin, 03.11.2026)");
+check(start.includes(`<h1 class="name"><a id="name-link" href="./" title="Seite neu laden">${MARKE}</a><span class="slogan" data-i18n="slogan">Prozesse effizient gestalten</span></h1>`) && !start.includes('class="byline"'), "Wortmarke robin.vision als Überschrift, ohne Zeile „Robin James Lewis · Balingen“ (Robin, 03.11.2026)");
 check(!/text-transform: uppercase; letter-spacing: \.28em/.test(start.slice(start.indexOf(".name {"), start.indexOf(".name {") + 300)), "Überschrift nicht mehr in Versalien gesperrt");
 const lang = lesen("language.js");
 check(/menuLabel: 'Menü'/.test(lang) && /menuLabel: 'Menu'/.test(lang) && !/byline:/.test(lang) && /navPages: 'Pages'/.test(lang), "language.js: Menü, Seiten und Zeile unter der Wortmarke in beiden Sprachen");
