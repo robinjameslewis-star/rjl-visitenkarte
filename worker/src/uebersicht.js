@@ -324,7 +324,6 @@ export function werkzeugeUebersicht(lang) {
   const main = `<article class="wz">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
-${grundsaetze(lang)}
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 ${reihe(lang, t, up)}
 <p class="frei wz-mehr"><a href="${sfZiel}">${esc(t.zuSf)} →</a></p>
@@ -332,6 +331,7 @@ ${reihe(lang, t, up)}
 <div class="wz-raster">
 ${karten(lang, t, up).partner}
 </div>
+${grundsaetze(lang)}
 <h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
 <p class="wz-hinweis frei">${esc(t.vergleichLead)}</p>
 ${vergleich(lang, t, up)}

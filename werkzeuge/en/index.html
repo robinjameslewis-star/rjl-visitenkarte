@@ -161,7 +161,12 @@ article li { margin-bottom: 6px; }
 }
 .wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
 .wz .wz-quelle { margin: -8px 0 26px; }
-.grundsatz-zeile { margin: 14px 0 0; font: 400 14px/1.5 var(--sans); letter-spacing: .01em; color: var(--ink-muted); }</style>
+.grundsaetze { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 34px 0 30px; padding: 20px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.grundsaetze .gs-kicker { display: block; font: 500 11px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
+.grundsaetze .gs-titel { display: block; margin: 3px 0 6px; font: 500 18px/1.3 var(--serif); color: var(--green); }
+.grundsaetze .gs-nb { white-space: nowrap; }
+.grundsaetze .gs-text { margin: 0; max-width: none; font-size: 14px; line-height: 1.55; color: var(--ink-soft); text-align: left; hyphens: manual; }
+@media (max-width: 720px) { .grundsaetze { grid-template-columns: 1fr; gap: 18px; } }</style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
@@ -176,7 +181,6 @@ article li { margin-bottom: 6px; }
 <article class="wz">
 <h1>Tools</h1>
 <p class="untertitel">Software and AI solutions for accounting, administration and other business processes – presented and compared. I show a selection of them in the workshops, using cases from everyday work.</p>
-<p class="grundsatz-zeile">Real data only in tools built for it – model-agnostic, no lock-in.</p>
 <h2 id="ueberblick">SmartFormular</h2>
 <div class="wz-reihe" tabindex="0" role="region" aria-label="SmartFormular products">
 <article class="wz-karte">
@@ -223,6 +227,10 @@ article li { margin-bottom: 6px; }
 <p class="frei"><a class="wz-knopf zweit" href="#partner">Become a partner</a></p>
 </article>
 </div>
+<section class="grundsaetze" aria-label="Two principles">
+<div><span class="gs-kicker">Real data</span><span class="gs-titel">Real data only in tools built for it</span><p class="gs-text frei">Client, staff and financial data is rarely anonymised. Data protection, confidentiality and the EU AI Act are the starting point, not an afterthought.</p></div>
+<div><span class="gs-kicker">No lock-in</span><span class="gs-titel">Model-agnostic, no <span class="gs-nb">vendor lock-in</span></span><p class="gs-text frei">Solutions that work with different language models and providers take priority. The choice stays with you.</p></div>
+</section>
 <h2 id="vergleich">Comparison</h2>
 <p class="wz-hinweis frei">The same details for every solution: what it does, where the data is kept, how AI is used and how it connects to your software.</p>
 <div class="wz-tabelle-rahmen">
