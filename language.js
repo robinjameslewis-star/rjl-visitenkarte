@@ -160,7 +160,7 @@
       legalAds: 'Advertising: tools marked “Ad” are presented by robin.vision for advertising purposes. The provider is robin.vision itself, a company in which Robin James Lewis has a stake, or another company that pays robin.vision to present its tool (a fee or a commission on sales referred). The provider is named next to the label; any contract for a tool is made with its provider.',
       description: 'Accounting tools, free to try until 31 December 2026: check and pay e-invoices, turn bank statements into booking batches. AI literacy workshops with EU AI Act training. New Food for Thought every Friday.',
       title: 'robin.vision – Tools and AI literacy workshops',
-      slogan: 'Making processes efficient', claim: 'Tools and workshops for businesses and accounting firms.',
+      slogan: 'Streamlining processes', claim: 'Tools and workshops for businesses and accounting firms.',
       ctaTool: 'Try the tools', ctaWorkshops: 'Workshop for your team', ctaWorkshopsZusatz: 'with EU AI Act training',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
