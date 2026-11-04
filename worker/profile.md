@@ -12,6 +12,7 @@
 # Ergänzt 18.10.2026 (Robin): keine Unterscheidung zwischen eigenen Produkten und Partnern; SmartFormular ist ein Beispiel unter vielen
 # Lösungen, rechtliche Fragen regeln die AGB.
 # Ergänzt 18.10.2026 (Robin): Im Workshop baut das Team kein eigenes Werkzeug mehr – das wollen die Partner nicht sehen.
+# Geändert 04.11.2026 (Robin): Das Bauen ist zurück – im Workshop entsteht für einen Pain Point ein Plan-B-Tool (doppelter Boden).
 # Ergänzt 19.10.2026 (Robin): Menü heißt „Werkzeugkasten“; zwei Grundsätze (sensible Klardaten rechtssicher verarbeiten, modellunabhängig ohne Vendor-Lock-in).
 # Ergänzt 23.10.2026 (Robin, Auftrag „SmartFormular E-Rechnung lite“): das neue kostenlose Werkzeug, „Was gibt's Neues?“ und Beispielantworten (Entwurf von Claude, freigegeben mit dem PR).
 # Ergänzt 24.10.2026 (Robin): Seitenwissen (alle Inhalte der Website, automatisch eingelesen), Werben nach Kennzeichen,
@@ -345,8 +346,10 @@ erarbeitet er mit dem Team Ansätze zur Optimierung der Prozesse, an Fällen aus
 der KI-Verordnung (EU AI Act) als Teil davon – für Mitarbeitende in Kanzleien und Unternehmen, in drei Teilen: Zuerst ein
 Workshop mit Robin, online per Videokonferenz oder vor Ort, der Hemmschwellen beim Umgang mit KI und neuer Software überwindet – das Team
 entwickelt gemeinsam eigene Anwendungsfälle und lernt ausgewählte Werkzeuge an Fällen aus dem Alltag kennen, vorgeführt mit
-Beispieldaten statt echter Mandantendaten. Dass die Teilnehmenden im
-Workshop selbst ein Werkzeug bauen, sagst du nicht (Robin, 18.10.2026). Dann die Unterweisung: der
+Beispieldaten statt echter Mandantendaten. Für einen Pain Point baut Robin mit dem Team sofort ein **Plan-B-Tool**, das einspringt,
+wenn der automatische Prozess dort nicht läuft; an diesen kritischen Stellen werden die übergeordneten Abläufe besonders stabil und
+mit doppeltem Boden gestaltet (Robin, 04.11.2026; ersetzt die Regel vom 18.10.2026). Beispiel: FiBu lite, der Plan B für den Monat ohne
+Bankabruf. Dann die Unterweisung: der
 Online-Lehrgang im Memberbereich, der die Mitarbeitenden schult und weiterentwickelt (sieben Lektionen mit Lernzielen, Fällen aus
 dem Rechnungswesen, Selbstchecks und je einer Praxisaufgabe für den eigenen Arbeitsplatz, etwa 70 Minuten Lernzeit; Skript als PDF)
 und der Test mit 15 Fragen; Auftraggeber und Teilnehmende melden sich per Link aus der E-Mail an, auf Wunsch mit Passkey; nach dem Bestehen ein Zertifikat über die Unterweisung nach EU AI Act je Person, online

@@ -38,9 +38,14 @@ const TEXT = {
     // Drei Schritte der Zusammenarbeit (Robin, 18.10.2026): bei den Workshops, nicht bei den Werkzeugen – die Hemmschwelle soll gering sein
     schritteTitel: "Wie wir zusammenarbeiten",
     schritte: [
-      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen."],
-      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Fällen aus Ihrem Alltag. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
-      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter."],
+      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen – und davon, wo der Prozess heute hakt."],
+      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Fällen aus Ihrem Alltag. Für einen Pain Point bauen wir sofort ein Plan-B-Tool. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
+      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus. Die automatischen Abläufe gestalten wir an den kritischen Stellen besonders stabil – mit doppeltem Boden."],
+    ],
+    planBKicker: "Plan-B-Tool", planBTitel: "Ein doppelter Boden für Ihre Prozesse",
+    planB: [
+      "Jeder Ablauf hat Stellen, an denen er hakt – der Bankabruf fällt aus, ein Import scheitert, eine Liste wird doch wieder abgetippt. Im Workshop finden wir diese Stellen gemeinsam und bauen für eine davon sofort eine Lösung: ein Plan-B-Tool, das einspringt, wenn der automatische Prozess dort nicht läuft.",
+      "So wird zugleich sichtbar, welche Schritte kritisch und welche unverzichtbar sind. Genau dort gestalten wir die übergeordneten Abläufe besonders stabil und mit doppeltem Boden – damit die Arbeit auch an schwierigen Tagen weitergeht. Ein Beispiel ist SmartFormular FiBu lite: der Plan B für den Monat, in dem der Bankabruf fehlt.",
     ],
     teileTitel: "Drei Teile, ein Ergebnis",
     teile: [
@@ -148,9 +153,14 @@ const TEXT = {
     anfrageTitel: "Enquire about a workshop",
     schritteTitel: "How we work together",
     schritte: [
-      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes and of the software and AI you already use."],
-      ["Train", "In the workshop we develop ways to improve your processes together, using cases from your day-to-day work – and overcome any hesitation about working with AI."],
-      ["Develop", "We build step by step on what works in practice – your processes, rules and templates evolve with your team."],
+      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes, of the software and AI you already use – and of where the process stalls today."],
+      ["Train", "In the workshop we develop ways to improve your processes together, using cases from your day-to-day work. For one pain point we build a plan B tool on the spot – and overcome any hesitation about working with AI."],
+      ["Develop", "We build step by step on what works in practice. At the critical points we make the automated processes especially robust – with a safety net."],
+    ],
+    planBKicker: "Plan B tool", planBTitel: "A safety net for your processes",
+    planB: [
+      "Every process has points where it stalls – the bank feed fails, an import breaks, a list gets typed in by hand after all. In the workshop we find these points together and build an immediate solution for one of them: a plan B tool that steps in when the automated process does not run there.",
+      "This also shows which steps are critical and which are essential. That is exactly where we make the overall processes especially robust, with a safety net – so work carries on even on difficult days. One example is SmartFormular FiBu lite: the plan B for the month the bank feed is missing.",
     ],
     teileTitel: "Three parts, one result",
     teile: [
@@ -367,6 +377,11 @@ ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <ol class="schritte">
 ${t.schritte.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
 </ol>
+<section class="unterweisung plan-b" aria-labelledby="plan-b">
+<p class="kicker">${esc(t.planBKicker)}</p>
+<h2 id="plan-b">${esc(t.planBTitel)}</h2>
+${t.planB.map(p => `<p class="frei">${esc(p)}</p>`).join("\n")}
+</section>
 ${grundsaetze(lang)}
 <h2 id="teile">${esc(t.teileTitel)}</h2>
 <div class="teile">
