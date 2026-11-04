@@ -51,7 +51,7 @@
       description: 'Werkzeuge fürs Rechnungswesen, kostenlos testen bis 31.12.2026: E-Rechnungen prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.',
       title: 'robin.vision – Werkzeuge und Workshops zur KI-Kompetenz',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
-      claim: 'Werkzeuge und Workshops für Unternehmen und Kanzleien.',
+      slogan: 'Prozesse effizient gestalten', claim: 'Werkzeuge und Workshops für Unternehmen und Kanzleien.',
       ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshop für Ihr Team', ctaWorkshopsZusatz: 'mit Unterweisung nach EU AI Act',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
@@ -160,7 +160,7 @@
       legalAds: 'Advertising: tools marked “Ad” are presented by robin.vision for advertising purposes. The provider is robin.vision itself, a company in which Robin James Lewis has a stake, or another company that pays robin.vision to present its tool (a fee or a commission on sales referred). The provider is named next to the label; any contract for a tool is made with its provider.',
       description: 'Accounting tools, free to try until 31 December 2026: check and pay e-invoices, turn bank statements into booking batches. AI literacy workshops with EU AI Act training. New Food for Thought every Friday.',
       title: 'robin.vision – Tools and AI literacy workshops',
-      claim: 'Tools and workshops for businesses and accounting firms.',
+      slogan: 'Making processes efficient', claim: 'Tools and workshops for businesses and accounting firms.',
       ctaTool: 'Try the tools', ctaWorkshops: 'Workshop for your team', ctaWorkshopsZusatz: 'with EU AI Act training',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
