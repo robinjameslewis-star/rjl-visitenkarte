@@ -2,7 +2,7 @@
 title: "Agents need a budget"
 date: 2026-11-06
 lang: en
-status: draft
+status: published
 summary: "With AI agents, the cost lies not in the question but in the route the agent picks for itself. Five rules for keeping spend and results in view."
 ---
 
