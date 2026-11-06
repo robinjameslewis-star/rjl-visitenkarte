@@ -748,7 +748,7 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
 - **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
   Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
 - **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus
-  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ in den
+  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ (auch: höchstens 40 Wörter, Robin, 06.11.2026) in den
   Systemprompt (kurze Sätze, keine Aufzählungen, Zahlen wie gesprochen). Antwortzeiten von Modell und Stimme werden je
   Monat gezählt und in der Redaktion gezeigt.
 - **Kostenbremsen:** vertonte Zeichen je Monat (`MAX_STIMME_ZEICHEN_MONAT`, 30.000) und Audiominuten je Tag
