@@ -9,7 +9,8 @@
 // Sprechender Goch (23.10.2026): { figur: "goch" } wählt die Figur (öffentlich nur Goch); { gesprochen: true } – die Frage
 // kam per Spracheingabe – oder { stimme: {erste} } schaltet das schnellere Modell des Sprachmodus ein. Mit „stimme“
 // antwortet der Worker als NDJSON: Zeile 1 die Antwort wie oben, Zeile 2 { stimme: {mime, daten, zeichen, ms} } oder
-// { stimme: null, grund }. Vertont wird nur diese eigene Antwort; eine freie Vorlese-Route gibt es nicht.
+// { stimme: null, grund }; mit { stimme: { teile: true } } je Abschnitt eine Zeile (mitStimme). Vertont wird nur diese eigene
+// Antwort; eine freie Vorlese-Route gibt es nicht.
 // POST /listen?lang=de|en  WAV (16 Bit, mono, höchstens 20 s) → { text, sekunden } – Spracheingabe, src/hoeren.js
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";
@@ -26,7 +27,7 @@ import { handleLizenz } from "./lizenz.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
-import { stimmeFuerAntwort, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
+import { stimmeFuerAntwort, stimmeInTeilen, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
 import { handleListen } from "./hoeren.js";
 import { handleKiosk, kundenSystem, GOCH_AM_GERAET } from "./kiosk.js";
 import { laden as seitenLaden, prompt as seitenPrompt, links as seitenLinks } from "./seitenwissen.js";
@@ -282,9 +283,12 @@ const worker = {
 export default worker;
 
 // Antwort von /chat um die Stimme ergänzen: Zeile 1 sofort (die Seite zeigt den Text), Zeile 2 mit dem MP3, sobald es
-// da ist. Bei der ersten gesprochenen Antwort einer Sitzung stellt der Worker den KI-Hinweis voran (Art. 50 KI-VO) –
+// da ist. Verlangt die Seite { stimme: { teile: true } } (Robin, 06.11.2026), folgt je Abschnitt eine Zeile (stimmeInTeilen),
+// und Zeile 1 wartet auf den ersten Abschnitt, höchstens TEXT_SPAETESTENS_MS: Text und Stimme beginnen zusammen.
+// Bei der ersten gesprochenen Antwort einer Sitzung stellt der Worker den KI-Hinweis voran (Art. 50 KI-VO) –
 // im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme nur { stimme: null, grund }, nie ein
 // Fehlertext des Anbieters; die Seite zeigt den Text und den allgemeinen Hinweis, dass es gerade nur im Chat geht.
+const TEXT_SPAETESTENS_MS = 2000;
 async function mitStimme(response, body, env, ctx, optionen = {}) {
   let out;
   try { out = await response.json(); } catch { return response; }
@@ -302,9 +306,13 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
   const headers = new Headers(response.headers);
   headers.set("content-type", "application/x-ndjson; charset=utf-8");
   headers.set("cache-control", "no-store");
+  const inTeilen = !!wunsch && wunsch.teile === true;
+  let textDa = false;
+  const textZeigen = () => { if (textDa) return undefined; textDa = true; return writer.write(enc.encode(JSON.stringify(out) + "\n")); };
+  const spaetestens = inTeilen ? setTimeout(() => { Promise.resolve(textZeigen()).catch(() => {}); }, TEXT_SPAETESTENS_MS) : 0;
   ctx.waitUntil((async () => {
     try {
-      await writer.write(enc.encode(JSON.stringify(out) + "\n"));
+      if (!inTeilen) await textZeigen();
       const settings = await loadSettings(env);
       const figur = oeffentlicheFigur(body.figur) || oeffentlicheFigur();
       const voiceId = optionen.voiceId !== undefined ? optionen.voiceId // Kundenfigur: ihre eigene Stimme aus der Redaktion
@@ -312,14 +320,21 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
       // Stimmcharakter: Goch aus figur.json (warm, weich), Kundenfiguren mit den Ausgangswerten
       const einstellungen = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.einstellungen;
       const seed = optionen.voiceId !== undefined ? undefined : figur.stimme && figur.stimme.seed; // gleichbleibender Klang
-      const r = await stimmeFuerAntwort(env, ctx, gesprochen, { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed });
-      if (r.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
-        "Goch: Monatsgrenze für die Stimme erreicht",
-        "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
-      await writer.write(enc.encode(JSON.stringify(r) + "\n"));
+      const schreiben = async zeile => {
+        clearTimeout(spaetestens);
+        await textZeigen();
+        if (zeile.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
+          "Goch: Monatsgrenze für die Stimme erreicht",
+          "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
+        await writer.write(enc.encode(JSON.stringify(zeile) + "\n"));
+      };
+      const angaben = { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed };
+      if (inTeilen) await stimmeInTeilen(env, ctx, gesprochen, { ...angaben, fest: [KI_HINWEIS[lang]] }, schreiben);
+      else await schreiben(await stimmeFuerAntwort(env, ctx, gesprochen, angaben));
     } catch (e) {
-      console.error("Stimme (Antwort)", String(e && e.message || e).slice(0, 300));
-      try { await writer.write(enc.encode(JSON.stringify({ stimme: null, grund: "fehler" }) + "\n")); } catch {}
+      if (e) console.error("Stimme (Antwort)", String(e.message || e).slice(0, 300)); // ohne Fehler: Besucher hat abgebrochen
+      clearTimeout(spaetestens);
+      try { await textZeigen(); await writer.write(enc.encode(JSON.stringify({ stimme: null, grund: "fehler" }) + "\n")); } catch {}
     } finally { try { await writer.close(); } catch {} }
   })());
   return new Response(readable, { status: 200, headers });

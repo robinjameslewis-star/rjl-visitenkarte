@@ -41,7 +41,7 @@ def fake(path):
 
 # Zählt alles, was Ton oder Mikrofon bedeutet – vor jedem Skript der Seite.
 INSTRUMENT = """
-window.__z = { gum: 0, play: 0, start: 0, speak: 0, ctx: 0, streams: [] };
+window.__z = { gum: 0, play: 0, start: 0, speak: 0, ctx: 0, streams: [], folge: [] };
 window.__mund = []; window.__bewegt = [];
 (() => {
   // Mikrofon: Sägezahn mit 160 Hz, hörbar nur, solange __sprich wahr ist – wie jemand, der spricht und wieder still ist
@@ -58,7 +58,7 @@ window.__mund = []; window.__bewegt = [];
     return ziel.stream;
   };
   const P = HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play = function () { __z.play++; return P.call(this); };
-  const S = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function (...a) { __z.start++; return S.apply(this, a); };
+  const S = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function (...a) { __z.start++; __z.folge.push([a[0] || 0, this.buffer ? this.buffer.duration : 0]); return S.apply(this, a); };
   if (window.speechSynthesis) { const sp = speechSynthesis.speak.bind(speechSynthesis); speechSynthesis.speak = u => { if (u.text) __z.speak++; return sp(u); }; }
   const AC = window.AudioContext; window.AudioContext = class extends AC { constructor(...a) { super(...a); __z.ctx++; } };
   document.addEventListener('DOMContentLoaded', () => {
@@ -222,11 +222,13 @@ async def main():
             await ev("document.querySelector('.goch-starter').click()"); await pump(0.4)
             await ev("document.getElementById('goch-allow').click()"); await pump(2.5)
             last = fake('/_chats')[-1]
-            check(last.get('stimme') == {'erste': True} and last.get('figur') == 'goch', "Anfrage mit stimme.erste und figur", {k: last.get(k) for k in ('stimme', 'figur', 'gesprochen')})
+            check(last.get('stimme') == {'erste': True, 'teile': True} and last.get('figur') == 'goch', "Anfrage mit stimme.erste, teile und figur", {k: last.get(k) for k in ('stimme', 'figur', 'gesprochen')})
             b = await ev(bubbles)
             check(b[-1].startswith('goch: Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.'), "KI-Hinweis bei der ersten gesprochenen Antwort, als Text sichtbar", b[-1][:80])
             zz = await z(); mund = await ev("__mund")
-            check(zz['start'] == 1, "Stimme abgespielt", zz['start'])
+            check(zz['start'] >= 2, "Stimme abgespielt, Satz für Satz", zz['start'])
+            folge = zz['folge']
+            check(all(folge[i + 1][0] >= folge[i][0] + folge[i][1] - .01 for i in range(len(folge) - 1)), "Abschnitte spielen nacheinander, ohne sich zu überlagern", folge)
             check('offen' in mund and 'halb' in mund, "Schnabel folgt der Lautstärke: Posen halb und offen im Wechsel", mund[:8])
             check(await ev("!document.getElementById('scene').dataset.mund && [...document.querySelectorAll('.bird-mund')].every(f => f.style.opacity !== '1') && document.querySelector('.bird-rest').style.opacity === '1' && [...document.querySelectorAll('.leben-kopf img')].every(f => (f.style.opacity === '1') === (f.dataset.kopf === 'rest'))"), "nach dem Ende wieder geschlossen (Sitzpose bzw. Kopf in Ruhe)")
             bewegt = await ev("__bewegt")
@@ -234,8 +236,9 @@ async def main():
             check(await ev("!document.getElementById('scene').dataset.spricht && (document.getElementById('scene').style.getPropertyValue('--goch-neigung') || '0.00deg') === '0.00deg'"), "danach wieder aufrecht")
             await shot("03_antwort_stimme")
             await ev("document.getElementById('goch-input').value='Wer ist Robin?'; document.getElementById('goch-send').click()"); await pump(2)
-            check(fake('/_chats')[-1].get('stimme') == {'erste': False} and not (await ev(bubbles))[-1].startswith('goch: Kurz vorab'), "zweite Antwort ohne Hinweis")
-            check((await z())['start'] == 2, "zweite Antwort gesprochen")
+            check(fake('/_chats')[-1].get('stimme') == {'erste': False, 'teile': True} and not (await ev(bubbles))[-1].startswith('goch: Kurz vorab'), "zweite Antwort ohne Hinweis")
+            starts4 = (await z())['start']
+            check(starts4 > zz['start'], "zweite Antwort gesprochen", starts4)
 
             print("5. Grenze erreicht oder Stimme gestört: Text und allgemeiner Hinweis „nur im Chat“, nie ein Grund")
             NUR_CHAT = 'goch: Sprechen geht gerade nicht – ein Gespräch ist im Moment nur hier im Chat möglich. Schreiben Sie mir gern.'
@@ -243,14 +246,14 @@ async def main():
             fake('/_modus?stimme=grenze')
             await ev("document.getElementById('goch-input').value='Woran arbeitet Robin?'; document.getElementById('goch-send').click()"); await pump(2)
             zz = await z(); b = await ev(bubbles)
-            check(zz['start'] == 2 and zz['speak'] == 0, "keine Stimme, auch keine Browserstimme", zz)
+            check(zz['start'] == starts4 and zz['speak'] == 0, "keine Stimme, auch keine Browserstimme", zz)
             check(b[-2].startswith('goch: Robin lernt') and b[-1] == NUR_CHAT, "Antwort als Text, danach der Hinweis „nur hier im Chat“", b[-1][:70])
             check(await laut() == 'false' and await ev("document.activeElement.id") == 'goch-input', "Stimme schaltet sich ab, Eingabefeld bereit")
             await real_click('#goch-laut'); await pump(0.3)
             fake('/_modus?stimme=fehler')
             await ev("document.getElementById('goch-input').value='Woran arbeitet Robin?'; document.getElementById('goch-send').click()"); await pump(2)
             zz = await z(); b = await ev(bubbles)
-            check(zz['start'] == 2 and zz['speak'] == 0 and b[-1] == NUR_CHAT and await laut() == 'false', "Stimme gestört: nur Text und derselbe Hinweis, keine Gerätestimme – jeder hört dieselbe Stimme", f"speak={zz['speak']}")
+            check(zz['start'] == starts4 and zz['speak'] == 0 and b[-1] == NUR_CHAT and await laut() == 'false', "Stimme gestört: nur Text und derselbe Hinweis, keine Gerätestimme – jeder hört dieselbe Stimme", f"speak={zz['speak']}")
             check(not any(w in ' '.join(b) for w in ('ElevenLabs', '402', 'Payment', 'fehler', 'grenze', 'Grenze')), "kein Anbieter, kein Fehlergrund im Chat")
             fake('/_modus?stimme=ok')
             await real_click('#goch-laut'); await pump(0.3)
@@ -274,12 +277,13 @@ async def main():
             check(len(li) == 1 and li[0]['kopf'] == 'RIFF' and li[0]['wave'] == 'WAVE' and li[0]['rate'] == 16000 and li[0]['typ'] == 'audio/wav' and li[0]['lang'] == 'de', "nach einer kurzen Pause von selbst gesendet: WAV 16 kHz an /listen", li[-1:])
             check(li and 1.2 * 32000 <= li[0]['bytes'] - 44 <= 2.1 * 32000, "Abschnitt: Rede mit kurzem Vor- und Nachlauf, ohne die Stille danach", li and li[0]['bytes'])
             check('you: Woran arbeitet Robin gerade?' in await ev(bubbles) and fake('/_chats')[-1].get('gesprochen') is True, "erkannter Text erscheint als Besuchertext und läuft über /chat mit gesprochen")
+            await pump(1.8)  # die Antwort spielt Satz für Satz
             zz = await z()
             check(await zustand() == 'hoert' and zz['offen'] == 1 and zz['gum'] == 1, "nach der Antwort hört Goch wieder zu – Mikrofon blieb offen, kein neues getUserMedia", zz)
             print("6b. Während Goch antwortet, hört er nicht zu")
             await ev("__sprich = true"); await pump(1.0); await ev("__sprich = false"); await pump(1.0)  # Frage, dann Pause
             await ev("__sprich = true"); await pump(0.5); await ev("__sprich = false")                  # spricht in Gochs Antwort hinein
-            await pump(3.0)
+            await pump(4.0)
             check(len(neu_listen()) == 2 and await zustand() == 'hoert', "nur die Frage gesendet, nicht was während der Antwort gesprochen wurde", len(neu_listen()))
             print("6c. „Fertig“ und „Pause“")
             await ev("__sprich = true"); await pump(1.0)

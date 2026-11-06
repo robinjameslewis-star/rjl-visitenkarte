@@ -86,15 +86,22 @@
 
   // ---------- Ton (goch-audio.js) ----------
   const entsperren = A.entsperren;
-  function schweigen() { A.schweigen(); mund('zu'); koerper.ende(); }
+  // Die Stimme einer Antwort kommt in Abschnitten (Robin, 06.11.2026) und spielt nacheinander (goch-audio.js, folge); was noch
+  // unterwegs ist, wird beim Verstummen abgebrochen (runde), dann vertont der Worker auch nichts mehr.
+  let folge = null, runde = 0;
+  function schweigen() { runde++; restLaeuft = false; A.schweigen(); mund('zu'); koerper.ende(); }
   async function abspielen(stimme) {
     if (!lautAn || panel.hidden) return true;
-    let weich = 0;
-    const ok = await A.abspielen(stimme.daten, {
-      pegel: rms => { weich = weich * .55 + rms * .45; mund(weich > .09 ? 'offen' : weich > .025 ? 'halb' : 'zu'); koerper.stimme(rms); },
-      ende: () => { spielt = false; mund('zu'); koerper.ende(); weiterHoeren(); },
-    });
-    if (ok) spielt = true;
+    if (!folge) {
+      let weich = 0;
+      folge = A.folge({
+        pegel: rms => { weich = weich * .55 + rms * .45; mund(weich > .09 ? 'offen' : weich > .025 ? 'halb' : 'zu'); koerper.stimme(rms); },
+        ende: () => { folge = null; spielt = false; mund('zu'); koerper.ende(); weiterHoeren(); },
+      });
+      if (!folge) return false;
+    }
+    const diese = folge, ok = await diese.teil(stimme.daten);
+    if (ok && diese === folge) spielt = true;
     return ok;
   }
   // Rückfall auf eine Stimme des Geräts nur, wenn Gochs Paket ihn erlaubt (figur.json, stimme.rueckfall „browser“). Für Goch
@@ -129,16 +136,18 @@
       if (!erlaubt) return { kannZeigen: true };
       const z = {};
       if (opts && opts.gesprochen) z.gesprochen = true;
-      if (lautAn) { schweigen(); z.stimme = { erste: !schonGesprochen }; schonGesprochen = true; if (kiHinweis.hidden) { kiHinweis.hidden = false; nachziehen(); } }
+      if (lautAn) { schweigen(); z.stimme = { erste: !schonGesprochen, teile: true }; schonGesprochen = true; if (kiHinweis.hidden) { kiHinweis.hidden = false; nachziehen(); } }
       if (Object.keys(z).length) z.figur = 'goch';
       z.kannZeigen = true; // die Seite kann zu Stellen führen (goch-gespraech.js)
       return z;
     },
     async rest(reader, buf, dec, antwort) {
+      const meine = runde;
       restLaeuft = true;
       diktat = fragtNachAngaben(antwort && antwort.reply);
       try {
         for (;;) {
+          if (meine !== runde) { reader.cancel().catch(() => {}); return; } // inzwischen verstummt oder neue Frage
           const i = buf.indexOf('\n');
           if (i >= 0) {
             const zeile = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
@@ -150,7 +159,7 @@
           buf += dec.decode(value, { stream: true });
         }
       } catch (_) { /* ohne Stimme bleibt der Text */ }
-      finally { restLaeuft = false; if (!spielt) weiterHoeren(); }
+      finally { if (meine === runde) { restLaeuft = false; if (folge) folge.fertig(); if (!spielt) weiterHoeren(); } }
     },
     // für goch-zwitschern.js: in Gesprächspausen zwitschern, hörbar nur mit Stimme
     beschaeftigt: () => denkt || restLaeuft || spielt || zustand === 'spricht',
@@ -164,6 +173,7 @@
   async function stimmeZurAntwort(z, antwort) {
     if (!z || !('stimme' in z) || !lautAn || panel.hidden) return;
     if (z.stimme && await abspielen(z.stimme)) return;
+    if (folge && spielt) return; // ein späterer Abschnitt fehlt: Goch spricht zu Ende, was da ist; der Text steht ohnehin da
     if (z.grund !== 'grenze' && await browserStimme(antwort && antwort.reply)) return;
     nurChat();
   }

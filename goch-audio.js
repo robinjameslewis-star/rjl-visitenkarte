@@ -60,6 +60,56 @@
     return true;
   }
 
+  // Stimme in Abschnitten (Robin, 06.11.2026): Jeder Teil ist ein eigenes MP3, gespielt wird lückenlos nacheinander, auch wenn
+  // der nächste schon da ist, bevor der vorige endet. teil(daten) reiht ein und liefert false, wenn er sich nicht abspielen lässt;
+  // fertig() sagt, dass nichts mehr kommt. ende() kommt einmal: nach dem letzten Teil oder bei schweigen(). null ohne Ton.
+  const SATZPAUSE_S = .35; // zwischen zwei Abschnitten bleiben sonst nur rund 0,3 s, in einer ganzen Aufnahme sind es 0,7 bis 0,8 s
+  function folge({ pegel, ende, lautstaerke = 1 } = {}) {
+    const c = audio();
+    if (!c) return null;
+    schweigen();
+    const analyser = c.createAnalyser(), gain = c.createGain(), laufend = new Set();
+    analyser.fftSize = 512; gain.gain.value = lautstaerke;
+    analyser.connect(gain); gain.connect(c.destination);
+    let naechster = 0, abgeschlossen = false, vorbei = false;
+    const q = {
+      stop() { vorbei = true; laufend.forEach(s => { try { s.stop(); } catch (_) {} }); laufend.clear(); },
+      ende() { vorbei = true; if (ende) ende(); },
+    };
+    const pruefen = () => { if (abgeschlossen && !laufend.size && quelle === q) { quelle = null; q.ende(); } };
+    quelle = q;
+    if (pegel) {
+      const werte = new Float32Array(analyser.fftSize);
+      const schritt = () => {
+        if (quelle !== q) return;
+        analyser.getFloatTimeDomainData(werte);
+        let summe = 0;
+        for (const v of werte) summe += v * v;
+        pegel(Math.sqrt(summe / werte.length));
+        requestAnimationFrame(schritt);
+      };
+      requestAnimationFrame(schritt);
+    }
+    return {
+      async teil(daten) {
+        let puffer;
+        try {
+          const bytes = Uint8Array.from(atob(daten), ch => ch.charCodeAt(0));
+          puffer = await c.decodeAudioData(bytes.buffer);
+        } catch (_) { return false; }
+        if (vorbei) return true; // inzwischen verstummt: kein Fehler, nur nichts mehr zu tun
+        const src = c.createBufferSource(), wann = Math.max(c.currentTime, naechster && naechster + SATZPAUSE_S);
+        src.buffer = puffer; src.connect(analyser);
+        laufend.add(src);
+        src.onended = () => { laufend.delete(src); pruefen(); };
+        src.start(wann);
+        naechster = wann + puffer.duration;
+        return true;
+      },
+      fertig() { abgeschlossen = true; pruefen(); },
+    };
+  }
+
   // Stimme des Geräts wählen: nur lokale Stimmen (Online-Stimmen wie „Google Deutsch“ schicken den Text an einen weiteren
   // Dienst); zuerst die Namen aus dem Vorzug der Figur (Goch: warme Männerstimmen wie Markus, Yannick, Daniel), dabei
   // „Premium“/„Erweitert“ vor der einfachen Fassung; sonst die erste lokale Stimme der Sprache, britisches Englisch zuerst.
@@ -281,5 +331,5 @@
     };
   }
 
-  window.GochAudio = { audio, entsperren, schweigen, abspielen, browserStimme, stimmeWaehlen, aufnahme, zuhoeren, erkenner, bewegung, wav, get spielt() { return !!quelle || sprichtBrowser; } };
+  window.GochAudio = { audio, entsperren, schweigen, abspielen, folge, browserStimme, stimmeWaehlen, aufnahme, zuhoeren, erkenner, bewegung, wav, get spielt() { return !!quelle || sprichtBrowser; } };
 })();
