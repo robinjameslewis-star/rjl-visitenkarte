@@ -64,6 +64,89 @@ export const PROBESATZ = {
   en: "Just so you know: I'm an AI, and my voice is artificially generated. I'm Goch, Robin's robin – do ask me what he's working on.",
 };
 
+// Sprechabschnitte (Robin, 06.11.2026: schneller und flüssiger anfangen). Vertont wird nicht mehr die ganze Antwort am Stück:
+// Goch beginnt, sobald der erste Satz fertig ist, der Rest folgt, während er spricht. Geteilt wird nur an Satzenden; der erste
+// Abschnitt ist ein einzelner Satz (nur ein sehr kurzer wie „Gern.“ nimmt den nächsten mit), die weiteren fassen Sätze bis
+// etwa 240 Zeichen zusammen, damit die Stimme im Fluss bleibt. Abkürzungen und Ordnungszahlen („z. B.“, „am 3. Mai“) sind kein Satzende.
+const KEIN_SATZENDE = /(?:^|[\s(„"])(?:\p{L}|\d{1,2}|bzw|ca|Dr|Prof|Nr|St|Str|ggf|evtl|inkl|vgl|etc|usw|sog|Mr|Mrs|Ms|vs|No)\.$/u;
+export function sprechTeile(text, { ersterMin = 25, weitereMax = 240 } = {}) {
+  const saetze = [];
+  let start = 0;
+  for (const m of text.matchAll(/[.!?…]+["“”'’)]*\s+/g)) {
+    const ende = m.index + m[0].trimEnd().length, satz = text.slice(start, ende), danach = text[m.index + m[0].length] || "";
+    if (/\.$/.test(satz) && KEIN_SATZENDE.test(satz)) continue;
+    if (/\p{Ll}/u.test(danach)) continue; // klein weiter: kein Satzende
+    saetze.push(satz.trim()); start = m.index + m[0].length;
+  }
+  if (text.slice(start).trim()) saetze.push(text.slice(start).trim());
+  const teile = [];
+  for (const satz of saetze) {
+    const zuletzt = teile[teile.length - 1];
+    if (zuletzt === undefined) teile.push(satz);
+    else if (teile.length === 1 ? zuletzt.length < ersterMin : zuletzt.length + 1 + satz.length <= weitereMax) teile[teile.length - 1] = zuletzt + " " + satz;
+    else teile.push(satz);
+  }
+  return teile;
+}
+
+// Ein Abschnitt, der immer gleich lautet (KI-Hinweis): einmal vertonen und merken, das spart bei jeder ersten Antwort Zeit und
+// Zeichen. Der Schlüssel enthält Stimme und Modell, eine Änderung in der Redaktion vertont neu.
+async function festerSatz(env, ctx, text, opts) {
+  const roh = new TextEncoder().encode(JSON.stringify([opts.voiceId, opts.modell, opts.einstellungen, opts.seed, opts.lang, text]));
+  const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", roh))].slice(0, 16).map(b => b.toString(16).padStart(2, "0")).join("");
+  const key = "stimme:fest:" + hash;
+  if (env.USAGE) {
+    try { const da = JSON.parse(await env.USAGE.get(key)); if (da && da.daten) return { ...da, ms: 0, gemerkt: true }; } catch {}
+  }
+  const a = await vertonen(env, text, opts);
+  if (env.USAGE) ctx.waitUntil(env.USAGE.put(key, JSON.stringify({ mime: a.mime, daten: a.daten }), { expirationTtl: 90 * 86400 }).catch(() => {}));
+  return a;
+}
+
+// Zwei Aufrufe gleichzeitig reichen, ein Abschnitt entsteht schneller, als Goch ihn spricht; mehr lässt nicht jeder Tarif von
+// ElevenLabs zu. Ist der Anbieter gerade ausgelastet (429), einmal kurz warten und neu versuchen.
+const PARALLEL = 2, WARTEN_MS = 500;
+async function vertonenMitGeduld(env, text, opts) {
+  try { return await vertonen(env, text, opts); }
+  catch (e) {
+    if (!/ElevenLabs 429/.test(String(e && e.message))) throw e;
+    await new Promise(r => setTimeout(r, WARTEN_MS));
+    return vertonen(env, text, opts);
+  }
+}
+
+// Stimme in Abschnitten: schreiben(zeile) je Abschnitt und in der richtigen Reihenfolge, { stimme: {mime, daten, zeichen, ms, teil, teile} },
+// oder einmal { stimme: null, grund }. Wirft schreiben (Besucher hat abgebrochen), wird nichts Neues mehr vertont. Gezählt werden
+// nur die Zeichen, die wirklich zum Anbieter gingen; msStimme ist jetzt die Wartezeit bis zum ersten Ton.
+export async function stimmeInTeilen(env, ctx, text, { sprache, voiceId, lang, msModell, einstellungen, seed, fest = [], zaehler = "stimme:monat:" }, schreiben) {
+  if (!sprache || !sprache.stimme || !env.ELEVENLABS_API_KEY || !voiceId) return schreiben({ stimme: null, grund: "aus" });
+  const now = Date.now(), stand = await stimmeMonat(env, now);
+  if (stand.fehler) return schreiben({ stimme: null, grund: "fehler" });
+  if (stand.zeichen + text.length > (sprache.zeichenMonat || 0)) return schreiben({ stimme: null, grund: "grenze" });
+  const teile = sprechTeile(text), opts = { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }, beginn = Date.now(), auftraege = [];
+  let zeichen = 0, msErster = null, naechster = 0;
+  const starten = satz => (fest.includes(satz) ? festerSatz(env, ctx, satz, opts) : vertonenMitGeduld(env, satz, opts))
+    .then(a => { if (!a.gemerkt) zeichen += satz.length; return a; })
+    .catch(e => { console.error("Stimme", String(e && e.message || e).slice(0, 300)); return null; });
+  try {
+    for (let i = 0; i < teile.length; i++) {
+      while (naechster < teile.length && naechster < i + PARALLEL) auftraege[naechster] = starten(teile[naechster++]);
+      const a = await auftraege[i];
+      if (!a) return await schreiben({ stimme: null, grund: "fehler" });
+      if (msErster === null) msErster = Date.now() - beginn;
+      await schreiben({ stimme: { mime: a.mime, daten: a.daten, zeichen: teile[i].length, ms: a.ms, teil: i + 1, teile: teile.length } });
+    }
+  } finally {
+    if (env.USAGE && msErster !== null) {
+      const next = { ...stand, zeichen: stand.zeichen + zeichen, antworten: stand.antworten + 1,
+        msModell: stand.msModell + (msModell || 0), msStimme: stand.msStimme + msErster,
+        letzte: { at: new Date(now).toISOString(), zeichen, msModell: msModell || null, msStimme: msErster } };
+      const write = env.USAGE.put(zaehler + monat(now), JSON.stringify(next), { expirationTtl: 70 * 86400 }).catch(() => {});
+      ctx && ctx.waitUntil ? ctx.waitUntil(write) : await write;
+    }
+  }
+}
+
 // Stimme für eine Antwort: { stimme: {mime, daten, zeichen, ms} } oder { stimme: null, grund: "aus" | "grenze" | "fehler" }.
 // Die Seite liest dann nur bei rueckfall „browser“ der Figur lokal vor (nicht bei „grenze“); Goch bleibt beim Text.
 export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang, msModell, einstellungen, seed, zaehler = "stimme:monat:" }) {

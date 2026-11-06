@@ -15,7 +15,7 @@ GET  /       → "Goch" (Lebenszeichen)
 
 Sprechender Goch (23.10.2026):
 POST /chat   { …, "figur": "goch", "gesprochen": true, "stimme": { "erste": true } }
-→            application/x-ndjson: Zeile 1 wie oben (+ "ki": true), Zeile 2 { "stimme": { "mime", "daten", "zeichen", "ms" } }
+→            application/x-ndjson: Zeile 1 wie oben (+ "ki": true), Zeile 2 { "stimme": { "mime", "daten", "zeichen", "ms" } }; mit "stimme": { "teile": true } je Abschnitt eine Zeile (+ "teil", "teile")
              oder { "stimme": null, "grund": "aus"|"grenze"|"fehler" }
 POST /listen?lang=de|en   Body: WAV (PCM 16 Bit, mono, ≤ 20 s), Content-Type audio/wav
 →            { "text": "…", "sekunden": 2.4 } · { "text": "", "grenze": true } · 503 wenn ausgeschaltet

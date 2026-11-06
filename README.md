@@ -736,7 +736,9 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
   Sekunden je Tag. Der erkannte Text erscheint als Besuchertext und läuft über `/chat` – Draht, Newsletter, Links und
   Grenzen bleiben unverändert.
 - **Stimme** (`worker/src/stimme.js`): `/chat` mit `stimme` antwortet als NDJSON – Zeile 1 die Antwort wie immer (die Seite
-  zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Vertont wird nur diese eigene Antwort;
+  zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Die Startseite verlangt `stimme.teile`: Dann
+  folgt je Abschnitt eine Zeile, der erste ist ein einzelner Satz, und Zeile 1 kommt zusammen mit ihm, spätestens nach 2 s; Goch
+  beginnt so, bevor die ganze Antwort vertont ist (Robin, 06.11.2026). Der KI-Hinweis wird einmal vertont und gemerkt. Vertont wird nur diese eigene Antwort;
   eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
   sonst aus `figur.json`), Modell Eleven v4, Regler und fester Startwert (`seed`) aus `figur.json` – jeder Besucher hört
   dieselbe Stimme. Ohne Stimme (`aus`, `fehler`, `grenze`) antwortet Goch nur als Text; eine Gerätestimme gibt es nur
@@ -784,7 +786,7 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, mit „Pause“, beim
   Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
   `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
-- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
+- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON, in Abschnitten) und zeigt die Antwort zusammen mit dem ersten Satz als Text;
   das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
   dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
   `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Dazu neigt er sich mit betonten Silben
