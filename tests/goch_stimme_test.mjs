@@ -11,7 +11,7 @@ import { pathToFileURL } from "node:url";
 import { saveSettings, loadSettings, defaults } from "../worker/src/settings.js";
 import { pruefeKundenfigur, speichereKundenfigur, kundenfiguren, kundenfigur, loescheKundenfigur, oeffentlicheFigur } from "../worker/src/figuren.js";
 import { wavDauer } from "../worker/src/hoeren.js";
-import { sprechTeile } from "../worker/src/stimme.js";
+import { sprechTeile, GESPROCHEN } from "../worker/src/stimme.js";
 
 const root = new URL("..", import.meta.url).pathname;
 const out = mkdtempSync(join(tmpdir(), "rjl-goch-stimme-"));
@@ -273,6 +273,7 @@ console.log("Sprachmodus: schnelleres Modell");
   await zeilen(await chat(w, e, { messages: frage, stimme: {} }));
   check(prompts.at(-1).model === "claude-haiku-5-5", "mit Stimme: Modell des Sprachmodus");
   check(/# Gesprochen/.test(prompts.at(-1).system[0].text), "mit Stimme: Hinweis, so zu formulieren, wie man spricht");
+  check(/höchstens 40 Wörter/.test(prompts.at(-1).system[0].text) && /at most 40 words/.test(GESPROCHEN.en), "mit Stimme: kurze Antworten, auf Deutsch und Englisch (Robin, 06.11.2026)");
   await chat(w, e, { messages: frage, gesprochen: true });
   check(!/# Gesprochen/.test(prompts.at(-1).system[0].text), "nur Spracheingabe, ohne Stimme: kein Sprechstil-Hinweis");
 }

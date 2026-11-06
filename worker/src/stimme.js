@@ -13,9 +13,10 @@ export const TTS_MODELLE = [
   { id: "eleven_flash_v2_5", label: "Flash v2.5 – schnellste und günstigste Antwort" },
 ];
 // Für das Gespräch: Antworten werden vorgelesen – so formulieren, wie man spricht (im Sprachmodus an den Systemprompt).
+// Kurz (Robin, 06.11.2026: „Ja, kürzer“): Lange Antworten kosten Wartezeit beim Schreiben und klingen nach Vortrag.
 export const GESPROCHEN = {
-  de: "# Gesprochen\n\nDeine Antwort wird mit deiner Stimme vorgelesen. Sprich natürlich und warm, wie im Gespräch: kurze Sätze, keine Aufzählungen, keine Klammern, keine Abkürzungen oder Zeichen, die man nicht ausspricht. Schreib Zahlen und Uhrzeiten so, wie man sie sagt.",
-  en: "# Spoken\n\nYour answer is read aloud in your voice. Speak naturally and warmly, as in conversation: short sentences, no lists, no brackets, no abbreviations or symbols nobody would say aloud. Write numbers and times the way people say them.",
+  de: "# Gesprochen\n\nDeine Antwort wird mit deiner Stimme vorgelesen. Sprich natürlich und warm, wie im Gespräch: kurze Sätze, keine Aufzählungen, keine Klammern, keine Abkürzungen oder Zeichen, die man nicht ausspricht. Schreib Zahlen und Uhrzeiten so, wie man sie sagt.\n\nHalte dich im Gespräch besonders kurz: zwei bis drei kurze Sätze, zusammen höchstens 40 Wörter, auch bei „Was gibt's Neues?“ und wenn du ein Angebot vorstellst. Sag das Wichtigste zuerst und frag dann, ob der Besucher mehr hören möchte. Länger nur, wenn jemand ausdrücklich um mehr bittet. Das geht allen Längenangaben oben vor.",
+  en: "# Spoken\n\nYour answer is read aloud in your voice. Speak naturally and warmly, as in conversation: short sentences, no lists, no brackets, no abbreviations or symbols nobody would say aloud. Write numbers and times the way people say them.\n\nKeep it especially brief in conversation: two or three short sentences, at most 40 words in total, also for „What's new?“ and when you introduce an offer. Say the most important thing first, then ask whether the visitor would like to hear more. Go longer only if someone explicitly asks for more. This takes precedence over all length guidance above.",
 };
 // Ausgangswerte für eine warme, weiche Stimme (Goch: figur.json, stimme.einstellungen). Weniger Stabilität = lebendiger.
 export const EINSTELLUNGEN = { stability: 0.5, similarity_boost: 0.8, style: 0.15, use_speaker_boost: true, speed: 0.95 };
