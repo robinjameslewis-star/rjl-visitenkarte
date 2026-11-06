@@ -2,7 +2,7 @@
 title: "Agenten brauchen ein Budget"
 date: 2026-11-06
 lang: de
-status: draft
+status: published
 summary: "Bei KI-Agenten kostet nicht die Frage, sondern der Ablauf, den der Agent selbst wählt – fünf Regeln für Budget, Ergebnis und Nachvollziehbarkeit."
 ---
 
