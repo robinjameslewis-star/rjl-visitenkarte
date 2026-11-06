@@ -6,26 +6,6 @@
   <description>Food for Thought, tools and workshops by email</description>
   <language>en</language>
   <item>
-    <title>Agents need a budget</title>
-    <link>https://robin.vision/blog/agents-need-a-budget/</link>
-    <guid isPermaLink="true">https://robin.vision/blog/agents-need-a-budget/</guid>
-    <pubDate>Fri, 06 Nov 2026 09:00:00 GMT</pubDate>
-    <description><![CDATA[<p><strong>With AI agents, the cost lies not in the question but in the route the agent picks for itself. Five rules for keeping spend and results in view.</strong></p>
-<p>At the end of October I gave an AI agent three jobs on my own website. Off its own bat, it shared the work out among a crowd of sub-agents. Within a week I had run through one model&#39;s allowance twice and hit my subscription&#39;s weekly limit. In one run, two sub-agents out of 40 came back with a result. As far as I can judge, a single targeted check would have caught the mistakes that mattered in the end. The vendor wasn&#39;t to blame: I had set neither a budget nor an outcome.</p>
-<p>With an agent, the cost lies not in the individual question but in the route it picks for itself: steps, retries, sub-agents working side by side, restarts. Without a ceiling, usage climbs whether or not the benefit does. That makes it a job for financial control, as with any other contractor.</p>
-<p><a href="https://robin.vision/blog/agents-need-a-budget/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
-<h3>Tools</h3>
-<p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
-<p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
-<h3>Workshops</h3>
-<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
-<p><a href="https://robin.vision/workshops/en/">More about the workshop</a></p>]]></description>
-  </item>
-  <item>
     <title>SmartFormular FiBu lite: Version b7b368d</title>
     <link>https://robin.vision/werkzeuge/booking-batch-generator/#fassung-b7b368d</link>
     <guid isPermaLink="true">https://robin.vision/werkzeuge/booking-batch-generator/#fassung-b7b368d</guid>

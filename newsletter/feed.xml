@@ -6,6 +6,26 @@
   <description>Impulse, Werkzeuge und Workshops per E-Mail</description>
   <language>de</language>
   <item>
+    <title>Agenten brauchen ein Budget</title>
+    <link>https://robin.vision/blog/agents-need-a-budget/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/agents-need-a-budget/</guid>
+    <pubDate>Fri, 06 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Bei KI-Agenten kostet nicht die Frage, sondern der Ablauf, den der Agent selbst wählt – fünf Regeln für Budget, Ergebnis und Nachvollziehbarkeit.</strong></p>
+<p>Ende Oktober habe ich einem KI-Agenten drei Aufträge für meine eigene Website gegeben. Er verteilte die Arbeit selbständig auf viele Unteragenten, Prüfer und Gegenprüfer. In einer Woche waren zweimal das Kontingent eines Modells und das Wochenlimit meines Abos aufgebraucht. In einem Lauf lieferten von 40 Unteragenten zwei ein Ergebnis. Die Fehler, die am Ende zählten, hätte nach meiner Einschätzung auch eine gezielte Einzelprüfung gefunden. Das lag nicht am Anbieter: Ich hatte weder ein Budget noch ein Ergebnis festgelegt.</p>
+<p>Bei einem Agenten kostet nicht die einzelne Frage, sondern der Ablauf, den er selbst wählt: Schritte, Wiederholungen, parallele Unteragenten, Neustarts. Ohne Grenze wächst der Verbrauch, der Nutzen nicht unbedingt. Das ist eine Controlling-Aufgabe wie bei jedem anderen Dienstleister.</p>
+<p><a href="https://robin.vision/blog/agents-need-a-budget/">Den ganzen Impuls lesen</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung b7b368d vom 2. November 2026</em></p>
+<p>Lizenzprüfung eingerichtet: Die Datei kennt jetzt den Prüfschlüssel für die Anmeldung ab dem 1. Januar 2027. Bis dahin ändert sich nichts.</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
+<h3>Werkzeuge</h3>
+<p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Mehr zum Workshop</a></p>]]></description>
+  </item>
+  <item>
     <title>SmartFormular FiBu lite: Fassung b7b368d</title>
     <link>https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-b7b368d</link>
     <guid isPermaLink="true">https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-b7b368d</guid>
