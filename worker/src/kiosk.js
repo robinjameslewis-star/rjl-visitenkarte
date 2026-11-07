@@ -36,39 +36,51 @@ export function stillAntwort(f, lang, art) {
 }
 
 // ---------- Gerätebudget (Durable Object): je Gerät eine Instanz, Anfragen laufen nacheinander – Prüfen und Buchen in einem ----------
+// Zeitraum „tag“ (Vorgabe): Schlüssel tag:<datum>:<art>. Zeitraum „gesamt“ (Budget je Termin, src/workshop.js): gesamt:<art> über
+// die ganze Laufzeit, dazu gesamt:seit beim ersten Schreiben; nach 60 Tagen räumt der Tageslauf der Instanz alles weg.
+const GESAMT_TAGE = 60;
 export class Geraetebudget {
   constructor(state) { this.state = state; }
   async fetch(request) {
     const url = new URL(request.url), body = request.method === "POST" ? await request.json().catch(() => ({})) : {};
     const tag = new Date().toISOString().slice(0, 10), s = this.state.storage;
     if (url.pathname === "/buchen") {
-      const key = "tag:" + tag + ":" + body.art, stand = (await s.get(key)) || 0, menge = +body.menge || 0;
+      // erst aufräumen, dann buchen: ein abgelaufenes Gesamtbudget zählt neu, statt nach dem Buchen zu verschwinden
+      if (!(await s.get("aufgeraeumt:" + tag))) await this.aufraeumen(tag);
+      const gesamt = body.zeitraum === "gesamt";
+      const key = (gesamt ? "gesamt:" : "tag:" + tag + ":") + body.art, stand = (await s.get(key)) || 0, menge = +body.menge || 0;
       if (stand + menge > (+body.grenze || 0)) return Response.json({ ok: false, stand });
       await s.put(key, stand + menge);
-      if (!(await s.get("aufgeraeumt:" + tag))) await this.aufraeumen(tag);
+      if (gesamt && !(await s.get("gesamt:seit"))) await s.put("gesamt:seit", new Date().toISOString());
       return Response.json({ ok: true, stand: stand + menge });
     }
     if (url.pathname === "/lebenszeichen") { await s.put("lebenszeichen", { ...body, at: new Date().toISOString() }); return Response.json({ ok: true }); }
     if (url.pathname === "/stand") {
-      const heute = {};
+      const heute = {}, gesamt = {};
       for (const art of ["antworten", "sekunden"]) heute[art] = (await s.get("tag:" + tag + ":" + art)) || 0;
-      return Response.json({ lebenszeichen: (await s.get("lebenszeichen")) || null, heute });
+      for (const art of ["antworten", "sekunden", "zeichen"]) gesamt[art] = (await s.get("gesamt:" + art)) || 0;
+      return Response.json({ lebenszeichen: (await s.get("lebenszeichen")) || null, heute, gesamt });
     }
     return new Response("Nicht gefunden.", { status: 404 });
   }
-  // Tageszähler älter als 40 Tage entfernen (einmal am Tag)
+  // Tageszähler älter als 40 Tage entfernen, ebenso ein Gesamtbudget älter als 60 Tage (einmal am Tag)
   async aufraeumen(tag) {
-    const grenze = new Date(Date.now() - 40 * 86400_000).toISOString().slice(0, 10);
-    const alt = [...(await this.state.storage.list({ prefix: "tag:" })).keys()].filter(k => k.slice(4, 14) < grenze);
-    if (alt.length) await this.state.storage.delete(alt);
-    await this.state.storage.put("aufgeraeumt:" + tag, true);
+    const s = this.state.storage, grenze = new Date(Date.now() - 40 * 86400_000).toISOString().slice(0, 10);
+    const alt = [...(await s.list({ prefix: "tag:" })).keys()].filter(k => k.slice(4, 14) < grenze);
+    const seit = await s.get("gesamt:seit");
+    if (seit && Date.parse(seit) < Date.now() - GESAMT_TAGE * 86400_000) alt.push(...(await s.list({ prefix: "gesamt:" })).keys());
+    if (alt.length) await s.delete(alt);
+    await s.put("aufgeraeumt:" + tag, true);
   }
 }
 const budget = (env, id) => env.GERAETE.get(env.GERAETE.idFromName(id));
-async function buchen(env, id, art, menge, grenze) {
-  const r = await budget(env, id).fetch("https://geraet/buchen", { method: "POST", body: JSON.stringify({ art, menge, grenze }) });
+async function buchen(env, id, art, menge, grenze, zeitraum = "tag") {
+  const r = await budget(env, id).fetch("https://geraet/buchen", { method: "POST", body: JSON.stringify({ art, menge, grenze, zeitraum }) });
   return (await r.json()).ok === true;
 }
+// Summe über alle Termine je Tag (Budget je Termin): eine eigene Instanz, Grenzen per [vars]
+const SUMME = "memberbereich:termine";
+const summeGrenze = (env, art) => Math.round(+env[art === "zeichen" ? "WORKSHOP_TERMINE_TAG_ZEICHEN" : "WORKSHOP_TERMINE_TAG_ANTWORTEN"]) || (art === "zeichen" ? 300000 : 1000);
 export async function geraetStand(env, id) {
   try { return await (await budget(env, id).fetch("https://geraet/stand")).json(); } catch { return null; }
 }
@@ -261,8 +273,8 @@ export async function handleKiosk(request, env, ctx, deps, vorgabe = null) {
     const buf = Buffer.from(await request.clone().arrayBuffer());
     if (buf.length > MAX_BYTES) return antwort({ error: "Höchstens 20 Sekunden." }, 413);
     const dauer = wavDauer(buf);
-    if (dauer != null && dauer >= 0.3 && !(await buchen(env, geraet.id, "sekunden", Math.ceil(dauer), geraet.minutenTag * 60)))
-      return antwort({ text: "", grenze: true });
+    if (dauer != null && dauer >= 0.3 && !(await buchen(env, geraet.id, "sekunden", Math.ceil(dauer), geraet.minutenTag * 60, geraet.termin ? "gesamt" : "tag")))
+      return antwort(geraet.termin ? { text: "", grenze: true, art: "termin" } : { text: "", grenze: true });
     return handleListen(request, env, ctx, {}, settings, { zaehlen: false, ipGrenze: false });
   }
   if (url.pathname === "/kiosk/chat" && request.method === "POST") {
@@ -273,13 +285,19 @@ export async function handleKiosk(request, env, ctx, deps, vorgabe = null) {
     if (r.fehler) return antwort({ error: r.fehler === 403 ? "Figur für dieses Gerät nicht freigegeben." : "Figur nicht gefunden." }, r.fehler);
     if (!settings.enabled) return antwort(stillAntwort(r.kunde, lang, "aus"));
     const grenze = Math.min(geraet.antwortenTag, r.kunde ? r.kunde.antwortenTag : Infinity);
-    if (!(await buchen(env, geraet.id, "antworten", 1, grenze))) return antwort(stillAntwort(r.kunde, lang, "grenze")); // ohne Fehlermeldung
+    if (geraet.termin) { // Budget je Termin: ohne eigenen Satz, die Bühne zeigt ihre eigene Zeile
+      if (!(await buchen(env, geraet.id, "antworten", 1, grenze, "gesamt"))) return antwort({ reply: "", action: null, fehler: true, grenze: "termin" });
+      if (!(await buchen(env, SUMME, "antworten", 1, summeGrenze(env, "antworten")))) return antwort({ reply: "", action: null, fehler: true, grenze: "summe" });
+    } else if (!(await buchen(env, geraet.id, "antworten", 1, grenze))) return antwort(stillAntwort(r.kunde, lang, "grenze")); // ohne Fehlermeldung
     const { figur: _f, ...rest } = body;
     const intern = new Request("https://kiosk.intern/chat", { method: "POST", headers: { "content-type": "application/json", "CF-Connecting-IP": "kiosk:" + geraet.id },
       body: JSON.stringify({ ...rest, lang }) });
     const res = await deps.handle(intern, env, ctx, { geraet, figur: r.kunde || r.goch, kunde: !!r.kunde, lang });
     if (!body.stimme || res.status !== 200) return res;
-    return deps.mitStimme(res, { ...body, lang }, env, ctx, r.kunde ? { voiceId: r.kunde.voiceId || "" } : {});
+    // Budget je Termin: vertonte Zeichen zählen je Termin (gesamt) und in der Summe aller Termine je Tag
+    const zeichen = geraet.termin ? { budget: async n => (await buchen(env, geraet.id, "zeichen", n, geraet.zeichenTermin, "gesamt"))
+      && buchen(env, SUMME, "zeichen", n, summeGrenze(env, "zeichen")) } : {};
+    return deps.mitStimme(res, { ...body, lang }, env, ctx, { ...(r.kunde ? { voiceId: r.kunde.voiceId || "" } : {}), ...zeichen });
   }
   return antwort({ error: "Nicht gefunden." }, 404);
 }

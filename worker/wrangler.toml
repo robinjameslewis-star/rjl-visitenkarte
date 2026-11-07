@@ -48,6 +48,18 @@ MAX_HOEREN_ANFRAGEN_TAG = "400"     # zweiter Deckel der Spracheingabe: Aufnahme
 # Messegerät (23.10.2026): Kiosk-Route /kiosk/* mit Gerätenachweis aus der Redaktion („Messegeräte“). „an“ verlangt
 # zusätzlich ein Cloudflare-Client-Zertifikat (API Shield → mTLS für goch.robin.vision, im Dashboard einzurichten).
 KIOSK_MTLS = "aus"
+# Eingang „Workshop“ für den Memberbereich (src/workshop.js): ohne Kopf X-Workshop-Budget ein Tagesbudget („memberbereich“),
+# mit Kopf ein Budget je Termin über die ganze Laufzeit. Vorgaben stehen im Code; zum Ändern hier eintragen (ganze Zahlen):
+# WORKSHOP_ANTWORTEN_TAG = "600"            # Tagesbudget ohne Kopf: Antworten
+# WORKSHOP_MINUTEN_TAG = "60"               # Tagesbudget ohne Kopf: Minuten Spracheingabe
+# WORKSHOP_TERMIN_ANTWORTEN = "150"         # je Termin, wenn der Kopf keinen Wert nennt
+# WORKSHOP_TERMIN_MINUTEN = "15"
+# WORKSHOP_TERMIN_ZEICHEN = "40000"         # vertonte Zeichen je Termin
+# WORKSHOP_TERMIN_MAX_ANTWORTEN = "400"     # Obergrenzen je Termin, gelten auch für Werte aus dem Kopf
+# WORKSHOP_TERMIN_MAX_MINUTEN = "60"
+# WORKSHOP_TERMIN_MAX_ZEICHEN = "150000"
+# WORKSHOP_TERMINE_TAG_ANTWORTEN = "1000"   # Summe über alle Termine je Tag
+# WORKSHOP_TERMINE_TAG_ZEICHEN = "300000"
 # Newsletter „Impulse und Werkzeuge“ über Brevo (src/newsletter.js). Aus, solange das Secret fehlt. Einrichten: siehe README, Abschnitt Newsletter.
 # Secret: npx wrangler secret put BREVO_API_KEY
 BREVO_LISTE_DE = "3"         # ID der Liste „Newsletter DE“ in Brevo (angelegt 15.10.2026)
