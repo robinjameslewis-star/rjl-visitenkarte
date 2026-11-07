@@ -506,7 +506,7 @@
       zustand: () => ({ tafel: feld.dataset.tafel !== undefined, reihe: reihe.size, modus, kap, absatz, satz, angemeldet, beschaeftigt, fragen: fragen.slice(), uebersprungen, zeit: video.currentTime, folie: folie.getAttribute('src') }) };
     // über Video und Live-Bild sichtbar (#hinweis), nicht im unsichtbaren Live-Untertitel
     if (!liste.length) hinweisZeigen(listeFehler ? (lang() === 'en' ? 'Talk folder not readable (USB stick?).' : 'Vortragsordner nicht lesbar (Stick?).')
-      : (lang() === 'en' ? 'No talk set up (local service with --vortrag).' : 'Kein Vortrag eingerichtet (lokaler Dienst mit --vortrag).'));
+      : (K.ohneVortrag || (lang() === 'en' ? 'No talk set up (local service with --vortrag).' : 'Kein Vortrag eingerichtet (lokaler Dienst mit --vortrag).')));
     status();
   })();
 })();
