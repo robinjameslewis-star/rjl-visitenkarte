@@ -26,10 +26,12 @@ let fails = 0;
 const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEHLT ") + label + (detail ? ` (${detail})` : "")); if (!ok) fails++; };
 
 const mails = [], prompts = [], tts = [];
+let ttsFehler = false; // true: der Anbieter der Stimme antwortet mit 500
 let modell = { reply: "Robin baut Werkzeuge.", action: null, message: null, link: null, link2: null };
 globalThis.fetch = async (url, init) => {
   const u = String(url);
   if (u.startsWith("https://api.resend.com")) { mails.push(JSON.parse(init.body)); return new Response('{"id":"x"}', { status: 200 }); }
+  if (u.startsWith("https://api.elevenlabs.io") && ttsFehler) return new Response("kaputt", { status: 500 });
   if (u.startsWith("https://api.elevenlabs.io")) { tts.push({ url: u, body: JSON.parse(init.body) }); return new Response(new Uint8Array([1, 2, 3]), { status: 200 }); }
   if (u.startsWith("https://api.anthropic.com")) {
     prompts.push(JSON.parse(init.body));
@@ -419,6 +421,31 @@ console.log("Budget je Termin (Kopf X-Workshop-Budget am Eingang „Workshop“)
     const z = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ZEICHEN: "5" };
     const s = await chat(z, { termin: "tr_s3" }, { stimme: { erste: false } });
     check(s.zeilen[1] && s.zeilen[1].grund === "grenze_termin", "Summengrenze der Zeichen: ohne Stimme, grund „grenze_termin“", JSON.stringify(s.zeilen[1]));
+    const s2 = (await geraetStand(e, "memberbereich:tr_s2")).gesamt, s3 = (await geraetStand(z, "memberbereich:tr_s3")).gesamt;
+    check(s2.antworten === 0 && s3.zeichen === 0 && s3.antworten === 1, "an der Summe gescheitert: im Termin zurückgebucht", JSON.stringify({ s2, s3 }));
+    const n = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ANTWORTEN: "0", WORKSHOP_TERMINE_TAG_ZEICHEN: "0" }, vorher = prompts.length, ttsVorher = tts.length;
+    const r = (await chat(n, { termin: "tr_s4" })).zeilen[0];
+    check(r.fehler === true && r.grenze === "summe" && prompts.length === vorher && (await geraetStand(n, "memberbereich:tr_s4")).gesamt.antworten === 0,
+      "Summe „0“ aus [vars] sperrt (statt Vorgabe 1000), ohne Modellaufruf", JSON.stringify(r));
+    const nz = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ZEICHEN: "0" };
+    const v = await chat(nz, { termin: "tr_s5" }, { stimme: { erste: false } });
+    check(v.zeilen[1] && v.zeilen[1].grund === "grenze_termin" && tts.length === ttsVorher, "Summe der Zeichen „0“ sperrt die Stimme", JSON.stringify(v.zeilen[1]));
+  }
+  // 11. Stimme scheitert beim Anbieter: Zeichen gehen im Termin und in der Summe zurück
+  {
+    const e = await umgebung();
+    ttsFehler = true;
+    const a = await chat(e, { termin: "tr_f1", zeichen: 1000 }, { stimme: { erste: false } });
+    const t = await chat(e, { termin: "tr_f2", zeichen: 1000 }, { stimme: { erste: false, teile: true } });
+    ttsFehler = false;
+    const f1 = (await geraetStand(e, "memberbereich:tr_f1")).gesamt, f2 = (await geraetStand(e, "memberbereich:tr_f2")).gesamt;
+    const sum = (await geraetStand(e, "memberbereich:termine")).heute;
+    check(a.zeilen[1] && a.zeilen[1].grund === "fehler" && t.zeilen.some(x => x.grund === "fehler"), "Anbieter 500: grund „fehler“, in einem Stück und in Abschnitten", JSON.stringify([a.zeilen[1], t.zeilen.at(-1)]));
+    const sp = e.GERAETE.instanzen.get("id:memberbereich:termine").state.storage, tag = new Date().toISOString().slice(0, 10);
+    check(f1.zeichen === 0 && f2.zeichen === 0 && ((await sp.get("tag:" + tag + ":zeichen")) || 0) === 0, "nichts vertont: Zeichen im Termin und in der Summe zurückgebucht",
+      JSON.stringify({ f1, f2, sum }));
+    const g = await chat(e, { termin: "tr_f1", zeichen: 1000 }, { stimme: { erste: false } });
+    check(g.zeilen[1] && g.zeilen[1].stimme && (await geraetStand(e, "memberbereich:tr_f1")).gesamt.zeichen === modell.reply.length, "danach mit Stimme: nur das Vertonte gezählt");
   }
 }
 

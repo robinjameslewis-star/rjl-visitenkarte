@@ -139,6 +139,8 @@ export async function stimmeInTeilen(env, ctx, text, { sprache, voiceId, lang, m
       await schreiben({ stimme: { mime: a.mime, daten: a.daten, zeichen: teile[i].length, ms: a.ms, teil: i + 1, teile: teile.length } });
     }
   } finally {
+    // Budget je Termin: was nicht zum Anbieter ging (Fehler, Abbruch, gemerkter Satz), zurückbuchen
+    if (budget && text.length > zeichen) await Promise.resolve(budget(zeichen - text.length)).catch(() => {});
     if (env.USAGE && msErster !== null) {
       const next = { ...stand, zeichen: stand.zeichen + zeichen, antworten: stand.antworten + 1,
         msModell: stand.msModell + (msModell || 0), msStimme: stand.msStimme + msErster,
@@ -152,7 +154,8 @@ export async function stimmeInTeilen(env, ctx, text, { sprache, voiceId, lang, m
 // Stimme für eine Antwort: { stimme: {mime, daten, zeichen, ms} } oder { stimme: null, grund: "aus" | "grenze" | "grenze_termin" | "fehler" }.
 // Die Seite liest dann nur bei rueckfall „browser“ der Figur lokal vor (nicht bei „grenze“); Goch bleibt beim Text.
 // budget (nur Budget je Termin, src/kiosk.js): async (zeichen) → true, wenn gebucht; false ergibt „grenze_termin“ – nach der
-// Monatsprüfung und vor dem ersten Vertonen. Das gilt ebenso für stimmeInTeilen.
+// Monatsprüfung und vor dem ersten Vertonen. Das gilt ebenso für stimmeInTeilen. Nicht vertonte Zeichen gehen mit
+// budget(-n) zurück.
 export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang, msModell, einstellungen, seed, zaehler = "stimme:monat:", budget }) {
   if (!sprache || !sprache.stimme || !env.ELEVENLABS_API_KEY || !voiceId) return { stimme: null, grund: "aus" };
   const zeichen = text.length;
@@ -162,7 +165,11 @@ export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang
   if (budget && !(await budget(zeichen))) return { stimme: null, grund: "grenze_termin" };
   let a;
   try { a = await vertonen(env, text, { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }); }
-  catch (e) { console.error("Stimme", String(e && e.message || e).slice(0, 300)); return { stimme: null, grund: "fehler" }; }
+  catch (e) {
+    console.error("Stimme", String(e && e.message || e).slice(0, 300));
+    if (budget) await Promise.resolve(budget(-zeichen)).catch(() => {}); // nichts vertont: Budget je Termin zurück
+    return { stimme: null, grund: "fehler" };
+  }
   // Ein Schreibzugriff je vertonter Antwort: Zeichen, Antworten und Antwortzeiten des Monats in einem Eintrag.
   if (env.USAGE) {
     const next = { ...stand, zeichen: stand.zeichen + zeichen, antworten: stand.antworten + 1,
