@@ -45,7 +45,7 @@ const seiten = [
   ...FAELLE.map((f, i) => `<div class="seite"><div class="glanz"></div><p class="marke">Smart<span>Formular</span></p><p class="nr">Datei ${i + 1}</p><p class="datei">${f.datei}</p>
 <p class="urteil ${f.ja ? "ja" : "nein"}">${f.ja ? "✓" : "✗"} ${f.urteil}</p><p class="text">${f.text}</p>${fuss(i + 2, f.quelle)}</div>`),
   `<div class="seite"><div class="glanz"></div><p class="marke">Smart<span>Formular</span></p><h1 style="font-size:88px">Ihre Datei prüfen</h1>
-<ul class="punkte"><li>Antwort mit Format und Fundstelle</li><li>Befunde in einfachen Worten</li><li>Lesbar, druckbar, GiroCode zum Bezahlen</li><li>Kostenlos, im Browser, ohne Upload</li></ul>
+<ul class="punkte"><li>Antwort mit Format und Fundstelle</li><li>Befunde in einfachen Worten</li><li>Lesbar, druckbar, GiroCode zum Bezahlen</li><li>Kostenlos testen bis 31.12.2026 · im Browser, ohne Upload</li></ul>
 <p class="adresse">robin<b>.</b>vision/werkzeuge/e-rechnung-pruefen</p>
 <p class="hinweis">Technische Einordnung nach den genannten Vorschriften, keine Steuerberatung. Stand der Rechtsangaben: ${stand}. UStG: Umsatzsteuergesetz, UStAE: Umsatzsteuer-Anwendungserlass in der Fassung des BMF-Schreibens vom 15.10.2025.</p>${fuss(8)}</div>`,
 ];
