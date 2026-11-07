@@ -24,11 +24,18 @@ ALLOWED_ORIGINS = "https://robin.vision,https://www.robin.vision,https://robinja
 MAX_PER_IP_PER_HOUR = "12"           # weiche Grenze je Besucher (pro Worker-Instanz)
 MAX_PER_DAY = "60"                   # harte Tagesgrenze über KV (Zähler USAGE) – Kostenbremse, Robin 17.09.2026
 MAX_INPUT_CHARS = "600"
-MAX_TURNS = "8"                      # Fragen je Gespräch ans Modell; danach nur noch der Draht (ohne Modell)
+MAX_TURNS = "10"                     # Antworten des Modells je Gespräch; danach nur noch der Draht (ohne Modell)
 MAX_MESSAGES_PER_IP_PER_DAY = "3"    # Nachrichten an Robin je Besucher und Tag
 MAX_CONTACT_PER_DAY = "30"  # Kontaktformular: Nachrichten je Tag insgesamt
 MAX_DRAHT_PER_DAY = "20"    # Goch: Nachrichten an Robin je Tag insgesamt (Review 25.09.2026)
 MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldungen je Tag insgesamt (src/aufbau.js)
+# Lizenzen SmartFormular ab 01.01.2027 (src/lizenz.js): Code per E-Mail, Test vier Wochen, Lizenz ein Jahr je Person.
+# Stripe (später, Robin): Secrets STRIPE_SECRET_KEY und STRIPE_WEBHOOK_SECRET; Preis-IDs als STRIPE_PREIS_ERECHNUNG / STRIPE_PREIS_FIBU.
+# Ohne Stripe und mit LIZENZ_TESTKAUF = "1" schaltet „Lizenz kaufen“ sofort frei (nur zum Durchspielen, nie öffentlich an).
+LIZENZ_PREIS = ""                  # Text im Werkzeug neben „Lizenz kaufen“, z. B. "199 € je Benutzer und Jahr" – erst, wenn der Preis auf der Website steht
+LIZENZ_TESTKAUF = "0"
+LIZENZ_GERAETE = "3"               # angemeldete Geräte je Person
+MAX_LIZENZ_CODES_PER_DAY = "300"   # Anmeldecodes je Tag insgesamt (Kostenbremse Resend)
 # Sprechender Goch (23.10.2026): Spracheingabe POST /listen über Workers AI (Whisper large-v3-turbo, Bindung AI),
 # Stimme über ElevenLabs. Schalter, Modell des Sprachmodus, voiceId und Grenzen in der Redaktion – beides ist aus,
 # bis Robin einschaltet; hier nur die Ausgangswerte der Grenzen.
@@ -37,6 +44,7 @@ MAX_STIMME_ZEICHEN_MONAT = "30000"   # vertonte Zeichen je Monat (Kostenbremse; 
 MAX_HOEREN_MINUTEN_TAG = "20"        # Audiominuten Spracheingabe je Tag
 MAX_HOEREN_PER_IP_PER_HOUR = "30"    # Aufnahmen je Besucher und Stunde (pro Worker-Instanz)
 SPRACH_MODEL = "claude-haiku-5-5"    # Ausgangswert für das schnellere Modell im Sprachmodus
+MAX_HOEREN_ANFRAGEN_TAG = "400"     # zweiter Deckel der Spracheingabe: Aufnahmen je Tag (Prüfung 29.10.2026, Befund 4.1)
 # Messegerät (23.10.2026): Kiosk-Route /kiosk/* mit Gerätenachweis aus der Redaktion („Messegeräte“). „an“ verlangt
 # zusätzlich ein Cloudflare-Client-Zertifikat (API Shield → mTLS für goch.robin.vision, im Dashboard einzurichten).
 KIOSK_MTLS = "aus"

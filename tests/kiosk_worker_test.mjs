@@ -98,7 +98,7 @@ console.log("Goch am Gerät: Budget statt IP-Grenzen, ohne Links und Newsletter"
   const a = await (await kiosk(e2, "/kiosk/chat", t2, { lang: "de", messages: frage })).json();
   check(a.link === null && a.link2 === null && a.action === null, "keine Links und keine Newsletter-Anmeldung am Gerät", JSON.stringify(a));
   // Draht: viele Besucher hinter einem Gerät – die Grenze je Adresse gilt nicht, die Tagesgrenze insgesamt schon
-  const zusammenfassung = "Ich richte Robin aus: Bitte melden – Von: Max Muster, max@example.com. Unser Gespräch schicke ich mit, damit Robin den Zusammenhang kennt; wenn Sie das nicht möchten, sagen Sie es. Soll ich das so senden?";
+  const zusammenfassung = "Ich richte Robin aus: „Bitte melden“ – Von: Max Muster, max@example.com. Soll ich das so senden?";
   const vorher = mails.length;
   for (let i = 0; i < 4; i++) await kiosk(e2, "/kiosk/chat", t2, { lang: "de", messages: [{ role: "user", content: "Ich möchte Robin etwas ausrichten" }, { role: "assistant", content: zusammenfassung }, { role: "user", content: "Ja" }] });
   check(mails.length === vorher + 4, "vier bestätigte Nachrichten an Robin vom selben Gerät zugestellt", mails.length - vorher);

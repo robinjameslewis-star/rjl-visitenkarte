@@ -11,7 +11,7 @@
 // Kundenfiguren (KV, src/figuren.js) gibt es nur hier, und nur für Geräte, denen Robin sie freigegeben hat.
 import { oeffentlicheFigur, kundenfigur, KUNDEN_ID } from "./figuren.js";
 import { loadSettings } from "./settings.js";
-import { handleListen, wavDauer } from "./hoeren.js";
+import { handleListen, wavDauer, MAX_BYTES } from "./hoeren.js";
 import { Buffer } from "node:buffer";
 
 const GERAET_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -221,7 +221,7 @@ export const GOCH_AM_GERAET = `# Am Messegerät
 Du sprichst gerade nicht auf der Website, sondern an einem Bildschirm an einem Messestand; der Besucher steht vor dir und
 hört dich. Antworte kürzer als sonst – zwei bis drei Sätze –, ohne Links ("link" und "link2" null) und ohne Anmeldung
 zum Newsletter ("action" nie "newsletter"; erzähl davon, dann merkt man sich robin.vision). Wer Robin etwas ausrichten
-möchte, nennt Namen und E-Mail-Adresse; bitte um Buchstabieren, wenn die Adresse unklar klingt.`;
+möchte, dem richtest du es aus; nennt er eine E-Mail-Adresse für eine Antwort, bitte um Buchstabieren, wenn sie unklar klingt.`;
 
 function antwort(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
@@ -237,7 +237,7 @@ export async function handleKiosk(request, env, ctx, deps) {
 
   if (url.pathname === "/kiosk/lebenszeichen" && request.method === "POST") {
     const b = await request.json().catch(() => ({}));
-    const sauber = Object.fromEntries(["version", "commit", "figur", "online", "radar", "puffer", "fehler"].map(k => [k, typeof b[k] === "string" ? b[k].slice(0, 120) : (typeof b[k] === "number" || typeof b[k] === "boolean" ? b[k] : null)]));
+    const sauber = Object.fromEntries(["version", "commit", "figur", "online", "radar", "puffer", "fehler"].map(k => [k, k === "puffer" ? (typeof b[k] === "number" && Number.isFinite(b[k]) ? Math.max(0, Math.min(9999, Math.floor(b[k]))) : null) : typeof b[k] === "string" ? b[k].slice(0, 120) : (typeof b[k] === "number" || typeof b[k] === "boolean" ? b[k] : null)]));
     await budget(env, geraet.id).fetch("https://geraet/lebenszeichen", { method: "POST", body: JSON.stringify(sauber) });
     return antwort({ ok: true });
   }
@@ -250,7 +250,11 @@ export async function handleKiosk(request, env, ctx, deps) {
   }
   if (url.pathname === "/kiosk/listen" && request.method === "POST") {
     if (!settings.enabled) return antwort({ error: "Goch ist zurzeit ausgeschaltet." }, 503);
+    // Erst prüfen, dann buchen: Ist die Spracheingabe aus oder die Aufnahme zu groß, bleibt das Gerätebudget unberührt.
+    if (!settings.sprache || !settings.sprache.hoeren || !env.AI) return antwort({ error: "Spracheingabe ist zurzeit ausgeschaltet." }, 503);
+    if (+(request.headers.get("content-length") || 0) > MAX_BYTES) return antwort({ error: "Höchstens 20 Sekunden." }, 413);
     const buf = Buffer.from(await request.clone().arrayBuffer());
+    if (buf.length > MAX_BYTES) return antwort({ error: "Höchstens 20 Sekunden." }, 413);
     const dauer = wavDauer(buf);
     if (dauer != null && dauer >= 0.3 && !(await buchen(env, geraet.id, "sekunden", Math.ceil(dauer), geraet.minutenTag * 60)))
       return antwort({ text: "", grenze: true });

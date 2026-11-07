@@ -148,7 +148,7 @@ TON = ton()
 
 REPLIES = {
     'de': {
-        'zeigen': "Hier unten sehen Sie Robins Werkzeuge – vom SmartFormular bis zur Deklaration.",
+        'zeigen': "Hier unten sehen Sie Robins Werkzeuge – vom SmartFormular bis zum Abschluss.",
         'work': "Robin lernt gerade für die Abschlussprüfung zum Steuerfachangestellten, schriftlich Ende November. Daneben bekommt diese Seite eine Landschaft, und er baut kleine Werkzeuge für seinen Mac.",
         'who': "Robin James Lewis lebt in Balingen am Fuß der Schwäbischen Alb, mit walisischen Wurzeln. Er wird Steuerfachangestellter und arbeitet daran, Verwaltung mit Software leichter zu machen. Sein Leitsatz: Selig sind die Friedensstifter, sie werden Kinder Gottes heißen.",
         'message': "Gern. Was soll ich Robin ausrichten – und wie heißt du, und unter welcher E-Mail-Adresse kann er dir antworten?",
@@ -189,6 +189,19 @@ class Handler(BaseHTTPRequestHandler):
         stimme = getattr(self, 'stimme', None)
         if stimme and status == 200 and isinstance(obj.get('reply'), str):  # Antwort mit Stimme: NDJSON wie der Worker
             if isinstance(stimme, dict) and stimme.get('erste'): obj = {**obj, 'reply': KI[self.lang] + obj['reply']}
+            if MODUS['stimme'] == 'ok' and isinstance(stimme, dict) and stimme.get('teile'):  # in Abschnitten wie stimmeInTeilen
+                saetze = re.split(r'(?<=[.!?…])\s+', obj['reply'], maxsplit=1)  # wie der Worker: erster Satz, dann der Rest zusammen
+                self.send_response(200); self.cors()
+                self.send_header('Content-Type', 'application/x-ndjson; charset=utf-8'); self.end_headers()
+                try:
+                    for i, satz in enumerate(saetze):
+                        v = vertonen(satz, self.lang)
+                        zeile = {'stimme': {'mime': v[0], 'daten': v[1], 'zeichen': len(satz), 'ms': 1, 'teil': i + 1, 'teile': len(saetze)}} if v else {'stimme': None, 'grund': 'fehler'}
+                        if i == 0: self.wfile.write((json.dumps({**obj, 'ki': True}, ensure_ascii=False) + '\n').encode())
+                        self.wfile.write((json.dumps(zeile) + '\n').encode()); self.wfile.flush()
+                        time.sleep(.05)
+                except (BrokenPipeError, ConnectionResetError): pass
+                return
             if MODUS['stimme'] == 'ok':
                 t0 = time.time(); v = vertonen(obj['reply'], self.lang)
                 zweite = {'stimme': {'mime': v[0], 'daten': v[1], 'zeichen': len(obj['reply']), 'ms': round((time.time() - t0) * 1000)}} if v \

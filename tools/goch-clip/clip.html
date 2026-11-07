@@ -82,10 +82,10 @@
   const buehne = document.getElementById('buehne'), untertitel = document.getElementById('untertitel'), karte = document.getElementById('karte');
   const bilder = [];
   const bild = (src, klasse) => { const i = new Image(); i.src = src; if (klasse) i.className = klasse; bilder.push(i); return i; };
-  // Ast (Ebene aus figur.json) und Goch aus seinen Teilen
+  // Ast wie auf der Website: kommt vom rechten Bildrand, nie schwebend (Robin, 03.11.2026); Goch aus seinen Teilen
   for (const e of a.ebenen || []) {
-    const i = bild(basis + a.fassungen['ohne-landschaft'] + e.datei, 'ast');
-    Object.assign(i.style, { top: pz(e.oben, a.buehne.hoehe), width: pz(e.breite, a.buehne.breite), left: pz(e.links, a.buehne.breite) });
+    const i = bild('../../assets/ast.webp', 'ast');
+    Object.assign(i.style, { top: pz(e.oben, a.buehne.hoehe), width: '125%', left: 'auto', right: '-65px' });
     buehne.append(i);
   }
   const goch = document.createElement('div'); goch.className = 'goch';

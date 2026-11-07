@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PEPPOL-EN16931-R010: Es fehlt die elektronische Adresse des … | E-Rechnung prüfen</title>
+<meta name="description" content="Es fehlt die elektronische Adresse des Rechnungsempfängers (BT-49): die Adresse, an die E-Rechnungen geschickt werden, etwa eine E-Mail-Adresse oder die …">
+<link rel="icon" href="../../../../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../../../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/peppol-en16931-r010/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/peppol-en16931-r010/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/e-invoice-viewer/rules/peppol-en16931-r010/">
+<meta property="og:site_name" content="robin.vision">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PEPPOL-EN16931-R010 – Prüfregeln">
+<meta property="og:description" content="Es fehlt die elektronische Adresse des Rechnungsempfängers (BT-49): die Adresse, an die E-Rechnungen geschickt werden, etwa eine E-Mail-Adresse oder die …">
+<meta property="og:locale" content="de_DE">
+<meta property="og:url" content="https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/peppol-en16931-r010/">
+<meta name="twitter:card" content="summary">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../../../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px min(6vw, 48px) 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
+h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
+.untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
+.meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
+.meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 64px 0 16px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+@media (min-width: 720px) { article p:not(.meta):not(.untertitel):not(.hinweis):not(.frei), article li { text-align: justify; hyphens: auto; } }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.download + .newsletter { margin-top: 18px; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
+.fragen p { color: var(--ink-soft); }
+.list { list-style: none; margin: 0 0 8px; padding: 0; }
+.list li { padding: 22px 0; border-top: 1px solid var(--line); }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.list a { color: var(--green); text-decoration: none; font: 400 clamp(21px, 2.4vw, 25px)/1.25 var(--serif); }
+.list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
+.list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 min(6vw, 48px) 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+:root { --green: #EDE9FE; --copper: #A78BFA; --ink: #EDE9FE; --ink-soft: #C4B5FD; --ink-muted: #8B83A8; --line: #2A2340; --paper: #0E0B14; }
+body { background: #0E0B14; color: #EDE9FE; }
+.kopf .termin { border-color: #A78BFA; color: #EDE9FE; } .kopf .termin:hover { background: #7C3AED; color: #fff; }
+.kopf .marke { margin-left: -10px; padding: 6px 10px 7px; border-radius: 3px; background: #F3EFE5; color: #0B3D2E; } .kopf .marke .punkt { color: #B8724F; } /* Wortmarke immer grün mit kupfernem Punkt (Robin 03.11.2026) */
+.kopf .menue nav { background: #1C1726; box-shadow: 0 10px 30px rgba(0,0,0,.5); } .kopf .menue nav a:hover { background: rgba(255,255,255,.06); }
+.sf-marke { margin: 0 0 6px; font: 500 15px/1.2 var(--sans); letter-spacing: .02em; color: #fff; } .sf-marke span, .sf-wortmarke span { color: #A78BFA; }
+.sf-kacheln { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 28px 0 18px; }
+.sf-kachel { padding: 24px 24px 20px; border: 1px solid #2A2340; border-radius: 6px; background: #1C1726; }
+.sf-kachel.beta { background: #16121f; }
+.sf-kachel h2 { margin: 0 0 10px; font: 500 24px/1.25 var(--serif); color: #fff; }
+.sf-kachel p { color: #C4B5FD; max-width: none; text-align: left; }
+.sf-kachel ul { margin: 0 0 14px; padding-left: 20px; } .sf-kachel li { color: #C4B5FD; font-size: 15px; margin-bottom: 4px; text-align: left; max-width: none; }
+.sf-stand { margin: 0 0 8px; font: 500 12px/1.6 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #A78BFA; }
+.sf-kachel.beta .sf-stand { color: #D4C8FF; }
+.sf-wege { margin: 10px 0 0; }
+.sf-knopf { display: inline-block; padding: 10px 18px; border-radius: 4px; background: #7C3AED; color: #fff; text-decoration: none; font-size: 15px; } .sf-knopf:hover { background: #6D28D9; }
+.sf-ki { color: #C4B5FD; font-size: 15px; border-left: 2px solid #7C3AED; padding-left: 14px; }
+.beta { position: relative; margin: 8px 0 8px; padding: 22px 24px 20px; border: 1px solid #2A2340; border-left: 2px solid #7C3AED; border-radius: 6px; background: #1C1726; }
+.beta .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.beta label { display: block; font-size: 14px; color: #C4B5FD; margin: 12px 0 4px; }
+.beta input, .beta select, .beta textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid #2A2340; border-radius: 4px; background: #0E0B14; color: #EDE9FE; }
+.beta textarea { min-height: 100px; resize: vertical; }
+.beta button { margin-top: 18px; padding: 11px 20px; border: 1px solid #7C3AED; border-radius: 4px; background: #7C3AED; color: #fff; font: inherit; font-size: 15px; cursor: pointer; } .beta button:hover { background: #6D28D9; } .beta button:disabled { opacity: .6; }
+.beta .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; } .beta .status.ok { color: #A7F3D0; } .beta .status.warn { color: #FCA5A5; }
+.beta .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.list li { border-color: #2A2340; } .list a { color: #fff; } .list .when { color: #8B83A8; } .list p { color: #C4B5FD; }
+.download { background: #1C1726; border-color: #2A2340; border-left-color: #7C3AED; } .download a.knopf { background: #7C3AED; border-color: #7C3AED; color: #fff; } .download a.knopf:hover { background: #6D28D9; }
+.newsletter { background: #1C1726; border-color: #2A2340; border-left-color: #A78BFA; }
+.newsletter input { background: #0E0B14; color: #EDE9FE; border-color: #2A2340; } .newsletter button { background: #7C3AED; border-color: #7C3AED; color: #fff; }
+.foot a:hover { color: #EDE9FE; }
+@media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }
+.brotkrume { margin: 0 0 18px; font-size: 13px; letter-spacing: .02em; color: #8B83A8; }
+.brotkrume a { color: #C4B5FD; text-decoration: underline; text-decoration-color: #7C3AED; text-underline-offset: .2em; }
+.lx-orig { margin: 0 0 10px; padding: 12px 16px; border-left: 3px solid #7C3AED; background: #1C1726; border-radius: 3px; color: #EDE9FE; font-size: 15px; }
+.lx-felder li, .lx-gruppe li { text-align: left; } .lx-felder code, .lx-gruppe code { font: 13px/1.4 ui-monospace, Menlo, monospace; color: #fff; }
+.lx-herkunft { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 18px; font-size: 15px; } .lx-herkunft dt { color: #8B83A8; } .lx-herkunft dd { margin: 0; }
+details.lx-technik { margin: 8px 0 24px; font-size: 14px; } details.lx-technik summary { cursor: pointer; color: #C4B5FD; }
+details.lx-technik pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #16121F; border: 1px solid #2A2340; padding: 10px; font: 12px/1.5 ui-monospace, Menlo, monospace; color: #C4B5FD; }
+.lx-gruppe { list-style: none; padding: 0 !important; } .lx-gruppe li { padding: 8px 0; border-top: 1px solid #2A2340; margin: 0; } .lx-gruppe li span { display: block; color: #C4B5FD; font-size: 15px; }
+.lx-inhalt { columns: 2; font-size: 15px; } @media (max-width: 600px) { .lx-inhalt { columns: 1; } }</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"DefinedTerm","name":"PEPPOL-EN16931-R010","termCode":"PEPPOL-EN16931-R010","description":"Es fehlt die elektronische Adresse des Rechnungsempfängers (BT-49): die Adresse, an die E-Rechnungen geschickt werden, etwa eine E-Mail-Adresse oder die Leitweg-ID. Eine E-Mail-Adresse an anderer Stelle der Rechnung zählt nicht. Die elektronische Adresse des Empfängers angeben.","url":"https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/peppol-en16931-r010/","inLanguage":"de","inDefinedTermSet":{"@type":"DefinedTermSet","name":"Prüfregeln der E-Rechnung verständlich erklärt","url":"https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Werkzeuge","item":"https://robin.vision/werkzeuge/"},{"@type":"ListItem","position":2,"name":"SmartFormular E-Rechnung lite","item":"https://robin.vision/werkzeuge/e-rechnung-pruefen/"},{"@type":"ListItem","position":3,"name":"Prüfregeln","item":"https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/"},{"@type":"ListItem","position":4,"name":"PEPPOL-EN16931-R010","item":"https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/peppol-en16931-r010/"}]}</script>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<header class="kopf">
+<a class="marke" href="../../../../">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Seiten"><a href="../../../../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../../../../blog/">Impulse</a><a href="../../../../workshops/">Workshops</a><a href="../../../../ueber-mich/">Über mich</a></nav>
+<a class="termin" href="../../../../#kontakt">Termin</a>
+<details class="menue"><summary aria-label="Menü"><span></span></summary>
+<nav aria-label="Seiten"><a href="../../../../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../../../../blog/">Impulse</a><a href="../../../../workshops/">Workshops</a><a href="../../../../ueber-mich/">Über mich</a><a href="../../../../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/e-invoice-viewer/rules/peppol-en16931-r010/" lang="en" hreflang="en">English</a></nav>
+</details>
+</header>
+<main>
+<p class="sf-marke">Smart<span>Formular</span></p>
+<article>
+<p class="brotkrume"><a href="../../../../werkzeuge/">Werkzeuge</a> › <a href="../../">SmartFormular E-Rechnung lite</a> › <a href="../">Prüfregeln</a> › PEPPOL-EN16931-R010</p>
+<h1>PEPPOL-EN16931-R010</h1>
+<p class="untertitel">Es fehlt die elektronische Adresse des Rechnungsempfängers (BT-49): die Adresse, an die E-Rechnungen geschickt werden, etwa eine …</p>
+<p class="meta">Prüfregel der XRechnung 3.0.2 (KoSIT, Schematron 2.6.0) · Stufe: Fehler</p>
+<h2>Was die Meldung bedeutet</h2>
+<p>Es fehlt die elektronische Adresse des Rechnungsempfängers (BT-49): die Adresse, an die E-Rechnungen geschickt werden, etwa eine E-Mail-Adresse oder die Leitweg-ID. Eine E-Mail-Adresse an anderer Stelle der Rechnung zählt nicht.</p>
+<h2>Was der Rechnungssteller ändern muss</h2>
+<p>Die elektronische Adresse des Empfängers angeben.</p>
+<p>Diese Regel gehört zur XRechnung, auch wenn ihr Name mit PEPPOL beginnt.</p>
+<h2>Betroffene Felder</h2>
+<ul class="lx-felder"><li><code>BT-49</code> Elektronische Adresse des Rechnungsempfängers</li></ul>
+<div class="download">
+<p class="hinweis">Ihre Rechnung meldet PEPPOL-EN16931-R010? Prüfen Sie sie mit SmartFormular E-Rechnung lite, kostenlos testen bis 31.12.2026: Das Werkzeug zeigt alle Befunde mit Erklärung, die Rechnung lesbar und einen GiroCode zum Bezahlen – im Browser, ohne Upload.</p>
+<a class="knopf" href="../../#werkzeug">E-Rechnung prüfen</a>
+</div>
+<h2>Herkunft</h2>
+<dl class="lx-herkunft"><dt>Regelwerk</dt><dd>XRechnung 3.0.2 (KoSIT, Schematron 2.6.0)</dd><dt>Syntax</dt><dd>CII, UBL</dd><dt>Stufe</dt><dd>Fehler</dd></dl>
+<h2>Originaltext der Regel</h2>
+<p class="lx-orig" lang="en">Buyer electronic address MUST be provided</p>
+<p class="meta">Quelle: <a href="https://github.com/itplr-kosit/xrechnung-schematron" rel="noopener">KoSIT, XRechnung-Schematron 2.6.0, Apache License 2.0</a></p>
+<details class="lx-technik"><summary>Technische Angaben für die IT</summary>
+<p><strong>UBL</strong></p><pre>Kontext: cac:AccountingCustomerParty/cac:Party
+Test: not(cbc:EndpointID)</pre>
+<p><strong>CII</strong></p><pre>Kontext: ram:BuyerTradeParty
+Test: not(ram:URIUniversalCommunication/ram:URIID)</pre>
+</details>
+<h2>Verwandte Regeln</h2>
+<ul class="lx-gruppe"><li><a href="../peppol-en16931-r001/">PEPPOL-EN16931-R001</a><span>Es fehlt die Angabe zum Geschäftsprozess (BT-23): eine technische Kennung, zu welchem Ablauf die Rechnung …</span></li><li><a href="../peppol-en16931-r005/">PEPPOL-EN16931-R005</a><span>Die Währung für die Umsatzsteuer (BT-6) ist gleich der Rechnungswährung (BT-5)</span></li><li><a href="../peppol-en16931-r008/">PEPPOL-EN16931-R008</a><span>Die Datei enthält leere Elemente (ohne Inhalt)</span></li><li><a href="../peppol-en16931-r020/">PEPPOL-EN16931-R020</a><span>Es fehlt die elektronische Adresse des Rechnungsstellers (BT-34): die Adresse, unter der er E-Rechnungen …</span></li><li><a href="../peppol-en16931-r040/">PEPPOL-EN16931-R040</a><span>Ein Nachlass oder Zuschlag ist nicht Grundbetrag mal Prozentsatz</span></li><li><a href="../peppol-en16931-r041/">PEPPOL-EN16931-R041</a><span>Bei einem Nachlass oder Zuschlag steht ein Prozentsatz ohne Grundbetrag</span></li></ul>
+<p><a href="../">Alle Prüfregeln</a></p>
+<p class="meta hinweis">Technische Erklärung von robin.vision, keine Steuer- oder Rechtsberatung. Stand der Prüfregeln: 31.08.2026 (Konfiguration des KoSIT-Prüfprogramms).</p>
+</article>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">Impulse, Werkzeuge und Workshops per E-Mail</h2>
+<p>Jeden Freitag der neue Impuls, dazu Neues zu den Werkzeugen und Workshops. Jederzeit abbestellbar.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">E-Mail-Adresse</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="../../../../#privacy">Datenschutz</a>.</p>
+</form>
+</section>
+</main>
+<footer class="foot"><a href="../../../../#privacy">Impressum · Datenschutz</a><a href="#newsletter">Newsletter</a><a href="../../../../blog/feed.xml">RSS</a></footer>
+<script src="../../../../newsletter.js?v=20261016" defer></script>
+</body>
+</html>

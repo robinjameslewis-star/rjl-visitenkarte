@@ -157,8 +157,12 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeugkasten", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge." },
-  en: { back: "Robin James Lewis", all: "All posts", tools: "Toolbox", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet." },
+  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge.",
+    liste: "Jeden Freitag ein kurzer Beitrag zu Automatisierung, KI und E-Rechnung im Rechnungswesen – mit Quellen. Von Robin James Lewis.",
+    zeile: "Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen." },
+  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet.",
+    liste: "Food for Thought: a short post every Friday on automation, AI and e-invoicing in accounting – with sources. By Robin James Lewis.",
+    zeile: "What automation and AI change in accounting – every Friday, with sources." },
 };
 
 function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
@@ -197,6 +201,7 @@ main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 36px; }
 .intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+.intro:has(+ .zeile) { margin-bottom: 6px; }
 article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
 article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
 article p, article li { max-width: 68ch; }
@@ -299,8 +304,10 @@ export function renderListPage(posts, settings, siteUrl, lang = "de") {
   const items = own.map(p => `<li lang="${p.lang}"><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time></span><a href="${en ? "../" : ""}${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
   const main = `<h1>${esc(title)}</h1>
 ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
+<p class="intro zeile">${esc(t.zeile)}</p>
 ${own.length ? `<ul class="list">\n${items}\n</ul>` : `<p class="intro">${t.empty}</p>`}`;
-  return shell({ lang, title, description: intro || `${title} – robin.vision`, depth: en ? 2 : 1, main, allHref: "./",
+  // Meta-Beschreibung mit Inhalt statt nur dem Leitsatz (Textprüfung, Hebel 10); der Leitsatz bleibt sichtbar
+  return shell({ lang, title, description: t.liste, depth: en ? 2 : 1, main, allHref: "./",
     siteUrl, canonical: siteUrl ? `${siteUrl}blog/${en ? EN_DIR + "/" : ""}` : "" });
 }
 
@@ -336,12 +343,12 @@ ${items}
 // werkzeuge: [{ id, lang, titel, datei, neuigkeiten: Text }].
 export const NEWSLETTER_DIR = "newsletter";
 const NL = {
-  de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", fassung: "Fassung", vom: "vom",
-    sf: "Werkzeugkasten", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
-    ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Zum Workshop mit Unterweisung nach EU AI Act" },
-  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", fassung: "Version", vom: "of",
-    sf: "Toolbox", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
-    ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "To the workshop with EU AI Act training" },
+  de: { titel: "robin.vision – Newsletter", beschr: "Impulse, Werkzeuge und Workshops per E-Mail", ganz: "Den ganzen Impuls lesen", neu: "Neu im", laden: "Herunterladen", oeffnen: "Zum Werkzeug", fassung: "Fassung", vom: "vom",
+    sf: "Werkzeuge", sfText: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.", sfLink: "Alle Werkzeuge im Überblick und im Vergleich",
+    ws: "Workshops", wsText: "KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.", wsLink: "Mehr zum Workshop" },
+  en: { titel: "robin.vision – Newsletter (English)", beschr: "Food for Thought, tools and workshops by email", ganz: "Read the whole post", neu: "New in", laden: "Download", oeffnen: "To the tool", fassung: "Version", vom: "of",
+    sf: "Tools", sfText: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.", sfLink: "All tools at a glance and compared",
+    ws: "Workshops", wsText: "AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.", wsLink: "More about the workshop" },
 };
 // Erste Absätze eines Beitrags (ohne Überschriften, Bilder, Zitate, Listen, Tabellen, Videos), etwa 900 Zeichen
 export function auszug(md, max = 900) {
@@ -355,15 +362,17 @@ export function renderNewsletterFeed({ posts, siteUrl, lang = "de", werkzeuge = 
   const x = s => String(s).replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
   const cdata = s => `<![CDATA[${String(s).replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
   const url = w => `${siteUrl}werkzeuge/${w.id}/`;
+  // Werkzeuge, die direkt auf der Seite laufen (app), führen zum Werkzeug statt zum Download
+  const weg = w => `<a href="${url(w)}">${esc(w.app ? t.oeffnen : t.laden)}: ${esc(w.titel)}</a>`;
   const fassungen = werkzeuge.filter(w => w.lang === lang).flatMap(w => neuigkeiten(w.neuigkeiten).map(e => ({ ...e, werkzeug: w, datum: e.datum || (w.datei && w.datei.datum) || "" })))
     .filter(e => e.datum && e.fassung && e.text).sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0);
   const neueste = fassungen[0], pfad = lang === "en" ? "en/" : "";
   const angebote = `<h3>${esc(t.sf)}</h3>\n<p>${esc(t.sfText)}</p>\n<p><a href="${siteUrl}werkzeuge/${pfad}">${esc(t.sfLink)}</a></p>\n<h3>${esc(t.ws)}</h3>\n<p>${esc(t.wsText)}</p>\n<p><a href="${siteUrl}workshops/${pfad}">${esc(t.wsLink)}</a></p>`;
-  const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p><a href="${url(neueste.werkzeug)}">${esc(t.laden)}: ${esc(neueste.werkzeug.titel)}</a></p>` : "";
+  const werkzeugBlock = neueste ? `<h3>${esc(t.neu)} ${esc(neueste.werkzeug.titel)}</h3>\n<p><em>${esc(t.fassung)} ${esc(neueste.fassung)} ${t.vom} ${dateText(neueste.datum, lang)}</em></p>\n${renderMarkdown(neueste.text, "", lang)}\n<p>${weg(neueste.werkzeug)}</p>` : "";
   const impulse = posts.filter(p => p.lang === lang).map(p => ({ datum: p.date, titel: p.title, link: `${siteUrl}blog/${p.slug}/`,
     html: `${p.summary ? `<p><strong>${esc(p.summary)}</strong></p>\n` : ""}${renderMarkdown(auszug(p.body), "", lang)}\n<p><a href="${siteUrl}blog/${p.slug}/">${esc(t.ganz)}</a></p>${werkzeugBlock ? "\n" + werkzeugBlock : ""}\n${angebote}` }));
   const releases = fassungen.map(e => ({ datum: e.datum, titel: `${e.werkzeug.titel}: ${t.fassung} ${e.fassung}`, link: `${url(e.werkzeug)}#fassung-${e.fassung}`,
-    html: `${renderMarkdown(e.text, "", lang)}\n<p><a href="${url(e.werkzeug)}">${esc(t.laden)}: ${esc(e.werkzeug.titel)}</a></p>\n${angebote}` }));
+    html: `${renderMarkdown(e.text, "", lang)}\n<p>${weg(e.werkzeug)}</p>\n${angebote}` }));
   const items = [...impulse, ...releases].sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0).map(i => `  <item>
     <title>${x(i.titel)}</title>
     <link>${x(i.link)}</link>
@@ -405,9 +414,11 @@ function teaser(settings, posts) {
   const langs = [...new Set(posts.map(p => p.lang))].sort().join(" ");
   const items = ["de", "en"].flatMap(l => posts.filter(p => p.lang === l).slice(0, TEASER_COUNT)).map(p => `      <li lang="${p.lang}"${p.lang === "de" ? "" : " hidden"}><span class="when"><time datetime="${p.date}">${dateText(p.date, p.lang)}</time></span><a href="blog/${p.slug}/">${esc(p.title)}</a>${p.summary ? `<p>${esc(p.summary)}</p>` : ""}</li>`).join("\n");
   const intro = settings.intro.de || settings.intro.en ? `\n    <p class="lead" data-title-de="${esc(settings.intro.de || settings.intro.en)}" data-title-en="${esc(settings.intro.en || settings.intro.de)}">${esc(settings.intro.de || settings.intro.en)}</p>` : "";
+  // Was die Impulse bringen, sichtbar unter dem Leitsatz (Textprüfung, Hebel 10)
+  const zeile = `\n    <p class="lead zeile" data-title-de="${esc(T.de.zeile)}" data-title-en="${esc(T.en.zeile)}">${esc(T.de.zeile)}</p>`;
   return `
   <section class="blog-teaser" id="blog" aria-labelledby="blog-title" data-langs="${langs}"${langs.includes("de") ? "" : " hidden"}>
-    <h2 id="blog-title"><a href="blog/" data-href-de="blog/" data-href-en="blog/${EN_DIR}/" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a></h2>${intro}
+    <h2 id="blog-title"><a href="blog/" data-href-de="blog/" data-href-en="blog/${EN_DIR}/" data-title-de="${esc(settings.title.de)}" data-title-en="${esc(settings.title.en)}">${esc(settings.title.de)}</a></h2>${intro}${zeile}
     <ul>
 ${items}
     </ul>

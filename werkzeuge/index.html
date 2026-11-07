@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse | robin.vision</title>
-<meta name="description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.">
+<title>Werkzeuge: Software und KI fürs Rechnungswesen im Vergleich | robin.vision</title>
+<meta name="description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.">
 <link rel="icon" href="../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/werkzeuge/">
@@ -12,8 +12,8 @@
 <link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/">
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse">
-<meta property="og:description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.">
+<meta property="og:title" content="Werkzeuge">
+<meta property="og:description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://robin.vision/werkzeuge/">
 <meta name="twitter:card" content="summary">
@@ -102,6 +102,10 @@ article li { margin-bottom: 6px; }
 .foot a:hover { color: var(--ink-soft); }
 .wz .frei { text-align: left; hyphens: manual; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
+.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 4px; padding: 4px 4px 14px; scrollbar-width: thin; }
+.wz-reihe > .wz-karte { flex: 0 0 min(290px, 82%); scroll-snap-align: start; }
+.wz-reihe:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
+.wz-mehr { margin: 0 0 30px; font-size: 15px; } .wz-mehr a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .wz-raster { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 10px 0 18px; }
 .wz-karte { margin: 0; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.55); display: flex; flex-direction: column; }
 .wz-karte h3 { margin: 0 0 8px; font: 500 22px/1.25 var(--serif); color: var(--green); }
@@ -157,71 +161,92 @@ article li { margin-bottom: 6px; }
 }
 .wz-th-stand { display: block; margin-top: 4px; font: 400 11px/1.4 var(--sans); letter-spacing: .02em; color: var(--ink-muted); }
 .wz .wz-quelle { margin: -8px 0 26px; }
-.grundsaetze-reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 8px 0 10px; padding: 0; }
-.gs-karte { position: relative; overflow: hidden; margin: 0; padding: 24px 24px 22px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.6); background: var(--surface, rgba(255,255,255,.6)); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 28px -18px rgba(11,61,46,.35); }
-.gs-karte::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--copper); }
-.gs-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0 0 14px; border-radius: 50%; color: var(--green); background: rgba(11,61,46,.07); background: color-mix(in srgb, var(--green) 10%, transparent); border: 1px solid rgba(11,61,46,.16); border-color: color-mix(in srgb, var(--green) 22%, transparent); }
-.gs-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.grundsaetze .gs-kicker { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
-.grundsaetze .gs-titel { display: block; font: 500 21px/1.3 var(--serif); color: var(--green); margin: 4px 0 8px; }
-.grundsaetze .gs-text { margin: 0; max-width: none; font-size: 15px; line-height: 1.6; color: var(--ink-soft); text-align: left; hyphens: manual; }
+.grundsaetze { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 34px 0 30px; padding: 20px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.grundsaetze .gs-kicker { display: block; font: 500 11px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
+.grundsaetze .gs-titel { display: block; margin: 3px 0 6px; font: 500 18px/1.3 var(--serif); color: var(--green); }
 .grundsaetze .gs-nb { white-space: nowrap; }
-@media (max-width: 720px) { .grundsaetze-reihe { grid-template-columns: 1fr; gap: 14px; } .gs-karte { padding: 20px 20px 18px; } }</style>
+.grundsaetze .gs-text { margin: 0; max-width: none; font-size: 14px; line-height: 1.55; color: var(--ink-soft); text-align: left; hyphens: manual; }
+@media (max-width: 720px) { .grundsaetze { grid-template-columns: 1fr; gap: 18px; } }</style>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
 <a class="marke" href="../">robin<span class="punkt">.</span>vision</a>
-<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeugkasten</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
 <a class="termin" href="../#kontakt">Termin</a>
 <details class="menue"><summary aria-label="Menü"><span></span></summary>
-<nav aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeugkasten</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/en/" lang="en" hreflang="en">English</a></nav>
+<nav aria-label="Seiten"><a href="../werkzeuge/" aria-current="page">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../workshops/">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/werkzeuge/en/" lang="en" hreflang="en">English</a></nav>
 </details>
 </header>
 <main>
 <article class="wz">
-<h1>Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse</h1>
-<p class="untertitel">Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.</p>
-<section class="grundsaetze" aria-labelledby="grundsaetze-titel">
-<h2 id="grundsaetze-titel">Zwei Grundsätze</h2>
-<div class="grundsaetze-reihe">
-<article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Klardaten</span><span class="gs-titel">Sensible Klardaten, rechtssicher verarbeitet</span><p class="gs-text frei">Werkzeugkasten und Workshops sind auf die rechtssichere Verarbeitung sensibler Klardaten ausgerichtet – Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></article>
-<article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg></span><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern.</p></article>
-</div>
-</section>
-<h2 id="ueberblick">Werkzeuge im Überblick</h2>
-<div class="wz-raster">
+<h1>Werkzeuge</h1>
+<p class="untertitel">Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.</p>
+<h2 id="ueberblick">SmartFormular</h2>
+<div class="wz-reihe" tabindex="0" role="region" aria-label="SmartFormular-Produkte">
+<article class="wz-karte">
+<p class="wz-kennz">Kostenlos testen bis 31.12.2026</p>
+<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
+<h3>FiBu lite</h3>
+<p class="frei">Kontoauszüge zu Buchungsstapeln – offline im Browser.</p>
+<ul class="wz-chips"><li>Rechnungswesen</li></ul>
+<p class="frei"><a class="wz-knopf" href="../werkzeuge/buchungsstapel-generator/">Zum Produkt</a></p>
+</article>
+<article class="wz-karte">
+<p class="wz-kennz">Kostenlos testen bis 31.12.2026</p>
+<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
+<h3>E-Rechnung lite</h3>
+<p class="frei">E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.</p>
+<ul class="wz-chips"><li>Rechnungswesen</li></ul>
+<p class="frei"><a class="wz-knopf" href="../werkzeuge/e-rechnung-pruefen/">Zum Produkt</a></p>
+</article>
 <article class="wz-karte">
 <p class="wz-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
 <span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>SmartFormular</h3>
-<p class="frei">Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.</p>
-<ul class="wz-chips"><li>Rechnungswesen</li><li>Im Workshop gezeigt</li><li>Schulung</li></ul>
-<p class="frei"><a class="wz-knopf" href="../werkzeuge/smartformular/">Zu SmartFormular</a></p>
+<h3>FiBu</h3>
+<p class="frei">Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.</p>
+<ul class="wz-chips"><li>Rechnungswesen</li></ul>
+<p class="frei"><a class="wz-knopf" href="../werkzeuge/smartformular/#fibu">Zum Produkt</a></p>
 </article>
+<article class="wz-karte">
+<p class="wz-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
+<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
+<h3>Abschluss</h3>
+<p class="frei">Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.</p>
+<ul class="wz-chips"><li>Jahresabschluss</li></ul>
+<p class="frei"><a class="wz-knopf" href="../werkzeuge/smartformular/#abschluss">Zum Produkt</a></p>
+</article>
+</div>
+<p class="frei wz-mehr"><a href="smartformular/">Mehr zu SmartFormular →</a></p>
+<h2 id="partner-anzeigen">Partner</h2>
+<div class="wz-raster">
 <article class="wz-karte wz-platzhalter">
 <span class="wz-logo" aria-hidden="true">Ihr Logo</span>
-<h3>Hier könnte Ihr Produkt stehen</h3>
-<p class="frei">Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, zeige sie in meinen Workshops und auf Fachmessen.</p>
+<h3>Ihre Lösung auf robin.vision</h3>
+<p class="frei">Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, auch in Workshops und auf Fachmessen. Im Vergleich steht jede mit denselben Angaben, auch neben Wettbewerbern.</p>
 <ul class="wz-chips"><li>Website</li><li>Workshops</li><li>Fachmessen</li></ul>
 <p class="frei"><a class="wz-knopf zweit" href="#partner">Partner werden</a></p>
 </article>
 </div>
+<section class="grundsaetze" aria-label="Zwei Grundsätze">
+<div><span class="gs-kicker">Klardaten</span><span class="gs-titel">Klardaten nur in Werkzeuge, die dafür gemacht sind</span><p class="gs-text frei">Mandanten-, Personal- und Finanzdaten sind selten anonymisiert. Datenschutz, Verschwiegenheit und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></div>
+<div><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So bleibt die Wahl bei Ihnen.</p></div>
+</section>
 <h2 id="vergleich">Im Vergleich</h2>
 <p class="wz-hinweis frei">Für jede Lösung dieselben Angaben: was sie leistet, wo die Daten liegen, wie KI eingesetzt wird und wie sie sich anbinden lässt.</p>
 <div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
-<colgroup><col class="wz-kriterium"><col><col><col><col></colgroup>
-<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>Deklaration<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Ihr Logo</span>Ihr Produkt</th></tr></thead>
+<colgroup><col class="wz-kriterium"><col><col><col><col><col></colgroup>
+<thead><tr><th scope="col"></th><th scope="col"><span class="wz-th-kennz">Kostenlos testen bis 31.12.2026</span><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu lite<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-kennz">Kostenlos testen bis 31.12.2026</span><span class="wz-th-logo">Smart<span>Formular</span></span>E-Rechnung lite<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>FiBu<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col"><span class="wz-th-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></span><span class="wz-th-logo">Smart<span>Formular</span></span>Abschluss<span class="wz-th-stand">Stand 10/2026</span></th><th scope="col" class="wz-frei-spalte"><span class="wz-th-ihr">Ihr Logo</span>Ihr Produkt</th></tr></thead>
 <tbody>
-<tr><th scope="row">Aufgabe</th><td>Kontoauszüge zu Buchungsstapeln</td><td>Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten</td><td>Arbeitspapier, das mitdenkt und vorarbeitet</td><td class="wz-frei-spalte">Ihre Lösung – auch als Komplettlösung aus einer Hand</td></tr>
-<tr><th scope="row">Für wen</th><td>Kanzleien und Unternehmen</td><td>Sachbearbeitung in Kanzlei und Unternehmen</td><td>Kanzleien</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Betrieb und Daten</th><td>Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner</td><td>Im Browser über den Memberbereich; Rechenzentren in der EU</td><td>Im Browser über den Memberbereich; Rechenzentren in der EU</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Sitz des Anbieters</th><td>Deutschland</td><td>Deutschland</td><td>Deutschland</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">KI</th><td>Nein, arbeitet mit Regeln</td><td>Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten</td><td>Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Schnitt­stellen</th><td>Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format</td><td>Offen für jedes Buchhaltungsprogramm, per Datei oder Schnittstelle</td><td>Neben Ihrem Kanzleiprogramm, per Datei oder Schnittstelle</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Preis und Test</th><td>Kostenlos, ohne Anmeldung</td><td>Beta kostenfrei; Preis mit dem Angebot</td><td>Beta kostenfrei; Preis mit dem Angebot</td><td class="wz-frei-spalte"></td></tr>
-<tr><th scope="row">Nachweise</th><td>Prüfsumme je Fassung; nichts wird hochgeladen</td><td>Beta mit Testdaten; echte Daten nur mit Vereinbarung</td><td>Beta mit Testdaten; echte Daten nur mit Vereinbarung</td><td class="wz-frei-spalte"></td></tr>
-<tr class="wz-tabelle-wege"><th scope="row"></th><td><a href="../werkzeuge/buchungsstapel-generator/">Zum Produkt</a></td><td><a href="../werkzeuge/smartformular/#fibu">Zum Produkt</a></td><td><a href="../werkzeuge/smartformular/#deklaration">Zum Produkt</a></td><td class="wz-frei-spalte"><a href="#partner">Partner werden</a></td></tr>
+<tr><th scope="row">Aufgabe</th><td>Kontoauszüge zu Buchungsstapeln</td><td>E-Rechnungen lesen, prüfen und per GiroCode bezahlen</td><td>Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten</td><td>Arbeitspapier, das mitdenkt und vorarbeitet</td><td class="wz-frei-spalte">Ihre Lösung – auch als Komplettlösung aus einer Hand</td></tr>
+<tr><th scope="row">Für wen</th><td>Kanzleien und Unternehmen</td><td>Kanzleien, Unternehmen, Selbstständige</td><td>Sachbearbeitung in Kanzlei und Unternehmen</td><td>Kanzleien</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Betrieb und Daten</th><td>Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner</td><td>Im Browser auf der Seite oder als Datei offline; nichts wird hochgeladen</td><td>Im Browser über den Memberbereich; Rechenzentren in der EU</td><td>Im Browser über den Memberbereich; Rechenzentren in der EU</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Sitz des Anbieters</th><td>Deutschland</td><td>Deutschland</td><td>Deutschland</td><td>Deutschland</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">KI</th><td>Nein, arbeitet mit Regeln</td><td>Nein, offizielle Prüfregeln von CEN und KoSIT</td><td>Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten</td><td>Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Schnitt­stellen</th><td>Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format</td><td>Liest XRechnung (UBL, CII) und ZUGFeRD/Factur-X; Prüfbericht, GiroCode</td><td>Offen für jedes Buchhaltungsprogramm, per Datei oder Schnittstelle</td><td>Neben Ihrem Kanzleiprogramm, per Datei oder Schnittstelle</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Preis und Test</th><td>Kostenlos testen bis 31.12.2026, ohne Anmeldung</td><td>Kostenlos testen bis 31.12.2026, ohne Anmeldung</td><td>Beta kostenfrei; Preis mit dem Angebot</td><td>Beta kostenfrei; Preis mit dem Angebot</td><td class="wz-frei-spalte"></td></tr>
+<tr><th scope="row">Nachweise</th><td>Prüfsumme je Fassung; nichts wird hochgeladen</td><td>Abgleich mit der offiziellen Prüfung an Tausenden Testrechnungen</td><td>Beta mit Testdaten; echte Daten nur mit Vereinbarung</td><td>Beta mit Testdaten; echte Daten nur mit Vereinbarung</td><td class="wz-frei-spalte"></td></tr>
+<tr class="wz-tabelle-wege"><th scope="row"></th><td><a href="../werkzeuge/buchungsstapel-generator/">Zum Produkt</a></td><td><a href="../werkzeuge/e-rechnung-pruefen/">Zum Produkt</a></td><td><a href="../werkzeuge/smartformular/#fibu">Zum Produkt</a></td><td><a href="../werkzeuge/smartformular/#abschluss">Zum Produkt</a></td><td class="wz-frei-spalte"><a href="#partner">Partner werden</a></td></tr>
 </tbody>
 </table>
 </div>
@@ -233,7 +258,7 @@ article li { margin-bottom: 6px; }
 <p class="frei"><a class="wz-knopf zweit" href="../workshops/">Zu den Workshops</a></p>
 </section>
 <h2 id="partner">Partner werden</h2>
-<p class="frei">Stellen Sie Ihre Lösung hier, in meinen Workshops und bei meinen Auftritten auf Fachmessen und Netzwerkveranstaltungen vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.</p>
+<p class="frei">Stellen Sie Ihre Lösung hier vor – auch in meinen Workshops und bei Auftritten auf Fachmessen und Netzwerkveranstaltungen. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.</p>
 <form class="wz-form wz-kasten" id="partner-anfrage" novalidate>
 <div class="reihe">
 <div><label for="p-firma">Unternehmen</label><input type="text" id="p-firma" name="firma" maxlength="120" required autocomplete="organization"></div>
@@ -251,12 +276,12 @@ article li { margin-bottom: 6px; }
 </form>
 <p class="meta"><a href="../werkzeuge/en/" lang="en" hreflang="en">This page in English</a></p>
 <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
-<h2 id="newsletter-title">Neues zu den Werkzeugen per E-Mail</h2>
-<p>Der Newsletter informiert über neue Werkzeuge, neue Fassungen und die Workshops, dazu jeden Freitag über den neuen Impuls. Für den Download ist keine Anmeldung nötig.</p>
+<h2 id="newsletter-title">Neue Fassungen und neue kostenlose Werkzeuge per E-Mail</h2>
+<p>Der Newsletter meldet neue Fassungen und neue kostenlose Werkzeuge, dazu jeden Freitag den neuen Impuls und Neues zu den Workshops. Für den Download ist keine Anmeldung nötig.</p>
 <form id="newsletter-form" novalidate>
 <div class="field"><label for="nl-email">E-Mail-Adresse</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse"></div>
 <div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-<button type="submit" id="nl-send">Anmelden</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<button type="submit" id="nl-send">Abonnieren</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
 <p class="hint">Nach dem Absenden kommt eine E-Mail mit einem Bestätigungslink; erst danach sind Sie angemeldet. Versand über Brevo, abbestellen jederzeit über den Link in jeder Ausgabe. Einzelheiten unter <a href="../#privacy">Datenschutz</a>.</p>
 </form>
 </section>

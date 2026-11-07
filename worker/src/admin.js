@@ -15,6 +15,7 @@ import * as fig from "./figuren.js";
 import { stimmeMonat, TTS_MODELLE, vertonen, zeichenBuchen, PROBESATZ } from "./stimme.js";
 import { hoerenTag } from "./hoeren.js";
 import * as kiosk from "./kiosk.js";
+import * as seiten from "./seitenwissen.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
@@ -314,12 +315,25 @@ export const CONTENT = {
     join: f => werkzeugSeite(f, "booking-batch-generator"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
+  // SmartFormular E-Rechnung lite (23.10.2026): Seite mit dem Werkzeug selbst, Texte wie bei FiBu lite
+  werkzeugEr: {
+    path: werkzeugPfad("e-rechnung-pruefen"), title: "Werkzeug „E-Rechnung lite“",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f, "e-rechnung-pruefen"),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
+  },
+  werkzeugErEn: {
+    path: werkzeugPfad("e-invoice-viewer"), title: "Werkzeug „E-Rechnung lite“ (englisch)",
+    split: html => werkzeugFelder(html),
+    join: f => werkzeugSeite(f, "e-invoice-viewer"),
+    summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
+  },
 };
 
 async function state(env, deps) {
   const github = gh.configured(env);
   const out = { github, repo: env.GITHUB_REPO || "", content: {}, usage: [], unanswered: [], alert: null,
-    limits: { perDay: +(env.MAX_PER_DAY || 60), perHour: +(env.MAX_PER_IP_PER_HOUR || 12), turns: +(env.MAX_TURNS || 8) },
+    limits: { perDay: +(env.MAX_PER_DAY || 60), perHour: +(env.MAX_PER_IP_PER_HOUR || 12), turns: +(env.MAX_TURNS || 10) },
     profileWords: deps.profileWords, model: env.MODEL || "" };
   for (const [key, c] of Object.entries(CONTENT)) {
     // Fassung: Repository (mit Schlüssel), sonst KV-Kopie, sonst die mitgelieferte Datei.
@@ -359,7 +373,7 @@ async function save(key, request, env, deps, session) {
     await gh.putFile(env, c.path, md, `Dashboard: ${c.title} – ${summary}`, current && current.sha);
     await cache(env, key, md, session.email);
     // Werkzeugseiten: „Was ist neu“ steht auch im Newsletter-Feed – Feeds (und Sitemap) gleich mit neu schreiben
-    if (key === "werkzeug" || key === "werkzeugEn") await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
+    if (/^werkzeug/.test(key)) await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
   } catch (e) { return json({ error: e.message }, 502); }
   return json(await state(env, deps));
 }
@@ -564,10 +578,17 @@ async function gochApi(api, request, env, deps, session) {
       }
       return json({ ...(await gochState(env)), note });
     }
+    // Seitenwissen (seitenwissen.js): Stand ansehen oder sofort neu einlesen
+    if (api === "goch/seitenwissen" && (request.method === "GET" || request.method === "POST")) {
+      const w = request.method === "POST" ? await seiten.neuEinlesen(env) : await seiten.laden(env, null);
+      if (w && w.error) return json({ error: "Neu einlesen fehlgeschlagen: " + w.error }, 502);
+      return json(seiten.stand(w));
+    }
     // Hörprobe der Stimme (nur Robin, angemeldet): Voice ID und Modell aus den Feldern, auch ungespeichert; zählt zur Monatsgrenze
     if (api === "goch/stimmprobe" && request.method === "POST") {
       const body = await readJson(request), sp = (await cfg.loadSettings(env, true)).sprache;
-      const voiceId = String(body.voiceId || sp.voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
+      // ohne Eintrag dieselbe Stimme wie auf der Website: die aus Gochs Figurenpaket (figur.json)
+      const voiceId = String(body.voiceId || sp.voiceId || (fig.oeffentlicheFigur("goch").stimme || {}).voiceId || "").trim(), modell = String(body.ttsModell || sp.ttsModell || "").trim();
       const lang = body.lang === "en" ? "en" : "de";
       if (!env.ELEVENLABS_API_KEY) return json({ error: "Für die Stimme fehlt das Geheimnis ELEVENLABS_API_KEY im Worker." }, 400);
       if (!/^[A-Za-z0-9]{10,40}$/.test(voiceId)) return json({ error: "Bitte die Voice ID von ElevenLabs eintragen (Voices → Stimme → ID kopieren)." }, 400);
@@ -938,7 +959,8 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button class="quiet" id="addRow">+ Zeile</button><button id="saveL">Veröffentlichen</button><button class="quiet" id="prevL">Vorige Fassung</button><a class="note" id="histL" target="_blank" rel="noopener">Verlauf</a><span class="msg" id="mL"></span></div>
 <p class="note">Goch nennt nur die Kennung; die Adresse setzt der Worker ein. „Wann“ ist sein Hinweis, bei welchen Fragen der Link passt – je genauer, desto seltener kommt er unpassend.</p></section>
 
-${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
+${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Englisch"], ["E", "Booking Batch Generator (englische Seite)", "booking-batch-generator", "Hinweis auf Deutsch"],
+  ["R", "E-Rechnung lite", "e-rechnung-pruefen", "Hinweis auf Englisch"], ["RE", "E-Rechnung lite (englische Seite)", "e-invoice-viewer", "Hinweis auf Deutsch"]].map(([x, name, pfad, andere]) => `<section id="wsec${x}" hidden><h2>Website – Werkzeug „${name}“</h2><p class="src" id="wsrc${x}"></p>
 <p class="note" id="wdatei${x}"></p>
 <label for="wbeschr${x}">Beschreibung <span class="note">(Markdown wie im Blog: ## Überschrift, - Liste, 1. Schritte, **fett**, [Text](https://…))</span></label><textarea id="wbeschr${x}" style="min-height:320px"></textarea>
 <label for="wneu${x}">Was ist neu <span class="note">(je Fassung eine Überschrift „### Fassung a1b2c3d vom 15.10.2026“ bzw. „### Version a1b2c3d, 15 October 2026“, darunter Stichpunkte; die neueste zuerst – sie steht auch im Newsletter)</span></label><textarea id="wneu${x}" style="min-height:160px"></textarea>
@@ -950,6 +972,7 @@ ${[["", "Buchungsstapel-Generator", "buchungsstapel-generator", "Hinweis auf Eng
 <section><h2>Goch – Profil <span class="note">(wer Robin ist, wie Goch spricht, was er nie tut)</span></h2><p class="src" id="psrc"></p>
 <p class="note" style="margin:0 0 6px">Das ist Gochs Systemprompt – jeder Satz hier wird sein Wissen und sein Ton. Alles darin darf öffentlich sein: keine Namen aus der Familie, keine Adresse, nichts zu Finanzen oder Gesundheit, keine Mandanten. Nach dem Veröffentlichen antwortet Goch sofort mit der neuen Fassung; „Vorige Fassung“ holt den Stand davor zurück.</p>
 <textarea id="ptext" style="min-height:460px" spellcheck="true"></textarea>
+<p class="note" id="swstat"></p>
 <div class="bar"><button id="saveP">Veröffentlichen</button><button class="quiet" id="prevP">Vorige Fassung</button><a class="note" id="histP" target="_blank" rel="noopener">Verlauf</a><span class="note" id="pwords"></span><span class="msg" id="mP2"></span></div></section>
 
 <script>
@@ -1121,7 +1144,7 @@ $('fgdelete').onclick=async()=>{if(!fEdit||!confirm('Figur „'+fEdit.id+'“ l�
 api('figuren').then(d=>d&&renderFiguren(d)).catch(e=>{$('fglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
 // ---- Messegeräte (Kiosk, 23.10.2026) ----
 let MG=[],mgEdit=null;
-function renderGeraete(d){MG=d.geraete||[];$('mglist').innerHTML=MG.length?MG.map(g=>{const s=g.stand||{},l=s.lebenszeichen,h=s.heute||{};return '<li><b>'+esc(g.name)+'</b> <span class="note">'+esc(g.id)+' · '+(g.an?'an':'aus')+' · Figuren: '+esc(g.figuren.join(', '))+' · heute '+(h.antworten||0)+' von '+g.antwortenTag+' Antworten, '+Math.round((h.sekunden||0)/60)+' von '+g.minutenTag+' Min. · '+(l?'Lebenszeichen '+fmt(l.at)+(l.online===false?' (offline)':'')+(l.commit?', Stand '+esc(String(l.commit).slice(0,7)):'')+(l.puffer?', '+l.puffer+' Nachricht(en) gepuffert':''):'noch kein Lebenszeichen')+'</span> <button class="quiet" data-mg="'+esc(g.id)+'">Bearbeiten</button></li>';}).join(''):'<li class="note">Noch kein Messegerät.</li>';}
+function renderGeraete(d){MG=d.geraete||[];$('mglist').innerHTML=MG.length?MG.map(g=>{const s=g.stand||{},l=s.lebenszeichen,h=s.heute||{};return '<li><b>'+esc(g.name)+'</b> <span class="note">'+esc(g.id)+' · '+(g.an?'an':'aus')+' · Figuren: '+esc(g.figuren.join(', '))+' · heute '+(h.antworten||0)+' von '+g.antwortenTag+' Antworten, '+Math.round((h.sekunden||0)/60)+' von '+g.minutenTag+' Min. · '+(l?'Lebenszeichen '+fmt(l.at)+(l.online===false?' (offline)':'')+(l.commit?', Stand '+esc(String(l.commit).slice(0,7)):'')+(l.puffer?', '+esc(String(l.puffer))+' Nachricht(en) gepuffert':''):'noch kein Lebenszeichen')+'</span> <button class="quiet" data-mg="'+esc(g.id)+'">Bearbeiten</button></li>';}).join(''):'<li class="note">Noch kein Messegerät.</li>';}
 function mgOpen(g){mgEdit=g||null;const v=g||{id:'messe-',name:'',an:true,figuren:['goch'],antwortenTag:300,minutenTag:60,zertifikat:''};
  $('mgedit').hidden=false;$('mgid').value=v.id;$('mgid').disabled=!!g;$('mgname').value=v.name;$('mgan').checked=v.an!==false;$('mgfiguren').value=v.figuren.join(', ');$('mgantworten').value=v.antwortenTag;$('mgminuten').value=v.minutenTag;$('mgzert').value=v.zertifikat||'';$('mgdelete').hidden=!g;$('mgrotate').hidden=!g;$('mgtoken').hidden=true;}
 function mgToken(t){if(!t)return;$('mgtoken').hidden=false;$('mgtoken').textContent='Gerätenachweis – nur jetzt sichtbar, auf dem Gerät in /etc/goch-kiosk/geraet.json eintragen: '+t;}
@@ -1134,13 +1157,13 @@ $('mgrotate').onclick=async()=>{if(!mgEdit||!confirm('Neuen Nachweis erzeugen? D
 $('mgdelete').onclick=async()=>{if(!mgEdit||!confirm('Gerät „'+mgEdit.name+'“ löschen? Es kann sich danach nicht mehr anmelden.'))return;try{const r=await api('geraete','DELETE',{id:mgEdit.id});renderGeraete(r);$('mgedit').hidden=true;}catch(e){say('mMG',e.message);}};
 api('geraete').then(d=>d&&renderGeraete(d)).catch(e=>{$('mglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
 // ---- Blog ----
-let B=null,editing=null;
+let B=null,editing=null,editorRun=0; // editorRun: wechselt mit jedem Öffnen und Schließen; die Antwort aufs Speichern darf keinen inzwischen geöffneten Beitrag überschreiben (06.11.2026)
 function renderBlog(b){B=b;$('benabled').checked=b.settings.enabled;$('btde').value=b.settings.title.de;$('bten').value=b.settings.title.en;$('bide').value=b.settings.intro.de;$('bien').value=b.settings.intro.en;
  $('bsrc').innerHTML=b.visible?'Auf der Website: <b>sichtbar</b> – '+b.published+(b.published===1?' veröffentlichter Beitrag':' veröffentlichte Beiträge')+'.':'Auf der Website: <b>verborgen</b> – '+esc(b.reason)+' ('+b.published+' veröffentlicht, '+b.posts.length+' insgesamt.)';
  $('bopen').href=b.url;$('bopen').hidden=!b.visible;
  $('bposts').innerHTML=b.posts.map(p=>'<li><span class="note" style="min-width:90px">'+p.date+'</span><span class="lang">'+p.lang+'</span><span style="flex:1">'+esc(p.title)+'</span><span class="note">'+(p.status==='published'?'veröffentlicht':'Entwurf')+'</span>'+(p.status==='published'?'<button class="quiet" data-share="'+esc(p.slug)+'" title="Auf LinkedIn teilen" style="padding:4px 10px;font-size:13px">LinkedIn</button>':'')+'<button class="quiet" data-slug="'+esc(p.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button></li>').join('');
  $('bnote').textContent=b.posts.length?'':'Noch keine Beiträge. „+ Neuer Beitrag“ legt den ersten an; als Entwurf bleibt er unsichtbar, bis du ihn veröffentlichst.';}
-function openEditor(p,meta){editing=p?p.slug:null;savedStatus=p?p.status:null;$('beditor').hidden=false;$('mP').textContent='';
+function openEditor(p,meta){editorRun++;editing=p?p.slug:null;savedStatus=p?p.status:null;$('beditor').hidden=false;$('mP').textContent='';
  $('ptitle').value=p?p.title:'';$('pdate').value=p?p.date:new Date().toISOString().slice(0,10);$('plang').value=p?p.lang:'de';$('pstatus').value=p?p.status:'draft';$('psummary').value=p?p.summary:'';$('pbody').value=p?p.body:'';
  $('pslug').textContent=p?'Adresse: '+B.url+p.slug+'/':'Die Adresse entsteht aus dem Titel und bleibt danach fest.';
  $('bprev').hidden=!p;$('bprev').disabled=!(meta&&meta.hasPrev);$('bdel').hidden=!p;$('bhist').hidden=!p;if(meta)$('bhist').href=meta.historyUrl;
@@ -1149,8 +1172,8 @@ function postBody(){return {slug:editing||'',title:$('ptitle').value,date:$('pda
 $('bsave').onclick=async()=>{if(!confirm('Blog-Einstellungen jetzt veröffentlichen?'))return;try{const r=await api('blog/settings','PUT',{enabled:$('benabled').checked,title:{de:$('btde').value,en:$('bten').value},intro:{de:$('bide').value,en:$('bien').value}});renderBlog(r);say('mB',r.note,true);}catch(e){say('mB',e.message);}};
 $('bnew').onclick=()=>openEditor(null);
 $('bposts').onclick=async e=>{const sh=e.target.closest('button[data-share]');if(sh){const p=B.posts.find(x=>x.slug===sh.dataset.share);openLinkedIn(shareText(p.summary,p.title,shareUrlFor(p.slug)),shareUrlFor(p.slug));return;}const b=e.target.closest('button[data-slug]');if(!b)return;try{const d=await api('blog/post?slug='+encodeURIComponent(b.dataset.slug));openEditor(d.post,d);}catch(err){say('mB',err.message);}};
-$('bcancel').onclick=()=>{$('beditor').hidden=true;editing=null;pvLayout();};
-$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);dropDraft();editing=r.slug;dropDraft();savedStatus=st;shareBox();$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
+$('bcancel').onclick=()=>{editorRun++;$('beditor').hidden=true;editing=null;pvLayout();};
+$('bpsave').onclick=async()=>{const st=$('pstatus').value;if(!confirm(st==='published'?'Beitrag jetzt veröffentlichen?':'Beitrag als Entwurf speichern?'))return;const run=editorRun;$('bpsave').disabled=true;try{const r=await api('blog/post','PUT',postBody());renderBlog(r);if(run!==editorRun){say('mB',r.note,true);return;}dropDraft();editing=r.slug;dropDraft();savedStatus=st;shareBox();$('pslug').textContent='Adresse: '+r.url+r.slug+'/';$('bprev').hidden=false;$('bdel').hidden=false;$('bhist').hidden=false;$('bhist').href=r.historyUrl+'/'+r.slug+'.md';say('mP',r.note,true);}catch(e){say('mP',e.message);}finally{$('bpsave').disabled=false;}};
 $('bdel').onclick=async()=>{if(!editing||!confirm('Diesen Beitrag löschen? Er verschwindet von der Website; im Verlauf auf GitHub bleibt er erhalten.'))return;try{const r=await api('blog/post','DELETE',{slug:editing});renderBlog(r);dropDraft();$('beditor').hidden=true;editing=null;pvLayout();say('mB',r.note,true);}catch(e){say('mP',e.message);}};
 $('bprev').onclick=async()=>{if(!editing||!confirm('Vorige Fassung dieses Beitrags wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{const r=await api('blog/post/restore','POST',{slug:editing});renderBlog(r);const d=await api('blog/post?slug='+encodeURIComponent(editing));openEditor(d.post,d);say('mP',r.note,true);}catch(e){say('mP',e.message);}};
 // ---- Editor: Werkzeuge ----
@@ -1315,13 +1338,16 @@ function addRow(r={}){const tr=document.createElement('tr');tr.innerHTML=['id','
 function rows(){return [...$('rows').querySelectorAll('tr')].map(tr=>Object.fromEntries([...tr.querySelectorAll('input')].map(i=>[i.dataset.k,i.value])));}
 $('addRow').onclick=()=>addRow();
 async function publish(key,msgId,body){try{const s=await api('content/'+key,'PUT',body);render(s);say(msgId,s.note||'Veröffentlicht – als Änderung im Repository gespeichert.',true);}catch(e){say(msgId,e.message);}}
-const WK=[['','werkzeug'],['E','werkzeugEn']],WD={};
+const WK=[['','werkzeug'],['E','werkzeugEn'],['R','werkzeugEr'],['RE','werkzeugErEn']],WD={};
 for(const [x,key] of WK){
  $('saveW'+x).onclick=()=>{if(confirm('Texte der Werkzeug-Seite jetzt veröffentlichen?'))publish(key,'mW'+x,{beschreibung:$('wbeschr'+x).value,neuigkeiten:$('wneu'+x).value,nutzung:$('wnutz'+x).value,hinweis:$('wen'+x).value,datei:WD[x]});};
  $('prevW'+x).onclick=async()=>{if(!confirm('Vorige Fassung der Werkzeug-Seite wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/'+key,'POST'));say('mW'+x,'Vorige Fassung ist live.',true);}catch(e){say('mW'+x,e.message);}};}
 $('saveA').onclick=()=>{if(confirm('„Woran Robin gerade arbeitet“ jetzt veröffentlichen?'))publish('aktuell','mA',{stand:$('stand').value,de:$('de').value,en:$('en').value});};
 function pwords(){const n=$('ptext').value.split(/\\s+/).filter(Boolean).length;$('pwords').textContent=n+' Wörter (≈ '+Math.round(n*4.4/100)*100+' Tokens)';}
 $('ptext').oninput=pwords;
+function renderSW(w){$('swstat').innerHTML=(w&&w.stand?'Seitenwissen: '+w.seiten.length+' Seiten der Website, '+w.woerter+' Wörter, eingelesen '+fmt(w.stand)+'. Goch kennt sie zusätzlich zu diesem Profil; neu eingelesen wird alle sechs Stunden von selbst. ':'Seitenwissen: noch nicht eingelesen. ')+'<button class="quiet" id="swneu" type="button">Jetzt neu einlesen</button> <span class="msg" id="mSW"></span>';
+ $('swneu').onclick=async()=>{say('mSW','Liest ein …',true);try{renderSW(await api('goch/seitenwissen','POST'));say('mSW','Neu eingelesen.',true);}catch(e){say('mSW',e.message);}};}
+api('goch/seitenwissen').then(renderSW).catch(()=>renderSW(null));
 $('saveP').onclick=()=>{if(confirm('Gochs Profil jetzt veröffentlichen? Goch antwortet danach sofort mit dieser Fassung.'))publish('profile','mP2',{text:$('ptext').value});};
 $('prevP').onclick=async()=>{if(!confirm('Vorige Fassung des Profils wiederherstellen? (Als neue Änderung, nichts geht verloren.)'))return;try{render(await api('content/profile','POST'));say('mP2','Vorige Fassung ist live.',true);}catch(e){say('mP2',e.message);}};
 $('saveL').onclick=()=>{if(confirm('Links jetzt veröffentlichen?'))publish('links','mL',{rows:rows()});};

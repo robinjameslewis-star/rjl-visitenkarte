@@ -2,10 +2,14 @@
 // Unterweisung nach EU AI Act als Teil des Workshops hervor (Abzeichen unter der Überschrift, eigener Kasten), tragen drei Teile,
 // sieben Kapitel, zwei Formate mit Preisen, Ablauf, Nachweis, Rechtsrahmen ohne „Pflichtschulung“-Werbung, Fragen (FAQPage), den
 // Cal.com-Kalender erst nach Klick, das Anfrageformular über Gochs Kontakt-Endpunkt und den Kopf mit aktivem Menüpunkt;
-// Startseite, sitemap.xml und Gochs Linkliste kennen die Seite. Kein Netz.   node tests/workshops_seite_test.mjs
+// Startseite, sitemap.xml und Gochs Linkliste kennen die Seite. Seit der Textprüfung vom 23.10.2026: kein „Zertifikat nach Art. 4“,
+// keine Frage zum selbst gebauten Werkzeug, „verschiedene Anbieter“ erst mit Partnern, Kasten „Wer den Workshop leitet“.
+// Kein Netz.   node tests/workshops_seite_test.mjs
 import { readFileSync } from "node:fs";
 import { WORKSHOPS, workshopsSeite, workshopsUrl, KONTAKT_ENDPUNKT, MEMBER_PRUEFUNG } from "../worker/src/workshops.js";
 import { PARTNER } from "../worker/src/partner.js";
+import { SEITEN } from "../worker/src/sitemap.js";
+import { PORTRAIT } from "../worker/src/ueber_mich.js";
 
 import { grundsaetze } from "../worker/src/grundsaetze.js";
 let fails = 0;
@@ -13,7 +17,7 @@ const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEH
 const root = new URL("..", import.meta.url).pathname;
 const lesen = p => readFileSync(root + p, "utf8");
 
-const PRIVAT = /0151|684660|gmail|googlemail|Höchststr|1988|Hechingen/i;
+const PRIVAT = /\b01[5-7]\d[ \-]?\d{3}[ \-]?\d{3,}\b|gmail|googlemail|Höchststr|\b19[5-9]\d\b/i;
 // In Anführungszeichen darf die Seite die Begriffe nennen, um sich davon abzugrenzen; als eigene Aussage nie.
 const UEBERTRIEBEN = /(?<![„“"])Pflichtschulung|zertifizierungspflichtig|sonst droht|Bußgeld droht|(?<![“"])mandatory course|or face a fine|!/;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
@@ -49,13 +53,18 @@ for (const s of WORKSHOPS) {
   check(form.includes('name="firma" maxlength="120" required') && form.includes('name="name" maxlength="80" required') && form.includes('name="email" maxlength="120" required') && form.includes('name="format"') && form.includes('name="personen" min="1" max="500" value="10" required') && form.includes('name="zeitraum"') && !form.includes('name="nachricht"') && form.includes('name="website"') && form.includes('id="anfrage-status"'), "kurzes Anfrageformular: Unternehmen, Ansprechperson, E-Mail, online oder vor Ort, Teilnehmerzahl, Wunschtermin; Falle und Statuszeile; kein Freitext");
   check(html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes(`lang: ${JSON.stringify(s.lang)}`) && /t: geladen/.test(html), "Skript sendet an Gochs Kontakt-Endpunkt mit Sprache und Ladezeitpunkt");
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
-  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "Course" && ld[0].hasCourseInstance.length === 2 && ld[0].hasCourseInstance.every(c => !c.offers) && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 8, "JSON-LD: Course mit zwei Durchführungen und FAQPage mit acht Fragen");
-  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 8, "acht Fragen sichtbar");
-  check(!/kleines Werkzeug|Schmerzpunkt|small (browser )?tool|pain point/i.test(html), "kein selbst gebautes Werkzeug im Workshop (Robin, 18.10.2026: das wollen die Partner nicht sehen)");
+  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "Course" && ld[0].hasCourseInstance.length === 2 && ld[0].hasCourseInstance.every(c => !c.offers) && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 7, "JSON-LD: Course mit zwei Durchführungen und FAQPage mit sieben Fragen");
+  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 7, "sieben Fragen sichtbar");
+  check(html.includes('id="plan-b"') && /Plan-B-Tool|plan B tool/.test(html) && /doppeltem Boden|safety net/.test(html) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="plan-b"') && html.indexOf('id="plan-b"') < html.indexOf('class="grundsaetze"'), "Plan-B-Tool nach „Wie wir zusammenarbeiten“ – das Bauen im Workshop ist zurück (Robin, 04.11.2026; ersetzt die Entscheidung vom 18.10.2026)");
+  check(!/Zertifikat nach Art\. 4|certificate under Article 4/.test(html), "kein „Zertifikat nach Art. 4“: Art. 4 schreibt kein Zertifikat vor, es belegt die Maßnahme (Textprüfung 23.10.2026)", (html.match(/.{0,30}(?:Zertifikat nach Art\. 4|certificate under Article 4).{0,30}/) || [""])[0]);
+  check(PARTNER.length > 0 || !/verschiedener Anbieter|various providers/.test(sichtbar), "„verschiedene Anbieter“ erst, wenn Partner vorgestellt werden (Textprüfung 23.10.2026)", (sichtbar.match(/.{0,30}(?:verschiedener Anbieter|various providers).{0,30}/) || [""])[0]);
+  const leitung = (html.match(/<section class="leitung" aria-labelledby="leitung">[\s\S]*?<\/section>/) || [""])[0];
+  const ueberMich = SEITEN.find(a => a.id === "ueber-mich" && a.lang === s.lang).adresse;
+  check(leitung.includes('<h2 id="leitung">') && leitung.includes(`src="${t.up}${PORTRAIT.datei}"`) && leitung.includes(`href="${t.up}${ueberMich}"`) && html.indexOf('id="werkzeuge"') < html.indexOf('id="leitung"') && html.indexOf('id="leitung"') < html.indexOf('id="formate"'), "Kasten „Wer den Workshop leitet“ mit Porträt und Verweis auf „Über mich“, vor den Formaten (Textprüfung 23.10.2026)");
   const schritte = (html.match(/<ol class="schritte">[\s\S]*?<\/ol>/) || [""])[0];
-  check(html.includes(grundsaetze(s.lang)) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="grundsaetze-titel"') && html.indexOf('id="grundsaetze-titel"') < html.indexOf('id="teile"'), "Grundsätze nach „Wie wir zusammenarbeiten“, vor den drei Teilen (Robin, 19.10.2026)");
+  check(html.includes(grundsaetze(s.lang)) && html.indexOf('id="zusammenarbeit"') < html.indexOf('class="grundsaetze"') && html.indexOf('class="grundsaetze"') < html.indexOf('id="teile"'), "Grundsätze als ruhiger Block nach „Wie wir zusammenarbeiten“ (Robin, 04.11.2026)");
   check((schritte.match(/<li>/g) || []).length === 3 && (s.lang === "en" ? ["Analyse", "Train", "Develop"] : ["Analysieren", "Schulen", "Weiterentwickeln"]).every((w, i) => schritte.includes(`<span class="nr">0${i + 1}</span><strong>${w}</strong>`)) && /unverbindliches Gespräch|no-obligation call/.test(schritte) && html.indexOf('id="zusammenarbeit"') < html.indexOf('id="teile"'), "Drei Schritte der Zusammenarbeit vor den drei Teilen, Einstieg mit unverbindlichem Gespräch (Robin, 18.10.2026)");
-  const werkzeuge = (html.match(/<h2 id="werkzeuge">[\s\S]*?<h2 id="formate">/) || [""])[0];
+  const werkzeuge = (html.match(/<h2 id="werkzeuge">[\s\S]*?(?=<section class="leitung"|<h2 id="formate">)/) || [""])[0];
   check(!/Partnerangebot|partner offer|Advertisement|eigene Produkte|own products/i.test(werkzeuge) && /SmartFormular FiBu lite/.test(werkzeuge) && (PARTNER.length ? (werkzeuge.match(/rel="sponsored noopener"/g) || []).length === PARTNER.length && (werkzeuge.match(/<p class="kennzeichnung"><a href="[^"]*#anzeigen">/g) || []).length === PARTNER.length : /stelle ich hier vor|present further tools here/.test(werkzeuge)), "Werkzeuge im Workshop: verschiedene Anbieter ohne Unterscheidung und ohne Kennzeichnung, Partnerverweise mit rel=sponsored (Robin, 18.10.2026)");
   check(PARTNER.every(p => p.id && p.name && p.anbieter && /^https:\/\//.test(p.url) && ["gebuehr", "provision", "beides"].includes(p.verguetung) && p.text && p.text.de), "Partnerliste vollständig (Name, Anbieter, https-Adresse, Vergütungsart, Text)");
   check(html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html), "Newsletter-Kasten");
@@ -67,9 +76,12 @@ console.log("\nStartseite, Sitemap, Goch");
 const start = lesen("index.html");
 check((start.match(/<a href="workshops\/" data-href-de="workshops\/" data-href-en="workshops\/en\/" data-i18n="navWorkshops">Workshops<\/a><a href="ueber-mich\/"/g) || []).length === 2, "Startseite: Menüpunkt „Workshops“ in beiden Navigationen vor „Über mich“");
 check(start.includes('<section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">') && start.indexOf('id="workshops"') > start.indexOf('id="werkzeuge"') && start.indexOf('id="workshops"') < start.indexOf('id="ueber-mich"'), "Startseite: Abschnitt zwischen SmartFormularen und Über mich");
-check(/data-i18n="workshopsMore">Zum Workshop mit Unterweisung nach EU AI Act<\/a>/.test(start) && /data-i18n="workshopsLead">[^<]*mit Unterweisung nach EU AI Act/.test(start), "Startseite: Unterweisung nach EU AI Act im Text und im Verweis");
+check(/data-i18n="workshopsMore">Mehr zum Workshop<\/a>/.test(start) && /data-i18n="workshopsLead">[^<]*mit Unterweisung nach EU AI Act/.test(start)
+  && /href="workshops\/#anfrage" data-href-de="workshops\/#anfrage" data-href-en="workshops\/en\/#anfrage" data-i18n="workshopsAnfrage">Workshop anfragen<\/a>/.test(start)
+  && /data-i18n="workshopsTeil3">[^<]*als Nachweis Ihrer Maßnahme nach Art\. 4 KI-Verordnung/.test(start) && /data-i18n="workshopsLeitung">Ich leite die Workshops selbst/.test(start),
+  "Startseite (Option B): Unterweisung nach EU AI Act, drei Teile, Leitung, „Workshop anfragen“ und „Mehr zum Workshop“");
 const lang = lesen("language.js");
-check((lang.match(/workshopsTitle: 'Workshops'/g) || []).length === 2 && /workshopsLead: '[^']*with EU AI Act training/.test(lang) && /workshopsMore: 'To the workshop with EU AI Act training'/.test(lang), "language.js: Titel, Text und Verweis in beiden Sprachen");
+check((lang.match(/workshopsTitle: 'Workshops'/g) || []).length === 2 && /workshopsLead: '[^']*with EU AI Act training/.test(lang) && /workshopsMore: 'More about the workshop'/.test(lang) && /workshopsAnfrage: 'Enquire about a workshop'/.test(lang), "language.js: Titel, Text und Verweis in beiden Sprachen");
 const sitemap = lesen("sitemap.xml");
 check(WORKSHOPS.every(s => sitemap.includes(`<loc>${workshopsUrl(s.lang)}</loc>`)), "sitemap.xml nennt beide Fassungen");
 const links = lesen("worker/links.md");

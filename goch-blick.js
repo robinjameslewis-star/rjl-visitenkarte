@@ -7,15 +7,22 @@
 // gespeichert, kein Bild verlässt das Gerät. Kein sichtbares Vorschaubild (störte, Robin 23.10.2026): Den Zustand zeigen
 // der Schalter „Blickkontakt“ und die Kamera-Anzeige des Browsers. Aus mit „Blickkontakt“, beim Schließen, mit
 // „Sprechen beenden“, wenn die Stimme gerade nicht da ist, und beim Verlassen der Seite – nicht beim Tabwechsel. Aktiv nur mit der Sprachfunktion (goch-stimme.js).
+// Eigener Schalter (24.10.2026): nur mit data-goch-blick="an" am <body> (lokal zum Testen ?blick=an) – so bleibt der
+// Blickkontakt aus, bis er auf iPhone und Mac erprobt ist, auch wenn Stimme und Spracheingabe schon an sind.
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
   const scene = $('scene'), panel = $('goch'), leiste = $('goch-sprache'), schalter = $('goch-blick-an'), platz = $('goch-kamera-platz');
   const einwilligung = $('goch-kamera-consent'), erlauben = $('goch-kamera-allow'), ablehnen = $('goch-kamera-deny'), log = $('goch-log');
   if (!scene || !panel || !schalter || !platz || !einwilligung || !window.GochStimme) return;
+  const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  if (((lokal && new URL(location.href).searchParams.get('blick')) || document.body.dataset.gochBlick) !== 'an') {
+    schalter.hidden = true;
+    const absatz = $('privacy-goch-blick'); if (absatz) absatz.hidden = true; // Datenschutzabsatz erst mit der Funktion
+    return;
+  }
   const t = k => window.SiteLanguage.t(k);
   const koerper = window.GochStimme.koerper, input = $('goch-input');
-  const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   // Kontakt suchen (Robin, 23.10.2026: ausbauen): Wer länger als WIEDER_MS weg war, gilt beim Wiederkommen als neu
   // angekommen; gegrüßt wird höchstens alle ABSTAND_MS. Steht jemand weiter weg (Gesicht schmaler als NAH), lockt Goch mit
   // Zwitschern (höchstens LOCKRUFE Mal, alle LOCK_MS). Schaut jemand her und sagt NACHFRAGE_MS lang nichts, fragt Goch

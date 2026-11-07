@@ -11,6 +11,7 @@ import { pathToFileURL } from "node:url";
 import { saveSettings, loadSettings, defaults } from "../worker/src/settings.js";
 import { pruefeKundenfigur, speichereKundenfigur, kundenfiguren, kundenfigur, loescheKundenfigur, oeffentlicheFigur } from "../worker/src/figuren.js";
 import { wavDauer } from "../worker/src/hoeren.js";
+import { sprechTeile, GESPROCHEN } from "../worker/src/stimme.js";
 
 const root = new URL("..", import.meta.url).pathname;
 const out = mkdtempSync(join(tmpdir(), "rjl-goch-stimme-"));
@@ -93,6 +94,14 @@ console.log("Spracheingabe /listen");
   for (let i = 0; i < 3; i++) { await listen(w, e, wav(19)); await Promise.all(ctx.pending); }
   const vorher = ai.aufrufe.length, g = await (await listen(w, e, wav(19))).json();
   check(g.grenze === true && g.text === "" && ai.aufrufe.length === vorher, "Tagesgrenze erreicht: leerer Text, keine Erkennung, kein Fehler");
+  w = await frisch(); e = env({ MAX_HOEREN_ANFRAGEN_TAG: "2" }, sprache({ hoeren: true, minutenTag: 20 }));
+  for (let i = 0; i < 2; i++) { await listen(w, e, wav(1)); await Promise.all(ctx.pending); }
+  const vor2 = ai.aufrufe.length, ag = await (await listen(w, e, wav(1))).json();
+  check(ag.grenze === true && ai.aufrufe.length === vor2, "Anfragengrenze je Tag erreicht: keine Erkennung");
+  w = await frisch(); e = env({}, sprache({ hoeren: true, minutenTag: 20 }));
+  e.USAGE.map.set("hoeren:tag:" + new Date().toISOString().slice(0, 10), "{kaputt");
+  const vor3 = ai.aufrufe.length, k = await (await listen(w, e, wav(2))).json();
+  check(k.grenze === true && ai.aufrufe.length === vor3, "Zähler nicht lesbar: keine Erkennung (fail-closed)");
 }
 
 console.log("Antwort und Figur");
@@ -158,6 +167,102 @@ console.log("Stimme zur Antwort (NDJSON)");
   check(mails.length === mailsVorher + 1 && /Monatsgrenze für die Stimme/.test(mails.at(-1).subject), "Robin bekommt einmal eine E-Mail, nicht bei jeder Antwort");
 }
 
+console.log("Stimme in Abschnitten: Goch beginnt mit dem ersten Satz (Robin, 06.11.2026)");
+{
+  const gleich = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  check(gleich(sprechTeile("Gern. Der Generator macht Stapel. Das geht schnell."), ["Gern. Der Generator macht Stapel.", "Das geht schnell."]), "ein sehr kurzer erster Satz nimmt den nächsten mit, der erste Abschnitt bleibt kurz");
+  check(gleich(sprechTeile("Das geht z. B. am 3. Mai in der Kanzlei. Danach mehr."), ["Das geht z. B. am 3. Mai in der Kanzlei.", "Danach mehr."]), "Abkürzungen und Ordnungszahlen sind kein Satzende");
+  check(gleich(sprechTeile("Die Workshops beginnen im Januar 2027. Sind Sie dabei? Schauen Sie auf robin.vision vorbei."), ["Die Workshops beginnen im Januar 2027.", "Sind Sie dabei? Schauen Sie auf robin.vision vorbei."]), "Jahreszahl und Fragezeichen beenden einen Satz, die Adresse nicht; weitere Sätze werden zusammengefasst");
+  const lang = Array.from({ length: 12 }, (_, i) => `Das ist der Satz Nummer ${i + 100} mit etwas Inhalt zum Vorlesen.`).join(" ");
+  const teile = sprechTeile(lang);
+  check(teile.join(" ") === lang && teile.length > 2 && teile.slice(1).every(x => x.length <= 240), "kein Text geht verloren, weitere Abschnitte höchstens 240 Zeichen", teile.map(x => x.length).join(","));
+  check(gleich(sprechTeile("Nur ein Satz ohne Punkt"), ["Nur ein Satz ohne Punkt"]), "ein Satz ohne Punkt bleibt ganz");
+
+  const stimmeEnv = () => env({ ELEVENLABS_API_KEY: "xi-test" }, sprache({ stimme: true, voiceId: "Voice1234567890", ttsModell: "eleven_v4" }));
+  const monat = e => JSON.parse(e.USAGE.map.get("stimme:monat:" + new Date().toISOString().slice(0, 7)) || "{}");
+  const standard = ttsAntwort;
+  const mp3 = n => new Response(new Uint8Array([0x49, 0x44, 0x33, n]), { status: 200, headers: { "content-type": "audio/mpeg" } });
+  const warte = ms => new Promise(r => setTimeout(r, ms));
+
+  let w = await frisch(), e = stimmeEnv();
+  modell = { reply: "Robin baut Werkzeuge für Kanzleien. Das erste heißt Buchungsstapel-Generator. Es läuft offline im Browser.", action: null, message: null, link: null };
+  let vorher = tts.length, nr = 0;
+  ttsAntwort = async () => { const n = ++nr; await warte(n === 1 ? 60 : 0); return mp3(n); }; // der zweite Abschnitt ist früher fertig als der erste
+  let z = await zeilen(await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } })); await Promise.all(ctx.pending);
+  const neu = tts.slice(vorher);
+  check(z.length === 3 && z[0].reply === modell.reply && z[0].ki === true, "Zeile 1 die ganze Antwort, dann je Abschnitt eine Zeile", z.length);
+  check(z[1].stimme.teil === 1 && z[1].stimme.teile === 2 && z[2].stimme.teil === 2 && Buffer.from(z[1].stimme.daten, "base64")[3] === 1 && Buffer.from(z[2].stimme.daten, "base64")[3] === 2, "Abschnitte kommen in der richtigen Reihenfolge, auch wenn ein späterer früher fertig ist");
+  check(neu.length === 2 && neu[0].body.text === "Robin baut Werkzeuge für Kanzleien." && neu[1].body.text === "Das erste heißt Buchungsstapel-Generator. Es läuft offline im Browser.", "der erste Abschnitt ist ein Satz, der Rest wird zusammengefasst", neu.map(x => x.body.text).join(" | "));
+  check(neu.every(x => x.body.seed === 4711 && x.body.model_id === "eleven_v4"), "alle Abschnitte mit derselben Stimme und demselben Startwert");
+  let m = monat(e);
+  check(m.zeichen === neu[0].body.text.length + neu[1].body.text.length && m.antworten === 1 && Number.isFinite(m.letzte.msStimme), "eine Antwort gezählt, Zeichen der vertonten Abschnitte", JSON.stringify(m));
+
+  w = await frisch(); e = stimmeEnv(); nr = 0;
+  let textDa = 0, fertig = 0;
+  ttsAntwort = async () => { await warte(120); fertig = fertig || Date.now(); return mp3(1); };
+  let r = await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } });
+  let leser = r.body.getReader();
+  await leser.read(); textDa = Date.now();
+  check(textDa >= fertig && fertig > 0, "Text und Stimme beginnen zusammen: Zeile 1 wartet auf den ersten Abschnitt");
+  await leser.cancel(); await Promise.all(ctx.pending);
+
+  w = await frisch(); e = stimmeEnv();
+  ttsAntwort = async () => { await warte(2400); return mp3(1); };
+  const beginn = Date.now();
+  r = await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } });
+  leser = r.body.getReader();
+  await leser.read(); const nach = Date.now() - beginn;
+  check(nach >= 1900 && nach < 2350, "Stimme zu langsam: der Text erscheint spätestens nach zwei Sekunden", nach + " ms");
+  await leser.cancel(); await Promise.all(ctx.pending);
+
+  w = await frisch(); e = stimmeEnv(); nr = 0; vorher = tts.length;
+  ttsAntwort = async () => mp3(++nr);
+  modell = { reply: "Robin baut Werkzeuge für Kanzleien.", action: null, message: null, link: null };
+  z = await zeilen(await chat(w, e, { messages: frage, stimme: { erste: true, teile: true } })); await Promise.all(ctx.pending);
+  const hinweis = "Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.";
+  check(z[0].reply === hinweis + " " + modell.reply && z.length === 3 && tts.slice(vorher).some(x => x.body.text === hinweis), "erste gesprochene Antwort: KI-Hinweis in Text und Stimme, als eigener Abschnitt");
+  const zeichenErste = monat(e).zeichen;
+  vorher = tts.length;
+  z = await zeilen(await chat(w, e, { messages: frage, stimme: { erste: true, teile: true } })); await Promise.all(ctx.pending);
+  check(z[0].reply.startsWith(hinweis) && z.length === 3 && z[1].stimme.ms === 0 && !tts.slice(vorher).some(x => x.body.text === hinweis), "KI-Hinweis gemerkt: beim nächsten Mal sofort da, ohne Aufruf");
+  check(monat(e).zeichen === zeichenErste + modell.reply.length, "gemerkter Hinweis kostet keine Zeichen", monat(e).zeichen);
+
+  w = await frisch(); e = stimmeEnv(); nr = 0;
+  modell = { reply: "Robin baut Werkzeuge für Kanzleien. Das erste heißt Buchungsstapel-Generator.", action: null, message: null, link: null };
+  ttsAntwort = async () => ++nr === 2 ? new Response("kaputt", { status: 500 }) : mp3(nr);
+  z = await zeilen(await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } })); await Promise.all(ctx.pending);
+  check(z.length === 3 && z[0].reply === modell.reply && z[1].stimme.teil === 1 && z[2].stimme === null && z[2].grund === "fehler", "ein späterer Abschnitt gestört: was da ist, bleibt, danach „fehler“, kein Anbietertext", JSON.stringify(z[2]));
+  check(monat(e).antworten === 1, "die Antwort zählt trotzdem");
+
+  w = await frisch(); e = stimmeEnv(); nr = 0; vorher = tts.length;
+  ttsAntwort = async () => ++nr === 1 ? new Response("{}", { status: 429 }) : mp3(nr);
+  z = await zeilen(await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } })); await Promise.all(ctx.pending);
+  check(z.length === 3 && z[1].stimme && z[2].stimme && tts.length - vorher === 3, "Anbieter ausgelastet (429): einmal neu versucht", tts.length - vorher);
+
+  w = await frisch(); e = stimmeEnv(); nr = 0; vorher = tts.length;
+  modell = { reply: "Eins ist hier der erste Satz. " + "Das ist ein weiterer ziemlich langer Satz, der gesprochen werden soll, und zwar ohne jede Eile, damit er nicht in den vorigen Abschnitt passt. ".repeat(4).trim(), action: null, message: null, link: null };
+  ttsAntwort = async () => mp3(++nr);
+  r = await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } });
+  leser = r.body.getReader();
+  await leser.read(); await leser.cancel(); await Promise.all(ctx.pending);
+  check(sprechTeile(modell.reply).length === 5 && tts.length - vorher <= 3, "Besucher bricht ab: Der Rest wird nicht mehr vertont", (tts.length - vorher) + " von " + sprechTeile(modell.reply).length);
+
+  w = await frisch(); e = env({ ELEVENLABS_API_KEY: "xi-test" }, sprache({ stimme: true, voiceId: "Voice1234567890", zeichenMonat: 10 }));
+  vorher = tts.length; const mailsVorher = mails.length;
+  modell = { reply: "Robin baut Werkzeuge für Kanzleien.", action: null, message: null, link: null };
+  z = await zeilen(await chat(w, e, { messages: frage, stimme: { erste: false, teile: true } })); await Promise.all(ctx.pending);
+  check(z[0].reply === modell.reply && z[1].stimme === null && z[1].grund === "grenze" && tts.length === vorher && mails.length === mailsVorher + 1, "Monatsgrenze: nur Text, kein Aufruf, Robin bekommt die E-Mail");
+
+  w = await frisch(); e = stimmeEnv(); vorher = tts.length; nr = 0;
+  ttsAntwort = async () => mp3(++nr);
+  modell = { reply: "", action: "message", message: { name: "Pat", email: "pat@example.test", text: "Bitte um Rückruf." }, link: null };
+  z = await zeilen(await chat(w, e, { messages: [{ role: "user", content: "Ich bin Pat, pat@example.test, bitte um Rückruf." }], stimme: { erste: false, teile: true } })); await Promise.all(ctx.pending);
+  const drahtTexte = tts.slice(vorher).map(x => x.body.text).join(" ");
+  check(z[0].reply.includes("pat@example.test") && !drahtTexte.includes("@") && !drahtTexte.includes("Pat") && /soll ich das so senden/.test(drahtTexte), "Draht: nur der neutrale Satz geht zum Anbieter, nie die Eingaben des Besuchers", drahtTexte);
+  ttsAntwort = standard;
+  modell = { reply: "Robin baut gerade Werkzeuge für Kanzleien.", action: null, message: null, link: null };
+}
+
 console.log("Sprachmodus: schnelleres Modell");
 {
   const w = await frisch(), e = env({}, sprache({ modell: "claude-haiku-5-5" }));
@@ -168,6 +273,7 @@ console.log("Sprachmodus: schnelleres Modell");
   await zeilen(await chat(w, e, { messages: frage, stimme: {} }));
   check(prompts.at(-1).model === "claude-haiku-5-5", "mit Stimme: Modell des Sprachmodus");
   check(/# Gesprochen/.test(prompts.at(-1).system[0].text), "mit Stimme: Hinweis, so zu formulieren, wie man spricht");
+  check(/höchstens 40 Wörter/.test(prompts.at(-1).system[0].text) && /at most 40 words/.test(GESPROCHEN.en), "mit Stimme: kurze Antworten, auf Deutsch und Englisch (Robin, 06.11.2026)");
   await chat(w, e, { messages: frage, gesprochen: true });
   check(!/# Gesprochen/.test(prompts.at(-1).system[0].text), "nur Spracheingabe, ohne Stimme: kein Sprechstil-Hinweis");
 }

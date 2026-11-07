@@ -8,10 +8,12 @@
 // Vergleich und das Formular „Partner werden“ an Gochs Kontakt-Endpunkt. Erscheinungsbild robin.vision (Papier, Grün, Kupfer); die
 // Produkte haben eigene Seiten unter werkzeuge/<produkt>/ (SmartFormular: smartformular.js). Weitere Lösungen kommen aus partner.js. Alte Sprungmarken der früheren SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Produktseite weiter.
 // tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen; Vorlage war der Entwurf auf dem Zweig claude/werkzeuge-entwurf
-// (tools/entwuerfe/werkzeuge-2026-10-18/).
+// (tools/entwuerfe/werkzeuge-2026-10-18/). Welle 2 der Textprüfung (Robin, 23.10.2026): „Werkzeuge“ im Seitentitel,
+// Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref } from "./partner.js";
+import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, KOSTENLOS, kostenlos } from "./partner.js";
+import { PRODUKTE } from "./slider.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
 
@@ -23,16 +25,17 @@ export const ALTE_MARKEN = ["produkte", "fibu-lite", "fibu", "deklaration", "men
 
 const TEXT = {
   de: {
-    titel: "Effiziente Werkzeuge für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse",
-    seitentitel: "Effiziente Werkzeuge und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse | robin.vision",
-    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und weitere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    untertitel: "Software und KI-Lösungen, die im Alltag tragen – vorgestellt und verglichen auf robin.vision. Viele davon zeige ich in den Workshops an echten Fällen.",
-    ueberblickTitel: "Werkzeuge im Überblick",
-    sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite gibt es kostenlos; FiBu und Deklaration kommen als Beta.",
+    titel: "Werkzeuge",
+    seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen im Vergleich | robin.vision",
+    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
+    untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
+    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular-Produkte", zuSf: "Mehr zu SmartFormular", partnerTitel: "Partner",
+    sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite und E-Rechnung lite lassen sich bis 31.12.2026 kostenlos testen; FiBu und Abschluss kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
-    platzhalter: { logo: "Ihr Logo", titel: "Hier könnte Ihr Produkt stehen",
-      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder weitere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, zeige sie in meinen Workshops und auf Fachmessen.",
-      chips: ["Website", "Workshops", "Fachmessen"], knopf: "Partner werden" },
+    platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
+      text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, auch in Workshops und auf Fachmessen. Im Vergleich steht jede mit denselben Angaben, auch neben Wettbewerbern.",
+      chips: ["Website", "Workshops", "Fachmessen"],
+      knopf: "Partner werden" },
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     vergleichTitel: "Im Vergleich",
     vergleichLead: "Für jede Lösung dieselben Angaben: was sie leistet, wo die Daten liegen, wie KI eingesetzt wird und wie sie sich anbinden lässt.",
@@ -42,16 +45,20 @@ const TEXT = {
     kriterien: { aufgabe: "Aufgabe", fuer: "Für wen", daten: "Betrieb und Daten", sitz: "Sitz des Anbieters", ki: "KI",
       schnittstellen: "Schnitt­stellen", preis: "Preis und Test", nachweise: "Nachweise" },
     vergleich: [
-      { name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
+      { frei: true, name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
         daten: "Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner", sitz: "Deutschland", ki: "Nein, arbeitet mit Regeln",
-        schnittstellen: "Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format", preis: "Kostenlos, ohne Anmeldung",
+        schnittstellen: "Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format", preis: "Kostenlos testen bis 31.12.2026, ohne Anmeldung",
         nachweise: "Prüfsumme je Fassung; nichts wird hochgeladen" },
+      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-rechnung-pruefen/", stand: "10/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
+        daten: "Im Browser auf der Seite oder als Datei offline; nichts wird hochgeladen", sitz: "Deutschland", ki: "Nein, offizielle Prüfregeln von CEN und KoSIT",
+        schnittstellen: "Liest XRechnung (UBL, CII) und ZUGFeRD/Factur-X; Prüfbericht, GiroCode", preis: "Kostenlos testen bis 31.12.2026, ohne Anmeldung",
+        nachweise: "Abgleich mit der offiziellen Prüfung an Tausenden Testrechnungen" },
       { name: "FiBu", href: "werkzeuge/smartformular/#fibu", stand: "10/2026", aufgabe: "Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten", fuer: "Sachbearbeitung in Kanzlei und Unternehmen",
         daten: "Im Browser über den Memberbereich; Rechenzentren in der EU", sitz: "Deutschland",
         ki: "Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten",
         schnittstellen: "Offen für jedes Buchhaltungsprogramm, per Datei oder Schnittstelle", preis: "Beta kostenfrei; Preis mit dem Angebot",
         nachweise: "Beta mit Testdaten; echte Daten nur mit Vereinbarung" },
-      { name: "Deklaration", href: "werkzeuge/smartformular/#deklaration", stand: "10/2026", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
+      { name: "Abschluss", href: "werkzeuge/smartformular/#abschluss", stand: "10/2026", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
         daten: "Im Browser über den Memberbereich; Rechenzentren in der EU", sitz: "Deutschland",
         ki: "Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten",
         schnittstellen: "Neben Ihrem Kanzleiprogramm, per Datei oder Schnittstelle", preis: "Beta kostenfrei; Preis mit dem Angebot",
@@ -59,7 +66,7 @@ const TEXT = {
     ],
     ihrProduktText: "Ihre Lösung – auch als Komplettlösung aus einer Hand",
     formTitel: "Partner werden",
-    formLead: "Stellen Sie Ihre Lösung hier, in meinen Workshops und bei meinen Auftritten auf Fachmessen und Netzwerkveranstaltungen vor. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
+    formLead: "Stellen Sie Ihre Lösung hier vor – auch in meinen Workshops und bei Auftritten auf Fachmessen und Netzwerkveranstaltungen. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.",
     felder: { firma: "Unternehmen", name: "Ansprechperson", email: "E-Mail-Adresse", produkt: "Produkt oder Website", nachricht: "Worum geht es?", optional: "(freiwillig)",
       fuer: "Für wen", standort: "Wo liegen die Daten?", waehlen: "Bitte wählen" },
     // Zwei freiwillige Auswahlfelder für die erste Einschätzung (Recherche Vergleich, 18.10.2026); die übrigen Angaben folgen nach der
@@ -78,16 +85,17 @@ const TEXT = {
     andere: "This page in English",
   },
   en: {
-    titel: "Efficient tools for accounting, administration and other business processes",
-    seitentitel: "Efficient tools and AI solutions for accounting, administration and other business processes | robin.vision",
+    titel: "Tools",
+    seitentitel: "Tools: accounting software and AI compared | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision. With SmartFormular, a comparison and a partner programme.",
-    untertitel: "Software and AI solutions that hold up in daily work – presented and compared on robin.vision. I show many of them in the workshops using real cases.",
-    ueberblickTitel: "Tools at a glance",
-    sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite is free; FiBu and Deklaration are coming as a beta.",
+    untertitel: "Software and AI solutions for accounting, administration and other business processes – presented and compared. I show a selection of them in the workshops, using cases from everyday work.",
+    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular products", zuSf: "More about SmartFormular", partnerTitel: "Partners",
+    sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite and E-Rechnung lite are free to try until 31 December 2026; FiBu and Abschluss are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
-    platzhalter: { logo: "Your logo", titel: "Your product could be here",
-      text: "You develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here and show them in my workshops and at trade fairs.",
-      chips: ["Website", "Workshops", "Trade fairs"], knopf: "Become a partner" },
+    platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
+      text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here, also in workshops and at trade fairs. In the comparison, each one has the same details, even next to competitors.",
+      chips: ["Website", "Workshops", "Trade fairs"],
+      knopf: "Become a partner" },
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     vergleichTitel: "Comparison",
     vergleichLead: "The same details for every solution: what it does, where the data is kept, how AI is used and how it connects to your software.",
@@ -97,16 +105,20 @@ const TEXT = {
     kriterien: { aufgabe: "Task", fuer: "For whom", daten: "Operation and data", sitz: "Provider based in", ki: "AI",
       schnittstellen: "Interfaces", preis: "Price and trial", nachweise: "Assurance" },
     vergleich: [
-      { name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
+      { frei: true, name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
         daten: "A single file in your browser, offline; the data stays on your computer", sitz: "Germany", ki: "No, works with rules",
-        schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free, no sign-up",
+        schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free to try until 31 December 2026, no sign-up",
         nachweise: "Checksum for every version; nothing is uploaded" },
+      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "10/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Accounting firms, companies and the self-employed",
+        daten: "In the browser on the page or as an offline file; nothing is uploaded", sitz: "Germany", ki: "No, official CEN and KoSIT validation rules",
+        schnittstellen: "Reads XRechnung (UBL, CII) and ZUGFeRD/Factur-X; check report, GiroCode", preis: "Free to try until 31 December 2026, no sign-up",
+        nachweise: "Compared with the official validation on thousands of test invoices" },
       { name: "FiBu", href: "werkzeuge/smartformular/en/#fibu", stand: "10/2026", aufgabe: "Post bank, payables and receivables, linked to open items", fuer: "Accounting staff in firms and companies",
         daten: "In the browser via the member area; data centres in the EU", sitz: "Germany",
         ki: "Optional: language model in the EU or on your own systems, no training on your data",
         schnittstellen: "Open to any accounting package, by file or interface", preis: "Beta free of charge; prices come with the quote",
         nachweise: "Beta with test data; real data only by agreement" },
-      { name: "Deklaration", href: "werkzeuge/smartformular/en/#deklaration", stand: "10/2026", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
+      { name: "Abschluss", href: "werkzeuge/smartformular/en/#abschluss", stand: "10/2026", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
         daten: "In the browser via the member area; data centres in the EU", sitz: "Germany",
         ki: "Optional: language model in the EU or on your own systems, no training on your data",
         schnittstellen: "Alongside your firm's software, by file or interface", preis: "Beta free of charge; prices come with the quote",
@@ -114,7 +126,7 @@ const TEXT = {
     ],
     ihrProduktText: "Your solution – including all-in-one suites",
     formTitel: "Become a partner",
-    formLead: "Present your solution here, in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
+    formLead: "Present your solution here – also in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.",
     felder: { firma: "Company", name: "Contact person", email: "Email address", produkt: "Product or website", nachricht: "What is it about?", optional: "(optional)",
       fuer: "For whom", standort: "Where is the data kept?", waehlen: "Please choose" },
     fuerWerte: ["Accounting firms", "Companies", "Organisations", "Several of these"],
@@ -137,6 +149,10 @@ const SF_LOGO = `<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>
 
 const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
+.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 4px; padding: 4px 4px 14px; scrollbar-width: thin; }
+.wz-reihe > .wz-karte { flex: 0 0 min(290px, 82%); scroll-snap-align: start; }
+.wz-reihe:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
+.wz-mehr { margin: 0 0 30px; font-size: 15px; } .wz-mehr a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .wz-raster { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 10px 0 18px; }
 .wz-karte { margin: 0; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.55); display: flex; flex-direction: column; }
 .wz-karte h3 { margin: 0 0 8px; font: 500 22px/1.25 var(--serif); color: var(--green); }
@@ -253,7 +269,22 @@ ${kennz(p.anbieter)}
 ${chips(t.platzhalter.chips)}
 <p class="frei"><a class="wz-knopf zweit" href="#partner">${esc(t.platzhalter.knopf)}</a></p>
 </article>`;
-  return [sf, ...partner, platz].join("\n");
+  return { sf, partner: [...partner, platz].join("\n") };
+}
+
+// SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)
+function reihe(lang, t, up) {
+  const kennz = p => p.frei ? kostenlos(lang, "wz-kennz") : kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "wz-kennz");
+  return `<div class="wz-reihe" tabindex="0" role="region" aria-label="${esc(t.reiheLabel)}">
+${PRODUKTE[lang].map(p => `<article class="wz-karte">
+${kennz(p)}
+${SF_LOGO}
+<h3>${esc(p.name)}</h3>
+<p class="frei">${esc(p.text)}</p>
+<ul class="wz-chips"><li>${esc(p.bereich)}</li></ul>
+<p class="frei"><a class="wz-knopf" href="${up}${p.href}">${esc(t.zumProdukt)}</a></p>
+</article>`).join("\n")}
+</div>`;
 }
 
 // Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“.
@@ -261,12 +292,14 @@ ${chips(t.platzhalter.chips)}
 // gewählt): Aufgabe, Für wen, Betrieb und Daten, Sitz des Anbieters, KI, Schnittstellen, Preis und Test, Nachweise – Tatsachen, die
 // jeder Anbieter für Komplettlösung wie Einzelwerkzeug liefern kann, keine Noten. Im Kopf je Spalte der Stand der Angaben. Darunter
 // eine Zeile zur Herkunft der Angaben und zur Reihenfolge. Jede Spalte trägt im Kopf dasselbe Kennzeichen „Anzeige · Anbieter“ wie die
-// Karten (Robin, 18.10.2026, Option C). Steckbriefe mit Filter folgen später (Option B).
+// Karten (Robin, 18.10.2026, Option C); eigene kostenlose Werkzeuge tragen „Kostenlos“ (Robin, 23.10.2026). Steckbriefe mit Filter folgen
+// später (Option B).
 function vergleich(lang, t, up) {
   const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
   const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
     ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, anbieter: p.anbieter, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
-  const kennz = s => kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");
+  const kennz = s => s.frei ? `<span class="wz-th-kennz">${KOSTENLOS[lang]}</span>`
+    : kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");
   const zeilen = Object.entries(t.kriterien).map(([k, label]) => `<tr><th scope="row">${esc(label)}</th>${spalten.map(s => `<td>${esc(s[k] || "")}</td>`).join("")}<td class="wz-frei-spalte">${k === "aufgabe" ? esc(t.ihrProduktText) : ""}</td></tr>`).join("\n");
   return `<div class="wz-tabelle-rahmen">
 <table class="wz-tabelle">
@@ -291,11 +324,14 @@ export function werkzeugeUebersicht(lang) {
   const main = `<article class="wz">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
-${grundsaetze(lang)}
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
+${reihe(lang, t, up)}
+<p class="frei wz-mehr"><a href="${sfZiel}">${esc(t.zuSf)} →</a></p>
+<h2 id="partner-anzeigen">${esc(t.partnerTitel)}</h2>
 <div class="wz-raster">
-${karten(lang, t, up)}
+${karten(lang, t, up).partner}
 </div>
+${grundsaetze(lang)}
 <h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
 <p class="wz-hinweis frei">${esc(t.vergleichLead)}</p>
 ${vergleich(lang, t, up)}

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Workshop KI-Kompetenz mit Unterweisung nach EU AI Act für Kanzleien und Unternehmen | robin.vision</title>
-<meta name="description" content="KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.">
+<meta name="description" content="KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat als Nachweis Ihrer Maßnahme nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.">
 <link rel="icon" href="../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/workshops/">
@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Workshop KI-Kompetenz für Ihr Team">
-<meta property="og:description" content="KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.">
+<meta property="og:description" content="KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat als Nachweis Ihrer Maßnahme nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://robin.vision/workshops/">
 <meta name="twitter:card" content="summary">
@@ -162,27 +162,29 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
+.leitung { display: grid; grid-template-columns: 132px 1fr; gap: 6px 24px; align-items: start; margin: 28px 0 8px; padding: 22px 24px 20px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); }
+.leitung img { width: 132px; height: auto; border-radius: 3px; border: 1px solid var(--line); }
+.leitung h2 { margin: 0 0 8px; }
+.leitung p { max-width: none; text-align: left; margin: 0 0 10px; }
+.leitung p:last-child { margin-bottom: 0; }
+@media (max-width: 600px) { .leitung { grid-template-columns: 1fr; } .leitung img { width: 112px; } }
 @media (max-width: 720px) { .schritte { grid-template-columns: 1fr; } .schritte li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } .teile, .formate { grid-template-columns: 1fr; } .anfrage .reihe { grid-template-columns: 1fr; } .kapitel li { grid-template-columns: 40px 1fr; } .kapitel .min { grid-column: 2; padding-top: 0; } }
-.grundsaetze-reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 8px 0 10px; padding: 0; }
-.gs-karte { position: relative; overflow: hidden; margin: 0; padding: 24px 24px 22px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.6); background: var(--surface, rgba(255,255,255,.6)); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 28px -18px rgba(11,61,46,.35); }
-.gs-karte::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--copper); }
-.gs-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0 0 14px; border-radius: 50%; color: var(--green); background: rgba(11,61,46,.07); background: color-mix(in srgb, var(--green) 10%, transparent); border: 1px solid rgba(11,61,46,.16); border-color: color-mix(in srgb, var(--green) 22%, transparent); }
-.gs-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.grundsaetze .gs-kicker { display: block; font: 500 12px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
-.grundsaetze .gs-titel { display: block; font: 500 21px/1.3 var(--serif); color: var(--green); margin: 4px 0 8px; }
-.grundsaetze .gs-text { margin: 0; max-width: none; font-size: 15px; line-height: 1.6; color: var(--ink-soft); text-align: left; hyphens: manual; }
+.grundsaetze { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 34px 0 30px; padding: 20px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.grundsaetze .gs-kicker { display: block; font: 500 11px/1.6 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--copper); }
+.grundsaetze .gs-titel { display: block; margin: 3px 0 6px; font: 500 18px/1.3 var(--serif); color: var(--green); }
 .grundsaetze .gs-nb { white-space: nowrap; }
-@media (max-width: 720px) { .grundsaetze-reihe { grid-template-columns: 1fr; gap: 14px; } .gs-karte { padding: 20px 20px 18px; } }</style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"Workshop KI-Kompetenz für Ihr Team – Mit Unterweisung nach EU AI Act","description":"KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.","url":"https://robin.vision/workshops/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT3H","teaches":["Was KI heute ist – und was nicht","Die KI-Verordnung in zehn Minuten","Daten, die nie hinein dürfen","Ergebnisse prüfen","Gut fragen, gut arbeiten","Risiken im Alltag","Regeln im Haus"],"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT3H","name":"Workshop online"},{"@type":"CourseInstance","courseMode":"Onsite","courseWorkload":"PT4H30M","name":"Workshop vor Ort"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"de","mainEntity":[{"@type":"Question","name":"Ist diese Schulung Pflicht?","acceptedAnswer":{"@type":"Answer","text":"Die KI-Verordnung verlangt von Betrieben, die KI einsetzen, Maßnahmen zur KI-Kompetenz ihres Personals – wie, entscheidet der Betrieb. Dieser Workshop ist eine solche Maßnahme, mit Nachweis."}},{"@type":"Question","name":"Warum ein Workshop und nicht nur ein Online-Kurs?","acceptedAnswer":{"@type":"Answer","text":"Weil Hemmschwellen im Gespräch fallen und Fragen aus dem eigenen Alltag am meisten bringen. Im Workshop entwickelt Ihr Team eigene Anwendungsfälle und lernt ausgewählte Werkzeuge kennen; der Lehrgang vertieft das Wissen und überträgt es mit Praxisaufgaben in den Alltag, der Test schließt ab."}},{"@type":"Question","name":"Was ist das Werkzeug, das wir bauen?","acceptedAnswer":{"@type":"Answer","text":"Eine einzelne HTML-Datei, die im Browser läuft und einen konkreten Handgriff Ihres Teams erleichtert – eine Liste prüfen, einen Text nach festen Regeln erzeugen, Zahlen zusammenfassen. Ohne Installation, ohne Daten in der Cloud."}},{"@type":"Question","name":"Was sehe ich als Arbeitgeber?","acceptedAnswer":{"@type":"Answer","text":"Je Person den Stand – eingeladen, begonnen, Lehrgang abgeschlossen, bestanden – und die Zertifikatsnummer, als Liste für Ihr Schulungsverzeichnis. Punkte und Versuche sehen Sie nicht."}},{"@type":"Question","name":"Was passiert, wenn jemand den Test nicht besteht?","acceptedAnswer":{"@type":"Answer","text":"Nach jeder Abgabe steht zu jeder Frage die richtige Antwort mit Erklärung. Der Test lässt sich beliebig wiederholen, mit neu gezogenen Fragen."}},{"@type":"Question","name":"Welche Technik brauchen wir?","acceptedAnswer":{"@type":"Answer","text":"Einen Browser und eine E-Mail-Adresse je Person. Angemeldet wird mit einem Link aus der E-Mail; wer möchte, richtet einen Passkey ein, zum Beispiel per Fingerabdruck. Ein Passwort gibt es nicht. Der Lehrgang läuft im Browser, auch auf dem Handy."}},{"@type":"Question","name":"Werden im Workshop Produkte gezeigt?","acceptedAnswer":{"@type":"Answer","text":"Ja, an echten Fällen: ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie."}},{"@type":"Question","name":"Ist der Workshop Rechtsberatung?","acceptedAnswer":{"@type":"Answer","text":"Nein. Er erklärt Pflichten allgemein und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."}}]}</script>
+.grundsaetze .gs-text { margin: 0; max-width: none; font-size: 14px; line-height: 1.55; color: var(--ink-soft); text-align: left; hyphens: manual; }
+@media (max-width: 720px) { .grundsaetze { grid-template-columns: 1fr; gap: 18px; } }</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"Workshop KI-Kompetenz für Ihr Team – Mit Unterweisung nach EU AI Act","description":"KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat als Nachweis Ihrer Maßnahme nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.","url":"https://robin.vision/workshops/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT3H","teaches":["Was KI heute ist – und was nicht","Die KI-Verordnung in zehn Minuten","Daten, die nie hinein dürfen","Ergebnisse prüfen","Gut fragen, gut arbeiten","Risiken im Alltag","Regeln im Haus"],"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT3H","name":"Workshop online"},{"@type":"CourseInstance","courseMode":"Onsite","courseWorkload":"PT4H30M","name":"Workshop vor Ort"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"de","mainEntity":[{"@type":"Question","name":"Ist diese Schulung Pflicht?","acceptedAnswer":{"@type":"Answer","text":"Die KI-Verordnung verlangt von Betrieben, die KI einsetzen, Maßnahmen zur KI-Kompetenz ihres Personals – wie, entscheidet der Betrieb. Dieser Workshop ist eine solche Maßnahme, mit Nachweis."}},{"@type":"Question","name":"Warum ein Workshop und nicht nur ein Online-Kurs?","acceptedAnswer":{"@type":"Answer","text":"Weil Hemmschwellen im Gespräch fallen und Fragen aus dem eigenen Alltag am meisten bringen. Im Workshop entwickelt Ihr Team eigene Anwendungsfälle und lernt ausgewählte Werkzeuge kennen; der Lehrgang vertieft das Wissen und überträgt es mit Praxisaufgaben in den Alltag, der Test schließt ab."}},{"@type":"Question","name":"Was sehe ich als Arbeitgeber?","acceptedAnswer":{"@type":"Answer","text":"Je Person den Stand – eingeladen, begonnen, Lehrgang abgeschlossen, bestanden – und die Zertifikatsnummer, als Liste für Ihr Schulungsverzeichnis. Punkte und Versuche sehen Sie nicht."}},{"@type":"Question","name":"Was passiert, wenn jemand den Test nicht besteht?","acceptedAnswer":{"@type":"Answer","text":"Nach jeder Abgabe steht zu jeder Frage die richtige Antwort mit Erklärung. Der Test lässt sich beliebig wiederholen, mit neu gezogenen Fragen."}},{"@type":"Question","name":"Welche Technik brauchen wir?","acceptedAnswer":{"@type":"Answer","text":"Einen Browser und eine E-Mail-Adresse je Person. Angemeldet wird mit einem Link aus der E-Mail; wer möchte, richtet einen Passkey ein, zum Beispiel per Fingerabdruck. Ein Passwort gibt es nicht. Der Lehrgang läuft im Browser, auch auf dem Handy."}},{"@type":"Question","name":"Werden im Workshop Produkte gezeigt?","acceptedAnswer":{"@type":"Answer","text":"Ja: ausgewählte Werkzeuge, etwa SmartFormular, vorgeführt mit Beispieldaten. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie."}},{"@type":"Question","name":"Ist der Workshop Rechtsberatung?","acceptedAnswer":{"@type":"Answer","text":"Nein. Er erklärt Pflichten allgemein und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."}}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
 <header class="kopf">
 <a class="marke" href="../">robin<span class="punkt">.</span>vision</a>
-<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/">Werkzeugkasten</a><a href="../blog/">Impulse</a><a href="../workshops/" aria-current="page">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten"><a href="../werkzeuge/">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../workshops/" aria-current="page">Workshops</a><a href="../ueber-mich/">Über mich</a></nav>
 <a class="termin" href="../#kontakt">Termin</a>
 <details class="menue"><summary aria-label="Menü"><span></span></summary>
-<nav aria-label="Seiten"><a href="../werkzeuge/">Werkzeugkasten</a><a href="../blog/">Impulse</a><a href="../workshops/" aria-current="page">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/workshops/en/" lang="en" hreflang="en">English</a></nav>
+<nav aria-label="Seiten"><a href="../werkzeuge/">Werkzeuge</a><a href="../blog/">Impulse</a><a href="../workshops/" aria-current="page">Workshops</a><a href="../ueber-mich/">Über mich</a><a href="../#nachricht">Nachricht</a><a href="https://robin.vision/workshops/en/" lang="en" hreflang="en">English</a></nav>
 </details>
 </header>
 <main>
@@ -201,16 +203,19 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 </ul>
 <h2 id="zusammenarbeit">Wie wir zusammenarbeiten</h2>
 <ol class="schritte">
-<li><span class="nr">01</span><strong>Analysieren</strong><span class="was">Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen.</span></li>
-<li><span class="nr">02</span><strong>Schulen</strong><span class="was">Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Ihren eigenen Fällen. Dabei überwinden wir Hemmschwellen im Umgang mit KI.</span></li>
-<li><span class="nr">03</span><strong>Weiterentwickeln</strong><span class="was">Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter.</span></li>
+<li><span class="nr">01</span><strong>Analysieren</strong><span class="was">Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen – und davon, wo der Prozess heute hakt.</span></li>
+<li><span class="nr">02</span><strong>Schulen</strong><span class="was">Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Fällen aus Ihrem Alltag. Für einen Pain Point bauen wir sofort ein Plan-B-Tool. Dabei überwinden wir Hemmschwellen im Umgang mit KI.</span></li>
+<li><span class="nr">03</span><strong>Weiterentwickeln</strong><span class="was">Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus. Die automatischen Abläufe gestalten wir an den kritischen Stellen besonders stabil – mit doppeltem Boden.</span></li>
 </ol>
-<section class="grundsaetze" aria-labelledby="grundsaetze-titel">
-<h2 id="grundsaetze-titel">Zwei Grundsätze</h2>
-<div class="grundsaetze-reihe">
-<article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6z"/><rect x="9" y="11" width="6" height="5" rx="1"/><path d="M10.2 11V9.6a1.8 1.8 0 0 1 3.6 0V11"/></svg></span><span class="gs-kicker">Klardaten</span><span class="gs-titel">Sensible Klardaten, rechtssicher verarbeitet</span><p class="gs-text frei">Werkzeugkasten und Workshops sind auf die rechtssichere Verarbeitung sensibler Klardaten ausgerichtet – Mandanten-, Personal- und Finanzdaten, die nicht anonymisiert sind. Datenschutz, Verschwiegenheitspflichten und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></article>
-<article class="gs-karte"><span class="gs-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 8h13"/><path d="M15 5l3 3-3 3"/><path d="M19 16H6"/><path d="M9 13l-3 3 3 3"/></svg></span><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So behalten Sie die Wahl und können wechseln, wenn sich Preise, Regeln oder Modelle ändern.</p></article>
-</div>
+<section class="unterweisung plan-b" aria-labelledby="plan-b">
+<p class="kicker">Plan-B-Tool</p>
+<h2 id="plan-b">Ein doppelter Boden für Ihre Prozesse</h2>
+<p class="frei">Jeder Ablauf hat Stellen, an denen er hakt – der Bankabruf fällt aus, ein Import scheitert, eine Liste wird doch wieder abgetippt. Im Workshop finden wir diese Stellen gemeinsam und bauen für eine davon sofort eine Lösung: ein Plan-B-Tool, das einspringt, wenn der automatische Prozess dort nicht läuft.</p>
+<p class="frei">So wird zugleich sichtbar, welche Schritte kritisch und welche unverzichtbar sind. Genau dort gestalten wir die übergeordneten Abläufe besonders stabil und mit doppeltem Boden – damit die Arbeit auch an schwierigen Tagen weitergeht. Ein Beispiel ist SmartFormular FiBu lite: der Plan B für den Monat, in dem der Bankabruf fehlt.</p>
+</section>
+<section class="grundsaetze" aria-label="Zwei Grundsätze">
+<div><span class="gs-kicker">Klardaten</span><span class="gs-titel">Klardaten nur in Werkzeuge, die dafür gemacht sind</span><p class="gs-text frei">Mandanten-, Personal- und Finanzdaten sind selten anonymisiert. Datenschutz, Verschwiegenheit und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></div>
+<div><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So bleibt die Wahl bei Ihnen.</p></div>
 </section>
 <h2 id="teile">Drei Teile, ein Ergebnis</h2>
 <div class="teile">
@@ -242,13 +247,22 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <li><span class="nr">07</span><div><strong>Regeln im Haus</strong><span class="was">KI-Richtlinie, erlaubte Werkzeuge, Freigaben, Ansprechperson</span></div><span class="min">8 Min.</span></li>
 </ol>
 <h2 id="werkzeuge">Werkzeuge im Workshop</h2>
-<p>Der Workshop lebt von Vorführungen an echten Fällen. Dafür zeige ich ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular FiBu lite, FiBu und Deklaration. Was Sie einsetzen, entscheiden Sie.</p>
+<p>Der Workshop lebt von Vorführungen an Fällen aus dem Alltag, mit Beispieldaten statt echter Mandantendaten. Dafür zeige ich ausgewählte Werkzeuge, etwa SmartFormular FiBu lite und E-Rechnung lite. Was Sie einsetzen, entscheiden Sie.</p>
 <p class="hinweis">Weitere Werkzeuge stelle ich hier vor, sobald sie Teil des Workshops sind.</p>
+<section class="leitung" aria-labelledby="leitung">
+<img src="../assets/robin-james-lewis.jpg" width="720" height="900" alt="Robin James Lewis, Porträt" loading="lazy" decoding="async">
+<div>
+<h2 id="leitung">Wer den Workshop leitet</h2>
+<p class="frei">Ich bin Robin James Lewis aus Balingen. In einer Steuerkanzlei betreue ich einen eigenen Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss und automatisiere Abläufe mit Importen, Schnittstellen und Python.</p>
+<p class="frei">Die Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.</p>
+<p class="frei"><a href="../ueber-mich/">Mehr über mich</a></p>
+</div>
+</section>
 <h2 id="formate">Zwei Formate</h2>
 <p>Beide beginnen mit dem Workshop und enden mit demselben Zugang je Person: Online-Lehrgang, Skript, Test und Zertifikat für 90 Tage.</p>
 <div class="formate">
 <section class="format"><h3>Workshop online</h3><p class="frei">90 Minuten per Videokonferenz mit Ihrem Team. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.</p><p class="preis frei">Preis auf Anfrage</p><p class="klein frei">für Teams bis etwa 12 Personen; größere Gruppen nach Absprache</p></section>
-<section class="format"><h3>Workshop vor Ort</h3><p class="frei">Ein halber Tag bei Ihnen, mit Übungen an eigenen Fällen und ausgewählten Werkzeugen. Danach der Zugang für alle.</p><p class="preis frei">Preis auf Anfrage</p><p class="klein frei">für Teams bis etwa 15 Personen, zuzüglich Fahrtkosten</p></section>
+<section class="format"><h3>Workshop vor Ort</h3><p class="frei">Ein halber Tag bei Ihnen, mit Übungen an Fällen aus Ihrem Alltag und ausgewählten Werkzeugen. Danach der Zugang für alle.</p><p class="preis frei">Preis auf Anfrage</p><p class="klein frei">für Teams bis etwa 15 Personen, zuzüglich Fahrtkosten</p></section>
 </div>
 <p class="hinweis">Werkzeuge und Regeln ändern sich. Deshalb gibt es jährlich eine Auffrischung mit neuer Fassung, Test und Zertifikat – damit Ihr Nachweis aktuell bleibt.</p>
 <h2 id="ablauf">So läuft es</h2>
@@ -271,8 +285,6 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <p>Die KI-Verordnung verlangt von Betrieben, die KI einsetzen, Maßnahmen zur KI-Kompetenz ihres Personals – wie, entscheidet der Betrieb. Dieser Workshop ist eine solche Maßnahme, mit Nachweis.</p>
 <h3>Warum ein Workshop und nicht nur ein Online-Kurs?</h3>
 <p>Weil Hemmschwellen im Gespräch fallen und Fragen aus dem eigenen Alltag am meisten bringen. Im Workshop entwickelt Ihr Team eigene Anwendungsfälle und lernt ausgewählte Werkzeuge kennen; der Lehrgang vertieft das Wissen und überträgt es mit Praxisaufgaben in den Alltag, der Test schließt ab.</p>
-<h3>Was ist das Werkzeug, das wir bauen?</h3>
-<p>Eine einzelne HTML-Datei, die im Browser läuft und einen konkreten Handgriff Ihres Teams erleichtert – eine Liste prüfen, einen Text nach festen Regeln erzeugen, Zahlen zusammenfassen. Ohne Installation, ohne Daten in der Cloud.</p>
 <h3>Was sehe ich als Arbeitgeber?</h3>
 <p>Je Person den Stand – eingeladen, begonnen, Lehrgang abgeschlossen, bestanden – und die Zertifikatsnummer, als Liste für Ihr Schulungsverzeichnis. Punkte und Versuche sehen Sie nicht.</p>
 <h3>Was passiert, wenn jemand den Test nicht besteht?</h3>
@@ -280,7 +292,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <h3>Welche Technik brauchen wir?</h3>
 <p>Einen Browser und eine E-Mail-Adresse je Person. Angemeldet wird mit einem Link aus der E-Mail; wer möchte, richtet einen Passkey ein, zum Beispiel per Fingerabdruck. Ein Passwort gibt es nicht. Der Lehrgang läuft im Browser, auch auf dem Handy.</p>
 <h3>Werden im Workshop Produkte gezeigt?</h3>
-<p>Ja, an echten Fällen: ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie.</p>
+<p>Ja: ausgewählte Werkzeuge, etwa SmartFormular, vorgeführt mit Beispieldaten. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie.</p>
 <h3>Ist der Workshop Rechtsberatung?</h3>
 <p>Nein. Er erklärt Pflichten allgemein und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte.</p>
 </div>
@@ -291,7 +303,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <div><label for="a-firma">Unternehmen oder Kanzlei</label><input type="text" id="a-firma" name="firma" maxlength="120" required autocomplete="organization"></div>
 <div><label for="a-name">Ansprechpartnerin oder Ansprechpartner</label><input type="text" id="a-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="a-email">E-Mail-Adresse</label><input type="email" id="a-email" name="email" maxlength="120" required autocomplete="email"></div>
-<div><label for="a-format">Online oder vor Ort</label><select id="a-format" name="format"><option value="live">Online (Videokonferenz)</option><option value="praesenz">Vor Ort bei uns</option><option value="offen">Noch offen</option></select></div>
+<div><label for="a-format">Online oder vor Ort</label><select id="a-format" name="format"><option value="live">Online (Videokonferenz)</option><option value="praesenz">Vor Ort bei Ihnen</option><option value="offen">Noch offen</option></select></div>
 <div><label for="a-personen">Teilnehmerzahl</label><input type="number" id="a-personen" name="personen" min="1" max="500" value="10" required></div>
 <div><label for="a-zeitraum">Wunschtermin 2027 <span>(freiwillig)</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="z. B. Februar 2027"></div>
 </div>
@@ -316,7 +328,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <script>
 (() => {
   'use strict';
-  const T = {"felder":{"firma":"Unternehmen oder Kanzlei","name":"Ansprechpartnerin oder Ansprechpartner","email":"E-Mail-Adresse","format":"Online oder vor Ort","personen":"Teilnehmerzahl","zeitraum":"Wunschtermin 2027","optional":"(freiwillig)"},"formate":{"live":"Online (Videokonferenz)","praesenz":"Vor Ort bei uns","offen":"Noch offen"},"sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson, eine gültige E-Mail-Adresse und die Teilnehmerzahl angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision.","betreff":"Anfrage Workshop KI-Kompetenz"};
+  const T = {"felder":{"firma":"Unternehmen oder Kanzlei","name":"Ansprechpartnerin oder Ansprechpartner","email":"E-Mail-Adresse","format":"Online oder vor Ort","personen":"Teilnehmerzahl","zeitraum":"Wunschtermin 2027","zeitraumBeispiel":"z. B. Februar 2027","optional":"(freiwillig)"},"formate":{"live":"Online (Videokonferenz)","praesenz":"Vor Ort bei Ihnen","offen":"Noch offen"},"sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson, eine gültige E-Mail-Adresse und die Teilnehmerzahl angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision.","betreff":"Anfrage Workshop KI-Kompetenz"};
   const form = document.getElementById('anfrage'); if (!form) return;
   const status = document.getElementById('anfrage-status'), knopf = document.getElementById('anfrage-senden'), geladen = Date.now();
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };

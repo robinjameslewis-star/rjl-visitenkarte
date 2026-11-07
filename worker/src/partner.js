@@ -4,6 +4,9 @@
 // Kennzeichnung (Robin, 18.10.2026, Option C): jedes Werkzeug – SmartFormular wie Partner – trägt dasselbe kleine „Anzeige · Anbieter“
 // (kennzeichen unten), das zur Erläuterung im Impressum führt (index.html, #anzeigen); Verweise zu Anbietern tragen rel="sponsored".
 // Deshalb stehen unter „Werkzeuge“ nur Werkzeuge, die robin.vision selbst anbietet oder für deren Vorstellung es vergütet wird.
+// Ausnahme (Robin, 23.10.2026): Eigene kostenlose Werkzeuge (FiBu lite, E-Rechnung lite) tragen statt „Anzeige · robin.vision“
+// einfach „Kostenlos“ (kostenlos unten) – auf ihren Seiten, im Slider der Startseite und im Kopf ihrer Spalte im Vergleich. Partner,
+// die Beta-Produkte und Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), bleiben bei „Anzeige“.
 // Die Liste bleibt leer, bis die erste Vereinbarung steht; dann je Partner ein Eintrag, und die Seiten werden neu gebaut
 // (tools/werkzeug-uebernehmen.mjs, tools/workshops-bauen.mjs).
 export const PARTNER = [
@@ -25,6 +28,9 @@ export const KENNZ_CSS = `.kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--s
 export const anzeigeHref = (lang, up) => `${up}${lang === "en" ? "?lang=en" : ""}#anzeigen`;
 export const kennzeichen = (lang, href, anbieter, klasse) =>
   `<p class="${klasse}"><a href="${esc(href)}">${ANZEIGE[lang]}</a> · <span>${esc(anbieter)}</span></p>`;
+// Kennzeichen eigener kostenloser Werkzeuge, gleich gestaltet, ohne Verweis
+export const KOSTENLOS = { de: "Kostenlos testen bis 31.12.2026", en: "Free trial until 31 Dec 2026" };
+export const kostenlos = (lang, klasse) => `<p class="${klasse}">${KOSTENLOS[lang]}</p>`;
 
 // Liste der Partnerangebote für eine Seite – leer: der Hinweis, dass Partnerangebote folgen
 export function partnerListe(lang, t, up) {

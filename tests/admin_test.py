@@ -146,6 +146,26 @@ async def main():
             await ev("document.getElementById('bcancel').click();document.getElementById('bnew').click()"); await wait(300)
             check(await ev("document.getElementById('pshare').hidden"), "kein Teilen-Kasten bei neuem Entwurf")
 
+            print("8c. Anderen Beitrag öffnen, während das Speichern läuft (Fehler 06.11.2026)")
+            await ev("document.getElementById('bcancel').click();document.getElementById('bnew').click()"); await wait(300)
+            await ev("document.getElementById('ptitle').value='Zweiter Beitrag';document.getElementById('pbody').value='Text zwei mit genug Inhalt für die Prüfung.';document.getElementById('bpsave').click()"); await wait(600)
+            check(await ev("editing") == "zweiter-beitrag", "zweiter Beitrag angelegt", await ev("String(editing)+' / '+document.getElementById('mP').textContent"))
+            # Antwort aufs Speichern verzögern, damit der andere Beitrag vorher offen ist
+            await ev("window.__f=window.fetch;window.fetch=async(u,o)=>{const r=await window.__f(u,o);if(o&&o.method==='PUT'&&String(u).includes('blog/post'))await new Promise(x=>setTimeout(x,800));return r;}")
+            await ev("document.getElementById('bpsave').click()"); await wait(100)
+            await ev("document.querySelector('#bposts button[data-slug=\"erster-beitrag\"]').click()"); await wait(1400)
+            await ev("window.fetch=window.__f")
+            check(await ev("editing") == "erster-beitrag", "geöffneter Beitrag bleibt der aktuelle", await ev("editing"))
+            check(await ev("postBody().slug") == "erster-beitrag" and await ev("document.getElementById('ptitle').value") != "Zweiter Beitrag", "Speichern träfe den geöffneten Beitrag", await ev("postBody().slug"))
+            check("erster-beitrag" in (await ev("document.getElementById('pslug').textContent") or ""), "Adresse zeigt den geöffneten Beitrag", await ev("document.getElementById('pslug').textContent"))
+            check("Gespeichert" in (await ev("document.getElementById('mB').textContent")), "Meldung zum ersten Speichern erscheint in der Liste", await ev("document.getElementById('mB').textContent"))
+            # Schließen, während das Speichern läuft: danach kein Beitrag mehr aktuell
+            await ev("window.fetch=async(u,o)=>{const r=await window.__f(u,o);if(o&&o.method==='PUT'&&String(u).includes('blog/post'))await new Promise(x=>setTimeout(x,500));return r;}")
+            await ev("document.getElementById('bpsave').click()"); await wait(100)
+            await ev("document.getElementById('bcancel').click()"); await wait(800)
+            await ev("window.fetch=window.__f")
+            check(await ev("editing") is None, "nach Schließen ist kein Beitrag mehr aktuell", await ev("editing"))
+
             print("9. Landschaften: Bestand, Editor, Aufbereitung, Vorschau, Speichern")
             check(await ev("document.querySelectorAll('#ltable tbody tr').length") == 1 and await ev("document.querySelector('#ltable tbody td:nth-child(2)').textContent") == "Ferne, Krone", "Bestand zeigt den Herbst-Satz mit Ferne und Krone")
             await ev("document.getElementById('lnew').click()"); await wait(2500)

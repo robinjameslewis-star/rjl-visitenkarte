@@ -12,6 +12,7 @@ import { newsletterKasten } from "./kasten.js";
 import { SEITEN } from "./sitemap.js";
 import { partnerListe } from "./partner.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
+import { PORTRAIT } from "./ueber_mich.js";
 
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
@@ -25,7 +26,8 @@ const TEXT = {
     titel: "Workshop KI-Kompetenz für Ihr Team",
     abzeichen: "Mit Unterweisung nach EU AI Act",
     seitentitel: "Workshop KI-Kompetenz mit Unterweisung nach EU AI Act für Kanzleien und Unternehmen | robin.vision",
-    beschr: "KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.",
+    // Kein „Zertifikat nach Art. 4“: Art. 4 schreibt kein Zertifikat vor, das Zertifikat belegt die Maßnahme (Textprüfung 23.10.2026)
+    beschr: "KI-Kompetenz für Ihr Team: ein Workshop, der Hemmschwellen überwindet, ein Online-Lehrgang, der Ihre Mitarbeitenden schult und weiterentwickelt, und ein Test mit Zertifikat als Nachweis Ihrer Maßnahme nach Art. 4 KI-Verordnung. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch.",
     untertitel: "Ein Workshop, der Hemmschwellen überwindet. Ein Online-Lehrgang, der Ihr Team schult und weiterentwickelt. Ein Zertifikat, das Ihre Maßnahme nach Art. 4 KI-Verordnung belegt.",
     meta: "Für Kanzleien und Unternehmen · online oder vor Ort, europaweit · auf Deutsch oder Englisch · Termine ab Januar 2027",
     intro: [
@@ -36,9 +38,14 @@ const TEXT = {
     // Drei Schritte der Zusammenarbeit (Robin, 18.10.2026): bei den Workshops, nicht bei den Werkzeugen – die Hemmschwelle soll gering sein
     schritteTitel: "Wie wir zusammenarbeiten",
     schritte: [
-      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen."],
-      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Ihren eigenen Fällen. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
-      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus – Abläufe, Regeln und Vorlagen entwickeln sich mit Ihrem Team weiter."],
+      ["Analysieren", "Den Anfang macht ein kurzes, unverbindliches Gespräch: Ich verschaffe mir ein Bild von Ihren Abläufen und von der Software und KI, die Sie bereits einsetzen – und davon, wo der Prozess heute hakt."],
+      ["Schulen", "Im Workshop erarbeiten wir gemeinsam Ansätze zur Optimierung Ihrer Prozesse – an Fällen aus Ihrem Alltag. Für einen Pain Point bauen wir sofort ein Plan-B-Tool. Dabei überwinden wir Hemmschwellen im Umgang mit KI."],
+      ["Weiterentwickeln", "Was sich im Alltag bewährt, bauen wir Schritt für Schritt aus. Die automatischen Abläufe gestalten wir an den kritischen Stellen besonders stabil – mit doppeltem Boden."],
+    ],
+    planBKicker: "Plan-B-Tool", planBTitel: "Ein doppelter Boden für Ihre Prozesse",
+    planB: [
+      "Jeder Ablauf hat Stellen, an denen er hakt – der Bankabruf fällt aus, ein Import scheitert, eine Liste wird doch wieder abgetippt. Im Workshop finden wir diese Stellen gemeinsam und bauen für eine davon sofort eine Lösung: ein Plan-B-Tool, das einspringt, wenn der automatische Prozess dort nicht läuft.",
+      "So wird zugleich sichtbar, welche Schritte kritisch und welche unverzichtbar sind. Genau dort gestalten wir die übergeordneten Abläufe besonders stabil und mit doppeltem Boden – damit die Arbeit auch an schwierigen Tagen weitergeht. Ein Beispiel ist SmartFormular FiBu lite: der Plan B für den Monat, in dem der Bankabruf fehlt.",
     ],
     teileTitel: "Drei Teile, ein Ergebnis",
     teile: [
@@ -72,15 +79,23 @@ const TEXT = {
     min: "Min.",
     werkzeugeTitel: "Werkzeuge im Workshop",
     werkzeuge: [
-      "Der Workshop lebt von Vorführungen an echten Fällen. Dafür zeige ich ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular FiBu lite, FiBu und Deklaration. Was Sie einsetzen, entscheiden Sie.",
+      "Der Workshop lebt von Vorführungen an Fällen aus dem Alltag, mit Beispieldaten statt echter Mandantendaten. Dafür zeige ich ausgewählte Werkzeuge, etwa SmartFormular FiBu lite und E-Rechnung lite. Was Sie einsetzen, entscheiden Sie.",
     ],
     partnerHinweis: "Weitere Werkzeuge stelle ich hier vor, sobald sie Teil des Workshops sind.",
+    // Wer den Workshop leitet (Textprüfung 23.10.2026): Käufer entscheiden über die Person; nur Tatsachen von „Über mich“
+    leitungTitel: "Wer den Workshop leitet",
+    leitung: [
+      "Ich bin Robin James Lewis aus Balingen. In einer Steuerkanzlei betreue ich einen eigenen Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss und automatisiere Abläufe mit Importen, Schnittstellen und Python.",
+      "Die Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
+    ],
+    leitungMehr: "Mehr über mich",
+    leitungAlt: "Robin James Lewis, Porträt",
     formateTitel: "Zwei Formate",
     formateLead: "Beide beginnen mit dem Workshop und enden mit demselben Zugang je Person: Online-Lehrgang, Skript, Test und Zertifikat für 90 Tage.",
     formate: [
       { name: "Workshop online", text: "90 Minuten per Videokonferenz mit Ihrem Team. Danach der Zugang für alle: Online-Lehrgang, Skript, Test und Zertifikat.",
         preis: "Preis auf Anfrage", klein: "für Teams bis etwa 12 Personen; größere Gruppen nach Absprache" },
-      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen, mit Übungen an eigenen Fällen und ausgewählten Werkzeugen. Danach der Zugang für alle.",
+      { name: "Workshop vor Ort", text: "Ein halber Tag bei Ihnen, mit Übungen an Fällen aus Ihrem Alltag und ausgewählten Werkzeugen. Danach der Zugang für alle.",
         preis: "Preis auf Anfrage", klein: "für Teams bis etwa 15 Personen, zuzüglich Fahrtkosten" },
     ],
     auffrischung: "Werkzeuge und Regeln ändern sich. Deshalb gibt es jährlich eine Auffrischung mit neuer Fassung, Test und Zertifikat – damit Ihr Nachweis aktuell bleibt.",
@@ -106,16 +121,15 @@ const TEXT = {
     fragen: [
       ["Ist diese Schulung Pflicht?", "Die KI-Verordnung verlangt von Betrieben, die KI einsetzen, Maßnahmen zur KI-Kompetenz ihres Personals – wie, entscheidet der Betrieb. Dieser Workshop ist eine solche Maßnahme, mit Nachweis."],
       ["Warum ein Workshop und nicht nur ein Online-Kurs?", "Weil Hemmschwellen im Gespräch fallen und Fragen aus dem eigenen Alltag am meisten bringen. Im Workshop entwickelt Ihr Team eigene Anwendungsfälle und lernt ausgewählte Werkzeuge kennen; der Lehrgang vertieft das Wissen und überträgt es mit Praxisaufgaben in den Alltag, der Test schließt ab."],
-      ["Was ist das Werkzeug, das wir bauen?", "Eine einzelne HTML-Datei, die im Browser läuft und einen konkreten Handgriff Ihres Teams erleichtert – eine Liste prüfen, einen Text nach festen Regeln erzeugen, Zahlen zusammenfassen. Ohne Installation, ohne Daten in der Cloud."],
       ["Was sehe ich als Arbeitgeber?", "Je Person den Stand – eingeladen, begonnen, Lehrgang abgeschlossen, bestanden – und die Zertifikatsnummer, als Liste für Ihr Schulungsverzeichnis. Punkte und Versuche sehen Sie nicht."],
       ["Was passiert, wenn jemand den Test nicht besteht?", "Nach jeder Abgabe steht zu jeder Frage die richtige Antwort mit Erklärung. Der Test lässt sich beliebig wiederholen, mit neu gezogenen Fragen."],
       ["Welche Technik brauchen wir?", "Einen Browser und eine E-Mail-Adresse je Person. Angemeldet wird mit einem Link aus der E-Mail; wer möchte, richtet einen Passkey ein, zum Beispiel per Fingerabdruck. Ein Passwort gibt es nicht. Der Lehrgang läuft im Browser, auch auf dem Handy."],
-      ["Werden im Workshop Produkte gezeigt?", "Ja, an echten Fällen: ausgewählte Werkzeuge verschiedener Anbieter, etwa SmartFormular. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie."],
+      ["Werden im Workshop Produkte gezeigt?", "Ja: ausgewählte Werkzeuge, etwa SmartFormular, vorgeführt mit Beispieldaten. Die Inhalte der Unterweisung bleiben davon unberührt; was Sie einsetzen, entscheiden Sie."],
       ["Ist der Workshop Rechtsberatung?", "Nein. Er erklärt Pflichten allgemein und verweist für den Einzelfall auf Steuerberater, Rechtsanwälte und Datenschutzbeauftragte."],
     ],
     anfrageLead: "Fünf Angaben genügen. Sie erhalten Angebot und Terminvorschläge persönlich per E-Mail, in der Regel innerhalb von zwei Werktagen.",
-    felder: { firma: "Unternehmen oder Kanzlei", name: "Ansprechpartnerin oder Ansprechpartner", email: "E-Mail-Adresse", format: "Online oder vor Ort", personen: "Teilnehmerzahl", zeitraum: "Wunschtermin 2027", optional: "(freiwillig)" },
-    formatOptionen: [["live", "Online (Videokonferenz)"], ["praesenz", "Vor Ort bei uns"], ["offen", "Noch offen"]],
+    felder: { firma: "Unternehmen oder Kanzlei", name: "Ansprechpartnerin oder Ansprechpartner", email: "E-Mail-Adresse", format: "Online oder vor Ort", personen: "Teilnehmerzahl", zeitraum: "Wunschtermin 2027", zeitraumBeispiel: "z. B. Februar 2027", optional: "(freiwillig)" },
+    formatOptionen: [["live", "Online (Videokonferenz)"], ["praesenz", "Vor Ort bei Ihnen"], ["offen", "Noch offen"]],
     senden: "Anfrage senden", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
     ungueltig: "Bitte Unternehmen, Ansprechperson, eine gültige E-Mail-Adresse und die Teilnehmerzahl angeben.",
@@ -129,7 +143,7 @@ const TEXT = {
     titel: "AI literacy workshop for your team",
     abzeichen: "With EU AI Act training",
     seitentitel: "AI literacy workshop with EU AI Act training for accounting firms and companies | robin.vision",
-    beschr: "AI literacy for your team: a workshop that breaks down barriers, an online course that trains your staff and builds their skills, and a test with a certificate under Article 4 of the EU AI Act. For accounting firms and companies, online or on site, in German or English.",
+    beschr: "AI literacy for your team: a workshop that breaks down barriers, an online course that trains your staff and builds their skills, and a test with a certificate that documents your measures under Article 4 of the EU AI Act. For accounting firms and companies, online or on site, in German or English.",
     untertitel: "A workshop that breaks down barriers. An online course that trains your team and builds their skills. A certificate that documents your measure under Article 4 of the EU AI Act.",
     meta: "For accounting firms and companies · online or on site, across Europe · in German or English · dates from January 2027",
     intro: [
@@ -139,9 +153,14 @@ const TEXT = {
     anfrageTitel: "Enquire about a workshop",
     schritteTitel: "How we work together",
     schritte: [
-      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes and of the software and AI you already use."],
-      ["Train", "In the workshop we develop ways to improve your processes together, using your own cases – and overcome any hesitation about working with AI."],
-      ["Develop", "We build step by step on what works in practice – your processes, rules and templates evolve with your team."],
+      ["Analyse", "It starts with a short, no-obligation call: I get a picture of your processes, of the software and AI you already use – and of where the process stalls today."],
+      ["Train", "In the workshop we develop ways to improve your processes together, using cases from your day-to-day work. For one pain point we build a plan B tool on the spot – and overcome any hesitation about working with AI."],
+      ["Develop", "We build step by step on what works in practice. At the critical points we make the automated processes especially robust – with a safety net."],
+    ],
+    planBKicker: "Plan B tool", planBTitel: "A safety net for your processes",
+    planB: [
+      "Every process has points where it stalls – the bank feed fails, an import breaks, a list gets typed in by hand after all. In the workshop we find these points together and build an immediate solution for one of them: a plan B tool that steps in when the automated process does not run there.",
+      "This also shows which steps are critical and which are essential. That is exactly where we make the overall processes especially robust, with a safety net – so work carries on even on difficult days. One example is SmartFormular FiBu lite: the plan B for the month the bank feed is missing.",
     ],
     teileTitel: "Three parts, one result",
     teile: [
@@ -175,15 +194,22 @@ const TEXT = {
     min: "min",
     werkzeugeTitel: "Tools in the workshop",
     werkzeuge: [
-      "The workshop thrives on demonstrations with real cases. For that I show selected tools from various providers, such as SmartFormular FiBu lite, FiBu and Deklaration. What you use is your decision.",
+      "The workshop thrives on demonstrations with cases from daily work, using sample data rather than real client data. For that I show selected tools, such as SmartFormular FiBu lite and E-Rechnung lite. What you use is your decision.",
     ],
     partnerHinweis: "I will present further tools here as soon as they are part of the workshop.",
+    leitungTitel: "Who runs the workshop",
+    leitung: [
+      "I am Robin James Lewis from Balingen, Germany. At a tax firm I look after my own set of clients in bookkeeping, payroll and year-end accounts, and I automate processes with imports, interfaces and Python.",
+      "I developed the tools FiBu lite and E-Rechnung lite, and I passed the IHK trainer aptitude examination in 2017. I use language models under one fixed rule: they prepare, I decide.",
+    ],
+    leitungMehr: "More about me",
+    leitungAlt: "Robin James Lewis, portrait",
     formateTitel: "Two formats",
     formateLead: "Both start with the workshop and end with the same access per person: online course, handout, test and certificate for 90 days.",
     formate: [
       { name: "Online workshop", text: "90 minutes by video call with your team. Then access for everyone: online course, handout, test and certificate.",
         preis: "Price on request", klein: "for teams of up to about 12 people; larger groups by arrangement" },
-      { name: "On-site workshop", text: "Half a day at your premises, with exercises on your own cases and selected tools. Then access for everyone.",
+      { name: "On-site workshop", text: "Half a day at your premises, with exercises on cases from your day-to-day work and selected tools. Then access for everyone.",
         preis: "Price on request", klein: "for teams of up to about 15 people, plus travel costs" },
     ],
     auffrischung: "Tools and rules change. That is why there is an annual refresher with a new edition, test and certificate – so that your evidence stays current.",
@@ -209,16 +235,15 @@ const TEXT = {
     fragen: [
       ["Is this training mandatory?", "The EU AI Act requires organisations that use AI to take measures to ensure the AI literacy of their staff – how is for the organisation to decide. This workshop is one such measure, with evidence."],
       ["Why a workshop and not just an online course?", "Because barriers fall in conversation and questions from your own daily work help most. In the workshop your team develops its own use cases and gets to know selected tools; the course deepens that knowledge and carries it into daily work with practical tasks, and the test completes it."],
-      ["What is the tool we build?", "A single HTML file that runs in the browser and eases one concrete task of your team – checking a list, generating a text by fixed rules, summarising figures. No installation, no data in the cloud."],
       ["What do I see as the employer?", "Each person's status – invited, started, course completed, passed – and the certificate number, as a list for your training records. Scores and attempts are not shown."],
       ["What happens if someone fails the test?", "After every submission the correct answer and an explanation are shown for each question. The test can be repeated as often as needed, with freshly drawn questions."],
       ["What do we need technically?", "A browser and an email address per person. Participants sign in with a link sent by email; anyone who prefers can set up a passkey, for example by fingerprint. There is no password. The course runs in the browser, on a phone too."],
-      ["Are products shown in the workshop?", "Yes, on real cases: selected tools from various providers, such as SmartFormular. The content of the training is not affected; what you use is your decision."],
+      ["Are products shown in the workshop?", "Yes: selected tools such as SmartFormular, demonstrated with sample data. The content of the training is not affected; what you use is your decision."],
       ["Is the workshop legal advice?", "No. It explains obligations in general terms and refers to tax advisers, lawyers and data protection officers for individual cases."],
     ],
     anfrageLead: "Five details are enough. You receive a quote and proposed dates personally by email, usually within two working days.",
-    felder: { firma: "Company or firm", name: "Contact person", email: "Email address", format: "Online or on site", personen: "Number of participants", zeitraum: "Preferred date in 2027", optional: "(optional)" },
-    formatOptionen: [["live", "Online (video call)"], ["praesenz", "On site at our premises"], ["offen", "Not decided yet"]],
+    felder: { firma: "Company or firm", name: "Contact person", email: "Email address", format: "Online or on site", personen: "Number of participants", zeitraum: "Preferred date in 2027", zeitraumBeispiel: "e.g. February 2027", optional: "(optional)" },
+    formatOptionen: [["live", "Online (video call)"], ["praesenz", "On site at your premises"], ["offen", "Not decided yet"]],
     senden: "Send enquiry", sendet: "Sending …",
     gesendet: "Thank you – your enquiry has arrived. I will get back to you by email.",
     ungueltig: "Please give your company, a contact person, a valid email address and the number of participants.",
@@ -292,6 +317,12 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
 .wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
 .wege .mail { font-size: 15px; }
+.leitung { display: grid; grid-template-columns: 132px 1fr; gap: 6px 24px; align-items: start; margin: 28px 0 8px; padding: 22px 24px 20px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); }
+.leitung img { width: 132px; height: auto; border-radius: 3px; border: 1px solid var(--line); }
+.leitung h2 { margin: 0 0 8px; }
+.leitung p { max-width: none; text-align: left; margin: 0 0 10px; }
+.leitung p:last-child { margin-bottom: 0; }
+@media (max-width: 600px) { .leitung { grid-template-columns: 1fr; } .leitung img { width: 112px; } }
 @media (max-width: 720px) { .schritte { grid-template-columns: 1fr; } .schritte li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } .teile, .formate { grid-template-columns: 1fr; } .anfrage .reihe { grid-template-columns: 1fr; } .kapitel li { grid-template-columns: 40px 1fr; } .kapitel .min { grid-column: 2; padding-top: 0; } }`;
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -346,6 +377,11 @@ ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <ol class="schritte">
 ${t.schritte.map(([titel, was], i) => `<li><span class="nr">0${i + 1}</span><strong>${esc(titel)}</strong><span class="was">${esc(was)}</span></li>`).join("\n")}
 </ol>
+<section class="unterweisung plan-b" aria-labelledby="plan-b">
+<p class="kicker">${esc(t.planBKicker)}</p>
+<h2 id="plan-b">${esc(t.planBTitel)}</h2>
+${t.planB.map(p => `<p class="frei">${esc(p)}</p>`).join("\n")}
+</section>
 ${grundsaetze(lang)}
 <h2 id="teile">${esc(t.teileTitel)}</h2>
 <div class="teile">
@@ -369,6 +405,14 @@ ${t.kapitel.map(([titel, was, min], i) => `<li><span class="nr">0${i + 1}</span>
 <h2 id="werkzeuge">${esc(t.werkzeugeTitel)}</h2>
 ${t.werkzeuge.map(p => `<p>${esc(p)}</p>`).join("\n")}
 ${partnerListe(lang, t, up)}
+<section class="leitung" aria-labelledby="leitung">
+<img src="${up}${PORTRAIT.datei}" width="${PORTRAIT.breite}" height="${PORTRAIT.hoehe}" alt="${esc(t.leitungAlt)}" loading="lazy" decoding="async">
+<div>
+<h2 id="leitung">${esc(t.leitungTitel)}</h2>
+${t.leitung.map(p => `<p class="frei">${esc(p)}</p>`).join("\n")}
+<p class="frei"><a href="${up}${SEITEN.find(s => s.id === "ueber-mich" && s.lang === lang).adresse}">${esc(t.leitungMehr)}</a></p>
+</div>
+</section>
 <h2 id="formate">${esc(t.formateTitel)}</h2>
 <p>${esc(t.formateLead)}</p>
 <div class="formate">
@@ -396,7 +440,7 @@ ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 <div><label for="a-email">${esc(t.felder.email)}</label><input type="email" id="a-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="a-format">${esc(t.felder.format)}</label><select id="a-format" name="format">${t.formatOptionen.map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}</select></div>
 <div><label for="a-personen">${esc(t.felder.personen)}</label><input type="number" id="a-personen" name="personen" min="1" max="500" value="10" required></div>
-<div><label for="a-zeitraum">${esc(t.felder.zeitraum)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="z. B. Februar 2027"></div>
+<div><label for="a-zeitraum">${esc(t.felder.zeitraum)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="a-zeitraum" name="zeitraum" maxlength="80" placeholder="${esc(t.felder.zeitraumBeispiel)}"></div>
 </div>
 <div class="falle" aria-hidden="true"><label for="a-website">Website</label><input type="text" id="a-website" name="website" tabindex="-1" autocomplete="off"></div>
 <button type="submit" id="anfrage-senden">${esc(t.senden)}</button>
@@ -408,7 +452,7 @@ ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 ${newsletterKasten(lang, up, "impuls")}
 </article>
 ${SKRIPT(lang, t)}`;
-  const kurs = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: `${t.titel} – ${t.abzeichen}`, description: t.beschr, url: canonical, inLanguage: "de",
+  const kurs = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: `${t.titel} – ${t.abzeichen}`, description: t.beschr, url: canonical, inLanguage: lang,
     provider: { "@type": "Person", "@id": SITE + "#person", name: "Robin James Lewis", url: SITE },
     educationalLevel: "Beginner", timeRequired: "PT3H", teaches: t.kapitel.map(k => k[0]),
     hasCourseInstance: [

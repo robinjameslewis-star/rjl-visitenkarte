@@ -13,7 +13,7 @@ const root = new URL("..", import.meta.url).pathname;
 const lesen = p => readFileSync(root + p, "utf8");
 
 // Private Daten (Rotlinie 09.10.2026) und Namen, die Robin nicht auf der Seite haben will (16.10.2026)
-const PRIVAT = /0151|684660|gmail|googlemail|Höchststr|1988|20\.10\.|Hechingen|verheiratet|married|Sohn|Kind\b/i;
+const PRIVAT = /\b01[5-7]\d[ \-]?\d{3}[ \-]?\d{3,}\b|gmail|googlemail|Höchststr|\b19[5-9]\d\b|verheiratet|married|Sohn|Tochter|Kind\b/i;
 const NAMEN = /FRISTO|Sudhaus|M\.A\.G\.|Paderborn|Yidishland|Heimatklang|DAA\b/;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner|bist du)\b/i;
 

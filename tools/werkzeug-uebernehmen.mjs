@@ -19,7 +19,7 @@ import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
 import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
 import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 import { startSlider } from "../worker/src/slider.js";
-import { startGrundsaetze } from "../worker/src/grundsaetze.js";
+import { START_ERECHNUNG } from "./erechnung/starttexte.mjs";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
 const START = {
@@ -51,12 +51,12 @@ Vor dem ersten Einsatz mit einem Testmandanten prüfen.
 
 ## Datenschutz
 
-Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei kann keine Verbindung ins Internet aufbauen, mit einer Ausnahme, die Sie selbst auslösen: Erkennt der Generator einen Auszug nicht, können Sie dessen Aufbau ohne Inhalt (Buchstaben als x, Ziffern als 9) an robin.vision senden. Sie sehen vorher genau, was gesendet wird.`,
+Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbeitet. Die Datei verbindet sich nur in zwei Fällen mit robin.vision: ab dem 1. Januar 2027 zur Anmeldung und Lizenzprüfung (E-Mail-Adresse und Lizenzstand, nie Auszüge oder Buchungen) und wenn Sie den Aufbau eines nicht erkannten Auszugs ohne Inhalt (Buchstaben als x, Ziffern als 9) selbst senden. Sie sehen vorher genau, was gesendet wird.`,
     nutzung: `Stand: 15. Oktober 2026
 
 **Anbieter.** Robin James Lewis, Höchststr. 32, 72336 Balingen ([Impressum](https://robin.vision/#privacy)).
 
-**Nutzung.** Sie dürfen das Werkzeug kostenlos nutzen, für sich selbst und in Ihrem Unternehmen oder Ihrer Kanzlei, und die unveränderte Datei weitergeben. Nicht erlaubt ist, es zu verändern, zu verkaufen oder als eigenes Angebot zu vertreiben.
+**Nutzung.** Bis zum 31.12.2026 dürfen Sie das Werkzeug kostenlos testen, für sich selbst und in Ihrem Unternehmen oder Ihrer Kanzlei, und die unveränderte Datei weitergeben. Nicht erlaubt ist, es zu verändern, zu verkaufen oder als eigenes Angebot zu vertreiben. Wer es danach weiter verwenden möchte, braucht eine Lizenz; die Bedingungen stehen rechtzeitig vorher auf dieser Seite.
 
 **Keine Beratung, Ergebnis prüfen.** Das Werkzeug ist eine technische Hilfe und keine Steuer- oder Rechtsberatung. Prüfen Sie jeden Buchungsstapel vor dem Import und vor der Festschreibung; die Summenprüfung je Auszug hilft dabei.
 
@@ -103,12 +103,12 @@ Each booking batch is a CSV file in the DATEV format, also known as EXTF or Date
 
 ## Privacy
 
-Bank statements, template and postings are processed only in your browser window. The file cannot connect to the internet, with one exception that you trigger yourself: if the generator does not recognise a statement, you can send its layout without content (letters as x, digits as 9) to robin.vision. You see exactly what will be sent beforehand.`,
+Bank statements, template and postings are processed only in your browser window. The file connects to robin.vision in two cases only: from 1 January 2027 to sign in and check the licence (email address and licence status, never statements or postings), and when you yourself send the layout of an unrecognised statement without content (letters as x, digits as 9). You see exactly what will be sent beforehand.`,
     nutzung: `As of: 16 October 2026
 
 **Provider.** Robin James Lewis, Höchststr. 32, 72336 Balingen, Germany ([legal notice](https://robin.vision/?lang=en#privacy)).
 
-**Use.** You may use the tool free of charge, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering.
+**Use.** Until 31 December 2026 you may try the tool free of charge, for yourself and in your company or practice, and pass on the unaltered file. You may not modify it, sell it or distribute it as your own offering. Continued use after that requires a licence; the terms will be posted on this page in good time.
 
 **No advice, check the result.** The tool is a technical aid and not tax or legal advice. Check every booking batch before importing it and before finalising it; the balance check for each statement helps with this.
 
@@ -124,6 +124,8 @@ German law applies. These terms are a translation; in case of doubt, the German 
     hinweis: `Eine deutsche Fassung des Werkzeugs gibt es als [Buchungsstapel-Generator](https://robin.vision/werkzeuge/buchungsstapel-generator/): gleiche Funktionen, deutsche Oberfläche.`,
   },
 };
+
+Object.assign(START, START_ERECHNUNG);
 
 const lesen = id => existsSync(werkzeugPfad(id)) ? werkzeugFelder(readFileSync(werkzeugPfad(id), "utf8")) : null;
 
@@ -175,7 +177,7 @@ const einsetzen = (html, name, inhalt) => {
   if (i < 0 || j < i) { console.error(`index.html: Marken ${START_MARKE} fehlen.`); process.exit(1); }
   return html.slice(0, i + START_MARKE.length) + "\n" + inhalt + "\n" + html.slice(j);
 };
-writeFileSync("index.html", einsetzen(einsetzen(readFileSync("index.html", "utf8"), "werkzeuge:liste", startSlider()), "grundsaetze", startGrundsaetze()));
+writeFileSync("index.html", einsetzen(readFileSync("index.html", "utf8"), "werkzeuge:liste", startSlider()));
 // Weiterleitungen alter Adressen
 for (const a of ALTE_ADRESSEN) { mkdirSync(dirname(a.pfad), { recursive: true }); writeFileSync(a.pfad, weiterleitung(a.ziel)); }
 // sitemap.xml mit dem Datum der Fassungen (dieselbe Datei schreibt die Redaktion beim Veröffentlichen eines Impulses)

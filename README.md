@@ -536,7 +536,7 @@ Einrichten (Robin; Konto, DNS und Schlüssel sind seine Schritte), vor dem Merge
 ## „Was ist neu“ und Newsletter-Feed (16.10.2026)
 
 *Ergänzt 17.10.2026:* Jede Ausgabe im Feed hat jetzt den Aufbau Impuls → „Neu im SmartFormular FiBu lite“ (neueste Fassung) →
-„SmartFormular“ (FiBu lite kostenlos, FiBu und Deklaration als Beta, Link zur Seite) → „Workshops“ (Unterweisung nach EU AI Act,
+„SmartFormular“ (FiBu lite kostenlos, FiBu und Abschluss als Beta, Link zur Seite) → „Workshops“ (Unterweisung nach EU AI Act,
 Termine 2027 auf Anfrage, Link); Kanalbeschreibung „Impulse, SmartFormular und Workshops per E-Mail“. Prüfung:
 `node tests/newsletter_feed_test.mjs`. Die Brevo-Vorlage muss nichts wissen – sie nimmt die Beschreibung des Eintrags als HTML.
 
@@ -598,13 +598,11 @@ Termine 2027 auf Anfrage, Link); Kanalbeschreibung „Impulse, SmartFormular und
 
 **Workshops.** Der Workshop KI-Kompetenz für Teams, mit der Unterweisung nach Art. 4 KI-Verordnung (EU AI Act) als hervorgehobenem
 Teil (Abzeichen unter der Überschrift, eigener Kasten „Teil dieses Workshops“), als eigene Seite `workshops/` (englisch
-`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt: drei Teile (Workshop mit Robin –
-Hemmschwellen nehmen, Anwendungsfälle entwickeln, gemeinsam ein kleines Browser-Werkzeug bauen –, Online-Lehrgang im Memberbereich,
-Test mit Zertifikat), für wen, sieben Kapitel, zwei Formate mit Preisen (Vorschlag aus dem Konzept im Vault, netto; Lehrgang ohne
-Workshop erst nach FernUSG-Zulassung), Ablauf in sieben Schritten, Nachweis und Zertifikat (prüfbar unter
-member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der robin.vision UG als „in Gründung, Januar
-2027“, neun Fragen als FAQPage, Terminbuchung über Cal.com (Robins Ereignistypen, `CAL` in workshops.js; das Einbettungsskript lädt
-erst nach Klick, mit Hinweis auf Cal.com, Inc.), ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
+`workshops/en/`), gebaut aus `worker/src/workshops.js` mit `node tools/workshops-bauen.mjs`. Inhalt (Stand 24.10.2026): drei Teile (Workshop mit Robin –
+Hemmschwellen nehmen, Anwendungsfälle entwickeln –, Online-Lehrgang im Memberbereich, Test mit Zertifikat), für wen, sieben
+Kapitel, Kasten „Wer den Workshop leitet“, zwei Formate (online, vor Ort; Preise auf Anfrage), Ablauf in sieben Schritten,
+Nachweis und Zertifikat (prüfbar unter member.robin.vision/zertifikat), Rechtsrahmen ohne „Pflichtschulung“-Werbung und mit der
+robin.vision UG als „in Gründung, Januar 2027“, sieben Fragen als FAQPage, ein Anfrageformular, das wie das Kontaktformular an Gochs `/contact` sendet (Felder
 zu einer Nachricht, Bot-Falle `website`, Ladezeitpunkt `t`), strukturierte Daten als `Course` mit zwei Durchführungen. Menüpunkt
 „Workshops“ im Seitenkopf (`worker/src/kopf.js`) vor „Über mich“, Abschnitt auf der Startseite zwischen SmartFormular und Über mich,
 Einträge in `sitemap.xml` (`worker/src/sitemap.js`, SEITEN) und in Gochs Linkliste (`worker/links.md`, Kennung `workshops`); Abschnitt „Werkzeuge im Workshop“ mit
@@ -618,13 +616,13 @@ Profil (`worker/profile.md`) kennt das Angebot und bietet es aktiv an. Die Durch
 Seite `werkzeuge/` (englisch `werkzeuge/en/`) ist eine eigene, ausführliche Unterseite aus `worker/src/smartformular.js` im
 SmartFormular-Erscheinungsbild (Nacht und Violett, `SF_CSS` in `werkzeug.js`), so umfangreich wie die Seite „Workshops“: Einleitung,
 drei Produktkacheln, „FiBu lite heute“ mit Download, „Was SmartFormular FiBu dazulernt“ (sieben geplante Funktionen), „SmartFormular
-Deklaration“ (sechs Punkte), Kasten „Mensch und Maschine“, Sprachmodell optional, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
+Abschluss“ (sechs Punkte), Kasten „Mensch und Maschine“, Sprachmodell optional, Fahrplan, Daten und Recht, acht Fragen (FAQPage,
 dazu SoftwareApplication für FiBu lite), Beta-Anfrage, Downloads. Keine Preise (auf Anfrage). Die Produktdaten liegen in
 `worker/src/produkte.js` (auch für die Werkzeugseite und die Startseite). Startseite: FiBu lite als Karte im
-SmartFormular-Erscheinungsbild mit Knopf zum Werkzeug, darunter die Ankündigungen FiBu und Deklaration (`tools/werkzeug-uebernehmen.mjs`).
+SmartFormular-Erscheinungsbild mit Knopf zum Werkzeug, darunter die Ankündigungen FiBu und Abschluss (`tools/werkzeug-uebernehmen.mjs`).
 Alter Stand der Übersicht: drei
 Kacheln – SmartFormular FiBu lite (bisher Buchungsstapel-Generator, kostenlos, fertig), SmartFormular FiBu und SmartFormular
-Deklaration (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
+Abschluss (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
 kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von FiBu lite trägt den Abschnitt „Was kommt“ mit dem Ausblick.
 Gochs Linkliste kennt `smartformular-fibu` und `smartformular-deklaration` (Anker auf der Übersicht). Prüfung:
 `node tests/werkzeug_seite_test.mjs`, `node tests/goch_werkzeuge_test.mjs`.
@@ -641,6 +639,51 @@ stehen“ und die Spalte „Ihr Produkt“ tragen keins. „Anzeige“ verweist 
 deren Vorstellung es vergütet wird. Gestaltung dezent (Robin, 18.10.2026: „noch zu groß“): normale Schreibung, nicht fett, ohne
 Sperrung, Unterstreichung nur beim Darüberfahren, Grau #767676 auf Papier (lesbar bleiben – sonst verfehlt es den Zweck).
 Prüfung: `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/workshops_seite_test.mjs`.
+
+**Ausnahme für eigene kostenlose Werkzeuge (Robin, 23.10.2026):** FiBu lite und E-Rechnung lite tragen statt „Anzeige · robin.vision“
+einfach „Kostenlos“ (englisch „Free“, ohne Verweis) – über dem Titel ihrer Seiten, auf ihren Karten im Startseiten-Slider und im Kopf
+ihrer Spalte im Vergleich (`kostenlos` in `worker/src/partner.js`, Kennung `frei: true` in `slider.js` und `uebersicht.js`). Anlass: In der
+Laien-Textprüfung wirkte „Anzeige“ an einem kostenlosen Werkzeug wie Werbung oder ein Bezahlangebot. Partner, die Beta-Produkte FiBu und
+Abschluss und die Stellen, die SmartFormular als Ganzes zeigen (Karte der Übersicht, Seite „SmartFormular“), behalten „Anzeige“.
+Die Zeile unter dem Titel der Werkzeugseiten nennt nur noch Fassung und Datum („Kostenlos“ steht schon darüber).
+
+## Werkzeug: SmartFormular E-Rechnung lite (23.10.2026)
+
+Zweites kostenloses SmartFormular-Werkzeug (Robin, 23.10.2026, Option A „verstehen und bezahlen“): E-Rechnungen als XRechnung
+(UBL, CII) und ZUGFeRD/Factur-X lesen, drucken, mit den offiziellen Regeln prüfen und per GiroCode bezahlen. Seiten
+`werkzeuge/e-rechnung-pruefen/` (deutsch) und `werkzeuge/e-invoice-viewer/` (englisch, „E-invoice viewer and validator“). Anders als
+FiBu lite läuft es **direkt auf der Seite** (`app: "erechnung"` in `WERKZEUGE`) und zusätzlich als **eine Datei offline**
+(`E-Rechnung-lite.html`, `E-Invoice-Viewer.html`). Quelle: `tools/erechnung/` in diesem Repository.
+
+- **Datenschutz:** Rechnungen werden nur im Browser gelesen. Die Seite lädt Oberfläche und – erst beim ersten Prüfen – Prüfkern und
+  Regeln von robin.vision (`assets/erechnung/`), sonst nichts; eine CSP im Seitenkopf erlaubt Skripte und Verbindungen nur von
+  robin.vision (`goch.robin.vision` für die Newsletter-Anmeldung). Die Datei hat `connect-src 'none'` und enthält Regeln und Beispiele.
+- **Prüfregeln:** die Schematron-Regeln der KoSIT-Validator-Konfiguration (EN 16931 von CEN, XRechnung von KoSIT), als JSON
+  (`assets/erechnung/regeln/`) aus den kompilierten XSLT übertragen (`tools/erechnung/regeln-bauen.mjs`, Quellen mit SHA-256 in
+  `quellen.json`). Ausgewertet von einem eigenen Schematron-Interpreter (`src/pruefung.js`) auf fontoxpath (MIT) mit Anpassungen für
+  exakte Dezimalrechnung und Saxon-gleiches Verhalten (`fxpatch.mjs`, jede Ersetzung muss genau einmal greifen). Nicht geprüft:
+  XML-Schema (XSD).
+- **Texte:** Antwort „Ist das eine E-Rechnung?“ mit Fundstellen und Stand in `src/recht.js` (`STAND`); Erklärung je Regel in
+  `src/regeltexte.js` (was nicht stimmt, was der Rechnungssteller ändern muss); Oberfläche in `src/texte.js`. Keine Steuer- oder
+  Rechtsberatung, keine Worte wie „rechtssicher“. **Bei neuen BMF-Schreiben oder Gesetzesänderungen** `recht.js` anpassen und `STAND`
+  setzen, Starttexte und Fragen der Seiten (`werkzeug.js`, Redaktion) mitziehen.
+- **Bauen:** `cd tools/erechnung && npm ci && node regeln-bauen.mjs && node bauen.mjs` (Fassung = letzter Commit in
+  `tools/erechnung`; mit ungesicherten Änderungen nur `--entwurf`). Danach
+  `node tools/werkzeug-uebernehmen.mjs tools/erechnung/.cache/dist/E-Rechnung-lite.html tools/erechnung/.cache/dist/E-Invoice-Viewer.html`
+  und „Was ist neu“ in Sätze bringen. Bilder zum Teilen (auch FiBu lite): `node tools/erechnung/teilen-bilder.mjs`.
+- **Abgleich mit der offiziellen Prüfung:** `node tools/erechnung/testdaten-holen.mjs`, `node tests/erechnung_korpus.mjs`,
+  `tools/erechnung/.cache/venv/bin/python tests/erechnung_referenz.py 8` (saxonche, `pip install saxonche`), dann
+  `node tests/erechnung_regeln_test.mjs`: dieselben Regelnummern im Browser wie mit Saxon, jede Abweichung ist ein Fehler.
+- **Kundenreisen, Datenschutz, axe, Tastatur:** `node tests/erechnung_reisen_test.mjs` (Chrome über playwright-core; Fotos, Druck-PDF
+  und Berichte in `tools/erechnung/.cache/reisen/`); nach dem Deploy mit `--basis https://robin.vision`.
+- **Regel-Lexikon** (Robin, 23.10.2026): je Prüfregel mit eigener Erklärung (`eigeneErklaerung` in `src/regeltexte.js`, derzeit 290)
+  eine Seite unter `werkzeuge/e-rechnung-pruefen/regeln/<id>/` und `werkzeuge/e-invoice-viewer/rules/<id>/`, je eine Übersicht und
+  `sitemap-regeln.xml` (in `robots.txt`). Im Werkzeug führt jeder solche Befund über „Mehr zu dieser Regel“ dorthin. Nach Änderungen an
+  Regeln oder Erklärtexten: `node tools/erechnung/lexikon.mjs`; Prüfung: `node tests/erechnung_lexikon_test.mjs`.
+- **Lizenzen:** EUPL 1.2 (Regeln CEN), Apache 2.0 (KoSIT), MIT (fontoxpath, xspattern, whynot, prsc, Nayuki QR); Texte in
+  `tools/erechnung/lizenzen/` und ausgeliefert als `assets/erechnung/LIZENZEN.txt` sowie im Fuß der Datei.
+- **Nach dem Zusammenführen:** Worker neu ausrollen (`cd worker && npm run deploy`), damit die Redaktion die neuen Seiten kennt
+  (`werkzeugEr`, `werkzeugErEn`) und Sitemap und Newsletter-Feeds beim nächsten Neubau die neuen Werkzeuge behalten.
 
 ## Figuren-Struktur (23.10.2026)
 
@@ -693,7 +736,9 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
   Sekunden je Tag. Der erkannte Text erscheint als Besuchertext und läuft über `/chat` – Draht, Newsletter, Links und
   Grenzen bleiben unverändert.
 - **Stimme** (`worker/src/stimme.js`): `/chat` mit `stimme` antwortet als NDJSON – Zeile 1 die Antwort wie immer (die Seite
-  zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Vertont wird nur diese eigene Antwort;
+  zeigt sofort den Text), Zeile 2 das MP3 als Base64 oder `{stimme: null, grund}`. Die Startseite verlangt `stimme.teile`: Dann
+  folgt je Abschnitt eine Zeile, der erste ist ein einzelner Satz, und Zeile 1 kommt zusammen mit ihm, spätestens nach 2 s; Goch
+  beginnt so, bevor die ganze Antwort vertont ist (Robin, 06.11.2026). Der KI-Hinweis wird einmal vertont und gemerkt. Vertont wird nur diese eigene Antwort;
   eine freie Vorlese-Route gibt es nicht. Anbieter ElevenLabs (Secret `ELEVENLABS_API_KEY`, `voiceId` aus der Redaktion,
   sonst aus `figur.json`), Modell Eleven v4, Regler und fester Startwert (`seed`) aus `figur.json` – jeder Besucher hört
   dieselbe Stimme. Ohne Stimme (`aus`, `fehler`, `grenze`) antwortet Goch nur als Text; eine Gerätestimme gibt es nur
@@ -703,7 +748,7 @@ Mimik- oder Gefühlserkennung. Vorbereitet in vier PRs (Figuren-Struktur, Worker
 - **KI-Hinweis (Art. 50 KI-VO):** Bei der ersten gesprochenen Antwort einer Sitzung (`stimme: {erste: true}`) stellt der
   Worker „Kurz vorab: Ich bin eine KI, und meine Stimme ist künstlich erzeugt.“ voran – in Text und Stimme gleich.
 - **Sprachmodus:** Kam die Frage per Spracheingabe (`gesprochen: true`) oder ist die Stimme an, antwortet das Modell aus
-  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ in den
+  der Redaktion („Modell im Sprachmodus“, Vorschlag Claude Haiku 5.5). Mit Stimme kommt der Hinweis „Gesprochen“ (auch: höchstens 40 Wörter, Robin, 06.11.2026) in den
   Systemprompt (kurze Sätze, keine Aufzählungen, Zahlen wie gesprochen). Antwortzeiten von Modell und Stimme werden je
   Monat gezählt und in der Redaktion gezeigt.
 - **Kostenbremsen:** vertonte Zeichen je Monat (`MAX_STIMME_ZEICHEN_MONAT`, 30.000) und Audiominuten je Tag
@@ -744,7 +789,7 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, mit „Pause“, beim
   Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
   `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
-- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON) und zeigt die Antwort sofort als Text;
+- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON, in Abschnitten) und zeigt die Antwort zusammen mit dem ersten Satz als Text;
   das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
   dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
   `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Dazu neigt er sich mit betonten Silben
@@ -786,6 +831,9 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   kein Modellaufruf, zählt zur Grenze je IP); gegrüßt höchstens alle 30 s, nicht beim Einschalten mitten im Gespräch. Kein sichtbares
   Vorschaubild (Robin, 23.10.2026: störte) – den Zustand zeigen der Schalter und die Kamera-Anzeige des Browsers; aus mit
   „Blickkontakt“, beim Schließen und mit „Sprechen beenden“ – beim Tabwechsel bleiben Kamera und Mikrofon an (Robin, 23.10.2026). Geladen wird MediaPipe (rund 16 MB) erst nach der Einwilligung. Am Messegerät keine Kamera.
+  **Eigener Schalter (24.10.2026):** Der Blickkontakt erscheint nur mit `data-goch-blick="an"` am `<body>` (lokal zum Testen
+  `?blick=an`), unabhängig von `data-goch-stimme`. Ohne ihn fehlen der Knopf und der Datenschutzabsatz zur Kamera – so kann
+  die Stimme live gehen, bevor der Blickkontakt auf iPhone und Mac erprobt ist.
   Tests: `node tests/goch_blick_test.mjs` (Rechnung), `tests/goch_stimme_test.py` (Rahmen, CSP, keine fremden Hosts,
   zuhören nur mit Blick – Gesicht über einen lokalen Testhaken vorgespielt).
 - **Datenschutz:** Absatz „Sprechen mit Goch“ (DE/EN, `privacyGochStimme`) – Entwurf, von Robin freizugeben; sichtbar erst,
@@ -816,6 +864,14 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   90 KB beim ersten Laden, die Schnabelköpfe (je 18 KB) erst mit der Stimme; nur `transform` und `opacity`. Ohne
   Skript, bei reduzierter Bewegung und im Flug bleibt alles wie vorher. Das Messegerät nutzt dieselben Teile
   (`figur.js`). Test: `python3 tests/goch_leben_test.py http://localhost:8788/`.
+- **Seitenwissen (24.10.2026, `worker/src/seitenwissen.js`):** Goch kennt alle Inhalte der Website, wie sie gerade live
+  sind. Der Worker liest die Sitemap von `SITE_URL`, holt jede deutsche Seite (englische Doppel und das Regel-Lexikon nicht),
+  zieht den sichtbaren Text aus `<main>` (ohne Verborgenes, Navigation, Skripte; gleiche Absätze nur einmal; höchstens
+  40 Seiten, 8.000 Zeichen je Seite, 70.000 insgesamt) und speichert ihn im KV (`content:seiten`). Neu eingelesen wird im
+  Hintergrund, wenn der Stand älter als sechs Stunden ist (höchstens ein Versuch je zehn Minuten), oder in der Redaktion
+  unter „Goch – Profil“ mit „Jetzt neu einlesen“ – nie während einer Antwort. Der Text steht im Systemprompt nach „Woran
+  Robin gerade arbeitet“; jede Seite ist zugleich ein Link (`seite-…`), sofern `links.md` die Adresse nicht schon führt.
+  Am 24.10.2026: 12 Seiten, rund 6.700 Wörter. Test: `node tests/goch_seitenwissen_test.mjs`.
 - **Clips mit Goch (24.10.2026, `tools/goch-clip.py`):** aus einem Drehbuch (JSON: Sätze, Aussprache, Karten,
   Kopfhaltung) ein MP4 in 4:5 – jeder Satz einzeln vertont über die Attrappe (`POST /_vertonen`, Stimme aus
   `GOCH_VOICE_ID`, Schlüssel bleibt in der Attrappe), zwischengespeichert; Goch Bild für Bild synchron zum Ton auf

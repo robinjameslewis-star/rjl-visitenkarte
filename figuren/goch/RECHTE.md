@@ -1,6 +1,6 @@
 # Rechte – Figur „Goch“
 
-Stand 23.10.2026. Je Datei: Herkunft, Werkzeug, Bearbeitung, Nutzungsrechte. Was nicht belegt ist, steht als **offen** da.
+Stand 24.10.2026. Je Datei: Herkunft, Werkzeug, Bearbeitung, Nutzungsrechte. Was nicht belegt ist, steht als **offen** da.
 Keine Rechtsberatung; die Angaben dienen der Investor-Checkliste (Punkt 2: Rechte an Code und Marke).
 
 ## Bilder
@@ -19,9 +19,10 @@ Keine Rechtsberatung; die Angaben dienen der Investor-Checkliste (Punkt 2: Recht
 ist erlaubt. Ob rein KI-erzeugte Bilder urheberrechtlich geschützt sind, ist zweifelhaft: Robin darf sie nutzen,
 kann Nachahmungen aber womöglich nicht untersagen. Schutz der Figur eher über eine Marke.
 
+**Bestätigt (Robin, 24.10.2026):** Die Bilder von Goch sind mit Robins **privatem** ChatGPT-Konto entstanden, nicht mit
+einem Konto des Arbeitgebers. Die damals geltende Fassung der OpenAI-Bedingungen ist nicht archiviert.
+
 **Offen:**
-- Robin bestätigt, dass die Bilder mit seinem **privaten** ChatGPT-Konto entstanden sind (nicht mit einem Konto des
-  Arbeitgebers). Die damals geltende Fassung der OpenAI-Bedingungen ist nicht archiviert.
 - Vor einer Gründung: Rechte an Figur, Bildern und Code schriftlich auf die Gesellschaft übertragen (Checkliste Punkt 2).
 
 ## Töne
@@ -50,8 +51,14 @@ Vorher:
 **Offen:** Für Piet aus der Voice
 Library nachtragen: genauer Name, Ersteller, Aufschlag je Zeichen, Live-Moderation, Kündigungsfrist des Erstellers
 sowie die Bedingungen (Fundstelle, Abrufdatum); Piet zu „Meine Stimmen“ hinzufügen. Außerdem: Konto
-(E-Mail-Adresse) bestätigen, Widerspruch gegen Training, Auftragsverarbeitung, Fundstelle der Lizenzbedingungen mit
-Abrufdatum.
+(E-Mail-Adresse) bestätigen, Fundstelle der Lizenzbedingungen mit Abrufdatum.
+
+**Erledigt (Robin, 24.10.2026):**
+- *Widerspruch gegen Training:* „Data use“ ist ausgeschaltet (Profil → „Terms and privacy“ → „Data use“ → „Improve the
+  models for everyone“ aus; Help Center „Is my data used to improve ElevenLabs' AI models?“, Terms Stand 09.10.2026,
+  Abschnitt 4(i)).
+- *Auftragsverarbeitung:* Robin hält das DPA von ElevenLabs für ausreichend, wie es für Self-Serve-Kunden mit den Terms als
+  „Agreement“ gilt (DPA Stand 08.04.2026; Terms Abschnitt 2); ein eigener Unterschriftsschritt ist nicht vorgesehen.
 
 ## Wissen und Name
 
