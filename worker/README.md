@@ -77,8 +77,9 @@ Danach `npx wrangler deploy`. Beim Anbieterwechsel den Datenschutzabsatz auf der
 
 Das Modell sammelt nur; das Protokoll gehört dem Worker: Er richtet aus, was der Besucher sagt
 (Robin, 01.11.2026) – Name und E-Mail nur, wenn der Besucher sie nennt, sonst mit dem Hinweis aufs
-Kontaktformular –, schreibt die Zusammenfassung („… Soll ich das so senden?“), versteht darauf Ja / Nein
-selbst, sendet nur nach Ja und ohne Gesprächsverlauf, und führt nach `MAX_TURNS` Antworten des Modells
+Kontaktformular –, und sendet sofort, sobald der Besucher ausdrücklich möchte, dass Robin etwas bekommt
+(Robin, 07.11.2026: keine weitere Zustimmung; die Antwort „Ausgerichtet: „…““ zeigt, was ankommt), ohne Gesprächsverlauf.
+Ältere Zusammenfassungen („… Soll ich das so senden?“) versteht er weiter mit Ja / Nein. Feedback sendet er erst nach Ja, und führt nach `MAX_TURNS` Antworten des Modells
 ohne Modell zum Draht (Schritte des Drahts zählen nicht; nach dem Senden kein neues Angebot). Abgeschnittene oder wiederholte Modellantworten werden gerettet und gekürzt.
 
 ## Grenzen und Kosten
