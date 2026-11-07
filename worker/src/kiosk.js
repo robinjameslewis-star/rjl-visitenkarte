@@ -137,7 +137,7 @@ async function anmelden(request, env) {
 }
 
 // Figur für dieses Gerät: Goch immer (wenn freigegeben), Kundenfiguren nur aus dem KV, eingeschaltet und freigegeben.
-async function figurFuer(env, geraet, id) {
+async function figurFuerGeraet(env, geraet, id) {
   const darf = geraet.figuren.includes("*") || geraet.figuren.includes(id);
   if (!darf) return { fehler: 403 };
   if (id === "goch") return { goch: oeffentlicheFigur("goch") };
@@ -229,12 +229,15 @@ function antwort(obj, status = 200) {
   return new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 }
 
-// deps: { handle, mitStimme } aus src/index.js (derselbe Weg wie /chat)
-export async function handleKiosk(request, env, ctx, deps) {
+// deps: { handle, mitStimme } aus src/index.js (derselbe Weg wie /chat).
+// vorgabe (nur vom Eingang „Workshop“ für den Memberbereich, src/workshop.js): { geraet, figur } – dann ohne Anmeldung, und die
+// Figur kommt mit der Anfrage statt aus dem KV.
+export async function handleKiosk(request, env, ctx, deps, vorgabe = null) {
   const url = new URL(request.url);
   if (!env.GERAETE) return antwort({ error: "Kiosk nicht eingerichtet (Durable Object GERAETE fehlt)." }, 503);
-  const geraet = await anmelden(request, env);
+  const geraet = vorgabe ? vorgabe.geraet : await anmelden(request, env);
   if (!geraet) return antwort({ error: "Gerät nicht angemeldet." }, 401);
+  const figurFuer = vorgabe ? async () => (vorgabe.figur ? { kunde: vorgabe.figur } : { fehler: 404 }) : figurFuerGeraet;
   const settings = await loadSettings(env);
 
   if (url.pathname === "/kiosk/lebenszeichen" && request.method === "POST") {
