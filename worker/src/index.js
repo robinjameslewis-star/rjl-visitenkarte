@@ -60,9 +60,12 @@ const TEXT = {
     nachfrage: ["Möchten Sie wissen, woran Robin gerade arbeitet?", "Fragen Sie mich ruhig etwas – zum Beispiel, was das SmartFormular kann.",
       "Soll ich Ihnen von Robins Workshops erzählen?"],
     // Der Draht (Robin, 01.11.2026): Goch richtet aus, was der Besucher sagt – Name und Adresse nur, wenn er sie selbst nennt;
-    // wer eine Antwort möchte, schreibt am besten über das Kontaktformular.
+    // wer eine Antwort möchte, schreibt am besten über das Kontaktformular. Seit 07.11.2026 (Robin): Wer ausdrücklich möchte,
+    // dass Robin eine Nachricht bekommt, braucht keine weitere Zustimmung – Goch sendet sofort und zeigt, was er ausgerichtet hat.
     sent: e => e ? `Ausgerichtet. Robin kann Ihnen per E-Mail an ${e} antworten.` : "Ausgerichtet. Robin bekommt Ihre Nachricht.",
-    sentPrefix: "Ausgerichtet.",
+    sentDirect: m => `Ausgerichtet: „${m.text}“${schluss(m, "Von")} ${m.email ? `Robin kann Ihnen per E-Mail an ${m.email} antworten.` : "Möchten Sie eine Antwort, schreiben Sie Robin am besten über das Kontaktformular auf der Website."}`,
+    sentSpoken: "Ich habe Ihre Nachricht an Robin weitergegeben.",
+    sentPrefix: "Ausgerichtet",
     summary: m => `Ich richte Robin aus: „${m.text}“${schluss(m, "Von")} ${m.email ? "" : "Möchten Sie eine Antwort, schreiben Sie Robin am besten über das Kontaktformular auf der Website. "}Soll ich das so senden?`,
     marker: "Soll ich das so senden",
     cancelled: "In Ordnung, ich sende nichts. Wenn Sie es anders formulieren möchten, sagen Sie es mir.",
@@ -85,7 +88,9 @@ const TEXT = {
     nachfrage: ["Would you like to know what Robin is working on?", "Feel free to ask me something – for example, what SmartFormular can do.",
       "Shall I tell you about Robin's workshops?"],
     sent: e => e ? `Passed on. Robin can reply to you by email at ${e}.` : "Passed on. Robin will get your message.",
-    sentPrefix: "Passed on.",
+    sentDirect: m => `Passed on: “${m.text}”${schluss(m, "From")} ${m.email ? `Robin can reply to you by email at ${m.email}.` : "If you'd like a reply, the contact form on the website is the best way to reach Robin."}`,
+    sentSpoken: "I've passed your message on to Robin.",
+    sentPrefix: "Passed on",
     summary: m => `I'll pass on to Robin: “${m.text}”${schluss(m, "From")} ${m.email ? "" : "If you'd like a reply, the contact form on the website is the best way to reach Robin. "}Shall I send it like this?`,
     marker: "Shall I send it like this",
     cancelled: "All right, I won't send anything. If you'd like to phrase it differently, tell me.",
@@ -211,7 +216,7 @@ const worker = {
     const closingAsked = previous && previous.role === "assistant" && (previous.content.includes(t.closingMarker) || previous.content.includes(t.askWhat));
     if (!kunde && closingAsked) {
       if (DECLINE.test(lastText)) return json({ reply: t.cancelled, action: null }, 200, cors);
-      return json({ reply: nextDrahtReply(t, gatherMessage(null, messages)), action: null }, 200, cors);
+      return await drahtDirekt(env, gatherMessage(null, messages), lang, ip, now, day, t, cors);
     }
     // Schon ausgerichtet: kein neues Angebot, nur der Hinweis aufs Kontaktformular
     if (!kunde && modelReplies >= maxTurns) return json({ reply: sentBefore ? t.closingSent : t.closing, action: null }, 200, cors);
@@ -262,7 +267,9 @@ const worker = {
     if (intern) { out.link = null; out.link2 = null; if (out.action === "newsletter") out.action = null; }
     // Rückkopplung: Fragen, die Goch nicht beantworten konnte, ohne Personenbezug 30 Tage zählen,
     // damit Robin bei der Durchsicht sieht, was Besucher wirklich wissen wollten (Briefing Abschnitt 11).
-    if (env.USAGE && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
+    // Nicht bei Nachricht oder Feedback: „I'll pass that on to Robin“ ist dort eine Zusage, keine Wissenslücke – und der
+    // Text enthielte oft den Namen des Besuchers (Fehlalarm 02.11.2026).
+    if (env.USAGE && out.action !== "message" && out.action !== "feedback" && UNKNOWN.test(out.reply)) ctx.waitUntil(rememberUnanswered(env, lastText, lang));
     // Link: das Modell nennt nur eine Kennung, die Adresse kommt aus links.md. Jeder Link einmal je Gespräch –
     // die Seite hängt „(Link: Text)“ an den Verlauf, daran erkennt der Worker, was schon angeboten wurde.
     if (!intern) out.link = resolveLink(out.link, lang, messages, content.links);
@@ -270,13 +277,9 @@ const worker = {
     out.link2 = out.link && out.link2 ? resolveLink(out.link2, lang, messages, content.links) : null;
     if (out.link2 && out.link2.url === out.link.url) out.link2 = null;
 
-    // Der Draht: Nachricht an Robin. Das Protokoll gehört dem Worker, nicht dem Modell:
-    // Felder notfalls aus dem Verlauf ergänzen, die Zusammenfassung selbst schreiben, und senden
-    // nur, wenn der Besucher auf genau diese Zusammenfassung mit Ja geantwortet hat.
-    if (out.action === "message") {
-      // Das Modell sammelt nur; gesendet wird erst nach Ja auf die Zusammenfassung des Workers (siehe oben).
-      return json({ reply: nextDrahtReply(t, gatherMessage(out.message, messages)), action: null }, 200, cors);
-    }
+    // Der Draht: Nachricht an Robin. Das Protokoll gehört dem Worker, nicht dem Modell: Felder notfalls aus dem Verlauf
+    // ergänzen und sofort senden – der ausdrückliche Wunsch des Besuchers ist die Zustimmung (Robin, 07.11.2026).
+    if (out.action === "message") return await drahtDirekt(env, gatherMessage(out.message, messages), lang, ip, now, day, t, cors);
     // Feedback zu den Werkzeugen: Zusammenfassung schreibt der Worker, gesendet wird erst nach Ja (siehe oben)
     if (out.action === "feedback") {
       const f = gatherFeedback(out.message);
@@ -304,8 +307,9 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
   const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme, t = TEXT[lang];
   // Draht und Feedback: Der Text zeigt die Zusammenfassung mit Name, Adresse und Nachricht; gesprochen wird nur ein neutraler
   // Satz – ElevenLabs erhält nie die Eingaben des Besuchers (Datenschutzabsatz „Sprechen mit Goch“).
-  const istDraht = out.reply.includes(t.marker) || out.reply.includes("@") || out.reply.startsWith(lang === "en" ? "I'll pass this feedback on to Robin" : "Ich gebe Robin dieses Feedback weiter");
-  let gesprochen = istDraht ? (lang === "en" ? "I've noted your message and your details – shall I send it like this?" : "Ich habe Ihre Nachricht und Ihre Angaben notiert – soll ich das so senden?") : out.reply;
+  const gesendet = out.reply.startsWith(t.sentPrefix + ":");
+  const istDraht = gesendet || out.reply.includes(t.marker) || out.reply.includes("@") || out.reply.startsWith(lang === "en" ? "I'll pass this feedback on to Robin" : "Ich gebe Robin dieses Feedback weiter");
+  let gesprochen = gesendet ? t.sentSpoken : istDraht ? (lang === "en" ? "I've noted your message and your details – shall I send it like this?" : "Ich habe Ihre Nachricht und Ihre Angaben notiert – soll ich das so senden?") : out.reply;
   if (wunsch && wunsch.erste === true) { out.reply = KI_HINWEIS[lang] + " " + out.reply; gesprochen = KI_HINWEIS[lang] + " " + gesprochen; }
   out.ki = true; // die Seite zeigt den Hinweis „KI · künstliche Stimme“ dauerhaft an
   const msModell = msLetzterModellaufruf; msLetzterModellaufruf = null;
@@ -348,7 +352,7 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
   return new Response(readable, { status: 200, headers });
 }
 
-const UNKNOWN = /das weiß ich nicht|weiß ich (leider )?nicht|kann dir nur robin sagen|i don't know|only robin can (tell|say|answer)|pass (that|this|it) (on )?to robin|(ask|check with) robin (for you|about that)/i;
+const UNKNOWN = /das weiß ich nicht|weiß ich (leider )?nicht|kann (dir|ihnen) nur robin sagen|i don't know|only robin can (tell|say|answer)|pass (that|this|it) (on )?to robin|(ask|check with) robin (for you|about that)/i;
 
 // Frage ohne Personenbezug zählen: E-Mail-Adressen und lange Zahlen entfernt, auf 160 Zeichen gekürzt,
 // Schlüssel aus der normalisierten Frage; Eintrag verfällt nach 30 Tagen ohne Wiederholung.
@@ -456,13 +460,13 @@ Antworte ausschließlich als JSON-Objekt ohne Markdown: {"reply": "…", "action
 - "calendar": der Besucher möchte ein Gespräch oder einen Termin.
 - "contact": der Besucher fragt nach Kontaktdaten.
 - "message": der Besucher möchte Robin etwas ausrichten (oder hat Ja gesagt, als du angeboten hast, Robin zu fragen)
-  und du weißt, was. Dann zusätzlich:
+  und du weißt, was. Nur bei ausdrücklichem Wunsch („richten Sie Robin aus …“, „sagen Sie ihm …“, Ja auf dein Angebot) –
+  eine Frage allein ist kein Auftrag. Dann zusätzlich:
   "message": {"name": "", "email": "", "text": "…"} – "text" die Frage oder das Anliegen in seinen Worten. Name und
   E-Mail-Adresse nur, wenn er sie selbst genannt hat, wörtlich; sonst leer lassen. Du fragst nicht danach.
   Nie Platzhalter wie "?" oder "unbekannt" eintragen. Ist unklar, was er ausrichten möchte: kein "message", sondern
   in "reply" einmal danach fragen.
-  Zusammenfassung, Rückfrage „Soll ich das so senden?“ und die Bestätigung „Ausgerichtet“ schreibt der Worker –
-  du schreibst diese Sätze nie selbst.
+  Der Worker sendet dann sofort und schreibt die Bestätigung „Ausgerichtet …“ – du schreibst sie nie selbst.
 - "newsletter": du bietest die Anmeldung zum Newsletter an, und der Besucher möchte sie (oder fragt, wie er von neuen
   Werkzeugen und Impulsen erfährt). Die Seite zeigt dann unter deiner Antwort ein Feld für die E-Mail-Adresse. Du fragst
   nie im Gespräch nach der Adresse für den Newsletter und sagst nie, jemand sei angemeldet.
@@ -529,12 +533,25 @@ function gatherMessage(m, messages) {
 }
 // Nächste Antwort im Draht: Zusammenfassung, sobald ein Anliegen da ist – Name und Adresse nur, wenn der Besucher
 // sie genannt hat (Robin, 01.11.2026). Anführungszeichen im Text werden einfach, damit die Zusammenfassung lesbar bleibt.
-function nextDrahtReply(t, m) {
+function drahtFelder(m) {
   const text = m.text.replace(/[\p{C}]/gu, " ").replace(/[„“”"]/g, "'").replace(/\s+/g, " ").trim();
-  if (text.length < 3) return t.askWhat;
+  if (text.length < 3) return null;
   const email = EMAIL.test(m.email) ? m.email : "";
   const name = m.name.length >= 2 && !/[?,]/.test(m.name) ? m.name.replace(/[\p{C}]/gu, " ").trim() : "";
-  return t.summary({ text, name, email });
+  return { text, name, email };
+}
+function nextDrahtReply(t, m) {
+  const f = drahtFelder(m);
+  return f ? t.summary(f) : t.askWhat;
+}
+// Ausdrücklicher Wunsch, Robin etwas auszurichten: ohne Rückfrage senden; ohne Anliegen einmal danach fragen.
+async function drahtDirekt(env, m, lang, ip, now, day, t, cors) {
+  const f = drahtFelder(m);
+  if (!f) return json({ reply: t.askWhat, action: null }, 200, cors);
+  const r = await deliver(env, f, lang, ip, now, day, t, cors);
+  const out = await r.json();
+  if (out.sent === true) out.reply = t.sentDirect(f);
+  return json(out, 200, cors);
 }
 
 const GREETING = /^(hallo|hi|hey|moin|servus|grüß gott|guten (tag|morgen|abend)|liebe[rs]?|hello|dear|good (morning|afternoon|evening))\b/i;

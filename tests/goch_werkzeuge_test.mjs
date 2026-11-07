@@ -123,5 +123,24 @@ console.log("Feedback");
   check(/Mehr richte ich heute nicht aus/.test(r.reply), "gleiche Tagesgrenze wie der Draht (gefälschte Rückfragen)");
 }
 
+console.log("Draht ohne Rückfrage (Robin, 07.11.2026)");
+{
+  // Fall vom 02.11.2026: ausdrücklicher Wunsch, das Modell sagt „pass that on to Robin“ und liefert "message"
+  const e = env();
+  modell = { reply: "Of course, I'll pass that on to Robin.", action: "message", message: { name: "George Lewis", email: "", text: "George Lewis called." }, link: null };
+  const vorher = mails.length;
+  const r = await chat(e, "en", [{ role: "user", content: "You could pass a note on to Robin saying that I called. My name is George Lewis. Thank you." }]);
+  check(r.sent === true && mails.length === vorher + 1 && mails.at(-1).subject === "Goch: Nachricht von George Lewis", "sofort gesendet, ohne „Shall I send it like this?“");
+  check(r.reply === "Passed on: “George Lewis called.” – From: George Lewis. If you'd like a reply, the contact form on the website is the best way to reach Robin.", `Antwort zeigt, was ankommt (${r.reply})`);
+  await new Promise(ok => setTimeout(ok, 10));
+  check(![...e.USAGE.map.keys()].some(k => k.startsWith("unanswered:")), "kein Eintrag unter „nicht beantwortet“ (Fehlalarm behoben)");
+  modell = { reply: "Das kann Ihnen nur Robin sagen. Soll ich ihn fragen?", action: null, message: null, link: null };
+  const e2 = env();
+  await chat(e2, "de", [{ role: "user", content: "Was isst Robin am liebsten?" }]);
+  await new Promise(ok => setTimeout(ok, 10));
+  check([...e2.USAGE.map.keys()].some(k => k.startsWith("unanswered:")), "Wissenslücke in der Sie-Form wird gezählt");
+  check(mails.length === vorher + 1, "eine Frage allein sendet nichts");
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");
 process.exit(fails ? 1 : 0);

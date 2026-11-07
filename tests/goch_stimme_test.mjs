@@ -258,7 +258,7 @@ console.log("Stimme in Abschnitten: Goch beginnt mit dem ersten Satz (Robin, 06.
   modell = { reply: "", action: "message", message: { name: "Pat", email: "pat@example.test", text: "Bitte um Rückruf." }, link: null };
   z = await zeilen(await chat(w, e, { messages: [{ role: "user", content: "Ich bin Pat, pat@example.test, bitte um Rückruf." }], stimme: { erste: false, teile: true } })); await Promise.all(ctx.pending);
   const drahtTexte = tts.slice(vorher).map(x => x.body.text).join(" ");
-  check(z[0].reply.includes("pat@example.test") && !drahtTexte.includes("@") && !drahtTexte.includes("Pat") && /soll ich das so senden/.test(drahtTexte), "Draht: nur der neutrale Satz geht zum Anbieter, nie die Eingaben des Besuchers", drahtTexte);
+  check(z[0].reply.includes("pat@example.test") && !drahtTexte.includes("@") && !drahtTexte.includes("Pat") && /an Robin weitergegeben/.test(drahtTexte) && !drahtTexte.includes("Rückruf"), "Draht: nur der neutrale Satz geht zum Anbieter, nie die Eingaben des Besuchers", drahtTexte);
   ttsAntwort = standard;
   modell = { reply: "Robin baut gerade Werkzeuge für Kanzleien.", action: null, message: null, link: null };
 }

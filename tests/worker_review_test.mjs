@@ -89,7 +89,8 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
   check(r.status === 403 && mails.length === before && !e.USAGE.map.has("admin:code"), "E-Mail-Code: gesperrt, sobald ein Passkey existiert (auch unter workers.dev)");
 }
 
-// 6. Draht (Robin, 01.11.2026): Goch richtet aus, was der Besucher sagt; Name und Adresse nur, wenn er sie nennt
+// 6. Draht (Robin, 01.11.2026): Goch richtet aus, was der Besucher sagt; Name und Adresse nur, wenn er sie nennt.
+// Seit 07.11.2026 ohne weitere Zustimmung: Der ausdrückliche Wunsch genügt, gesendet wird sofort.
 {
   const e = env();
   const ask = "Gern, ich bin der Draht. Was soll ich Robin ausrichten?";
@@ -98,27 +99,28 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
   const start = "Ich möchte Robin etwas ausrichten.";
 
   let r = await say("de", start, ask, "Er soll mich wegen des Vortrags anrufen.");
-  check(r === `Ich richte Robin aus: „Er soll mich wegen des Vortrags anrufen.“ ${hint} Soll ich das so senden?`, `Draht: ohne Name und Adresse sofort die Zusammenfassung mit Hinweis aufs Formular (${r.slice(0, 90)})`);
+  check(r === `Ausgerichtet: „Er soll mich wegen des Vortrags anrufen.“ ${hint}`, `Draht: ohne Name und Adresse sofort gesendet, mit Hinweis aufs Formular (${r.slice(0, 90)})`);
   check(!/E-Mail-Adresse kann Robin|wie heißen Sie/.test(r), "Draht: fragt nicht nach Name und Adresse");
 
   r = await say("de", start, ask, "eva, eva.muster@example.test, hallo ich teste diese funktion");
-  check(r === "Ich richte Robin aus: „hallo ich teste diese funktion“ – Von: eva, eva.muster@example.test. Soll ich das so senden?", `Draht: Name und Adresse freiwillig mitgegeben, kein Formular-Hinweis (${r.slice(0, 100)})`);
+  check(r === "Ausgerichtet: „hallo ich teste diese funktion“ – Von: eva, eva.muster@example.test. Robin kann Ihnen per E-Mail an eva.muster@example.test antworten.", `Draht: Name und Adresse freiwillig mitgegeben, kein Formular-Hinweis (${r.slice(0, 100)})`);
 
   r = await say("de", start, ask, "Max Muster, max@example.test");
   check(r === "Was soll ich Robin ausrichten?", `Draht: nur Name und Adresse → fragt nach dem Anliegen (${r.slice(0, 60)})`);
   r = await say("de", start, ask, "Max Muster, max@example.test", "Was soll ich Robin ausrichten?", "Bitte um Rückruf wegen des Angebots.");
-  check(r.startsWith("Ich richte Robin aus: „Bitte um Rückruf wegen des Angebots.“ – Von: Max Muster, max@example.test."), `Draht: Anliegen nachgereicht (${r.slice(0, 90)})`);
+  check(r.startsWith("Ausgerichtet: „Bitte um Rückruf wegen des Angebots.“ – Von: Max Muster, max@example.test."), `Draht: Anliegen nachgereicht (${r.slice(0, 90)})`);
 
   r = await say("de", start, ask, "Hallo Robin. Ich bin Max Muster, max@example.test. Ich habe eine Frage zum Vortrag.");
-  check(r.startsWith("Ich richte Robin aus: „Hallo Robin. Ich habe eine Frage zum Vortrag.“ – Von: Max Muster, max@example.test."), `Draht: „Ich bin …“ mit Sätzen davor und danach (${r.slice(0, 100)})`);
+  check(r.startsWith("Ausgerichtet: „Hallo Robin. Ich habe eine Frage zum Vortrag.“ – Von: Max Muster, max@example.test."), `Draht: „Ich bin …“ mit Sätzen davor und danach (${r.slice(0, 100)})`);
 
   r = await say("de", start, ask, "Sag ihm, der \"Vortrag\" war super");
-  check(r.startsWith("Ich richte Robin aus: „Sag ihm, der 'Vortrag' war super“."), `Draht: Anführungszeichen im Text bleiben lesbar (${r.slice(0, 90)})`);
+  check(r.startsWith("Ausgerichtet: „Sag ihm, der 'Vortrag' war super“."), `Draht: Anführungszeichen im Text bleiben lesbar (${r.slice(0, 90)})`);
 
   r = await say("en", "I'd like to leave a message for Robin.", "Happy to. What should I pass on to Robin?", "please tell him the talk was great");
-  check(r === "I'll pass on to Robin: “please tell him the talk was great”. If you'd like a reply, the contact form on the website is the best way to reach Robin. Shall I send it like this?", `Draht EN: ohne Adresse (${r.slice(0, 90)})`);
+  check(r === "Passed on: “please tell him the talk was great”. If you'd like a reply, the contact form on the website is the best way to reach Robin.", `Draht EN: ohne Adresse (${r.slice(0, 90)})`);
   r = await say("en", "I'd like to leave a message for Robin.", "Happy to. What should I pass on to Robin?", "My name is Jane Doe, jane@example.test – please call me back");
-  check(r.startsWith("I'll pass on to Robin: “please call me back” – From: Jane Doe, jane@example.test."), `Draht EN: „My name is …“ (${r.slice(0, 90)})`);
+  check(r.startsWith("Passed on: “please call me back” – From: Jane Doe, jane@example.test."), `Draht EN: „My name is …“ (${r.slice(0, 90)})`);
+  check(mails.some(m => m.subject === "Goch: Nachricht von Jane Doe" && /please call me back/.test(m.text)), "Draht: ohne Rückfrage wirklich gesendet");
 }
 
 // 7. Senden ohne Adresse, Adresse nach der Zusammenfassung, Deckel zählt nur Modellantworten (Robin, 01.11.2026)
