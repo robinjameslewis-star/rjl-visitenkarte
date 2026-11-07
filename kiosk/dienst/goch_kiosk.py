@@ -447,6 +447,10 @@ def handler(dienst):
         def do_POST(self):
             if not self.erlaubt():
                 return
+            # Fremde Webseiten dürfen den Dienst nicht ansprechen: Er hängt selbst Gerätenachweis und Schlüssel an
+            herkunft = self.headers.get('Origin')
+            if herkunft and urllib.parse.urlparse(herkunft).netloc not in hosts:
+                return self.antwort(403, {'error': 'Nur die eigene Seite.'})
             pfad = urllib.parse.urlparse(self.path).path
             try:
                 daten = self.body()

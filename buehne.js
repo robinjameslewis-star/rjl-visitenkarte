@@ -218,7 +218,7 @@
     else if (angemeldet && modus === 'video') { const s = document.createElement('span'); s.className = 'an'; hinweis.append(s, document.createTextNode('Frage gemeldet')); }
   }
   function status() {
-    anzeige.textContent = `Kapitel ${kap >= 0 ? kap : '–'} · ${modus}${angemeldet ? ' · Frage gemeldet' : ''}${fragen.length ? ' · ' + fragen.length + ' Fragen' : ''}`;
+    anzeige.textContent = `Kapitel ${kap >= 0 ? kap : '–'} · ${modus}${angemeldet ? ' · Frage gemeldet' : ''}${fragen.length ? ' · ' + fragen.length + ' Fragen' : ''}${terminStatus && terminStatus !== 'offen' ? ' · Termin ' + terminStatus + ': bitte am Pult öffnen' : ''}`;
   }
 
   // ---------- Zwischenfrage ----------
@@ -369,26 +369,34 @@
   // ---------- Terminseite (Robin, 07.11.2026): Fragen kommen vom QR-Code, Goch nimmt sie an der passenden Stelle dran ----------
   // Robin begleitet nur: Die Bühne hält selbst am nächsten Absatzende, spricht die schon vertonte Antwort und läuft weiter. Eine
   // Frage zu einem späteren Kapitel wartet bis dorthin. Gesperrte Fragen verschwinden aus der Reihe, bevor sie dran sind.
-  let termin = null, letzterHalt = 0, tafelUhr = 0, aufgabeGezeigt = '';
-  const reihe = new Map(), ABSTAND_MS = 45000, JE_HALT = 2;
+  let termin = null, letzterHalt = 0, tafelUhr = 0, terminStatus = '';
+  const reihe = new Map(), erledigt = new Set(), aufgabenGezeigt = new Set(), ABSTAND_MS = 45000, JE_HALT = 2;
   const $$ = { qr: $('qr'), titel: $('tafel-titel'), text: $('tafel-text'), link: $('tafel-link'), uhr: $('tafel-uhr'), tafelQr: $('tafel-qr') };
   const passend = e => { if (!e.kapitel) return true; const i = liste.findIndex(k => k.titel === e.kapitel); return i < 0 || i <= kap; };
   const bereit = () => [...reihe.values()].filter(e => e.antwort && passend(e));
   async function terminAbruf() {
     let d; try { const r = await fetch('/termin/stand'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
     if (!Array.isArray(d.fragen)) return;
+    terminStatus = d.status || ''; status();
     const ids = new Set(d.fragen.map(f => f.id));
     for (const id of reihe.keys()) if (!ids.has(id)) reihe.delete(id);
-    for (const f of d.fragen) if (!reihe.has(f.id)) { const e = { ...f, antwort: null, versuche: 0 }; reihe.set(f.id, e); vorbereiten(e); }
+    // Vorgemerkter Halt, aber die Frage ist gesperrt: nicht anhalten
+    if (angemeldet && angemeldet.auto && !bereit().length) { angemeldet = null; hinweisZeigen(); status(); }
+    // Rückmeldung noch nicht angekommen: Frage nicht noch einmal vertonen, Meldung wiederholen
+    for (const id of erledigt) if (ids.has(id)) melden(id); else erledigt.delete(id);
+    for (const f of d.fragen) if (!reihe.has(f.id) && !erledigt.has(f.id)) { const e = { ...f, antwort: null, versuche: 0 }; reihe.set(f.id, e); vorbereiten(e); }
     terminPruefen();
   }
   // Im Hintergrund beantworten und vertonen: Am Haltepunkt gibt es dann keine Wartezeit.
   async function vorbereiten(e) {
-    if (e.versuche >= 2 || e.antwort) return;
+    if (e.antwort || !reihe.has(e.id)) return;
+    // Zweimal gescheitert: Die Frage geht ans Pult zurück und blockiert die Reihe nicht.
+    if (e.versuche >= 2) { reihe.delete(e.id); erledigt.add(e.id); return melden(e.id, 'zurueck'); }
     e.versuche++;
     try { e.antwort = await anfrage([{ role: 'user', content: e.text }], 'frage', { schriftlich: true }); terminPruefen(); }
     catch (_) { vorbereiten(e); }
   }
+  const melden = (id, stand = 'beantwortet') => fetch('/termin/frage/' + encodeURIComponent(id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: stand }) }).catch(() => {});
   function terminPruefen() {
     if (modus !== 'video' || angemeldet || beschaeftigt || !marken || feld.dataset.tafel !== undefined || !bereit().length) return;
     if (video.ended) { ({ j: absatz, k: satz } = standBei(video.currentTime)); return automatisch(); }
@@ -401,18 +409,17 @@
   }
   async function automatisch() {
     const g = takt, dran = bereit().slice(0, JE_HALT);
-    if (!dran.length) return;
+    if (!dran.length) { if (modus === 'video' && video.paused && !video.ended) video.play().catch(() => {}); return; }
     verlauf = []; modusSetzen('frage'); zeigeText(''); beschaeftigt = true;
     for (const e of dran) {
-      reihe.delete(e.id);
-      fetch('/termin/frage/' + encodeURIComponent(e.id), { method: 'POST' }).catch(() => {});
+      reihe.delete(e.id); erledigt.add(e.id); melden(e.id);
       fragen.push(e.text); verlauf.push({ role: 'user', content: e.text }, { role: 'assistant', content: e.antwort.reply });
-      feld.dataset.frage = '1'; // der Text braucht die Spalte des kleinen QR-Codes
-      hinweisZeigen((lang() === 'en' ? 'Question: ' : 'Frage: ') + e.text);
+      // Nie den Wortlaut ins Bild: Er kann Namen enthalten. Goch nennt die Frage in eigenen Worten.
+      hinweisZeigen(lang() === 'en' ? 'Question from the audience' : 'Frage aus der Runde');
       await sprechen(e.antwort.reply, e.antwort.stimmeZeile);
-      if (g !== takt) { delete feld.dataset.frage; hinweisZeigen(); return; }
+      if (g !== takt) { hinweisZeigen(); return; }
     }
-    delete feld.dataset.frage; hinweisZeigen(); beschaeftigt = false; letzterHalt = performance.now();
+    hinweisZeigen(); beschaeftigt = false; letzterHalt = performance.now();
     weiter(true);
   }
   function terminMelden() {
@@ -430,12 +437,16 @@
     }
   }
   function tafelZu() { clearInterval(tafelUhr); delete feld.dataset.tafel; }
-  // Am Kapitelende: Aufgabe aus den Absatzmarken („aufgabe“: { id, titel, minuten, text }) auf die Seite und groß ins Bild; N geht weiter.
+  // Am Kapitelende: Aufgaben aus den Absatzmarken („aufgabe“: eine oder eine Liste { id, titel, minuten, text }) auf die Seite, die letzte groß ins Bild; N geht weiter.
   function kapitelEnde() {
-    const a = marken && marken.aufgabe;
-    if (!termin || !a || aufgabeGezeigt === a.id) return;
-    aufgabeGezeigt = a.id;
-    fetch('/termin/aufgabe/' + encodeURIComponent(a.id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ an: true }) }).catch(() => {});
+    const liste = [].concat((marken && marken.aufgabe) || []).filter(a => !aufgabenGezeigt.has(a.id));
+    if (!termin || !liste.length) return;
+    for (const a of liste) {
+      aufgabenGezeigt.add(a.id);
+      fetch('/termin/aufgabe/' + encodeURIComponent(a.id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ an: true }) })
+        .then(r => { if (!r.ok) throw 0; }).catch(() => hinweisZeigen(lang() === 'en' ? 'Exercise could not be shown: please use the console.' : 'Aufgabe kam nicht auf die Seite: bitte am Pult zeigen.'));
+    }
+    const a = liste[liste.length - 1];
     tafel(a.titel || '', a.text || (lang() === 'en' ? 'Now on your device.' : 'Jetzt auf Ihrem Gerät.'), a.minuten);
   }
   video.addEventListener('ended', () => { if (bereit().length) terminPruefen(); else kapitelEnde(); });
@@ -444,7 +455,7 @@
     termin = d; feld.dataset.termin = '1';
     $$.qr.querySelector('img').src = '/termin/qr.svg'; $$.tafelQr.src = '/termin/qr.svg';
     terminAbruf(); setInterval(terminAbruf, 4000);
-    if (kap < 0) tafel(lang() === 'en' ? 'Questions and exercises' : 'Fragen und Aufgaben', lang() === 'en' ? 'Scan the code. You can ask at any time.' : 'Scannen Sie den Code. Fragen können Sie jederzeit stellen, anonym und ohne Anmeldung.');
+    if (kap < 0) tafel(lang() === 'en' ? 'Questions and exercises' : 'Fragen und Aufgaben', lang() === 'en' ? 'Scan the code. You can ask at any time, no login needed.' : 'Scannen Sie den Code. Fragen können Sie jederzeit stellen, ohne Anmeldung.');
   }
 
   // ---------- Tasten ----------

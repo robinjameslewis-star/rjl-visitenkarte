@@ -8,7 +8,7 @@ Antwort, Rückblick im letzten Kapitel vor der Zusammenfassung, reduzierte Beweg
 Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets av numpy` (PyAV baut ein kurzes Testvideo).
 Aufruf:  python3 tests/buehne_test.py [Ordner für Bildschirmfotos]
 Ports:   BUEHNE_UP, BUEHNE_DIENST, BUEHNE_CDP (Standard 8795, 8794, 9348) – belegte Ports brechen den Test ab."""
-import asyncio, base64, http.server, json, os, shutil, socket, subprocess, sys, tempfile, threading, time, urllib.request
+import asyncio, base64, http.server, json, os, shutil, socket, subprocess, sys, tempfile, threading, time, urllib.error, urllib.request
 import av, numpy as np, websockets
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -338,11 +338,26 @@ async def main():
             check(await warte("GochBuehne.zustand().modus === 'frage'", 26), 'hält von selbst am Absatzende an')
             z = await zustand()
             check(abs(z['zeit'] - 17.0) < .6 or z['zeit'] < 1.6 or abs(z['zeit'] - 20.0) < .6, 'Halt am Absatzende, nicht mitten im Satz', round(z['zeit'], 2))
-            check(await warte("document.getElementById('hinweis').textContent.includes('Frage von hier')", 6), 'Frage steht im Bild')
+            check(await warte("document.getElementById('hinweis').textContent.includes('Frage aus der Runde')", 6), 'Hinweis im Bild')
+            check('Frage von hier' not in await ev("document.getElementById('hinweis').textContent"), 'Wortlaut der Frage nicht im Bild')
             await shot('buehne-termin-antwort')
             check(await warte("GochBuehne.zustand().modus === 'video'", 25), 'läuft ohne Taste weiter')
             check(t['beantwortet'] == ['tf_gleich'], 'nur die passende Frage beantwortet, gesperrte nicht', t['beantwortet'])
             check('tf_spaet' in [f['id'] for f in t['fragen']], 'späte Frage wartet')
+            # Frage wird gesperrt, nachdem der Halt vorgemerkt ist: Der Vortrag darf nicht stehen bleiben
+            await pump(46.0)  # Abstand zwischen zwei Halten
+            t['fragen'].append({'id': 'tf_weg', 'text': 'Wird gleich gesperrt', 'kapitel': 'Test', 'art': 'verstaendnis', 'gleich_n': 1})
+            await ev("GochBuehne.kapitelStarten(0).then(() => true)"); await springen(2.5)
+            check(await warte("!!GochBuehne.zustand().angemeldet", 12), 'Halt vorgemerkt')
+            t['fragen'] = [f for f in t['fragen'] if f['id'] != 'tf_weg']
+            check(await warte("!GochBuehne.zustand().angemeldet", 8), 'gesperrt: Halt entfällt')
+            await pump(1.0); z0 = (await zustand())['zeit']; await pump(1.5)
+            check((await zustand())['zeit'] > z0 and (await zustand())['modus'] == 'video', 'Video läuft weiter')
+            # Fremde Herkunft kommt nicht durch den Dienst
+            req = urllib.request.Request(f'http://localhost:{DIENST}/termin/aufgabe/daten', data=b'{}', headers={'Origin': 'https://fremd.example', 'content-type': 'application/json'}, method='POST')
+            try: urllib.request.urlopen(req, timeout=5); code = 200
+            except urllib.error.HTTPError as e: code = e.code
+            check(code == 403, 'Dienst lehnt fremde Herkunft ab', code)
             # Letztes Kapitel: Dort ist die späte Frage dran; Aufgabe erscheint am Kapitelende
             await ev("(async () => { const m = await (await fetch('/vortrag/Kapitel_00_Test.marken.json')).json(); return m.kapitel; })()")
             await ev("GochBuehne.kapitelStarten(1).then(() => true)")
