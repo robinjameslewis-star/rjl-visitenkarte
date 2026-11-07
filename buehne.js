@@ -13,6 +13,8 @@
   const feld = $('feld'), video = $('video'), folie = $('folie'), kapitelEl = $('kapitel'), hinweis = $('hinweis'),
     untertitel = $('untertitel'), eingabe = $('eingabe'), anzeige = $('anzeige');
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
+  // Adressen: am Laptop beim lokalen Dienst (leer), im Memberbereich unter dem Termin (window.BUEHNE.api, Robin 07.11.2026)
+  const api = (window.BUEHNE && window.BUEHNE.api) || '';
   let K = {}, liste = [], marken = null, kap = -1, angemeldet = null, uebersprungen = 0, rueckblickGemacht = false, modus = 'video';
   let verlauf = [], fragen = [], vorgemerkt = [], weiterNach = null, absatz = -1, satz = -1, beschaeftigt = false, leben = null, untertitelTimer = 0;
   let aufnahme = null, startet = false, tasteUnten = false, gedrueckt = 0;
@@ -109,7 +111,7 @@
   // Antwort der Workshop-Figur; wirft bei Fehlern – auch bei einer Ersatzantwort des Workers (fehler: true)
   async function anfrage(messages, zweck, extra = {}) {
     const z = kontext();
-    const r = await fetch('/kiosk/chat', { method: 'POST', headers: { 'content-type': 'application/json' },
+    const r = await fetch(api + '/kiosk/chat', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ figur: K.figur, lang: lang(), messages: messages.slice(-12), gesprochen: true, stimme: { erste: false },
         vortrag: { zweck, kapitel: marken ? `${marken.kapitel}: ${marken.titel}` : '', gesagt: z.gesagt, naechstes: z.naechstes,
           danach: z.danach, fragen, ...extra } }) });
@@ -130,14 +132,14 @@
     A.schweigen(); aufnahmeBeenden(); zeigeText('');
     beschaeftigt = false; angemeldet = null; vorgemerkt = []; weiterNach = null; verlauf = []; absatz = satz = -1;
     let m;
-    try { m = await (await fetch('/vortrag/' + encodeURIComponent(liste[i].marken))).json(); } catch (_) { return; }
+    try { m = await (await fetch(api + '/vortrag/' + encodeURIComponent(liste[i].marken))).json(); } catch (_) { return; }
     if (g !== takt) return;
     kap = i; marken = m; rueckblickGemacht = false;
     tafelZu(); terminMelden();
     kapitelEl.replaceChildren(document.createTextNode(marken.kapitel || ''));
     const b = document.createElement('b'); b.textContent = marken.titel || ''; kapitelEl.append(b);
     hinweisZeigen();
-    video.src = '/vortrag/' + encodeURIComponent(marken.video);
+    video.src = api + '/vortrag/' + encodeURIComponent(marken.video);
     video.currentTime = letzteZeit = ab;
     modusSetzen('video');
     await video.play().catch(() => {});
@@ -208,7 +210,7 @@
     modus = m; feld.dataset.modus = m === 'video' ? 'video' : 'live';
     if (m !== 'video') {
       const f = folieBei(video.currentTime);
-      if (f) folie.src = '/vortrag/folien/' + encodeURIComponent(f);
+      if (f) folie.src = api + '/vortrag/folien/' + encodeURIComponent(f);
     }
     status();
   }
@@ -344,7 +346,7 @@
     if (dauer < .5) { zeigeText(t('bitte')); return; }
     zeigeText('…');
     try {
-      const r = await fetch('/kiosk/listen?lang=' + lang(), { method: 'POST', headers: { 'content-type': 'audio/wav' }, body: wav });
+      const r = await fetch(api + '/kiosk/listen?lang=' + lang(), { method: 'POST', headers: { 'content-type': 'audio/wav' }, body: wav });
       const d = await r.json().catch(() => ({}));
       if (g !== takt || modus !== 'frage') return; // inzwischen zurück im Video: Frage verfällt
       if (d.text) return frageStellen(d.text);
@@ -375,7 +377,7 @@
   const passend = e => { if (!e.kapitel) return true; const i = liste.findIndex(k => k.titel === e.kapitel); return i < 0 || i <= kap; };
   const bereit = () => [...reihe.values()].filter(e => e.antwort && passend(e));
   async function terminAbruf() {
-    let d; try { const r = await fetch('/termin/stand'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
+    let d; try { const r = await fetch(api + '/termin/stand'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
     if (!Array.isArray(d.fragen)) return;
     terminStatus = d.status || ''; status();
     const ids = new Set(d.fragen.map(f => f.id));
@@ -396,7 +398,7 @@
     try { e.antwort = await anfrage([{ role: 'user', content: e.text }], 'frage', { schriftlich: true }); terminPruefen(); }
     catch (_) { vorbereiten(e); }
   }
-  const melden = (id, stand = 'beantwortet') => fetch('/termin/frage/' + encodeURIComponent(id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: stand }) }).catch(() => {});
+  const melden = (id, stand = 'beantwortet') => fetch(api + '/termin/frage/' + encodeURIComponent(id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: stand }) }).catch(() => {});
   function terminPruefen() {
     if (modus !== 'video' || angemeldet || beschaeftigt || !marken || feld.dataset.tafel !== undefined || !bereit().length) return;
     if (video.ended) { ({ j: absatz, k: satz } = standBei(video.currentTime)); return automatisch(); }
@@ -423,7 +425,7 @@
     weiter(true);
   }
   function terminMelden() {
-    if (termin && marken) fetch('/termin/stand', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kapitel: marken.titel || '' }) }).catch(() => {});
+    if (termin && marken) fetch(api + '/termin/stand', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kapitel: marken.titel || '' }) }).catch(() => {});
   }
   function tafel(titel, text, minuten) {
     if (!termin) return;
@@ -443,7 +445,7 @@
     if (!termin || !liste.length) return;
     for (const a of liste) {
       aufgabenGezeigt.add(a.id);
-      fetch('/termin/aufgabe/' + encodeURIComponent(a.id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ an: true }) })
+      fetch(api + '/termin/aufgabe/' + encodeURIComponent(a.id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ an: true }) })
         .then(r => { if (!r.ok) throw 0; }).catch(() => hinweisZeigen(lang() === 'en' ? 'Exercise could not be shown: please use the console.' : 'Aufgabe kam nicht auf die Seite: bitte am Pult zeigen.'));
     }
     const a = liste[liste.length - 1];
@@ -451,9 +453,9 @@
   }
   video.addEventListener('ended', () => { if (bereit().length) terminPruefen(); else kapitelEnde(); });
   async function terminStart() {
-    let d; try { const r = await fetch('/termin/info'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
+    let d; try { const r = await fetch(api + '/termin/info'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
     termin = d; feld.dataset.termin = '1';
-    $$.qr.querySelector('img').src = '/termin/qr.svg'; $$.tafelQr.src = '/termin/qr.svg';
+    $$.qr.querySelector('img').src = api + '/termin/qr.svg'; $$.tafelQr.src = api + '/termin/qr.svg';
     terminAbruf(); setInterval(terminAbruf, 4000);
     if (kap < 0) tafel(lang() === 'en' ? 'Questions and exercises' : 'Fragen und Aufgaben', lang() === 'en' ? 'Scan the code. You can ask at any time, no login needed.' : 'Scannen Sie den Code. Fragen können Sie jederzeit stellen, ohne Anmeldung.');
   }
@@ -494,9 +496,9 @@
 
   // ---------- Start ----------
   (async () => {
-    try { K = await (await fetch('/kiosk/konfiguration')).json(); } catch (_) {}
+    try { K = await (await fetch(api + '/kiosk/konfiguration')).json(); } catch (_) {}
     let listeFehler = false;
-    try { const r = await fetch('/vortrag/liste'); liste = await r.json(); listeFehler = !r.ok && r.status !== 404; } catch (_) { liste = []; }
+    try { const r = await fetch(api + '/vortrag/liste'); liste = await r.json(); listeFehler = !r.ok && r.status !== 404; } catch (_) { liste = []; }
     if (!Array.isArray(liste)) liste = [];
     await gochBauen().catch(() => {});
     await terminStart();

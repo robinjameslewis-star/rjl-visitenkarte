@@ -33,6 +33,7 @@ import { handleKiosk, kundenSystem, kundenVortrag, stillAntwort, GOCH_AM_GERAET 
 import { laden as seitenLaden, prompt as seitenPrompt, links as seitenLinks } from "./seitenwissen.js";
 // Durable Object des Messegeräts (Gerätebudget, src/kiosk.js) – muss vom Hauptmodul exportiert werden
 export { Geraetebudget } from "./kiosk.js";
+import { workshopAnfrage } from "./workshop.js";
 
 const perIp = new Map();         // weiche Grenze je Instanz: ip -> [timestamps der Anfragen]
 const perIpMessages = new Map(); // je Instanz: ip -> [timestamps versendeter Nachrichten]
@@ -288,6 +289,9 @@ const worker = {
 };
 
 export default worker;
+
+// Benannter Eingang für die Service Binding des Memberbereichs (src/workshop.js); keine Route, von außen nicht erreichbar.
+export const Workshop = { fetch: (request, env, ctx) => workshopAnfrage(request, env, ctx, { handle: worker.handle, mitStimme }) };
 
 // Antwort von /chat um die Stimme ergänzen: Zeile 1 sofort (die Seite zeigt den Text), Zeile 2 mit dem MP3, sobald es
 // da ist. Verlangt die Seite { stimme: { teile: true } } (Robin, 06.11.2026), folgt je Abschnitt eine Zeile (stimmeInTeilen),

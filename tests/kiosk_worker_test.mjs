@@ -280,5 +280,36 @@ console.log("Spracheingabe mit Gerätebudget, Lebenszeichen");
   check((await kiosk(e, "/kiosk/unbekannt", token, {})).status === 404, "unbekannte Kiosk-Route: 404");
 }
 
+console.log("Eingang „Workshop“ für den Memberbereich (Service Binding)");
+{
+  const e = await umgebung(), W = modul.Workshop;
+  const ws = (pfad, body, typ = "application/json") => W.fetch(new Request("https://goch.intern" + pfad, { method: "POST", headers: { "content-type": typ },
+    body: typeof body === "string" || body instanceof Uint8Array ? body : JSON.stringify(body) }), e, ctx);
+  const figur = { ...kunde, id: "kunde-workshop-allgemein", einsatz: "messe", sprachen: ["de"], voiceId: "WorkshopVoice12" };
+  check(W && typeof W.fetch === "function", "benannter Export „Workshop“ mit fetch");
+  modell = { reply: "Nur öffentliche Daten.", action: null, message: null, link: "werkzeuge", link2: null };
+  const r = await ws("/chat", { figur, lang: "de", messages: [{ role: "user", content: "Darf ich ChatGPT nutzen?" }], gesprochen: true, stimme: { erste: false },
+    vortrag: { zweck: "frage", schriftlich: true, kapitel: "Kapitel 3: Daten", gesagt: "Öffentliche Werkzeuge nur mit öffentlichen Daten.", naechstes: "", danach: "", fragen: [] } });
+  const t = await r.text();
+  await Promise.all(ctx.pending);
+  const z = t.trim().split("\n").map(x => JSON.parse(x)), p = prompts.at(-1);
+  check(r.status === 200 && z[0].reply === "Nur öffentliche Daten." && z[0].link === null, "Antwort wie am Gerät, ohne Link", t.slice(0, 120));
+  check(p.system[0].text.includes("Du sprichst in einer Schulung, einem Workshop") && p.system[0].text.includes(figur.wissen.trim().slice(0, 40)) && p.system[1].text.includes("kam schriftlich über die Terminseite"),
+    "Figur aus der Anfrage, Einsatz immer Workshop, Stand des Vortrags dabei");
+  check(z[1] && tts.at(-1) && tts.at(-1).url.includes("WorkshopVoice12"), "Stimme mit der voiceId der mitgeschickten Figur", tts.at(-1) && tts.at(-1).url);
+  check((await ws("/chat", { figur: { ...figur, wissen: "zu kurz" }, messages: frage })).status === 400, "Figur ungültig: 400 mit Grund");
+  check((await ws("/chat", { messages: frage })).status === 400, "ohne Figur: 400");
+  check((await ws("/unbekannt", {})).status === 404, "andere Pfade: 404");
+  const hoer = await (await ws("/listen?lang=de", wav(2), "audio/wav")).json();
+  await Promise.all(ctx.pending);
+  check(hoer.text === "Was macht Robin?", "Spracheingabe über den Eingang", JSON.stringify(hoer));
+  const stand = await geraetStand(e, "memberbereich");
+  check(stand.heute.antworten === 1 && stand.heute.sekunden === 2, "eigenes Tagesbudget „memberbereich“", JSON.stringify(stand.heute));
+  const knapp = { ...e, WORKSHOP_ANTWORTEN_TAG: "1" };
+  const g = await (await W.fetch(new Request("https://goch.intern/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ figur, messages: frage }) }), knapp, ctx)).json();
+  check(g.fehler === true && /genug erzählt/.test(g.reply), "Tagesgrenze erreicht: Satz mit Workshopleitung, fehler: true", JSON.stringify(g));
+  check((await kiosk(e, "/kiosk/chat", null, { figur, messages: frage })).status === 401, "öffentliche Kiosk-Route bleibt ohne Nachweis gesperrt");
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nKiosk-Route in Ordnung.");
 process.exit(fails ? 1 : 0);
