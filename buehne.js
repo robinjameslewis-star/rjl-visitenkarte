@@ -107,12 +107,12 @@
     });
   }
   // Antwort der Workshop-Figur; wirft bei Fehlern – auch bei einer Ersatzantwort des Workers (fehler: true)
-  async function anfrage(messages, zweck) {
+  async function anfrage(messages, zweck, extra = {}) {
     const z = kontext();
     const r = await fetch('/kiosk/chat', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ figur: K.figur, lang: lang(), messages: messages.slice(-12), gesprochen: true, stimme: { erste: false },
         vortrag: { zweck, kapitel: marken ? `${marken.kapitel}: ${marken.titel}` : '', gesagt: z.gesagt, naechstes: z.naechstes,
-          danach: z.danach, fragen } }) });
+          danach: z.danach, fragen, ...extra } }) });
     if (!r.ok) throw new Error(String(r.status));
     let a;
     if (/ndjson/.test(r.headers.get('content-type') || '')) {
@@ -133,6 +133,7 @@
     try { m = await (await fetch('/vortrag/' + encodeURIComponent(liste[i].marken))).json(); } catch (_) { return; }
     if (g !== takt) return;
     kap = i; marken = m; rueckblickGemacht = false;
+    tafelZu(); terminMelden();
     kapitelEl.replaceChildren(document.createTextNode(marken.kapitel || ''));
     const b = document.createElement('b'); b.textContent = marken.titel || ''; kapitelEl.append(b);
     hinweisZeigen();
@@ -228,7 +229,9 @@
     hinweisZeigen(); status();
   }
   function liveFrage() {
+    const auto = angemeldet && angemeldet.auto;
     angemeldet = null; hinweisZeigen();
+    if (auto) return automatisch();
     verlauf = [];
     modusSetzen('frage');
     zeigeText(t('bitte'));
@@ -310,6 +313,7 @@
       video.pause();
       if (isFinite(video.duration)) video.currentTime = video.duration;
       if (vorgemerkt.length) return liveFrage();
+      kapitelEnde();
       return status();
     }
     video.currentTime = letzteZeit = zeit;
@@ -362,6 +366,87 @@
   });
   eingabe.addEventListener('blur', () => { if (document.hasFocus()) delete feld.dataset.tippen; }); // Klick auf die Bühne: zu; Fensterwechsel: bleibt offen
 
+  // ---------- Terminseite (Robin, 07.11.2026): Fragen kommen vom QR-Code, Goch nimmt sie an der passenden Stelle dran ----------
+  // Robin begleitet nur: Die Bühne hält selbst am nächsten Absatzende, spricht die schon vertonte Antwort und läuft weiter. Eine
+  // Frage zu einem späteren Kapitel wartet bis dorthin. Gesperrte Fragen verschwinden aus der Reihe, bevor sie dran sind.
+  let termin = null, letzterHalt = 0, tafelUhr = 0, aufgabeGezeigt = '';
+  const reihe = new Map(), ABSTAND_MS = 45000, JE_HALT = 2;
+  const $$ = { qr: $('qr'), titel: $('tafel-titel'), text: $('tafel-text'), link: $('tafel-link'), uhr: $('tafel-uhr'), tafelQr: $('tafel-qr') };
+  const passend = e => { if (!e.kapitel) return true; const i = liste.findIndex(k => k.titel === e.kapitel); return i < 0 || i <= kap; };
+  const bereit = () => [...reihe.values()].filter(e => e.antwort && passend(e));
+  async function terminAbruf() {
+    let d; try { const r = await fetch('/termin/stand'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
+    if (!Array.isArray(d.fragen)) return;
+    const ids = new Set(d.fragen.map(f => f.id));
+    for (const id of reihe.keys()) if (!ids.has(id)) reihe.delete(id);
+    for (const f of d.fragen) if (!reihe.has(f.id)) { const e = { ...f, antwort: null, versuche: 0 }; reihe.set(f.id, e); vorbereiten(e); }
+    terminPruefen();
+  }
+  // Im Hintergrund beantworten und vertonen: Am Haltepunkt gibt es dann keine Wartezeit.
+  async function vorbereiten(e) {
+    if (e.versuche >= 2 || e.antwort) return;
+    e.versuche++;
+    try { e.antwort = await anfrage([{ role: 'user', content: e.text }], 'frage', { schriftlich: true }); terminPruefen(); }
+    catch (_) { vorbereiten(e); }
+  }
+  function terminPruefen() {
+    if (modus !== 'video' || angemeldet || beschaeftigt || !marken || feld.dataset.tafel !== undefined || !bereit().length) return;
+    if (video.ended) { ({ j: absatz, k: satz } = standBei(video.currentTime)); return automatisch(); }
+    if (video.paused || performance.now() - letzterHalt < ABSTAND_MS && letzterHalt) return;
+    const t = video.currentTime; let j = absatzBei(t), a = absaetze()[j];
+    if (!a) return;
+    if (a.bis - t < 2 && absaetze()[j + 1]) a = absaetze()[++j];
+    angemeldet = { j, k: saetzeVon(a).length - 1, zeit: a.bis, auto: true };
+    hinweisZeigen(); status();
+  }
+  async function automatisch() {
+    const g = takt, dran = bereit().slice(0, JE_HALT);
+    if (!dran.length) return;
+    verlauf = []; modusSetzen('frage'); zeigeText(''); beschaeftigt = true;
+    for (const e of dran) {
+      reihe.delete(e.id);
+      fetch('/termin/frage/' + encodeURIComponent(e.id), { method: 'POST' }).catch(() => {});
+      fragen.push(e.text); verlauf.push({ role: 'user', content: e.text }, { role: 'assistant', content: e.antwort.reply });
+      feld.dataset.frage = '1'; // der Text braucht die Spalte des kleinen QR-Codes
+      hinweisZeigen((lang() === 'en' ? 'Question: ' : 'Frage: ') + e.text);
+      await sprechen(e.antwort.reply, e.antwort.stimmeZeile);
+      if (g !== takt) { delete feld.dataset.frage; hinweisZeigen(); return; }
+    }
+    delete feld.dataset.frage; hinweisZeigen(); beschaeftigt = false; letzterHalt = performance.now();
+    weiter(true);
+  }
+  function terminMelden() {
+    if (termin && marken) fetch('/termin/stand', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kapitel: marken.titel || '' }) }).catch(() => {});
+  }
+  function tafel(titel, text, minuten) {
+    if (!termin) return;
+    clearInterval(tafelUhr);
+    $$.titel.textContent = titel; $$.text.textContent = text; $$.link.textContent = termin.link; $$.uhr.textContent = '';
+    feld.dataset.tafel = '1';
+    if (minuten) {
+      const ende = Date.now() + minuten * 60000;
+      const zeigen = () => { const r = Math.max(0, Math.round((ende - Date.now()) / 1000)); $$.uhr.textContent = Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0'); };
+      zeigen(); tafelUhr = setInterval(zeigen, 1000);
+    }
+  }
+  function tafelZu() { clearInterval(tafelUhr); delete feld.dataset.tafel; }
+  // Am Kapitelende: Aufgabe aus den Absatzmarken („aufgabe“: { id, titel, minuten, text }) auf die Seite und groß ins Bild; N geht weiter.
+  function kapitelEnde() {
+    const a = marken && marken.aufgabe;
+    if (!termin || !a || aufgabeGezeigt === a.id) return;
+    aufgabeGezeigt = a.id;
+    fetch('/termin/aufgabe/' + encodeURIComponent(a.id), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ an: true }) }).catch(() => {});
+    tafel(a.titel || '', a.text || (lang() === 'en' ? 'Now on your device.' : 'Jetzt auf Ihrem Gerät.'), a.minuten);
+  }
+  video.addEventListener('ended', () => { if (bereit().length) terminPruefen(); else kapitelEnde(); });
+  async function terminStart() {
+    let d; try { const r = await fetch('/termin/info'); if (!r.ok) return; d = await r.json(); } catch (_) { return; }
+    termin = d; feld.dataset.termin = '1';
+    $$.qr.querySelector('img').src = '/termin/qr.svg'; $$.tafelQr.src = '/termin/qr.svg';
+    terminAbruf(); setInterval(terminAbruf, 4000);
+    if (kap < 0) tafel(lang() === 'en' ? 'Questions and exercises' : 'Fragen und Aufgaben', lang() === 'en' ? 'Scan the code. You can ask at any time.' : 'Scannen Sie den Code. Fragen können Sie jederzeit stellen, anonym und ohne Anmeldung.');
+  }
+
   // ---------- Tasten ----------
   const taste = () => K.taste || 'Space';
   const istTaste = e => e.code === taste() || e.key === taste() || (taste() === 'Space' && e.key === ' ');
@@ -376,7 +461,8 @@
       return;
     }
     const k = e.key.toLowerCase();
-    if (/^[0-9hwrtpn?]$/.test(k)) e.preventDefault(); // T: kein „t“ im Eingabefeld
+    if (/^[0-9hwrtpnq?]$/.test(k)) e.preventDefault(); // T: kein „t“ im Eingabefeld
+    if (k === 'q') { if (feld.dataset.tafel !== undefined) tafelZu(); else tafel(lang() === 'en' ? 'Questions and exercises' : 'Fragen und Aufgaben', lang() === 'en' ? 'Scan the code.' : 'Scannen Sie den Code.'); return; }
     if (/^[0-9]$/.test(k)) kapitelStarten(+k);
     else if (k === 'h') anmelden();
     else if (k === 'w') weiter(true);
@@ -402,8 +488,9 @@
     try { const r = await fetch('/vortrag/liste'); liste = await r.json(); listeFehler = !r.ok && r.status !== 404; } catch (_) { liste = []; }
     if (!Array.isArray(liste)) liste = [];
     await gochBauen().catch(() => {});
+    await terminStart();
     window.GochBuehne = { kapitelStarten, anmelden, frageStellen, weiter, rueckblick,
-      zustand: () => ({ modus, kap, absatz, satz, angemeldet, beschaeftigt, fragen: fragen.slice(), uebersprungen, zeit: video.currentTime, folie: folie.getAttribute('src') }) };
+      zustand: () => ({ tafel: feld.dataset.tafel !== undefined, reihe: reihe.size, modus, kap, absatz, satz, angemeldet, beschaeftigt, fragen: fragen.slice(), uebersprungen, zeit: video.currentTime, folie: folie.getAttribute('src') }) };
     // über Video und Live-Bild sichtbar (#hinweis), nicht im unsichtbaren Live-Untertitel
     if (!liste.length) hinweisZeigen(listeFehler ? (lang() === 'en' ? 'Talk folder not readable (USB stick?).' : 'Vortragsordner nicht lesbar (Stick?).')
       : (lang() === 'en' ? 'No talk set up (local service with --vortrag).' : 'Kein Vortrag eingerichtet (lokaler Dienst mit --vortrag).'));

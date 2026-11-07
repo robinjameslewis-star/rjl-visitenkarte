@@ -53,6 +53,20 @@
   #eingabe { position: absolute; left: 24px; top: 448px; width: 704px; height: 40px; display: none; z-index: 4; font: 16px var(--sans);
     border: 1px solid var(--copper); border-radius: 6px; padding: 0 12px; box-sizing: border-box; background: #fffdf8; }
   .feld[data-tippen] #eingabe { display: block; }
+  /* Terminseite: QR-Code in der freien rechten Spalte, groß auf der Tafel (Start, Taste Q, Aufgabe am Kapitelende) */
+  #qr { position: absolute; left: 790px; top: 160px; width: 106px; z-index: 3; display: none; text-align: center; font: 500 10px/1.25 var(--sans); color: var(--ink-soft);
+    background: rgba(255,255,255,.85); border-radius: 6px; padding: 4px; box-sizing: content-box; }
+  #qr img { display: block; width: 106px; height: 106px; }
+  .feld[data-termin] #qr { display: block; }
+  .feld[data-frage] #qr { display: none; }
+  #tafel { position: absolute; inset: 0; z-index: 4; display: none; background: var(--paper) url("assets/papier.jpg") center / cover; color: var(--ink); font-family: var(--sans); }
+  .feld[data-tafel] #tafel { display: block; }
+  #tafel .text { position: absolute; left: 48px; top: 96px; width: 470px; }
+  #tafel h1 { font: 500 38px/1.15 var(--serif); color: var(--green); margin: 0 0 14px; }
+  #tafel p { font: 500 18px/1.4 var(--sans); margin: 0 0 12px; }
+  #tafel .link { font-size: 15px; color: var(--ink-soft); word-break: break-all; }
+  #tafel .uhr { font: 600 30px/1 var(--sans); color: var(--copper); margin-top: 18px; font-variant-numeric: tabular-nums; }
+  #tafel img { position: absolute; left: 566px; top: 96px; width: 340px; height: 340px; background: #fff; border-radius: 8px; }
   #anzeige { position: absolute; right: 10px; top: 8px; font: 11px var(--sans); color: rgba(255,255,255,.75); z-index: 5; display: none; }
   body.hilfe-an #anzeige { display: block; }
 </style>
@@ -69,6 +83,8 @@
     <div class="untertitel" id="untertitel"></div>
   </div>
   <div class="hinweis" id="hinweis"></div>
+  <div id="qr"><img src="" alt=""><span>Fragen und Aufgaben</span></div>
+  <div id="tafel"><div class="text"><h1 id="tafel-titel"></h1><p id="tafel-text"></p><p class="link" id="tafel-link"></p><div class="uhr" id="tafel-uhr"></div></div><img id="tafel-qr" src="" alt=""></div>
   <input id="eingabe" type="text" autocomplete="off" placeholder="Frage eintippen, Enter sendet, Esc schließt">
   <div id="anzeige"></div>
 </div>
@@ -77,10 +93,11 @@
   <b>H</b> oder <b>Taste</b> (kurz): Frage anmelden – Goch hält am Ende des Absatzes an<br>
   <b>Taste halten</b>: Frage sprechen · <b>T</b>: Frage tippen (z. B. aus dem Chat)<br>
   <b>W</b>: weiter im Vortrag (Goch leitet über) · <b>R</b>: Rückblick auf die Fragen · <b>Esc</b>: ohne Überleitung weiter<br>
+  <b>Q</b>: QR-Code groß zeigen und wieder schließen<br>
   <b>?</b>: diese Hilfe
 </div>
 <script src="goch-audio.js?v=20261024" defer></script>
 <script src="goch-leben.js?v=20261024" defer></script>
-<script src="buehne.js?v=20261024" defer></script>
+<script src="buehne.js?v=20261107" defer></script>
 </body>
 </html>

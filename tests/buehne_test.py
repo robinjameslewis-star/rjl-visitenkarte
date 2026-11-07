@@ -8,7 +8,7 @@ Antwort, Rückblick im letzten Kapitel vor der Zusammenfassung, reduzierte Beweg
 Voraussetzungen: Google Chrome, Python 3 mit `pip install websockets av numpy` (PyAV baut ein kurzes Testvideo).
 Aufruf:  python3 tests/buehne_test.py [Ordner für Bildschirmfotos]
 Ports:   BUEHNE_UP, BUEHNE_DIENST, BUEHNE_CDP (Standard 8795, 8794, 9348) – belegte Ports brechen den Test ab."""
-import asyncio, base64, json, os, shutil, socket, subprocess, sys, tempfile, time, urllib.request
+import asyncio, base64, http.server, json, os, shutil, socket, subprocess, sys, tempfile, threading, time, urllib.request
 import av, numpy as np, websockets
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,14 +71,38 @@ async def main():
     for n in (1, 2, 3, 4):  # Folienbilder: Goch-Bild aus dem Paket als Platzhalter
         shutil.copy(os.path.join(ROOT, 'figuren', 'goch', 'bilder', 'bestand', 'vogel.webp'), os.path.join(vortrag, 'folien', f'folie-0{n}.jpg'))
     json.dump(marken('Kapitel 0', 'Test', 'Kapitel_00_Test.mp4'), open(os.path.join(vortrag, 'Kapitel_00_Test.marken.json'), 'w'))
-    json.dump(marken('Kapitel 1', 'Schluss', 'Kapitel_01_Schluss.mp4'), open(os.path.join(vortrag, 'Kapitel_01_Schluss.marken.json'), 'w'))
+    json.dump({**marken('Kapitel 1', 'Schluss', 'Kapitel_01_Schluss.mp4'), 'aufgabe': {'id': 'pruefen', 'titel': 'Ergebnisse prüfen', 'minuten': 8}}, open(os.path.join(vortrag, 'Kapitel_01_Schluss.marken.json'), 'w'))
     geraet = os.path.join(tmp, 'geraet.json')
     with os.fdopen(os.open(geraet, os.O_WRONLY | os.O_CREAT, 0o600), 'w') as f: json.dump({'worker': f'http://127.0.0.1:{UP}', 'token': TOKEN}, f)
     konfig = os.path.join(tmp, 'konfiguration.json')
     json.dump({'figur': 'kunde-workshop-ki', 'paket': 'goch', 'sprache': 'de', 'taste': 'F13', 'lautstaerke': 0.8, 'stimme': True}, open(konfig, 'w'))
+    # Terminseite: kleine Attrappe des Memberbereichs (Fragen, Stand, Aufgaben; prüft den Schlüssel der Bühne)
+    t = {'fragen': [], 'beantwortet': [], 'stand': [], 'aufgaben': [], 'schluessel_falsch': 0}
+    class Termin(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _j(self, o, typ='application/json', code=200):
+            b = o if isinstance(o, bytes) else json.dumps(o).encode()
+            self.send_response(code); self.send_header('content-type', typ); self.send_header('content-length', str(len(b))); self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            if self.path.endswith('/qr.svg'): return self._j(b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect width="1" height="1"/></svg>', 'image/svg+xml')
+            if self.headers.get('authorization') != 'Bearer termin-schluessel': t['schluessel_falsch'] += 1; return self._j({}, code=401)
+            self._j({'status': 'offen', 'fragen': t['fragen'], 'eingegangen': len(t['fragen']), 'ampel': {}, 'sichtbar': []})
+        def do_POST(self):
+            b = json.loads(self.rfile.read(int(self.headers.get('content-length') or 0)) or b'{}')
+            if '/buehne/frage/' in self.path:
+                i = self.path.rsplit('/', 1)[1]; t['beantwortet'].append(i); t['fragen'] = [f for f in t['fragen'] if f['id'] != i]
+            elif '/buehne/stand' in self.path: t['stand'].append(b.get('kapitel'))
+            elif '/buehne/aufgabe/' in self.path: t['aufgaben'].append(self.path.rsplit('/', 1)[1])
+            self._j({'ok': True})
+    TERMIN = UP + 7
+    termin_srv = http.server.ThreadingHTTPServer(('127.0.0.1', TERMIN), Termin)
+    threading.Thread(target=termin_srv.serve_forever, daemon=True).start()
+    schluessel_datei = os.path.join(tmp, 'termin-schluessel')
+    with os.fdopen(os.open(schluessel_datei, os.O_WRONLY | os.O_CREAT, 0o600), 'w') as f: f.write('termin-schluessel\n')
+    dienst2_args = ['--termin-adresse', f'http://127.0.0.1:{TERMIN}', '--termin-code', 'prueflauf1', '--termin-schluessel', schluessel_datei]
     up = subprocess.Popen([PY, os.path.join(ROOT, 'tests', 'goch_fake_worker.py'), str(UP)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     dienst = subprocess.Popen([PY, os.path.join(ROOT, 'kiosk', 'dienst', 'goch_kiosk.py'), '--seite', ROOT, '--figuren', figuren, '--daten', daten, '--geraet', geraet,
-                               '--konfiguration', konfig, '--vortrag', vortrag, '--port', str(DIENST), '--lebenszeichen-takt', '60', '--test'],
+                               '--konfiguration', konfig, '--vortrag', vortrag, '--port', str(DIENST), '--lebenszeichen-takt', '60', '--test', *dienst2_args],
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     proc = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={CDP}', f'--user-data-dir={tempfile.mkdtemp(prefix="rjl-buehne-chrome-")}', '--no-first-run',
                              '--window-size=1920,1080', '--autoplay-policy=no-user-gesture-required', 'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -287,7 +311,51 @@ async def main():
             check([c['vortrag']['zweck'] for c in neu] == ['rueckblick'] and len(neu[0]['vortrag']['fragen']) == 1, 'keine Überleitung davor, kein zweiter Wechsel live–Video–live', [c['vortrag']['zweck'] for c in neu])
             check(await warte("GochBuehne.zustand().modus === 'video'", 15) and 17.2 <= (await zustand())['zeit'] <= 17.9, 'danach weiter bei „Absatz drei.“')
             await send("Emulation.setEmulatedMedia", {"features": []})
+
+            print('Terminseite: QR-Code, Tafel, Frage vom Handy an der passenden Stelle, Sperren, späteres Kapitel, Aufgabe am Kapitelende')
+            check(await laden(), 'neu geladen')
+            await pump(1.0)
+            z = await zustand()
+            check(z['tafel'] and z['kap'] == -1, 'Start: Tafel mit QR-Code groß im Bild')
+            check(await ev("document.getElementById('tafel-link').textContent.endsWith('/termin/prueflauf1') && document.getElementById('tafel-qr').complete && document.getElementById('tafel-qr').naturalWidth > 0"), 'Link und QR-Code da')
+            await shot('buehne-termin-tafel')
+            await taste('q'); check(not (await zustand())['tafel'], 'Q schließt die Tafel')
+            check(not await ev("Object.keys(sessionStorage).length + Object.keys(localStorage).length") and 'termin-schluessel' not in (await ev("document.documentElement.outerHTML")), 'Schlüssel der Bühne nicht im Browser')
+            await ev("GochBuehne.kapitelStarten(0).then(() => true)")
+            check(await warte("true", 1) and t['stand'][-1:] == ['Test'], 'Stand des Vortrags geht an den Memberbereich', t['stand'][-2:])
+            check(await ev("getComputedStyle(document.getElementById('qr')).display") == 'block', 'QR-Code klein neben dem Video')
+            await shot('buehne-termin-klein')
+            n = len(upstream('/_chats'))
+            t['fragen'] = [{'id': 'tf_spaet', 'text': 'Frage zum Schluss-Kapitel', 'kapitel': 'Schluss', 'art': 'vorgriff', 'gleich_n': 1}]
+            await pump(5.0)
+            check((await zustand())['reihe'] == 1 and len(upstream('/_chats')) == n + 1, 'späte Frage wird schon vorbereitet')
+            check(upstream('/_chats')[n]['vortrag'].get('schriftlich') is True, 'Worker weiß, dass die Frage schriftlich kam')
+            check(not (await zustand())['angemeldet'] and (await zustand())['modus'] == 'video', 'Frage zu einem späteren Kapitel hält hier nicht an')
+            t['fragen'].append({'id': 'tf_gleich', 'text': 'Frage von hier', 'kapitel': 'Test', 'art': 'verstaendnis', 'gleich_n': 1})
+            t['fragen'].append({'id': 'tf_gesperrt', 'text': 'Wird gesperrt', 'kapitel': 'Test', 'art': 'verstaendnis', 'gleich_n': 1})
+            await springen(2.5)
+            await pump(0.5); t['fragen'] = [f for f in t['fragen'] if f['id'] != 'tf_gesperrt']
+            check(await warte("GochBuehne.zustand().modus === 'frage'", 26), 'hält von selbst am Absatzende an')
+            z = await zustand()
+            check(abs(z['zeit'] - 17.0) < .6 or z['zeit'] < 1.6 or abs(z['zeit'] - 20.0) < .6, 'Halt am Absatzende, nicht mitten im Satz', round(z['zeit'], 2))
+            check(await warte("document.getElementById('hinweis').textContent.includes('Frage von hier')", 6), 'Frage steht im Bild')
+            await shot('buehne-termin-antwort')
+            check(await warte("GochBuehne.zustand().modus === 'video'", 25), 'läuft ohne Taste weiter')
+            check(t['beantwortet'] == ['tf_gleich'], 'nur die passende Frage beantwortet, gesperrte nicht', t['beantwortet'])
+            check('tf_spaet' in [f['id'] for f in t['fragen']], 'späte Frage wartet')
+            # Letztes Kapitel: Dort ist die späte Frage dran; Aufgabe erscheint am Kapitelende
+            await ev("(async () => { const m = await (await fetch('/vortrag/Kapitel_00_Test.marken.json')).json(); return m.kapitel; })()")
+            await ev("GochBuehne.kapitelStarten(1).then(() => true)")
+            check(await warte("GochBuehne.zustand().modus === 'frage'", 26) or 'tf_spaet' in t['beantwortet'], 'im passenden Kapitel kommt sie dran')
+            check(await warte("GochBuehne.zustand().modus === 'video'", 25) and 'tf_spaet' in t['beantwortet'], 'späte Frage beantwortet', t['beantwortet'])
+            await springen(23.6)
+            check(await warte("GochBuehne.zustand().tafel", 6) and t['aufgaben'] == ['pruefen'], 'Kapitelende: Aufgabe groß im Bild und auf der Seite', t['aufgaben'])
+            check(await ev("document.getElementById('tafel-titel').textContent === 'Ergebnisse prüfen' && document.getElementById('tafel-uhr').textContent.startsWith('8:') || document.getElementById('tafel-uhr').textContent.startsWith('7:')"), 'Tafel zeigt Titel und läuft als Uhr')
+            await shot('buehne-termin-aufgabe')
+            check(t['schluessel_falsch'] == 0, 'Dienst schickt den Schlüssel mit')
+            check(not console, 'keine Fehler in der Konsole (Terminseite)', console[:3])
     finally:
+        termin_srv.shutdown()
         proc.terminate(); dienst.terminate(); up.terminate()
     print(f'\nBildschirmfotos: {OUT}')
     print('Alle Prüfungen bestanden.' if not failures else f'{len(failures)} Prüfung(en) fehlgeschlagen: ' + ', '.join(failures))
