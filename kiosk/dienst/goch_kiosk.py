@@ -5,12 +5,16 @@
   (er liegt nur hier, in /etc/goch-kiosk/geraet.json, nie im Browser), auf Wunsch mit Client-Zertifikat,
 - puffert ohne Netz bestätigte Nachrichten an Robin und sendet sie später (Datei nur auf dem Gerät, höchstens 14 Tage),
 - meldet Radar-Anwesenheit (HLK-LD2410) und Netzstatus als Ereignisse an die Seite (/ereignisse, Server-Sent Events),
-- schickt alle fünf Minuten ein Lebenszeichen an den Worker und meldet sich bei systemd (Watchdog).
+- schickt alle fünf Minuten ein Lebenszeichen an den Worker und meldet sich bei systemd (Watchdog),
+- liefert für die Workshop-Bühne (buehne.html, 24.10.2026) mit --vortrag <Ordner> die Kapitelliste (/vortrag/liste) und
+  Videos, Absatzmarken und Folien mit Range (/vortrag/<Datei>); „paket“ in der Konfiguration zeigt die Bilder einer
+  anderen Figur, während die Workshop-Figur antwortet.
 Nur Standardbibliothek; für das Radar zusätzlich pyserial. Gesprächsinhalte werden nie protokolliert.
 
 Aufruf (siehe kiosk/README.md):
     python3 goch_kiosk.py --seite /opt/goch-kiosk/seite --figuren /var/lib/goch-kiosk/figuren --daten /var/lib/goch-kiosk \\
-        --geraet /etc/goch-kiosk/geraet.json --konfiguration /etc/goch-kiosk/konfiguration.json [--port 8080] [--test]
+        --geraet /etc/goch-kiosk/geraet.json --konfiguration /etc/goch-kiosk/konfiguration.json [--port 8080] [--test] \\
+        [--vortrag <Ordner mit Kapitelvideos>]
 --test öffnet zusätzlich /kiosk/test/radar und /kiosk/test/netz (nur für die Prüfungen)."""
 import argparse, json, mimetypes, os, queue, re, socket, ssl, stat, subprocess, sys, threading, time, urllib.error, urllib.parse, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -18,11 +22,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import radar_ld2410  # noqa: E402
 
+STUECK = 8 * 1024 * 1024  # Videos der Workshop-Bühne: höchstens so viel je Range-Antwort
+
 VERSION = '1'
 # Was die Seite braucht – sonst nichts aus dem Repository
-SEITE = re.compile(r'^(kiosk\.html|kiosk\.js|figur\.js|goch-audio\.js|goch-leben\.js|language\.js|assets/papier\.jpg|assets/fonts/[A-Za-z0-9._-]+)$')
+SEITE = re.compile(r'^(kiosk\.html|kiosk\.js|buehne\.html|buehne\.js|figur\.js|goch-audio\.js|goch-leben\.js|language\.js|assets/papier\.jpg|assets/fonts/[A-Za-z0-9._-]+)$')
 KONFIG_FUER_SEITE = ('figur', 'fassung', 'sprache', 'sprachwahl', 'lautstaerke', 'zwitschern', 'ruhezeiten', 'inaktivitaet_s', 'taste',
-                     'aufnahme_s', 'stimme', 'groesse', 'zeiger')
+                     'aufnahme_s', 'stimme', 'groesse', 'zeiger', 'paket')
 CONFIRM = re.compile(r'^\s*(ja|yes|yep|jo|jap|ok|okay|sure|passt|stimmt|genau|richtig|sende|senden|schick|send|go ahead|do it|absenden)\b', re.I)
 MARKER = ('Soll ich das so senden', 'Shall I send it like this')
 GEPUFFERT = {'de': 'Ich habe gerade keine Verbindung. Ich schicke das an Robin, sobald ich wieder online bin.',
@@ -38,6 +44,17 @@ class Dienst:
         self.args = args
         self.seite = os.path.realpath(args.seite)
         self.figuren = os.path.realpath(args.figuren)
+        # Workshop-Bühne (24.10.2026): Ordner mit den Kapitelvideos, ihren Absatzmarken (…marken.json) und Folienbildern
+        self.vortrag = os.path.realpath(args.vortrag) if getattr(args, 'vortrag', None) else None
+        if self.vortrag and not os.path.isdir(self.vortrag):
+            sys.exit(f'Vortragsordner nicht gefunden: {args.vortrag} – bei --vortrag den Ordner mit den Kapitelvideos angeben.')
+        # Terminseite (Robin, 07.11.2026): Fragen und Aufgaben kommen vom Memberbereich; der Schlüssel der Bühne bleibt hier, nie im Browser
+        self.termin = None
+        if getattr(args, 'termin_code', None):
+            if not (args.termin_adresse and args.termin_schluessel):
+                sys.exit('Für die Terminseite bitte --termin-adresse, --termin-code und --termin-schluessel (Datei, chmod 600) angeben.')
+            with open(args.termin_schluessel, encoding='utf-8') as f:
+                self.termin = {'adresse': args.termin_adresse.rstrip('/'), 'code': args.termin_code, 'schluessel': f.read().strip()}
         self.daten = os.path.realpath(args.daten)
         os.makedirs(self.daten, exist_ok=True)
         self.geraet = self.lies_json(args.geraet, geheim=True)
@@ -87,6 +104,18 @@ class Dienst:
             antwort = (e.code, e.headers.get('content-type', 'application/json'), e.read())
         self.netz(True)
         return antwort
+
+    def termin_anfrage(self, methode, teil, daten=None):
+        t = self.termin
+        kopf = {'authorization': 'Bearer ' + t['schluessel'], 'origin': t['adresse'], 'user-agent': 'goch-kiosk/' + VERSION}
+        if daten is not None:
+            kopf['content-type'] = 'application/json'
+        req = urllib.request.Request(f"{t['adresse']}/termin/{t['code']}/{teil}", data=daten, headers=kopf, method=methode)
+        try:
+            with urllib.request.urlopen(req, timeout=15, context=self.ssl if t['adresse'].startswith('https://') else None) as r:
+                return (r.status, r.headers.get('content-type', 'application/json'), r.read())
+        except urllib.error.HTTPError as e:
+            return (e.code, e.headers.get('content-type', 'application/json'), e.read())
 
     # ---------- Puffer für Nachrichten an Robin (nur ohne Netz) ----------
     @staticmethod
@@ -229,18 +258,40 @@ def handler(dienst):
         def log_message(self, *args):  # keine Anfragen, keine Inhalte im Protokoll
             pass
 
-        def antwort(self, status, daten, typ='application/json; charset=utf-8', extra=None):
-            if isinstance(daten, (dict, list)):
-                daten = json.dumps(daten, ensure_ascii=False).encode()
+        def kopf(self, status, typ, laenge, extra=None):
             self.send_response(status)
             self.send_header('Content-Type', typ)
-            self.send_header('Content-Length', str(len(daten)))
+            self.send_header('Content-Length', str(laenge))
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
             for k, v in (extra or {}).items():
                 self.send_header(k, v)
             self.end_headers()
+
+        def antwort(self, status, daten, typ='application/json; charset=utf-8', extra=None):
+            if isinstance(daten, (dict, list)):
+                daten = json.dumps(daten, ensure_ascii=False).encode()
+            self.kopf(status, typ, len(daten), extra)
             self.wfile.write(daten)
+
+        def strom(self, status, pfad, anfang, laenge, typ, extra):
+            """Ausschnitt einer Datei in Blöcken von 64 KB, nie ganz im Speicher. Bricht der Browser ab (bei jedem Sprung im
+            Video) oder lässt sich die Datei nicht mehr lesen (Stick gezogen), endet die Antwort still – kein Traceback."""
+            try:
+                f = open(pfad, 'rb')
+            except OSError:
+                return self.antwort(404, {'error': 'Nicht gefunden.'})
+            with f:
+                f.seek(anfang)
+                try:
+                    self.kopf(status, typ, laenge, extra)
+                    while laenge > 0:
+                        block = f.read(min(65536, laenge))
+                        if not block:  # Datei inzwischen kürzer: Verbindung schließen, der Browser fragt neu
+                            self.close_connection = True; break
+                        self.wfile.write(block); laenge -= len(block)
+                except OSError:  # Abbruch des Browsers (ConnectionError) oder Lesefehler
+                    self.close_connection = True
 
         def erlaubt(self):
             # Nur die eigene Seite: Host-Kopf prüfen (Schutz gegen DNS-Rebinding), keine CORS-Kopfzeilen
@@ -265,11 +316,63 @@ def handler(dienst):
             with open(pfad, 'rb') as f:
                 self.antwort(200, f.read(), typ)
 
+        def datei_bereich(self, wurzel, rel):
+            """Datei mit Range-Unterstützung (Videos: Springen an Absatzmarken). Offene Bereiche („bytes=0-“) in Stücken
+            von höchstens 8 MB – der Browser fragt den Rest nach, ein Sprung lädt nicht das ganze Kapitel. Kaputte oder mehrfache
+            Bereiche („bytes=abc“, „bytes=0-1,5-6“, „bytes=5-3“) gelten nicht: ganze Datei (200). Alles geht als Strom hinaus."""
+            pfad = os.path.realpath(os.path.join(wurzel, rel))
+            if not pfad.startswith(wurzel + os.sep) or not os.path.isfile(pfad):
+                return self.antwort(404, {'error': 'Nicht gefunden.'})
+            typ = mimetypes.guess_type(pfad)[0] or 'application/octet-stream'
+            groesse = os.path.getsize(pfad)
+            m = re.match(r'^bytes=(\d*)-(\d*)$', self.headers.get('Range') or '')
+            von, bis = [int(g) if g else None for g in m.groups()] if m else (None, None)
+            if von is None and bis is None or von is not None and bis is not None and bis < von:
+                return self.strom(200, pfad, 0, groesse, typ, {'Accept-Ranges': 'bytes'})
+            anfang = von if von is not None else max(0, groesse - bis)
+            ende = groesse - 1 if von is None else min(groesse - 1, bis if bis is not None else von + STUECK - 1)
+            if anfang >= groesse:  # hinter dem Ende, auch „bytes=-0“ und leere Dateien
+                return self.antwort(416, b'', extra={'Content-Range': f'bytes */{groesse}'})
+            self.strom(206, pfad, anfang, ende - anfang + 1, typ, {'Content-Range': f'bytes {anfang}-{ende}/{groesse}', 'Accept-Ranges': 'bytes'})
+
         def do_GET(self):
             if not self.erlaubt():
                 return
             u = urllib.parse.urlparse(self.path)
             pfad = urllib.parse.unquote(u.path)
+            if pfad == '/vortrag/liste':  # Kapitel der Workshop-Bühne: je Absatzmarken-Datei Kapitel, Titel, Video, Dauer
+                if not dienst.vortrag:
+                    return self.antwort(404, {'error': 'Kein Vortrag eingerichtet (--vortrag).'})
+                try:
+                    namen = sorted(os.listdir(dienst.vortrag))
+                except OSError:  # Ordner weg (Stick gezogen) oder nicht lesbar
+                    return self.antwort(503, {'error': 'Vortragsordner nicht lesbar.'})
+                liste = []
+                for name in namen:
+                    if name.endswith('.marken.json'):
+                        try:
+                            with open(os.path.join(dienst.vortrag, name), encoding='utf-8') as f:
+                                m = json.load(f)
+                        except (OSError, ValueError):
+                            continue
+                        if isinstance(m, dict):  # sonst keine Absatzmarken (Liste, Text …): überspringen
+                            liste.append({'marken': name, 'kapitel': m.get('kapitel', ''), 'titel': m.get('titel', ''), 'video': m.get('video', ''), 'dauer': m.get('dauer', 0)})
+                return self.antwort(200, liste)
+            if pfad.startswith('/termin/'):
+                if not dienst.termin:
+                    return self.antwort(404, {'error': 'Keine Terminseite eingerichtet.'})
+                if pfad == '/termin/info':
+                    return self.antwort(200, {'code': dienst.termin['code'], 'link': f"{dienst.termin['adresse']}/termin/{dienst.termin['code']}"})
+                teil = {'/termin/stand': 'buehne', '/termin/qr.svg': 'qr.svg'}.get(pfad)
+                if not teil:
+                    return self.antwort(404, {'error': 'Nicht gefunden.'})
+                try:
+                    status, rtyp, antwort = dienst.termin_anfrage('GET', teil)
+                    return self.antwort(status, antwort, rtyp)
+                except (urllib.error.URLError, OSError, TimeoutError):
+                    return self.antwort(503, {'offline': True})
+            if pfad.startswith('/vortrag/') and dienst.vortrag:
+                return self.datei_bereich(dienst.vortrag, pfad[len('/vortrag/'):])
             if pfad == '/':
                 return self.antwort(302, b'', extra={'Location': '/kiosk.html'})
             if SEITE.match(pfad.lstrip('/')):
@@ -283,7 +386,8 @@ def handler(dienst):
             if pfad == '/kiosk/konfiguration':
                 k = {key: dienst.konfig[key] for key in KONFIG_FUER_SEITE if key in dienst.konfig}
                 k.setdefault('figur', 'goch')
-                k['figurBasis'] = '/figur/' + k['figur'] + '/'
+                # paket: Bilder einer anderen Figur (Workshop-Figur kunde-… antwortet, Goch ist zu sehen)
+                k['figurBasis'] = '/figur/' + k.get('paket', k['figur']) + '/'
                 return self.antwort(200, k)
             if pfad == '/kiosk/figur':
                 fid = (urllib.parse.parse_qs(u.query).get('id') or [dienst.konfig.get('figur', 'goch')])[0]
@@ -343,6 +447,10 @@ def handler(dienst):
         def do_POST(self):
             if not self.erlaubt():
                 return
+            # Fremde Webseiten dürfen den Dienst nicht ansprechen: Er hängt selbst Gerätenachweis und Schlüssel an
+            herkunft = self.headers.get('Origin')
+            if herkunft and urllib.parse.urlparse(herkunft).netloc not in hosts:
+                return self.antwort(403, {'error': 'Nur die eigene Seite.'})
             pfad = urllib.parse.urlparse(self.path).path
             try:
                 daten = self.body()
@@ -367,6 +475,15 @@ def handler(dienst):
                         if Dienst.ist_bestaetigung(body):
                             dienst.puffern(body)
                             return self.antwort(200, {'reply': GEPUFFERT['en' if body.get('lang') == 'en' else 'de'], 'action': None, 'gepuffert': True})
+                    return self.antwort(503, {'offline': True})
+            if pfad.startswith('/termin/') and dienst.termin:
+                teil = re.fullmatch(r'/termin/(stand|frage/tf_[A-Za-z0-9_-]{1,40}|aufgabe/[a-z0-9-]{1,30})', pfad)
+                if not teil:
+                    return self.antwort(404, {'error': 'Nicht gefunden.'})
+                try:
+                    status, rtyp, antwort = dienst.termin_anfrage('POST', 'buehne/' + teil.group(1), daten or b'{}')
+                    return self.antwort(status, antwort, rtyp)
+                except (urllib.error.URLError, OSError, TimeoutError):
                     return self.antwort(503, {'offline': True})
             if dienst.args.test and pfad == '/kiosk/test/radar':
                 b = json.loads(daten or b'{}')
@@ -400,6 +517,10 @@ def main():
     p.add_argument('--geraet', required=True, help='Gerätenachweis (JSON, chmod 600)')
     p.add_argument('--konfiguration', required=True, help='Gerätekonfiguration (JSON)')
     p.add_argument('--port', type=int, default=8080)
+    p.add_argument('--vortrag', help='Workshop-Bühne: Ordner mit Kapitelvideos, Absatzmarken und Folienbildern')
+    p.add_argument('--termin-adresse', help='Terminseite: Adresse des Memberbereichs, z. B. https://member.robin.vision')
+    p.add_argument('--termin-code', help='Terminseite: Code aus der Redaktion')
+    p.add_argument('--termin-schluessel', help='Terminseite: Datei mit dem Schlüssel der Bühne (chmod 600)')
     p.add_argument('--lebenszeichen-takt', type=float, default=300)
     p.add_argument('--test', action='store_true')
     Dienst(p.parse_args()).starten()

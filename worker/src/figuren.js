@@ -8,6 +8,7 @@ export const STANDARD = "goch";
 export const KUNDEN_ID = /^kunde-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const INDEX = "figuren:index";
 const GRENZEN = { name: 60, rolle: 120, begruessung: 400, frage: 120, persoenlichkeit: 8000, wissen: 40000, quellen: 3000 };
+export const EINSAETZE = ["messe", "workshop"];
 
 // Öffentliche Route: nur Figuren aus dem Repository; ohne Angabe Goch. Unbekanntes → null (der Aufrufer antwortet 400).
 export function oeffentlicheFigur(id) {
@@ -53,7 +54,11 @@ export function pruefeKundenfigur(input) {
   if (voiceId && !/^[A-Za-z0-9]{10,40}$/.test(voiceId)) throw new Error("Voice ID: nur Buchstaben und Ziffern, wie bei ElevenLabs angezeigt.");
   const antwortenTag = Math.round(+i.antwortenTag || 200);
   if (!(antwortenTag >= 1 && antwortenTag <= 5000)) throw new Error("Antworten je Tag: 1 bis 5000.");
-  return { id, an: i.an !== false, sprachen, name, rolle, begruessung, fragen, persoenlichkeit, wissen, quellen, voiceId, antwortenTag,
+  // Einsatz (Robin, 24.10.2026): Messe (Stand, Standpersonal) oder Workshop (Schulung, Workshopleitung) – bestimmt den
+  // Rahmen im Systemprompt (kiosk.js, kundenSystem). Ohne Angabe Messe, wie bisher.
+  const einsatz = i.einsatz == null || i.einsatz === "" ? "messe" : i.einsatz;
+  if (!EINSAETZE.includes(einsatz)) throw new Error("Einsatz: „messe“ oder „workshop“.");
+  return { id, an: i.an !== false, einsatz, sprachen, name, rolle, begruessung, fragen, persoenlichkeit, wissen, quellen, voiceId, antwortenTag,
     geaendert: new Date().toISOString() };
 }
 

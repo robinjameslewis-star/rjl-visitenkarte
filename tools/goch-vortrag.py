@@ -11,6 +11,8 @@ spricht Goch mit. Zwischen Absätzen eine längere Pause.
   python3 tools/goch-vortrag.py <skript.md> <folien.html> <png-ordner> <ziel-ordner> [--stimme http://localhost:8798]
   → <ziel-ordner>/kapitel-NN/drehbuch.json; danach je Kapitel:
     python3 tools/goch-clip.py <ziel-ordner>/kapitel-NN/drehbuch.json <ziel-ordner>/Kapitel_NN.mp4
+Jeder Satz trägt seinen Absatz („N.A“); goch-clip schreibt daraus neben das Video die Absatzmarken (…marken.json) für die
+Workshop-Bühne (buehne.html): dort hält der Vortrag bei einer Zwischenfrage am Ende des Absatzes an.
 """
 import argparse, html, json, os, re
 
@@ -103,18 +105,18 @@ def main():
     letztes = kapitel[-1][0]
     for nr, titel, bloecke in kapitel:
         eintraege, folie = [], None
-        def dazu(text, folie_nr, pause=.35, kopf=-2):
-            eintraege.append({'text': text, 'sprechen': sprechen(text), 'kopf': kopf, 'pause': pause,
+        def dazu(text, folie_nr, absatz, pause=.35, kopf=-2):
+            eintraege.append({'text': text, 'sprechen': sprechen(text), 'kopf': kopf, 'pause': pause, 'absatz': absatz,
                               'karte': {'art': 'folie', 'src': folienbild(folie_nr)}})
         if nr > 0 and f'{nr}.0' in zuordnung:
             folie = zuordnung[f'{nr}.0'][0]
-            dazu(f'Kapitel {in_worten(nr)}: {titel}.', folie, pause=.7, kopf=1)
+            dazu(f'Kapitel {in_worten(nr)}: {titel}.', folie, f'{nr}.0', pause=.7, kopf=1)
         for i, block in enumerate(bloecke, 1):
             ss = saetze(markdown_text(block))
             folien = zuordnung.get(f'{nr}.{i}') or ([folie] if folie else [1])
             for k, satz in enumerate(ss):
                 folie = folien[min(len(folien) - 1, k * len(folien) // len(ss))]
-                dazu(satz, folie, pause=.65 if k == len(ss) - 1 else .3)
+                dazu(satz, folie, f'{nr}.{i}', pause=.65 if k == len(ss) - 1 else .3)
         genutzt = sorted({e['karte']['src'] for e in eintraege})
         db = {'titel': f'Kapitel {nr}: {titel}', 'layout': 'vortrag', 'breite': 1920, 'hoehe': 1080, 'fps': 30,
               'stimme': arg.stimme, 'sprache': 'de', 'vorlauf': .7, 'nachlauf': 1.2, 'zwitschern': .3,

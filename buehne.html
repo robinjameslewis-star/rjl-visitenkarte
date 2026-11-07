@@ -1,0 +1,102 @@
+<!doctype html>
+<!-- Workshop-Bühne (Robin, 24.10.2026): Gochs Vortrag als Kapitelvideos, Zwischenfragen frei. Läuft am Laptop über den
+     lokalen Dienst (kiosk/dienst/goch_kiosk.py --vortrag <Ordner>), auf dem Beamer oder geteilt in Zoom/Teams.
+     Bei einer Zwischenfrage hält das Video am Ende des Absatzes an; Goch erscheint an derselben Stelle live (gleiches
+     Layout wie die Videos), antwortet, leitet zurück oder überspringt, was schon geklärt ist (buehne.js). -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><!-- liegt mit der Website auch unter robin.vision/buehne.html -->
+<title>Goch – Workshop</title>
+<style>
+  @font-face { font-family: "EB Garamond"; font-weight: 400 500; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+  :root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --line: #D6D9D6; --paper: #F3EFE5;
+    --serif: "EB Garamond", Georgia, serif; --sans: "Helvetica Neue", Arial, sans-serif; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  body.hilfe-an { cursor: default; }
+  /* Bühne in Entwurfsmaßen 960 × 540 (wie tools/goch-clip/clip.html, Layout „vortrag“), skaliert aufs Fenster */
+  .feld { position: absolute; left: 50%; top: 50%; width: 960px; height: 540px; transform-origin: 0 0; }
+  video { position: absolute; inset: 0; width: 960px; height: 540px; background: #000; }
+  #live { position: absolute; inset: 0; background: var(--paper) url("assets/papier.jpg") center / cover; color: var(--ink);
+    font-family: var(--sans); opacity: 0; transition: opacity 120ms linear; }
+  .feld[data-modus="live"] #live { opacity: 1; }
+  .kopfzeile { position: absolute; top: 12px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .marke { font: 500 19px/1 var(--serif); color: var(--green); letter-spacing: .01em; }
+  .ki { font: 500 10.5px/1 var(--sans); color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; background: rgba(255,255,255,.55); }
+  .karte { position: absolute; left: 24px; top: 40px; width: 704px; height: 396px; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 10px 28px rgba(31,31,31,.16), 0 1px 3px rgba(31,31,31,.12); background: var(--paper); }
+  .karte img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .kapitel { position: absolute; left: 748px; right: 22px; top: 52px; font: 500 12px/1.35 var(--sans); color: var(--copper);
+    letter-spacing: .06em; text-transform: uppercase; }
+  .kapitel b { display: block; margin-top: 6px; font: 500 21px/1.2 var(--serif); color: var(--green); letter-spacing: 0; text-transform: none; }
+  .buehne { position: absolute; right: 2px; top: 286px; width: 252px; aspect-ratio: 1153 / 710; }
+  .buehne > img.ast { position: absolute; left: 0; width: 100%; mix-blend-mode: multiply; }
+  .goch { position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1153 / 637; }
+  /* Sitzpose: Rückfall bei reduzierter Bewegung oder ohne Teile; mit den Teilen (data-leben) ausgeblendet */
+  .goch > img.sitz { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+  .goch[data-leben] > img.sitz { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .goch[data-leben] > img.sitz { opacity: 1; } }
+  .untertitel { position: absolute; top: 448px; left: 24px; width: 704px; height: 80px; display: flex; align-items: center; justify-content: center;
+    text-align: center; font: 600 19px/1.27 var(--sans); color: var(--ink); text-wrap: balance; }
+  .untertitel small { display: block; font: 500 13px/1.3 var(--sans); color: var(--ink-soft); margin-bottom: 4px; }
+  /* über Video und Live-Bild: in der rechten Spalte ist dort im Layout „vortrag“ frei */
+  .hinweis { position: absolute; left: 748px; right: 22px; top: 140px; z-index: 3; font: 500 13px/1.4 var(--sans); color: var(--ink-soft); }
+  .hinweis .an { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--copper); margin-right: 6px; vertical-align: 1px;
+    animation: puls 1.2s ease-in-out infinite alternate; }
+  @keyframes puls { to { opacity: .35; } }
+  /* Steuerung für die Workshopleitung (Taste ?), sonst unsichtbar – auch im geteilten Bild */
+  #hilfe { position: absolute; left: 12px; bottom: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(20,18,16,.88); color: #eee;
+    font: 12px/1.5 var(--sans); display: none; z-index: 5; max-width: 420px; }
+  body.hilfe-an #hilfe { display: block; }
+  #hilfe b { color: #f1c9b4; font-weight: 600; }
+  #eingabe { position: absolute; left: 24px; top: 448px; width: 704px; height: 40px; display: none; z-index: 4; font: 16px var(--sans);
+    border: 1px solid var(--copper); border-radius: 6px; padding: 0 12px; box-sizing: border-box; background: #fffdf8; }
+  .feld[data-tippen] #eingabe { display: block; }
+  /* Terminseite: QR-Code in der freien rechten Spalte, groß auf der Tafel (Start, Taste Q, Aufgabe am Kapitelende) */
+  #qr { position: absolute; left: 790px; top: 160px; width: 106px; z-index: 3; display: none; text-align: center; font: 500 10px/1.25 var(--sans); color: var(--ink-soft);
+    background: rgba(255,255,255,.85); border-radius: 6px; padding: 4px; box-sizing: content-box; }
+  #qr img { display: block; width: 106px; height: 106px; }
+  .feld[data-termin] #qr { display: block; }
+  #tafel { position: absolute; inset: 0; z-index: 4; display: none; background: var(--paper) url("assets/papier.jpg") center / cover; color: var(--ink); font-family: var(--sans); }
+  .feld[data-tafel] #tafel { display: block; }
+  #tafel .text { position: absolute; left: 48px; top: 96px; width: 470px; }
+  #tafel h1 { font: 500 38px/1.15 var(--serif); color: var(--green); margin: 0 0 14px; }
+  #tafel p { font: 500 18px/1.4 var(--sans); margin: 0 0 12px; }
+  #tafel .link { font-size: 15px; color: var(--ink-soft); word-break: break-all; }
+  #tafel .uhr { font: 600 30px/1 var(--sans); color: var(--copper); margin-top: 18px; font-variant-numeric: tabular-nums; }
+  #tafel img { position: absolute; left: 566px; top: 96px; width: 340px; height: 340px; background: #fff; border-radius: 8px; }
+  #anzeige { position: absolute; right: 10px; top: 8px; font: 11px var(--sans); color: rgba(255,255,255,.75); z-index: 5; display: none; }
+  body.hilfe-an #anzeige { display: block; }
+</style>
+</head>
+<body>
+<div class="feld" id="feld" data-modus="video">
+  <video id="video" playsinline preload="auto"></video>
+  <div id="live" aria-live="polite">
+    <div class="kopfzeile"><span class="marke">robin.vision</span><span class="ki">KI-Figur · künstliche Stimme</span></div>
+    <div class="buehne" id="buehne"></div>
+    <div class="kapitel" id="kapitel"></div>
+    <!-- Karte nach der Bühne wie in tools/goch-clip/clip.html: sie verdeckt das linke Ende des Asts -->
+    <div class="karte"><img id="folie" alt=""></div>
+    <div class="untertitel" id="untertitel"></div>
+  </div>
+  <div class="hinweis" id="hinweis"></div>
+  <div id="qr"><img src="" alt=""><span>Fragen und Aufgaben</span></div>
+  <div id="tafel"><div class="text"><h1 id="tafel-titel"></h1><p id="tafel-text"></p><p class="link" id="tafel-link"></p><div class="uhr" id="tafel-uhr"></div></div><img id="tafel-qr" src="" alt=""></div>
+  <input id="eingabe" type="text" autocomplete="off" placeholder="Frage eintippen, Enter sendet, Esc schließt">
+  <div id="anzeige"></div>
+</div>
+<div id="hilfe">
+  <b>0–9</b> Kapitel starten · <b>P</b> Pause/Weiter · <b>N</b> nächstes Kapitel<br>
+  <b>H</b> oder <b>Taste</b> (kurz): Frage anmelden – Goch hält am Ende des Absatzes an<br>
+  <b>Taste halten</b>: Frage sprechen · <b>T</b>: Frage tippen (z. B. aus dem Chat)<br>
+  <b>W</b>: weiter im Vortrag (Goch leitet über) · <b>R</b>: Rückblick auf die Fragen · <b>Esc</b>: ohne Überleitung weiter<br>
+  <b>Q</b>: QR-Code groß zeigen und wieder schließen<br>
+  <b>?</b>: diese Hilfe
+</div>
+<script src="goch-audio.js?v=20261024" defer></script>
+<script src="goch-leben.js?v=20261024" defer></script>
+<script src="buehne.js?v=20261107" defer></script>
+</body>
+</html>

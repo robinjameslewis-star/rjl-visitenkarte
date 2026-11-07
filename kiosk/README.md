@@ -68,12 +68,36 @@ Stimme, Pegel) und `figur.js` (Figurenpaket). Der Dienst liefert nur diese Datei
 
 - Paket nach `FIGUREN.md` bauen und auf dem Mac prüfen: `node tools/figur-pruefen.mjs <ordner>` (Freigabe des Kunden in
   `RECHTE.md`). Danach nur auf das Gerät kopieren: `/var/lib/goch-kiosk/figuren/<kunde-…>/`. **Nie ins Repository.**
-- Redaktion → „Figuren für Vorführungen“: Name, Rolle, Begrüßung, Einstiegsfragen, Persönlichkeit, Wissen (nur Freigegebenes
-  oder Öffentliches, Quellen mit Datum), Voice ID, Tagesgrenze.
+- Redaktion → „Figuren für Vorführungen“: Einsatz, Name, Rolle, Begrüßung, Einstiegsfragen, Persönlichkeit, Wissen (nur
+  Freigegebenes oder Öffentliches, Quellen mit Datum), Voice ID, Tagesgrenze. **Einsatz** (24.10.2026): „Messe“ (Stand,
+  verweist an das Standpersonal; Voreinstellung) oder „Workshop“ (Schulung am Bildschirm oder in der Videokonferenz: erklärt
+  die Regeln aus dem Wissen allgemein, gibt keine Auskunft zum Einzelfall, verweist an die Workshopleitung). Für Workshops
+  läuft am Laptop die Workshop-Bühne (siehe unten) oder dieselbe Kiosk-Seite mit `"taste": "Space"` und ohne Radar.
 - Redaktion → „Messegeräte“: Figur für das Gerät freigeben; in `konfiguration.json` `"figur": "kunde-…"` setzen, Dienst neu
   starten. Über die öffentliche Route `/chat` ist eine Kundenfigur nie erreichbar.
 
-## Betrieb
+## Workshop-Bühne (Laptop, 24.10.2026)
+
+Gochs Vortrag als Kapitelvideos; Zwischenfragen beantwortet er live an derselben Stelle (`buehne.html`, Ablauf im
+Haupt-README). Für Workshops mit Robin online (geteilter Bildschirm in Zoom/Teams, Computerton an) oder vor Ort am Beamer.
+
+1. **Vortragsordner:** die Kapitelvideos `Kapitel_NN_….mp4`, je Video die Absatzmarken `Kapitel_NN_….marken.json` und
+   die Folienbilder unter `folien/` (so schreibt sie `tools/goch-clip.py`; die Bühne listet die Kapitel nach Dateinamen).
+2. **Konfiguration** (`konfiguration.json` am Laptop): `{"figur": "kunde-workshop-ki", "paket": "goch", "sprache": "de",
+   "taste": "Space", "lautstaerke": 1}` – `figur` ist die Workshop-Figur in der Redaktion (Einsatz „Workshop“, sie
+   antwortet), `paket` das Figurenpaket, das zu sehen ist (Goch aus der Website).
+3. **Start:** `python3 kiosk/dienst/goch_kiosk.py --seite <Website-Checkout> --figuren <leer> --daten <Ordner>
+   --geraet geraet.json --konfiguration konfiguration.json --vortrag <Vortragsordner>`; dann
+   `http://localhost:8080/buehne.html` im Vollbild. Gerätenachweis wie beim Messegerät (Redaktion → „Messegeräte“).
+4. **Tasten** (Hilfe mit `?`): 0–9 Kapitel, P Pause, N nächstes Kapitel; H oder Leertaste kurz: Frage melden;
+   Leertaste halten: Frage sprechen; T: Frage tippen (z. B. aus dem Chat der Videokonferenz – auch während das Video
+   läuft oder Goch spricht; mehrere stellt er der Reihe nach, sonst am nächsten Haltepunkt); W: weiter mit Überleitung
+   (während Goch spricht: danach; vor der Zusammenfassung im letzten Kapitel gleich der Rückblick); Esc: weiter ohne
+   Überleitung, unterbricht Goch auch mitten in der Antwort, vorgemerkte Fragen verfallen; R: Rückblick sofort. Fragt jemand im letzten Absatz,
+   bleibt das Video danach am letzten Bild stehen (N für das nächste Kapitel). Ohne Netz, bei einem Fehler oder einer
+   Ersatzantwort des Workers zeigt Goch „Das nimmt Robin gleich auf.“ – nie den Fehlertext. Bei reduzierter Bewegung
+   (Systemeinstellung) sitzt Goch still in der Sitzpose.
+
 
 - **Aktualisieren:** `git -C /opt/goch-kiosk/seite fetch && git -C /opt/goch-kiosk/seite checkout <commit>`, dann
   `systemctl restart goch-kiosk goch-kiosk-browser`.
@@ -101,6 +125,7 @@ Stimme, Pegel) und `figur.js` (Figurenpaket). Der Dienst liefert nur diese Datei
 node tests/kiosk_worker_test.mjs                                   # Kiosk-Route, Gerätebudget, Kundenfiguren (Attrappen)
 python3 tests/kiosk_dienst_test.py                                 # lokaler Dienst: Weiterleitung, Nachweis, Puffer, Radar
 python3 tests/kiosk_test.py                                        # Seite im Hochformat gegen Dienst und Worker-Attrappe
+python3 tests/buehne_test.py                                       # Workshop-Bühne: Halten, Frage, Überleitung, Rückblick (PyAV)
 ```
 
 Vorführung am Mac mit echter Spracherkennung: Attrappe mit `--whisper <Modellordner> --stimme mac` starten (siehe
