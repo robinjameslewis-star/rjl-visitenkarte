@@ -9,9 +9,11 @@
    Unternehmen an, online oder vor Ort, auf Deutsch oder Englisch – mit der Unterweisung nach Art. 4
    der KI-Verordnung (EU AI Act): danach ein Online-Lehrgang mit Praxisaufgaben für den eigenen
    Arbeitsplatz, ein Test und ein Zertifikat je Person. Anfragen für 2027 sind schon möglich.
-3. **SmartFormular.** Zwei Werkzeuge lassen sich bis 31.12.2026 kostenlos testen: SmartFormular FiBu lite macht aus
-   Kontoauszügen Buchungsstapel im DATEV-Format, offline im Browser; neu ist SmartFormular E-Rechnung lite – es
-   liest und prüft E-Rechnungen (XRechnung, ZUGFeRD) und macht einen GiroCode zum Bezahlen. Als Beta in Vorbereitung: SmartFormular FiBu
+3. **SmartFormular.** SmartFormular FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, offline
+   im Browser, kostenlos zu testen bis 31.12.2026. SmartFormular E-Rechnung lite prüft und liest E-Rechnungen
+   (XRechnung, ZUGFeRD) mit GiroCode zum Bezahlen – auf der Website dauerhaft kostenlos – und schreibt neu auch eigene
+   XRechnungen, mit Katalog und Kunden, auch als CSV; Erstellen und Datei sind bis 31.12.2026 kostenlos, danach vier
+   Wochen Test und Lizenz. Als Beta in Vorbereitung: SmartFormular FiBu
    (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
    Abschluss für den Jahresabschluss, mit den Daten aus FiBu. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
@@ -35,9 +37,11 @@
    companies, online or on site, in German or English – including training that documents your measures under
    Article 4 of the EU AI Act: afterwards an online course with practical tasks for each participant's own desk,
    a test and a certificate per person. Enquiries for 2027 are already welcome.
-3. **SmartFormular.** Two tools are free to try until 31 December 2026: SmartFormular FiBu lite turns
-   bank statements into booking batches in the DATEV format, offline in the browser; the latest addition is SmartFormular
-   E-Rechnung lite, which reads and checks e-invoices (XRechnung, ZUGFeRD) and creates a GiroCode for payment.
+3. **SmartFormular.** SmartFormular FiBu lite turns bank statements into booking batches in the DATEV format,
+   offline in the browser, free to try until 31 December 2026. SmartFormular E-Rechnung lite checks and reads e-invoices
+   (XRechnung, ZUGFeRD) with a GiroCode for payment – free on the website for good – and now also writes your own
+   XRechnung invoices, with catalogue and customers, also from CSV; creating and the download file are free until
+   31 December 2026, then a four-week trial and a licence.
    In preparation as a beta:
    SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and
    SmartFormular Abschluss for year-end accounts, using the data from FiBu. The aim is to exchange data with every accounting
