@@ -12,7 +12,7 @@
 // Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, KOSTENLOS, kostenlos } from "./partner.js";
+import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, kostenlosText, kostenlos } from "./partner.js";
 import { PRODUKTE } from "./slider.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
@@ -30,7 +30,7 @@ const TEXT = {
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
     untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
     ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular-Produkte", zuSf: "Mehr zu SmartFormular", partnerTitel: "Partner",
-    sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. FiBu lite und E-Rechnung lite lassen sich bis 31.12.2026 kostenlos testen; FiBu und Abschluss kommen als Beta.",
+    sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; FiBu und Abschluss kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
       text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, auch in Workshops und auf Fachmessen. Im Vergleich steht jede mit denselben Angaben, auch neben Wettbewerbern.",
@@ -49,9 +49,9 @@ const TEXT = {
         daten: "Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner", sitz: "Deutschland", ki: "Nein, arbeitet mit Regeln",
         schnittstellen: "Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format", preis: "Kostenlos testen bis 31.12.2026, ohne Anmeldung",
         nachweise: "Prüfsumme je Fassung; nichts wird hochgeladen" },
-      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-rechnung-pruefen/", stand: "10/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
+      { frei: "erechnung", name: "E-Rechnung lite", href: "werkzeuge/e-rechnung-pruefen/", stand: "11/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
         daten: "Im Browser auf der Seite oder als Datei offline; nichts wird hochgeladen", sitz: "Deutschland", ki: "Nein, offizielle Prüfregeln von CEN und KoSIT",
-        schnittstellen: "Liest XRechnung (UBL, CII) und ZUGFeRD/Factur-X; Prüfbericht, GiroCode", preis: "Kostenlos testen bis 31.12.2026, ohne Anmeldung",
+        schnittstellen: "Liest XRechnung (UBL, CII) und ZUGFeRD/Factur-X; Prüfbericht, GiroCode", preis: "Prüfen auf der Seite kostenlos, ohne Anmeldung; Erstellen und Datei bis 31.12.2026 kostenlos, danach vier Wochen Test und Lizenz",
         nachweise: "Abgleich mit der offiziellen Prüfung an Tausenden Testrechnungen" },
       { name: "FiBu", href: "werkzeuge/smartformular/#fibu", stand: "10/2026", aufgabe: "Bank, Kreditoren und Debitoren buchen, Bezug zu den offenen Posten", fuer: "Sachbearbeitung in Kanzlei und Unternehmen",
         daten: "Im Browser über den Memberbereich; Rechenzentren in der EU", sitz: "Deutschland",
@@ -90,7 +90,7 @@ const TEXT = {
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision. With SmartFormular, a comparison and a partner programme.",
     untertitel: "Software and AI solutions for accounting, administration and other business processes – presented and compared. I show a selection of them in the workshops, using cases from everyday work.",
     ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular products", zuSf: "More about SmartFormular", partnerTitel: "Partners",
-    sf: { text: "Forms that work with you – for the days when the process stalls. FiBu lite and E-Rechnung lite are free to try until 31 December 2026; FiBu and Abschluss are coming as a beta.",
+    sf: { text: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; FiBu and Abschluss are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
     platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
       text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here, also in workshops and at trade fairs. In the comparison, each one has the same details, even next to competitors.",
@@ -109,9 +109,9 @@ const TEXT = {
         daten: "A single file in your browser, offline; the data stays on your computer", sitz: "Germany", ki: "No, works with rules",
         schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free to try until 31 December 2026, no sign-up",
         nachweise: "Checksum for every version; nothing is uploaded" },
-      { frei: true, name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "10/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Accounting firms, companies and the self-employed",
+      { frei: "erechnung", name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "11/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Accounting firms, companies and the self-employed",
         daten: "In the browser on the page or as an offline file; nothing is uploaded", sitz: "Germany", ki: "No, official CEN and KoSIT validation rules",
-        schnittstellen: "Reads XRechnung (UBL, CII) and ZUGFeRD/Factur-X; check report, GiroCode", preis: "Free to try until 31 December 2026, no sign-up",
+        schnittstellen: "Reads XRechnung (UBL, CII) and ZUGFeRD/Factur-X; check report, GiroCode", preis: "Checking on the page free of charge, no sign-up; creating and the file free until 31 December 2026, then a four-week trial and a licence",
         nachweise: "Compared with the official validation on thousands of test invoices" },
       { name: "FiBu", href: "werkzeuge/smartformular/en/#fibu", stand: "10/2026", aufgabe: "Post bank, payables and receivables, linked to open items", fuer: "Accounting staff in firms and companies",
         daten: "In the browser via the member area; data centres in the EU", sitz: "Germany",
@@ -274,7 +274,7 @@ ${chips(t.platzhalter.chips)}
 
 // SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)
 function reihe(lang, t, up) {
-  const kennz = p => p.frei ? kostenlos(lang, "wz-kennz") : kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "wz-kennz");
+  const kennz = p => p.frei ? kostenlos(lang, "wz-kennz", p.frei) : kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "wz-kennz");
   return `<div class="wz-reihe" tabindex="0" role="region" aria-label="${esc(t.reiheLabel)}">
 ${PRODUKTE[lang].map(p => `<article class="wz-karte">
 ${kennz(p)}
@@ -298,7 +298,7 @@ function vergleich(lang, t, up) {
   const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
   const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
     ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, anbieter: p.anbieter, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
-  const kennz = s => s.frei ? `<span class="wz-th-kennz">${KOSTENLOS[lang]}</span>`
+  const kennz = s => s.frei ? `<span class="wz-th-kennz">${kostenlosText(lang, s.frei)}</span>`
     : kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");
   const zeilen = Object.entries(t.kriterien).map(([k, label]) => `<tr><th scope="row">${esc(label)}</th>${spalten.map(s => `<td>${esc(s[k] || "")}</td>`).join("")}<td class="wz-frei-spalte">${k === "aufgabe" ? esc(t.ihrProduktText) : ""}</td></tr>`).join("\n");
   return `<div class="wz-tabelle-rahmen">

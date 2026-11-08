@@ -30,7 +30,10 @@ export const kennzeichen = (lang, href, anbieter, klasse) =>
   `<p class="${klasse}"><a href="${esc(href)}">${ANZEIGE[lang]}</a> · <span>${esc(anbieter)}</span></p>`;
 // Kennzeichen eigener kostenloser Werkzeuge, gleich gestaltet, ohne Verweis
 export const KOSTENLOS = { de: "Kostenlos testen bis 31.12.2026", en: "Free trial until 31 Dec 2026" };
-export const kostenlos = (lang, klasse) => `<p class="${klasse}">${KOSTENLOS[lang]}</p>`;
+// E-Rechnung lite (Robin, 08.11.2026): Prüfen auf der Seite dauerhaft kostenlos; Erstellen und Datei bis 31.12.2026, danach Test und Lizenz
+export const KOSTENLOS_ART = { erechnung: { de: "Prüfen kostenlos", en: "Free to check" } };
+export const kostenlosText = (lang, art) => (KOSTENLOS_ART[art] || KOSTENLOS)[lang];
+export const kostenlos = (lang, klasse, art) => `<p class="${klasse}">${kostenlosText(lang, art)}</p>`;
 
 // Liste der Partnerangebote für eine Seite – leer: der Hinweis, dass Partnerangebote folgen
 export function partnerListe(lang, t, up) {

@@ -123,6 +123,8 @@
 
 /* Reiter „Prüfen“ und „Erstellen“ */
 .ewz-kopfzeile { margin: 0 0 18px; }
+#erechnung .ewz-tor-hinweis { max-width: 34rem; margin: 0 auto 1.5rem; text-align: center; color: var(--e-tinte2); }
+#erechnung .ewz-tor:empty, #erechnung .ewz-tor:empty + .ewz-tor-hinweis { display: none; }
 .ewz-reiter { display: flex; gap: 4px; border-bottom: 1px solid var(--e-linie); }
 #erechnung .ewz-reiter [role=tab] { font: 400 16px/1.2 var(--e-sans); color: var(--e-tinte2); background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; padding: 11px 18px 10px; margin-bottom: -1px; min-height: 44px; }
 #erechnung .ewz-reiter [role=tab]:hover { color: #fff; background: rgba(167,139,250,.08); }

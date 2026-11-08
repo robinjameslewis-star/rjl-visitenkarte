@@ -86,6 +86,7 @@ export const T = {
       mehrfach: () => "Eine Angabe steht mehrfach, wo sie nur einmal stehen darf.", sonst: () => "Ein Wert hat nicht das vorgeschriebene Format." },
     formatTun: "Der Rechnungssteller muss die Datei korrigieren und neu ausstellen.",
     tabPruefen: "Prüfen", tabErstellen: "Erstellen", tabsName: "Was möchten Sie tun?",
+    torHinweis: "Lesen und Prüfen bleiben kostenlos und ohne Anmeldung – im Reiter „Prüfen“. Die Anmeldung gilt nur für das Erstellen.",
     // „Erstellen“: eigene E-Rechnung schreiben
     erstellen: {
       lead: "Schreiben Sie eine E-Rechnung im Format XRechnung: Angaben eintragen, die Prüfung läuft mit, dann als XML-Datei speichern. Alles bleibt in diesem Browser.",
@@ -297,6 +298,7 @@ export const T = {
       mehrfach: () => "A detail appears more than once where it may appear only once.", sonst: () => "A value is not in the required format." },
     formatTun: "The issuer needs to correct the file and issue it again.",
     tabPruefen: "Check", tabErstellen: "Create", tabsName: "What would you like to do?",
+    torHinweis: "Reading and checking stay free of charge, without signing in – in the “Check” tab. Signing in applies to creating invoices only.",
     erstellen: {
       lead: "Write an e-invoice in the XRechnung format: enter the details, the check runs as you type, then save it as an XML file. Everything stays in this browser.",
       firmaT: "Your company details", firmaLokal: "Stored only in this browser, never uploaded.", firmaVon: "Invoice from", aendern: "Change", weiter: "Continue to the invoice",

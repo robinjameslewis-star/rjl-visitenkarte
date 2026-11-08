@@ -13,7 +13,7 @@ const TEXT = {
     zumProdukt: "Zum Produkt", zumAnbieter: "Zum Anbieter",
     produkte: [
       { frei: true, name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
-      { frei: true, name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
+      { frei: "erechnung", name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
       { name: "FiBu", text: "Bank, Kreditoren und Debitoren buchen – mit Bezug zu den offenen Posten.", bereich: "Rechnungswesen", href: "werkzeuge/smartformular/#fibu" },
       { name: "Abschluss", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", href: "werkzeuge/smartformular/#abschluss" },
     ] },
@@ -21,7 +21,7 @@ const TEXT = {
     zumProdukt: "To the product", zumAnbieter: "To the provider",
     produkte: [
       { frei: true, name: "FiBu lite", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
-      { frei: true, name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
+      { frei: "erechnung", name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
       { name: "FiBu", text: "Post bank, payables and receivables – linked to your open items.", bereich: "Accounting", href: "werkzeuge/smartformular/en/#fibu" },
       { name: "Abschluss", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", href: "werkzeuge/smartformular/en/#abschluss" },
     ] },
@@ -43,7 +43,7 @@ export function slider(lang) {
   const sfLogo = `<div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>`;
   const kennz = anbieter => kennzeichen(lang, "#anzeigen", anbieter, "wzs-kennz");
   // Eigene kostenlose Werkzeuge: „Kostenlos“ statt „Anzeige · robin.vision“ (Robin, 23.10.2026)
-  const eigene = t.produkte.map(p => karte({ kennz: p.frei ? kostenlos(lang, "wzs-kennz") : kennz(ROBIN_VISION), logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
+  const eigene = t.produkte.map(p => karte({ kennz: p.frei ? kostenlos(lang, "wzs-kennz", p.frei) : kennz(ROBIN_VISION), logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
   const partner = PARTNER.map(p => karte({ kennz: kennz(p.anbieter), logo: `<div class="wzs-logo" aria-hidden="true">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : esc(p.name)}</div>`,
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: p.bereich || "",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));

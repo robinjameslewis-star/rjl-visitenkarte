@@ -3,7 +3,8 @@
 // Schreibt nach assets/erechnung/: app.js und app.css (Oberfläche), pruefung.js (Prüfkern: fontoxpath mit exakter Dezimalrechnung und
 // der Interpreter; lädt erst beim ersten Prüfen), regeln/*.json (regeln-bauen.mjs), beispiele/ und LIZENZEN.txt. Dazu je Sprache die
 // einzelne Datei zum Herunterladen (alles eingebettet, läuft offline und als lokale Datei; eine Content-Security-Policy erlaubt nur
-// die Lizenzprüfung bei goch.robin.vision, die erst ab 2027 anläuft). Die Fassung ist der letzte Git-Stand von tools/erechnung und tools/lizenz (Lizenz-Client, Prüfschlüssel); mit ungesicherten Änderungen nur als --entwurf.
+// die Lizenzprüfung bei goch.robin.vision, die erst ab 2027 anläuft). Die Oberfläche wird zweimal gebaut (__SEITE__): für die Seite
+// mit „Prüfen“ dauerhaft frei und dem Lizenztor nur für „Erstellen“, für die Datei mit dem Tor vor beiden Reitern (Robin, 08.11.2026). Die Fassung ist der letzte Git-Stand von tools/erechnung und tools/lizenz (Lizenz-Client, Prüfschlüssel); mit ungesicherten Änderungen nur als --entwurf.
 // Danach: node tools/werkzeug-uebernehmen.mjs <beide Dateien> (Seiten, Übersichten, Sitemap neu) und die Tests.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -44,10 +45,12 @@ const gemeinsam = { bundle: true, minify: true, format: "iife", target: ["chrome
 const banner = teil => `/*! SmartFormular E-Rechnung lite ${FASSUNG} – ${teil} · robin.vision · Lizenzen und Quellen: LIZENZEN.txt */`;
 
 mkdirSync(join(ZIEL, "beispiele"), { recursive: true });
-const app = await esbuild.build({ ...gemeinsam, entryPoints: [join(HIER, "src", "app.js")], write: false, banner: { js: banner("Oberfläche (enthält QR Code generator library, Project Nayuki, MIT)") } });
+const oberflaeche = seite => esbuild.build({ ...gemeinsam, define: { ...gemeinsam.define, __SEITE__: String(seite) }, entryPoints: [join(HIER, "src", "app.js")], write: false,
+  banner: { js: banner("Oberfläche (enthält QR Code generator library, Project Nayuki, MIT)") } });
+const app = await oberflaeche(true), appDatei = await oberflaeche(false);
 const kern = await esbuild.build({ ...gemeinsam, entryPoints: [join(HIER, "src", "pruefung-eintrag.js")], write: false, plugins: [fxPlugin], banner: { js: banner("Prüfkern (enthält fontoxpath 3.34.0, Fonto Group BV, MIT; xspattern, whynot, prsc, Stef Busking, MIT)") } });
 const css = await esbuild.build({ entryPoints: [join(HIER, "src", "app.css")], write: false, minify: true, logLevel: "warning" });
-const APP = app.outputFiles[0].text, KERN = kern.outputFiles[0].text, CSS = css.outputFiles[0].text;
+const APP = app.outputFiles[0].text, APP_DATEI = appDatei.outputFiles[0].text, KERN = kern.outputFiles[0].text, CSS = css.outputFiles[0].text;
 writeFileSync(join(ZIEL, "app.js"), APP);
 writeFileSync(join(ZIEL, "pruefung.js"), KERN);
 writeFileSync(join(ZIEL, "app.css"), `/* SmartFormular E-Rechnung lite ${FASSUNG} */\n${CSS}`);
@@ -130,7 +133,7 @@ ${CSS}
 <script type="application/json" id="rv-beispiele">${JSON.stringify(beispiele)}</script>
 <script>window.RV_REGELN = JSON.parse(document.getElementById("rv-regeln").textContent); window.RV_BEISPIELE = JSON.parse(document.getElementById("rv-beispiele").textContent);</script>
 <script>${ohneSchluss(KERN)}</script>
-<script>${ohneSchluss(APP)}</script>
+<script>${ohneSchluss(APP_DATEI)}</script>
 </body>
 </html>
 `;

@@ -84,10 +84,16 @@ const uebersicht = document.getElementById("ewz-uebersicht");
 const sagen = s => { status.textContent = s; };
 
 // ---------- Testzeitraum und Lizenz ----------
-// Robin, 01.11.2026: bis 31.12.2026 ohne Anmeldung kostenlos testen; ab 1. Januar 2027 Anmeldung per Code, vier Wochen Test, danach
-// Lizenz (tools/lizenz/lizenz-client.js, Worker src/lizenz.js). Bis das Tor offen ist, nimmt die Ablage nichts an, und beide Reiter
-// (Prüfen und Erstellen) bleiben verborgen.
-let freigegeben = false;
+// Robin, 08.11.2026: Auf der Seite bleibt der Reiter „Prüfen“ (lesen, prüfen, GiroCode, drucken, Prüfbericht) dauerhaft kostenlos,
+// ohne Anmeldung und ohne Anfrage an die Lizenzprüfung. Kostenpflichtig sind das Erstellen und die Datei zum Herunterladen, frühestens
+// ab 1. Januar 2027 und immer erst nach vier Wochen kostenlosem Test (Anmeldung per Code, tools/lizenz/lizenz-client.js, Worker
+// src/lizenz.js; der Test beginnt mit der ersten Anmeldung). Bis 31.12.2026 ist alles frei.
+// Seite oder Datei entscheidet der Build (bauen.mjs, __SEITE__), nicht die Adresse: Die Datei sperrt ab 2027 beide Reiter, bis das Tor
+// offen ist; die Seite sperrt nur „Erstellen“ – das Tor steht dann im Reiter selbst, auch bei #erstellen in der Adresse.
+/* global __SEITE__ */
+const SEITE = typeof __SEITE__ === "boolean" ? __SEITE__ : false;
+let freigegeben = false;     // Prüfen
+let erstellenFrei = false;   // Erstellen
 const leiste = document.createElement("p");
 leiste.className = "rvl-leiste"; leiste.hidden = true;
 const kopfzeile = document.getElementById("ewz-kopfzeile");
@@ -96,13 +102,29 @@ const lizenzStil = document.createElement("style");
 lizenzStil.textContent = LIZENZ_CSS;
 document.head.appendChild(lizenzStil);
 const start = wurzel.querySelector(".ewz-start");
-start.hidden = true;
-const lizenzBereit = lizenzTor({ werkzeug: "erechnung", lang, oeffentlich: typeof __LIZENZ_SCHLUESSEL__ === "object" ? __LIZENZ_SCHLUESSEL__ : null,
-  wurzel: document.getElementById("ewz-lizenz"), leiste }).then(r => {
-  freigegeben = true; document.getElementById("ewz-lizenz").innerHTML = ""; start.hidden = false; kopfzeile.hidden = false;
-  if (location.hash === "#erstellen") reiterZeigen("erstellen", false);
-  return r;
-});
+const tor = ziel => lizenzTor({ werkzeug: "erechnung", lang, oeffentlich: typeof __LIZENZ_SCHLUESSEL__ === "object" ? __LIZENZ_SCHLUESSEL__ : null, wurzel: ziel, leiste });
+let lizenzBereit, erstellenTor = null;
+if (SEITE) {
+  freigegeben = true; kopfzeile.hidden = false;
+  lizenzBereit = Promise.resolve({ frei: true, seite: true });
+} else {
+  start.hidden = true;
+  lizenzBereit = tor(document.getElementById("ewz-lizenz")).then(r => {
+    freigegeben = true; erstellenFrei = true; document.getElementById("ewz-lizenz").innerHTML = ""; start.hidden = false; kopfzeile.hidden = false;
+    if (location.hash === "#erstellen") reiterZeigen("erstellen", false);
+    return r;
+  });
+}
+// Seite: Tor für „Erstellen“ erst beim Öffnen des Reiters, im Reiter selbst; der Hinweis darunter erscheint nur mit der Maske.
+function erstellenOeffnen() {
+  if (erstellenTor) return erstellenTor;
+  panels.erstellen.innerHTML = `<div class="ewz-tor"></div><p class="ewz-tor-hinweis">${t.torHinweis}</p>`;
+  return erstellenTor = tor(panels.erstellen.querySelector(".ewz-tor")).then(r => {
+    erstellenFrei = true; panels.erstellen.innerHTML = "";
+    if (reiter.erstellen.getAttribute("aria-selected") === "true") reiterZeigen("erstellen", false);
+    return r;
+  });
+}
 
 // ---------- Prüfkern und Regeln (laden beim ersten Prüfen nach) ----------
 let kernVersprechen = null;
@@ -559,12 +581,16 @@ function reiterZeigen(name, fokus = true) {
     const an = n === name;
     b.setAttribute("aria-selected", String(an)); b.tabIndex = an ? 0 : -1; panels[n].hidden = !an;
   }
+  if (name === "erstellen" && !erstellenFrei) { erstellenOeffnen(); setzeAdresse(name); if (fokus) reiter[name].focus(); return; }
   if (name === "erstellen" && !erstellen) erstellen = erstellenStarten({ wurzel: panels.erstellen, lang, t, kern, regelsatz, stufe, zaehlen, befundeHtml, ansichtHtml, zahlenHtml,
     speichern, druckenHtml, sagen, imPruefen: async datei => { reiterZeigen("pruefen", false); await annehmen([datei]); imPruefenFokus(); }, fassung: FASSUNG, stand: META.stand });
   if (name === "erstellen") erstellen.geoeffnet();
+  setzeAdresse(name);
+  if (fokus) reiter[name].focus();
+}
+function setzeAdresse(name) {
   const ziel = name === "erstellen" ? "#erstellen" : "";
   if (location.hash !== ziel && (ziel || location.hash === "#erstellen")) history.replaceState(null, "", ziel || location.pathname + location.search);
-  if (fokus) reiter[name].focus();
 }
 for (const [n, b] of Object.entries(reiter)) {
   b.addEventListener("click", () => reiterZeigen(n));
@@ -575,6 +601,7 @@ for (const [n, b] of Object.entries(reiter)) {
   });
 }
 window.addEventListener("hashchange", () => { if (location.hash === "#erstellen") reiterZeigen("erstellen", false); });
+if (SEITE && location.hash === "#erstellen") reiterZeigen("erstellen", false);
 wurzel.addEventListener("click", async ev => {
   const el = ev.target.closest("button, a, input");
   if (!el) return;
@@ -611,4 +638,4 @@ wurzel.addEventListener("click", async ev => {
   }
 });
 // Für Tests: Zustand lesbar machen (keine Daten nach außen)
-window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, lizenzBereit, get erstellen() { return erstellen && erstellen.zustand; } };
+window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, seite: SEITE, lizenzBereit, get erstellenBereit() { return erstellenTor; }, get erstellen() { return erstellen && erstellen.zustand; } };
