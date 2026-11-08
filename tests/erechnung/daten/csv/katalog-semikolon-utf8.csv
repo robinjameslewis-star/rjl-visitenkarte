@@ -1,0 +1,11 @@
+Artikelnummer;Bezeichnung;Beschreibung;Einheit;Einzelpreis netto;Steuersatz
+W-100;Wartung Heizung;"Jährliche Wartung; inkl. Abgasmessung";Std.;72,00;19 %
+B-7;Fachbuch „Heizung“;;Stück;24,90;7
+
+A-1;Anfahrt;;pauschal;45;19
+M-2;Miete Lagerfläche;;Monat;1.234,50;steuerfrei
+R-9;Dichtband;"Rolle zu 10 m, ""grau""";Rolle;3,5;19
+X-0;Kaputter Preis;;Stück;abc;19
+X-1;Falscher Satz;;Stück;10;16
+W-100;Wartung Heizung doppelt;;Std.;80,00;19
+;Ohne Nummer;;h;12,3456;0,19

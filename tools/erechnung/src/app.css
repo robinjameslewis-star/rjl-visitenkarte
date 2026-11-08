@@ -216,6 +216,45 @@
 #erechnung .ewe-speichern[aria-busy=true] { opacity: .7; cursor: progress; }
 .ewe-status { min-height: 1.5em; margin: 12px 0 0; font-size: 14px; color: var(--e-tinte2); }
 
+/* Rechnungsart, Vorschläge, Vorlage, gemerkte Daten (nur bei Bedarf sichtbar) */
+.ewe-art { margin: 0 0 14px; }
+.ewe-art summary { cursor: pointer; color: var(--e-akzent); font-size: 14px; min-height: 32px; display: inline-flex; align-items: center; text-decoration: underline; text-decoration-color: var(--e-violett); text-underline-offset: .2em; }
+.ewe-art[open] summary { color: var(--e-tinte); text-decoration: none; }
+.ewe-art-liste { flex-direction: column; align-items: stretch; gap: 2px; margin: 6px 0 0; }
+.ewe-art-wahl { align-items: flex-start; padding: 6px 0; }
+.ewe-art-wahl input { margin-top: 3px; }
+.ewe-art-hinweis { border-left-color: var(--e-akzent); }
+.ewe-kombi { position: relative; }
+.ewe-vorschlaege { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: 2px 0 0; padding: 4px 0; list-style: none; background: var(--e-flaeche); border: 1px solid var(--e-akzent); border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .45); max-height: 260px; overflow: auto; }
+.ewe-vorschlaege [role=option] { padding: 9px 12px; min-height: 44px; box-sizing: border-box; cursor: pointer; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; color: var(--e-tinte); }
+.ewe-vorschlaege [role=option]:hover, .ewe-vorschlaege .ewe-aktiv { background: #2A2140; }
+.ewe-vorschlaege .ewe-aktiv { outline: 2px solid var(--e-akzent); outline-offset: -2px; }
+.ewe-v-neben { font-size: 12.5px; color: var(--e-tinte3); }
+.ewe-zeile-knoepfe { display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: flex-end; }
+.ewe-tafel { margin: 6px 0 16px; padding: 14px 18px; border: 1px solid var(--e-linie); border-radius: 8px; background: var(--e-feld); }
+.ewe-tafel h2:focus, .ewe-tafel h3:focus, .ewe-tafel h4:focus, .ewe-csv .ewe-hinweis:focus { outline: none; }
+.ewe-tafel h2:focus-visible, .ewe-tafel h4:focus-visible { outline: 2px solid var(--e-akzent); outline-offset: 2px; }
+.ewe-stamm-teil { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--e-linie); }
+#erechnung .ewe-stamm-teil h3 { font-size: 18px; margin-bottom: 6px; }
+.ewe-liste { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 0; }
+.ewe-liste-zeile { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 2px 14px; padding: 6px 0; border-bottom: 1px solid var(--e-linie); }
+.ewe-liste-text { min-width: 0; overflow-wrap: anywhere; }
+.ewe-liste-text strong { color: #fff; font-weight: 500; }
+.ewe-liste-knoepfe { display: flex; gap: 0 14px; }
+.ewe-bearbeiten { display: block; padding: 10px 0 12px; }
+#erechnung .ewe-tafel input[type=search] { box-sizing: border-box; width: 100%; max-width: 420px; min-height: 44px; padding: 8px 10px; font: inherit; color: var(--e-tinte); background: var(--e-papier); border: 1px solid var(--e-linie); border-radius: 4px; }
+.ewe-csv { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--e-akzent); border-radius: 6px; background: var(--e-flaeche); }
+#erechnung .ewe-csv h4 { font: 500 15px/1.4 var(--e-sans); color: #fff; margin: 0 0 6px; }
+.ewe-csv p { margin: 0 0 6px; }
+.ewe-csv-tab { overflow-x: auto; }
+.ewe-csv table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.ewe-csv th, .ewe-csv td { text-align: left; padding: 4px 10px 4px 0; border-bottom: 1px solid var(--e-linie); vertical-align: top; overflow-wrap: anywhere; }
+.ewe-csv th { font-weight: 500; color: var(--e-tinte2); }
+.ewe-csv-neu { color: var(--e-ok); }
+.ewe-csv-fehler { color: var(--e-warn); }
+.ewe-csv-vorhanden, .ewe-csv-doppelt { color: var(--e-tinte3); }
+
 /* Vorschau */
 .ewe-vorschau { min-width: 0; }
 .ewe-vorschau-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }

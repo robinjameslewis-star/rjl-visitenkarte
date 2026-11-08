@@ -28,6 +28,14 @@ export const Q = {
   ustg146: ["§ 14 Abs. 1 Satz 6 Nr. 2 Umsatzsteuergesetz (UStG)", "Section 14(1) sentence 6 no. 2 German VAT Act (UStG)", USTG14],
   ustg19: ["§ 19 Umsatzsteuergesetz (UStG)", "Section 19 German VAT Act (UStG)", USTG19],
   ustg4: ["§ 4 Umsatzsteuergesetz (UStG)", "Section 4 German VAT Act (UStG)", USTG4],
+  // Dauerrechnung: Abschnitt 14.1 Abs. 19 UStAE (eine E-Rechnung für den ersten Teilleistungszeitraum genügt, wenn der Vertrag als
+  // Anhang enthalten ist oder sich aus dem Inhalt klar ergibt, dass es eine Dauerrechnung ist; bei geänderten Pflichtangaben neue
+  // E-Rechnung) und Abschnitt 14.5 Abs. 12 UStAE (Rechnungsnummer im strukturierten Teil; eine einmalige Nummer aus dem Vertrag genügt)
+  dauer: [`Abschnitt 14.1 Abs. 19 und Abschnitt 14.5 Abs. 12 ${UA}, gefasst durch ${B25}`, `Section 14.1(19) and Section 14.5(12) ${UAE}, as amended by the ${B25E}`, BMF2025],
+  // Abschlag: In der Endrechnung sind vereinnahmte Teilentgelte abzusetzen
+  ustg145: ["§ 14 Abs. 5 Umsatzsteuergesetz (UStG)", "Section 14(5) German VAT Act (UStG)", USTG14],
+  // Berichtigung als E-Rechnung mit einem Rechnungstyp für die Berichtigung; jede taugliche Art der Korrektur
+  rn20: [`${B26}, Randnummern 20 und 21`, `${B26E}, paras. 20 and 21`, BMF2026],
 };
 
 // Antworten auf „Ist das eine E-Rechnung?“: ja | nein | eingeschraenkt; satz mit {format}; quellen

@@ -43,7 +43,16 @@ export function maskePruefen(firma, rechnung, lang = "de") {
   if (!leer(em.ustid) && !ustidOk(em.ustid, land)) melde("empfaenger.ustid", m.ustid);
   pflicht("nummer", r.nummer);
   if (pflicht("datum", r.datum) && !datumGueltig(r.datum)) melde("datum", m.datum);
-  const l = r.leistung || {};
+  // Rechnungsart: Abschlag mit Auftrag oder Projekt (BT-11), Storno mit Nummer und Datum der ursprünglichen Rechnung (BT-25, BT-26),
+  // Dauerrechnung mit Laufzeit (BG-14) und dem Tag der Fälligkeit
+  const art = r.art || "rechnung", st = r.storno || {}, da = r.dauer || {};
+  if (art === "abschlag") pflicht("bezug", r.bezug);
+  if (art === "storno") {
+    pflicht("storno.nummer", st.nummer);
+    if (pflicht("storno.datum", st.datum)) { if (!datumGueltig(st.datum)) melde("storno.datum", m.datum); else if (datumGueltig(r.datum) && st.datum > r.datum) melde("storno.datum", m.stornoDatum); }
+  }
+  if (art === "dauer" && !(/^\d{1,2}$/.test(String(da.tag ?? "").trim()) && +da.tag >= 1 && +da.tag <= 28)) melde("dauer.tag", m.tag);
+  const l = art === "dauer" ? { ...(r.leistung || {}), art: "zeitraum" } : r.leistung || {};
   if (l.art === "zeitraum") {
     const von = pflicht("leistung.von", l.von) && (datumGueltig(l.von) || (melde("leistung.von", m.datum), false));
     const bis = pflicht("leistung.bis", l.bis) && (datumGueltig(l.bis) || (melde("leistung.bis", m.datum), false));
@@ -64,7 +73,7 @@ export function maskePruefen(firma, rechnung, lang = "de") {
   if (!f.kleinunternehmer && pos.some(p => p.steuer === "Z") && r.nullsatz !== true) melde("nullsatz", m.nullsatz);
   if (out.every(x => !x.feld.startsWith("pos.")) && pos.length && summen(r, f, lang).zahlbetrag > GRENZE) melde(`pos.${pos.length - 1}.preis`, m.zuHoch);
   // 03 Prüfen und speichern
-  if (!/^\d{1,3}$/.test(String(r.zielTage ?? "").trim()) || +r.zielTage > 365) melde("zielTage", m.ziel);
+  if (art !== "storno" && art !== "dauer" && (!/^\d{1,3}$/.test(String(r.zielTage ?? "").trim()) || +r.zielTage > 365)) melde("zielTage", m.ziel);
   if ([...String(r.zweck || "")].length > 140) melde("zweck", m.zweck);
   return out;
 }

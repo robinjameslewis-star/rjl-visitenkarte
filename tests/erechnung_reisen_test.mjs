@@ -7,6 +7,8 @@
 //   d) Fehlerfälle: falsche, kaputte und große Datei, zehn Dateien auf einmal, Gutschrift, Fremdwährung
 //   e) Eigene E-Rechnung schreiben: Firmendaten einmal, Rechnung mit 19 % und 7 %, speichern, im Prüfen öffnen, GiroCode; Kleinunternehmer,
 //      gesperrtes Speichern, Neuladen, Firmendaten löschen; nur mit der Tastatur, in der Datei ohne Netz, axe-core
+//   f) Empfänger und Katalog merken (Vorschläge mit Tastatur und Finger, CSV, ändern, löschen, alle Daten sichern und übernehmen),
+//      Dauer-, Abschlags- und Stornorechnung, Folgerechnung aus der XML-Datei; ohne dauerhaften Speicher
 // Testdaten: erfunden (tests/erechnung/daten, tools/erechnung/beispiele). Lokal gegen einen statischen Server für das Repository;
 // nach dem Pages-Deploy mit --basis https://robin.vision gegen die Website (die Datei ohne Netz wird dann lokal geprüft).
 //   node tests/erechnung_reisen_test.mjs [--basis https://robin.vision] [--nur-erstellen] [ordner]
@@ -35,7 +37,7 @@ const GERAETE = {
 // Was nie in einer Anfrage stehen darf: Namen, Nummern, IBANs und Dateinamen aus den Testrechnungen
 const GEHEIM = ["DE89370400440532013000", "DE89370400440532013001", "DE02120300000000202051", "2026-1047", "2026-1048", "RE-2026-0318", "RE-2026-0319", "GS-2026-0009", "2026-017",
   "Malerbetrieb", "Holzwerk", "Hartmann", "Sonnenkorn", "Lena", "Sommer", "Morgenrot", "kleinunternehmerin", "gutschrift", "fremdwaehrung", "abgeschnitten", "bestellung", "foto.jpg", "ohne-xml", "minimum.pdf", "gross-",
-  "Kupferhahn", "Abendtau", "DE44500105175407324931", "DE811111111", "12/345/67890", "Fischbach", "Hafenstraße", "Lindgrün", "Weidenhof", "DE29100100100987654321"];
+  "Kupferhahn", "Abendtau", "Sonnenstrahl", "Morgentau", "Weitblick", "Wartung Heizung", "W-100", "Projekt Nordlicht", "KH-ALT", "DE44500105175407324931", "DE811111111", "12/345/67890", "Fischbach", "Hafenstraße", "Lindgrün", "Weidenhof", "DE29100100100987654321"];
 const t0 = Date.now();
 const browser = await chrome();
 const anfragen = [];
@@ -437,12 +439,14 @@ async function reiseErstellen(geraet, lang = "de") {
     await p.click("#ewz-tab-erstellen");
     await p.click('[data-e="firma-auf"]');
     await p.click('[data-e="firma-loeschen"]');
-    check((await speicherSchluessel(p)).filter(x => x.startsWith("rverechnung:")).length === 0 && await p.inputValue("#ewe-firma-name") === "" && /Rückgängig/.test(await p.locator("#ewe-status").innerText()), "desktop e: „Firmendaten löschen“ leert den Speicher, „Rückgängig“ wird angeboten");
+    const firmaKeys = async () => (await speicherSchluessel(p)).filter(x => /^rverechnung:(firma|nummer)$/.test(x));
+    check((await firmaKeys()).length === 0 && (await speicherSchluessel(p)).includes("rverechnung:empfaenger") && await p.inputValue("#ewe-firma-name") === "" && /Rückgängig/.test(await p.locator("#ewe-status").innerText()),
+      "desktop e: „Firmendaten löschen“ entfernt Firmendaten und Nummer (gemerkte Empfänger bleiben), „Rückgängig“ wird angeboten");
     await p.click('[data-e="firma-zurueck"]');
     check(await p.inputValue("#ewe-firma-name") === "Werkstatt Kupferhahn GmbH" && (await speicherSchluessel(p)).includes("rverechnung:firma"), "desktop e: „Rückgängig“ stellt die Firmendaten wieder her");
     await p.click('[data-e="firma-loeschen"]');
     await neuLaden(p, lang);
-    check(await p.inputValue("#ewe-firma-name") === "" && (await speicherSchluessel(p)).filter(x => x.startsWith("rverechnung:")).length === 0, "desktop e: nach dem Löschen und Neuladen keine Firmendaten mehr");
+    check(await p.inputValue("#ewe-firma-name") === "" && (await firmaKeys()).length === 0, "desktop e: nach dem Löschen und Neuladen keine Firmendaten mehr");
     // Beispieldaten: nichts wird gespeichert
     await p.click('[data-e="probe"]');
     await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.probe && z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 60000 });
@@ -451,6 +455,184 @@ async function reiseErstellen(geraet, lang = "de") {
   }
   fehlerfrei(p, `${geraet} e`);
   zahlen.reisen++;
+  await c.close();
+}
+
+// ---------- f) Empfänger und Katalog merken, Rechnungsarten, frühere Rechnung als Vorlage ----------
+const CSVD = n => join(DATEN, "csv", n);
+const pruefFertig = async p => {
+  await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.meldungen.length === 0 && z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 120000 });
+  await p.waitForTimeout(700);
+  await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 120000 });
+};
+// Knopf mittig ins Bild holen (unten steht auf dem Handy die feste Leiste mit „Speichern“), dann tippen
+// (die Prüfung darüber ändert beim Rollen noch ihre Höhe: Knöpfe bekommen darum den Fokus und Enter, wie mit der Tastatur)
+const tippe = async (p, sel) => {
+  const l = p.locator(sel).first();
+  await l.evaluate(el => el.scrollIntoView({ block: "center" }));
+  if (await l.evaluate(el => el.tagName === "BUTTON")) { await l.focus(); await p.keyboard.press("Enter"); } else await l.click();
+};
+const dateiWahl = async (p, sel, datei) => { const [fc] = await Promise.all([p.waitForEvent("filechooser"), tippe(p, sel)]); await fc.setFiles(datei); };
+let geraetJetzt = "";
+const herunter = async (p, sel, name) => { const [dl] = await Promise.all([p.waitForEvent("download", { timeout: 120000 }), tippe(p, sel)]); const f = join(ORDNER, `f-${geraetJetzt}-${name}-${dl.suggestedFilename()}`); await dl.saveAs(f); return { name: dl.suggestedFilename(), pfad: f, text: readFileSync(f, "utf8") }; };
+async function axeErechnung(p, art) {
+  await p.addScriptTag({ path: axePfad() });
+  return p.evaluate(async a => (await window.axe.run(document.getElementById("erechnung"), { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"] } }))
+    .violations.map(v => `${a}: ${v.id}/${v.impact}/${v.nodes.length}: ${v.nodes.slice(0, 2).map(x => x.target.join(" ")).join("; ")}`), art);
+}
+async function reiseMerken(geraet) {
+  console.log(`\nReise f – Empfänger und Katalog merken, Rechnungsarten, Vorlage (${geraet})`);
+  geraetJetzt = geraet;
+  const c = await kontext(geraet, { bypassCSP: true }), p = await erstellenOeffnen(c);
+  const axe = [];
+  await ausfuellen(p, FIRMA_E);
+  await tippe(p, '[data-e="firma-weiter"]');
+  check(await p.locator("#ewe-art").evaluate(d => !d.open) && await p.locator('input[name="ewe-art"]:checked').getAttribute("value") === "rechnung" && await p.locator("#ewe-vorlage").isHidden() && await p.locator("#ewe-stamm").isHidden(),
+    `${geraet} f: Vorgabe „Rechnung“, andere Arten, Vorlage und gemerkte Daten zugeklappt`);
+  // 1. Rechnung: Position in den Katalog, speichern merkt den Empfänger
+  await ausfuellen(p, { ...EMPF_E, "pos-0-name": "Wartung Heizung", "pos-0-preis": "72,00" });
+  await p.selectOption("#ewe-pos-0-einheit", "HUR");
+  await tippe(p, '[data-e="pos-katalog"]');
+  check(/in den Katalog übernommen/.test(await p.locator("#ewe-status").innerText()), `${geraet} f: „In den Katalog“ aus der Position`);
+  await pruefFertig(p);
+  const r1 = await herunter(p, '[data-e="speichern"]', "erste");
+  const z1 = await zustand(p);
+  check(z1.empfaenger.length === 1 && z1.empfaenger[0].name === "Gärtnerei Abendtau KG" && z1.rechnungen.length === 1 && (await speicherSchluessel(p)).includes("rverechnung:empfaenger"), `${geraet} f: beim Speichern Empfänger und Rechnung im Gerät gemerkt`);
+  // 2. Nächste Rechnung: Vorschläge beim Tippen, nur mit der Tastatur
+  await tippe(p, '[data-e="naechste"]');
+  await p.locator("#ewe-empfaenger-name").pressSequentially("gärt");
+  check(await p.getAttribute("#ewe-empfaenger-name", "aria-expanded") === "true" && await p.locator("#ewe-empfaenger-name-liste [role=option]").count() === 1, `${geraet} f: beim Tippen ein Vorschlag (Kombinationsfeld, aria-expanded)`);
+  axe.push(...await axeErechnung(p, "Vorschläge offen"));
+  await p.keyboard.press("ArrowDown");
+  check(await p.getAttribute("#ewe-empfaenger-name", "aria-activedescendant") === "ewe-empfaenger-name-o0", `${geraet} f: Pfeil unten markiert den Vorschlag (aria-activedescendant)`);
+  await p.keyboard.press("Enter");
+  check(await p.inputValue("#ewe-empfaenger-ort") === "Fischbach" && await p.inputValue("#ewe-empfaenger-email") === "rechnung@abendtau.example" && await p.locator("#ewe-empfaenger-name-liste").isHidden(), `${geraet} f: Enter füllt alle Angaben des Empfängers`);
+  await p.locator("#ewe-pos-0-name").pressSequentially("wart");
+  await p.keyboard.press("ArrowDown"); await p.keyboard.press("Enter");
+  check(await p.inputValue("#ewe-pos-0-preis") === "72,00" && await p.inputValue("#ewe-pos-0-einheit") === "HUR" && await p.evaluate(() => document.activeElement.id) === "ewe-pos-0-menge", `${geraet} f: Position aus dem Katalog, Fokus auf der Menge`);
+  await p.fill("#ewe-pos-0-preis", "80,00");
+  check((await zustand(p)).katalog[0].preis === "72.00", `${geraet} f: Preis in der Rechnung geändert, Katalog bleibt bei 72,00`);
+  // Escape schließt, Klick übernimmt
+  await p.fill("#ewe-empfaenger-name", ""); await p.locator("#ewe-empfaenger-name").pressSequentially("Abend");
+  await p.keyboard.press("Escape");
+  const zu = await p.locator("#ewe-empfaenger-name-liste").isHidden();
+  await p.fill("#ewe-empfaenger-name", ""); await p.locator("#ewe-empfaenger-name").pressSequentially("abend");
+  await tippe(p, "#ewe-empfaenger-name-o0");
+  check(zu && await p.inputValue("#ewe-empfaenger-name") === "Gärtnerei Abendtau KG", `${geraet} f: Escape schließt die Vorschläge, Antippen übernimmt`);
+  // 3. Dauerrechnung
+  await tippe(p, "#ewe-art summary");
+  await p.check('input[name="ewe-art"][value="dauer"]');
+  check(await p.locator("#ewe-zielTage").count() === 0 && /Zahlungen zu je/.test(await p.locator("#ewe-dauer-text").innerText()) && /14\.1 Abs\. 19/.test(await p.locator(".ewe-art-hinweis").innerText()),
+    `${geraet} f: Dauerrechnung – Laufzeit vorbelegt, Fälligkeiten im Klartext, Hinweis mit Fundstelle, kein Zahlungsziel`);
+  await p.fill("#ewe-leistung-von", "2027-01-01"); await p.fill("#ewe-leistung-bis", "2027-12-31"); await p.fill("#ewe-dauer-tag", "3");
+  await pruefFertig(p);
+  axe.push(...await axeErechnung(p, "Dauerrechnung"));
+  const rd = await herunter(p, '[data-e="speichern"]', "dauer");
+  check(/<cbc:InvoiceTypeCode>380</.test(rd.text) && /Dauerrechnung: Diese Rechnung gilt für jeden Monat vom 01\.01\.2027 bis 31\.12\.2027/.test(rd.text) && /monatlich jeweils am 3\., erstmals am 03\.01\.2027, letztmals am 03\.12\.2027, je 95,20 €/.test(rd.text)
+    && /<cbc:DueDate>2027-01-03</.test(rd.text), `${geraet} f: Dauerrechnung gespeichert – Hinweis, Fälligkeiten, erste Fälligkeit als BT-9`);
+  // 4. Abschlagsrechnung
+  await tippe(p, '[data-e="naechste"]');
+  await p.locator("#ewe-empfaenger-name").pressSequentially("Gär"); await p.keyboard.press("ArrowDown"); await p.keyboard.press("Enter");
+  await p.locator("#ewe-pos-0-name").pressSequentially("Wart"); await p.keyboard.press("ArrowDown"); await p.keyboard.press("Enter");
+  await tippe(p, "#ewe-art summary");
+  await p.check('input[name="ewe-art"][value="abschlag"]');
+  await tippe(p, '[data-e="speichern"]'); await p.waitForTimeout(300);
+  check(await p.evaluate(() => document.activeElement.id) === "ewe-bezug" && await p.locator("#ewe-bezug-f:not([hidden])").count() === 1, `${geraet} f: Abschlag ohne Auftrag gesperrt, Fokus auf dem Feld`);
+  await p.fill("#ewe-bezug", "Projekt Nordlicht");
+  await pruefFertig(p);
+  const ra = await herunter(p, '[data-e="speichern"]', "abschlag");
+  check(/<cbc:InvoiceTypeCode>326</.test(ra.text) && /<cac:ProjectReference>\s*<cbc:ID>Projekt Nordlicht</.test(ra.text) && /<cac:SellersItemIdentification>|<cbc:Name>Wartung Heizung<\/cbc:Name>/.test(ra.text), `${geraet} f: Abschlagsrechnung 326 mit Projektreferenz`);
+  // 5. Vorlage: Stornorechnung zur ersten Rechnung, Folgerechnung aus der XML-Datei
+  await tippe(p, '[data-e="vorlage-auf"]');
+  check(await p.locator("#ewe-vorlage .ewe-liste-zeile").count() === 3 && await p.evaluate(() => document.activeElement.id) === "ewe-hvl", `${geraet} f: „Aus früherer Rechnung“ zeigt die drei gemerkten Rechnungen, Fokus auf der Tafel`);
+  axe.push(...await axeErechnung(p, "Vorlage offen"));
+  await tippe(p, `#ewe-vorlage [data-e="storno"][aria-label$="${r1.name.replace(/\.xml$/, "")} stornieren"]`);
+  check(await p.inputValue("#ewe-storno-nummer") === r1.name.replace(/\.xml$/, "") && await p.locator('input[name="ewe-art"]:checked').getAttribute("value") === "storno" && await p.evaluate(() => document.activeElement.id) === "ewe-storno-nummer",
+    `${geraet} f: „Stornieren“ – Stornorechnung mit Bezug auf ${r1.name}, Fokus auf dem Bezug`);
+  await pruefFertig(p);
+  const pst = await p.locator("#ewe-pruef-inhalt").innerText(), akt = await p.locator("#ewe-aktion").innerText();
+  check(/Geprüft: keine Fehler/.test(pst) && /Betrag der Stornorechnung/i.test(akt), `${geraet} f: Stornorechnung geprüft – keine Fehler (${pst.slice(0, 60)} | ${akt.slice(0, 40)})`);
+  const rs = await herunter(p, '[data-e="speichern"]', "storno");
+  check(/<ubl:CreditNote /.test(rs.text) && /<cbc:CreditNoteTypeCode>381</.test(rs.text) && rs.text.includes(`<cbc:ID>${r1.name.replace(/\.xml$/, "")}</cbc:ID>`) && /<cbc:PayableAmount currencyID="EUR">85\.68</.test(rs.text), `${geraet} f: Stornorechnung als UBL CreditNote 381, positive Beträge`);
+  await tippe(p, '[data-e="im-pruefen"]');
+  await fertig(p, 1);
+  const ks = await text(karte(p, rs.name).locator("[data-teil=antwort]"));
+  check(/Ja, das ist eine E-Rechnung/.test(ks) && /Keine Fehler gefunden/.test(ks), `${geraet} f: Stornorechnung im Prüfen – E-Rechnung ja, keine Fehler`);
+  await tippe(p, "#ewz-tab-erstellen");
+  await tippe(p, '[data-e="vorlage-auf"]');
+  await dateiWahl(p, '#ewe-vorlage [data-e="vorlage-datei"]', rd.pfad);
+  await p.waitForSelector('#ewe-vorlage [data-q="datei"]');
+  await tippe(p, '#ewe-vorlage [data-e="folge"][data-q="datei"]');
+  const zf = await zustand(p);
+  check(zf.rechnung.art === "dauer" && zf.rechnung.leistung.von === "2028-01-01" && zf.rechnung.leistung.bis === "2028-12-31" && zf.rechnung.dauer.tag === "3" && zf.rechnung.positionen[0].preis === "80"
+    && zf.rechnung.nummer !== rd.name.replace(/\.xml$/, ""), `${geraet} f: Folgerechnung aus der XML-Datei – nächste Laufzeit 2028, gleiche Angaben, neue Nummer ${zf.rechnung.nummer}`);
+  // 6. Gemerkte Daten: CSV einlesen, ändern, löschen, sichern
+  await tippe(p, '[data-e="stamm-auf"]');
+  await dateiWahl(p, '[data-e="csv-ein"][data-art="empfaenger"]', CSVD("empfaenger-komma-1252.csv"));
+  await p.waitForSelector("#ewe-csv-empfaenger");
+  const vorschau = await p.locator("#ewe-csv-empfaenger").innerText();
+  check(/Windows-1252/.test(vorschau) && /Komma/.test(vorschau) && /Bäckerei Sonnenstrahl/.test(vorschau) && /3 neu, 0 schon vorhanden, 0 doppelt in der Datei, 1 nicht lesbar/.test(vorschau) && await p.evaluate(() => document.activeElement.id) === "ewe-csv-kopf-empfaenger",
+    `${geraet} f: CSV (Windows-1252, Komma) – Vorschau mit erkannten Spalten und Zählern, Fokus auf der Vorschau`);
+  axe.push(...await axeErechnung(p, "CSV-Vorschau"));
+  await tippe(p, '[data-e="csv-ok"][data-art="empfaenger"]');
+  await dateiWahl(p, '[data-e="csv-ein"][data-art="katalog"]', CSVD("katalog-semikolon-utf8.csv"));
+  await p.waitForSelector("#ewe-csv-katalog");
+  check(/5 neu, 1 schon vorhanden, 1 doppelt in der Datei, 2 nicht lesbar/.test(await p.locator("#ewe-csv-katalog").innerText()), `${geraet} f: Katalog-CSV – „Wartung Heizung“ (W-100 und gleicher Name) schon vorhanden erkannt`);
+  await tippe(p, '[data-e="csv-ok"][data-art="katalog"]');
+  const zs = await zustand(p);
+  check(zs.empfaenger.length === 4 && zs.katalog.length === 6, `${geraet} f: übernommen – ${zs.empfaenger.length} Empfänger, ${zs.katalog.length} Positionen`);
+  await tippe(p, '#ewe-st-liste-katalog [data-e="st-aendern"][data-i="0"]');
+  await p.fill("#ewe-st-k-preis", "abc"); await tippe(p, '[data-e="st-sichern"]');
+  const fehlerPreis = await p.locator("#ewe-st-k-preis-f:not([hidden])").count();
+  await p.fill("#ewe-st-k-preis", "75,50"); await tippe(p, '[data-e="st-sichern"]');
+  check(fehlerPreis === 1 && (await zustand(p)).katalog[0].preis === "75.50", `${geraet} f: Eintrag im Katalog ändern – falscher Preis gemeldet, richtiger gemerkt`);
+  const n0 = (await zustand(p)).empfaenger.length;
+  await tippe(p, '#ewe-st-liste-empfaenger [data-e="st-weg"][data-i="0"]');
+  const weg = (await zustand(p)).empfaenger.length;
+  await tippe(p, '[data-e="st-zurueck"]');
+  check(weg === n0 - 1 && (await zustand(p)).empfaenger.length === n0, `${geraet} f: Empfänger löschen mit „Rückgängig“`);
+  const csvAus = await herunter(p, '[data-e="csv-aus"][data-art="katalog"]', "katalog");
+  check(csvAus.name === "Katalog.csv" && csvAus.text.startsWith("﻿Bezeichnung;Beschreibung;Einheit;Einzelpreis netto;Steuersatz;Artikelnummer") && csvAus.text.includes('"75,50"'), `${geraet} f: Katalog als CSV gesichert`);
+  const sicherung = await herunter(p, '[data-e="alle-aus"]', "alle");
+  check(/"art": "SmartFormular E-Rechnung lite – lokale Daten"/.test(sicherung.text) && JSON.parse(sicherung.text).empfaenger.length === 4, `${geraet} f: alle lokalen Daten als eine Datei gesichert`);
+  await tippe(p, '[data-e="alle-weg"]');
+  check((await speicherSchluessel(p)).filter(x => x.startsWith("rverechnung:")).length === 0 && /Rückgängig/.test(await p.locator("#ewe-status").innerText()), `${geraet} f: „Alle lokalen Daten löschen“ leert den Speicher, mit „Rückgängig“`);
+  await neuLaden(p, "de");
+  const leer = await zustand(p);
+  await tippe(p, '[data-e="stamm-auf"]');
+  await dateiWahl(p, '[data-e="alle-ein"]', sicherung.pfad);
+  await p.waitForFunction(() => window.RVErechnung.erstellen.empfaenger.length === 4);
+  const zi = await zustand(p);
+  check(!leer.firma.name && !leer.empfaenger.length && zi.firma.name === "Werkstatt Kupferhahn GmbH" && zi.katalog.length === 6 && zi.rechnungen.length === 4 && zi.letzte && /Übernommen/.test(await p.locator("#ewe-status").innerText()),
+    `${geraet} f: nach dem Löschen leer; „Aus Datei übernehmen“ bringt alles zurück (Gerätewechsel)`);
+  const breit = await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  check(breit, `${geraet} f: keine waagerechte Rollleiste mit offener Tafel`);
+  await foto(p, `f-merken-${geraet}`, { fullPage: geraet === "handy" });
+  check(!axe.length, `${geraet} f: axe ohne Verstöße – Vorschläge, Dauerrechnung, Vorlage, CSV-Vorschau (${axe.join(" | ")})`);
+  zahlen.axe.push({ geraet, lang: "de", art: "merken", alle: axe.length, schwer: 0, leicht: axe });
+  fehlerfrei(p, `${geraet} f`);
+  zahlen.reisen++;
+  await c.close();
+}
+
+// Ohne dauerhaften Speicher (privates Fenster, gesperrt): alles geht, gemerkt nur im Fenster, Hinweis in der Tafel
+async function ohneSpeicher() {
+  console.log("\nOhne dauerhaften Speicher (Speicher gesperrt)");
+  const c = await kontext("desktop");
+  await c.addInitScript(() => { for (const m of ["getItem", "setItem", "removeItem", "key", "clear"]) Storage.prototype[m] = function () { throw new DOMException("gesperrt", "SecurityError"); }; });
+  const p = await erstellenOeffnen(c);
+  check(/keinen dauerhaften Speicher/.test(await p.locator("#ewe-firma").innerText()), "privat: Hinweis bei den Firmendaten");
+  await ausfuellen(p, { ...FIRMA_E, ...EMPF_E, "pos-0-name": "Wartung Heizung", "pos-0-preis": "100" });
+  await tippe(p, '[data-e="pos-katalog"]');
+  await pruefFertig(p);
+  const dl = await speichernAbwarten(p);
+  await tippe(p, '[data-e="naechste"]');
+  await p.locator("#ewe-empfaenger-name").pressSequentially("Gär");
+  const vor = await p.locator("#ewe-empfaenger-name-liste [role=option]").count();
+  await tippe(p, '[data-e="stamm-auf"]');
+  check(/\.xml$/.test(dl.suggestedFilename()) && vor === 1 && /nur, solange das Fenster offen ist/.test(await p.locator("#ewe-stamm").innerText()) && (await zustand(p)).katalog.length === 1,
+    "privat: speichern geht, Vorschläge und Katalog gelten im Fenster, Hinweis „nur solange das Fenster offen ist“");
+  fehlerfrei(p, "privat");
   await c.close();
 }
 
@@ -565,6 +747,8 @@ try {
   }
   for (const g of ["desktop", "handy"]) await reiseErstellen(g);
   await reiseErstellen("desktop", "en");
+  for (const g of ["desktop", "handy"]) await reiseMerken(g);
+  await ohneSpeicher();
   await tastaturErstellen();
   console.log("\nBarrierefreiheit Erstellen (axe-core)");
   for (const g of ["desktop", "handy"]) for (const l of ["de", "en"]) await barrierefreiErstellen(g, l);

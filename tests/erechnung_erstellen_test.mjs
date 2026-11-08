@@ -1,8 +1,11 @@
 // SmartFormular E-Rechnung lite, „Erstellen“: Rechnen, Maske, Nummern und XML-Text in Node; danach der Rundlauf im echten Chrome:
 // Rechnungen aller Paare der wichtigen Merkmale (pairwise), rund 2.000 Zufallsfälle mit festem Startwert und feste Randfälle werden
 // mit ublSchreiben erzeugt, auf derselben Lesestrecke wie beim Prüfen eingelesen (lesen.js) und mit dem ausgelieferten Prüfkern
-// (assets/erechnung/pruefung.js, Regeln assets/erechnung/regeln/) geprüft. Erwartet je Datei: Szenario XRechnung (UBL Invoice),
-// 0 Fehler, 0 Auswertungsfehler, 0 Warnungen; die gelesenen Daten stimmen mit dem Modell überein, der GiroCode ist gesetzt.
+// (assets/erechnung/pruefung.js, Regeln assets/erechnung/regeln/) geprüft – alle Rechnungsarten (Rechnung, Abschlag, Dauer, Storno als
+// UBL CreditNote) und Artikelnummern. Erwartet je Datei: Szenario XRechnung (UBL Invoice bzw. CreditNote), 0 Fehler, 0 Auswertungs-
+// fehler, 0 Warnungen; die gelesenen Daten stimmen mit dem Modell überein, der GiroCode ist gesetzt (bei Storno bewusst nicht), und
+// die Rechnung lässt sich als Vorlage wieder in die Maske lesen (vorlage.js). Dazu in Node: Speicher (stamm.js, auch ohne Speicher)
+// und CSV-Einlesen mit den Testdateien in tests/erechnung/daten/csv/.
 // Die Dateien und manifest.json landen in tools/erechnung/.cache/erstellen/. Ist eine Python-Umgebung mit saxonche und lxml da
 // (tools/erechnung/.cache/venv oder ERECHNUNG_PYTHON), prüft tests/erechnung_erstellen_referenz.py dieselben Dateien wie der
 // Validator der KoSIT: XML-Schema (XSD) und Schematron mit Saxon; sonst wird dieser Teil sichtbar übersprungen.
@@ -13,7 +16,9 @@ import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { WZ, server, chrome, check, ergebnis } from "./erechnung/hilfen.mjs";
 import { dezimalLesen, zeileNetto, summen, betragText, mengeText, preisText, rund, GRENZE } from "../tools/erechnung/src/rechnen.js";
-import { ublSchreiben, xmlText, KENNUNG, PROZESS, dateiName, OHNE_REFERENZ } from "../tools/erechnung/src/erzeugen.js";
+import { ublSchreiben, xmlText, KENNUNG, PROZESS, dateiName, OHNE_REFERENZ, ART_CODE, faelligkeiten, dauerTexte, STORNO_ZAHLUNG } from "../tools/erechnung/src/erzeugen.js";
+import { folgeRechnung, stornoRechnung, naechsterZeitraum, spracheWechseln } from "../tools/erechnung/src/vorlage.js";
+import { csvLesen, csvSchreiben, dekodieren, trennzeichen, zerlegen, einheitLesen, steuerLesen, preisLesen } from "../tools/erechnung/src/csv.js";
 import { maskePruefen, naechsteNummer, nummerSpaeter, speichernErlaubt } from "../tools/erechnung/src/maske.js";
 import { EINHEITEN_ERSTELLEN, BEFREIUNGEN } from "../tools/erechnung/src/texte.js";
 import { firmaBereinigen, firmaExport, firmaImport } from "../tools/erechnung/src/firma.js";
@@ -131,6 +136,95 @@ check(/<cbc:EndpointID schemeID="0204">991-33333-44<\/cbc:EndpointID>/.test(xb) 
   "Behörde: Leitweg-ID als BT-49, angegebene E-Mail als Kontakt des Käufers (BT-58)");
 check(xk.includes("<cbc:Note>Steuerbefreiung für Kleinunternehmer nach § 19 Abs. 1 UStG.</cbc:Note>"), "Kleinunternehmer: Hinweis auf die Steuerbefreiung nach § 19 Abs. 1 UStG");
 
+console.log("\nRechnungsarten: Maske, Codes, Texte");
+check(ART_CODE.rechnung === "380" && ART_CODE.abschlag === "326" && ART_CODE.dauer === "380" && ART_CODE.storno === "381", "Codes: Rechnung und Dauerrechnung 380, Abschlag 326 (Teilrechnung), Storno 381 (CreditNote)");
+const artR = (art, extra = {}) => Object.assign(RECHNUNG(), { art, bezug: "", storno: { nummer: "", datum: "" }, dauer: { turnus: "monat", tag: "1" } }, extra);
+const ma = maskePruefen(FIRMA, artR("abschlag")), ms = maskePruefen(FIRMA, artR("storno")), md = maskePruefen(FIRMA, artR("dauer", { dauer: { turnus: "monat", tag: "31" }, zielTage: "" }));
+const ms2 = maskePruefen(FIRMA, artR("storno", { storno: { nummer: "KH-1", datum: "2026-12-01" }, zielTage: "x" }));
+check(ma.map(m => m.feld).join() === "bezug" && ms.map(m => m.feld).join() === "storno.nummer,storno.datum" && md.map(m => m.feld).join() === "dauer.tag,leistung.von,leistung.bis"
+  && ms2.map(m => m.feld).join() === "storno.datum", `Maske: Abschlag ohne Auftrag, Storno ohne Bezug oder mit späterem Datum, Dauer mit Tag 31 und ohne Laufzeit; Zahlungsziel nur bei Rechnung und Abschlag (${md.map(m => m.feld)})`);
+check(faelligkeiten("2027-01-01", "2027-12-31", "monat", "3").length === 12 && faelligkeiten("2027-01-15", "2027-12-31", "quartal", "1").join() === "2027-01-01,2027-04-01,2027-07-01,2027-10-01"
+  && faelligkeiten("2027-03-01", "2029-02-28", "jahr", "28").join() === "2027-03-28,2028-03-28" && faelligkeiten("2027-02-01", "2027-01-01", "monat", "1").length === 0, "Dauerrechnung: Fälligkeiten je Monat, Quartal und Jahr innerhalb der Laufzeit");
+const dt = dauerTexte({ leistung: { von: "2027-01-01", bis: "2027-12-31" }, dauer: { turnus: "monat", tag: "3" } }, 95200n);
+check(dt.hinweis === "Dauerrechnung: Diese Rechnung gilt für jeden Monat vom 01.01.2027 bis 31.12.2027. Alle Beträge gelten je Monat." && dt.zahlung === "Zahlbar ohne Abzug monatlich jeweils am 3., erstmals am 03.01.2027, letztmals am 03.12.2027, je 952,00 €." && dt.erste === "2027-01-03",
+  `Dauerrechnung: Hinweis (BT-22) und Fälligkeiten im Klartext (BT-20): ${dt.zahlung}`);
+const xa = ublSchreiben(FIRMA, artR("abschlag", { bezug: "Projekt Nord & Süd" })), xst = ublSchreiben(FIRMA, artR("storno", { storno: { nummer: "KH-2026-0006", datum: "2026-11-01" } }));
+check(/<cbc:InvoiceTypeCode>326</.test(xa) && /<cac:ProjectReference>\s*<cbc:ID>Projekt Nord &amp; Süd<\/cbc:ID>/.test(xa) && /<cbc:Note>Abschlagsrechnung zu Projekt Nord &amp; Süd\./.test(xa), "Abschlag: 326, Projektreferenz (BT-11), Hinweis in der Datei");
+check(/^<\?xml[^]*<ubl:CreditNote xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"/.test(xst) && /<cbc:CreditNoteTypeCode>381</.test(xst) && /<cac:BillingReference>\s*<cac:InvoiceDocumentReference>\s*<cbc:ID>KH-2026-0006<\/cbc:ID>\s*<cbc:IssueDate>2026-11-01</.test(xst)
+  && /<cac:CreditNoteLine>/.test(xst) && /<cbc:CreditedQuantity unitCode="HUR">2.5</.test(xst) && !/DueDate|PayeeFinancialAccount|-\d/.test(xst.replace(/\d{4}-\d{2}-\d{2}|[A-Z]{2}-\d{4}-\d{4}|KH-\d{4}-\d{4}|\+49 \d{4} \d{4}-0|12\/345|[a-z]-\d/gi, "")) && xst.includes(`<cbc:Note>${STORNO_ZAHLUNG}</cbc:Note>`),
+  "Storno: UBL CreditNote 381, Bezug BG-3 mit Nummer und Datum, CreditNoteLine, positive Beträge, ohne Fälligkeit und Konto");
+const xn = ublSchreiben(FIRMA, Object.assign(RECHNUNG(), { positionen: [{ name: "Ventil", menge: "1", einheit: "C62", preis: "5", steuer: "S19", artikelnr: "V-<1>" }] }));
+check(/<cbc:Name>Ventil<\/cbc:Name>\s*<cac:SellersItemIdentification>\s*<cbc:ID>V-&lt;1&gt;<\/cbc:ID>\s*<\/cac:SellersItemIdentification>\s*<cac:ClassifiedTaxCategory>/.test(xn), "Artikelnummer (BT-155) nach dem Namen, maskiert");
+
+console.log("\nVorlage: Folge- und Stornorechnung");
+check(JSON.stringify(naechsterZeitraum("2026-11-01", "2026-11-30")) === '{"von":"2026-12-01","bis":"2026-12-31"}' && JSON.stringify(naechsterZeitraum("2027-01-01", "2027-03-31")) === '{"von":"2027-04-01","bis":"2027-06-30"}'
+  && JSON.stringify(naechsterZeitraum("2026-11-10", "2026-11-16")) === '{"von":"2026-11-17","bis":"2026-11-23"}' && JSON.stringify(naechsterZeitraum("2027-01-01", "2027-12-31")) === '{"von":"2028-01-01","bis":"2028-12-31"}'
+  && JSON.stringify(naechsterZeitraum("2028-02-01", "2028-02-29")) === '{"von":"2028-03-01","bis":"2028-03-31"}', "nächster Zeitraum: Monat, Quartal, Woche, Jahr, Februar im Schaltjahr");
+const alt = artR("dauer", { nummer: "KH-2026-0007", leistung: { art: "zeitraum", von: "2026-11-01", bis: "2026-11-30" }, dauer: { turnus: "monat", tag: "3" } });
+const fo = folgeRechnung(alt, "KH-2026-0009", "2026-12-01"), so = stornoRechnung(artR("abschlag", { bezug: "P1" }), "KH-2026-0009", "2026-12-02");
+check(fo.art === "dauer" && fo.nummer === "KH-2026-0010" && fo.datum === "2026-12-01" && fo.leistung.von === "2026-12-01" && fo.leistung.bis === "2026-12-31" && fo.empfaenger.name === alt.empfaenger.name && fo.positionen[0].preis === "72,00",
+  "Folgerechnung: nächste Nummer nach der zuletzt gespeicherten, nächster Zeitraum, sonst gleiche Angaben");
+check(so.art === "storno" && so.storno.nummer === "KH-2026-0007" && so.storno.datum === "2026-11-09" && so.nummer === "KH-2026-0010" && so.positionen.length === 1, "Stornorechnung: Bezug auf Nummer und Datum der Vorlage, eigene neue Nummer");
+check(folgeRechnung(so, null, "2026-12-03").art === "rechnung" && spracheWechseln({ ...RECHNUNG(), positionen: [{ name: "a", menge: "1.234,5", preis: "0,5" }] }, "en").positionen[0].menge === "1234.5", "aus einer Stornorechnung wird als Folge wieder eine Rechnung; Zahlen wechseln die Schreibweise mit der Sprache");
+
+console.log("\nGemerkte Daten im Gerät (stamm.js)");
+const speicher = new Map();
+globalThis.localStorage = { getItem: k => speicher.has(k) ? speicher.get(k) : null, setItem: (k, v) => { speicher.set(k, String(v)); }, removeItem: k => { speicher.delete(k); }, get length() { return speicher.size; } };
+const st = await import("../tools/erechnung/src/stamm.js");
+st.empfaengerMerken({ name: "Gärtnerei Abendtau KG", plz: "23457", ort: "Fischbach", email: "a@b.example", fremd: "x" });
+st.empfaengerMerken({ name: "gärtnerei  abendtau kg", plz: "23457", ort: "Fischbach-Neu", email: "neu@b.example" });
+st.empfaengerMerken({ name: "Abendrot GmbH", plz: "10115" });
+const el = st.listeLesen("empfaenger");
+check(el.length === 2 && el[1].ort === "Fischbach-Neu" && el[0].name === "Abendrot GmbH" && !("fremd" in el[1]) && JSON.parse(speicher.get("rverechnung:empfaenger")).liste.length === 2,
+  "Empfänger beim Speichern gemerkt: gleicher Name und PLZ ersetzt (neueste Angaben), Neuestes vorn, fremde Felder fallen weg");
+check(st.vorschlaege(el, "aben").join() === "0,1" && st.vorschlaege(el, "tau").join() === "1" && st.vorschlaege(el, "Gart").join() === "1" && st.vorschlaege(el, "").length === 0 && st.vorschlaege(el, "xyz").length === 0, "Vorschläge: Anfang zuerst, dann irgendwo im Namen; ohne Akzente (Gart findet Gärtnerei)");
+const k1 = st.katalogMerken({ name: "Wartung", preis: st.preisFest("72,5", "de"), einheit: "HUR", steuer: "S19", artikelnr: "W-1" }), k2 = st.katalogMerken({ name: "Wartung Heizung", preis: "80", einheit: "HUR", steuer: "S7", artikelnr: "w-1" });
+check(k1.neu && !k2.neu && st.listeLesen("katalog").length === 1 && st.listeLesen("katalog")[0].preis === "80.00" && st.preisFuer("72.50", "de") === "72,50" && st.katalogBereinigen({ name: "x", einheit: "ZZZ", steuer: "K", preis: "-1" }).einheit === "C62"
+  && st.katalogBereinigen({ name: "x", preis: "-1" }).preis === "", "Katalog: gleiche Artikelnummer ersetzt, Preis fest mit Punkt, unbekannte Einheit und Steuer abgewiesen");
+for (let i = 0; i < 25; i++) st.rechnungMerken({ ...RECHNUNG(), nummer: `KH-${i}` }, 100n * BigInt(i));
+const rl = st.rechnungenLesen();
+check(rl.length === 20 && rl[0].nummer === "KH-24" && rl[0].betrag === "2400" && rl[0].empfaenger.name === "Gärtnerei Abendtau KG", "gemerkte Rechnungen: die letzten 20, Neueste vorn, mit Betrag");
+const sicher = st.alleExport({ firma: FIRMA, nummer: { letzte: "KH-24", datum: "2026-11-09" }, empfaenger: el, katalog: st.listeLesen("katalog"), rechnungen: rl });
+const zurueck = st.alleImport(sicher), alteDatei = st.alleImport(firmaExport(FIRMA, { letzte: "KH-1", datum: "" }));
+check(zurueck && zurueck.firma.name === FIRMA.name && zurueck.nummer.letzte === "KH-24" && zurueck.empfaenger.length === 2 && zurueck.katalog.length === 1 && zurueck.rechnungen.length === 20 && st.alleImport('{"art":"x"}') === null && st.alleImport("kein json") === null
+  && alteDatei && alteDatei.firma.name === FIRMA.name && alteDatei.empfaenger === null, "alle lokalen Daten als eine Datei: hin und zurück; die Datei „Firmendaten“ wird auch übernommen, fremde Dateien abgewiesen");
+st.stammLoeschen();
+check(!speicher.has("rverechnung:empfaenger") && !speicher.has("rverechnung:katalog") && !speicher.has("rverechnung:rechnungen") && st.listeLesen("empfaenger").length === 0, "Löschen entfernt Empfänger, Katalog und gemerkte Rechnungen");
+globalThis.localStorage = { getItem() { throw new Error("gesperrt"); }, setItem() { throw new Error("gesperrt"); }, removeItem() { throw new Error("gesperrt"); } };
+st.empfaengerMerken({ name: "Nur im Fenster AG", plz: "1" });
+check(st.listeLesen("empfaenger").length === 1 && st.listeLesen("empfaenger")[0].name === "Nur im Fenster AG" && st.alleLesen().firma === null, "ohne Speicher (privates Fenster): kein Absturz, gemerkt nur im Arbeitsspeicher");
+delete globalThis.localStorage;
+st.stammLoeschen();
+check(st.listeLesen("empfaenger").length === 0 && st.rechnungenLesen().length === 0, "ganz ohne localStorage: leere Listen, kein Absturz");
+
+console.log("\nCSV einlesen und schreiben");
+const CSV = n => readFileSync(join(WZ, "..", "..", "tests", "erechnung", "daten", "csv", n));
+const c1 = csvLesen(CSV("empfaenger-semikolon-utf8.csv"), "empfaenger");
+const st1 = c1.ergebnis.map(x => `${x.zeile}:${x.status}`).join();
+check(c1.ok && c1.zeichensatz === "UTF-8" && c1.trennzeichen === ";" && st1 === "2:neu,3:neu,5:neu,7:fehler,9:doppelt,10:neu" && c1.spalten.find(s => s.kopf === "Kundennr.").feld === null
+  && c1.ergebnis[1].eintrag.name === "Müller & Söhne; Bau" && c1.ergebnis[2].eintrag.name === 'Kanzlei "Weitblick" Partner' && c1.ergebnis[2].eintrag.strasse === "Am Markt 1\nHinterhaus" && c1.ergebnis[5].eintrag.behoerde === true,
+  `Empfänger, Semikolon, UTF-8 mit BOM: Anführungszeichen mit ; und "", Umbruch im Feld, leere Zeilen übersprungen, ohne Namen und doppelt erkannt, Zeilen wie in der Datei (${st1})`);
+const c2 = csvLesen(CSV("empfaenger-komma-1252.csv"), "empfaenger", [{ name: "Café Größenwahn", plz: "8001" }]);
+check(c2.ok && c2.zeichensatz === "Windows-1252" && c2.trennzeichen === "," && c2.ergebnis[0].eintrag.name === "Bäckerei Sonnenstrahl" && c2.ergebnis[0].eintrag.land === "AT" && c2.ergebnis[1].eintrag.name === "Schreinerei Grün, Holz & Mehr"
+  && c2.ergebnis[2].status === "vorhanden" && c2.ergebnis[3].grund === "land", "Empfänger, Komma, Windows-1252: Umlaute richtig, „Österreich“ → AT, schon vorhanden erkannt, unbekanntes Land übersprungen");
+const c3 = csvLesen(CSV("katalog-semikolon-utf8.csv"), "katalog");
+const z3 = c3.ergebnis.map(x => `${x.eintrag.artikelnr || "-"}:${x.status}:${x.eintrag.einheit}:${x.eintrag.preis}:${x.eintrag.steuer}`).join(" ");
+check(c3.ok && z3 === "W-100:neu:HUR:72.00:S19 B-7:neu:C62:24.90:S7 A-1:neu:LS:45.00:S19 M-2:neu:MON:1234.50:E R-9:neu:C62:3.50:S19 X-0:fehler:C62::S19 X-1:fehler:C62:10.00:S19 W-100:doppelt:HUR:80.00:S19 -:neu:HUR:12.3456:S19"
+  && c3.ergebnis[4].hinweise[0].wert === "Rolle" && c3.ergebnis[0].eintrag.beschreibung === "Jährliche Wartung; inkl. Abgasmessung", `Katalog, Semikolon: deutsche Zahlen (1.234,50), Einheiten als Wort, 19 % / 7 / steuerfrei / 0,19, unbekannte Einheit gemeldet, Preis und Satz geprüft, gleiche Artikelnummer doppelt`);
+const c4 = csvLesen(CSV("katalog-komma-englisch.csv"), "katalog");
+check(c4.ok && c4.ergebnis.map(x => `${x.eintrag.name}:${x.eintrag.einheit}:${x.eintrag.preis}:${x.eintrag.steuer}`).join() === "Consulting:HUR:1234.50:S19,Travel flat rate:LS:45.00:S19,Übersetzung:C62:0.50:S7", "Katalog, Komma, englische Kopfzeilen und Zahlen (\"1,234.50\", 0.19, 19%)");
+check(csvLesen(new TextEncoder().encode("Ort;PLZ\nBerlin;10115\n"), "empfaenger").fehler === "keinName" && csvLesen(new Uint8Array(0), "katalog").fehler === "leer" && csvLesen(new TextEncoder().encode("\n\n;;\n"), "katalog").fehler === "leer",
+  "ohne Spalte für den Namen oder leer: klare Meldung statt Übernahme");
+check(trennzeichen('"a;b",c,d') === "," && trennzeichen("a\tb\tc") === "\t" && zerlegen('a;"b\r\nc";d\r\n\r\n', ";").length === 1 && einheitLesen("m²").code === "MTK" && einheitLesen("KWH").code === "KWH" && steuerLesen("", "S7") === "S7" && preisLesen("12,5 €", "de") === "12.50",
+  "Trennzeichen außerhalb von Anführungszeichen gezählt, Zeilenumbruch im Feld, m² und Codes, Vorgabe-Steuersatz, € entfernt");
+const neuK = [...c3.ergebnis.filter(x => x.status === "neu").map(x => x.eintrag), { name: "=SUMME(A1)", beschreibung: "", einheit: "C62", preis: "1.00", steuer: "S19", artikelnr: "" }];
+const aus = csvSchreiben(neuK, "katalog", "de"), wieder = csvLesen(new TextEncoder().encode(aus), "katalog");
+check(aus.startsWith("﻿Bezeichnung;Beschreibung;Einheit;Einzelpreis netto;Steuersatz;Artikelnummer\r\n") && aus.includes('"Jährliche Wartung; inkl. Abgasmessung"') && aus.includes("'=SUMME(A1)")
+  && wieder.ergebnis.length === neuK.length && wieder.ergebnis.every((x, i) => x.status === "neu" && JSON.stringify(x.eintrag) === JSON.stringify(neuK[i])),
+  "CSV schreiben: BOM, Semikolon, Anführungszeichen, keine Formeln; wieder eingelesen gleich (Rundlauf)");
+const ae = csvSchreiben(c1.ergebnis.filter(x => x.status === "neu").map(x => x.eintrag), "empfaenger", "en"), aw = csvLesen(new TextEncoder().encode(ae), "empfaenger");
+check(aw.ergebnis.length === 4 && aw.ergebnis.every((x, i) => JSON.stringify(x.eintrag) === JSON.stringify(c1.ergebnis.filter(y => y.status === "neu")[i].eintrag)), "Empfänger als CSV (englische Kopfzeilen) und zurück: gleich, auch mit Umbruch und Behörde");
+
 if (args.includes("--nur-node")) { const { fails, oks } = ergebnis(); console.log(`\n${oks} Prüfungen bestanden, ${fails} fehlgeschlagen.`); process.exit(fails ? 1 : 0); }
 
 // ---------- Fälle für den Rundlauf ----------
@@ -138,6 +232,7 @@ const DIM = {
   klein: [false, true], kennung: ["ustid", "stnr", "beide", "stnr+hr"], behoerde: [false, true], leistung: ["datum", "zeitraum"], positionen: [1, 2, 5, 25, 100],
   mix: ["S19", "S7", "S19+S7", "S+Z", "S+E", "E", "Z"], menge: ["1", "0,5", "0,001", "1.234,567"], preis: ["0", "0,01", "12,3456", "99.999,9999"],
   einheit: EINHEITEN_ERSTELLEN, text: ["normal", "sonder"], bic: [true, false], ziel: [0, 14, 30, 60], datum: ["2026-12-31", "2028-02-29"],
+  art: ["rechnung", "abschlag", "dauer", "storno"], artikelnr: [false, true],
 };
 // Alle Paare: gierig je neuem Fall die Werte wählen, die die meisten noch offenen Paare abdecken (fester Ablauf, kein Zufall)
 function paarweise(dim) {
@@ -192,6 +287,13 @@ function fallBauen(f, nr, lang = "de") {
   if (!f.klein && kat.includes("E")) { const b = BEFREIUNGEN[nr % BEFREIUNGEN.length]; r.befreiung = { wahl: b.id, text: b.text }; }
   if (kat.includes("Z")) r.nullsatz = true;
   if (f.text === "sonder" && !f.behoerde) r.empfaenger.referenz = "PO A&B 'Nord' <1> \"x\"";
+  // Rechnungsarten: Abschlag mit Auftrag (BT-11), Dauer mit Laufzeit und Fälligkeit, Storno mit Bezug (BG-3); Artikelnummern (BT-155)
+  r.art = f.art || "rechnung";
+  r.bezug = r.art === "abschlag" ? (f.text === "sonder" ? SONDER.name : `Projekt ${nr}`) : "";
+  r.storno = r.art === "storno" ? { nummer: f.text === "sonder" ? "RE/2026 – Nr. 7 & 8" : `ALT-${nr}`, datum: "2026-01-01" } : { nummer: "", datum: "" };
+  r.dauer = { turnus: ["monat", "quartal", "jahr"][nr % 3], tag: String(1 + nr % 28) };
+  if (r.art === "dauer") r.leistung = { art: "zeitraum", von: `${f.datum.slice(0, 4)}-01-01`, bis: f.datum };
+  if (f.artikelnr) r.positionen.forEach((p, i) => { p.artikelnr = f.text === "sonder" && i === 0 ? "A&B <1> \"x\"" : `ART-${nr}-${i + 1}`; });
   let m = maskePruefen(firma, r, lang);
   if (m.some(x => x.text.includes("999.999.999") || x.text.includes("999,999,999"))) { r.positionen.forEach(p => { p.menge = "1"; }); m = maskePruefen(firma, r, lang); }
   return { firma, rechnung: r, maske: m, merkmale: f };
@@ -224,6 +326,13 @@ faelle.push(
   rand("nummer-sonder", (f, r) => { r.nummer = "RE/2026 – Nr. 7 & 8"; }),
   rand("englisch", (f, r) => { r.sprache = "en"; r.positionen[0].menge = "1,234.5"; r.positionen[0].preis = "0.0125"; }),
   rand("schaltjahr", (f, r) => { r.datum = "2028-02-29"; r.zielTage = "365"; r.leistung = { art: "zeitraum", von: "2028-02-01", bis: "2028-02-29" }; }),
+  rand("storno-behoerde", (f, r) => { Object.assign(r, { art: "storno", storno: { nummer: "KH-2026-0006", datum: "2026-11-01" } }); Object.assign(r.empfaenger, { behoerde: true, referenz: "991-33333-44", email: "" }); }),
+  rand("storno-klein-zeitraum", (f, r) => { f.kleinunternehmer = true; f.ustid = ""; Object.assign(r, { art: "storno", storno: { nummer: "KH-1", datum: "2026-11-09" }, leistung: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" } }); }),
+  rand("storno-null", (f, r) => { Object.assign(r, { art: "storno", storno: { nummer: "KH-2", datum: "2026-10-01" } }); r.positionen[0].preis = "0"; }),
+  rand("dauer-jahr-ein-termin", (f, r) => { Object.assign(r, { art: "dauer", dauer: { turnus: "jahr", tag: "28" }, leistung: { art: "zeitraum", von: "2027-01-01", bis: "2027-12-31" } }); }),
+  rand("dauer-quartal-englisch", (f, r) => { Object.assign(r, { sprache: "en", art: "dauer", dauer: { turnus: "quartal", tag: "15" }, leistung: { art: "zeitraum", von: "2027-02-10", bis: "2029-02-09" } }); r.positionen[0].menge = "2.5"; r.positionen[0].preis = "72.00"; }),
+  rand("abschlag-behoerde-befreit", (f, r) => { Object.assign(r, { art: "abschlag", bezug: "Vergabe 2026/17 – Los 2" }); Object.assign(r.empfaenger, { behoerde: true, referenz: "04011000-1234512345-06", email: "" }); r.positionen[0].steuer = "E"; r.befreiung = { wahl: "4-21", text: BEFREIUNGEN.find(b => b.id === "4-21").text }; }),
+  rand("artikelnummer-lang", (f, r) => { r.positionen[0].artikelnr = "X".repeat(60); }),
   rand("hundert-gemischt", (f, r) => { r.positionen = Array.from({ length: 100 }, (_, i) => ({ name: `P${i}`, menge: `${i + 1},5`, preis: `${i},99`, einheit: EINHEITEN_ERSTELLEN[i % 13], steuer: ["S19", "S7", "Z"][i % 3] })); r.nullsatz = true; }),
 );
 const ungueltig = faelle.filter(f => f.maske.length);
@@ -236,18 +345,21 @@ const req = createRequire(join(WZ, "package.json"));
 const esbuild = await import(req.resolve("esbuild"));
 const harnisch = await esbuild.build({ stdin: { contents: `import { dateiLesen } from "./lesen.js"; import { zahlung } from "./girocode.js"; window.RVTest = { dateiLesen, zahlung };`, resolveDir: join(WZ, "src"), loader: "js" },
   bundle: true, write: false, format: "iife", loader: { ".json": "json", ".ts": "ts" }, logLevel: "warning" });
-const srv = await server({ "/__erstellen__.js": { typ: "text/javascript; charset=utf-8", inhalt: harnisch.outputFiles[0].text } });
+const harnisch2 = await esbuild.build({ stdin: { contents: `import { rechnungAusDaten } from "./vorlage.js"; window.RVVorlage = { rechnungAusDaten };`, resolveDir: join(WZ, "src"), loader: "js" },
+  bundle: true, write: false, format: "iife", loader: { ".json": "json", ".ts": "ts" }, logLevel: "warning" });
+const srv = await server({ "/__erstellen__.js": { typ: "text/javascript; charset=utf-8", inhalt: harnisch.outputFiles[0].text }, "/__vorlage__.js": { typ: "text/javascript; charset=utf-8", inhalt: harnisch2.outputFiles[0].text } });
 const browser = await chrome();
 const page = await browser.newPage();
 const fremd = [];
 page.on("request", r => { if (!r.url().startsWith(srv.url)) fremd.push(r.url()); });
 await page.goto(`${srv.url}/__pruefkern__.html`);
 await page.addScriptTag({ url: "/__erstellen__.js" });
-await page.waitForFunction(() => !!window.RVPruefung && !!window.RVTest);
+await page.addScriptTag({ url: "/__vorlage__.js" });
+await page.waitForFunction(() => !!window.RVPruefung && !!window.RVTest && !!window.RVVorlage);
 await page.evaluate(() => {
   const saetze = {};
   const stufe = (b, st) => { const s = st && st[b.id]; if (s) return s === "error" ? "fehler" : s === "warning" ? "warnung" : "hinweis"; return b.flag === "warning" ? "warnung" : b.flag === "information" || b.flag === "info" ? "hinweis" : "fehler"; };
-  window.__rundlauf = async (name, xml) => {
+  window.__rundlauf = async (name, xml, lang) => {
     const e = await window.RVTest.dateiLesen(new File([xml], name, { type: "application/xml" }));
     if (e.art !== "rechnung") return { art: e.art };
     const out = { art: e.art, szenario: e.format.szenario, saetze: e.format.saetze, befunde: [], fehler: [] };
@@ -260,8 +372,11 @@ await page.evaluate(() => {
     const d = e.daten;
     out.daten = { nummer: d.nummer, datum: d.datum, faellig: d.faellig, referenz: d.referenz, summen: d.summen, steuern: d.steuern.map(x => [x.kategorie, x.satz, x.basis, x.betrag, x.grund]),
       positionen: d.positionen.map(p => [p.name, p.menge, p.einheit, p.preis.netto, p.netto, p.kategorie, p.satz, p.beschreibung]), verkaeufer: d.verkaeufer.name, kaeufer: d.kaeufer.name,
-      kaeuferAdresse: d.kaeufer.elektronisch, notizen: d.notizen, zweck: d.zahlung[0] && d.zahlung[0].zweck, zeitraum: d.zeitraum, lieferung: d.lieferung && d.lieferung.datum };
-    const z = window.RVTest.zahlung(d);
+      kaeuferAdresse: d.kaeufer.elektronisch, notizen: d.notizen, zweck: d.zahlung[0] && d.zahlung[0].zweck, zeitraum: d.zeitraum, lieferung: d.lieferung && d.lieferung.datum,
+      art: d.art, cn: d.gutschriftDokument, projekt: d.projekt, vorherige: d.vorherige, bedingungen: d.bedingungen, faelligAm: d.faellig, artikelnr: d.positionen.map(p => p.artikelnr) };
+    // Zurück in die Maske (Vorlage für Folge- und Stornorechnung)
+    out.vorlage = window.RVVorlage.rechnungAusDaten(d, lang);
+    const z = window.RVTest.zahlung({ ...d, sprache: lang });
     out.giro = { nutzlast: z.nutzlast, grund: z.grund };
     return out;
   };
@@ -279,16 +394,32 @@ function vergleichen(fall, w) {
   soll(d.positionen.length === r.positionen.length && r.positionen.every((p, i) => { const q = d.positionen[i], z = s.zeilen[i];
     return q[0] === rein(p.name) && q[1] === Number(mengeText(z.menge)) && q[2] === p.einheit && q[3] === Number(preisText(z.preis)) && zahlGleich(q[4], z.netto) && q[5] === z.kategorie && q[6] === Number(z.satz) && q[7] === rein(p.beschreibung); }), "Positionen");
   soll(d.verkaeufer === rein(f.name) && d.kaeufer === rein(r.empfaenger.name), "Parteien");
-  soll(d.zweck === (rein(r.zweck) || rein(`Rechnung ${r.nummer}`)), "Verwendungszweck");
+  const art = r.art || "rechnung", gs = art === "storno";
+  soll(gs ? !d.zweck : d.zweck === (rein(r.zweck) || rein(`Rechnung ${r.nummer}`)), "Verwendungszweck");
   soll(r.empfaenger.behoerde ? d.kaeuferAdresse.schema === "0204" && d.referenz === r.empfaenger.referenz : d.kaeuferAdresse.schema === "EM", "Adresse des Empfängers");
   soll(d.referenz === (rein(r.empfaenger.referenz) || OHNE_REFERENZ[r.sprache || "de"]), "Käuferreferenz");
-  soll(r.leistung.art === "zeitraum" ? d.zeitraum && d.zeitraum.von === r.leistung.von && !d.lieferung : d.lieferung === r.leistung.datum && !d.zeitraum, "Leistung");
-  soll(s.zahlbetrag > 0n ? !!w.giro.nutzlast && w.giro.nutzlast.includes(`EUR${betragText(s.zahlbetrag)}`) : w.giro.grund === "nichts-zu-zahlen", `GiroCode (${w.giro.grund})`);
+  soll(r.leistung.art === "zeitraum" || art === "dauer" ? d.zeitraum && d.zeitraum.von === r.leistung.von && d.zeitraum.bis === r.leistung.bis && !d.lieferung : d.lieferung === r.leistung.datum && !d.zeitraum, "Leistung");
+  soll(gs ? w.giro.grund === "gutschrift-dokument" && !w.giro.nutzlast : s.zahlbetrag > 0n ? !!w.giro.nutzlast && w.giro.nutzlast.includes(`EUR${betragText(s.zahlbetrag)}`) : w.giro.grund === "nichts-zu-zahlen", `GiroCode (${w.giro.grund})`);
+  soll(d.art === ART_CODE[art] && !!d.cn === gs, `Rechnungsart ${d.art}`);
+  soll(art === "abschlag" ? d.projekt === rein(r.bezug) && d.notizen[0] === rein(`Abschlagsrechnung zu ${r.bezug}. Der Betrag wird in der Schlussrechnung angerechnet.`) : !d.projekt, "Abschlag: Projekt und Hinweis");
+  soll(gs ? d.vorherige.length === 1 && d.vorherige[0].nummer === rein(r.storno.nummer) && d.vorherige[0].datum === r.storno.datum && d.bedingungen === "Ein bereits gezahlter Betrag wird erstattet." && !d.faelligAm : !d.vorherige.length, "Storno: Bezug BG-3");
+  if (art === "dauer") { const t = dauerTexte(r, s.zahlbetrag); soll(d.notizen[0] === t.hinweis && d.bedingungen === t.zahlung && d.faelligAm === t.erste && t.zahlung.length > 0, "Dauer: Hinweis, Fälligkeiten"); }
+  soll(r.positionen.every((p, i) => (d.artikelnr[i] || "") === rein(p.artikelnr || "")), "Artikelnummern");
+  // Rundlauf in die Maske: dieselben Angaben wie vorher (Vorlage für Folge- und Stornorechnung)
+  const v = w.vorlage.rechnung, lang = r.sprache || "de";
+  const zahlGl = (a, b, st) => dezimalLesen(a, lang, st) === dezimalLesen(b, lang, st);
+  soll(!w.vorlage.hinweise.length && v.art === art && v.nummer === rein(r.nummer) && (art !== "abschlag" || v.bezug === rein(r.bezug)) && (!gs || (v.storno.nummer === rein(r.storno.nummer) && v.storno.datum === r.storno.datum))
+    && (art !== "dauer" || (v.dauer.turnus === r.dauer.turnus && v.dauer.tag === r.dauer.tag)), `Vorlage: Art und Bezug (${v.art})`);
+  soll(["name", "strasse", "plz", "ort", "land", "behoerde"].every(k => String(v.empfaenger[k]) === rein(String(r.empfaenger[k] ?? (k === "land" ? "DE" : ""))))
+    && v.empfaenger.referenz === rein(r.empfaenger.referenz) && (r.empfaenger.behoerde && !r.empfaenger.email ? true : v.empfaenger.email === rein(r.empfaenger.email)), "Vorlage: Empfänger");
+  soll(v.positionen.length === r.positionen.length && r.positionen.every((p, i) => { const q = v.positionen[i];
+    return q.name === rein(p.name).slice(0, 400) && q.beschreibung === rein(p.beschreibung) && zahlGl(q.menge, p.menge, 3) && zahlGl(q.preis, p.preis, 4) && q.einheit === p.einheit && q.steuer === (f.kleinunternehmer ? "E" : p.steuer) && q.artikelnr === rein(p.artikelnr || ""); }), "Vorlage: Positionen");
+  soll(gs || art === "dauer" || v.zielTage === String(+r.zielTage), "Vorlage: Zahlungsziel");
   return abw;
 }
 // Namentliche Ausnahmen: Meldungen, die bei bestimmten Fällen erlaubt sind (derzeit keine)
 const AUSNAHMEN = {};
-const zahlen = { dateien: 0, fehler: 0, warnungen: 0, hinweise: 0, auswertung: 0, abweichungen: 0, szenario: 0, gruppen: {} };
+const zahlen = { dateien: 0, fehler: 0, warnungen: 0, hinweise: 0, auswertung: 0, abweichungen: 0, szenario: 0, gruppen: {}, arten: {}, mitArtikelnr: 0 };
 const probleme = [], manifest = [];
 const t0 = Date.now();
 for (let i = 0; i < faelle.length; i++) {
@@ -296,7 +427,7 @@ for (let i = 0; i < faelle.length; i++) {
   const xml = ublSchreiben(fall.firma, fall.rechnung);
   const datei = `${String(i + 1).padStart(5, "0")}-${fall.gruppe}${fall.name ? "-" + fall.name : ""}.xml`;
   writeFileSync(join(ORDNER, datei), xml);
-  const w = await page.evaluate(([n, x]) => window.__rundlauf(n, x), [datei, xml]);
+  const w = await page.evaluate(([n, x, l]) => window.__rundlauf(n, x, l), [datei, xml, fall.rechnung.sprache || "de"]);
   zahlen.dateien++;
   const g = zahlen.gruppen[fall.gruppe] ||= { dateien: 0, probleme: 0 };
   g.dateien++;
@@ -304,10 +435,12 @@ for (let i = 0; i < faelle.length; i++) {
   const zaehle = st => (w.befunde || []).filter(b => b[3] === st && !erlaubt.includes(b[1]));
   const fe = zaehle("fehler"), wa = zaehle("warnung"), hi = zaehle("hinweis");
   const abw = w.daten ? vergleichen(fall, w) : ["nicht gelesen"];
-  const szOk = w.szenario === "EN16931 XRechnung (UBL Invoice)" && (w.saetze || []).join() === "en16931-ubl,xrechnung-ubl";
+  const szOk = w.szenario === (fall.rechnung.art === "storno" ? "EN16931 XRechnung (UBL CreditNote)" : "EN16931 XRechnung (UBL Invoice)") && (w.saetze || []).join() === "en16931-ubl,xrechnung-ubl";
   zahlen.fehler += fe.length; zahlen.warnungen += wa.length; zahlen.hinweise += hi.length; zahlen.auswertung += (w.fehler || []).length; zahlen.abweichungen += abw.length; zahlen.szenario += szOk ? 0 : 1;
   if (fe.length || wa.length || hi.length || (w.fehler || []).length || abw.length || !szOk) { g.probleme++; probleme.push({ datei, befunde: [...fe, ...wa, ...hi].map(b => b[1]), auswertung: (w.fehler || []).slice(0, 2), abweichungen: abw, szenario: w.szenario }); }
-  manifest.push({ datei, gruppe: fall.gruppe, saetze: w.saetze || [], befunde: (w.befunde || []).map(b => [b[0], b[1], b[2]]).sort(), merkmale: fall.merkmale || null });
+  manifest.push({ datei, gruppe: fall.gruppe, art: fall.rechnung.art || "rechnung", saetze: w.saetze || [], befunde: (w.befunde || []).map(b => [b[0], b[1], b[2]]).sort(), merkmale: fall.merkmale || null });
+  zahlen.arten[fall.rechnung.art || "rechnung"] = (zahlen.arten[fall.rechnung.art || "rechnung"] || 0) + 1;
+  if (fall.rechnung.positionen.some(p => p.artikelnr)) zahlen.mitArtikelnr++;
   if ((i + 1) % 100 === 0 || i === faelle.length - 1) process.stdout.write(`\r  ${i + 1} / ${faelle.length} Rechnungen, Probleme: ${probleme.length}   `);
 }
 console.log("");
@@ -316,7 +449,10 @@ await srv.schliessen();
 writeFileSync(join(ORDNER, "manifest.json"), JSON.stringify(manifest));
 const sek = Math.round((Date.now() - t0) / 1000);
 console.log(`\nRundlauf: ${zahlen.dateien} Rechnungen (${anzahlPaare} paarweise, ${zahlen.gruppen.zufall?.dateien || 0} Zufall, ${zahlen.gruppen.rand?.dateien || 0} Randfälle), ${sek} s`);
-check(zahlen.szenario === 0, `jede Datei läuft als Szenario „EN16931 XRechnung (UBL Invoice)“ mit en16931-ubl und xrechnung-ubl (${zahlen.szenario} abweichend)`);
+console.log(`  Arten: ${Object.entries(zahlen.arten).map(([k, v]) => `${k} ${v}`).join(", ")}; mit Artikelnummern: ${zahlen.mitArtikelnr}`);
+const mindest = Math.min(100, Math.floor(ZUFALL / 20));
+check(["rechnung", "abschlag", "dauer", "storno"].every(a => zahlen.arten[a] >= mindest) && zahlen.mitArtikelnr >= mindest, `jede Rechnungsart und Artikelnummern mit mindestens ${mindest} Dateien im Rundlauf`);
+check(zahlen.szenario === 0, `jede Datei läuft als Szenario „EN16931 XRechnung (UBL Invoice)“ bzw. „(UBL CreditNote)“ mit en16931-ubl und xrechnung-ubl (${zahlen.szenario} abweichend)`);
 check(zahlen.fehler === 0 && zahlen.auswertung === 0, `0 Fehler und 0 Auswertungsfehler (${zahlen.fehler} / ${zahlen.auswertung})`);
 check(zahlen.warnungen === 0 && zahlen.hinweise === 0, `0 Warnungen und 0 Hinweise (${zahlen.warnungen} / ${zahlen.hinweise})`);
 check(zahlen.abweichungen === 0, `gelesene Daten gleich dem Modell: Summen, Steuern, Positionen, Parteien, Zweck, Leistung, GiroCode (${zahlen.abweichungen} Abweichungen)`);
@@ -330,7 +466,7 @@ if (existsSync(PY)) {
   try {
     const aus = execFileSync(PY, ["-I", join(WZ, "..", "..", "tests", "erechnung_erstellen_referenz.py")], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 1 << 26 });
     const r = JSON.parse(aus.trim().split("\n").pop());
-    check(r.dateien === manifest.length && r.xsdUngueltig === 0, `XSD (UBL-Invoice-2.1.xsd der KoSIT-Konfiguration): ${r.dateien - r.xsdUngueltig} von ${r.dateien} gültig ${(r.xsdBeispiele || []).join(" | ")}`);
+    check(r.dateien === manifest.length && r.xsdUngueltig === 0, `XSD (UBL-Invoice-2.1.xsd und UBL-CreditNote-2.1.xsd der KoSIT-Konfiguration): ${r.dateien - r.xsdUngueltig} von ${r.dateien} gültig ${(r.xsdBeispiele || []).join(" | ")}`);
     check(r.abweichungen === 0 && r.abbrueche === 0, `Schematron mit Saxon: Befunde gleich dem eigenen Kern bei allen ${r.dateien} Dateien (${r.abweichungen} Abweichungen, ${r.abbrueche} Abbrüche, ${r.befunde} Meldungen der Referenz) ${(r.beispiele || []).join(" | ")}`);
   } catch (e) { check(false, `Referenz lief nicht: ${String(e.stderr || e.message).slice(0, 400)}`); }
 } else console.log(`\n  –    Referenz übersprungen: keine Python-Umgebung mit saxonche und lxml (${PY})`);
