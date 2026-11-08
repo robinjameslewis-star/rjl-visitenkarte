@@ -308,6 +308,8 @@ for (let i = 0; i < ZUFALL; i++) {
   f.preise = Array.from({ length: 4 }, () => wahl([String(zz(5000)), `${zz(1000)},${String(zz(10000)).padStart(4, "0")}`, `${zz(100)},${String(zz(100)).padStart(2, "0")}`, "0", "0,0049", "0,005"]));
   f.einheiten = Array.from({ length: 3 }, () => wahl(EINHEITEN_ERSTELLEN));
   f.datum = wahl(["2026-01-01", "2026-02-28", "2026-06-15", "2026-12-31", "2027-03-31", "2028-02-29"]);
+  // Rechnungsart und Artikelnummern gleichmäßig verteilt (die unteren Bits des Zufallsgenerators wiederholen sich)
+  f.art = DIM.art[i % 4]; f.artikelnr = (i >> 2) % 2 === 1;
   faelle.push({ ...fallBauen(f, anzahlPaare + i + 1, i % 5 === 4 ? "en" : "de"), gruppe: "zufall" });
 }
 // Feste Randfälle
