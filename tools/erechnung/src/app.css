@@ -121,6 +121,128 @@
 .ewz-anhaenge .ewz-zweit { margin-left: 8px; padding: 5px 10px; }
 .ewz-aufbewahren { margin: 20px 0 4px; padding: 10px 14px; border: 1px dashed var(--e-linie); border-radius: 4px; font-size: 14px; color: var(--e-tinte2); }
 
+/* Reiter „Prüfen“ und „Erstellen“ */
+.ewz-kopfzeile { margin: 0 0 18px; }
+.ewz-reiter { display: flex; gap: 4px; border-bottom: 1px solid var(--e-linie); }
+#erechnung .ewz-reiter [role=tab] { font: 400 16px/1.2 var(--e-sans); color: var(--e-tinte2); background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; padding: 11px 18px 10px; margin-bottom: -1px; min-height: 44px; }
+#erechnung .ewz-reiter [role=tab]:hover { color: #fff; background: rgba(167,139,250,.08); }
+#erechnung .ewz-reiter [role=tab][aria-selected=true] { color: #fff; border-bottom-color: var(--e-akzent); }
+
+/* Erstellen: Eingabe links, Blatt rechts (ab 960 px), sonst untereinander */
+.ewe-start { margin: 0 0 14px; }
+.ewe-start p { margin: 0 0 10px; }
+.ewe-lead { color: var(--e-tinte2); max-width: 68ch; }
+.ewe-raster { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
+.ewe-eingabe { min-width: 0; }
+.ewe-n-leer { min-height: 0; border-right-color: var(--e-linie); }
+.ewe-firma .ewz-inhalt { border: 1px solid var(--e-linie); border-radius: 8px; background: var(--e-feld); padding: 16px 18px 12px; }
+.ewe-firma-zeile { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.ewe-firma-zeile strong { color: #fff; font-weight: 500; }
+.ewe-gruppe { border: 0; margin: 14px 0 0; padding: 0; min-width: 0; }
+.ewe-gruppe legend { font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .16em; color: var(--e-tinte2); padding: 0; margin-bottom: 6px; }
+.ewe-felder { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.ewe-abstand { margin-top: 16px; }
+.ewe-feld { display: grid; gap: 4px; align-content: start; min-width: 0; margin: 0; }
+.ewe-breit { grid-column: 1 / -1; }
+.ewe-feld > label, .ewe-label-fest, .ewe-wahl legend { font-size: 13.5px; color: var(--e-tinte2); }
+.ewe-pflicht { color: var(--e-akzent); }
+#erechnung .ewe-feld input:not([type=checkbox]):not([type=radio]), #erechnung .ewe-feld select, #erechnung .ewe-feld textarea {
+  width: 100%; min-height: 44px; font: 400 16px/1.3 var(--e-sans); color: #fff; background: var(--e-papier); border: 1px solid var(--e-linie); border-radius: 6px; padding: 9px 11px; }
+#erechnung .ewe-feld textarea { min-height: 44px; resize: vertical; }
+#erechnung .ewe-feld input[inputmode=decimal], #erechnung .ewe-feld input[inputmode=numeric] { font-variant-numeric: tabular-nums; }
+#erechnung .ewe-feld input:hover, #erechnung .ewe-feld select:hover, #erechnung .ewe-feld textarea:hover { border-color: var(--e-tinte3); }
+#erechnung .ewe-feld input:focus-visible, #erechnung .ewe-feld select:focus-visible, #erechnung .ewe-feld textarea:focus-visible { outline: 2px solid var(--e-akzent); outline-offset: 1px; border-color: var(--e-akzent); }
+#erechnung .ewe-feld [aria-invalid=true] { border-color: var(--e-warn); }
+#erechnung select:focus-visible, #erechnung textarea:focus-visible { outline: 2px solid var(--e-akzent); outline-offset: 2px; }
+#erechnung .ewe-feld input[type=date] { color-scheme: dark; }
+.ewe-hilfe { margin: 0; font-size: 12.5px; color: var(--e-tinte3); }
+.ewe-hilfe.ewe-warn { color: var(--e-gelb); }
+.ewe-fehler { margin: 0; font-size: 13px; color: var(--e-warn); }
+.ewe-fehler::before { content: "✕ "; }
+.ewe-check { font-size: 14px; color: var(--e-tinte); min-height: 32px; }
+.ewe-check input { flex: none; }
+.ewe-wahl { border: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+.ewe-wahl legend { margin-bottom: 4px; width: 100%; }
+.ewe-hinweis { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--e-gelb); background: var(--e-flaeche); border-radius: 4px; font-size: 14px; color: var(--e-tinte2); }
+.ewe-probe-hinweis { border-left-color: var(--e-akzent); display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.ewe-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+#erechnung .ewe-link { background: none; border: 0; padding: 4px 2px; color: var(--e-akzent); text-decoration: underline; text-decoration-color: var(--e-violett); text-underline-offset: .2em; font-size: 14px; min-height: 32px; }
+#erechnung .ewe-link:hover { color: #fff; }
+.ewe-schritt { margin-top: 22px; }
+.ewe-schritt h2 { margin-bottom: 14px !important; }
+
+/* Positionen: Karten mit festem Raster (auch auf dem Desktop, die Eingabespalte ist schmal) */
+.ewe-positionen { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ewe-zeile { border: 1px solid var(--e-linie); border-radius: 8px; background: var(--e-feld); padding: 10px 14px 12px; }
+.ewe-zeile-kopf { display: flex; justify-content: space-between; align-items: center; margin: 0 0 6px; }
+.ewe-zeile-nr { font: 500 11px/1.4 var(--e-sans); text-transform: uppercase; letter-spacing: .14em; color: var(--e-tinte2); }
+.ewe-zeile-felder { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 12px; }
+.ewe-p-name { grid-column: 1 / -1; }
+.ewe-zeile-felder label, .ewe-zeile-felder .ewe-label-fest { white-space: nowrap; }
+.ewe-p-beschr { grid-column: 1 / 4; }
+.ewe-p-netto { align-content: end; text-align: right; }
+.ewe-netto { display: block; min-height: 44px; padding: 10px 0; font-size: 16px; color: #fff; }
+.ewe-fest { margin: 0; min-height: 44px; padding: 10px 0; font-size: 14px; color: var(--e-tinte); }
+.ewe-befreiung { margin-top: 14px; }
+.ewe-summen { display: flex; justify-content: flex-end; margin-top: 14px; }
+.ewe-summen-tab { border-collapse: collapse; min-width: 280px; font-variant-numeric: tabular-nums; }
+.ewe-summen-tab th { text-align: left; font-weight: 400; color: var(--e-tinte2); padding: 5px 24px 5px 0; border-bottom: 1px solid var(--e-linie); }
+.ewe-summen-tab td { padding: 5px 0; border-bottom: 1px solid var(--e-linie); color: #fff; }
+.ewe-summen-tab .ewe-stark th, .ewe-summen-tab .ewe-stark td { font-weight: 600; color: #fff; border-bottom: 0; border-top: 1.5px solid var(--e-akzent); }
+
+/* Schritt 03 und Hauptaktion */
+.ewe-ziel-text { align-self: end; padding-bottom: 12px; }
+.ewe-zusammen { margin: 18px 0 0; padding: 14px 18px; border: 1px solid var(--e-linie); border-radius: 8px; background: var(--e-flaeche); }
+.ewe-zusammen p { margin: 0; }
+.ewe-gross { font: 400 34px/1.2 var(--e-serif); color: #fff; margin: 2px 0 4px !important; text-align: left !important; }
+.ewe-fehlend { margin-top: 14px; }
+.ewe-fehlend ul { margin: 4px 0 0; padding-left: 18px; font-size: 14px; }
+.ewe-gesperrt { margin: 0; color: var(--e-warn); }
+.ewe-pruefung { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--e-linie); }
+.ewe-pruefung .ewz-befunde { margin-top: 10px; }
+.ewe-archiv { margin: 18px 0 0; padding: 10px 14px; border: 1px dashed var(--e-linie); border-radius: 4px; font-size: 14px; color: var(--e-tinte2); }
+.ewe-archiv p { margin: 0 0 4px; }
+.ewe-erfolg { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--e-linie); border-left: 4px solid var(--e-ok); border-radius: 6px; background: var(--e-flaeche); }
+.ewe-erfolg-text { margin: 0 0 4px; color: var(--e-ok); }
+.ewe-erfolg-text:focus { outline: none; }
+.ewe-erfolg-text:focus-visible { outline: 2px solid var(--e-akzent); outline-offset: 2px; }
+.ewe-aktion { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px 18px; justify-content: space-between; align-items: center;
+  margin: 18px 0 0; padding: 12px 16px; border: 1px solid var(--e-linie); border-radius: 8px; background: var(--e-papier); }
+.ewe-aktion-betrag { margin: 0; display: flex; gap: 10px; align-items: baseline; }
+.ewe-aktion-betrag strong { font: 400 22px/1.2 var(--e-serif); color: #fff; }
+#erechnung .ewe-speichern { min-height: 48px; padding: 12px 20px; font-size: 15px; }
+#erechnung .ewe-speichern[aria-busy=true] { opacity: .7; cursor: progress; }
+.ewe-status { min-height: 1.5em; margin: 12px 0 0; font-size: 14px; color: var(--e-tinte2); }
+
+/* Vorschau */
+.ewe-vorschau { min-width: 0; }
+.ewe-vorschau-kopf { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ewe-vorschau-kopf h2 { margin: 0 0 8px !important; }
+.ewe-vorschau .ewz-blatt { padding: 22px 20px 16px; font-size: 12.5px; }
+.ewe-giro-teil { margin-top: 16px; }
+.ewe-giro-teil .ewz-zahlen { grid-template-columns: 1fr; }
+.ewe-nur-handy { display: none; }
+.ewe-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ewe-vorschau .ewz-blatt-kopf { grid-template-columns: 1fr; }
+@media (min-width: 960px) {
+  .ewe-raster { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 28px; }
+  .ewe-vorschau { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; padding-right: 2px; }
+}
+@media (max-width: 959px) {
+  .ewe-nur-handy { display: inline-block; }
+  .ewe-vorschau:not(.ewe-auf) .ewe-vorschau-inhalt { display: none; }
+}
+@media (max-width: 560px) {
+  .ewe-felder { grid-template-columns: minmax(0, 1fr); }
+  .ewe-zeile-felder { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ewe-p-beschr { grid-column: 1 / -1; }
+  .ewe-p-netto { grid-column: 1 / -1; }
+  .ewe-aktion { margin-left: -4px; margin-right: -4px; padding: 10px 12px; }
+  #erechnung .ewe-speichern { width: 100%; }
+  .ewe-summen-tab { min-width: 0; width: 100%; }
+  #erechnung .ewz-reiter [role=tab] { flex: 1; }
+}
+
 /* Das Blatt: lesbare Rechnung, hell */
 .ewz-blatt { --b-tinte: #1F1F1F; --b-leise: #5C5C5C; --b-linie: #DDD8EA; color: var(--b-tinte); background: #fff; border-radius: 4px; padding: 30px 32px 22px; font: 400 13.5px/1.5 var(--e-sans); }
 .ewz-blatt p, .ewz-blatt li, .ewz-blatt td, .ewz-blatt th, .ewz-blatt dd, .ewz-blatt dt { color: var(--b-tinte); }
@@ -195,5 +317,9 @@
   #ewz-druck a { color: #000; text-decoration: none; }
   #ewz-druck tr, #ewz-druck .ewz-befund { break-inside: avoid; }
   #ewz-druck .ewz-spinner { display: none; }
+  #ewz-druck .ewe-druck-giro { margin-top: 8mm; break-inside: avoid; }
+  #ewz-druck .ewe-druck-giro .ewz-zahlen { display: grid; grid-template-columns: 45mm 1fr; gap: 6mm; }
+  #ewz-druck .ewe-druck-giro .ewz-qr-bild { width: 40mm; padding: 0; }
+  #ewz-druck .ewe-druck-giro * { color: #000 !important; background: transparent; border-color: #bbb !important; }
   @page { margin: 16mm 14mm; }
 }

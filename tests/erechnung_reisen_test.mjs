@@ -5,9 +5,11 @@
 //   b) Handwerksbetrieb: ZUGFeRD-PDF – E-Rechnung ja oder nein, bezahlen per GiroCode (QR-Code wird gelesen und geprüft)
 //   c) Kleinunternehmerin: eigene Rechnung vor dem Versand prüfen, weiß danach, was zu ändern ist
 //   d) Fehlerfälle: falsche, kaputte und große Datei, zehn Dateien auf einmal, Gutschrift, Fremdwährung
+//   e) Eigene E-Rechnung schreiben: Firmendaten einmal, Rechnung mit 19 % und 7 %, speichern, im Prüfen öffnen, GiroCode; Kleinunternehmer,
+//      gesperrtes Speichern, Neuladen, Firmendaten löschen; nur mit der Tastatur, in der Datei ohne Netz, axe-core
 // Testdaten: erfunden (tests/erechnung/daten, tools/erechnung/beispiele). Lokal gegen einen statischen Server für das Repository;
 // nach dem Pages-Deploy mit --basis https://robin.vision gegen die Website (die Datei ohne Netz wird dann lokal geprüft).
-//   node tests/erechnung_reisen_test.mjs [--basis https://robin.vision] [ordner]
+//   node tests/erechnung_reisen_test.mjs [--basis https://robin.vision] [--nur-erstellen] [ordner]
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -32,7 +34,8 @@ const GERAETE = {
 };
 // Was nie in einer Anfrage stehen darf: Namen, Nummern, IBANs und Dateinamen aus den Testrechnungen
 const GEHEIM = ["DE89370400440532013000", "DE89370400440532013001", "DE02120300000000202051", "2026-1047", "2026-1048", "RE-2026-0318", "RE-2026-0319", "GS-2026-0009", "2026-017",
-  "Malerbetrieb", "Holzwerk", "Hartmann", "Sonnenkorn", "Lena", "Sommer", "Morgenrot", "kleinunternehmerin", "gutschrift", "fremdwaehrung", "abgeschnitten", "bestellung", "foto.jpg", "ohne-xml", "minimum.pdf", "gross-"];
+  "Malerbetrieb", "Holzwerk", "Hartmann", "Sonnenkorn", "Lena", "Sommer", "Morgenrot", "kleinunternehmerin", "gutschrift", "fremdwaehrung", "abgeschnitten", "bestellung", "foto.jpg", "ohne-xml", "minimum.pdf", "gross-",
+  "Kupferhahn", "Abendtau", "DE44500105175407324931", "DE811111111", "12/345/67890", "Fischbach", "Hafenstraße", "Lindgrün", "Weidenhof", "DE29100100100987654321"];
 const t0 = Date.now();
 const browser = await chrome();
 const anfragen = [];
@@ -44,14 +47,14 @@ async function kontext(geraet, extra = {}) {
   c.on("request", r => anfragen.push({ url: r.url(), methode: r.method(), art: r.resourceType(), daten: r.postData() || "", geraet }));
   return c;
 }
-async function oeffnen(c, ziel) {
+async function oeffnen(c, ziel, warte = "#erechnung .ewz-start") {
   const p = await c.newPage();
   const fehler = [];
   p.on("pageerror", e => fehler.push(String(e)));
   p.on("console", m => { if (m.type() === "error") fehler.push(m.text()); });
   p.on("websocket", w => anfragen.push({ url: w.url(), methode: "WS", art: "websocket" }));
   await p.goto(ziel, { waitUntil: "load" });
-  await p.waitForSelector("#erechnung .ewz-start");
+  await p.waitForSelector(warte);
   p.fehler = fehler;
   return p;
 }
@@ -330,20 +333,231 @@ async function tastatur() {
   await c.close();
 }
 
+// ---------- e) Eigene E-Rechnung schreiben ----------
+// Erfundene Firma und Kunden (stehen in GEHEIM): einmal Firmendaten, dann Rechnung mit 19 % und 7 %, speichern, im Reiter „Prüfen“ öffnen
+const FIRMA_E = { "firma-name": "Werkstatt Kupferhahn GmbH", "firma-strasse": "Hafenstraße 8", "firma-plz": "23456", "firma-ort": "Fischbach", "firma-steuernummer": "12/345/67890",
+  "firma-ustid": "DE811111111", "firma-kontakt-name": "Mira Kupferhahn", "firma-kontakt-telefon": "+49 4567 1234-0", "firma-kontakt-email": "buero@kupferhahn.example",
+  "firma-bank-iban": "DE44 5001 0517 5407 3249 31", "firma-bank-bic": "INGDDEFFXXX" };
+const EMPF_E = { "empfaenger-name": "Gärtnerei Abendtau KG", "empfaenger-strasse": "Feldweg 3", "empfaenger-plz": "23457", "empfaenger-ort": "Fischbach", "empfaenger-email": "rechnung@abendtau.example" };
+const erstellenOeffnen = async (c, lang = "de") => {
+  return oeffnen(c, SEITE[lang] + "#erstellen", "#ewz-panel-erstellen:not([hidden]) .ewe");
+};
+const ausfuellen = async (p, werte) => { for (const [id, w] of Object.entries(werte)) await p.fill(`#ewe-${id}`, w); };
+// Neu laden mit #erstellen (nach „Im Prüfen öffnen“ steht der Reiter Prüfen in der Adresse)
+const neuLaden = async (p, lang) => { await p.goto(SEITE[lang] + "#erstellen"); await p.reload(); await p.waitForSelector("#ewz-panel-erstellen:not([hidden]) .ewe"); };
+const zustand = p => p.evaluate(() => JSON.parse(JSON.stringify(window.RVErechnung.erstellen)));
+const speicherSchluessel = p => p.evaluate(() => Object.keys(localStorage));
+async function speichernAbwarten(p) {
+  const [dl] = await Promise.all([p.waitForEvent("download", { timeout: 120000 }), p.click('[data-e="speichern"]')]);
+  return dl;
+}
+async function reiseErstellen(geraet, lang = "de") {
+  console.log(`\nReise e – eigene E-Rechnung schreiben (${geraet}, ${lang})`);
+  const en = lang === "en", c = await kontext(geraet), p = await erstellenOeffnen(c, lang);
+  check(await p.locator('#ewz-tab-erstellen[aria-selected="true"]').count() === 1 && await p.locator("#ewz-panel-pruefen").isHidden(), `${geraet} e: Adresse mit #erstellen öffnet den Reiter „Erstellen“`);
+  check(await p.locator("#ewe-firma-name").isVisible() && /Nur in diesem Browser gespeichert|Stored only in this browser/.test(await p.locator("#ewe-firma").innerText()), `${geraet} e: ohne gespeicherte Firmendaten zuerst „Ihre Firmendaten“, Hinweis „nur in diesem Browser“`);
+  await ausfuellen(p, FIRMA_E);
+  await p.click('[data-e="firma-weiter"]');
+  check(/Werkstatt Kupferhahn GmbH/.test(await p.locator(".ewe-firma-zeile").innerText()), `${geraet} e: Firmendaten eingeklappt zu „Rechnung von: …“`);
+  // Speichern bei Maskenfehler: gesperrt, Fokus aufs erste fehlende Feld
+  let downloads = 0;
+  p.on("download", () => downloads++);
+  await p.click('[data-e="speichern"]');
+  await p.waitForTimeout(300);
+  const fokus = await p.evaluate(() => document.activeElement.id);
+  check(fokus === "ewe-empfaenger-name" && downloads === 0 && (en ? /Not ready to save: \d+ details/ : /Noch nicht speicherbar: \d+ Angaben/).test(await p.locator("#ewe-fehlend").innerText()) && await p.locator("#ewe-empfaenger-name[aria-invalid=true]").count() === 1,
+    `${geraet} e: Speichern mit fehlenden Angaben bleibt gesperrt, Fokus springt aufs erste Feld (${fokus})`);
+  await ausfuellen(p, EMPF_E);
+  const nummer = await p.inputValue("#ewe-nummer");
+  await ausfuellen(p, { "pos-0-name": en ? "Heating maintenance" : "Wartung Heizung", "pos-0-menge": en ? "2.5" : "2,5", "pos-0-preis": en ? "72.00" : "72,00" });
+  await p.selectOption("#ewe-pos-0-einheit", "HUR");
+  await p.click('[data-e="pos-neu"]');
+  await ausfuellen(p, { "pos-1-name": en ? "Manual" : "Fachbuch Heizung", "pos-1-menge": "2", "pos-1-preis": en ? "1,234.50" : "1.234,50" });
+  await p.selectOption("#ewe-pos-1-steuer", "S7");
+  const summen = await text(p.locator("#ewe-summen"));
+  check(en ? /€2,649\.00/.test(summen) && /VAT 19 % €34\.20/.test(summen) && /VAT 7 % €172\.83/.test(summen) && /€2,856\.03/.test(summen)
+    : /2\.649,00 €/.test(summen) && /Umsatzsteuer 19 % 34,20 €/.test(summen) && /Umsatzsteuer 7 % 172,83 €/.test(summen) && /2\.856,03 €/.test(summen), `${geraet} e: Summen laufen mit – netto, 19 %, 7 %, zu zahlen (${summen.slice(0, 120)})`);
+  await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 120000 });
+  check(/Geprüft: keine Fehler|Checked: no errors/.test(await p.locator("#ewe-pruef-inhalt").innerText()), `${geraet} e: Prüfung läuft beim Tippen mit – keine Fehler`);
+  if (geraet === "handy") {
+    check(await p.locator("#ewe-blatt").isHidden(), "handy e: Vorschau zugeklappt unter Schritt 03");
+    await p.click('[data-e="vorschau"]');
+  }
+  await p.waitForSelector("#ewe-giro .ewz-qr-bild svg");
+  const qr = p.locator("#ewe-giro .ewz-qr-bild");
+  await qr.scrollIntoViewIfNeeded();
+  const nutzlast = await qrLesen(await qr.screenshot());
+  check(nutzlast === ["BCD", "002", "1", "SCT", "INGDDEFFXXX", "Werkstatt Kupferhahn GmbH", "DE44500105175407324931", "EUR2856.03", "", "", `Rechnung ${nummer}`].join("\n"), `${geraet} e: GiroCode in der Vorschau lesbar und richtig (${String(nutzlast).replace(/\n/g, "|")})`);
+  check(/Gärtnerei Abendtau KG/.test(await p.locator("#ewe-blatt").innerText()), `${geraet} e: Vorschau zeigt das Blatt aus der Datei`);
+  const aktion = await p.locator('[data-e="speichern"]').boundingBox();
+  if (geraet === "handy") check(aktion && aktion.y + aktion.height <= GERAETE.handy.viewport.height && aktion.width >= 300, `handy e: Hauptknopf in Daumenreichweite unten (${aktion && Math.round(aktion.y)} px, ${aktion && Math.round(aktion.width)} px breit)`);
+  await foto(p, `e-erstellen-${geraet}-${lang}`, { fullPage: geraet === "handy" });
+  const dl = await speichernAbwarten(p);
+  const pfad = join(ORDNER, `e-${geraet}-${lang}-${dl.suggestedFilename()}`);
+  await dl.saveAs(pfad);
+  const xml = readFileSync(pfad, "utf8");
+  check(dl.suggestedFilename() === `${nummer}.xml` && /xrechnung_3\.0/.test(xml) && /<cbc:PayableAmount currencyID="EUR">2856\.03</.test(xml) && (en ? /E-invoice saved/ : /E-Rechnung gespeichert/).test(await p.locator("#ewe-erfolg").innerText()),
+    `${geraet} e: Download „${dl.suggestedFilename()}“ – XRechnung 3.0 mit Zahlbetrag 2.856,03; Erfolgsmeldung`);
+  check(/Das Werkzeug archiviert nicht|The tool does not archive/.test(await p.locator(".ewe-archiv").innerText()) && /14b/.test(await p.locator(".ewe-archiv").innerText()), `${geraet} e: Hinweis „archiviert nicht, XML ist das Original, keine Steuerberatung“ mit Quelle`);
+  await p.click('[data-e="im-pruefen"]');
+  await fertig(p, 1);
+  const k = karte(p, `${nummer}.xml`);
+  const a = await text(k.locator("[data-teil=antwort]"));
+  check((en ? /Yes, this is an e-invoice/.test(a) && /No errors found/.test(a) : /Ja, das ist eine E-Rechnung/.test(a) && /Keine Fehler gefunden/.test(a)) && await p.locator('#ewz-tab-pruefen[aria-selected="true"]').count() === 1,
+    `${geraet} e: „Im Prüfen öffnen“ – Reiter Prüfen, E-Rechnung ja, keine Fehler`);
+  const keys = await speicherSchluessel(p);
+  check(keys.length > 0 && keys.every(x => /^(rvlizenz|rverechnung):/.test(x)), `${geraet} e: im Gerät nur rvlizenz:* und rverechnung:* (${keys.join(", ")})`);
+  // Neu laden: Firmendaten sind da, Nummer +1
+  await neuLaden(p, lang);
+  const z = await zustand(p);
+  check(z.firma.name === "Werkstatt Kupferhahn GmbH" && await p.locator(".ewe-firma-zeile").count() === 1 && z.letzte.letzte === nummer && z.rechnung.nummer !== nummer && /\d+$/.test(z.rechnung.nummer)
+    && +z.rechnung.nummer.match(/\d+$/)[0] === +nummer.match(/\d+$/)[0] + 1, `${geraet} e: nach Neuladen Firmendaten da, nächste Nummer ${z.rechnung.nummer} (zuletzt ${nummer})`);
+  if (geraet === "desktop" && !en) {
+    // Kleinunternehmer: Steuer fest auf 0 %, Hinweis auf § 19 UStG in der Datei
+    await p.click('[data-e="firma-auf"]');
+    await p.fill("#ewe-firma-ustid", "");
+    await p.check("#ewe-firma-kleinunternehmer");
+    await p.click('[data-e="firma-weiter"]');
+    await ausfuellen(p, { ...EMPF_E, "pos-0-name": "Logo-Entwurf", "pos-0-menge": "1", "pos-0-preis": "450" });
+    check(await p.locator("#ewe-pos-0-steuer").count() === 0 && /Kleinunternehmer/.test(await p.locator(".ewe-p-steuer").first().innerText()), "desktop e: Kleinunternehmer – Steuersatz fest „0 % – Kleinunternehmer“");
+    const dk = await speichernAbwarten(p);
+    const pk = join(ORDNER, `e-klein-${dk.suggestedFilename()}`);
+    await dk.saveAs(pk);
+    const xk = readFileSync(pk, "utf8");
+    check(/Gemäß § 19 UStG wird keine Umsatzsteuer berechnet\./.test(xk) && /<cbc:TaxExemptionReason>Kleinunternehmer gemäß § 19 UStG</.test(xk) && /<cbc:PayableAmount currencyID="EUR">450\.00</.test(xk) && /<cac:PartyIdentification>/.test(xk),
+      "desktop e: Kleinunternehmer-Rechnung – Hinweis § 19 UStG, Kategorie E mit Grund, 450,00 € ohne Steuer, Steuernummer als Kennung");
+    await p.click('[data-e="im-pruefen"]');
+    await fertig(p, 1);
+    check(/Ja, das ist eine E-Rechnung/.test(await text(karte(p, dk.suggestedFilename()).locator("[data-teil=antwort]"))) && /Keine Fehler gefunden/.test(await text(karte(p, dk.suggestedFilename()).locator("[data-teil=antwort]"))), "desktop e: Kleinunternehmer-Rechnung im Prüfen – E-Rechnung ja, keine Fehler");
+    // Firmendaten löschen leert den Speicher, mit Rückgängig
+    await p.click("#ewz-tab-erstellen");
+    await p.click('[data-e="firma-auf"]');
+    await p.click('[data-e="firma-loeschen"]');
+    check((await speicherSchluessel(p)).filter(x => x.startsWith("rverechnung:")).length === 0 && await p.inputValue("#ewe-firma-name") === "" && /Rückgängig/.test(await p.locator("#ewe-status").innerText()), "desktop e: „Firmendaten löschen“ leert den Speicher, „Rückgängig“ wird angeboten");
+    await p.click('[data-e="firma-zurueck"]');
+    check(await p.inputValue("#ewe-firma-name") === "Werkstatt Kupferhahn GmbH" && (await speicherSchluessel(p)).includes("rverechnung:firma"), "desktop e: „Rückgängig“ stellt die Firmendaten wieder her");
+    await p.click('[data-e="firma-loeschen"]');
+    await neuLaden(p, lang);
+    check(await p.inputValue("#ewe-firma-name") === "" && (await speicherSchluessel(p)).filter(x => x.startsWith("rverechnung:")).length === 0, "desktop e: nach dem Löschen und Neuladen keine Firmendaten mehr");
+    // Beispieldaten: nichts wird gespeichert
+    await p.click('[data-e="probe"]');
+    await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.probe && z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 60000 });
+    check(/keine Fehler/.test(await p.locator("#ewe-pruef-inhalt").innerText()) && (await speicherSchluessel(p)).filter(x => x.startsWith("rverechnung:firma")).length === 0, "desktop e: „Mit Beispieldaten ausprobieren“ – fehlerfreie Rechnung, nichts im Gerät gespeichert");
+    for (const schema of ["light", "dark"]) { await p.emulateMedia({ colorScheme: schema }); await foto(p, `e-erstellen-beispiel-${schema}`, { fullPage: true }); }
+  }
+  fehlerfrei(p, `${geraet} e`);
+  zahlen.reisen++;
+  await c.close();
+}
+
+// Erstellen nur mit der Tastatur: Reiter mit Pfeiltaste, Felder mit Tab, Auswahl mit Tasten, Speichern mit Enter
+async function tastaturErstellen() {
+  console.log("\nErstellen nur mit der Tastatur (Desktop)");
+  const c = await kontext("desktop");
+  const p = await oeffnen(c, SEITE.de);
+  const fokus = () => p.evaluate(() => document.activeElement.id);
+  async function zu(id, max = 80) { for (let i = 0; i < max; i++) { await p.keyboard.press("Tab"); zahlen.tasten++; if (await fokus() === id) return true; } return false; }
+  const reiter = await zu("ewz-tab-pruefen");
+  await p.keyboard.press("ArrowRight");
+  check(reiter && await fokus() === "ewz-tab-erstellen" && await p.locator("#ewz-panel-erstellen").isVisible(), "Tab erreicht die Reiter, Pfeil rechts öffnet „Erstellen“");
+  let alle = true;
+  for (const [id, w] of Object.entries({ ...FIRMA_E, "firma-bank-iban": "DE44500105175407324931" })) { if (!(await zu(`ewe-${id}`))) { alle = false; break; } await p.keyboard.type(w); }
+  check(alle, "alle Firmendaten mit Tab und Tippen erreichbar");
+  for (const [id, w] of Object.entries(EMPF_E)) { if (!(await zu(`ewe-${id}`))) { alle = false; break; } await p.keyboard.type(w); }
+  await zu("ewe-pos-0-name"); await p.keyboard.type("Wartung Heizung");
+  await zu("ewe-pos-0-preis"); await p.keyboard.type("72");
+  await zu("ewe-pos-0-steuer"); await p.keyboard.type("7");
+  const steuer = await p.inputValue("#ewe-pos-0-steuer");
+  // „Position hinzufügen“ mit Enter
+  for (let i = 0; i < 20 && await p.evaluate(() => document.activeElement.dataset.e) !== "pos-neu"; i++) { await p.keyboard.press("Tab"); zahlen.tasten++; }
+  await p.keyboard.press("Enter");
+  check(await fokus() === "ewe-pos-1-name" && steuer === "S7", `Steuersatz per Taste gewählt (${steuer}), „Position hinzufügen“ mit Enter, Fokus in der neuen Position`);
+  await p.keyboard.type("Anfahrt");
+  await zu("ewe-pos-1-preis"); await p.keyboard.type("45");
+  // Entfernen mit Rückgängig
+  await p.keyboard.press("Shift+Tab");
+  for (let i = 0; i < 12 && await p.evaluate(() => document.activeElement.dataset.e) !== "pos-weg"; i++) await p.keyboard.press("Shift+Tab");
+  await p.keyboard.press("Enter");
+  check(await p.locator(".ewe-zeile").count() === 1 && await p.evaluate(() => document.activeElement.dataset.e) === "pos-zurueck", "„Entfernen“ mit Enter, Fokus auf „Rückgängig“");
+  await p.keyboard.press("Enter");
+  check(await p.locator(".ewe-zeile").count() === 2 && await fokus() === "ewe-pos-1-name", "„Rückgängig“ mit Enter stellt die Position wieder her");
+  let knopf = false;
+  for (let i = 0; i < 80; i++) { await p.keyboard.press("Tab"); zahlen.tasten++; if (await p.evaluate(() => document.activeElement.dataset.e) === "speichern") { knopf = true; break; } }
+  const ring = await p.evaluate(() => { const s = getComputedStyle(document.activeElement); return s.outlineStyle !== "none" && parseFloat(s.outlineWidth) >= 1; });
+  const [dl] = await Promise.all([p.waitForEvent("download", { timeout: 120000 }), p.keyboard.press("Enter")]);
+  check(knopf && ring && /\.xml$/.test(dl.suggestedFilename()) && await fokus() === "ewe-erfolg-text", `„E-Rechnung speichern“ mit Tab und Enter, Fokus sichtbar, Download ${dl.suggestedFilename()}, Fokus auf der Erfolgsmeldung`);
+  fehlerfrei(p, "Tastatur Erstellen");
+  await c.close();
+}
+
+// Erstellen in der Datei ohne Netz (file://)
+async function ohneNetzErstellen() {
+  console.log("\nErstellen in der Datei ohne Netz (de)");
+  const c = await browser.newContext({ ...GERAETE.desktop, offline: true, acceptDownloads: true });
+  const netz = [];
+  c.on("request", r => { if (!/^(file|data|blob):/.test(r.url())) netz.push(r.method() + " " + r.url()); });
+  await c.route(/^https?:|^wss?:/, r => r.abort());
+  const p = await c.newPage();
+  const fehler = [];
+  p.on("pageerror", e => fehler.push(String(e)));
+  await p.goto(pathToFileURL(OFFLINE.de).href + "#erstellen");
+  await p.waitForSelector("#ewz-panel-erstellen:not([hidden]) .ewe");
+  await ausfuellen(p, { ...FIRMA_E, ...EMPF_E, "pos-0-name": "Wartung Heizung", "pos-0-preis": "100" });
+  const dl = await speichernAbwarten(p);
+  const xml = await (async () => { const f = join(ORDNER, `e-datei-${dl.suggestedFilename()}`); await dl.saveAs(f); return readFileSync(f, "utf8"); })();
+  check(/<cbc:PayableAmount currencyID="EUR">119\.00</.test(xml) && /teilen sich je nach Browser/.test(await p.locator("#ewe-firma").innerText()), "Datei: E-Rechnung ohne Netz geprüft und gespeichert (119,00 €), Hinweis zum gemeinsamen Speicher lokaler Dateien");
+  const keys = await p.evaluate(() => Object.keys(localStorage));
+  check(keys.every(x => /^(rvlizenz|rverechnung):/.test(x)), `Datei: im Gerät nur rverechnung:* (${keys.join(", ")})`);
+  check(!netz.length && !fehler.length, `Datei: keine Anfrage ins Netz, keine Skriptfehler (${netz.slice(0, 3).join(", ")}${fehler.slice(0, 2).join(" | ")})`);
+  await c.close();
+}
+
+// axe-core im Reiter „Erstellen“: leer (Firmendaten offen), nach gesperrtem Speichern (Fehler am Feld) und mit Prüfergebnis
+async function barrierefreiErstellen(geraet, lang) {
+  const c = await kontext(geraet, { bypassCSP: true });
+  const p = await c.newPage();
+  await p.goto(SEITE[lang] + "#erstellen");
+  await p.waitForSelector("#ewz-panel-erstellen:not([hidden]) .ewe");
+  await p.addScriptTag({ path: axePfad() });
+  const lauf = () => p.evaluate(async () => (await window.axe.run(document.getElementById("erechnung"), { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"] } }))
+    .violations.map(v => ({ id: v.id, impact: v.impact, n: v.nodes.length, ziel: v.nodes.slice(0, 2).map(x => x.target.join(" ")).join("; ") })));
+  const r1 = await lauf();
+  await p.click('[data-e="speichern"]');
+  await p.waitForTimeout(300);
+  const r2 = await lauf();
+  await p.click('[data-e="probe"]');
+  await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 60000 });
+  if (geraet === "handy") await p.click('[data-e="vorschau"]');
+  const r3 = await lauf();
+  const alle = [...r1, ...r2, ...r3];
+  zahlen.axe.push({ geraet, lang, art: "erstellen", alle: alle.length, schwer: alle.filter(v => ["serious", "critical"].includes(v.impact)).length, leicht: alle.map(v => `${v.id} (${v.impact})`) });
+  check(!alle.length, `axe erstellen ${lang} ${geraet}: keine Verstöße – leer, mit Fehlern am Feld, mit Prüfergebnis (${alle.map(v => `${v.id}/${v.impact}/${v.n}: ${v.ziel}`).join(", ")})`);
+  await c.close();
+}
+
+const nurErstellen = args.includes("--nur-erstellen");
 try {
-  for (const g of ["desktop", "handy"]) {
+  if (!nurErstellen) for (const g of ["desktop", "handy"]) {
     await reiseKanzlei(g);
     await reiseHandwerk(g);
     await reiseKleinunternehmerin(g);
     await reiseFehlerfaelle(g);
   }
-  await reiseHandwerk("desktop", "en");
-  await tastatur();
-  console.log("\nBarrierefreiheit (axe-core)");
-  for (const g of ["desktop", "handy"]) for (const l of ["de", "en"]) await barrierefrei(g, l);
-  await barrierefrei("desktop", "de", "datei");
-  await ohneNetz("de");
-  await ohneNetz("en");
+  if (!nurErstellen) {
+    await reiseHandwerk("desktop", "en");
+    await tastatur();
+    console.log("\nBarrierefreiheit (axe-core)");
+    for (const g of ["desktop", "handy"]) for (const l of ["de", "en"]) await barrierefrei(g, l);
+    await barrierefrei("desktop", "de", "datei");
+    await ohneNetz("de");
+    await ohneNetz("en");
+  }
+  for (const g of ["desktop", "handy"]) await reiseErstellen(g);
+  await reiseErstellen("desktop", "en");
+  await tastaturErstellen();
+  console.log("\nBarrierefreiheit Erstellen (axe-core)");
+  for (const g of ["desktop", "handy"]) for (const l of ["de", "en"]) await barrierefreiErstellen(g, l);
+  await ohneNetzErstellen();
 } catch (e) { check(false, "Ablauf ohne Abbruch: " + (e && e.stack || e)); }
 
 // ---------- Datenschutz: alle Anfragen der Reisen ----------
