@@ -2,10 +2,14 @@
 // Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle; ob eine Rechnung steuerlich ordnungsgemäß ist, beurteilt es nicht.
 // Bei neuen BMF-Schreiben oder Gesetzesänderungen: Texte und STAND hier anpassen, Fundstellen prüfen.
 export const STAND = "2026-10-23";
+// Stand der Texte zu „Erstellen“ (§ 19 Abs. 1, § 4 und § 12 Abs. 3 UStG, Aufbewahrung), gezeigt im Reiter „Erstellen“
+export const STAND_ERSTELLEN = "2026-11-08";
 const BMF2025 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile";
 const BMF2026 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile";
 const USTG14 = "https://www.gesetze-im-internet.de/ustg_1980/__14.html";
 const USTG14B = "https://www.gesetze-im-internet.de/ustg_1980/__14b.html";
+const USTG19 = "https://www.gesetze-im-internet.de/ustg_1980/__19.html";
+const USTG4 = "https://www.gesetze-im-internet.de/ustg_1980/__4.html";
 
 // Fundstellen: [Text de, Text en, Adresse]
 const UA = "Umsatzsteuer-Anwendungserlass (UStAE)", B25 = "Schreiben des Bundesfinanzministeriums vom 15.10.2025", B26 = "Schreiben des Bundesfinanzministeriums vom 15.10.2026";
@@ -22,6 +26,16 @@ export const Q = {
   ustg14b: ["§ 14b Abs. 1 Umsatzsteuergesetz (UStG)", "Section 14b(1) German VAT Act (UStG)", USTG14B],
   rn60: [`${B25}, Randnummer 60`, `${B25E}, para. 60`, BMF2025],
   ustg146: ["§ 14 Abs. 1 Satz 6 Nr. 2 Umsatzsteuergesetz (UStG)", "Section 14(1) sentence 6 no. 2 German VAT Act (UStG)", USTG14],
+  ustg19: ["§ 19 Umsatzsteuergesetz (UStG)", "Section 19 German VAT Act (UStG)", USTG19],
+  ustg4: ["§ 4 Umsatzsteuergesetz (UStG)", "Section 4 German VAT Act (UStG)", USTG4],
+  // Dauerrechnung: Abschnitt 14.1 Abs. 19 UStAE (eine E-Rechnung für den ersten Teilleistungszeitraum genügt, wenn der Vertrag als
+  // Anhang enthalten ist oder sich aus dem Inhalt klar ergibt, dass es eine Dauerrechnung ist; bei geänderten Pflichtangaben neue
+  // E-Rechnung) und Abschnitt 14.5 Abs. 12 UStAE (Rechnungsnummer im strukturierten Teil; eine einmalige Nummer aus dem Vertrag genügt)
+  dauer: [`Abschnitt 14.1 Abs. 19 und Abschnitt 14.5 Abs. 12 ${UA}, gefasst durch ${B25}`, `Section 14.1(19) and Section 14.5(12) ${UAE}, as amended by the ${B25E}`, BMF2025],
+  // Abschlag: In der Endrechnung sind vereinnahmte Teilentgelte abzusetzen
+  ustg145: ["§ 14 Abs. 5 Umsatzsteuergesetz (UStG)", "Section 14(5) German VAT Act (UStG)", USTG14],
+  // Berichtigung als E-Rechnung mit einem Rechnungstyp für die Berichtigung; jede taugliche Art der Korrektur
+  rn20: [`${B26}, Randnummern 20 und 21`, `${B26E}, paras. 20 and 21`, BMF2026],
 };
 
 // Antworten auf „Ist das eine E-Rechnung?“: ja | nein | eingeschraenkt; satz mit {format}; quellen
@@ -60,6 +74,11 @@ export const ZUSATZ = {
   aufbewahren: { de: "Bewahren Sie die Originaldatei (XML-Datei oder ZUGFeRD-PDF) unverändert auf. Diese Ansicht oder ein Ausdruck ersetzen sie nicht.",
     en: "Keep the original file (XML file or ZUGFeRD PDF) unchanged. This view or a printout does not replace it.", quellen: ["ustg14b", "rn60"] },
   aufbewahrenSonst: { de: "Bewahren Sie die Originaldatei auf.", en: "Keep the original file.", quellen: [] },
+  // Beim Erstellen dauerhaft über dem Speicherknopf: Das Werkzeug archiviert nicht, die XML-Datei ist das Original
+  archiv: { de: "Das Werkzeug archiviert nicht. Die XML-Datei ist das Original: Bewahren Sie sie unverändert auf. Ausdruck und Ansicht ersetzen sie nicht. Keine Steuerberatung: Ob Steuersatz und Angaben stimmen, prüfen Sie selbst oder mit Ihrer Steuerberatung.",
+    en: "The tool does not archive. The XML file is the original: keep it unchanged. Printouts and views do not replace it. No tax advice: please check rates and details yourself or with your tax adviser.", quellen: ["ustg14b", "rn60"] },
+  klein: { de: "Kleinunternehmer berechnen keine Umsatzsteuer; die Rechnung weist auf die Steuerbefreiung nach § 19 UStG hin.", en: "Small businesses charge no VAT; the invoice refers to the exemption under Section 19 UStG.", quellen: ["ustg19"] },
+  befreiung: { de: "Steuerfreie Umsätze nennt § 4 UStG; in der Rechnung steht der Grund der Befreiung.", en: "Section 4 UStG lists exempt supplies; the invoice states the reason for the exemption.", quellen: ["ustg4"] },
   altXR: { de: "Die Datei nennt eine ältere XRechnung-Fassung. Geprüft werden die Regeln der EN 16931, nicht die der aktuellen XRechnung 3.0.",
     en: "The file names an older XRechnung version. The EN 16931 rules are checked, not those of the current XRechnung 3.0.", quellen: [] },
   ohneSzenario: { de: "Für dieses Profil hat die KoSIT kein eigenes Prüfszenario. Geprüft werden die Regeln der EN 16931 (CEN); besondere Regeln dieses Profils nicht.",

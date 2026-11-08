@@ -1,0 +1,10 @@
+﻿Firma;Straße;PLZ;Ort;E-Mail;USt-IdNr.;Behörde;Kundennr.
+Gärtnerei Morgentau KG;Feldweg 3;23457;Fischbach;rechnung@morgentau.example;DE822222222;;K-1
+"Müller & Söhne; Bau";"Lindenallee 4";54322;Beispielhausen;buero@mueller-soehne.example;;nein;K-2
+
+"Kanzlei ""Weitblick"" Partner";"Am Markt 1
+Hinterhaus";10115;Berlin;post@weitblick.example;;;K-3
+;Ohne Namen 1;12345;Irgendwo;x@y.example;;;K-4
+;;;;;;;
+Gärtnerei Morgentau KG;Feldweg 3a;23457;Fischbach;andere@morgentau.example;;;K-5
+Stadtverwaltung Beispielstadt;Rathausplatz 1;54321;Beispielstadt;;;ja;991-12345-67

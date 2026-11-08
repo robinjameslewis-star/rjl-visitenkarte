@@ -1,6 +1,7 @@
 // SmartFormular E-Rechnung lite – Oberfläche: Dateien annehmen, sofort die Antwort „Ist das eine E-Rechnung?“, lesbare Ansicht,
 // Zahlungsangaben mit GiroCode, Prüfung mit den offiziellen Regeln (lädt beim ersten Prüfen nach), Druck und Prüfbericht.
 // Läuft auf robin.vision (Regeln und Prüfkern als statische Dateien von dort) und als einzelne Datei offline (alles eingebettet).
+// Zweiter Reiter „Erstellen“ (erstellen.js): eigene E-Rechnung schreiben, mit demselben Prüfkern, derselben Ansicht und demselben GiroCode.
 import { T, ARTEN, ZAHLUNGSARTEN, EINHEITEN, GUTSCHRIFTEN } from "./texte.js";
 import { ANTWORT, ZUSATZ, Q, STAND } from "./recht.js";
 import { dateiLesen } from "./lesen.js";
@@ -8,6 +9,7 @@ import { erklaeren, STEUERKATEGORIE, eigeneErklaerung, regelSlug, LEXIKON } from
 import { zahlung, qrSvg, ibanLesbar, ibanGueltig } from "./girocode.js";
 import META from "./generiert/meta.json";
 import { lizenzTor, LIZENZ_CSS } from "../../lizenz/lizenz-client.js";
+import { erstellenStarten } from "./erstellen.js";
 
 /* global __FASSUNG__, __LIZENZ_SCHLUESSEL__ */
 const FASSUNG = typeof __FASSUNG__ === "string" ? __FASSUNG__ : "dev";
@@ -51,6 +53,13 @@ const istGutschrift = d => zahlung(d).grund === "gutschrift-dokument";
 // ---------- Gerüst ----------
 wurzel.innerHTML = `
 <div id="ewz-lizenz"></div>
+<div class="ewz-kopfzeile" id="ewz-kopfzeile" hidden>
+  <div class="ewz-reiter" role="tablist" aria-label="${t.tabsName}">
+    <button type="button" role="tab" id="ewz-tab-pruefen" aria-controls="ewz-panel-pruefen" aria-selected="true">${t.tabPruefen}</button>
+    <button type="button" role="tab" id="ewz-tab-erstellen" aria-controls="ewz-panel-erstellen" aria-selected="false" tabindex="-1">${t.tabErstellen}</button>
+  </div>
+</div>
+<div id="ewz-panel-pruefen" role="tabpanel" aria-labelledby="ewz-tab-pruefen">
 <section class="ewz-abschnitt ewz-start" aria-labelledby="ewz-h1">
   <div class="ewz-n" aria-hidden="true">01</div>
   <div class="ewz-inhalt">
@@ -66,7 +75,9 @@ wurzel.innerHTML = `
   </div>
 </section>
 <div id="ewz-uebersicht"></div>
-<div id="ewz-ergebnisse"></div>`;
+<div id="ewz-ergebnisse"></div>
+</div>
+<div id="ewz-panel-erstellen" role="tabpanel" aria-labelledby="ewz-tab-erstellen" hidden></div>`;
 const status = document.getElementById("ewz-status");
 const ergebnisse = document.getElementById("ewz-ergebnisse");
 const uebersicht = document.getElementById("ewz-uebersicht");
@@ -74,18 +85,24 @@ const sagen = s => { status.textContent = s; };
 
 // ---------- Testzeitraum und Lizenz ----------
 // Robin, 01.11.2026: bis 31.12.2026 ohne Anmeldung kostenlos testen; ab 1. Januar 2027 Anmeldung per Code, vier Wochen Test, danach
-// Lizenz (tools/lizenz/lizenz-client.js, Worker src/lizenz.js). Bis das Tor offen ist, nimmt die Ablage nichts an.
+// Lizenz (tools/lizenz/lizenz-client.js, Worker src/lizenz.js). Bis das Tor offen ist, nimmt die Ablage nichts an, und beide Reiter
+// (Prüfen und Erstellen) bleiben verborgen.
 let freigegeben = false;
 const leiste = document.createElement("p");
 leiste.className = "rvl-leiste"; leiste.hidden = true;
-wurzel.querySelector(".ewz-start .ewz-inhalt").prepend(leiste);
+const kopfzeile = document.getElementById("ewz-kopfzeile");
+kopfzeile.prepend(leiste);
 const lizenzStil = document.createElement("style");
 lizenzStil.textContent = LIZENZ_CSS;
 document.head.appendChild(lizenzStil);
 const start = wurzel.querySelector(".ewz-start");
 start.hidden = true;
 const lizenzBereit = lizenzTor({ werkzeug: "erechnung", lang, oeffentlich: typeof __LIZENZ_SCHLUESSEL__ === "object" ? __LIZENZ_SCHLUESSEL__ : null,
-  wurzel: document.getElementById("ewz-lizenz"), leiste }).then(r => { freigegeben = true; document.getElementById("ewz-lizenz").innerHTML = ""; start.hidden = false; return r; });
+  wurzel: document.getElementById("ewz-lizenz"), leiste }).then(r => {
+  freigegeben = true; document.getElementById("ewz-lizenz").innerHTML = ""; start.hidden = false; kopfzeile.hidden = false;
+  if (location.hash === "#erstellen") reiterZeigen("erstellen", false);
+  return r;
+});
 
 // ---------- Prüfkern und Regeln (laden beim ersten Prüfen nach) ----------
 let kernVersprechen = null;
@@ -272,14 +289,15 @@ function formatWerte(fehler) {
   }
   return [...out.values()];
 }
-function befundeHtml(e) {
-  const pr = e.pruefung;
+// opt.eigene: beim Erstellen – „Was Sie ändern müssen“, Verweis „Zum Feld“ (opt.zumFeld liefert das Feld der Maske oder null)
+function befundeHtml(e, opt = {}) {
+  const pr = e.pruefung, eigene = !!opt.eigene, E = t.erstellen;
   if (pr.status === "keine") return "";
   if (pr.status !== "fertig") return `<p class="ewz-klein">${t.pruefung}: ${pr.status === "fehler" ? esc(pr.meldung) : t.prueftLaeuft}</p>`;
   const werte = pr.fehler.length ? `<ol class="ewz-befunde">${formatWerte(pr.fehler).map(w => `<li class="ewz-befund ewz-fehler"><p class="ewz-befund-kopf"><span class="ewz-stufe">${t.formatfehler}</span></p>
 <p><strong>${t.wasFehlt}:</strong> ${esc(w.satz)}</p><p><strong>${t.wasTun}:</strong> ${esc(t.formatTun)}</p>
 <details><summary>${t.technisch}</summary><p class="ewz-orig" lang="en">${esc(w.meldung.slice(0, 300))}</p>${w.orte.size ? `<p class="ewz-klein">${t.formatOrt}: ${[...w.orte].slice(0, 5).map(o => `<code>${esc(o)}</code>`).join(", ")}</p>` : ""}</details></li>`).join("")}</ol>` : "";
-  const naechster = `<p class="ewz-naechster">${esc(t.naechsterSchritt)}</p>`;
+  const naechster = `<p class="ewz-naechster">${esc(eigene ? E.naechsterEigen : t.naechsterSchritt)}</p>`;
   if (!pr.befunde.length) return werte ? werte + naechster : `<p class="ewz-ok-text">${esc(t.keineBefunde)}</p>`;
   const gruppen = new Map();
   for (const b of pr.befunde) {
@@ -290,14 +308,15 @@ function befundeHtml(e) {
   const nat = s => s.replace(/\d+/g, d => d.padStart(5, "0"));
   const sortiert = [...gruppen.values()].sort((a, b) => rang[a.stufe] - rang[b.stufe] || nat(a.id).localeCompare(nat(b.id)));
   const z = zaehlen(e);
-  const kopf = werte + (!z.fehler && !pr.fehler.length ? `<p class="ewz-ok-text">${esc(t.nurWarnungen)}</p>` : "") + `<p class="ewz-klein ewz-legende">${esc(t.legende)}</p>`;
+  const kopf = werte + (!z.fehler && !pr.fehler.length ? `<p class="ewz-ok-text">${esc(eigene ? E.pruefWarn : t.nurWarnungen)}</p>` : "") + `<p class="ewz-klein ewz-legende">${esc(eigene ? E.legendeEigen : t.legende)}</p>`;
   const MAX = 12;
   const item = (g, i) => {
-    const [was, tun] = erklaeren(g.id, g.text, lang);
+    const [was, tun] = erklaeren(g.id, g.text, lang, { eigene });
+    const feldMaske = opt.zumFeld ? opt.zumFeld(`${was} ${g.text}`) : null;
     return `<li class="ewz-befund ewz-${g.stufe}"${i >= MAX ? " hidden data-mehr" : ""}>
 <p class="ewz-befund-kopf"><span class="ewz-stufe">${t[g.stufe]}</span> <span class="ewz-regel">${t.regel} ${esc(g.id)}</span>${g.orte.length > 1 ? ` <span class="ewz-anzahl">${g.orte.length}×</span>` : ""}</p>
 <p><strong>${t.wasFehlt}:</strong> ${esc(was)}</p>
-<p><strong>${t.wasTun}:</strong> ${esc(tun)}</p>${g.id.startsWith("PEPPOL-") ? `<p class="ewz-klein">${esc(t.peppolHinweis)}</p>` : ""}${eigeneErklaerung(g.id) ? `<p class="ewz-klein"><a href="${LEXIKON[lang]}${regelSlug(g.id)}/" target="_blank" rel="noopener">${t.mehrRegel}</a></p>` : ""}
+<p><strong>${eigene ? E.wasTunEigen : t.wasTun}:</strong> ${esc(tun)}${feldMaske ? ` <a href="#" class="ewe-zumfeld" data-zumfeld="${esc(feldMaske)}">${E.zumFeld}</a>` : ""}</p>${g.id.startsWith("PEPPOL-") ? `<p class="ewz-klein">${esc(t.peppolHinweis)}</p>` : ""}${eigeneErklaerung(g.id) ? `<p class="ewz-klein"><a href="${LEXIKON[lang]}${regelSlug(g.id)}/" target="_blank" rel="noopener">${t.mehrRegel}</a></p>` : ""}
 <details><summary>${t.original}</summary><p class="ewz-orig" lang="${/[äöüß]/i.test(g.text) ? "de" : "en"}">${esc(g.text)}</p><p class="ewz-klein">${t.ort}: ${g.orte.slice(0, 5).map(o => `<code>${esc(o)}</code>`).join(", ")}${g.orte.length > 5 ? " …" : ""}</p></details>
 </li>`;
   };
@@ -466,10 +485,14 @@ function drucken(e) {
   const blatt = k.querySelector(".ewz-blatt");
   const antwortBox = k.querySelector("[data-teil=antwort]");
   const bef = k.querySelector("[data-teil=befunde]");
+  druckenHtml((blatt ? blatt.outerHTML : "") + (antwortBox ? `<div class="ewz-druck-pruefung">${antwortBox.outerHTML}${bef ? bef.outerHTML : ""}</div>` : ""), k.classList.contains("ewz-mit-bt"));
+}
+// Druckt beliebigen Inhalt allein auf hellem Blatt (Rechnung mit Befunden beim Prüfen, Rechnung mit GiroCode beim Erstellen)
+function druckenHtml(html, mitBt = false) {
   const huelle = document.createElement("div");
   huelle.id = "ewz-druck";
-  huelle.className = "ewz-druck" + (k.classList.contains("ewz-mit-bt") ? " ewz-mit-bt" : "");
-  huelle.innerHTML = (blatt ? blatt.outerHTML : "") + (antwortBox ? `<div class="ewz-druck-pruefung">${antwortBox.outerHTML}${bef ? bef.outerHTML : ""}</div>` : "");
+  huelle.className = "ewz-druck" + (mitBt ? " ewz-mit-bt" : "");
+  huelle.innerHTML = html;
   huelle.querySelectorAll("details").forEach(d => d.setAttribute("open", ""));
   huelle.querySelectorAll("[hidden]").forEach(x => x.removeAttribute("hidden"));
   huelle.querySelectorAll("button").forEach(x => x.remove());
@@ -515,11 +538,43 @@ function anhangSpeichern(e, key) {
 // ---------- Ereignisse ----------
 const ablage = document.getElementById("ewz-ablage"), eingabe = document.getElementById("ewz-datei");
 eingabe.addEventListener("change", () => { annehmen(eingabe.files); eingabe.value = ""; });
-for (const z of [ablage, wurzel]) {
+for (const z of [ablage, document.getElementById("ewz-panel-pruefen")]) {
   z.addEventListener("dragover", ev => { ev.preventDefault(); ablage.classList.add("ewz-drueber"); });
   z.addEventListener("dragleave", ev => { if (!z.contains(ev.relatedTarget)) ablage.classList.remove("ewz-drueber"); });
   z.addEventListener("drop", ev => { ev.preventDefault(); ablage.classList.remove("ewz-drueber"); if (ev.dataTransfer && ev.dataTransfer.files.length) annehmen(ev.dataTransfer.files); });
 }
+
+// ---------- Reiter „Prüfen“ und „Erstellen“ (Muster „Tabs“ der WAI-ARIA, Pfeiltasten wechseln) ----------
+const reiter = { pruefen: document.getElementById("ewz-tab-pruefen"), erstellen: document.getElementById("ewz-tab-erstellen") };
+const panels = { pruefen: document.getElementById("ewz-panel-pruefen"), erstellen: document.getElementById("ewz-panel-erstellen") };
+let erstellen = null;
+// Nach „Im Prüfen öffnen“: Der Knopf liegt im verborgenen Reiter, darum Fokus auf die neue Ergebniskarte (sonst auf den Reiter)
+function imPruefenFokus() {
+  const karten = ergebnisse.querySelectorAll(".ewz-karte"), k = karten.length && karten[karten.length - 1].querySelector("h2");
+  if (k) { k.tabIndex = -1; k.focus(); } else reiter.pruefen.focus();
+}
+function reiterZeigen(name, fokus = true) {
+  if (!freigegeben) return;
+  for (const [n, b] of Object.entries(reiter)) {
+    const an = n === name;
+    b.setAttribute("aria-selected", String(an)); b.tabIndex = an ? 0 : -1; panels[n].hidden = !an;
+  }
+  if (name === "erstellen" && !erstellen) erstellen = erstellenStarten({ wurzel: panels.erstellen, lang, t, kern, regelsatz, stufe, zaehlen, befundeHtml, ansichtHtml, zahlenHtml,
+    speichern, druckenHtml, sagen, imPruefen: async datei => { reiterZeigen("pruefen", false); await annehmen([datei]); imPruefenFokus(); }, fassung: FASSUNG, stand: META.stand });
+  if (name === "erstellen") erstellen.geoeffnet();
+  const ziel = name === "erstellen" ? "#erstellen" : "";
+  if (location.hash !== ziel && (ziel || location.hash === "#erstellen")) history.replaceState(null, "", ziel || location.pathname + location.search);
+  if (fokus) reiter[name].focus();
+}
+for (const [n, b] of Object.entries(reiter)) {
+  b.addEventListener("click", () => reiterZeigen(n));
+  b.addEventListener("keydown", ev => {
+    const namen = Object.keys(reiter), i = namen.indexOf(n);
+    const neu = { ArrowRight: namen[(i + 1) % namen.length], ArrowLeft: namen[(i + namen.length - 1) % namen.length], Home: namen[0], End: namen[namen.length - 1] }[ev.key];
+    if (neu) { ev.preventDefault(); reiterZeigen(neu); }
+  });
+}
+window.addEventListener("hashchange", () => { if (location.hash === "#erstellen") reiterZeigen("erstellen", false); });
 wurzel.addEventListener("click", async ev => {
   const el = ev.target.closest("button, a, input");
   if (!el) return;
@@ -556,4 +611,4 @@ wurzel.addEventListener("click", async ev => {
   }
 });
 // Für Tests: Zustand lesbar machen (keine Daten nach außen)
-window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, lizenzBereit };
+window.RVErechnung = { eintraege, fertig: () => warteschlange, fassung: FASSUNG, lizenzBereit, get erstellen() { return erstellen && erstellen.zustand; } };

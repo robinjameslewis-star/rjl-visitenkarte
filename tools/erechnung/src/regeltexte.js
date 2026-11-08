@@ -322,8 +322,25 @@ export function eigeneErklaerung(id) {
 export const regelSlug = id => id.toLowerCase();
 export const LEXIKON = { de: "https://robin.vision/werkzeuge/e-rechnung-pruefen/regeln/", en: "https://robin.vision/werkzeuge/e-invoice-viewer/rules/" };
 
-// Erklärung zu einem Befund: [was, tun] in der gewünschten Sprache; englisch = Originaltext der Regel
-export function erklaeren(id, englisch, lang) {
+// Erklärung zu einem Befund: [was, tun] in der gewünschten Sprache; englisch = Originaltext der Regel. Mit { eigene: true } (beim
+// Erstellen) richtet sich „tun“ an die Nutzenden selbst statt an den Rechnungssteller.
+export function erklaeren(id, englisch, lang, { eigene = false } = {}) {
+  const [was, tun] = erklaerung(id, englisch, lang);
+  if (!eigene) return [was, tun];
+  const en = lang === "en";
+  return [was, /Rechnungssteller|issuer|lassen\.$|Have the /.test(tun) ? (en ? "Check the details in the steps above." : "Die Angaben in den Schritten oben prüfen.") : tun];
+}
+// Feld der Norm → Feld der Maske beim Erstellen („Zum Feld“)
+export const MASKENFELD = {
+  "BT-1": "nummer", "BT-2": "datum", "BT-9": "zielTage", "BT-10": "empfaenger.referenz", "BT-20": "zielTage", "BT-22": "bemerkung",
+  "BT-27": "firma.name", "BT-28": "firma.handelsname", "BT-29": "firma.steuernummer", "BT-30": "firma.register", "BT-31": "firma.ustid", "BT-32": "firma.steuernummer", "BT-34": "firma.kontakt.email",
+  "BT-35": "firma.strasse", "BT-36": "firma.zusatz", "BT-37": "firma.ort", "BT-38": "firma.plz", "BT-41": "firma.kontakt.name", "BT-42": "firma.kontakt.telefon", "BT-43": "firma.kontakt.email",
+  "BT-44": "empfaenger.name", "BT-48": "empfaenger.ustid", "BT-49": "empfaenger.email", "BT-50": "empfaenger.strasse", "BT-51": "empfaenger.zusatz", "BT-52": "empfaenger.ort", "BT-53": "empfaenger.plz", "BT-55": "empfaenger.land",
+  "BT-72": "leistung.datum", "BT-73": "leistung.von", "BT-74": "leistung.bis", "BT-83": "zweck", "BT-84": "firma.bank.iban", "BT-85": "firma.bank.inhaber", "BT-86": "firma.bank.bic",
+  "BT-120": "befreiung.text", "BT-121": "befreiung.text", "BT-129": "pos.0.menge", "BT-146": "pos.0.preis", "BT-151": "pos.0.steuer", "BT-152": "pos.0.steuer", "BT-153": "pos.0.name",
+};
+export const maskenfeld = text => { for (const bt of String(text).match(/\bB[TG]-\d+\b/g) || []) if (MASKENFELD[bt]) return MASKENFELD[bt]; return null; };
+function erklaerung(id, englisch, lang) {
   const l = lang === "en" ? "en" : "de";
   if (TEXTE[id]) return TEXTE[id][l];
   const m = /^BR-([A-Z]+)-(\d+)$/.exec(id);

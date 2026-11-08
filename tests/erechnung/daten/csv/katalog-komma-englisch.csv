@@ -1,0 +1,4 @@
+SKU,Item name,Unit,Unit price,VAT rate
+S-1,Consulting,hour,"1,234.50",0.19
+S-2,Travel flat rate,lump sum,45,19%
+S-3,Übersetzung,piece,0.5,7

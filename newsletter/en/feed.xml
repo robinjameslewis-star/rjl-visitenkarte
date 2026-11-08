@@ -6,6 +6,20 @@
   <description>Food for Thought, tools and workshops by email</description>
   <language>en</language>
   <item>
+    <title>SmartFormular E-Rechnung lite: Version ce5a845</title>
+    <link>https://robin.vision/werkzeuge/e-invoice-viewer/#fassung-ce5a845</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/e-invoice-viewer/#fassung-ce5a845</guid>
+    <pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
+<h3>Tools</h3>
+<p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">More about the workshop</a></p>]]></description>
+  </item>
+  <item>
     <title>Agents need a budget</title>
     <link>https://robin.vision/blog/agents-need-a-budget/</link>
     <guid isPermaLink="true">https://robin.vision/blog/agents-need-a-budget/</guid>
@@ -14,10 +28,10 @@
 <p>At the end of October I gave an AI agent three jobs on my own website. Off its own bat, it shared the work out among a crowd of sub-agents. Within a week I had run through one model&#39;s allowance twice and hit my subscription&#39;s weekly limit. In one run, two sub-agents out of 40 came back with a result. As far as I can judge, a single targeted check would have caught the mistakes that mattered in the end. The vendor wasn&#39;t to blame: I had set neither a budget nor an outcome.</p>
 <p>With an agent, the cost lies not in the individual question but in the route it picks for itself: steps, retries, sub-agents working side by side, restarts. Without a ceiling, usage climbs whether or not the benefit does. That makes it a job for financial control, as with any other contractor.</p>
 <p><a href="https://robin.vision/blog/agents-need-a-budget/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
@@ -118,10 +132,10 @@
 <p>When I compare tools for robin.vision, the word &quot;agent&quot; turns up in a great many product descriptions. It can mean very different things – and that difference is exactly what matters when you choose.</p>
 <p>Three kinds of software tend to get lumped together at the moment. Automation follows fixed rules: same input, same result. It is fast and can be checked, but it only knows what someone has set up in advance. An assistant answers questions and makes suggestions; a person decides and acts. An agent, by contrast, pursues a goal, decides on the next step itself and carries it out – even where no rule has been laid down.</p>
 <p><a href="https://robin.vision/blog/agent-automation-or-assistant/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
@@ -152,10 +166,10 @@
 <p>I learned the trade by coding incoming and outgoing invoices, posting payments and reconciling accounts. Today I build tools that automate part of exactly this work.</p>
 <p>At the same time, tax firms are looking for staff and cannot find them. According to the STAX survey of the German Federal Chamber of Tax Advisers (2024, reference year 2023), among sole practitioners who had tried to fill positions, 43.4 % could not fill any and a further 33.4 % could fill only some of their vacancies. Most of those sought were tax assistants (Steuerfachangestellte).</p>
 <p><a href="https://robin.vision/blog/the-position-that-can-t-be-filled/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
@@ -200,10 +214,10 @@
 <p>I have watched automated bank rules get it wrong. One rule books the health insurer&#39;s reimbursement of sick pay as revenue, complete with VAT. Another books revenue already recorded in accounts receivable a second time – again with VAT. And a supplier account hard-wired to an expense account and a tax code claims input VAT at the wrong rate. A mistake in a rule never stays a one-off. It multiplies.</p>
 <p>An ERP system is an excellent archive. It tells you what happened. Since 2025, a term has been doing the rounds that promises rather more: ARP, agentic resource planning. Agents keep constant watch, work out the consequences and act within guardrails set by a person – or put the decision forward for approval. That is how the software company SHAKE describes it; in 2026, it declared ARP a category of its own.</p>
 <p><a href="https://robin.vision/blog/mistakes-multiply/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
@@ -234,10 +248,10 @@
 <p>Whether I look at the firm or at our clients, I see the same picture: an inventory system, an accounting package, a banking tool, a document inbox, payroll – and spreadsheets on top. Each system does its job well. Together, they are a patchwork held together by interfaces.</p>
 <p>My last piece was about breaks in the digital chain. An interface closes that break, but the transfer remains: the same data sits in two systems, has to be reconciled and matched, and every hand-off can go wrong. Sales invoices travel from the inventory system into accounting through an invoicing interface; payroll entries come across from the payroll system. These interfaces only exist because two systems within the same business are kept apart. They are bridges over a gap that a shared data model would never have had.</p>
 <p><a href="https://robin.vision/blog/the-end-of-erp/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
@@ -254,10 +268,10 @@
 <p>Accounting still lives between paper and screen. A client marks up a scanned invoice and sends it to us through the client portal, but the notes on the image do nothing to the underlying data. That is a break in the digital chain – and a common source of errors and hold-ups.</p>
 <p>So is it enough to leave the scanned invoice behind? Not quite. Data gets keyed in twice in plenty of other places. Copying figures by hand from one system into another, because nobody has set up an interface, is just as much a break in the chain. More on that in my next piece, on interfaces.</p>
 <p><a href="https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
@@ -274,10 +288,10 @@
 <p>As a bookkeeper, I have spent more than enough time turning paper and PDF invoices into data. With e-invoicing, I no longer have to.</p>
 <p>The principle will be familiar from integrated business software (ERP) and from digital HR systems with an employee portal: master data and transactions are passed on for processing as soon as they arise, either in real time or at set intervals. ERP systems have done exactly this with sales invoicing for decades. The billing data goes straight to accounts receivable as structured data, and the printed invoice never played any part in the outcome. It was only ever needed by the customer and for the tax audit.</p>
 <p><a href="https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/">Read the whole post</a></p>
-<h3>New in SmartFormular FiBu lite</h3>
-<p><em>Version b7b368d of 2 November 2026</em></p>
-<p>Licence checking set up: the file now contains the verification key for signing in from 1 January 2027. Nothing changes until then.</p>
-<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>New in SmartFormular E-Rechnung lite</h3>
+<p><em>Version ce5a845 of 8 November 2026</em></p>
+<p>New: create e-invoices. In the “Create” tab you write an XRechnung: enter your company details once, add the recipient and items – the tool remembers recipients and frequent items and suggests them as you type; both lists can also be imported as CSV. If needed, you write an interim, recurring or cancellation invoice, or use an earlier invoice as a template. The check against the official rules runs as you type; the file is saved only when there are no errors left, as an XML file with a printable view and a GiroCode. Everything stays in your browser only. The tool does not archive: keep the XML file.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>

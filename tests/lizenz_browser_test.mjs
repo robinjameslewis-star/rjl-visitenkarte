@@ -55,6 +55,9 @@ await zeit("2026-12-31T23:30:00+01:00");
 await laden();
 check(await sichtbar(".ewz-start") && !(await page.locator(".rvl-maske").count()), "31.12.2026: Werkzeug frei, keine Anmeldung");
 check(anfragen.length === 0, "31.12.2026: keine Anfrage ins Netz");
+await page.goto(DATEI + "#erstellen"); await page.waitForTimeout(400);
+check(await sichtbar("#ewz-panel-erstellen .ewe") && await sichtbar("#ewz-tab-erstellen"), "31.12.2026: auch „Erstellen“ frei");
+await page.goto("about:blank");
 
 // b) 3.1.2027: Anmeldung per Code
 await zeit("2027-01-03T09:00:00+01:00");
@@ -91,6 +94,10 @@ await zeit("2027-02-05T09:00:00+01:00");
 await laden();
 check(/Test ist beendet/.test(await text(".rvl-maske")) && !(await sichtbar(".ewz-start")), "5.2.: Test beendet, Ablage gesperrt");
 check(/noch nicht freigeschaltet/.test(await text(".rvl-maske")), "ohne Kauf: Hinweis auf robin@robin.vision");
+await page.goto(DATEI + "#erstellen"); await page.waitForTimeout(400);
+check(!(await sichtbar("#ewz-tab-erstellen")) && !(await sichtbar("#ewz-panel-erstellen")) && !(await page.locator("#ewz-panel-erstellen .ewe").count()) && /Test ist beendet/.test(await text(".rvl-maske")),
+  "5.2.: auch „Erstellen“ gesperrt – kein Reiter, keine Maske, auch mit #erstellen");
+await page.goto(DATEI); await page.waitForTimeout(400);
 env.LIZENZ_TESTKAUF = "1";
 await page.click("#rvl-neu-laden");
 await page.waitForSelector("#rvl-kaufen");
