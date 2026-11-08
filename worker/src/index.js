@@ -339,12 +339,13 @@ async function mitStimme(response, body, env, ctx, optionen = {}) {
       const schreiben = async zeile => {
         clearTimeout(spaetestens);
         await textZeigen();
+        // Mail nur an der echten Monatsgrenze; „grenze_termin“ (Budget je Termin) bleibt still
         if (zeile.grund === "grenze") ctx.waitUntil(notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
           "Goch: Monatsgrenze für die Stimme erreicht",
           "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe."));
         await writer.write(enc.encode(JSON.stringify(zeile) + "\n"));
       };
-      const angaben = { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed };
+      const angaben = { sprache: settings.sprache, voiceId, lang, msModell, einstellungen, seed, budget: optionen.budget };
       if (inTeilen) await stimmeInTeilen(env, ctx, gesprochen, { ...angaben, fest: [KI_HINWEIS[lang]] }, schreiben);
       else await schreiben(await stimmeFuerAntwort(env, ctx, gesprochen, angaben));
     } catch (e) {

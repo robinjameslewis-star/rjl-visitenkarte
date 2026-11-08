@@ -2,6 +2,7 @@
 // Goch am Gerät ohne Links und Newsletter, Kundenfiguren nur hier (eigener Systemprompt, ohne Draht, nur freigegebene
 // Geräte), Stimme mit der voiceId der Figur, Spracheingabe mit Gerätebudget, Lebenszeichen, Nachweis nur als Hash.
 // Workshop-Bühne (24.10.2026): Stand des Vortrags als zweiter Systemblock, Fragen nur zitiert, „weiter“, Ersatzsätze mit fehler.
+// Budget je Termin (07.11.2026): Kopf X-Workshop-Budget am Eingang „Workshop“, Zähler über die ganze Laufzeit, Summe je Tag.
 // Gebündelter Worker; Workers AI, ElevenLabs, Anthropic, Resend und das Durable Object als Attrappen. Kein Netz.
 //   node tests/kiosk_worker_test.mjs
 import { execSync } from "node:child_process";
@@ -25,10 +26,12 @@ let fails = 0;
 const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEHLT ") + label + (detail ? ` (${detail})` : "")); if (!ok) fails++; };
 
 const mails = [], prompts = [], tts = [];
+let ttsFehler = false; // true: der Anbieter der Stimme antwortet mit 500
 let modell = { reply: "Robin baut Werkzeuge.", action: null, message: null, link: null, link2: null };
 globalThis.fetch = async (url, init) => {
   const u = String(url);
   if (u.startsWith("https://api.resend.com")) { mails.push(JSON.parse(init.body)); return new Response('{"id":"x"}', { status: 200 }); }
+  if (u.startsWith("https://api.elevenlabs.io") && ttsFehler) return new Response("kaputt", { status: 500 });
   if (u.startsWith("https://api.elevenlabs.io")) { tts.push({ url: u, body: JSON.parse(init.body) }); return new Response(new Uint8Array([1, 2, 3]), { status: 200 }); }
   if (u.startsWith("https://api.anthropic.com")) {
     prompts.push(JSON.parse(init.body));
@@ -43,7 +46,7 @@ function geraeteNamespace(Klasse) {
   const instanzen = new Map();
   const speicher = () => { const m = new Map(); return { get: async k => m.get(k), put: async (k, v) => { m.set(k, v); },
     delete: async k => { (Array.isArray(k) ? k : [k]).forEach(x => m.delete(x)); }, list: async ({ prefix } = {}) => new Map([...m].filter(([k]) => !prefix || k.startsWith(prefix))) }; };
-  return { idFromName: n => "id:" + n, get: id => { if (!instanzen.has(id)) instanzen.set(id, new Klasse({ storage: speicher() }, {})); const o = instanzen.get(id); return { fetch: (url, init) => o.fetch(new Request(url, init)) }; } };
+  return { instanzen, idFromName: n => "id:" + n, get: id => { if (!instanzen.has(id)) instanzen.set(id, new Klasse({ storage: speicher() }, {})); const o = instanzen.get(id); return { fetch: (url, init) => o.fetch(new Request(url, init)) }; } };
 }
 const ctx = { pending: [], waitUntil(p) { if (p && p.catch) this.pending.push(p.catch(() => {})); } };
 const ai = { aufrufe: 0, async run() { this.aufrufe++; return { text: "Was macht Robin?" }; } };
@@ -309,6 +312,141 @@ console.log("Eingang „Workshop“ für den Memberbereich (Service Binding)");
   const g = await (await W.fetch(new Request("https://goch.intern/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ figur, messages: frage }) }), knapp, ctx)).json();
   check(g.fehler === true && /genug erzählt/.test(g.reply), "Tagesgrenze erreicht: Satz mit Workshopleitung, fehler: true", JSON.stringify(g));
   check((await kiosk(e, "/kiosk/chat", null, { figur, messages: frage })).status === 401, "öffentliche Kiosk-Route bleibt ohne Nachweis gesperrt");
+}
+
+console.log("Budget je Termin (Kopf X-Workshop-Budget am Eingang „Workshop“)");
+{
+  const W = modul.Workshop;
+  const figur = { ...kunde, id: "kunde-workshop-allgemein", sprachen: ["de"], voiceId: "WorkshopVoice12" };
+  const ws = (e, pfad, budget, body, typ = "application/json") => W.fetch(new Request("https://goch.intern" + pfad, { method: "POST",
+    headers: { "content-type": typ, ...(budget === undefined ? {} : { "x-workshop-budget": typeof budget === "string" ? budget : JSON.stringify(budget) }) },
+    body: typeof body === "string" || body instanceof Uint8Array ? body : JSON.stringify(body) }), e, ctx);
+  const chat = async (e, budget, extra = {}) => { const r = await ws(e, "/chat", budget, { figur, lang: "de", messages: frage, ...extra }); const t = await r.text(); await Promise.all(ctx.pending);
+    return { status: r.status, zeilen: t.trim() ? t.trim().split("\n").map(x => JSON.parse(x)) : [] }; };
+  modell = { reply: "Nur öffentliche Daten in öffentliche Werkzeuge.", action: null, message: null, link: null, link2: null };
+
+  // 1. ohne Kopf wie bisher
+  {
+    const e = await umgebung();
+    const a = await chat(e, undefined);
+    const st = await geraetStand(e, "memberbereich");
+    check(a.status === 200 && a.zeilen[0].reply.startsWith("Nur öffentliche") && st.heute.antworten === 1 && st.gesamt.antworten === 0, "ohne Kopf: Tagesbudget „memberbereich“ wie bisher", JSON.stringify(st));
+  }
+  // 2. und 3. Grenze je Termin, andere Termine unberührt
+  {
+    const e = await umgebung();
+    const a1 = await chat(e, { termin: "tr_a1", antworten: 1 }), a2 = await chat(e, { termin: "tr_a1", antworten: 1 });
+    check(a1.status === 200 && a1.zeilen[0].reply.startsWith("Nur öffentliche") && !a1.zeilen[0].fehler, "antworten 1: die 1. Antwort kommt", JSON.stringify(a1.zeilen[0]));
+    check(a2.status === 200 && a2.zeilen[0].fehler === true && a2.zeilen[0].grenze === "termin" && a2.zeilen[0].reply === "", "die 2. Antwort: fehler, grenze „termin“, ohne eigenen Satz", JSON.stringify(a2.zeilen[0]));
+    const st = await geraetStand(e, "memberbereich:tr_a1"), alt = await geraetStand(e, "memberbereich");
+    check(st.gesamt.antworten === 1 && st.heute.antworten === 0 && alt.heute.antworten === 0, "gezählt im Termin (gesamt), „memberbereich“ unverändert", JSON.stringify({ st: st.gesamt, alt: alt.heute }));
+    const b1 = await chat(e, { termin: "tr_b2", antworten: 1 });
+    check(b1.zeilen[0] && !b1.zeilen[0].fehler && b1.zeilen[0].reply.startsWith("Nur öffentliche"), "tr_a1 erschöpft, tr_b2 antwortet weiter", JSON.stringify(b1.zeilen[0]));
+  }
+  // 4. Obergrenze
+  {
+    const e = { ...(await umgebung()), WORKSHOP_TERMIN_MAX_ANTWORTEN: "2" };
+    const r = []; for (let i = 0; i < 3; i++) r.push((await chat(e, { termin: "tr_max", antworten: 99999 })).zeilen[0]);
+    check(!r[0].fehler && !r[1].fehler && r[2].fehler === true && r[2].grenze === "termin", "Obergrenze: antworten 99999 mit Höchstwert 2 sperrt die 3. Antwort", JSON.stringify(r[2]));
+  }
+  // 5. 0 sperrt, fehlender Wert nimmt die Vorgabe
+  {
+    const e = { ...(await umgebung()), WORKSHOP_TERMIN_ANTWORTEN: "2" };
+    const vorher = prompts.length, n = (await chat(e, { termin: "tr_null", antworten: 0 })).zeilen[0];
+    check(n.fehler === true && n.grenze === "termin" && prompts.length === vorher, "antworten 0 sperrt die 1. Antwort, ohne Modellaufruf", JSON.stringify(n));
+    const r = []; for (let i = 0; i < 3; i++) r.push((await chat(e, { termin: "tr_vorgabe" })).zeilen[0]);
+    check(!r[0].fehler && !r[1].fehler && r[2].grenze === "termin", "fehlendes Feld: Vorgabe (hier 2)", JSON.stringify(r.map(x => !!x.fehler)));
+    const { terminBudget } = await import("../worker/src/workshop.js");
+    const v = terminBudget(JSON.stringify({ termin: "tr_x", antworten: -3, minuten: "abc", zeichen: 1.5 }), {});
+    check(v.id === "memberbereich:tr_x" && v.antworten === 150 && v.minuten === 15 && v.zeichen === 40000, "negativ, keine Zahl oder krumm: Vorgaben 150 / 15 / 40000", JSON.stringify(v));
+    const m = terminBudget(JSON.stringify({ termin: "tr_x", antworten: 5000, minuten: 500, zeichen: 10 ** 7 }), {});
+    check(m.antworten === 400 && m.minuten === 60 && m.zeichen === 150000 && terminBudget(null, {}) === null, "Obergrenzen 400 / 60 / 150000; ohne Kopf null", JSON.stringify(m));
+  }
+  // 6. ungültiger Kopf
+  {
+    const e = await umgebung();
+    const s = []; for (const k of [{ termin: "../x" }, { termin: "tr_" }, "kein json", { antworten: 3 }]) s.push((await ws(e, "/chat", k, { figur, messages: frage })).status);
+    const l = (await ws(e, "/listen?lang=de", { termin: "../x" }, wav(1), "audio/wav")).status;
+    check(s.every(x => x === 400) && l === 400, "Kopf ungültig („../x“, „tr_“, kein JSON, ohne Termin): 400, auch bei /listen", JSON.stringify([...s, l]));
+  }
+  // 7. Zeichen je Termin: Text kommt, keine Stimme, keine Mail; Gegenprobe Monatsgrenze mit Mail
+  {
+    const e = await umgebung(), ttsVorher = tts.length, mailsVorher = mails.length;
+    const a = await chat(e, { termin: "tr_z", zeichen: 5 }, { stimme: { erste: false } });
+    check(a.zeilen[0].reply.startsWith("Nur öffentliche") && a.zeilen[1] && a.zeilen[1].stimme === null && a.zeilen[1].grund === "grenze_termin", "zeichen 5: Text, stimme null, grund „grenze_termin“", JSON.stringify(a.zeilen[1]));
+    const t = await chat(e, { termin: "tr_z", zeichen: 5 }, { stimme: { erste: false, teile: true } });
+    check(t.zeilen[1] && t.zeilen[1].grund === "grenze_termin", "ebenso in Abschnitten", JSON.stringify(t.zeilen[1]));
+    check(tts.length === ttsVorher && mails.length === mailsVorher, "keine Vertonung, keine Mail an Robin", `${tts.length - ttsVorher} / ${mails.length - mailsVorher}`);
+    const gut = await chat(e, { termin: "tr_z2", zeichen: 1000 }, { stimme: { erste: false } });
+    const st = await geraetStand(e, "memberbereich:tr_z2");
+    check(gut.zeilen[1] && gut.zeilen[1].stimme && st.gesamt.zeichen === modell.reply.length && tts.length === ttsVorher + 1, "mit genug Zeichen: Stimme, Zeichen im Termin gezählt", JSON.stringify(st.gesamt));
+    const m = await umgebung(); m.USAGE.map.set("stimme:monat:" + new Date().toISOString().slice(0, 7), JSON.stringify({ zeichen: 99999 })); // Grenze 100000
+    const g = await chat(m, { termin: "tr_m", zeichen: 1000 }, { stimme: { erste: false } });
+    await Promise.all(ctx.pending);
+    check(g.zeilen[1] && g.zeilen[1].grund === "grenze" && mails.length === mailsVorher + 1 && /Monatsgrenze/.test(mails.at(-1).subject), "Gegenprobe echte Monatsgrenze: grund „grenze“, Mail an Robin", JSON.stringify(g.zeilen[1]));
+  }
+  // 8. Minuten je Termin
+  {
+    const e = await umgebung(), vorher = ai.aufrufe;
+    const h = await (await ws(e, "/listen?lang=de", { termin: "tr_ohr", minuten: 0 }, wav(2), "audio/wav")).json();
+    check(h.text === "" && h.grenze === true && h.art === "termin" && ai.aufrufe === vorher, "minuten 0: grenze, art „termin“, kein Aufruf der Spracheingabe", JSON.stringify(h));
+    const ok = await (await ws(e, "/listen?lang=de", { termin: "tr_ohr2", minuten: 1 }, wav(2), "audio/wav")).json();
+    const st = await geraetStand(e, "memberbereich:tr_ohr2");
+    check(ok.text === "Was macht Robin?" && st.gesamt.sekunden === 2 && st.heute.sekunden === 0, "minuten 1: Aufnahme kommt, Sekunden im Termin gezählt", JSON.stringify(st.gesamt));
+  }
+  // 9. Speicher der Instanz: kein Tageszähler, Aufräumen nach 60 Tagen
+  {
+    const e = await umgebung();
+    await chat(e, { termin: "tr_sp", antworten: 5 });
+    const sp = e.GERAETE.instanzen.get("id:memberbereich:tr_sp").state.storage;
+    const schluessel = [...(await sp.list()).keys()];
+    check(!schluessel.some(k => k.startsWith("tag:")) && schluessel.includes("gesamt:antworten") && schluessel.includes("gesamt:seit"), "kein tag:-Schlüssel, dafür gesamt:antworten und gesamt:seit", schluessel.join(","));
+    await sp.put("gesamt:seit", new Date(Date.now() - 61 * 86400_000).toISOString());
+    for (const k of schluessel.filter(k => k.startsWith("aufgeraeumt:"))) await sp.delete(k);
+    await chat(e, { termin: "tr_sp", antworten: 5 });
+    const st = await geraetStand(e, "memberbereich:tr_sp");
+    check(st.gesamt.antworten === 1 && Date.parse(await sp.get("gesamt:seit")) > Date.now() - 86400_000, "gesamt:seit älter als 60 Tage: beim Aufräumen gelöscht, neu gezählt", JSON.stringify(st.gesamt));
+    const frisch = await umgebung(); await chat(frisch, { termin: "tr_sp2", antworten: 5 });
+    const sp2 = frisch.GERAETE.instanzen.get("id:memberbereich:tr_sp2").state.storage;
+    await sp2.put("gesamt:seit", new Date(Date.now() - 59 * 86400_000).toISOString());
+    for (const k of [...(await sp2.list({ prefix: "aufgeraeumt:" })).keys()]) await sp2.delete(k);
+    await chat(frisch, { termin: "tr_sp2", antworten: 5 });
+    check((await geraetStand(frisch, "memberbereich:tr_sp2")).gesamt.antworten === 2, "jünger als 60 Tage: bleibt stehen");
+  }
+  // 10. Summe über alle Termine je Tag
+  {
+    const e = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ANTWORTEN: "1" };
+    const a = (await chat(e, { termin: "tr_s1" })).zeilen[0], b = (await chat(e, { termin: "tr_s2" })).zeilen[0];
+    check(!a.fehler && b.fehler === true && b.grenze === "summe" && b.reply === "", "Summengrenze 1 mit zwei Terminen: die 2. Antwort liefert grenze „summe“", JSON.stringify(b));
+    const z = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ZEICHEN: "5" };
+    const s = await chat(z, { termin: "tr_s3" }, { stimme: { erste: false } });
+    check(s.zeilen[1] && s.zeilen[1].grund === "grenze_termin", "Summengrenze der Zeichen: ohne Stimme, grund „grenze_termin“", JSON.stringify(s.zeilen[1]));
+    const s2 = (await geraetStand(e, "memberbereich:tr_s2")).gesamt, s3 = (await geraetStand(z, "memberbereich:tr_s3")).gesamt;
+    check(s2.antworten === 0 && s3.zeichen === 0 && s3.antworten === 1, "an der Summe gescheitert: im Termin zurückgebucht", JSON.stringify({ s2, s3 }));
+    const n = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ANTWORTEN: "0", WORKSHOP_TERMINE_TAG_ZEICHEN: "0" }, vorher = prompts.length, ttsVorher = tts.length;
+    const r = (await chat(n, { termin: "tr_s4" })).zeilen[0];
+    check(r.fehler === true && r.grenze === "summe" && prompts.length === vorher && (await geraetStand(n, "memberbereich:tr_s4")).gesamt.antworten === 0,
+      "Summe „0“ aus [vars] sperrt (statt Vorgabe 1000), ohne Modellaufruf", JSON.stringify(r));
+    const nz = { ...(await umgebung()), WORKSHOP_TERMINE_TAG_ZEICHEN: "0" };
+    const v = await chat(nz, { termin: "tr_s5" }, { stimme: { erste: false } });
+    check(v.zeilen[1] && v.zeilen[1].grund === "grenze_termin" && tts.length === ttsVorher, "Summe der Zeichen „0“ sperrt die Stimme", JSON.stringify(v.zeilen[1]));
+  }
+  // 11. Stimme scheitert beim Anbieter: Zeichen gehen im Termin und in der Summe zurück
+  {
+    const e = await umgebung();
+    ttsFehler = true;
+    const a = await chat(e, { termin: "tr_f1", zeichen: 1000 }, { stimme: { erste: false } });
+    const t = await chat(e, { termin: "tr_f2", zeichen: 1000 }, { stimme: { erste: false, teile: true } });
+    ttsFehler = false;
+    const f1 = (await geraetStand(e, "memberbereich:tr_f1")).gesamt, f2 = (await geraetStand(e, "memberbereich:tr_f2")).gesamt;
+    const sum = (await geraetStand(e, "memberbereich:termine")).heute;
+    check(a.zeilen[1] && a.zeilen[1].grund === "fehler" && t.zeilen.some(x => x.grund === "fehler"), "Anbieter 500: grund „fehler“, in einem Stück und in Abschnitten", JSON.stringify([a.zeilen[1], t.zeilen.at(-1)]));
+    const sp = e.GERAETE.instanzen.get("id:memberbereich:termine").state.storage, tag = new Date().toISOString().slice(0, 10);
+    check(f1.zeichen === 0 && f2.zeichen === 0 && ((await sp.get("tag:" + tag + ":zeichen")) || 0) === 0, "nichts vertont: Zeichen im Termin und in der Summe zurückgebucht",
+      JSON.stringify({ f1, f2, sum }));
+    const g = await chat(e, { termin: "tr_f1", zeichen: 1000 }, { stimme: { erste: false } });
+    check(g.zeilen[1] && g.zeilen[1].stimme && (await geraetStand(e, "memberbereich:tr_f1")).gesamt.zeichen === modell.reply.length, "danach mit Stimme: nur das Vertonte gezählt");
+  }
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nKiosk-Route in Ordnung.");
