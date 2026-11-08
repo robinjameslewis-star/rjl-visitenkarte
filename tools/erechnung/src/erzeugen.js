@@ -8,7 +8,7 @@ import { ibanNormal } from "./iban.js";
 export const KENNUNG = "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"; // BT-24
 export const PROZESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"; // BT-23 (PEPPOL-EN16931-R001)
 // Rechtstexte in der Datei bleiben deutsch (Empfänger in Deutschland); die Oberfläche zeigt die Übersetzung daneben
-export const KLEIN = { grund: "Kleinunternehmer gemäß § 19 UStG", hinweis: "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." };
+export const KLEIN = { grund: "Kleinunternehmer gemäß § 19 UStG", hinweis: "Steuerbefreiung für Kleinunternehmer nach § 19 Abs. 1 UStG." };
 export const OHNE_REFERENZ = { de: "keine Angabe", en: "n/a" }; // BT-10 ist Pflicht (BR-DE-15), auch ohne Referenz des Kunden
 export const zahlbarText = (datum, ziel) => ziel > 0 ? `Zahlbar ohne Abzug bis ${datumDe(datumPlus(datum, ziel))}.` : "Zahlbar sofort ohne Abzug.";
 
@@ -57,7 +57,8 @@ function verkaeufer(f) {
     e("cac:Contact", [e("cbc:Name", k.name), e("cbc:Telephone", k.telefon), e("cbc:ElectronicMail", k.email)]),
   ])]);
 }
-// Käufer (BG-7): BT-49 ist die E-Mail des Empfängers, bei einer Behörde die Leitweg-ID (Schema 0204)
+// Käufer (BG-7): BT-49 ist die E-Mail des Empfängers, bei einer Behörde die Leitweg-ID (Schema 0204); dort steht eine angegebene
+// E-Mail als Kontakt des Käufers (BT-58)
 function kaeufer(r) {
   const k = r.empfaenger || {};
   const adresse = k.behoerde ? e("cbc:EndpointID", k.referenz, { schemeID: "0204" }) : e("cbc:EndpointID", k.email, { schemeID: "EM" });
@@ -66,6 +67,7 @@ function kaeufer(r) {
     anschrift(k),
     leer(k.ustid) ? "" : steuerSchema(String(k.ustid).replace(/\s+/g, "").toUpperCase(), "VAT"),
     e("cac:PartyLegalEntity", [e("cbc:RegistrationName", k.name)]),
+    k.behoerde ? e("cac:Contact", [e("cbc:ElectronicMail", k.email)]) : "",
   ])]);
 }
 
@@ -79,7 +81,7 @@ export function ublSchreiben(firma, rechnung) {
   const ziel = Number.isInteger(+r.zielTage) && +r.zielTage >= 0 ? +r.zielTage : 0;
   const faellig = r.datum && /^\d{4}-\d{2}-\d{2}$/.test(r.datum) ? datumPlus(r.datum, ziel) : "";
   const l = r.leistung || {};
-  const referenz = xmlText((r.empfaenger || {}).referenz) || OHNE_REFERENZ[lang];
+  const referenz = leer((r.empfaenger || {}).referenz) ? OHNE_REFERENZ[lang] : r.empfaenger.referenz; // maskiert erst e()
   const notizen = [f.kleinunternehmer ? KLEIN.hinweis : "", r.bemerkung];
   const bank = f.bank || {};
   const zweck = leer(r.zweck) ? `Rechnung ${r.nummer || ""}`.trim() : r.zweck;

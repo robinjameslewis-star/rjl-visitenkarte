@@ -2,6 +2,8 @@
 // Das Werkzeug ordnet das Format technisch ein und nennt die Fundstelle; ob eine Rechnung steuerlich ordnungsgemäß ist, beurteilt es nicht.
 // Bei neuen BMF-Schreiben oder Gesetzesänderungen: Texte und STAND hier anpassen, Fundstellen prüfen.
 export const STAND = "2026-10-23";
+// Stand der Texte zu „Erstellen“ (§ 19 Abs. 1, § 4 und § 12 Abs. 3 UStG, Aufbewahrung), gezeigt im Reiter „Erstellen“
+export const STAND_ERSTELLEN = "2026-11-08";
 const BMF2025 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2025-10-15-einfuehrung-obligatorische-e-rechnung.pdf?__blob=publicationFile";
 const BMF2026 = "https://www.bundesfinanzministerium.de/Content/DE/Downloads/BMF_Schreiben/Steuerarten/Umsatzsteuer/Umsatzsteuer-Anwendungserlass/2026-10-15-obligatorische-elektronische-rechnung.pdf?__blob=publicationFile";
 const USTG14 = "https://www.gesetze-im-internet.de/ustg_1980/__14.html";

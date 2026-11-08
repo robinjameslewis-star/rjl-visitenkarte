@@ -13,8 +13,8 @@ import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { WZ, server, chrome, check, ergebnis } from "./erechnung/hilfen.mjs";
 import { dezimalLesen, zeileNetto, summen, betragText, mengeText, preisText, rund, GRENZE } from "../tools/erechnung/src/rechnen.js";
-import { ublSchreiben, xmlText, KENNUNG, PROZESS, dateiName } from "../tools/erechnung/src/erzeugen.js";
-import { maskePruefen, naechsteNummer, speichernErlaubt } from "../tools/erechnung/src/maske.js";
+import { ublSchreiben, xmlText, KENNUNG, PROZESS, dateiName, OHNE_REFERENZ } from "../tools/erechnung/src/erzeugen.js";
+import { maskePruefen, naechsteNummer, nummerSpaeter, speichernErlaubt } from "../tools/erechnung/src/maske.js";
 import { EINHEITEN_ERSTELLEN, BEFREIUNGEN } from "../tools/erechnung/src/texte.js";
 import { firmaBereinigen, firmaExport, firmaImport } from "../tools/erechnung/src/firma.js";
 
@@ -27,6 +27,8 @@ console.log("Rechnen (BigInt, Rundung nach EN 16931)");
 check(dezimalLesen("1.234,56", "de", 2) === 123456n && dezimalLesen("1,234.56", "en", 2) === 123456n && dezimalLesen("0.5", "de", 3) === 500n && dezimalLesen("1,5", "en", 3) === 1500n
   && dezimalLesen("1.234", "de", 3) === 1234000n && dezimalLesen(",5", "de", 2) === 50n, "Eingaben je Sprache: 1.234,56 / 1,234.56, 0.5 auf Deutsch, 1,5 auf Englisch, Tausenderpunkt");
 check(["-1", "1,23456", "abc", "1.2.3", "1,2,3", "", " ", "1e5", "12.34.567"].every(s => dezimalLesen(s, "de", 4) === null), "ungültige Eingaben und zu viele Nachkommastellen ergeben null");
+check(dezimalLesen("0.500", "de", 3) === 500n && dezimalLesen("0,500", "en", 3) === 500n && dezimalLesen("1.500", "de", 3) === 1500000n && dezimalLesen("0.500.000", "de", 3) === null
+  && dezimalLesen("012.345", "de", 3) === null && dezimalLesen("000.000", "de", 3) === 0n, "führende 0 ist keine Tausendergruppe: 0.500 = 0,5 (de), 0,500 = 0.5 (en); 0.500.000 und 012.345 ungültig");
 check(zeileNetto(1000n, 50n) === 1n && zeileNetto(1000n, 49n) === 0n && zeileNetto(1500n, 50n) === 1n && zeileNetto(3000n, 50n) === 2n, "Position: Rundung bei der Hälfte nach oben (0,005 → 0,01; 0,0049 → 0,00; 0,0075 → 0,01; 0,015 → 0,02)");
 // Referenz mit Ziffernketten (schriftliches Multiplizieren), unabhängig von BigInt
 function malText(a, b) {
@@ -64,6 +66,11 @@ console.log("\nNummern und Speichern");
 check(naechsteNummer(null, "2026-11-08") === "2026-001" && naechsteNummer("RE-2026-0041", "2026-11-08") === "RE-2026-0042" && naechsteNummer("2025-017", "2026-01-02") === "2026-001"
   && naechsteNummer("RE-2025-0099/B", "2026-01-02") === "RE-2026-0001/B" && naechsteNummer("999", "2026-11-08") === "1000" && naechsteNummer("A-9", "2026-11-08") === "A-10" && naechsteNummer("Rechnung", "2026-11-08") === "Rechnung-1"
   && naechsteNummer("2026-001", "2026-11-08") === "2026-002", "naechsteNummer: +1 mit Breite, neues Jahr setzt auf 1, Suffix bleibt");
+check(naechsteNummer("RE-12/2026", "2026-11-08") === "RE-13/2026" && naechsteNummer("12/2026", "2026-11-08") === "13/2026" && naechsteNummer("RE-12/2025", "2026-01-02") === "RE-01/2026"
+  && naechsteNummer("RE-1/2026-B", "2026-11-08") === "RE-2/2026-B", "naechsteNummer: Jahr hinten (lfd. Nr./Jahr) zählt die Nummer davor, im neuen Jahr ab 1");
+check(!nummerSpaeter("RE-2026-0017", "RE-2026-0041") && nummerSpaeter("RE-2026-0042", "RE-2026-0041") && nummerSpaeter("RE-2027-0001", "RE-2026-0041") && !nummerSpaeter("RE-2025-0099", "RE-2026-0003")
+  && !nummerSpaeter("RE-2026-0041", "RE-2026-0041") && nummerSpaeter("2026/42", "RE-2026-0041") && nummerSpaeter("RE-13/2026", "RE-12/2026") && !nummerSpaeter("RE-11/2026", "RE-12/2026") && nummerSpaeter("A-1", null),
+  "nummerSpaeter: eine ältere oder gleiche Nummer setzt den Zähler nicht zurück; neues Muster oder neues Jahr zählt");
 check(speichernErlaubt({ status: "fertig", befunde: [{ stufe: "warnung" }, { stufe: "hinweis" }], fehler: [] }) && !speichernErlaubt({ status: "fertig", befunde: [{ stufe: "fehler" }], fehler: [] })
   && !speichernErlaubt({ status: "fertig", befunde: [], fehler: [{}] }) && !speichernErlaubt({ status: "laeuft", befunde: [], fehler: [] }) && !speichernErlaubt(null), "speichernErlaubt: nur fertig, ohne Fehler und Auswertungsfehler; Warnungen erlaubt");
 const META = JSON.parse(readFileSync(join(WZ, "src", "generiert", "meta.json"), "utf8"));
@@ -99,6 +106,9 @@ const behoerde = RECHNUNG(); behoerde.empfaenger.behoerde = true; behoerde.empfa
 const befreit = RECHNUNG(); befreit.positionen[0].steuer = "E";
 const zeitraum = RECHNUNG(); zeitraum.leistung = { art: "zeitraum", von: "2026-11-30", bis: "2026-11-01" };
 const m1 = maskePruefen(ohneSteuer, RECHNUNG()), m2 = maskePruefen(FIRMA, behoerde), m3 = maskePruefen(FIRMA, befreit), m4 = maskePruefen(FIRMA, zeitraum);
+const nullsatz = RECHNUNG(); nullsatz.positionen[0].steuer = "Z";
+const m5 = maskePruefen(FIRMA, nullsatz); nullsatz.nullsatz = true;
+check(m5.length === 1 && m5[0].feld === "nullsatz" && !maskePruefen(FIRMA, nullsatz).length, "0 % Nullsteuersatz nur mit Bestätigung (§ 12 Abs. 3 UStG)");
 check(m1.length === 1 && m1[0].feld === "firma.steuernummer" && m2.length === 1 && m2[0].feld === "empfaenger.referenz" && m3.length === 1 && m3[0].feld === "befreiung.text" && m4.length === 1 && m4[0].feld === "leistung.bis",
   "ohne Steuernummer und USt-IdNr., Behörde ohne Leitweg-ID, steuerfrei ohne Grund, Zeitraum verkehrt: je eine Meldung");
 const formate = kopie(FIRMA); Object.assign(formate, { plz: "1234", ustid: "DE12345" }); Object.assign(formate.kontakt, { telefon: "12", email: "a@b" }); Object.assign(formate.bank, { iban: "DE44500105175407324932", bic: "XYZ" });
@@ -110,6 +120,16 @@ check(maskePruefen(FIRMA, RECHNUNG(), "en")[0] === undefined && maskePruefen({},
 const ex = firmaImport(firmaExport(FIRMA, { letzte: "KH-2026-0006", datum: "2026-11-01" }));
 check(ex && ex.firma.name === FIRMA.name && ex.firma.bank.iban === FIRMA.bank.iban && ex.nummer.letzte === "KH-2026-0006" && firmaImport('{"art":"x"}') === null && firmaImport("kein json") === null
   && firmaBereinigen({ name: 5, fremd: "x", kontakt: { email: "a@b.de" } }).name === "" && !("fremd" in firmaBereinigen({ fremd: 1 })), "Firmendaten als Datei: hin und zurück, fremde Dateien und Felder abgewiesen");
+
+console.log("\nXML: Referenz, Kontakt der Behörde, Hinweis § 19");
+const sx = RECHNUNG(); Object.assign(sx.empfaenger, { referenz: "PO A&B 'Nord' <1>" }); sx.zweck = "Rechnung & Co"; sx.bemerkung = "Danke & \"Gruß\"";
+const xs = ublSchreiben(FIRMA, sx);
+check(xs.includes("<cbc:BuyerReference>PO A&amp;B &apos;Nord&apos; &lt;1&gt;</cbc:BuyerReference>") && !xs.includes("&amp;amp;") && !xs.includes("&amp;apos;"), "Käuferreferenz (BT-10) mit Sonderzeichen einmal maskiert");
+const bx = RECHNUNG(); Object.assign(bx.empfaenger, { behoerde: true, referenz: "991-33333-44", email: "poststelle@amt.example" });
+const xb = ublSchreiben(FIRMA, bx), xk = ublSchreiben({ ...FIRMA, kleinunternehmer: true }, RECHNUNG());
+check(/<cbc:EndpointID schemeID="0204">991-33333-44<\/cbc:EndpointID>/.test(xb) && /<cac:Contact>\s*<cbc:ElectronicMail>poststelle@amt\.example<\/cbc:ElectronicMail>\s*<\/cac:Contact>\s*<\/cac:Party>\s*<\/cac:AccountingCustomerParty>/.test(xb),
+  "Behörde: Leitweg-ID als BT-49, angegebene E-Mail als Kontakt des Käufers (BT-58)");
+check(xk.includes("<cbc:Note>Steuerbefreiung für Kleinunternehmer nach § 19 Abs. 1 UStG.</cbc:Note>"), "Kleinunternehmer: Hinweis auf die Steuerbefreiung nach § 19 Abs. 1 UStG");
 
 if (args.includes("--nur-node")) { const { fails, oks } = ergebnis(); console.log(`\n${oks} Prüfungen bestanden, ${fails} fehlgeschlagen.`); process.exit(fails ? 1 : 0); }
 
@@ -170,6 +190,8 @@ function fallBauen(f, nr, lang = "de") {
     preis: zahl(f.preise ? f.preise[i % f.preise.length] : f.preis), steuer: kat[i % kat.length],
   }));
   if (!f.klein && kat.includes("E")) { const b = BEFREIUNGEN[nr % BEFREIUNGEN.length]; r.befreiung = { wahl: b.id, text: b.text }; }
+  if (kat.includes("Z")) r.nullsatz = true;
+  if (f.text === "sonder" && !f.behoerde) r.empfaenger.referenz = "PO A&B 'Nord' <1> \"x\"";
   let m = maskePruefen(firma, r, lang);
   if (m.some(x => x.text.includes("999.999.999") || x.text.includes("999,999,999"))) { r.positionen.forEach(p => { p.menge = "1"; }); m = maskePruefen(firma, r, lang); }
   return { firma, rechnung: r, maske: m, merkmale: f };
@@ -202,7 +224,7 @@ faelle.push(
   rand("nummer-sonder", (f, r) => { r.nummer = "RE/2026 – Nr. 7 & 8"; }),
   rand("englisch", (f, r) => { r.sprache = "en"; r.positionen[0].menge = "1,234.5"; r.positionen[0].preis = "0.0125"; }),
   rand("schaltjahr", (f, r) => { r.datum = "2028-02-29"; r.zielTage = "365"; r.leistung = { art: "zeitraum", von: "2028-02-01", bis: "2028-02-29" }; }),
-  rand("hundert-gemischt", (f, r) => { r.positionen = Array.from({ length: 100 }, (_, i) => ({ name: `P${i}`, menge: `${i + 1},5`, preis: `${i},99`, einheit: EINHEITEN_ERSTELLEN[i % 13], steuer: ["S19", "S7", "Z"][i % 3] })); }),
+  rand("hundert-gemischt", (f, r) => { r.positionen = Array.from({ length: 100 }, (_, i) => ({ name: `P${i}`, menge: `${i + 1},5`, preis: `${i},99`, einheit: EINHEITEN_ERSTELLEN[i % 13], steuer: ["S19", "S7", "Z"][i % 3] })); r.nullsatz = true; }),
 );
 const ungueltig = faelle.filter(f => f.maske.length);
 check(!ungueltig.length, `alle ${faelle.length} Fälle bestehen die Maske (${ungueltig.slice(0, 2).map(f => JSON.stringify(f.maske)).join(" | ")})`);
@@ -259,6 +281,7 @@ function vergleichen(fall, w) {
   soll(d.verkaeufer === rein(f.name) && d.kaeufer === rein(r.empfaenger.name), "Parteien");
   soll(d.zweck === (rein(r.zweck) || rein(`Rechnung ${r.nummer}`)), "Verwendungszweck");
   soll(r.empfaenger.behoerde ? d.kaeuferAdresse.schema === "0204" && d.referenz === r.empfaenger.referenz : d.kaeuferAdresse.schema === "EM", "Adresse des Empfängers");
+  soll(d.referenz === (rein(r.empfaenger.referenz) || OHNE_REFERENZ[r.sprache || "de"]), "Käuferreferenz");
   soll(r.leistung.art === "zeitraum" ? d.zeitraum && d.zeitraum.von === r.leistung.von && !d.lieferung : d.lieferung === r.leistung.datum && !d.zeitraum, "Leistung");
   soll(s.zahlbetrag > 0n ? !!w.giro.nutzlast && w.giro.nutzlast.includes(`EUR${betragText(s.zahlbetrag)}`) : w.giro.grund === "nichts-zu-zahlen", `GiroCode (${w.giro.grund})`);
   return abw;

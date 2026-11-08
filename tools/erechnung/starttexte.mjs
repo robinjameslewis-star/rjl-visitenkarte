@@ -30,12 +30,13 @@ export const START_ERECHNUNG = {
 - **Verständliche Befunde:** je Befund die Stufe (Fehler, Warnung oder Hinweis), die Regelnummer und in einfachen Worten, was nicht stimmt und was der Rechnungssteller ändern muss.
 - **Bezahlen per GiroCode:** Empfänger, IBAN, Betrag und Verwendungszweck mit Kopierknöpfen und als QR-Code für die Banking-App – nur bei gültiger IBAN, Betrag in Euro und Überweisung; andernfalls nennt das Werkzeug den Grund.
 - **Außerdem:** mehrere Dateien auf einmal prüfen, Anhänge der Rechnung speichern, den Prüfbericht als Datei sichern.
+- **E-Rechnungen erstellen:** Im Reiter „Erstellen“ schreiben Sie eine XRechnung (Syntax UBL). Ihre Firmendaten geben Sie einmal ein, dann Empfänger, Leistung und Positionen. Vor dem Speichern prüft das Werkzeug die Datei mit denselben offiziellen Regeln; mit Fehlern wird nicht gespeichert. Dazu gibt es eine Ansicht zum Drucken mit GiroCode. Nicht enthalten sind ein Kundenstamm, ein Archiv, ZUGFeRD und besondere Fälle wie die Steuerschuldnerschaft des Leistungsempfängers. Das Werkzeug archiviert nicht: Die gespeicherte XML-Datei ist das Original – bewahren Sie sie auf. Es ist keine Steuerberatung.
 
 ## So geht es
 
 1. Die XML-Datei oder das ZUGFeRD-PDF in das Feld oben ziehen oder auswählen – oder ein Beispiel ansehen.
 2. Die Antwort lesen: E-Rechnung ja oder nein, in welchem Format.
-3. Die Befunde ansehen. Haben Sie die Rechnung bekommen, schicken Sie den Prüfbericht an den Rechnungssteller; bei Ihrer eigenen Rechnung ergänzen Sie die Angaben in Ihrem Rechnungsprogramm.
+3. Die Befunde ansehen. Haben Sie die Rechnung bekommen, schicken Sie den Prüfbericht an den Rechnungssteller; bei Ihrer eigenen Rechnung ergänzen Sie die Angaben in Ihrem Rechnungsprogramm oder im Reiter „Erstellen“.
 4. Drucken oder den Prüfbericht speichern; bezahlen per GiroCode oder mit den kopierten Angaben.
 5. Die Originaldatei aufbewahren – die Ansicht ersetzt sie nicht.
 
@@ -57,7 +58,7 @@ ${ABGLEICH_DE}
 
 ## Datenschutz
 
-Die Rechnungen werden nur in Ihrem Browserfenster gelesen und geprüft. Von robin.vision werden das Werkzeug und beim ersten Prüfen die Prüfregeln geladen; Rechnungsdaten werden nicht übertragen und nicht gespeichert, es gibt kein Tracking. Eine Sicherheitsrichtlinie der Seite (Content Security Policy) erlaubt Verbindungen nur zu robin.vision. Die Datei zum Herunterladen verbindet sich ab dem 1. Januar 2027 nur zur Anmeldung und Lizenzprüfung mit robin.vision (E-Mail-Adresse und Lizenzstand, nie Rechnungen).
+Die Rechnungen werden nur in Ihrem Browserfenster gelesen und geprüft. Von robin.vision werden das Werkzeug und beim ersten Prüfen die Prüfregeln geladen; Rechnungsdaten werden nicht übertragen und nicht gespeichert, es gibt kein Tracking. Beim Erstellen bleiben Ihre Firmendaten und die zuletzt gespeicherte Rechnungsnummer im Speicher Ihres Browsers auf diesem Gerät, damit Sie sie nicht jedes Mal neu eingeben; auch sie werden nicht übertragen, und mit „Firmendaten löschen“ entfernen Sie sie. Empfänger und Positionen gelten nur, solange das Fenster offen ist. Eine Sicherheitsrichtlinie der Seite (Content Security Policy) erlaubt Verbindungen nur zu robin.vision. Die Datei zum Herunterladen verbindet sich ab dem 1. Januar 2027 nur zur Anmeldung und Lizenzprüfung mit robin.vision (E-Mail-Adresse und Lizenzstand, nie Rechnungen).
 
 ## Rechtliche Einordnung
 
@@ -92,12 +93,13 @@ Es gilt deutsches Recht.`,
 - **Findings in plain words:** for each finding the level (error, warning or notice), the rule number, and in plain words what is wrong and what the issuer needs to change.
 - **Pay by GiroCode:** payee, IBAN, amount and reference with copy buttons and as a QR code for your banking app – only with a valid IBAN, an amount in euros and credit transfer; otherwise the tool says why not.
 - **Also:** check several files at once, save the invoice's attachments, save the validation report as a file.
+- **Create e-invoices:** in the “Create” tab you write an XRechnung (UBL syntax). You enter your company details once, then the recipient, the supply and the items. Before saving, the tool checks the file against the same official rules; a file with errors is not saved. There is also a printable view with GiroCode. Not included are a customer list, an archive, ZUGFeRD and special cases such as the reverse charge. The tool does not archive: the saved XML file is the original – please keep it. It is not tax advice.
 
 ## How it works
 
 1. Drag the XML file or the ZUGFeRD PDF into the box above, or choose it – or try an example.
 2. Read the answer: e-invoice or not, and in which format.
-3. Look at the findings. If you received the invoice, send the validation report to the issuer; for your own invoice, complete the details in your invoicing software.
+3. Look at the findings. If you received the invoice, send the validation report to the issuer; for your own invoice, complete the details in your invoicing software or in the “Create” tab.
 4. Print or save the validation report; pay by GiroCode or with the copied details.
 5. Keep the original file – the view does not replace it.
 
@@ -119,7 +121,7 @@ ${ABGLEICH_EN}
 
 ## Privacy
 
-Invoices are read and checked only in your browser window. The tool, and on the first check the validation rules, are loaded from robin.vision; no invoice data is transmitted or stored, and there is no tracking. A security policy on the page (Content Security Policy) allows connections to robin.vision only. From 1 January 2027 the downloadable file connects to robin.vision only to sign in and check the licence (email address and licence status, never invoices).
+Invoices are read and checked only in your browser window. The tool, and on the first check the validation rules, are loaded from robin.vision; no invoice data is transmitted or stored, and there is no tracking. When you create invoices, your company details and the last invoice number saved stay in your browser's storage on this device, so you do not have to enter them each time; they are not transmitted either, and “Delete company details” removes them. Recipient and items only last while the window is open. A security policy on the page (Content Security Policy) allows connections to robin.vision only. From 1 January 2027 the downloadable file connects to robin.vision only to sign in and check the licence (email address and licence status, never invoices).
 
 ## Legal classification
 

@@ -164,6 +164,8 @@
 .ewe-wahl { border: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
 .ewe-wahl legend { margin-bottom: 4px; width: 100%; }
 .ewe-hinweis { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--e-gelb); background: var(--e-flaeche); border-radius: 4px; font-size: 14px; color: var(--e-tinte2); }
+.ewe-hinweis > p { margin: 0 0 8px; }
+.ewe-hinweis .ewe-feld { margin: 0; }
 .ewe-probe-hinweis { border-left-color: var(--e-akzent); display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
 .ewe-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 #erechnung .ewe-link { background: none; border: 0; padding: 4px 2px; color: var(--e-akzent); text-decoration: underline; text-decoration-color: var(--e-violett); text-underline-offset: .2em; font-size: 14px; min-height: 32px; }
@@ -316,6 +318,7 @@
   #ewz-druck .ewz-antwort.ewz-ja, #ewz-druck .ewz-befund { border-left-color: #666; }
   #ewz-druck a { color: #000; text-decoration: none; }
   #ewz-druck tr, #ewz-druck .ewz-befund { break-inside: avoid; }
+  #ewz-druck .ewe-druck-fuss { margin-top: 8mm; padding-top: 3mm; border-top: 1px solid #bbb; font-size: 9pt; }
   #ewz-druck .ewz-spinner { display: none; }
   #ewz-druck .ewe-druck-giro { margin-top: 8mm; break-inside: avoid; }
   #ewz-druck .ewe-druck-giro .ewz-zahlen { display: grid; grid-template-columns: 45mm 1fr; gap: 6mm; }

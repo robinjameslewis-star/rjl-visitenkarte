@@ -3,12 +3,12 @@
 // (maske.js), die Vorschau zeigt genau das, was in der Datei steht (dieselbe Lesestrecke wie beim Prüfen), und vor dem Speichern
 // läuft der eigene Prüfkern mit den offiziellen Regeln: Mit Fehlern wird nicht gespeichert. Kein Archiv – die XML-Datei ist das Original.
 // Prüfkern, Ansicht, Befunde, GiroCode, Druck und Speichern kommen aus app.js (ctx), damit beide Reiter dasselbe zeigen.
-import { ZUSATZ, Q, STAND } from "./recht.js";
+import { ZUSATZ, Q, STAND_ERSTELLEN } from "./recht.js";
 import { EINHEITEN, EINHEITEN_ERSTELLEN, BEFREIUNGEN } from "./texte.js";
 import { dateiLesen } from "./lesen.js";
 import { ublSchreiben, dateiName, KLEIN } from "./erzeugen.js";
 import { summen, geldAnzeige, datumGueltig, datumPlus } from "./rechnen.js";
-import { maskePruefen, naechsteNummer, speichernErlaubt } from "./maske.js";
+import { maskePruefen, naechsteNummer, nummerSpaeter, speichernErlaubt } from "./maske.js";
 import { firmaLeer, firmaBereinigen, firmaLesen, firmaSichern, firmaLoeschen, nummerLesen, nummerMerken, firmaExport, firmaImport, speicherDa } from "./firma.js";
 import { maskenfeld } from "./regeltexte.js";
 
@@ -34,7 +34,7 @@ export function erstellenStarten(ctx) {
   const neueRechnung = (f, letzte, ziel) => ({ sprache: lang, nummer: naechsteNummer(letzte && letzte.letzte, heute()), datum: heute(),
     leistung: { art: "datum", datum: heute(), von: "", bis: "" },
     empfaenger: { name: "", strasse: "", zusatz: "", plz: "", ort: "", land: "DE", ustid: "", email: "", behoerde: false, referenz: "" },
-    positionen: [neuePosition(f)], befreiung: { wahl: "", text: "" }, zielTage: String(ziel ?? f.vorgaben.zielTage), zweck: "", bemerkung: "" });
+    positionen: [neuePosition(f)], befreiung: { wahl: "", text: "" }, nullsatz: false, zielTage: String(ziel ?? f.vorgaben.zielTage), zweck: "", bemerkung: "" });
   const z = { firma: gespeichert || firmaLeer(), letzte: nummerLesen(), rechnung: null, meldungen: [], beruehrt: new Set(), alleZeigen: false, probe: false, sicherung: null,
     pruefung: null, geprueft: null, gespeichert: null, entfernt: null, geloescht: null, vorschauAuf: false, speicherDa: speicherDa() };
   z.rechnung = neueRechnung(z.firma, z.letzte);
@@ -118,7 +118,7 @@ ${gruppe(E.firmaGruppen.bank, feld("firma.bank.iban", { pflicht: true, klasse: "
     const r = z.rechnung, em = r.empfaenger, l = r.leistung;
     const laender = [...new Set([...LAENDER, em.land])].map(c => [c, landName(c)]);
     const radio = (w, text) => `<label class="ewz-check ewe-check"><input type="radio" name="ewe-leistung-art" value="${w}" data-feld="leistung.art"${l.art === w ? " checked" : ""}> ${esc(text)}</label>`;
-    const doppelt = z.letzte && z.letzte.letzte && r.nummer.trim() === z.letzte.letzte && !z.probe;
+    const doppelt = istDoppelt(r.nummer);
     $("ewe-s1").innerHTML = `<div class="ewe-felder">
 ${feld("empfaenger.name", { pflicht: true, klasse: "ewe-breit" })}
 ${feld("empfaenger.strasse", { pflicht: true, klasse: "ewe-breit" })}${feld("empfaenger.zusatz", { klasse: "ewe-breit" })}
@@ -138,6 +138,12 @@ ${feld("datum", { pflicht: true, typ: "date" })}
 ${l.art === "zeitraum" ? feld("leistung.von", { pflicht: true, typ: "date" }) + feld("leistung.bis", { pflicht: true, typ: "date" }) : feld("leistung.datum", { pflicht: true, typ: "date" })}
 </div>`;
     if (doppelt) $(`${domId("nummer")}-h`).classList.add("ewe-warn");
+  }
+  // Schon gespeicherte Nummer? (nur die zuletzt gemerkte; im Beispiel nie)
+  const istDoppelt = nummer => !z.probe && !!z.letzte && !!z.letzte.letzte && String(nummer || "").trim() === z.letzte.letzte;
+  function nummerHinweis() {
+    const h = $(`${domId("nummer")}-h`), doppelt = istDoppelt(z.rechnung.nummer);
+    if (h) { h.textContent = doppelt ? E.doppelt : E.hilfe.nummer; h.classList.toggle("ewe-warn", doppelt); }
   }
 
   // ---------- 02 Positionen ----------
@@ -166,7 +172,8 @@ ${mitE ? `<div class="ewe-befreiung"><div class="ewe-felder">
 ${feld("befreiung.wahl", { pflicht: true, klasse: "ewe-breit", label: E.felder["befreiung.text"], hilfe: E.befreiungHinweis, optionen: [["", "–"], ...BEFREIUNGEN.map(b => [b.id, b.name[L]]), ["eigen", E.befreiungEigen]] })}
 ${wahl === "eigen" ? feld("befreiung.text", { pflicht: true, klasse: "ewe-breit", hilfe: "" }) : wahl && lang === "en" ? `<p class="ewz-klein ewe-breit">${esc(E.inDatei)}: <span lang="de">„${esc(r.befreiung.text)}“</span></p>` : ""}
 </div>${quellenHtml(ZUSATZ.befreiung.quellen)}</div>` : ""}
-${mitZ ? `<p class="ewe-hinweis">${esc(E.nullHinweis)}</p>` : ""}
+${mitZ ? `<div class="ewe-hinweis"><p>${esc(E.nullHinweis)}</p><div class="ewe-feld"><label class="ewz-check ewe-check"><input type="checkbox" id="${domId("nullsatz")}" data-feld="nullsatz" aria-required="true" aria-describedby="${domId("nullsatz")}-f"${r.nullsatz ? " checked" : ""}> ${esc(E.nullBestaetigen)}</label>
+<p class="ewe-fehler" id="${domId("nullsatz")}-f" hidden></p></div></div>` : ""}
 <div class="ewe-summen" id="ewe-summen"></div>`;
   }
 
@@ -181,7 +188,7 @@ ${feld("bemerkung", { typ: "textarea", klasse: "ewe-breit" })}
 <div class="ewe-fehlend" id="ewe-fehlend"></div>
 <section class="ewe-pruefung" id="ewe-pruefung" aria-labelledby="ewe-hp"><h3 id="ewe-hp">${esc(t.abschnittBefunde)}</h3><div id="ewe-pruef-inhalt"></div>
 <p class="ewz-klein">${esc(ersetze(E.schema, { stand: datumAnzeige(ctx.stand) }))}</p></section>
-<div class="ewe-archiv"><p>${esc(ZUSATZ.archiv[lang])}</p>${quellenHtml(ZUSATZ.archiv.quellen)}<p class="ewz-stand">${t.stand}: ${datumAnzeige(STAND)}</p></div>
+<div class="ewe-archiv"><p>${esc(ZUSATZ.archiv[lang])}</p>${quellenHtml(ZUSATZ.archiv.quellen)}<p class="ewz-stand">${t.stand}: ${datumAnzeige(STAND_ERSTELLEN)}</p></div>
 <div id="ewe-erfolg"></div>`;
   }
   function aktionZeichnen() {
@@ -264,7 +271,7 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
   }
   async function pruefenJetzt() {
     const meinLauf = ++lauf;
-    const xml = ublSchreiben(z.firma, z.rechnung);
+    const xml = ublSchreiben(z.firma, z.rechnung), nummer = String(z.rechnung.nummer).trim(), datum = z.rechnung.datum;
     const e = await lesen(xml);
     e.pruefung = { status: "laeuft", befunde: [], fehler: [] };
     try {
@@ -283,7 +290,7 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
       e.pruefung.meldung = String(err && err.message || err);
     }
     if (meinLauf !== lauf) return null;
-    z.pruefung = e.pruefung; z.geprueft = { xml, e };
+    z.pruefung = e.pruefung; z.geprueft = { xml, e, nummer, datum };
     pruefZeigen(e.pruefung, e);
     return z.geprueft;
   }
@@ -300,32 +307,50 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
   }
 
   // ---------- Speichern ----------
-  async function speichernKlick() {
+  let speichertGerade = false;
+  async function speichernKlick(trotzDoppelt = false) {
+    if (speichertGerade) return;
     z.alleZeigen = true;
     aktualisieren();
-    if (z.meldungen.length) {
+    const gesperrt = () => {
+      if (!z.meldungen.length) return false;
       const n = z.meldungen.length;
       status(esc(n === 1 ? E.gesperrt1 : ersetze(E.gesperrt, { n })));
       zumFeld(z.meldungen[0].feld);
+      return true;
+    };
+    if (gesperrt()) return;
+    // Dieselbe Nummer noch einmal: nur nach ausdrücklicher Bestätigung (Rechnungsnummern nur einmal vergeben)
+    if (!trotzDoppelt && istDoppelt(z.rechnung.nummer)) {
+      status(`${esc(ersetze(E.doppeltFrage, { nummer: z.rechnung.nummer.trim() }))} ${knopf("speichern-doch", E.doppeltDoch, "ewe-link")}`);
+      $("ewe-status").querySelector("button").focus();
       return;
     }
     const b = wurzel.querySelector('[data-e="speichern"]');
     b.setAttribute("aria-busy", "true");
+    speichertGerade = true;
     clearTimeout(pruefUhr);
+    // Ändert sich während der Prüfung etwas, verwirft pruefenJetzt das Ergebnis; vor dem nächsten Versuch zählt die Maske neu
     let r = null;
-    for (let i = 0; i < 3 && !r; i++) r = await pruefenJetzt();
+    for (let i = 0; i < 3 && !r; i++) {
+      if (i) { aktualisieren(); clearTimeout(pruefUhr); if (z.meldungen.length) break; }
+      r = await pruefenJetzt();
+    }
+    speichertGerade = false;
     b.removeAttribute("aria-busy");
+    if (!r && gesperrt()) return;
     if (!r || !speichernErlaubt(r.e.pruefung)) {
       status(esc(r && r.e.pruefung.status === "fehler" ? ersetze(E.pruefKaputt, { meldung: r.e.pruefung.meldung }) : E.pruefFehler));
       $("ewe-hp").tabIndex = -1; $("ewe-hp").focus();
       return;
     }
-    const datei = dateiName(z.rechnung.nummer);
+    // Dateiname und gemerkte Nummer aus der geprüften Datei, nicht aus der Maske; eine ältere Nummer setzt den Zähler nicht zurück
+    const nummer = r.nummer, datei = dateiName(nummer);
     ctx.speichern(datei, r.xml, "application/xml");
-    const nummer = z.rechnung.nummer.trim();
-    if (!z.probe) { nummerMerken(nummer, z.rechnung.datum); z.letzte = { v: 1, letzte: nummer, datum: z.rechnung.datum }; }
+    if (!z.probe && nummerSpaeter(nummer, z.letzte && z.letzte.letzte)) { nummerMerken(nummer, r.datum); z.letzte = { v: 1, letzte: nummer, datum: r.datum }; }
     z.gespeichert = { datei, xml: r.xml, e: r.e };
-    const naechste = naechsteNummer(z.probe ? nummer : z.letzte.letzte, heute());
+    nummerHinweis();
+    const naechste = naechsteNummer(z.probe ? nummer : z.letzte && z.letzte.letzte, heute());
     $("ewe-erfolg").innerHTML = `<div class="ewe-erfolg"><p class="ewe-erfolg-text" tabindex="-1" id="ewe-erfolg-text"><strong>${esc(ersetze(E.gespeichert, { datei }))}</strong></p>
 ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: naechste }))}</p>`}
 <div class="ewe-knoepfe">${knopf("drucken", E.drucken)}${knopf("im-pruefen", E.imPruefen)}${knopf("naechste", E.naechste)}</div></div>`;
@@ -335,7 +360,8 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
   function drucken() {
     const g = z.gespeichert || z.geprueft;
     if (!g) return;
-    ctx.druckenHtml(`${ctx.ansichtHtml(g.e)}<div class="ewe-druck-giro">${ctx.zahlenHtml(g.e)}</div>`);
+    const datei = g.datei || dateiName(g.nummer);
+    ctx.druckenHtml(`${ctx.ansichtHtml(g.e)}<div class="ewe-druck-giro">${ctx.zahlenHtml(g.e)}</div><p class="ewe-druck-fuss">${esc(ersetze(E.druckFuss, { datei }))}</p>`);
   }
   function naechste() {
     const ziel = z.rechnung.zielTage;
@@ -373,7 +399,8 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
 
   // ---------- Firmendaten sichern, löschen, als Datei ----------
   let firmaUhr = 0;
-  const firmaSpaeterSichern = () => { if (z.probe) return; clearTimeout(firmaUhr); firmaUhr = setTimeout(() => firmaSichern(z.firma), 250); };
+  // Das Objekt beim Planen festhalten: Startet in den 250 ms das Beispiel, landen trotzdem die eigenen Firmendaten im Gerät
+  const firmaSpaeterSichern = () => { if (z.probe) return; clearTimeout(firmaUhr); const f = z.firma; firmaUhr = setTimeout(() => firmaSichern(f), 250); };
   function firmaWeiter() {
     FIRMA_FELDER.forEach(f => z.beruehrt.add(f));
     aktualisieren();
@@ -440,10 +467,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
       const neu = wahl ? wurzel.querySelector(`input[name="ewe-leistung-art"][value="${wahl}"]`) : id && $(id);
       if (neu) neu.focus();
     }
-    if (f === "nummer") {
-      const h = $(`${domId("nummer")}-h`), doppelt = z.letzte && z.letzte.letzte === String(el.value).trim() && !z.probe;
-      if (h) { h.textContent = doppelt ? E.doppelt : E.hilfe.nummer; h.classList.toggle("ewe-warn", !!doppelt); }
-    }
+    if (f === "nummer") nummerHinweis();
     aktualisieren();
   }
   wurzel.addEventListener("input", ev => { const el = ev.target; if (el.dataset.feld && !["checkbox", "radio", "select-one"].includes(el.type)) eingabe(el); });
@@ -461,6 +485,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
     if (!b) return;
     switch (b.dataset.e) {
       case "speichern": speichernKlick(); break;
+      case "speichern-doch": status(""); speichernKlick(true); break;
       case "firma-auf": z.firmaOffen = true; firmaZeichnen(); aktualisieren(); $(domId("firma.name")).focus(); break;
       case "firma-weiter": firmaWeiter(); break;
       case "firma-export": ctx.speichern(lang === "en" ? "SmartFormular-company-details.json" : "SmartFormular-Firmendaten.json", firmaExport(z.firma, z.letzte), "application/json"); break;

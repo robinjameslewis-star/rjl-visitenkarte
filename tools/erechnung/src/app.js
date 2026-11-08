@@ -548,6 +548,11 @@ for (const z of [ablage, document.getElementById("ewz-panel-pruefen")]) {
 const reiter = { pruefen: document.getElementById("ewz-tab-pruefen"), erstellen: document.getElementById("ewz-tab-erstellen") };
 const panels = { pruefen: document.getElementById("ewz-panel-pruefen"), erstellen: document.getElementById("ewz-panel-erstellen") };
 let erstellen = null;
+// Nach „Im Prüfen öffnen“: Der Knopf liegt im verborgenen Reiter, darum Fokus auf die neue Ergebniskarte (sonst auf den Reiter)
+function imPruefenFokus() {
+  const karten = ergebnisse.querySelectorAll(".ewz-karte"), k = karten.length && karten[karten.length - 1].querySelector("h2");
+  if (k) { k.tabIndex = -1; k.focus(); } else reiter.pruefen.focus();
+}
 function reiterZeigen(name, fokus = true) {
   if (!freigegeben) return;
   for (const [n, b] of Object.entries(reiter)) {
@@ -555,7 +560,7 @@ function reiterZeigen(name, fokus = true) {
     b.setAttribute("aria-selected", String(an)); b.tabIndex = an ? 0 : -1; panels[n].hidden = !an;
   }
   if (name === "erstellen" && !erstellen) erstellen = erstellenStarten({ wurzel: panels.erstellen, lang, t, kern, regelsatz, stufe, zaehlen, befundeHtml, ansichtHtml, zahlenHtml,
-    speichern, druckenHtml, sagen, imPruefen: async datei => { reiterZeigen("pruefen", false); await annehmen([datei]); }, fassung: FASSUNG, stand: META.stand });
+    speichern, druckenHtml, sagen, imPruefen: async datei => { reiterZeigen("pruefen", false); await annehmen([datei]); imPruefenFokus(); }, fassung: FASSUNG, stand: META.stand });
   if (name === "erstellen") erstellen.geoeffnet();
   const ziel = name === "erstellen" ? "#erstellen" : "";
   if (location.hash !== ziel && (ziel || location.hash === "#erstellen")) history.replaceState(null, "", ziel || location.pathname + location.search);

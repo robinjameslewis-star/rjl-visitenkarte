@@ -10,7 +10,8 @@ export const rund = (wert, teiler) => (wert + teiler / 2n) / teiler;
 
 // Zahl aus einer Eingabe: skaliert auf „stellen“ Nachkommastellen; null, wenn es keine nicht negative Zahl mit höchstens so vielen
 // Nachkommastellen ist. Tausenderpunkte (de) bzw. -kommas (en) sind erlaubt; „0.5“ auf Deutsch gilt als 0,5, weil nach dem Punkt
-// keine drei Ziffern folgen (umgekehrt „1,5“ auf Englisch).
+// keine drei Ziffern folgen (umgekehrt „1,5“ auf Englisch). Vor dem Punkt nur eine 0 („0.500“) ist nie eine Tausendergruppe: 0,5.
+// Gruppen beginnen nicht mit 0 („000.000“ und „0.500.000“ sind ungültig).
 export function dezimalLesen(text, lang = "de", stellen = 2) {
   if (typeof text === "bigint") return text;
   let s = String(text ?? "").replace(/[\s  ']/g, "");
@@ -18,11 +19,11 @@ export function dezimalLesen(text, lang = "de", stellen = 2) {
   const komma = lang === "en" ? "." : ",", gruppe = lang === "en" ? "," : ".";
   if (!s.includes(komma)) {
     const teile = s.split(gruppe);
-    if (teile.length === 2 && teile[1].length !== 3) s = teile.join(komma);
+    if (teile.length === 2 && (teile[1].length !== 3 || /^0*$/.test(teile[0]))) s = teile.join(komma);
   }
   const [ganz, nach = "", ...rest] = s.split(komma);
   if (rest.length) return null;
-  const gruppiert = new RegExp(`^\\d{1,3}(\\${gruppe}\\d{3})+$`);
+  const gruppiert = new RegExp(`^[1-9]\\d{0,2}(\\${gruppe}\\d{3})+$`);
   const g = !ganz.includes(gruppe) ? ganz : gruppiert.test(ganz) ? ganz.split(gruppe).join("") : null;
   if (g == null || !/^\d*$/.test(g) || !/^\d*$/.test(nach) || (!g && !nach) || nach.length > stellen) return null;
   if (g.length > 15) return null;

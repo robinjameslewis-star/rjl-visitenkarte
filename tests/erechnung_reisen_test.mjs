@@ -405,6 +405,7 @@ async function reiseErstellen(geraet, lang = "de") {
   const a = await text(k.locator("[data-teil=antwort]"));
   check((en ? /Yes, this is an e-invoice/.test(a) && /No errors found/.test(a) : /Ja, das ist eine E-Rechnung/.test(a) && /Keine Fehler gefunden/.test(a)) && await p.locator('#ewz-tab-pruefen[aria-selected="true"]').count() === 1,
     `${geraet} e: „Im Prüfen öffnen“ – Reiter Prüfen, E-Rechnung ja, keine Fehler`);
+  check(await p.evaluate(() => !!document.activeElement && !!document.activeElement.closest(".ewz-karte")), `${geraet} e: „Im Prüfen öffnen“ – Fokus auf der neuen Ergebniskarte`);
   const keys = await speicherSchluessel(p);
   check(keys.length > 0 && keys.every(x => /^(rvlizenz|rverechnung):/.test(x)), `${geraet} e: im Gerät nur rvlizenz:* und rverechnung:* (${keys.join(", ")})`);
   // Neu laden: Firmendaten sind da, Nummer +1
@@ -424,8 +425,11 @@ async function reiseErstellen(geraet, lang = "de") {
     const pk = join(ORDNER, `e-klein-${dk.suggestedFilename()}`);
     await dk.saveAs(pk);
     const xk = readFileSync(pk, "utf8");
-    check(/Gemäß § 19 UStG wird keine Umsatzsteuer berechnet\./.test(xk) && /<cbc:TaxExemptionReason>Kleinunternehmer gemäß § 19 UStG</.test(xk) && /<cbc:PayableAmount currencyID="EUR">450\.00</.test(xk) && /<cac:PartyIdentification>/.test(xk),
+    check(/Steuerbefreiung für Kleinunternehmer nach § 19 Abs\. 1 UStG\./.test(xk) && /<cbc:TaxExemptionReason>Kleinunternehmer gemäß § 19 UStG</.test(xk) && /<cbc:PayableAmount currencyID="EUR">450\.00</.test(xk) && /<cac:PartyIdentification>/.test(xk),
       "desktop e: Kleinunternehmer-Rechnung – Hinweis § 19 UStG, Kategorie E mit Grund, 450,00 € ohne Steuer, Steuernummer als Kennung");
+    check(await p.locator("#ewe-nummer-h.ewe-warn").count() === 1, "desktop e: nach dem Speichern Hinweis „Nummer schon gespeichert“ am Feld");
+    await p.click('[data-e="speichern"]');
+    check(await p.locator('#ewe-status [data-e="speichern-doch"]').count() === 1 && /schon gespeichert/.test(await p.locator("#ewe-status").innerText()), "desktop e: dieselbe Nummer noch einmal speichern nur nach Bestätigung");
     await p.click('[data-e="im-pruefen"]');
     await fertig(p, 1);
     check(/Ja, das ist eine E-Rechnung/.test(await text(karte(p, dk.suggestedFilename()).locator("[data-teil=antwort]"))) && /Keine Fehler gefunden/.test(await text(karte(p, dk.suggestedFilename()).locator("[data-teil=antwort]"))), "desktop e: Kleinunternehmer-Rechnung im Prüfen – E-Rechnung ja, keine Fehler");
@@ -529,7 +533,14 @@ async function barrierefreiErstellen(geraet, lang) {
   await p.waitForFunction(() => { const z = window.RVErechnung.erstellen; return z.pruefung && z.pruefung.status === "fertig"; }, null, { timeout: 60000 });
   if (geraet === "handy") await p.click('[data-e="vorschau"]');
   const r3 = await lauf();
-  const alle = [...r1, ...r2, ...r3];
+  // 0 % Nullsteuersatz: Bestätigung als Pflichtfeld, beim Speichern mit Meldung am Feld
+  await p.selectOption("#ewe-pos-0-steuer", "Z");
+  await p.click('[data-e="speichern"]');
+  await p.waitForTimeout(300);
+  check(await p.locator("#ewe-nullsatz").count() === 1 && await p.locator("#ewe-nullsatz-f:not([hidden])").count() === 1 && await p.locator('#ewe-fehlend [data-zumfeld="nullsatz"]').count() === 1,
+    `erstellen ${lang} ${geraet}: Nullsteuersatz ohne Bestätigung wird nicht gespeichert, Meldung am Feld`);
+  const r4 = await lauf();
+  const alle = [...r1, ...r2, ...r3, ...r4];
   zahlen.axe.push({ geraet, lang, art: "erstellen", alle: alle.length, schwer: alle.filter(v => ["serious", "critical"].includes(v.impact)).length, leicht: alle.map(v => `${v.id} (${v.impact})`) });
   check(!alle.length, `axe erstellen ${lang} ${geraet}: keine Verstöße – leer, mit Fehlern am Feld, mit Prüfergebnis (${alle.map(v => `${v.id}/${v.impact}/${v.n}: ${v.ziel}`).join(", ")})`);
   await c.close();
