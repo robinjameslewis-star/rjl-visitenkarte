@@ -6,6 +6,20 @@
   <description>Impulse, Werkzeuge und Workshops per E-Mail</description>
   <language>de</language>
   <item>
+    <title>SmartFormular E-Rechnung lite: Fassung e6db36b</title>
+    <link>https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-e6db36b</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-e6db36b</guid>
+    <pubDate>Sun, 08 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
+<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Werkzeuge</h3>
+<p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Mehr zum Workshop</a></p>]]></description>
+  </item>
+  <item>
     <title>SmartFormular E-Rechnung lite: Fassung a60e15e</title>
     <link>https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-a60e15e</link>
     <guid isPermaLink="true">https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-a60e15e</guid>
@@ -29,8 +43,8 @@
 <p>Bei einem Agenten kostet nicht die einzelne Frage, sondern der Ablauf, den er selbst wählt: Schritte, Wiederholungen, parallele Unteragenten, Neustarts. Ohne Grenze wächst der Verbrauch, der Nutzen nicht unbedingt. Das ist eine Controlling-Aufgabe wie bei jedem anderen Dienstleister.</p>
 <p><a href="https://robin.vision/blog/agenten-brauchen-ein-budget/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
@@ -132,8 +146,8 @@
 <p>Drei Arten von Software werden gerade gern in einen Topf geworfen. Eine Automatisierung führt feste Regeln aus: gleiche Eingabe, gleiches Ergebnis. Sie ist schnell und prüfbar, kennt aber nur, was jemand vorher festgelegt hat. Ein Assistent beantwortet Fragen und macht Vorschläge; entscheiden und handeln tut der Mensch. Ein Agent dagegen verfolgt ein Ziel, entscheidet selbst über den nächsten Schritt und führt ihn aus – auch dort, wo keine Regel vorgegeben ist.</p>
 <p><a href="https://robin.vision/blog/agent-automatisierung-oder-assistent/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
@@ -166,8 +180,8 @@
 <p>Gleichzeitig suchen Kanzleien Personal und finden es nicht. Nach der STAX-Befragung der Bundessteuerberaterkammer (2024, Bezugsjahr 2023) konnten von den Einzelkanzleien, die zuvor Stellen besetzen wollten, 43,4 % keine und weitere 33,4 % nur einen Teil der offenen Stellen besetzen. Gesucht wurden vor allem Steuerfachangestellte.</p>
 <p><a href="https://robin.vision/blog/die-stelle-die-sich-nicht-besetzen-laesst/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
@@ -214,8 +228,8 @@
 <p>Ein ERP ist ein sehr gutes Archiv. Es sagt Ihnen, was war. Seit 2025 taucht ein Begriff auf, der mehr verspricht: ARP, Agentic Resource Planning. Agenten beobachten laufend, rechnen Folgen durch und handeln innerhalb von Leitplanken, die ein Mensch setzt – oder legen die Entscheidung zur Freigabe vor. So beschreibt es das Softwareunternehmen SHAKE, das daraus 2026 eine eigene Kategorie gemacht hat.</p>
 <p><a href="https://robin.vision/blog/fehler-skalieren/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
@@ -248,8 +262,8 @@
 <p>Im letzten Impuls ging es um Medienbrüche. Eine Schnittstelle beseitigt den Medienbruch, aber nicht die Übertragung: Dieselben Daten liegen in zwei Systemen, sie müssen abgeglichen und zugeordnet werden, und jede Übergabe kann scheitern. Ausgangsrechnungen gehen über die Fakturierungsschnittstelle aus der Warenwirtschaft in die Buchhaltung, Lohnbuchungen aus der Lohnabrechnung. Diese Schnittstellen gibt es nur, weil innerhalb desselben Unternehmens zwei Systeme getrennt sind. Sie sind Brücken über einen Graben, den ein gemeinsames Datenmodell nicht hätte.</p>
 <p><a href="https://robin.vision/blog/das-ende-des-erp/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
@@ -268,8 +282,8 @@
 <p>Reicht es also, das Belegbild hinter sich zu lassen? Nein. Redundante Datenübertragung gibt es auch jenseits des Belegbildes. Ein Medienbruch ist auch der manuelle Übertrag beim Systemwechsel, weil keine Schnittstelle eingerichtet ist. Dazu mehr im nächsten Impuls über Schnittstellenintegration.</p>
 <p><a href="https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
@@ -288,8 +302,8 @@
 <p>Das Prinzip kennen Sie bereits aus integrierter Unternehmenssoftware (ERP) und digitaler Personalverwaltung mit Mitarbeiterportal: Stamm- und Bewegungsdaten werden bei ihrer Entstehung in Echtzeit oder in einem definierten Turnus zur Weiterverarbeitung bereitgestellt. Im ERP passiert das auch schon seit Jahrzehnten bei der Fakturierung. Die Daten der Fakturierung stehen zum Beispiel der Debitorenbuchhaltung als Datensatz zur Verfügung. Bei diesem Prozess hat das Belegbild für das Ergebnis nie eine Rolle gespielt. Das Belegbild wurde nur für den Rechnungsempfänger und die Betriebsprüfung benötigt.</p>
 <p><a href="https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/">Den ganzen Impuls lesen</a></p>
 <h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung a60e15e vom 8. November 2026</em></p>
-<p>Neu: E-Rechnungen erstellen. Im Reiter „Erstellen“ schreiben Sie eine XRechnung: Ihre Firmendaten einmal eingeben (sie bleiben nur in Ihrem Browser), Empfänger und Positionen eintragen, die Prüfung mit den offiziellen Regeln läuft mit. Gespeichert wird erst, wenn keine Fehler mehr da sind – als XML-Datei, dazu eine Ansicht zum Drucken mit GiroCode. Das Werkzeug archiviert nicht: Bewahren Sie die XML-Datei auf.</p>
+<p><em>Fassung e6db36b vom 8. November 2026</em></p>
+<p>Nichts zweimal tippen: Beim Erstellen merkt sich das Werkzeug Ihre Empfänger, häufige Positionen kommen in einen Katalog, und beim Tippen erscheinen Vorschläge. Beide Listen lassen sich als CSV einlesen und sichern; alle lokalen Daten passen in eine Datei für ein anderes Gerät. Neu sind außerdem Abschlags-, Dauer- und Stornorechnungen sowie die Folgerechnung aus einer früheren Rechnung. Alles bleibt nur in Ihrem Browser.</p>
 <p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
