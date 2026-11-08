@@ -3,7 +3,7 @@
 // Die Elemente stehen in der Reihenfolge der UBL-2.1-XSD (im Browser wird das Schema nicht geprüft, darum fest geordnet); leere
 // Angaben werden weggelassen (PEPPOL-EN16931-R008). Beträge rechnet rechnen.js exakt; Feldnummern (BT-…) nach EN 16931.
 // Ein Serialisierer für CII (ZUGFeRD) kommt später an dasselbe Modell.
-import { summen, geldAnzeige, STELLEN, betragText, mengeText, preisText, dezimalLesen, datumPlus, datumDe, STEUER, steuerVon } from "./rechnen.js";
+import { summen, geldAnzeige, STELLEN, betragText, mengeText, preisText, dezimalLesen, datumPlus, datumDe, monatePlus, STEUER, steuerVon, kleinFuer } from "./rechnen.js";
 import { ibanNormal } from "./iban.js";
 
 export const KENNUNG = "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"; // BT-24
@@ -24,31 +24,52 @@ export const zahlbarText = (datum, ziel) => ziel > 0 ? `Zahlbar ohne Abzug bis $
 export const ART_CODE = { rechnung: "380", abschlag: "326", dauer: "380", storno: "381" };
 // So beginnen die Hinweise, die das Werkzeug je Rechnungsart in die Datei schreibt (BT-22); vorlage.js erkennt sie daran wieder
 export const HINWEIS_ANFANG = { abschlag: "Abschlagsrechnung", dauer: "Dauerrechnung", storno: "Storno der Rechnung" };
-const TURNUS = { monat: { monate: 1, je: "Monat", jeder: "jeden Monat", wie: "monatlich" }, quartal: { monate: 3, je: "Quartal", jeder: "jedes Quartal", wie: "vierteljährlich" },
-  jahr: { monate: 12, je: "Jahr", jeder: "jedes Jahr", wie: "jährlich" } };
+const TURNUS = { monat: { monate: 1, je: "Monat", erste: "den ersten Monat", folgend: "jeden folgenden Monat", wie: "monatlich" },
+  quartal: { monate: 3, je: "Quartal", erste: "das erste Quartal", folgend: "jedes folgende Quartal", wie: "vierteljährlich" },
+  jahr: { monate: 12, je: "Jahr", erste: "das erste Jahr", folgend: "jedes folgende Jahr", wie: "jährlich" } };
+const tagIso = s => /^\d{4}-\d{2}-\d{2}$/.test(s || "");
 
-// Dauerrechnung: Fälligkeiten je Zeitraum ab dem Beginn der Laufzeit (BG-14), jeweils am Tag „tag“ des ersten Monats eines Zeitraums,
-// solange der Zeitraum in der Laufzeit beginnt (höchstens 600)
+// Dauerrechnung nach Abschnitt 14.1 Abs. 19 UStAE (gefasst durch das BMF-Schreiben vom 15.10.2025): eine E-Rechnung für den ersten
+// Teilleistungszeitraum, aus der klar hervorgeht, dass sie als Dauerrechnung gilt. Darum steht als Rechnungszeitraum (BG-14) nur der
+// erste Zeitraum – passend zu den Summen, die je Zeitraum gelten –, die ganze Laufzeit nur im Hinweis (BT-22) und in den Fälligkeiten
+// (BT-20). Der k-te Zeitraum beginnt am Beginn der Laufzeit plus k × Monate des Turnus (am Monatsende gekürzt).
+export function ersterZeitraum(von, bis, turnus) {
+  const t = TURNUS[turnus] || TURNUS.monat;
+  if (!tagIso(von) || !tagIso(bis) || von > bis) return { von: von || "", bis: bis || "" };
+  const ende = datumPlus(monatePlus(von, t.monate), -1);
+  return { von, bis: ende < bis ? ende : bis };
+}
+// Fälligkeiten: je Zeitraum, der in der Laufzeit beginnt, der erste Tag „tag“ ab dem Beginn des Zeitraums (höchstens 600) – nie vor
+// dem Beginn der Leistung (Laufzeit ab 15.01., Tag 1: erstmals am 01.02.)
 export function faelligkeiten(von, bis, turnus, tag) {
   const t = TURNUS[turnus] || TURNUS.monat, n = Math.min(Math.max(+tag || 1, 1), 28);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(von || "") || !/^\d{4}-\d{2}-\d{2}$/.test(bis || "") || von > bis) return [];
-  const [j, m, d] = von.split("-").map(Number), out = [];
+  if (!tagIso(von) || !tagIso(bis) || von > bis) return [];
+  const out = [];
   for (let k = 0; k < 600; k++) {
-    const beginn = new Date(Date.UTC(j, m - 1 + k * t.monate, 1));
-    const tagBeginn = new Date(Date.UTC(j, m - 1 + k * t.monate, k ? 1 : d)).toISOString().slice(0, 10);
-    if (tagBeginn > bis) break;
-    out.push(new Date(Date.UTC(beginn.getUTCFullYear(), beginn.getUTCMonth(), n)).toISOString().slice(0, 10));
+    const beginn = monatePlus(von, k * t.monate);
+    if (beginn > bis) break;
+    const [j, m, d] = beginn.split("-").map(Number);
+    // am Monatsende gekürzte Beginne (31.01. → 28.02.) dürfen keinen Termin doppelt ergeben
+    const auf = (out.length && new Date(Date.UTC(j, m - 1 + (d > n ? 1 : 0), n)).toISOString().slice(0, 10) <= out[out.length - 1]) ? 1 : 0;
+    out.push(new Date(Date.UTC(j, m - 1 + (d > n ? 1 : 0) + auf, n)).toISOString().slice(0, 10));
   }
   return out;
 }
-// Texte der Dauerrechnung: Hinweis (BT-22), damit klar ist, dass die Rechnung für jeden Zeitraum der Laufzeit gilt, und die
-// Zahlungsbedingungen mit den Fälligkeiten (BT-20)
+// Texte der Dauerrechnung: Hinweis (BT-22) mit Laufzeit und erstem Zeitraum, damit klar ist, dass die Rechnung für jeden Zeitraum der
+// Laufzeit gilt, und die Zahlungsbedingungen mit den Fälligkeiten (BT-20)
 export function dauerTexte(r, zahlbetrag) {
   const l = r.leistung || {}, d = r.dauer || {}, t = TURNUS[d.turnus] || TURNUS.monat;
-  const f = faelligkeiten(l.von, l.bis, d.turnus, d.tag);
-  const hinweis = `${HINWEIS_ANFANG.dauer}: Diese Rechnung gilt für ${t.jeder} vom ${datumDe(l.von)} bis ${datumDe(l.bis)}. Alle Beträge gelten je ${t.je}.`;
+  const f = faelligkeiten(l.von, l.bis, d.turnus, d.tag), z = ersterZeitraum(l.von, l.bis, d.turnus);
+  const hinweis = `${HINWEIS_ANFANG.dauer}: Diese Rechnung gilt als Dauerrechnung für die Laufzeit vom ${datumDe(l.von)} bis ${datumDe(l.bis)}. `
+    + `Rechnungszeitraum und Beträge gelten für ${t.erste} vom ${datumDe(z.von)} bis ${datumDe(z.bis)}`
+    + (z.bis < l.bis ? `; die Rechnung gilt ebenso für ${t.folgend} bis zum ${datumDe(l.bis)}. Alle Beträge gelten je ${t.je}.` : ".");
   const zahlung = f.length ? `Zahlbar ohne Abzug ${t.wie} jeweils am ${Math.min(Math.max(+d.tag || 1, 1), 28)}., ${f.length > 1 ? `erstmals am ${datumDe(f[0])}, letztmals am ${datumDe(f[f.length - 1])}` : `am ${datumDe(f[0])}`}, je ${geldAnzeige(zahlbetrag, "de")}.` : "";
-  return { hinweis, zahlung, erste: f[0] || "" };
+  return { hinweis, zahlung, erste: f[0] || "", zeitraum: z };
+}
+// Laufzeit aus dem Hinweis wieder lesen (vorlage.js)
+export function laufzeitAusHinweis(text) {
+  const m = /Laufzeit vom (\d{2})\.(\d{2})\.(\d{4}) bis (\d{2})\.(\d{2})\.(\d{4})/.exec(text || "");
+  return m ? { von: `${m[3]}-${m[2]}-${m[1]}`, bis: `${m[6]}-${m[5]}-${m[4]}` } : null;
 }
 
 // Text für XML: Unicode in NFC, unzulässige Steuerzeichen und einzelne Surrogate entfernen, Sonderzeichen maskieren
@@ -111,7 +132,7 @@ function kaeufer(r) {
 }
 
 // Befreiungsgrund (BT-120) je Steuerkategorie: E mit § 19 oder dem gewählten Grund; S und Z ohne (BR-S-10, BR-Z-10)
-const grundVon = (code, r, f) => code !== "E" ? "" : f.kleinunternehmer ? KLEIN.grund : (r.befreiung && r.befreiung.text) || "";
+const grundVon = (code, r, klein) => code !== "E" ? "" : klein ? KLEIN.grund : (r.befreiung && r.befreiung.text) || "";
 
 // Die ganze Rechnung als XML-Text
 export function ublSchreiben(firma, rechnung) {
@@ -126,7 +147,7 @@ export function ublSchreiben(firma, rechnung) {
   const st = r.storno || {};
   const artHinweis = art === "abschlag" ? `${HINWEIS_ANFANG.abschlag} zu ${String(r.bezug || "").trim()}. Der Betrag wird in der Schlussrechnung angerechnet.`
     : art === "storno" ? `${HINWEIS_ANFANG.storno} ${String(st.nummer || "").trim()} vom ${datumDe(st.datum)}.` : dauer ? dauer.hinweis : "";
-  const notizen = [artHinweis, f.kleinunternehmer ? KLEIN.hinweis : "", r.bemerkung];
+  const notizen = [artHinweis, s.klein ? KLEIN.hinweis : "", r.bemerkung];
   const bank = f.bank || {};
   const zweck = leer(r.zweck) ? `Rechnung ${r.nummer || ""}`.trim() : r.zweck;
   const zeilen = (r.positionen || []).map((p, i) => {
@@ -151,7 +172,8 @@ export function ublSchreiben(firma, rechnung) {
     ...notizen.map(n => e("cbc:Note", n)),
     e("cbc:DocumentCurrencyCode", "EUR"),
     e("cbc:BuyerReference", referenz),
-    l.art === "zeitraum" ? e("cac:InvoicePeriod", [e("cbc:StartDate", l.von), e("cbc:EndDate", l.bis)]) : "",
+    // Dauerrechnung: nur der erste Zeitraum (siehe ersterZeitraum)
+    l.art === "zeitraum" ? e("cac:InvoicePeriod", dauer ? [e("cbc:StartDate", dauer.zeitraum.von), e("cbc:EndDate", dauer.zeitraum.bis)] : [e("cbc:StartDate", l.von), e("cbc:EndDate", l.bis)]) : "",
     // Stornorechnung: Bezug auf die ursprüngliche Rechnung (BG-3, BR-55); Abschlag: Auftrag oder Projekt (BT-11)
     gs ? e("cac:BillingReference", [e("cac:InvoiceDocumentReference", [e("cbc:ID", st.nummer), e("cbc:IssueDate", st.datum)])]) : "",
     art === "abschlag" ? e("cac:ProjectReference", [e("cbc:ID", r.bezug)]) : "",
@@ -165,7 +187,7 @@ export function ublSchreiben(firma, rechnung) {
       : r.datum ? e("cac:PaymentTerms", [e("cbc:Note", zahlbarText(r.datum, ziel))]) : "",
     e("cac:TaxTotal", [geld("cbc:TaxAmount", s.steuer), ...s.gruppen.map(g => {
       const code = g.kategorie === "S" ? `S${g.satz}` : g.kategorie;
-      return e("cac:TaxSubtotal", [geld("cbc:TaxableAmount", g.basis), geld("cbc:TaxAmount", g.steuer), steuerKategorie("cac:TaxCategory", code, grundVon(code, r, f))]);
+      return e("cac:TaxSubtotal", [geld("cbc:TaxableAmount", g.basis), geld("cbc:TaxAmount", g.steuer), steuerKategorie("cac:TaxCategory", code, grundVon(code, r, s.klein))]);
     })]),
     e("cac:LegalMonetaryTotal", [geld("cbc:LineExtensionAmount", s.positionen), geld("cbc:TaxExclusiveAmount", s.netto), geld("cbc:TaxInclusiveAmount", s.brutto),
       geld("cbc:PayableAmount", s.zahlbetrag)]),
@@ -181,4 +203,4 @@ ${teile.map(k => k.replace(/^(?=\s*<)/gm, "  ")).join("\n")}
 
 // Dateiname aus der Rechnungsnummer: nur sichere Zeichen
 export const dateiName = nummer => `${String(nummer || "E-Rechnung").replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^[._]+/, "").slice(0, 80) || "E-Rechnung"}.xml`;
-export { STELLEN, dezimalLesen, steuerVon };
+export { STELLEN, dezimalLesen, steuerVon, kleinFuer };

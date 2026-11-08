@@ -52,7 +52,13 @@ export const geldAnzeige = (cent, lang = "de") => lang === "en" ? `€${zahlAnze
 
 // Steuer je Position: S19, S7 (Normalsatz, ermäßigt), Z (Nullsatz), E (steuerfrei, auch Kleinunternehmer)
 export const STEUER = { S19: { kategorie: "S", satz: 19n }, S7: { kategorie: "S", satz: 7n }, Z: { kategorie: "Z", satz: 0n }, E: { kategorie: "E", satz: 0n } };
-export const steuerVon = (p, firma) => (firma && firma.kleinunternehmer ? "E" : p.steuer) || "S19";
+// Kleinunternehmer gilt für die Rechnung, wie die Firmendaten es sagen; eine Stornorechnung behält aber die Steuer der ursprünglichen
+// Rechnung (storno.klein, aus der Vorlage): Wer inzwischen Kleinunternehmer ist, berichtigt trotzdem die ausgewiesene Umsatzsteuer
+export const kleinFuer = (rechnung, firma) => {
+  const st = rechnung && rechnung.art === "storno" && rechnung.storno;
+  return st && typeof st.klein === "boolean" ? st.klein : !!(firma && firma.kleinunternehmer);
+};
+export const steuerVon = (p, klein) => (klein ? "E" : p.steuer) || "S19";
 
 // Nettobetrag einer Position (BT-131) in Cent: Menge × Preis, gerundet auf Cent (PEPPOL-EN16931-R120)
 export function zeileNetto(menge, preis) {
@@ -64,9 +70,10 @@ export function zeileNetto(menge, preis) {
 // die Steuer (BT-117, je Gruppe gerundet, BR-CO-17), Steuer gesamt (BT-110, BR-CO-14), brutto (BT-112, BR-CO-15) und Zahlbetrag.
 // Ungültige Positionen zählen nicht mit (die Maske meldet sie); ohne Nachlässe und Zuschläge ist netto (BT-109) = Positionen.
 export function summen(rechnung, firma, lang = rechnung.sprache || "de") {
+  const klein = kleinFuer(rechnung, firma);
   const zeilen = (rechnung.positionen || []).map(p => {
     const menge = dezimalLesen(p.menge, lang, STELLEN.menge), preis = dezimalLesen(p.preis, lang, STELLEN.preis);
-    const code = steuerVon(p, firma);
+    const code = steuerVon(p, klein);
     return { menge, preis, code, ...STEUER[code], netto: zeileNetto(menge, preis) };
   });
   const gruppen = new Map();
@@ -81,7 +88,7 @@ export function summen(rechnung, firma, lang = rechnung.sprache || "de") {
   for (const g of liste) g.steuer = g.kategorie === "S" ? rund(g.basis * g.satz, 100n) : 0n;
   const positionen = zeilen.reduce((s, z) => s + (z.netto ?? 0n), 0n);
   const steuer = liste.reduce((s, g) => s + g.steuer, 0n);
-  return { zeilen, gruppen: liste, positionen, netto: positionen, steuer, brutto: positionen + steuer, zahlbetrag: positionen + steuer };
+  return { zeilen, gruppen: liste, positionen, netto: positionen, steuer, brutto: positionen + steuer, zahlbetrag: positionen + steuer, klein };
 }
 
 // Datum JJJJ-MM-TT: gültig (auch 29.02. nur im Schaltjahr) und plus Tage
@@ -94,5 +101,11 @@ export function datumGueltig(s) {
 export function datumPlus(s, tage) {
   const [j, m, t] = s.split("-").map(Number);
   return new Date(Date.UTC(j, m - 1, t + tage)).toISOString().slice(0, 10);
+}
+// Plus ganze Monate; fehlt der Tag im Zielmonat, gilt dessen letzter Tag (31.01. + 1 Monat = 28.02.)
+export function monatePlus(s, n) {
+  const [j, m, t] = s.split("-").map(Number);
+  const letzter = new Date(Date.UTC(j, m - 1 + n + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(j, m - 1 + n, Math.min(t, letzter))).toISOString().slice(0, 10);
 }
 export const datumDe = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? `${m[3]}.${m[2]}.${m[1]}` : s || ""; };

@@ -528,8 +528,9 @@ async function reiseMerken(geraet) {
   await pruefFertig(p);
   axe.push(...await axeErechnung(p, "Dauerrechnung"));
   const rd = await herunter(p, '[data-e="speichern"]', "dauer");
-  check(/<cbc:InvoiceTypeCode>380</.test(rd.text) && /Dauerrechnung: Diese Rechnung gilt für jeden Monat vom 01\.01\.2027 bis 31\.12\.2027/.test(rd.text) && /monatlich jeweils am 3\., erstmals am 03\.01\.2027, letztmals am 03\.12\.2027, je 95,20 €/.test(rd.text)
-    && /<cbc:DueDate>2027-01-03</.test(rd.text), `${geraet} f: Dauerrechnung gespeichert – Hinweis, Fälligkeiten, erste Fälligkeit als BT-9`);
+  check(/<cbc:InvoiceTypeCode>380</.test(rd.text) && /Dauerrechnung: Diese Rechnung gilt als Dauerrechnung für die Laufzeit vom 01\.01\.2027 bis 31\.12\.2027\. Rechnungszeitraum und Beträge gelten für den ersten Monat vom 01\.01\.2027 bis 31\.01\.2027/.test(rd.text)
+    && /<cac:InvoicePeriod>\s*<cbc:StartDate>2027-01-01<\/cbc:StartDate>\s*<cbc:EndDate>2027-01-31</.test(rd.text) && /monatlich jeweils am 3\., erstmals am 03\.01\.2027, letztmals am 03\.12\.2027, je 95,20 €/.test(rd.text)
+    && /<cbc:DueDate>2027-01-03</.test(rd.text), `${geraet} f: Dauerrechnung gespeichert – erster Monat als Rechnungszeitraum, Laufzeit im Hinweis, Fälligkeiten, erste Fälligkeit als BT-9`);
   // 4. Abschlagsrechnung
   await tippe(p, '[data-e="naechste"]');
   await p.locator("#ewe-empfaenger-name").pressSequentially("Gär"); await p.keyboard.press("ArrowDown"); await p.keyboard.press("Enter");
@@ -566,6 +567,13 @@ async function reiseMerken(geraet) {
   const zf = await zustand(p);
   check(zf.rechnung.art === "dauer" && zf.rechnung.leistung.von === "2028-01-01" && zf.rechnung.leistung.bis === "2028-12-31" && zf.rechnung.dauer.tag === "3" && zf.rechnung.positionen[0].preis === "80"
     && zf.rechnung.nummer !== rd.name.replace(/\.xml$/, ""), `${geraet} f: Folgerechnung aus der XML-Datei – nächste Laufzeit 2028, gleiche Angaben, neue Nummer ${zf.rechnung.nummer}`);
+  // Eine gemerkte Rechnung einzeln löschen (die älteste)
+  await tippe(p, '[data-e="vorlage-auf"]');
+  const nr0 = await p.locator("#ewe-vorlage [data-e=\"vorlage-weg\"]").count();
+  await tippe(p, `#ewe-vorlage [data-e="vorlage-weg"][data-q="${nr0 - 1}"]`);
+  check(nr0 === 4 && await p.locator("#ewe-vorlage [data-e=\"vorlage-weg\"]").count() === 3 && (await zustand(p)).rechnungen.length === 3 && /gelöscht/.test(await p.locator("#ewe-status").innerText())
+    && await p.evaluate(() => document.activeElement.dataset.e === "vorlage-weg"), `${geraet} f: gemerkte Rechnung einzeln gelöscht, Fokus auf der nächsten`);
+  await tippe(p, '#ewe-vorlage [data-e="vorlage-zu"]');
   // 6. Gemerkte Daten: CSV einlesen, ändern, löschen, sichern
   await tippe(p, '[data-e="stamm-auf"]');
   await dateiWahl(p, '[data-e="csv-ein"][data-art="empfaenger"]', CSVD("empfaenger-komma-1252.csv"));
@@ -603,7 +611,7 @@ async function reiseMerken(geraet) {
   await dateiWahl(p, '[data-e="alle-ein"]', sicherung.pfad);
   await p.waitForFunction(() => window.RVErechnung.erstellen.empfaenger.length === 4);
   const zi = await zustand(p);
-  check(!leer.firma.name && !leer.empfaenger.length && zi.firma.name === "Werkstatt Kupferhahn GmbH" && zi.katalog.length === 6 && zi.rechnungen.length === 4 && zi.letzte && /Übernommen/.test(await p.locator("#ewe-status").innerText()),
+  check(!leer.firma.name && !leer.empfaenger.length && zi.firma.name === "Werkstatt Kupferhahn GmbH" && zi.katalog.length === 6 && zi.rechnungen.length === 3 && zi.letzte && /Übernommen/.test(await p.locator("#ewe-status").innerText()),
     `${geraet} f: nach dem Löschen leer; „Aus Datei übernehmen“ bringt alles zurück (Gerätewechsel)`);
   const breit = await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
   check(breit, `${geraet} f: keine waagerechte Rollleiste mit offener Tafel`);

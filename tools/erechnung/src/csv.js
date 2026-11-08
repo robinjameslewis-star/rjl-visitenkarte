@@ -87,13 +87,22 @@ export function einheitLesen(s) {
   const c = EINHEIT_NAMEN.get(kopfNorm(t));
   return c ? { code: c } : { code: "C62", unbekannt: t };
 }
-// Preis: Semikolon-Dateien schreiben Zahlen deutsch (1.234,56), Komma-Dateien englisch (1,234.56); € und EUR werden entfernt
+// Preis: € und EUR werden entfernt; die Schreibweise (1.234,56 oder 1,234.56) gilt für die ganze Datei (preisSprache)
+const preisRoh = s => String(s ?? "").replace(/€|eur/gi, "").replace(/[\s  ']/g, "");
 export function preisLesen(s, lang) {
-  const t = String(s ?? "").replace(/€|eur/gi, "").trim();
+  const t = preisRoh(s);
   if (!t) return "";
   const p = dezimalLesen(t, lang, STELLEN.preis);
   return p == null ? null : preisText(p);
 }
+// Schreibweise der Preise einer Datei: Kommt in der Spalte ein Komma vor und kein Punkt, gilt deutsch; nur Punkte, englisch (viele
+// Warenwirtschaften schreiben Semikolon mit Punkt: 19.990); beides oder keins: wie das Trennzeichen (Semikolon deutsch, Komma englisch)
+export function preisSprache(werte, vorgabe) {
+  const w = werte.map(preisRoh).filter(Boolean), komma = w.some(x => x.includes(",")), punkt = w.some(x => x.includes("."));
+  return komma && !punkt ? "de" : punkt && !komma ? "en" : vorgabe;
+}
+// Mehrdeutig: genau drei Ziffern nach einem einzelnen Trenner („19.990“ – 19,99 oder 19.990?); die Vorschau zeigt, wie gelesen
+export const preisMehrdeutig = s => /^\d{1,3}[.,]\d{3}$/.test(preisRoh(s));
 export function steuerLesen(s, vorgabe = "S19") {
   const t = String(s ?? "").trim().toLowerCase().replace(/\s|%/g, "");
   if (!t) return vorgabe;
@@ -107,10 +116,16 @@ export function steuerLesen(s, vorgabe = "S19") {
 const JA = new Set(["ja", "j", "yes", "y", "x", "1", "true", "wahr"]);
 const LAENDER = new Map([["deutschland", "DE"], ["germany", "DE"], ["osterreich", "AT"], ["oesterreich", "AT"], ["austria", "AT"], ["schweiz", "CH"], ["switzerland", "CH"],
   ["niederlande", "NL"], ["netherlands", "NL"], ["belgien", "BE"], ["belgium", "BE"], ["luxemburg", "LU"], ["luxembourg", "LU"], ["frankreich", "FR"], ["france", "FR"]]);
+// Ländercodes nach ISO 3166-1 alpha-2 (wie BR-CL-14); ein anderer Code gilt als nicht erkannt
+export const ISO_LAENDER = new Set(("AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM "
+  + "CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL "
+  + "IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ "
+  + "NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD "
+  + "TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW").split(" "));
 export function landLesen(s) {
   const t = String(s ?? "").trim();
   if (!t) return "DE";
-  if (/^[A-Za-z]{2}$/.test(t)) return t.toUpperCase();
+  if (/^[A-Za-z]{2}$/.test(t)) return ISO_LAENDER.has(t.toUpperCase()) ? t.toUpperCase() : null;
   return LAENDER.get(kopfNorm(t)) || null;
 }
 
@@ -131,6 +146,7 @@ export function csvLesen(bytes, art, vorhandene = [], vorgabeSteuer = "S19") {
   const schluessel = art === "empfaenger" ? empfaengerSchluessel : katalogSchluessel;
   // Schon vorhanden: gleicher Schlüssel; im Katalog auch gleiche Bezeichnung bei einem Eintrag ohne Artikelnummer
   const alt = new Set(vorhandene.map(schluessel)), inDatei = new Set();
+  const pi = zuordnung.indexOf("preis"), plang = pi < 0 ? lang : preisSprache(zeilen.slice(1).map(z => z[pi] ?? ""), lang);
   const altNamen = new Set(art === "katalog" ? vorhandene.filter(x => !String(x.artikelnr || "").trim()).map(x => katalogSchluessel({ name: x.name })) : []);
   for (const z of zeilen.slice(1)) {
     const roh = {};
@@ -142,8 +158,9 @@ export function csvLesen(bytes, art, vorhandene = [], vorgabeSteuer = "S19") {
       if (land == null) grund = "land";
       eintrag = empfaengerBereinigen({ ...roh, land: land || "DE", behoerde: JA.has(String(roh.behoerde || "").trim().toLowerCase()) });
     } else {
-      const einheit = einheitLesen(roh.einheit), preis = preisLesen(roh.preis, lang), steuer = steuerLesen(roh.steuer, vorgabeSteuer);
+      const einheit = einheitLesen(roh.einheit), preis = preisLesen(roh.preis, plang), steuer = steuerLesen(roh.steuer, vorgabeSteuer);
       if (einheit.unbekannt) hinweise.push({ art: "einheit", wert: einheit.unbekannt });
+      if (preis && preisMehrdeutig(roh.preis)) hinweise.push({ art: "preis", wert: String(roh.preis).trim() });
       if (preis == null) grund = "preis"; else if (steuer == null) grund = "steuer";
       eintrag = katalogBereinigen({ ...roh, einheit: einheit.code, preis: preis || "", steuer: steuer || vorgabeSteuer });
     }

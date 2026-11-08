@@ -35,15 +35,17 @@ export function katalogBereinigen(roh) {
 }
 // Eine gemerkte Rechnung: die Angaben der Maske ohne Firmendaten (für Folge- und Stornorechnung)
 const datum = s => datumGueltig(s) ? s : "";
+const jaNein = x => typeof x === "boolean" ? x : null; // null: unbekannt
 export function rechnungBereinigen(roh) {
   const r = roh && typeof roh === "object" ? roh : {}, l = r.leistung || {}, b = r.befreiung || {}, st = r.storno || {}, d = r.dauer || {};
-  return { sprache: r.sprache === "en" ? "en" : "de", art: ARTEN.includes(r.art) ? r.art : "rechnung", nummer: text(r.nummer), datum: datum(r.datum),
+  // klein: Die Rechnung war eine Rechnung als Kleinunternehmer (für die Steuer einer späteren Stornorechnung)
+  return { sprache: r.sprache === "en" ? "en" : "de", art: ARTEN.includes(r.art) ? r.art : "rechnung", nummer: text(r.nummer), datum: datum(r.datum), klein: jaNein(r.klein),
     leistung: { art: l.art === "zeitraum" ? "zeitraum" : "datum", datum: datum(l.datum), von: datum(l.von), bis: datum(l.bis) },
     empfaenger: empfaengerBereinigen(r.empfaenger),
     positionen: (Array.isArray(r.positionen) ? r.positionen : []).slice(0, 500).map(p => ({ name: text(p && p.name, 400), beschreibung: text(p && p.beschreibung, 1000), menge: text(p && p.menge, 30),
       einheit: EINHEITEN_ERSTELLEN.includes(p && p.einheit) ? p.einheit : "C62", preis: text(p && p.preis, 30), steuer: STEUERN.includes(p && p.steuer) ? p.steuer : "S19", artikelnr: text(p && p.artikelnr, 60) })),
     befreiung: { wahl: text(b.wahl, 20), text: text(b.text, 400) }, nullsatz: r.nullsatz === true, zielTage: text(r.zielTage, 3), zweck: text(r.zweck, 140), bemerkung: text(r.bemerkung, 2000),
-    bezug: text(r.bezug), storno: { nummer: text(st.nummer), datum: datum(st.datum) }, dauer: { turnus: TURNUS.includes(d.turnus) ? d.turnus : "monat", tag: /^\d{1,2}$/.test(text(d.tag)) ? text(d.tag) : "1" } };
+    bezug: text(r.bezug), storno: { nummer: text(st.nummer), datum: datum(st.datum), klein: jaNein(st.klein) }, dauer: { turnus: TURNUS.includes(d.turnus) ? d.turnus : "monat", tag: /^\d{1,2}$/.test(text(d.tag)) ? text(d.tag) : "1" } };
 }
 
 // Gleiche Einträge erkennen: Empfänger an Name und PLZ, Katalog an der Artikelnummer, sonst an der Bezeichnung
@@ -51,10 +53,18 @@ export const empfaengerSchluessel = e => `${falten(e.name)}|${falten(e.plz)}`;
 export const katalogSchluessel = k => String(k.artikelnr || "").trim() ? `#${falten(k.artikelnr)}` : falten(k.name);
 
 // ---------- Speicher mit Rückfall auf den Arbeitsspeicher ----------
+// Was in diesem Fenster geschrieben wurde, gilt zuerst: Scheitert das Schreiben (Speicher voll oder gesperrt), liest das Werkzeug
+// weiter den neuen Stand aus dem Arbeitsspeicher und nicht den alten aus dem Browser. schreibFehler() meldet einen Fehlschlag einmal.
 const fluechtig = new Map();
-function lesen(k) { try { const s = localStorage.getItem(k); if (s != null) return JSON.parse(s); } catch { /* gesperrt oder kaputt */ } return fluechtig.has(k) ? fluechtig.get(k) : null; }
-function schreiben(k, wert) { fluechtig.set(k, wert); try { localStorage.setItem(k, JSON.stringify(wert)); return true; } catch { return false; } }
-function weg(k) { fluechtig.delete(k); try { localStorage.removeItem(k); return true; } catch { return false; } }
+let fehlgeschlagen = false;
+function lesen(k) {
+  if (fluechtig.has(k)) return fluechtig.get(k);
+  try { const s = localStorage.getItem(k); if (s != null) return JSON.parse(s); } catch { /* gesperrt oder kaputt */ }
+  return null;
+}
+function schreiben(k, wert) { fluechtig.set(k, wert); try { localStorage.setItem(k, JSON.stringify(wert)); return true; } catch { fehlgeschlagen = true; return false; } }
+function weg(k) { fluechtig.set(k, null); try { localStorage.removeItem(k); return true; } catch { return false; } }
+export function schreibFehler() { const x = fehlgeschlagen; fehlgeschlagen = false; return x; }
 
 const betragBereinigen = b => /^\d{1,13}$/.test(String(b ?? "")) ? String(b) : "";
 const LESER = { empfaenger: empfaengerBereinigen, katalog: katalogBereinigen, rechnungen: r => ({ ...rechnungBereinigen(r), betrag: betragBereinigen(r && r.betrag) }) };

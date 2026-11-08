@@ -8,9 +8,9 @@
 import { ZUSATZ, Q, STAND_ERSTELLEN } from "./recht.js";
 import { EINHEITEN, EINHEITEN_ERSTELLEN, BEFREIUNGEN } from "./texte.js";
 import { dateiLesen } from "./lesen.js";
-import { ublSchreiben, dateiName, KLEIN, faelligkeiten } from "./erzeugen.js";
-import { summen, geldAnzeige, datumGueltig, datumPlus } from "./rechnen.js";
-import { ARTEN, TURNUS, listeLesen, listeSichern, rechnungenLesen, empfaengerMerken, katalogMerken, rechnungMerken, vorschlaege, empfaengerBereinigen, katalogBereinigen,
+import { ublSchreiben, dateiName, KLEIN, faelligkeiten, ersterZeitraum } from "./erzeugen.js";
+import { summen, geldAnzeige, datumGueltig, datumPlus, kleinFuer } from "./rechnen.js";
+import { ARTEN, TURNUS, GRENZEN, listeLesen, listeSichern, schreibFehler, rechnungenLesen, empfaengerMerken, katalogMerken, rechnungMerken, vorschlaege, empfaengerBereinigen, katalogBereinigen,
   empfaengerSchluessel, katalogSchluessel, preisFest, preisFuer, alleExport, alleImport, stammLoeschen, falten } from "./stamm.js";
 import { csvLesen, csvSchreiben } from "./csv.js";
 import { rechnungAusDaten, folgeRechnung, stornoRechnung, spracheWechseln } from "./vorlage.js";
@@ -105,7 +105,9 @@ ${abschnitt("03", "ewe-h3", E.schrittE3, `<div id="ewe-s3"></div>`)}
 <input type="file" id="ewe-alle-eingabe" accept=".json,application/json" hidden>
 </div>`;
   const $ = id => document.getElementById(id);
-  const status = (html) => { $("ewe-status").innerHTML = html; };
+  // Scheiterte seit der letzten Meldung ein Schreiben in den Speicher des Browsers (voll), steht das deutlich mit in der Meldung
+  const vollText = () => schreibFehler() && z.speicherDa ? `<strong class="ewe-warn">${esc(E.speicherVoll)}</strong>` : "";
+  const status = (html) => { const v = vollText(); $("ewe-status").innerHTML = [html, v].filter(Boolean).join(" "); };
 
   // ---------- Ihre Firmendaten ----------
   function firmaZeichnen() {
@@ -183,7 +185,7 @@ ${leistung}
   const steuerOptionen = () => ["S19", "S7", "Z", "E"].map(c => [c, E.steuer[c]]);
   const einheiten = EINHEITEN_ERSTELLEN.map(c => [c, EINHEITEN[c][L]]);
   function schritt2Zeichnen() {
-    const r = z.rechnung, f = z.firma, ku = f.kleinunternehmer;
+    const r = z.rechnung, f = z.firma, ku = kleinFuer(r, f);
     const zeile = (p, i) => `<li class="ewe-zeile" data-i="${i}">
 <p class="ewe-zeile-kopf"><span class="ewe-zeile-nr">${esc(ersetze(E.posNr, { n: i + 1 }))}</span><span class="ewe-zeile-knoepfe">${z.probe ? "" : knopf("pos-katalog", E.inKatalog, "ewe-link", ` data-i="${i}" aria-label="${esc(ersetze(E.inKatalogName, { n: i + 1 }))}"`)}${knopf("pos-weg", E.posEntfernen, "ewe-link", ` data-i="${i}" aria-label="${esc(ersetze(E.posEntfernenName, { n: i + 1 }))}"`)}</span></p>
 <div class="ewe-zeile-felder">
@@ -264,14 +266,16 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
   function summenZeigen() {
     const s = summen(z.rechnung, z.firma, lang);
     s.zeilen.forEach((x, i) => { const o = $(`ewe-pos-${i}-netto`); if (o) o.textContent = x.netto == null ? "–" : geldAnzeige(x.netto, lang); });
-    const zeilen = [[E.summeNetto, s.netto], ...s.gruppen.map(g => [g.kategorie === "S" ? ersetze(E.ustSatz, { satz: String(g.satz) }) : `${E.steuer[z.firma.kleinunternehmer ? "K" : g.kategorie]} (${geldAnzeige(g.basis, lang)})`, g.steuer])];
+    const zeilen = [[E.summeNetto, s.netto], ...s.gruppen.map(g => [g.kategorie === "S" ? ersetze(E.ustSatz, { satz: String(g.satz) }) : `${E.steuer[s.klein ? "K" : g.kategorie]} (${geldAnzeige(g.basis, lang)})`, g.steuer])];
     const tab = $("ewe-summen");
     if (tab) tab.innerHTML = `<table class="ewe-summen-tab"><tbody>${zeilen.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td class="ewz-z">${geldAnzeige(v, lang)}</td></tr>`).join("")}
 <tr class="ewe-stark"><th scope="row">${esc(E.zuZahlen)}</th><td class="ewz-z">${geldAnzeige(s.zahlbetrag, lang)}</td></tr></tbody></table>`;
     const r = z.rechnung, ziel = /^\d{1,3}$/.test(String(r.zielTage).trim()) ? +r.zielTage : null;
     const dauer = r.art === "dauer" ? faelligkeiten(r.leistung.von, r.leistung.bis, r.dauer.turnus, r.dauer.tag) : null;
+    const ez = dauer && dauer.length ? ersterZeitraum(r.leistung.von, r.leistung.bis, r.dauer.turnus) : null;
     const dauerText = !dauer || !dauer.length ? "" : ersetze(dauer.length > 1 ? E.dauerFaellig : E.dauerFaellig1,
-      { anzahl: String(dauer.length), betrag: geldAnzeige(s.zahlbetrag, lang), erste: datumAnzeige(dauer[0]), letzte: datumAnzeige(dauer[dauer.length - 1]) });
+      { anzahl: String(dauer.length), betrag: geldAnzeige(s.zahlbetrag, lang), erste: datumAnzeige(dauer[0]), letzte: datumAnzeige(dauer[dauer.length - 1]) })
+      + " " + ersetze(E.dauerErster, { von: datumAnzeige(ez.von), bis: datumAnzeige(ez.bis) });
     const faellig = r.art === "storno" ? "" : dauer ? dauer[0] || "" : datumGueltig(r.datum) && ziel != null ? datumPlus(r.datum, ziel) : "";
     const zt = $("ewe-ziel-text");
     if (zt) zt.textContent = r.art === "storno" ? "" : dauer ? dauerText : faellig ? (ziel ? ersetze(E.zahlbarBis, { datum: datumAnzeige(faellig) }) : E.zahlbarSofort) : "";
@@ -393,7 +397,9 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
     // Empfänger und Rechnung im Gerät merken (für Vorschläge, Folge- und Stornorechnung); im Beispiel nie
     if (!z.probe) {
       z.empfaenger = empfaengerMerken(z.rechnung.empfaenger);
-      z.rechnungen = rechnungMerken({ ...z.rechnung, nummer }, summen(z.rechnung, z.firma, lang).zahlbetrag);
+      z.rechnungen = rechnungMerken({ ...z.rechnung, nummer, klein: kleinFuer(z.rechnung, z.firma) }, summen(z.rechnung, z.firma, lang).zahlbetrag);
+      const voll = vollText();
+      if (voll) $("ewe-status").innerHTML = voll;
     }
     z.gespeichert = { datei, xml: r.xml, e: r.e };
     nummerHinweis();
@@ -476,11 +482,18 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
     status(esc(E.wiederda));
     $(domId("firma.name")).focus();
   }
+  // Nummer aus einer Datei nur übernehmen, wenn sie später ist als die gemerkte: Eine ältere Sicherung setzt den Zähler nicht zurück
+  // (sonst schlüge das Werkzeug schon vergebene Nummern vor, § 14 Abs. 4 Satz 1 Nr. 4 UStG)
+  function nummerUebernehmen(n) {
+    if (!n || !n.letzte || !nummerSpaeter(n.letzte, z.letzte && z.letzte.letzte)) return false;
+    z.letzte = { v: 1, ...n }; nummerMerken(n.letzte, n.datum);
+    return true;
+  }
   async function firmaAusDatei(datei) {
     const d = firmaImport(await datei.text().catch(() => ""));
     if (!d) { status(esc(E.importFehler)); return; }
     z.firma = d.firma; firmaSichern(z.firma);
-    if (d.nummer && d.nummer.letzte) { z.letzte = { v: 1, ...d.nummer }; nummerMerken(d.nummer.letzte, d.nummer.datum); z.rechnung.nummer = naechsteNummer(d.nummer.letzte, heute()); }
+    if (nummerUebernehmen(d.nummer)) z.rechnung.nummer = naechsteNummer(d.nummer.letzte, heute());
     FIRMA_FELDER.forEach(f => z.beruehrt.add(f));
     allesZeichnen();
     status(esc(E.importOk));
@@ -532,7 +545,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
     } else {
       const i = +el.dataset.feld.split(".")[1], p = z.rechnung.positionen[i];
       Object.assign(p, { name: x.name, beschreibung: x.beschreibung, einheit: x.einheit, preis: preisFuer(x.preis, lang), artikelnr: x.artikelnr });
-      if (!z.firma.kleinunternehmer) p.steuer = x.steuer;
+      if (!kleinFuer(z.rechnung, z.firma)) p.steuer = x.steuer;
       schritt2Zeichnen(); aktualisieren();
       status(esc(ersetze(E.posUebernommen, { name: x.name })));
       const m = $(domId(`pos.${i}.menge`)); m.focus(); m.select();
@@ -551,11 +564,13 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
     const box = $("ewe-vorlage"), auf = wurzel.querySelector('[data-e="vorlage-auf"]');
     box.hidden = !z.vorlageOffen; auf.setAttribute("aria-expanded", String(z.vorlageOffen));
     if (!z.vorlageOffen) { box.innerHTML = ""; return; }
+    const gesperrt = q => q === "datei" && !!z.vorlageDatei.abweichung;
     const zeile = (r, q) => `<li class="ewe-liste-zeile"><span class="ewe-liste-text"><strong>${esc(r.nummer)}</strong> · ${esc(datumAnzeige(r.datum))}${r.empfaenger.name ? ` · ${esc(r.empfaenger.name)}` : ""}${r.betrag ? ` · <span class="ewz-z">${esc(geldAnzeige(BigInt(r.betrag), lang))}</span>` : ""}${r.art !== "rechnung" ? ` · ${esc(E.art.namen[r.art])}` : ""}</span>
-<span class="ewe-liste-knoepfe">${knopf("folge", E.folge, "ewe-link", ` data-q="${q}" aria-label="${esc(ersetze(E.folgeName, { nummer: r.nummer }))}"`)}${r.art !== "storno" ? knopf("storno", E.stornieren, "ewe-link", ` data-q="${q}" aria-label="${esc(ersetze(E.stornierenName, { nummer: r.nummer }))}"`) : ""}</span></li>`;
+<span class="ewe-liste-knoepfe">${knopf("folge", E.folge, "ewe-link", ` data-q="${q}" aria-label="${esc(ersetze(E.folgeName, { nummer: r.nummer }))}"`)}${r.art !== "storno" && !gesperrt(q) ? knopf("storno", E.stornieren, "ewe-link", ` data-q="${q}" aria-label="${esc(ersetze(E.stornierenName, { nummer: r.nummer }))}"`) : ""}${q !== "datei" ? knopf("vorlage-weg", E.loeschen, "ewe-link", ` data-q="${q}" aria-label="${esc(ersetze(E.vorlageWegName, { nummer: r.nummer }))}"`) : ""}</span></li>`;
     box.innerHTML = `<section class="ewe-tafel" aria-labelledby="ewe-hvl"><h2 id="ewe-hvl" tabindex="-1">${esc(E.vorlageT)}</h2>
-${z.rechnungen.length ? `<p class="ewz-klein">${esc(E.vorlageLokal)}</p><ul class="ewe-liste">${z.rechnungen.slice(0, 10).map((r, i) => zeile(r, i)).join("")}</ul>` : `<p class="ewz-klein">${esc(E.vorlageLeer)}</p>`}
-${z.vorlageDatei ? `<p class="ewz-klein">${esc(ersetze(E.vorlageAusDatei, { datei: z.vorlageDatei.datei }))}</p><ul class="ewe-liste">${zeile(z.vorlageDatei.rechnung, "datei")}</ul>` : ""}
+${z.rechnungen.length ? `<p class="ewz-klein">${esc(E.vorlageLokal)}</p><ul class="ewe-liste">${z.rechnungen.map((r, i) => zeile(r, i)).join("")}</ul>` : `<p class="ewz-klein">${esc(E.vorlageLeer)}</p>`}
+${z.vorlageDatei ? `<p class="ewz-klein">${esc(ersetze(E.vorlageAusDatei, { datei: z.vorlageDatei.datei }))}</p><ul class="ewe-liste">${zeile(z.vorlageDatei.rechnung, "datei")}</ul>
+${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.vorlageAbweichung, { original: geldAnzeige(z.vorlageDatei.abweichung.original, lang), hier: geldAnzeige(z.vorlageDatei.abweichung.hier, lang) }))}</p>` : ""}` : ""}
 <div class="ewe-knoepfe">${knopf("vorlage-datei", E.vorlageDatei)}${knopf("vorlage-zu", E.schliessen)}</div></section>`;
   }
   async function vorlageAusDatei(datei) {
@@ -568,17 +583,22 @@ ${z.vorlageDatei ? `<p class="ewz-klein">${esc(ersetze(E.vorlageAusDatei, { date
     wurzel.querySelector('#ewe-vorlage [data-q="datei"]').focus();
   }
   function vorlageNehmen(q, wie) {
-    const quelle = q === "datei" ? z.vorlageDatei : { rechnung: z.rechnungen[+q], hinweise: [] };
-    if (!quelle || !quelle.rechnung) return;
+    const quelle = q === "datei" ? z.vorlageDatei : { rechnung: z.rechnungen[+q], hinweise: [], abweichung: null };
+    if (!quelle || !quelle.rechnung || (wie === "storno" && quelle.abweichung)) return;
     const alt = spracheWechseln(quelle.rechnung, lang), letzte = z.letzte && z.letzte.letzte;
     const r = (wie === "storno" ? stornoRechnung : folgeRechnung)(alt, letzte, heute());
     if (!String(r.zielTage).trim()) r.zielTage = String(z.firma.vorgaben.zielTage);
-    if (z.firma.kleinunternehmer) r.positionen.forEach(p => { p.steuer = "E"; });
+    // Folgerechnung: Steuer nach den Firmendaten von heute; Stornorechnung: Steuer der ursprünglichen Rechnung (kleinFuer)
+    if (wie !== "storno" && z.firma.kleinunternehmer) r.positionen.forEach(p => { p.steuer = "E"; });
+    else if (wie !== "storno" && alt.klein === true) r.positionen.forEach(p => { if (p.steuer === "E") p.steuer = z.firma.vorgaben.satz || "S19"; });
     if (!r.positionen.length) r.positionen = [neuePosition(z.firma)];
     z.rechnung = r; z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.vorlageOffen = false; z.artOffen = r.art !== "rechnung";
     allesZeichnen();
-    const h = quelle.hinweise.map(x => ersetze(x.art === "steuer" ? E.vorlageSteuer : E.vorlageEinheit, { wert: x.wert, name: x.name }));
-    status(esc(ersetze(wie === "storno" ? E.stornoOk : E.folgeOk, { nummer: alt.nummer }) + (h.length ? " " + ersetze(E.vorlageHinweise, { liste: h.join("; ") }) : "")));
+    const HT = { steuer: E.vorlageSteuer, einheit: E.vorlageEinheit, zuschlag: E.vorlageZuschlag, basis: E.vorlageBasis };
+    const h = [...new Set(quelle.hinweise.map(x => ersetze(x.art === "zuschlag" && !x.name ? E.vorlageZuschlagR : HT[x.art] || "", { wert: x.wert, name: x.name })))];
+    const kleinWechsel = wie === "storno" && r.storno.klein !== !!z.firma.kleinunternehmer ? " " + (r.storno.klein ? E.stornoKleinAlt : E.stornoSteuerAlt) : "";
+    const ab = quelle.abweichung ? " " + ersetze(E.vorlageAbweichung, { original: geldAnzeige(quelle.abweichung.original, lang), hier: geldAnzeige(quelle.abweichung.hier, lang) }) : "";
+    status(esc(ersetze(wie === "storno" ? E.stornoOk : E.folgeOk, { nummer: alt.nummer }) + kleinWechsel + (h.length ? " " + ersetze(E.vorlageHinweise, { liste: h.join("; ") }) : "") + ab));
     $(domId(wie === "storno" ? "storno.nummer" : "nummer")).focus();
   }
 
@@ -618,15 +638,17 @@ ${z.vorlageDatei ? `<p class="ewz-klein">${esc(ersetze(E.vorlageAusDatei, { date
     if (!r.ok) return `<div class="ewe-csv" id="ewe-csv-${art}"><p class="ewe-hinweis" tabindex="-1" id="ewe-csv-kopf-${art}">${esc(r.fehler === "leer" ? E.csvLeer : ersetze(E.csvKeinName, { beispiel: E.csvBeispiel[art] }))}</p>
 <div class="ewe-knoepfe">${knopf("csv-abbrechen", E.abbrechen, "ewz-zweit", ` data-art="${art}"`)}</div></div>`;
     const name = f => E.felder[`${art === "empfaenger" ? "e" : "k"}.${f}`];
-    const neu = r.ergebnis.filter(x => x.status === "neu").length;
+    const neuAlle = r.ergebnis.filter(x => x.status === "neu").length, platz = Math.max(0, GRENZEN[art] - stammListe(art).length), neu = Math.min(neuAlle, platz);
+    const HW = { einheit: E.csvEinheit, preis: E.csvPreisPruefen };
     const zeile = x => `<tr><td class="ewz-z">${x.zeile}</td><td>${esc(x.eintrag.name || "–")}</td><td>${esc(art === "empfaenger" ? [x.eintrag.plz, x.eintrag.ort].filter(Boolean).join(" ") : [x.eintrag.preis !== "" ? `${preisFuer(x.eintrag.preis, lang)} €` : "", steuerName(x.eintrag.steuer)].filter(Boolean).join(" · "))}</td>
-<td class="ewe-csv-${x.status}">${esc(E.csvStatus[x.status])}${x.grund ? ` (${esc(E.csvGrund[x.grund])})` : ""}${x.hinweise.map(h => ` · ${esc(ersetze(E.csvEinheit, { wert: h.wert }))}`).join("")}</td></tr>`;
+<td class="ewe-csv-${x.status}">${esc(E.csvStatus[x.status])}${x.grund ? ` (${esc(E.csvGrund[x.grund])})` : ""}${x.hinweise.map(h => ` · ${esc(ersetze(HW[h.art] || "", { wert: h.wert, preis: h.art === "preis" ? `${preisFuer(x.eintrag.preis, lang)} €` : "" }))}`).join("")}</td></tr>`;
     return `<div class="ewe-csv" id="ewe-csv-${art}"><h4 tabindex="-1" id="ewe-csv-kopf-${art}">${esc(ersetze(E.csvT, { datei: c.datei }))}</h4>
 <p class="ewz-klein">${esc(ersetze(E.csvInfo, { zs: r.zeichensatz, sep: E.csvSep[r.trennzeichen], n: String(r.zeilen) }))}</p>
 <p class="ewz-klein">${esc(E.csvSpalten)}: ${r.spalten.map(s => `${esc(s.kopf || "–")} → ${s.feld ? esc(name(s.feld)) : `<em>${esc(E.csvUngenutzt)}</em>`}`).join("; ")}</p>
 <p><strong>${esc(ersetze(E.csvZaehler, Object.fromEntries(Object.entries(r.zaehler).map(([k, v]) => [k, String(v)]))))}</strong></p>
 <div class="ewe-csv-tab"><table><thead><tr><th scope="col">${esc(E.csvZeile)}</th><th scope="col">${esc(name("name"))}</th><th scope="col">${esc(art === "empfaenger" ? name("ort") : name("preis"))}</th><th scope="col">Status</th></tr></thead>
 <tbody>${r.ergebnis.slice(0, 20).map(zeile).join("")}</tbody></table></div>${r.ergebnis.length > 20 ? `<p class="ewz-klein">${esc(ersetze(E.csvWeitere, { n: String(r.ergebnis.length - 20) }))}</p>` : ""}
+${neuAlle > neu ? `<p class="ewe-hinweis">${esc(ersetze(E.csvGrenze, { grenze: String(GRENZEN[art]), platz: String(neu), rest: String(neuAlle - neu) }))}</p>` : ""}
 <div class="ewe-knoepfe">${neu ? knopf("csv-ok", ersetze(E.csvUebernehmen, { n: String(neu) }), "ewz-haupt", ` data-art="${art}"`) : `<p class="ewz-klein">${esc(E.csvNichts)}</p>`}${knopf("csv-abbrechen", E.abbrechen, "ewz-zweit", ` data-art="${art}"`)}</div></div>`;
   }
   function stammZeichnen() {
@@ -672,7 +694,8 @@ ${teil("empfaenger")}${teil("katalog")}
   }
   function csvUebernehmen(art) {
     if (!z.csv || z.csv.art !== art) return;
-    const neu = z.csv.ergebnis.ergebnis.filter(x => x.status === "neu").map(x => x.eintrag);
+    const platz = Math.max(0, GRENZEN[art] - stammListe(art).length);
+    const neu = z.csv.ergebnis.ergebnis.filter(x => x.status === "neu").map(x => x.eintrag).slice(0, platz);
     stammSetzen(art, [...stammListe(art), ...neu]);
     z.csv = null;
     stammZeichnen();
@@ -682,7 +705,7 @@ ${teil("empfaenger")}${teil("katalog")}
   const alleJetzt = () => ({ firma: z.probe ? z.sicherung.firma : z.firma, nummer: z.probe ? null : z.letzte, empfaenger: z.empfaenger, katalog: z.katalog, rechnungen: z.rechnungen });
   function alleAnwenden(d) {
     if (d.firma && String(d.firma.name).trim()) { z.firma = d.firma; firmaSichern(z.firma); }
-    if (d.nummer && d.nummer.letzte) { z.letzte = { v: 1, ...d.nummer }; nummerMerken(d.nummer.letzte, d.nummer.datum); }
+    nummerUebernehmen(d.nummer);
     for (const art of ["empfaenger", "katalog"]) if (d[art]) stammSetzen(art, d[art]);
     if (d.rechnungen) { z.rechnungen = d.rechnungen; listeSichern("rechnungen", d.rechnungen); }
     z.rechnung.nummer = naechsteNummer(z.letzte && z.letzte.letzte, heute());
@@ -738,7 +761,7 @@ ${teil("empfaenger")}${teil("katalog")}
     }
     if (f === "befreiung.wahl") { const b = BEFREIUNGEN.find(x => x.id === el.value); z.rechnung.befreiung.text = b ? b.text : ""; }
     if (f.startsWith("firma.")) firmaSpaeterSichern();
-    if (f === "firma.kleinunternehmer") z.rechnung.positionen.forEach(p => { if (z.firma.kleinunternehmer) p.steuer = "E"; else if (p.steuer === "E") p.steuer = z.firma.vorgaben.satz || "S19"; });
+    if (f === "firma.kleinunternehmer" && !(z.rechnung.art === "storno" && typeof z.rechnung.storno.klein === "boolean")) z.rechnung.positionen.forEach(p => { if (z.firma.kleinunternehmer) p.steuer = "E"; else if (p.steuer === "E") p.steuer = z.firma.vorgaben.satz || "S19"; });
     if (ganzNeu.has(f) || /^pos\.\d+\.steuer$/.test(f)) {
       const id = document.activeElement && document.activeElement.id, wahl = el.type === "radio" ? el.value : null;
       if (f.startsWith("firma.")) firmaZeichnen();
@@ -793,6 +816,16 @@ ${teil("empfaenger")}${teil("katalog")}
       case "vorlage-zu": z.vorlageOffen = false; vorlageZeichnen(); wurzel.querySelector('[data-e="vorlage-auf"]').focus(); break;
       case "vorlage-datei": $("ewe-vorlage-eingabe").click(); break;
       case "folge": vorlageNehmen(b.dataset.q, "folge"); break;
+      case "vorlage-weg": {
+        const i = +b.dataset.q, liste = [...z.rechnungen], [x] = liste.splice(i, 1);
+        if (!x) break;
+        z.rechnungen = liste; listeSichern("rechnungen", liste);
+        vorlageZeichnen();
+        status(esc(ersetze(E.vorlageWeg, { nummer: x.nummer })));
+        const weiter = wurzel.querySelector(`#ewe-vorlage [data-e="vorlage-weg"][data-q="${Math.min(i, liste.length - 1)}"]`) || $("ewe-hvl");
+        weiter.focus();
+        break;
+      }
       case "storno": vorlageNehmen(b.dataset.q, "storno"); break;
       case "stamm-auf": z.stammOffen = !z.stammOffen; z.bearbeiten = null; z.csv = null; stammZeichnen(); if (z.stammOffen) $("ewe-hst").focus(); break;
       case "stamm-zu": z.stammOffen = false; stammZeichnen(); wurzel.querySelector('[data-e="stamm-auf"]').focus(); break;

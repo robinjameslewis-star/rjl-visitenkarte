@@ -15,9 +15,9 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { WZ, server, chrome, check, ergebnis } from "./erechnung/hilfen.mjs";
-import { dezimalLesen, zeileNetto, summen, betragText, mengeText, preisText, rund, GRENZE } from "../tools/erechnung/src/rechnen.js";
-import { ublSchreiben, xmlText, KENNUNG, PROZESS, dateiName, OHNE_REFERENZ, ART_CODE, faelligkeiten, dauerTexte, STORNO_ZAHLUNG } from "../tools/erechnung/src/erzeugen.js";
-import { folgeRechnung, stornoRechnung, naechsterZeitraum, spracheWechseln } from "../tools/erechnung/src/vorlage.js";
+import { dezimalLesen, zeileNetto, summen, betragText, mengeText, preisText, rund, GRENZE, kleinFuer, monatePlus } from "../tools/erechnung/src/rechnen.js";
+import { ublSchreiben, xmlText, KENNUNG, PROZESS, dateiName, OHNE_REFERENZ, ART_CODE, faelligkeiten, dauerTexte, ersterZeitraum, laufzeitAusHinweis, STORNO_ZAHLUNG, KLEIN } from "../tools/erechnung/src/erzeugen.js";
+import { folgeRechnung, stornoRechnung, naechsterZeitraum, spracheWechseln, rechnungAusDaten } from "../tools/erechnung/src/vorlage.js";
 import { csvLesen, csvSchreiben, dekodieren, trennzeichen, zerlegen, einheitLesen, steuerLesen, preisLesen } from "../tools/erechnung/src/csv.js";
 import { maskePruefen, naechsteNummer, nummerSpaeter, speichernErlaubt } from "../tools/erechnung/src/maske.js";
 import { EINHEITEN_ERSTELLEN, BEFREIUNGEN } from "../tools/erechnung/src/texte.js";
@@ -143,11 +143,19 @@ const ma = maskePruefen(FIRMA, artR("abschlag")), ms = maskePruefen(FIRMA, artR(
 const ms2 = maskePruefen(FIRMA, artR("storno", { storno: { nummer: "KH-1", datum: "2026-12-01" }, zielTage: "x" }));
 check(ma.map(m => m.feld).join() === "bezug" && ms.map(m => m.feld).join() === "storno.nummer,storno.datum" && md.map(m => m.feld).join() === "dauer.tag,leistung.von,leistung.bis"
   && ms2.map(m => m.feld).join() === "storno.datum", `Maske: Abschlag ohne Auftrag, Storno ohne Bezug oder mit späterem Datum, Dauer mit Tag 31 und ohne Laufzeit; Zahlungsziel nur bei Rechnung und Abschlag (${md.map(m => m.feld)})`);
-check(faelligkeiten("2027-01-01", "2027-12-31", "monat", "3").length === 12 && faelligkeiten("2027-01-15", "2027-12-31", "quartal", "1").join() === "2027-01-01,2027-04-01,2027-07-01,2027-10-01"
+check(faelligkeiten("2027-01-01", "2027-12-31", "monat", "3").length === 12 && faelligkeiten("2027-01-15", "2027-12-31", "quartal", "1").join() === "2027-02-01,2027-05-01,2027-08-01,2027-11-01"
   && faelligkeiten("2027-03-01", "2029-02-28", "jahr", "28").join() === "2027-03-28,2028-03-28" && faelligkeiten("2027-02-01", "2027-01-01", "monat", "1").length === 0, "Dauerrechnung: Fälligkeiten je Monat, Quartal und Jahr innerhalb der Laufzeit");
+const fmo = faelligkeiten("2026-01-15", "2027-01-14", "monat", "15"), fq = faelligkeiten("2026-02-15", "2027-02-14", "quartal", "1"), f1 = faelligkeiten("2026-01-15", "2026-12-31", "monat", "1");
+check(fmo.length === 12 && fmo[11] === "2026-12-15" && fq.join() === "2026-03-01,2026-06-01,2026-09-01,2026-12-01" && f1[0] === "2026-02-01" && f1.length === 12 && faelligkeiten("2027-02-10", "2029-02-09", "quartal", "15").length === 8
+  && faelligkeiten("2027-01-31", "2027-12-31", "monat", "28")[1] === "2027-03-28", "Dauerrechnung: je Zeitraum ab dem echten Beginn gezählt (Laufzeit ab Monatsmitte), erste Fälligkeit nie vor dem Beginn");
+check(JSON.stringify(ersterZeitraum("2026-12-01", "2027-11-30", "monat")) === '{"von":"2026-12-01","bis":"2026-12-31"}' && ersterZeitraum("2026-01-15", "2027-01-14", "quartal").bis === "2026-04-14"
+  && ersterZeitraum("2027-01-01", "2027-06-30", "jahr").bis === "2027-06-30" && monatePlus("2027-01-31", 1) === "2027-02-28" && monatePlus("2028-01-31", 1) === "2028-02-29", "Dauerrechnung: erster Teilleistungszeitraum (BG-14), höchstens bis zum Ende der Laufzeit");
 const dt = dauerTexte({ leistung: { von: "2027-01-01", bis: "2027-12-31" }, dauer: { turnus: "monat", tag: "3" } }, 95200n);
-check(dt.hinweis === "Dauerrechnung: Diese Rechnung gilt für jeden Monat vom 01.01.2027 bis 31.12.2027. Alle Beträge gelten je Monat." && dt.zahlung === "Zahlbar ohne Abzug monatlich jeweils am 3., erstmals am 03.01.2027, letztmals am 03.12.2027, je 952,00 €." && dt.erste === "2027-01-03",
+check(dt.hinweis === "Dauerrechnung: Diese Rechnung gilt als Dauerrechnung für die Laufzeit vom 01.01.2027 bis 31.12.2027. Rechnungszeitraum und Beträge gelten für den ersten Monat vom 01.01.2027 bis 31.01.2027; die Rechnung gilt ebenso für jeden folgenden Monat bis zum 31.12.2027. Alle Beträge gelten je Monat."
+  && JSON.stringify(laufzeitAusHinweis(dt.hinweis)) === '{"von":"2027-01-01","bis":"2027-12-31"}' && dt.zahlung === "Zahlbar ohne Abzug monatlich jeweils am 3., erstmals am 03.01.2027, letztmals am 03.12.2027, je 952,00 €." && dt.erste === "2027-01-03",
   `Dauerrechnung: Hinweis (BT-22) und Fälligkeiten im Klartext (BT-20): ${dt.zahlung}`);
+const xd = ublSchreiben(FIRMA, artR("dauer", { leistung: { art: "zeitraum", von: "2026-12-01", bis: "2027-11-30" }, zielTage: "" }));
+check(/<cac:InvoicePeriod>\s*<cbc:StartDate>2026-12-01<\/cbc:StartDate>\s*<cbc:EndDate>2026-12-31<\/cbc:EndDate>/.test(xd) && xd.includes("Laufzeit vom 01.12.2026 bis 30.11.2027"), "Dauerrechnung: Rechnungszeitraum in der Datei ist der erste Monat, die Laufzeit steht im Hinweis");
 const xa = ublSchreiben(FIRMA, artR("abschlag", { bezug: "Projekt Nord & Süd" })), xst = ublSchreiben(FIRMA, artR("storno", { storno: { nummer: "KH-2026-0006", datum: "2026-11-01" } }));
 check(/<cbc:InvoiceTypeCode>326</.test(xa) && /<cac:ProjectReference>\s*<cbc:ID>Projekt Nord &amp; Süd<\/cbc:ID>/.test(xa) && /<cbc:Note>Abschlagsrechnung zu Projekt Nord &amp; Süd\./.test(xa), "Abschlag: 326, Projektreferenz (BT-11), Hinweis in der Datei");
 check(/^<\?xml[^]*<ubl:CreditNote xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"/.test(xst) && /<cbc:CreditNoteTypeCode>381</.test(xst) && /<cac:BillingReference>\s*<cac:InvoiceDocumentReference>\s*<cbc:ID>KH-2026-0006<\/cbc:ID>\s*<cbc:IssueDate>2026-11-01</.test(xst)
@@ -165,6 +173,25 @@ const fo = folgeRechnung(alt, "KH-2026-0009", "2026-12-01"), so = stornoRechnung
 check(fo.art === "dauer" && fo.nummer === "KH-2026-0010" && fo.datum === "2026-12-01" && fo.leistung.von === "2026-12-01" && fo.leistung.bis === "2026-12-31" && fo.empfaenger.name === alt.empfaenger.name && fo.positionen[0].preis === "72,00",
   "Folgerechnung: nächste Nummer nach der zuletzt gespeicherten, nächster Zeitraum, sonst gleiche Angaben");
 check(so.art === "storno" && so.storno.nummer === "KH-2026-0007" && so.storno.datum === "2026-11-09" && so.nummer === "KH-2026-0010" && so.positionen.length === 1, "Stornorechnung: Bezug auf Nummer und Datum der Vorlage, eigene neue Nummer");
+check(JSON.stringify(naechsterZeitraum("2026-01-15", "2026-02-14")) === '{"von":"2026-02-15","bis":"2026-03-14"}' && JSON.stringify(naechsterZeitraum("2026-02-15", "2026-03-14")) === '{"von":"2026-03-15","bis":"2026-04-14"}'
+  && JSON.stringify(naechsterZeitraum("2026-01-15", "2026-04-14")) === '{"von":"2026-04-15","bis":"2026-07-14"}', "nächster Zeitraum ab Monatsmitte: ganze Monate, kein Verschieben um Tage");
+// Stornorechnung behält die Steuer der ursprünglichen Rechnung, auch wenn die Firma inzwischen Kleinunternehmer ist (und umgekehrt)
+const KU = { ...FIRMA, kleinunternehmer: true, ustid: "" };
+const s19 = stornoRechnung({ ...artR("rechnung"), klein: false }, "KH-2027-0001", "2027-01-10"), sku = stornoRechnung({ ...artR("rechnung"), klein: true, positionen: [{ ...RECHNUNG().positionen[0], steuer: "E" }] }, "KH-2027-0001", "2027-01-10");
+const xs19 = ublSchreiben(KU, s19), xsku = ublSchreiben(FIRMA, sku), sum19 = summen(s19, KU);
+check(s19.storno.klein === false && sku.storno.klein === true && kleinFuer(s19, KU) === false && kleinFuer(sku, FIRMA) === true && kleinFuer(artR("storno"), KU) === true && sum19.steuer > 0n
+  && /<cbc:ID>S<\/cbc:ID>\s*<cbc:Percent>19<\/cbc:Percent>/.test(xs19) && !xs19.includes(KLEIN.hinweis) && xsku.includes(KLEIN.hinweis) && xsku.includes(KLEIN.grund)
+  && !maskePruefen(KU, s19).length && !maskePruefen(FIRMA, sku).some(m => m.feld === "befreiung.text"),
+  "Stornorechnung: Steuer der ursprünglichen Rechnung (19 % trotz heutiger Kleinunternehmerregelung; § 19 bei früherer Kleinunternehmerrechnung)");
+// Fremde Datei mit Basismenge und Nachlässen: Preis je Einheit umgerechnet, Nachlässe gemeldet, Summen nachgerechnet
+const fremdD = (extra = {}) => ({ nummer: "F-1", datum: "2026-10-01", kaeufer: { name: "Kunde", anschrift: { zeilen: ["Weg 1"], plz: "10115", ort: "Berlin", land: "DE" }, elektronisch: { schema: "EM", wert: "k@k.example" } },
+  positionen: [{ name: "Schraube", menge: 1000, einheit: "C62", preis: { netto: 5, basis: 100 }, zuschlaege: [], kategorie: "S", satz: 19 }], zuschlaege: [], summen: { netto: 50, brutto: 59.5 },
+  steuern: [{ kategorie: "S", satz: 19 }], notizen: [], ...extra });
+const vb = rechnungAusDaten(fremdD(), "de"), vz = rechnungAusDaten(fremdD({ positionen: [{ ...fremdD().positionen[0], zuschlaege: [{ zuschlag: false, betrag: 10 }] }], zuschlaege: [{ zuschlag: false, betrag: 20 }], summen: { netto: 20, brutto: 23.8 } }), "de");
+const vr = rechnungAusDaten(fremdD({ positionen: [{ ...fremdD().positionen[0], preis: { netto: 1, basis: 3 } }], summen: { netto: 333.33, brutto: 396.66 } }), "de");
+check(vb.rechnung.positionen[0].preis === "0,05" && !vb.hinweise.length && !vb.abweichung && vz.hinweise.filter(h => h.art === "zuschlag").length === 2 && vz.abweichung && vz.abweichung.original === 2380n && vz.abweichung.hier === 5950n
+  && vr.hinweise.some(h => h.art === "basis") && vr.rechnung.klein === false && rechnungAusDaten(fremdD({ notizen: [KLEIN.hinweis] }), "de").rechnung.klein === true,
+  "fremde Datei als Vorlage: Basismenge umgerechnet (5,00 € je 100 → 0,05), Nachlässe gemeldet, abweichende Beträge erkannt (Storno gesperrt), Kleinunternehmer erkannt");
 check(folgeRechnung(so, null, "2026-12-03").art === "rechnung" && spracheWechseln({ ...RECHNUNG(), positionen: [{ name: "a", menge: "1.234,5", preis: "0,5" }] }, "en").positionen[0].menge === "1234.5", "aus einer Stornorechnung wird als Folge wieder eine Rechnung; Zahlen wechseln die Schreibweise mit der Sprache");
 
 console.log("\nGemerkte Daten im Gerät (stamm.js)");
@@ -190,6 +217,16 @@ check(zurueck && zurueck.firma.name === FIRMA.name && zurueck.nummer.letzte === 
   && alteDatei && alteDatei.firma.name === FIRMA.name && alteDatei.empfaenger === null, "alle lokalen Daten als eine Datei: hin und zurück; die Datei „Firmendaten“ wird auch übernommen, fremde Dateien abgewiesen");
 st.stammLoeschen();
 check(!speicher.has("rverechnung:empfaenger") && !speicher.has("rverechnung:katalog") && !speicher.has("rverechnung:rechnungen") && st.listeLesen("empfaenger").length === 0, "Löschen entfernt Empfänger, Katalog und gemerkte Rechnungen");
+// Speicher voll: Schreiben scheitert, Lesen liefert den alten Stand – das Werkzeug liest weiter den neuen aus dem Arbeitsspeicher
+speicher.set("rverechnung:empfaenger", JSON.stringify({ v: 1, liste: [{ name: "Alt GmbH", plz: "1" }] }));
+const st2 = await import("../tools/erechnung/src/stamm.js?voll");
+globalThis.localStorage = { getItem: k => speicher.has(k) ? speicher.get(k) : null, setItem() { const e = new Error("voll"); e.name = "QuotaExceededError"; throw e; }, removeItem: k => { speicher.delete(k); } };
+st2.empfaengerMerken({ name: "Neu1 GmbH", plz: "2" });
+const voll1 = st2.schreibFehler();
+st2.empfaengerMerken({ name: "Neu2 GmbH", plz: "3" });
+check(voll1 && st2.listeLesen("empfaenger").map(x => x.name).join() === "Neu2 GmbH,Neu1 GmbH,Alt GmbH" && st2.schreibFehler() && !st2.schreibFehler() && JSON.parse(speicher.get("rverechnung:empfaenger")).liste.length === 1,
+  "Speicher voll: nichts geht im Fenster verloren (kein Rückfall auf den alten Stand), der Fehlschlag wird gemeldet");
+speicher.clear();
 globalThis.localStorage = { getItem() { throw new Error("gesperrt"); }, setItem() { throw new Error("gesperrt"); }, removeItem() { throw new Error("gesperrt"); } };
 st.empfaengerMerken({ name: "Nur im Fenster AG", plz: "1" });
 check(st.listeLesen("empfaenger").length === 1 && st.listeLesen("empfaenger")[0].name === "Nur im Fenster AG" && st.alleLesen().firma === null, "ohne Speicher (privates Fenster): kein Absturz, gemerkt nur im Arbeitsspeicher");
@@ -215,6 +252,10 @@ const c4 = csvLesen(CSV("katalog-komma-englisch.csv"), "katalog");
 check(c4.ok && c4.ergebnis.map(x => `${x.eintrag.name}:${x.eintrag.einheit}:${x.eintrag.preis}:${x.eintrag.steuer}`).join() === "Consulting:HUR:1234.50:S19,Travel flat rate:LS:45.00:S19,Übersetzung:C62:0.50:S7", "Katalog, Komma, englische Kopfzeilen und Zahlen (\"1,234.50\", 0.19, 19%)");
 check(csvLesen(new TextEncoder().encode("Ort;PLZ\nBerlin;10115\n"), "empfaenger").fehler === "keinName" && csvLesen(new Uint8Array(0), "katalog").fehler === "leer" && csvLesen(new TextEncoder().encode("\n\n;;\n"), "katalog").fehler === "leer",
   "ohne Spalte für den Namen oder leer: klare Meldung statt Übernahme");
+const cp = csvLesen(new TextEncoder().encode("Bezeichnung;Preis\nA;19.990\nB;12.50\n"), "katalog"), cd = csvLesen(new TextEncoder().encode("Bezeichnung;Preis\nA;1.234\nB;5,50\n"), "katalog");
+const cl = csvLesen(new TextEncoder().encode("Name;Land\nX AG;XX\nY AG;at\n"), "empfaenger");
+check(cp.ergebnis.map(x => x.eintrag.preis).join() === "19.99,12.50" && cp.ergebnis[0].hinweise[0].art === "preis" && cd.ergebnis.map(x => x.eintrag.preis).join() === "1234.00,5.50" && cd.ergebnis[0].hinweise[0].art === "preis"
+  && cl.ergebnis[0].grund === "land" && cl.ergebnis[1].eintrag.land === "AT", "CSV: Schreibweise der Preise je Datei (Semikolon mit Punkt), mehrdeutige Preise gemeldet; Ländercode nach ISO 3166 geprüft");
 check(trennzeichen('"a;b",c,d') === "," && trennzeichen("a\tb\tc") === "\t" && zerlegen('a;"b\r\nc";d\r\n\r\n', ";").length === 1 && einheitLesen("m²").code === "MTK" && einheitLesen("KWH").code === "KWH" && steuerLesen("", "S7") === "S7" && preisLesen("12,5 €", "de") === "12.50",
   "Trennzeichen außerhalb von Anführungszeichen gezählt, Zeilenumbruch im Feld, m² und Codes, Vorgabe-Steuersatz, € entfernt");
 const neuK = [...c3.ergebnis.filter(x => x.status === "neu").map(x => x.eintrag), { name: "=SUMME(A1)", beschreibung: "", einheit: "C62", preis: "1.00", steuer: "S19", artikelnr: "" }];
@@ -332,6 +373,9 @@ faelle.push(
   rand("storno-klein-zeitraum", (f, r) => { f.kleinunternehmer = true; f.ustid = ""; Object.assign(r, { art: "storno", storno: { nummer: "KH-1", datum: "2026-11-09" }, leistung: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" } }); }),
   rand("storno-null", (f, r) => { Object.assign(r, { art: "storno", storno: { nummer: "KH-2", datum: "2026-10-01" } }); r.positionen[0].preis = "0"; }),
   rand("dauer-jahr-ein-termin", (f, r) => { Object.assign(r, { art: "dauer", dauer: { turnus: "jahr", tag: "28" }, leistung: { art: "zeitraum", von: "2027-01-01", bis: "2027-12-31" } }); }),
+  rand("storno-heute-klein-original-19", (f, r) => { f.kleinunternehmer = true; f.ustid = ""; Object.assign(r, { art: "storno", storno: { nummer: "KH-2026-0090", datum: "2026-10-15", klein: false } }); r.positionen.forEach((p, i) => { p.steuer = i % 2 ? "S7" : "S19"; }); }),
+  rand("storno-heute-regel-original-klein", (f, r) => { Object.assign(r, { art: "storno", storno: { nummer: "KH-2026-0091", datum: "2026-06-15", klein: true }, befreiung: { wahl: "", text: "" } }); r.positionen.forEach(p => { p.steuer = "E"; }); }),
+  rand("dauer-monatsmitte", (f, r) => { Object.assign(r, { art: "dauer", dauer: { turnus: "monat", tag: "1" }, leistung: { art: "zeitraum", von: "2027-01-15", bis: "2028-01-14" } }); }),
   rand("dauer-quartal-englisch", (f, r) => { Object.assign(r, { sprache: "en", art: "dauer", dauer: { turnus: "quartal", tag: "15" }, leistung: { art: "zeitraum", von: "2027-02-10", bis: "2029-02-09" } }); r.positionen[0].menge = "2.5"; r.positionen[0].preis = "72.00"; }),
   rand("abschlag-behoerde-befreit", (f, r) => { Object.assign(r, { art: "abschlag", bezug: "Vergabe 2026/17 – Los 2" }); Object.assign(r.empfaenger, { behoerde: true, referenz: "04011000-1234512345-06", email: "" }); r.positionen[0].steuer = "E"; r.befreiung = { wahl: "4-21", text: BEFREIUNGEN.find(b => b.id === "4-21").text }; }),
   rand("artikelnummer-lang", (f, r) => { r.positionen[0].artikelnr = "X".repeat(60); }),
@@ -392,7 +436,7 @@ function vergleichen(fall, w) {
   soll(d.nummer === rein(r.nummer) && d.datum === r.datum, "Nummer/Datum");
   soll(zahlGleich(d.summen.positionen, s.positionen) && zahlGleich(d.summen.netto, s.netto) && zahlGleich(d.summen.steuer, s.steuer) && zahlGleich(d.summen.brutto, s.brutto) && zahlGleich(d.summen.zahlbetrag, s.zahlbetrag), "Summen");
   soll(d.steuern.length === s.gruppen.length && s.gruppen.every((g, i) => d.steuern[i][0] === g.kategorie && d.steuern[i][1] === Number(g.satz) && zahlGleich(d.steuern[i][2], g.basis) && zahlGleich(d.steuern[i][3], g.steuer)
-    && (g.kategorie === "E" ? d.steuern[i][4] === rein(f.kleinunternehmer ? "Kleinunternehmer gemäß § 19 UStG" : r.befreiung.text) : !d.steuern[i][4])), "Steuern");
+    && (g.kategorie === "E" ? d.steuern[i][4] === rein(kleinFuer(r, f) ? "Kleinunternehmer gemäß § 19 UStG" : r.befreiung.text) : !d.steuern[i][4])), "Steuern");
   soll(d.positionen.length === r.positionen.length && r.positionen.every((p, i) => { const q = d.positionen[i], z = s.zeilen[i];
     return q[0] === rein(p.name) && q[1] === Number(mengeText(z.menge)) && q[2] === p.einheit && q[3] === Number(preisText(z.preis)) && zahlGleich(q[4], z.netto) && q[5] === z.kategorie && q[6] === Number(z.satz) && q[7] === rein(p.beschreibung); }), "Positionen");
   soll(d.verkaeufer === rein(f.name) && d.kaeufer === rein(r.empfaenger.name), "Parteien");
@@ -400,7 +444,8 @@ function vergleichen(fall, w) {
   soll(gs ? !d.zweck : d.zweck === (rein(r.zweck) || rein(`Rechnung ${r.nummer}`)), "Verwendungszweck");
   soll(r.empfaenger.behoerde ? d.kaeuferAdresse.schema === "0204" && d.referenz === r.empfaenger.referenz : d.kaeuferAdresse.schema === "EM", "Adresse des Empfängers");
   soll(d.referenz === (rein(r.empfaenger.referenz) || OHNE_REFERENZ[r.sprache || "de"]), "Käuferreferenz");
-  soll(r.leistung.art === "zeitraum" || art === "dauer" ? d.zeitraum && d.zeitraum.von === r.leistung.von && d.zeitraum.bis === r.leistung.bis && !d.lieferung : d.lieferung === r.leistung.datum && !d.zeitraum, "Leistung");
+  const zr = art === "dauer" ? ersterZeitraum(r.leistung.von, r.leistung.bis, r.dauer.turnus) : r.leistung;
+  soll(r.leistung.art === "zeitraum" || art === "dauer" ? d.zeitraum && d.zeitraum.von === zr.von && d.zeitraum.bis === zr.bis && !d.lieferung : d.lieferung === r.leistung.datum && !d.zeitraum, "Leistung");
   soll(gs ? w.giro.grund === "gutschrift-dokument" && !w.giro.nutzlast : s.zahlbetrag > 0n ? !!w.giro.nutzlast && w.giro.nutzlast.includes(`EUR${betragText(s.zahlbetrag)}`) : w.giro.grund === "nichts-zu-zahlen", `GiroCode (${w.giro.grund})`);
   soll(d.art === ART_CODE[art] && !!d.cn === gs, `Rechnungsart ${d.art}`);
   soll(art === "abschlag" ? d.projekt === rein(r.bezug) && d.notizen[0] === rein(`Abschlagsrechnung zu ${r.bezug}. Der Betrag wird in der Schlussrechnung angerechnet.`) : !d.projekt, "Abschlag: Projekt und Hinweis");
@@ -410,12 +455,12 @@ function vergleichen(fall, w) {
   // Rundlauf in die Maske: dieselben Angaben wie vorher (Vorlage für Folge- und Stornorechnung)
   const v = w.vorlage.rechnung, lang = r.sprache || "de";
   const zahlGl = (a, b, st) => dezimalLesen(a, lang, st) === dezimalLesen(b, lang, st);
-  soll(!w.vorlage.hinweise.length && v.art === art && v.nummer === rein(r.nummer) && (art !== "abschlag" || v.bezug === rein(r.bezug)) && (!gs || (v.storno.nummer === rein(r.storno.nummer) && v.storno.datum === r.storno.datum))
-    && (art !== "dauer" || (v.dauer.turnus === r.dauer.turnus && v.dauer.tag === r.dauer.tag)), `Vorlage: Art und Bezug (${v.art})`);
+  soll(!w.vorlage.hinweise.length && !w.vorlage.abweichung && v.klein === kleinFuer(r, f) && v.art === art && v.nummer === rein(r.nummer) && (art !== "abschlag" || v.bezug === rein(r.bezug)) && (!gs || (v.storno.nummer === rein(r.storno.nummer) && v.storno.datum === r.storno.datum))
+    && (art !== "dauer" || (v.dauer.turnus === r.dauer.turnus && v.dauer.tag === r.dauer.tag && v.leistung.von === r.leistung.von && v.leistung.bis === r.leistung.bis)), `Vorlage: Art und Bezug (${v.art})`);
   soll(["name", "strasse", "plz", "ort", "land", "behoerde"].every(k => String(v.empfaenger[k]) === rein(String(r.empfaenger[k] ?? (k === "land" ? "DE" : ""))))
     && v.empfaenger.referenz === rein(r.empfaenger.referenz) && (r.empfaenger.behoerde && !r.empfaenger.email ? true : v.empfaenger.email === rein(r.empfaenger.email)), "Vorlage: Empfänger");
   soll(v.positionen.length === r.positionen.length && r.positionen.every((p, i) => { const q = v.positionen[i];
-    return q.name === rein(p.name).slice(0, 400) && q.beschreibung === rein(p.beschreibung) && zahlGl(q.menge, p.menge, 3) && zahlGl(q.preis, p.preis, 4) && q.einheit === p.einheit && q.steuer === (f.kleinunternehmer ? "E" : p.steuer) && q.artikelnr === rein(p.artikelnr || ""); }), "Vorlage: Positionen");
+    return q.name === rein(p.name).slice(0, 400) && q.beschreibung === rein(p.beschreibung) && zahlGl(q.menge, p.menge, 3) && zahlGl(q.preis, p.preis, 4) && q.einheit === p.einheit && q.steuer === (kleinFuer(r, f) ? "E" : p.steuer) && q.artikelnr === rein(p.artikelnr || ""); }), "Vorlage: Positionen");
   soll(gs || art === "dauer" || v.zielTage === String(+r.zielTage), "Vorlage: Zahlungsziel");
   return abw;
 }

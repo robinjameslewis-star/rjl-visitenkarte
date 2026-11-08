@@ -3,7 +3,7 @@
 // Felder heißen wie im Modell: firma.name, firma.kontakt.email, empfaenger.plz, nummer, leistung.von, pos.2.menge …
 import { T, EINHEITEN_ERSTELLEN } from "./texte.js";
 import { ibanGueltig, bicGueltig } from "./iban.js";
-import { dezimalLesen, summen, STELLEN, GRENZE, datumGueltig } from "./rechnen.js";
+import { dezimalLesen, summen, STELLEN, GRENZE, datumGueltig, kleinFuer } from "./rechnen.js";
 
 export const EMAIL = /^[^@\s]+@([^@.\s]+\.)+[^@.\s]+$/; // wie XR-EMAIL-REGEX der KoSIT (BR-DE-28)
 export const LEITWEG = /^\d{2,12}(-[A-Za-z0-9]{1,30})?-\d{2}$/;
@@ -68,9 +68,10 @@ export function maskePruefen(firma, rechnung, lang = "de") {
     if (leer(p.preis)) melde(`pos.${i}.preis`, m.pflicht); else if (preis == null) melde(`pos.${i}.preis`, m.preis);
     if (!EINHEITEN_ERSTELLEN.includes(p.einheit || "C62")) melde(`pos.${i}.einheit`, m.pflicht);
   });
-  if (!f.kleinunternehmer && pos.some(p => p.steuer === "E")) pflicht("befreiung.text", r.befreiung && r.befreiung.text);
+  const klein = kleinFuer(r, f);
+  if (!klein && pos.some(p => p.steuer === "E")) pflicht("befreiung.text", r.befreiung && r.befreiung.text);
   // 0 % nur mit Grund: Den Nullsteuersatz bestätigt die Nutzerin ausdrücklich (§ 12 Abs. 3 UStG); Ausfuhr und EU-Fälle sind steuerfrei (E)
-  if (!f.kleinunternehmer && pos.some(p => p.steuer === "Z") && r.nullsatz !== true) melde("nullsatz", m.nullsatz);
+  if (!klein && pos.some(p => p.steuer === "Z") && r.nullsatz !== true) melde("nullsatz", m.nullsatz);
   if (out.every(x => !x.feld.startsWith("pos.")) && pos.length && summen(r, f, lang).zahlbetrag > GRENZE) melde(`pos.${pos.length - 1}.preis`, m.zuHoch);
   // 03 Prüfen und speichern
   if (art !== "storno" && art !== "dauer" && (!/^\d{1,3}$/.test(String(r.zielTage ?? "").trim()) || +r.zielTage > 365)) melde("zielTage", m.ziel);
