@@ -157,7 +157,7 @@ function fallBauen(f, nr, lang = "de") {
   r.nummer = `T-${String(nr).padStart(5, "0")}`;
   r.datum = f.datum;
   r.zielTage = String(f.ziel);
-  r.leistung = f.leistung === "zeitraum" ? { art: "zeitraum", von: "2026-10-01", bis: f.datum } : { art: "datum", datum: f.datum };
+  r.leistung = f.leistung === "zeitraum" ? { art: "zeitraum", von: `${f.datum.slice(0, 8)}01`, bis: f.datum } : { art: "datum", datum: f.datum };
   if (f.behoerde) Object.assign(r.empfaenger, { behoerde: true, referenz: "991-33333-44", email: nr % 2 ? "" : "poststelle@amt.example" });
   else if (nr % 3 === 0) r.empfaenger.referenz = `Bestellung ${nr}`;
   if (nr % 4 === 1) r.empfaenger.ustid = "DE822222222";

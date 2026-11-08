@@ -26,7 +26,7 @@ const ATTR = a => Object.entries(a || {}).filter(([, v]) => v != null && v !== "
 function e(name, inhalt, attr) {
   if (Array.isArray(inhalt)) {
     const kinder = inhalt.flat(Infinity).filter(Boolean);
-    return kinder.length ? `<${name}${ATTR(attr)}>\n${kinder.map(k => k.replace(/^(?=<)/gm, "  ")).join("\n")}\n</${name}>` : "";
+    return kinder.length ? `<${name}${ATTR(attr)}>\n${kinder.map(k => k.replace(/^(?=\s*<)/gm, "  ")).join("\n")}\n</${name}>` : "";
   }
   if (inhalt == null || leer(inhalt)) return "";
   return `<${name}${ATTR(attr)}>${xmlText(inhalt)}</${name}>`;
@@ -121,7 +121,7 @@ export function ublSchreiben(firma, rechnung) {
   ].filter(Boolean);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <ubl:Invoice xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
-${teile.map(k => k.replace(/^(?=<)/gm, "  ")).join("\n")}
+${teile.map(k => k.replace(/^(?=\s*<)/gm, "  ")).join("\n")}
 </ubl:Invoice>
 `;
 }
