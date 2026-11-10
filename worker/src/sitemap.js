@@ -7,6 +7,9 @@ export const SEITEN = [
   { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-24" },
   { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-24" },
   { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-24" },
+  // Eigene Seite Workshop E-Rechnung (workshop_erechnung.js, seit 10.11.2026; Robin: nicht mit dem KI-Workshop vermischen)
+  { id: "workshop-e-rechnung", lang: "de", adresse: "workshops/e-rechnung/", stand: "2026-11-10" },
+  { id: "workshop-e-rechnung", lang: "en", adresse: "workshops/en/e-rechnung/", stand: "2026-11-10" },
   // Produktseite SmartFormular unter den Werkzeugen (smartformular.js, seit 18.10.2026)
   { id: "smartformular", lang: "de", adresse: "werkzeuge/smartformular/", stand: "2026-10-24" },
   { id: "smartformular", lang: "en", adresse: "werkzeuge/smartformular/en/", stand: "2026-10-24" },

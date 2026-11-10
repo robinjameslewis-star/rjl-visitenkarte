@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-invoicing workshop, self-study – robin.vision</title>
+<meta name="description" content="E-invoicing workshop in your own browser: in about 45 minutes, receive, read and check e-invoices, what applies when, your own roadmap to 2028. Free until 7 January 2027.">
+<link rel="icon" href="../../../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/workshops/en/e-rechnung/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/e-rechnung/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/workshops/e-rechnung/">
+<meta property="og:site_name" content="robin.vision">
+<meta property="og:type" content="website">
+<meta property="og:title" content="E-invoicing workshop (in German)">
+<meta property="og:description" content="E-invoicing workshop in your own browser: in about 45 minutes, receive, read and check e-invoices, what applies when, your own roadmap to 2028. Free until 7 January 2027.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://robin.vision/workshops/en/e-rechnung/">
+<meta name="twitter:card" content="summary">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px min(6vw, 48px) 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
+h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
+.untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
+.meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
+.meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 64px 0 16px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+@media (min-width: 720px) { article p:not(.meta):not(.untertitel):not(.hinweis):not(.frei), article li { text-align: justify; hyphens: auto; } }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.download + .newsletter { margin-top: 18px; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
+.fragen p { color: var(--ink-soft); }
+.list { list-style: none; margin: 0 0 8px; padding: 0; }
+.list li { padding: 22px 0; border-top: 1px solid var(--line); }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.list a { color: var(--green); text-decoration: none; font: 400 clamp(21px, 2.4vw, 25px)/1.25 var(--serif); }
+.list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
+.list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 min(6vw, 48px) 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+.erechnung-seite .untertitel { margin-bottom: 22px; }
+.erechnung-seite .punkte { margin: 22px 0; padding: 22px 26px 20px 44px; border: 1px solid var(--line); border-left: 3px solid var(--copper); border-radius: 3px; background: rgba(184,114,79,.06); }
+.erechnung-seite .punkte li { margin: 0 0 8px; }
+.erechnung-seite .preis { font-size: 17px; }
+.erechnung-seite .knopf { display: inline-block; margin: 6px 0 4px; padding: 11px 18px; border-radius: 3px; text-decoration: none; font-size: 15px; background: var(--green); color: var(--paper); border: 1px solid var(--green); }
+.erechnung-seite .knopf:hover { background: #082d22; color: var(--paper); }
+.erechnung-seite .ablauf { padding-left: 22px; }
+.erechnung-seite .ablauf li { margin: 0 0 8px; }
+.erechnung-seite .klein { font-size: 14px; color: var(--ink-soft); }
+.ws-umschalter { display: flex; gap: 6px; margin: 0 0 22px; font: 500 13px/1.4 var(--sans); }
+.ws-umschalter a { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); text-decoration: none; }
+.ws-umschalter a:hover { border-color: var(--green); color: var(--green); }
+.ws-umschalter a[aria-current="page"] { border-color: var(--green); background: var(--green); color: var(--paper); }</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"E-invoicing workshop (in German)","description":"E-invoicing workshop in your own browser: in about 45 minutes, receive, read and check e-invoices, what applies when, your own roadmap to 2028. Free until 7 January 2027.","url":"https://robin.vision/workshops/en/e-rechnung/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT45M","hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT45M"}]}</script>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<header class="kopf">
+<a class="marke" href="../../../?lang=en">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Pages"><a href="../../../werkzeuge/en/">Tools</a><a href="../../../blog/en/">Food for Thought</a><a href="../../../workshops/en/" aria-current="page">Workshops</a><a href="../../../about/">About</a></nav>
+<a class="termin" href="../../../?lang=en#kontakt">Appointment</a>
+<details class="menue"><summary aria-label="Menu"><span></span></summary>
+<nav aria-label="Pages"><a href="../../../werkzeuge/en/">Tools</a><a href="../../../blog/en/">Food for Thought</a><a href="../../../workshops/en/" aria-current="page">Workshops</a><a href="../../../about/">About</a><a href="../../../?lang=en#nachricht">Message</a><a href="https://robin.vision/workshops/e-rechnung/" lang="de" hreflang="de">Deutsch</a></nav>
+</details>
+</header>
+<main>
+<article class="workshops erechnung-seite">
+<nav class="ws-umschalter" aria-label="Workshops"><a href="../../../workshops/en/">AI literacy</a><a href="../../../workshops/en/e-rechnung/" aria-current="page">E-invoicing</a></nav>
+<h1>E-invoicing workshop (in German)</h1>
+<p class="untertitel">Self-study, about 45 minutes, in your own browser</p>
+<p>Since 2025, businesses in Germany must be able to receive e-invoices; from 2027 and 2028 they must also issue them. In about 45 minutes, this workshop shows what an e-invoice is, how to receive, read and check one, and what applies to your business and when. You finish with your own roadmap to 2028.</p>
+<ul class="punkte"><li>Right in your browser, whenever it suits you, at your own pace</li><li>Videos with Goch, self-checks and an exercise with realistic sample invoices and model solutions</li><li>For your team: add colleagues when booking, each person gets their own access. If you like, show it together on a projector or in a call.</li><li>Checklist, a card “Questions for your software” and a certificate of attendance for each person</li></ul>
+<p class="preis"><strong>Free until 7 January 2027</strong> (launch phase, 30 days access from booking), then €47.60 per person (incl. 19% VAT; €40 net).</p>
+<p><a class="knopf" href="https://member.robin.vision/workshop-buchen?workshop=e-rechnung&amp;utm_source=website&amp;utm_medium=workshop-e-rechnung-en">Book the e-invoicing workshop</a></p>
+<h2 id="ablauf">How it works</h2>
+<ol class="ablauf"><li>Fill in the form – just for yourself or with colleagues.</li><li>Confirm your email address. You then receive the booking confirmation with your access.</li><li>Start whenever it suits you: access is valid for 30 days from booking.</li><li>At the end: your roadmap to 2028, the checklist and the certificate of attendance.</li></ol>
+<p><a class="knopf" href="https://member.robin.vision/workshop-buchen?workshop=e-rechnung&amp;utm_source=website&amp;utm_medium=workshop-e-rechnung-en">Book the e-invoicing workshop</a></p>
+<p class="klein">For companies and accounting firms. Self-study format without tutoring: questions about the content are not part of the workshop. The workshop itself is in German.</p>
+<p class="meta"><a href="../../../workshops/e-rechnung/" lang="de" hreflang="de">Deutsche Fassung</a></p>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">Food for Thought, tools and workshops by email</h2>
+<p>The new post every Friday, plus news of the tools and workshops. Unsubscribe at any time.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">Email address</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Email address"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Subscribe</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="../../../?lang=en#privacy">Privacy</a>.</p>
+</form>
+</section>
+</article>
+</main>
+<footer class="foot"><a href="../../../?lang=en#privacy">Legal notice · Privacy</a><a href="#newsletter">Newsletter</a><a href="../../../blog/en/feed.xml">RSS</a></footer>
+<script src="../../../newsletter.js?v=20261016" defer></script>
+</body>
+</html>
