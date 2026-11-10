@@ -11,6 +11,11 @@
 export const LIZENZPFLICHT_AB = Date.UTC(2026, 11, 31, 23); // 1. Januar 2027, 0 Uhr MEZ
 const TAG = 86400000;
 const WORKER = "https://goch.robin.vision/lizenz/";
+// Verträge (Robin 10.11.2026): Zusammenfassung vor der Zahlung, Widerruf und Kündigung im Memberbereich
+const VERTRAG = { agb: "https://member.robin.vision/agb", belehrung: "https://member.robin.vision/widerrufsbelehrung#lizenz",
+  widerruf: "https://member.robin.vision/widerruf", kuendigen: "https://member.robin.vision/kuendigen",
+  bedingungen: { erechnung: { de: "https://robin.vision/werkzeuge/e-rechnung-pruefen/#nutzungsbedingungen", en: "https://robin.vision/werkzeuge/e-invoice-viewer/#nutzungsbedingungen" },
+    fibu: { de: "https://robin.vision/werkzeuge/buchungsstapel-generator/#nutzungsbedingungen", en: "https://robin.vision/werkzeuge/booking-batch-generator/#nutzungsbedingungen" } } };
 
 const T = {
   de: {
@@ -21,7 +26,14 @@ const T = {
     anmelden: "Anmelden", neuerCode: "Neuen Code", andereAdresse: "Andere Adresse",
     testendeTitel: "Der Test ist beendet", abgelaufenTitel: "Ihre Lizenz ist abgelaufen",
     kaufText: n => `Für die weitere Nutzung von ${n} brauchen Sie eine Lizenz für ein Jahr. Sie verlängert sich nicht automatisch.`,
-    kaufen: "Lizenz kaufen", kaufAus: "Der Kauf ist noch nicht freigeschaltet. Bitte schreiben Sie an robin@robin.vision.",
+    kaufen: "Lizenz kaufen", kaufAus: "Kaufen können Sie die Lizenz ab dem 7. Januar 2027 hier im Werkzeug. Fragen beantwortet robin@robin.vision.",
+    bestellenTitel: "Ihre Bestellung", bestellen: "Zahlungspflichtig bestellen", abbrechen: "Abbrechen",
+    hinweisVorher: (b, a, w) => `Es gelten die ${b}Lizenzbedingungen</a> und die ${a}AGB von robin.vision</a>. Verbraucher können den Kauf 14 Tage lang widerrufen: ${w}Widerrufsbelehrung</a>.`,
+    zfProdukt: "Lizenz", zfFuer: "Für", zfFuerWert: (e, g) => `${e}, auf bis zu ${g} Geräten`, zfLaufzeit: "Laufzeit",
+    zfLaufzeitWert: "ein Jahr ab dem Kauf; endet von selbst, ohne Kündigung und ohne Verlängerung", zfZahlung: "Zahlung", zfZahlungWert: "einmalig im Voraus per Karte",
+    zfPreis: "Gesamtpreis", zfPreisZusatz: (u, n) => `inkl. 19 % USt (${u}); ${n} netto`,
+    widerrufen: "Vertrag widerrufen", kuendigen: "Verträge hier kündigen",
+    euro: c => (c / 100).toFixed(2).replace(".", ",") + " €",
     kaufOffen: "Der Kauf ist in einem neuen Fenster geöffnet. Danach hier auf „Status aktualisieren“ drücken.",
     aktualisieren: "Status aktualisieren", abmelden: "Abmelden", angemeldet: e => `Angemeldet als ${e}`,
     testBis: d => `Test bis ${d}`, lizenzBis: d => `Lizenz bis ${d}`,
@@ -38,7 +50,14 @@ const T = {
     anmelden: "Sign in", neuerCode: "New code", andereAdresse: "Different address",
     testendeTitel: "The trial has ended", abgelaufenTitel: "Your licence has expired",
     kaufText: n => `To keep using ${n} you need a licence for one year. It does not renew automatically.`,
-    kaufen: "Buy licence", kaufAus: "Purchasing is not open yet. Please write to robin@robin.vision.",
+    kaufen: "Buy licence", kaufAus: "You can buy the licence here in the tool from 7 January 2027. For questions, write to robin@robin.vision.",
+    bestellenTitel: "Your order", bestellen: "Order with obligation to pay", abbrechen: "Cancel",
+    hinweisVorher: (b, a, w) => `The ${b}licence terms</a> and the ${a}general terms of robin.vision</a> (in German) apply. Consumers may withdraw from the purchase within 14 days: ${w}withdrawal information</a> (in German).`,
+    zfProdukt: "Licence", zfFuer: "For", zfFuerWert: (e, g) => `${e}, on up to ${g} devices`, zfLaufzeit: "Term",
+    zfLaufzeitWert: "one year from purchase; ends by itself, with no notice needed and no renewal", zfZahlung: "Payment", zfZahlungWert: "once in advance by card",
+    zfPreis: "Total price", zfPreisZusatz: (u, n) => `including 19% German VAT (${u}); ${n} net`,
+    widerrufen: "Withdraw from contract", kuendigen: "Terminate contracts",
+    euro: c => "€" + (c / 100).toFixed(2),
     kaufOffen: "The purchase has opened in a new window. Afterwards, press “Refresh status” here.",
     aktualisieren: "Refresh status", abmelden: "Sign out", angemeldet: e => `Signed in as ${e}`,
     testBis: d => `Trial until ${d}`, lizenzBis: d => `Licence until ${d}`,
@@ -94,15 +113,37 @@ export async function lizenzTor(o) {
     o.leiste.hidden = false;
     o.leiste.innerHTML = `<span>${esc(t.angemeldet(st.email))} · ${esc(st.typ === "lizenz" ? t.lizenzBis(t.datum(st.bis)) : t.testBis(t.datum(st.bis)))}</span>`
       + (st.typ === "test" ? ` · <button type="button" class="rvl-link" data-rvl="kaufen-leiste">${esc(t.kaufen)}</button>` : "")
+      + (st.typ === "lizenz" ? ` · ${link(VERTRAG.widerruf)}${esc(t.widerrufen)}</a> · ${link(VERTRAG.kuendigen)}${esc(t.kuendigen)}</a>` : "")
       + ` · <button type="button" class="rvl-link" data-rvl="abmelden">${esc(t.abmelden)}</button>`;
     o.leiste.onclick = async e => {
       const b = e.target.closest("[data-rvl]"); if (!b) return;
       if (b.dataset.rvl === "abmelden") { await senden("abmelden", { werkzeug, lang, sitzung: sp.sitzung }).catch(() => {}); delete sp.sitzung; delete sp.token; sp.sichern(); location.reload(); }
-      if (b.dataset.rvl === "kaufen-leiste") kaufen();
+      if (b.dataset.rvl === "kaufen-leiste") bestellungInLeiste(st);
     };
   };
+  // Lizenz während des Tests kaufen: Zusammenfassung unter der Leiste, erst „Zahlungspflichtig bestellen“ startet die Zahlung
+  const bestellungInLeiste = async st => {
+    let feld = document.getElementById("rvl-bestellung");
+    if (!feld) { feld = document.createElement("div"); feld.id = "rvl-bestellung"; o.leiste.insertAdjacentElement("afterend", feld); }
+    let r; try { r = await senden("status", { werkzeug, lang, sitzung: sp.sitzung }); } catch { r = null; }
+    if (!r || !r.token) { feld.innerHTML = maske(t.bestellenTitel, "", (r && r.error) || t.fehler); return; }
+    const zeigen = fehler => {
+      feld.innerHTML = maske(t.bestellenTitel, r.kauf ? bestellung(t, lang, name, st.email, r, werkzeug) + `<p><button type="button" class="rvl-link" id="rvl-abbrechen">${esc(t.abbrechen)}</button></p>`
+        : `<p>${esc(t.kaufAus)}</p><p><button type="button" class="rvl-link" id="rvl-abbrechen">${esc(t.abbrechen)}</button></p>`, fehler);
+      feld.querySelector("#rvl-abbrechen").onclick = () => feld.remove();
+      const k = feld.querySelector("#rvl-bestellen");
+      if (k) k.onclick = async () => {
+        k.disabled = true;
+        const e = await kaufen();
+        if (e === "gekauft") { location.reload(); return; }
+        if (e === "offen") return zeigen(t.kaufOffen);
+        if (e !== "weg") zeigen(e);
+      };
+    };
+    zeigen();
+  };
   const kaufen = async () => {
-    const r = await senden("kaufen", { werkzeug, lang, sitzung: sp.sitzung }).catch(() => null);
+    const r = await senden("kaufen", { werkzeug, lang, sitzung: sp.sitzung, bestellt: true }).catch(() => null);
     if (r && r.url) { if (location.protocol === "file:") { window.open(r.url, "_blank", "noopener"); return "offen"; } location.href = r.url; return "weg"; }
     if (r && r.token) { sp.token = r.token; sp.sichern(); return "gekauft"; }
     return r && r.error ? r.error : t.fehler;
@@ -161,10 +202,11 @@ export async function lizenzTor(o) {
       }
       if (schritt === "kauf") {
         const s = info.status;
-        wurzel.innerHTML = maske(s.typ === "abgelaufen" ? t.abgelaufenTitel : t.testendeTitel, `<p>${esc(t.kaufText(name))}${info.preis ? " " + esc(info.preis) : ""}</p>
-<p>${info.kauf ? `<button type="button" class="rvl-knopf" id="rvl-kaufen">${esc(t.kaufen)}</button> ` : `${esc(t.kaufAus)} `}<button type="button" class="rvl-link" id="rvl-neu-laden">${esc(t.aktualisieren)}</button> · <button type="button" class="rvl-link" id="rvl-abmelden">${esc(t.abmelden)}</button></p>
+        wurzel.innerHTML = maske(s.typ === "abgelaufen" ? t.abgelaufenTitel : t.testendeTitel, `<p>${esc(t.kaufText(name))}</p>
+${info.kauf ? bestellung(t, lang, name, s.email, info, werkzeug) : `<p>${esc(t.kaufAus)}</p>`}
+<p><button type="button" class="rvl-link" id="rvl-neu-laden">${esc(t.aktualisieren)}</button> · <button type="button" class="rvl-link" id="rvl-abmelden">${esc(t.abmelden)}</button></p>
 <p class="rvl-klein">${esc(t.angemeldet(s.email))}</p>`, info.fehler);
-        const k = wurzel.querySelector("#rvl-kaufen");
+        const k = wurzel.querySelector("#rvl-bestellen");
         if (k) k.onclick = async () => {
           k.disabled = true;
           const r = await kaufen();
@@ -185,10 +227,28 @@ export async function lizenzTor(o) {
       if (!s || s.w !== werkzeug) return zeigen("email", { fehler: t.fehler });
       sp.token = r.token; sp.sichern();
       if (frei(s)) { leisteZeigen(s); fertig({ frei: true, status: s, neu: true }); return; }
-      zeigen("kauf", { status: s, preis: r.preis, kauf: r.kauf });
+      zeigen("kauf", { status: s, preis: r.preis, preisDaten: r.preisDaten, geraete: r.geraete, kauf: r.kauf });
     };
     zeigen("pruefen");
   });
+}
+
+const link = href => `<a href="${esc(href)}" target="_blank" rel="noopener">`;
+
+// Zusammenfassung vor dem Kauf (§ 312j BGB): Hinweise und Links darüber, dann die Angaben mit dem Gesamtpreis, direkt darunter der Knopf –
+// dazwischen nichts. r: Antwort des Workers (preis, preisDaten, geraete).
+export function bestellung(t, lang, name, email, r, werkzeug = "erechnung") {
+  const p = r.preisDaten;
+  const preis = p ? `<strong class="rvl-preis">${esc(t.euro(p.brutto_cent))}</strong> ${esc(t.zfPreisZusatz(t.euro(p.ust_cent), t.euro(p.netto_cent)))}` : `<strong class="rvl-preis">${esc(r.preis || "")}</strong>`;
+  return `<p class="rvl-klein">${t.hinweisVorher(link((VERTRAG.bedingungen[werkzeug] || VERTRAG.bedingungen.erechnung)[lang]), link(VERTRAG.agb), link(VERTRAG.belehrung))}</p>
+<div class="rvl-zusammenfassung"><h3>${esc(t.bestellenTitel)}</h3><dl>
+<dt>${esc(t.zfProdukt)}</dt><dd>${esc(name)}</dd>
+<dt>${esc(t.zfFuer)}</dt><dd>${esc(t.zfFuerWert(email, r.geraete || 3))}</dd>
+<dt>${esc(t.zfLaufzeit)}</dt><dd>${esc(t.zfLaufzeitWert)}</dd>
+<dt>${esc(t.zfZahlung)}</dt><dd>${esc(t.zfZahlungWert)}</dd>
+<dt>${esc(t.zfPreis)}</dt><dd>${preis}</dd>
+</dl></div>
+<p><button type="button" class="rvl-knopf" id="rvl-bestellen">${esc(t.bestellen)}</button></p>`;
 }
 
 function maske(titel, inhalt, fehler) {
@@ -203,4 +263,7 @@ export const LIZENZ_CSS = `.rvl-maske{max-width:34rem;margin:1.5rem auto;padding
 .rvl-knopf{background:#1d4ed8;color:#fff;border-color:#1d4ed8}.rvl-knopf:disabled{opacity:.6}
 .rvl-link{font:inherit;background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer}
 .rvl-fehler{color:#b91c1c;font-weight:600}.rvl-klein{font-size:.85em;opacity:.8}
-.rvl-leiste{font-size:.85em;opacity:.85;margin:.25rem 0 .75rem}`;
+.rvl-leiste{font-size:.85em;opacity:.85;margin:.25rem 0 .75rem}.rvl-leiste a,.rvl-maske a{color:inherit}
+.rvl-zusammenfassung{border:1px solid currentColor;border-radius:8px;padding:.6rem .9rem;margin:.6rem 0 .8rem}.rvl-zusammenfassung h3{margin:0 0 .4rem;font-size:1rem}
+.rvl-zusammenfassung dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem .8rem;margin:0}.rvl-zusammenfassung dt{font-weight:600}.rvl-zusammenfassung dd{margin:0}
+.rvl-preis{font-size:1.15em}`;

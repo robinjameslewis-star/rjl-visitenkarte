@@ -32,7 +32,9 @@ MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldu
 # Lizenzen SmartFormular ab 01.01.2027 (src/lizenz.js): Code per E-Mail, Test vier Wochen, Lizenz ein Jahr je Person.
 # Stripe (später, Robin): Secrets STRIPE_SECRET_KEY und STRIPE_WEBHOOK_SECRET; Preis-IDs als STRIPE_PREIS_ERECHNUNG / STRIPE_PREIS_FIBU.
 # Ohne Stripe und mit LIZENZ_TESTKAUF = "1" schaltet „Lizenz kaufen“ sofort frei (nur zum Durchspielen, nie öffentlich an).
-LIZENZ_PREIS = ""                  # Text im Werkzeug neben „Lizenz kaufen“, z. B. "199 € je Benutzer und Jahr" – erst, wenn der Preis auf der Website steht
+LIZENZ_PREIS = ""                  # alter Freitext; gilt nur ohne LIZENZ_NETTO_CENT
+LIZENZ_NETTO_CENT = ""             # Nettopreis in Cent, z. B. "20000" (Robin 10.11.2026: 200 € netto = 238,00 € brutto); USt 19 % gerundet;
+                                   # je Werkzeug abweichend: LIZENZ_NETTO_CENT_ERECHNUNG, LIZENZ_NETTO_CENT_FIBU. Brutto muss zum Preis bei der Zahlung passen.
 LIZENZ_TESTKAUF = "0"
 LIZENZ_GERAETE = "3"               # angemeldete Geräte je Person
 MAX_LIZENZ_CODES_PER_DAY = "300"   # Anmeldecodes je Tag insgesamt (Kostenbremse Resend)
@@ -97,6 +99,11 @@ new_sqlite_classes = ["Geraetebudget"]
 name = "LOGIN_LIMIT"
 namespace_id = "2509"
 simple = { limit = 10, period = 60 }
+
+# Lizenzkauf (src/lizenz.js): AGB des Memberbereichs als Anhang der Bestätigung, abgerufen über diese Bindung statt über das Netz
+[[services]]
+binding = "MEMBER"
+service = "rv-member"
 
 [[rules]]
 type = "Text"
