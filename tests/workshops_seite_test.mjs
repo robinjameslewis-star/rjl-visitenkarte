@@ -38,7 +38,10 @@ for (const s of WORKSHOPS) {
   check((html.match(/<section class="teil">/g) || []).length === 3, "drei Teile");
   check((((html.match(/<ol class="kapitel">[\s\S]*?<\/ol>/) || [""])[0]).match(/<li><span class="nr">0\d<\/span>/g) || []).length === 7, "sieben Kapitel");
   check(t.formate.every(f => html.includes(`<h3>${f}</h3>`)) && (html.match(new RegExp(`<p class="preis frei">${t.preis}</p>`, "g")) || []).length === 2 && (html.match(/<section class="format">/g) || []).length === 2, "zwei Formate, Preis auf Anfrage");
-  check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b|"price"/.test(html), "keine Preise auf der Seite (auf Anfrage)", (html.match(/.{0,30}(?:\d ?€|€ ?\d|EUR|"price").{0,30}/) || [""])[0]);
+  // Der Workshop E-Rechnung (Selbstlernformat) nennt seinen Preis (W1/W2, freigegeben 10.11.2026); der KI-Workshop bleibt „auf Anfrage“.
+  const erechnung = (html.match(/<section class="unterweisung erechnung"[\s\S]*?<\/section>/) || [""])[0], ohneErechnung = html.replace(erechnung, "");
+  check(erechnung && /47,60 €|€47\.60/.test(erechnung) && erechnung.includes("workshop-buchen?workshop=e-rechnung"), "Workshop E-Rechnung mit Preis und Buchungslink");
+  check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b|"price"/.test(ohneErechnung), "sonst keine Preise auf der Seite (auf Anfrage)", (ohneErechnung.match(/.{0,30}(?:\d ?€|€ ?\d|EUR|"price").{0,30}/) || [""])[0]);
   check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 5, "Ablauf in fünf Schritten");
   check(/Online-Lehrgang|online course/.test(html) && !/Folien|slides/.test(html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/nicht mit Folien|not with slides/g, "")), "Online-Lehrgang statt Folien (die Abgrenzung „nicht mit Folien“ darf stehen)");
   check(html.includes(`href="${MEMBER_PRUEFUNG}"`) && /keine amtliche Bescheinigung|not an official attestation/.test(html), "Nachweis: Prüfseite verlinkt, Zertifikat ehrlich eingeordnet");
