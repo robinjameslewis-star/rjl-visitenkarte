@@ -55,7 +55,7 @@ const T = {
     hinweisVorher: (b, a, w) => `The ${b}licence terms</a> and the ${a}general terms of robin.vision</a> (in German) apply. Consumers may withdraw from the purchase within 14 days: ${w}withdrawal information</a> (in German).`,
     zfProdukt: "Licence", zfFuer: "For", zfFuerWert: (e, g) => `${e}, on up to ${g} devices`, zfLaufzeit: "Term",
     zfLaufzeitWert: "one year from purchase; ends by itself, with no notice needed and no renewal", zfZahlung: "Payment", zfZahlungWert: "once in advance by card",
-    zfPreis: "Total price", zfPreisZusatz: (u, n) => `incl. 19% German VAT (${u}); ${n} net`,
+    zfPreis: "Total price", zfPreisZusatz: (u, n) => `including 19% German VAT (${u}); ${n} net`,
     widerrufen: "Withdraw from contract", kuendigen: "Terminate contracts",
     euro: c => "€" + (c / 100).toFixed(2),
     kaufOffen: "The purchase has opened in a new window. Afterwards, press “Refresh status” here.",

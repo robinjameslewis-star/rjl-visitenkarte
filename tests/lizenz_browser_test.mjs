@@ -16,7 +16,7 @@ import { handleLizenz } from "../worker/src/lizenz.js";
 
 const tmp = mkdtempSync(join(tmpdir(), "rv-lizenz-"));
 function kv() { const m = new Map(); return { get: async k => m.get(k) ?? null, put: async (k, v) => { m.set(k, String(v)); }, delete: async k => { m.delete(k); }, map: m }; }
-const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_BRUTTO_CENT: "23681" };
+const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_BRUTTO_CENT: "23800" };
 let uhr = Date.parse("2026-12-30T10:00:00+01:00");
 const echtesNow = Date.now;
 Date.now = () => uhr;
@@ -103,7 +103,7 @@ env.LIZENZ_TESTKAUF = "1";
 await page.click("#rvl-neu-laden");
 await page.waitForSelector("#rvl-bestellen");
 const zf = await text(".rvl-zusammenfassung");
-check(/236,81 €/.test(await page.locator(".rvl-zusammenfassung strong.rvl-preis").innerText()) && /inkl\. 19 % USt \(37,81 €\); 199,00 € netto/.test(zf), "Zusammenfassung: Bruttopreis hervorgehoben, Steuer und netto dahinter");
+check(/238,00 €/.test(await page.locator(".rvl-zusammenfassung strong.rvl-preis").innerText()) && /inkl\. 19 % USt \(38,00 €\); 200,00 € netto/.test(zf), "Zusammenfassung: Bruttopreis hervorgehoben, Steuer und netto dahinter");
 check(/kanzlei@beispiel\.de, auf bis zu 3 Geräten/.test(zf) && /endet von selbst/.test(zf) && /per Karte/.test(zf), "Zusammenfassung: Person, Geräte, Laufzeit, Zahlungsmittel");
 check(await page.locator("#rvl-bestellen").innerText() === "Zahlungspflichtig bestellen", "Knopf heißt genau „Zahlungspflichtig bestellen“");
 check(await page.evaluate(() => { const z = document.querySelector(".rvl-zusammenfassung"), k = document.querySelector("#rvl-bestellen").parentElement; return z.nextElementSibling === k && k.children.length === 1; }), "zwischen Zusammenfassung und Knopf steht nichts");

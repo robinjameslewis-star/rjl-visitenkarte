@@ -54,7 +54,7 @@ export function preisDaten(env, werkzeug = "") {
 }
 const euro = (cent, lang) => lang === "en" ? "€" + (cent / 100).toFixed(2) : (cent / 100).toFixed(2).replace(".", ",") + " €";
 export const preisText = (p, lang = "de") => !p ? "" : lang === "en"
-  ? `${euro(p.brutto_cent, "en")} per user per year (incl. 19% German VAT; ${euro(p.netto_cent, "en")} net)`
+  ? `${euro(p.brutto_cent, "en")} per user per year (including 19% German VAT; ${euro(p.netto_cent, "en")} net)`
   : `${euro(p.brutto_cent)} je Benutzer und Jahr (inkl. 19 % USt; ${euro(p.netto_cent)} netto)`;
 
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" };
