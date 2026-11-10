@@ -373,6 +373,16 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
       return true;
     };
     if (gesperrt()) return;
+    // Nummer aus einem übernommenen Dokument, aber anderer Betrag: so nicht speichern (zwei verschiedene Rechnungen, eine Nummer)
+    const u = z.uebernommen;
+    if (u && z.rechnung.nummer.trim() === u.nummer) {
+      const s = summen({ ...z.rechnung, art: "rechnung" }, z.firma, lang), hier = u.brutto ? s.brutto : s.netto;
+      if (String(hier) !== u.soll) {
+        status(`${esc(ersetze(E.gleicheNummerAnders, { nummer: u.nummer, original: geldAnzeige(BigInt(u.soll), lang), hier: geldAnzeige(hier, lang) }))} ${knopf("nummer-neu", E.gleicheNummerNeu, "ewe-link")}`);
+        $("ewe-status").querySelector("button").focus();
+        return;
+      }
+    }
     // Dieselbe Nummer noch einmal: nur nach ausdrücklicher Bestätigung (Rechnungsnummern nur einmal vergeben)
     if (!trotzDoppelt && istDoppelt(z.rechnung.nummer)) {
       status(`${esc(ersetze(E.doppeltFrage, { nummer: z.rechnung.nummer.trim() }))} ${knopf("speichern-doch", E.doppeltDoch, "ewe-link")}`);
@@ -425,7 +435,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
   }
   function naechste() {
     const ziel = z.rechnung.zielTage;
-    z.rechnung = neueRechnung(z.firma, z.probe ? { letzte: z.rechnung.nummer } : z.letzte, ziel); z.einlesen = null;
+    z.rechnung = neueRechnung(z.firma, z.probe ? { letzte: z.rechnung.nummer } : z.letzte, ziel); z.einlesen = null; z.uebernommen = null;
     z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.artOffen = false;
     allesZeichnen();
     $(domId("empfaenger.name")).focus();
@@ -433,7 +443,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
 
   // ---------- Beispieldaten (Regel 12): erfunden, nichts wird im Gerät gespeichert, die Nummer zählt nicht weiter ----------
   function probeStarten() {
-    z.sicherung = { firma: z.firma, rechnung: z.rechnung, firmaOffen: z.firmaOffen }; z.einlesen = null;
+    z.sicherung = { firma: z.firma, rechnung: z.rechnung, firmaOffen: z.firmaOffen }; z.einlesen = null; z.uebernommen = null;
     z.probe = true; z.firmaOffen = false;
     z.firma = firmaBereinigen({ name: "Glaserei Lindgrün GmbH", strasse: "Uferweg 12", plz: "54321", ort: "Beispielhausen", steuernummer: "21/815/08150", ustid: "DE999999999",
       register: "HRB 1234, Amtsgericht Beispielhausen", kontakt: { name: "Jonas Feldberg", telefon: "+49 1234 98765-0", email: "rechnung@glaserei-lindgruen.example" },
@@ -609,7 +619,7 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
     if (wie !== "storno" && z.firma.kleinunternehmer) r.positionen.forEach(p => { p.steuer = "E"; });
     else if (wie !== "storno" && alt.klein === true) r.positionen.forEach(p => { if (p.steuer === "E") p.steuer = z.firma.vorgaben.satz || "S19"; });
     if (!r.positionen.length) r.positionen = [neuePosition(z.firma)];
-    z.rechnung = r; z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.vorlageOffen = false; z.artOffen = r.art !== "rechnung"; z.einlesen = null;
+    z.rechnung = r; z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.vorlageOffen = false; z.artOffen = r.art !== "rechnung"; z.einlesen = null; z.uebernommen = null;
     allesZeichnen();
     const HT = { steuer: E.vorlageSteuer, einheit: E.vorlageEinheit, zuschlag: E.vorlageZuschlag, basis: E.vorlageBasis };
     const h = [...new Set(quelle.hinweise.map(x => ersetze(x.art === "zuschlag" && !x.name ? E.vorlageZuschlagR : HT[x.art] || "", { wert: x.wert, name: x.name })))];
@@ -648,6 +658,11 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
     const text = x => x.art === "zuschlag" && !x.name ? E.vorlageZuschlagR : e.quelle === "xml" ? VT[x.art] || "" : x.art === "steuer" && !x.name ? H.steuerAlle : H[x.art] || VT[x.art] || "";
     const h = [...new Set(e.hinweise.map(x => ersetze(text(x), { wert: x.wert, name: x.name })).filter(Boolean))];
     const geld = c => geldAnzeige(BigInt(c), lang);
+    // Gleiche Nummer nur bei gleichem Inhalt (§ 14c UStG): Nummer und Betrag des Dokuments merken, beim Speichern vergleichen
+    const jetzt = summen({ ...z.rechnung, art: "rechnung" }, z.firma, lang), mitBrutto = !e.summe || e.summe.brutto != null;
+    const soll = e.summe ? (e.summe.brutto ?? e.summe.netto) : e.abweichung ? e.abweichung.original : jetzt.brutto;
+    z.uebernommen = g.nummer && r.nummer.trim() && soll != null ? { nummer: r.nummer.trim(), soll: String(soll), brutto: mitBrutto } : null;
+    if (z.uebernommen) teile.push(E.einlesenGleicheNummer);
     z.einlesen = { text: [ersetze(E.einlesenOk, { datei: datei.name, liste: liste.join(", ") || "–" }), ...teile].filter(Boolean).join(" "), firma: firmaNeu.length > 0,
       summe: e.abweichung ? { warn: true, text: ersetze(E.einlesenAbweichung, { original: geld(e.abweichung.original), hier: geld(e.abweichung.hier) }) } : e.bestaetigt ? { warn: false, text: ersetze(E.einlesenSumme, { betrag: geld(e.summe.brutto ?? e.summe.netto) }) } : null,
       hinweise: h.length ? ersetze(E.vorlageHinweise, { liste: h.join("; ") }) : "" };
@@ -888,6 +903,14 @@ ${teil("empfaenger")}${teil("katalog")}
       case "vorlage-zu": z.vorlageOffen = false; vorlageZeichnen(); wurzel.querySelector('[data-e="vorlage-auf"]').focus(); break;
       case "vorlage-datei": $("ewe-vorlage-eingabe").click(); break;
       case "einlesen": $("ewe-einlesen-eingabe").click(); break;
+      case "nummer-neu": {
+        z.rechnung.nummer = naechsteNummer(z.letzte && z.letzte.letzte, heute());
+        if (z.uebernommen && z.rechnung.nummer === z.uebernommen.nummer) z.rechnung.nummer = naechsteNummer(z.rechnung.nummer, heute());
+        allesZeichnen();
+        status(esc(ersetze(E.gleicheNummerNeuOk, { nummer: z.rechnung.nummer })));
+        $(domId("nummer")).focus();
+        break;
+      }
       case "einlesen-zu": z.einlesen = null; einlesenZeichnen(); wurzel.querySelector('[data-e="einlesen"]').focus(); break;
       case "folge": vorlageNehmen(b.dataset.q, "folge"); break;
       case "vorlage-weg": {

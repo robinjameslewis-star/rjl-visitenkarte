@@ -283,6 +283,33 @@ const pruefOk = async pg => /Geprüft: keine Fehler|Checked: no errors/.test(awa
   check(/Taken over from “excel\.xlsx”/.test(st) && /€315\.35/.test(st) && await pg.inputValue("#ewe-pos-1-menge") === "2.5", `d: Excel auf der englischen Seite – 2.5, €315.35 (${st.slice(0, 120)})`);
   await foto(pg, "einlesen-englisch-desktop");
 }
+// g) Gleiche Nummer nur bei gleichem Inhalt (§ 14c UStG): Betrag geändert → Speichern gesperrt, neue Nummer → gespeichert
+{
+  const pg = await seite();
+  const st = await uebernehmen(pg, join(DATEN, "a-chrome.pdf"));
+  check(/Rechnungsnummer aus dem Dokument bleibt.*§ 14c UStG/.test(st), "g: Kasten erklärt, dass die Nummer nur bei gleichem Inhalt bleiben darf");
+  await pg.fill("#ewe-empfaenger-email", "buchhaltung@sonnenschein.example");
+  await pg.click('[data-e="firma-weiter"]');
+  await pg.fill("#ewe-pos-2-preis", "50,00");
+  await geprueft(pg);
+  let downloads = 0; pg.on("download", () => downloads++);
+  await pg.click('[data-e="speichern"]');
+  await pg.waitForTimeout(400);
+  const meldung = await pg.locator("#ewe-status").innerText();
+  check(downloads === 0 && /Nummer 2026-0142 stammt aus dem übernommenen Dokument.*3\.417,68 € dort, 3\.423,63 € hier.*§ 14c UStG/s.test(meldung) && await pg.evaluate(() => document.activeElement.dataset.e) === "nummer-neu",
+    `g: anderer Betrag mit derselben Nummer – nicht gespeichert, Hinweis mit beiden Beträgen, Fokus auf „Nächste eigene Nummer“ (${meldung.slice(0, 90)}…)`);
+  await pg.click('[data-e="nummer-neu"]');
+  const neu = await pg.inputValue("#ewe-nummer");
+  await geprueft(pg);
+  const xml = await speichern(pg, "g");
+  check(neu !== "2026-0142" && new RegExp(`<cbc:ID>${neu}</cbc:ID>`).test(xml) && /3423\.63/.test(xml), `g: mit neuer Nummer ${neu} gespeichert`);
+  // Betrag wieder wie im Dokument: dieselbe Nummer geht
+  await uebernehmen(pg, join(DATEN, "a-chrome.pdf"));
+  await pg.fill("#ewe-empfaenger-email", "buchhaltung@sonnenschein.example");
+  await geprueft(pg);
+  const xml2 = await speichern(pg, "g2");
+  check(/<cbc:ID>2026-0142<\/cbc:ID>/.test(xml2), "g: gleicher Betrag – mit der Nummer aus dem Dokument gespeichert");
+}
 // e) Barrierefreiheit mit sichtbarem Kasten (axe-core)
 {
   const c = await browser.newContext({ viewport: { width: 1280, height: 900 }, bypassCSP: true });
