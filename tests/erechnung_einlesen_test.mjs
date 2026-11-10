@@ -192,8 +192,8 @@ async function seite(lang = "de", geraet = "desktop") {
 }
 const zustand = pg => pg.evaluate(() => JSON.parse(JSON.stringify(window.RVErechnung.erstellen)));
 const uebernehmen = async (pg, pfad, sel = "#ewe-einlesen-eingabe") => {
+  await pg.evaluate(() => { window.__vorher = document.getElementById("ewe-einlesen-box"); document.getElementById("ewe-status").textContent = ""; });
   await pg.setInputFiles(sel, pfad);
-  await pg.evaluate(() => { window.__vorher = document.getElementById("ewe-einlesen-box"); });
   await pg.waitForFunction(() => { const b = document.getElementById("ewe-einlesen-box"), s = document.getElementById("ewe-status").textContent; return (b && b !== window.__vorher) || (s.trim() && !/wird gelesen|Reading the file/.test(s)); }, null, { timeout: 30000 });
   const b = pg.locator("#ewe-einlesen-box");
   return ((await b.count()) && await pg.evaluate(() => document.getElementById("ewe-einlesen-box") !== window.__vorher) ? await b.innerText() : await pg.locator("#ewe-status").innerText()).trim();
