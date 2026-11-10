@@ -109,18 +109,13 @@ article li { margin-bottom: 6px; }
 .erechnung-seite .ablauf { padding-left: 22px; }
 .erechnung-seite .ablauf li { margin: 0 0 8px; }
 .erechnung-seite .klein { font-size: 14px; color: var(--ink-soft); }
-html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterrand, ohne Querscrollen */
-/* Goch auf dem Ast wie auf der Startseite: der Ast kommt vom rechten Bildrand (Regel 03.11.2026), Szene 1153 × 710 wie index.html */
-.ws-szene { width: 100vw; margin: 0 0 8px calc(50% - 50vw); display: flex; justify-content: flex-end; pointer-events: none; }
-.ws-szene .scene { position: relative; width: min(38vw, 470px); aspect-ratio: 1153 / 710; }
-.ws-szene img { position: absolute; left: 0; display: block; max-width: none; height: auto; }
-.ws-szene .vogel { top: 0; width: 100%; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
-.ws-szene .ast { top: 76.48%; width: 242.8447528%; } /* wie .landscape-on .branch auf der Startseite: Gochs Füße greifen den Ast, der nach rechts aus dem Bild läuft */
-@media (max-width: 720px) { .ws-szene .scene { width: 78vw; } }
 .ws-umschalter { display: flex; gap: 6px; margin: 0 0 22px; font: 500 13px/1.4 var(--sans); }
 .ws-umschalter a { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); text-decoration: none; }
 .ws-umschalter a:hover { border-color: var(--green); color: var(--green); }
-.ws-umschalter a[aria-current="page"] { border-color: var(--green); background: var(--green); color: var(--paper); }</style>
+.ws-umschalter a[aria-current="page"] { border-color: var(--green); background: var(--green); color: var(--paper); }
+.ws-video { margin: 26px 0 28px; }
+.ws-video video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 6px; background: #efe9dc; box-shadow: 0 10px 28px rgba(31,31,31,.14), 0 1px 3px rgba(31,31,31,.10); }
+.ws-video figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"E-invoicing workshop (in German)","description":"E-invoicing workshop in your own browser: in about 45 minutes, receive, read and check e-invoices, what applies when, your own roadmap to 2028. Free until 7 January 2027.","url":"https://robin.vision/workshops/en/e-rechnung/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT45M","hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT45M"}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
@@ -135,9 +130,9 @@ html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterr
 <main>
 <article class="workshops erechnung-seite">
 <nav class="ws-umschalter" aria-label="Workshops"><a href="../../../workshops/en/">AI literacy</a><a href="../../../workshops/en/e-rechnung/" aria-current="page">E-invoicing</a></nav>
-<figure class="ws-szene" aria-hidden="true"><span class="scene"><img class="vogel" src="../../../figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"><img class="ast" src="../../../assets/ast.webp" alt="" width="2800" height="167" decoding="async"></span></figure>
 <h1>E-invoicing workshop (in German)</h1>
 <p class="untertitel">Self-study, about 45 minutes, in your own browser</p>
+<figure class="ws-video"><video controls playsinline preload="none" poster="../../../assets/videos/workshop-e-rechnung-ausschnitt.jpg" width="640" height="360" aria-label="Excerpt from chapter 1: is a PDF an e-invoice?"><source src="../../../assets/videos/workshop-e-rechnung-ausschnitt.mp4" type="video/mp4"></video><figcaption>Excerpt from the workshop (in German) · AI character, synthetic voice</figcaption></figure>
 <p>Since 2025, businesses in Germany must be able to receive e-invoices; from 2027 and 2028 they must also issue them. In about 45 minutes, this workshop shows what an e-invoice is, how to receive, read and check one, and what applies to your business and when. You finish with your own roadmap to 2028.</p>
 <ul class="punkte"><li>Right in your browser, whenever it suits you, at your own pace</li><li>Videos with Goch, self-checks and an exercise with realistic sample invoices and model solutions</li><li>For your team: add colleagues when booking, each person gets their own access. If you like, show it together on a projector or in a call.</li><li>Checklist, a card “Questions for your software” and a certificate of attendance for each person</li></ul>
 <p class="preis"><strong>Free until 7 January 2027</strong> (launch phase, 30 days access from booking), then €47.60 per person (incl. 19% VAT; €40 net).</p>

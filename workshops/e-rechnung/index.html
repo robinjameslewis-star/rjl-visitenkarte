@@ -109,18 +109,13 @@ article li { margin-bottom: 6px; }
 .erechnung-seite .ablauf { padding-left: 22px; }
 .erechnung-seite .ablauf li { margin: 0 0 8px; }
 .erechnung-seite .klein { font-size: 14px; color: var(--ink-soft); }
-html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterrand, ohne Querscrollen */
-/* Goch auf dem Ast wie auf der Startseite: der Ast kommt vom rechten Bildrand (Regel 03.11.2026), Szene 1153 × 710 wie index.html */
-.ws-szene { width: 100vw; margin: 0 0 8px calc(50% - 50vw); display: flex; justify-content: flex-end; pointer-events: none; }
-.ws-szene .scene { position: relative; width: min(38vw, 470px); aspect-ratio: 1153 / 710; }
-.ws-szene img { position: absolute; left: 0; display: block; max-width: none; height: auto; }
-.ws-szene .vogel { top: 0; width: 100%; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
-.ws-szene .ast { top: 76.48%; width: 242.8447528%; } /* wie .landscape-on .branch auf der Startseite: Gochs Füße greifen den Ast, der nach rechts aus dem Bild läuft */
-@media (max-width: 720px) { .ws-szene .scene { width: 78vw; } }
 .ws-umschalter { display: flex; gap: 6px; margin: 0 0 22px; font: 500 13px/1.4 var(--sans); }
 .ws-umschalter a { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); text-decoration: none; }
 .ws-umschalter a:hover { border-color: var(--green); color: var(--green); }
-.ws-umschalter a[aria-current="page"] { border-color: var(--green); background: var(--green); color: var(--paper); }</style>
+.ws-umschalter a[aria-current="page"] { border-color: var(--green); background: var(--green); color: var(--paper); }
+.ws-video { margin: 26px 0 28px; }
+.ws-video video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 6px; background: #efe9dc; box-shadow: 0 10px 28px rgba(31,31,31,.14), 0 1px 3px rgba(31,31,31,.10); }
+.ws-video figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"Workshop E-Rechnung","description":"Workshop E-Rechnung im eigenen Browser: in etwa 45 Minuten empfangen, lesen und prüfen, was ab wann gilt, eigener Fahrplan bis 2028. Kostenlos bis 07.01.2027.","url":"https://robin.vision/workshops/e-rechnung/","inLanguage":"de","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT45M","hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT45M"}]}</script>
 </head>
 <body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
@@ -135,9 +130,9 @@ html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterr
 <main>
 <article class="workshops erechnung-seite">
 <nav class="ws-umschalter" aria-label="Workshops"><a href="../../workshops/">KI-Kompetenz</a><a href="../../workshops/e-rechnung/" aria-current="page">E-Rechnung</a></nav>
-<figure class="ws-szene" aria-hidden="true"><span class="scene"><img class="vogel" src="../../figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"><img class="ast" src="../../assets/ast.webp" alt="" width="2800" height="167" decoding="async"></span></figure>
 <h1>Workshop E-Rechnung</h1>
 <p class="untertitel">Selbstlernformat, etwa 45 Minuten, im eigenen Browser</p>
+<figure class="ws-video"><video controls playsinline preload="none" poster="../../assets/videos/workshop-e-rechnung-ausschnitt.jpg" width="640" height="360" aria-label="Ausschnitt aus Kapitel 1: Ist ein PDF eine E-Rechnung?"><source src="../../assets/videos/workshop-e-rechnung-ausschnitt.mp4" type="video/mp4"></video><figcaption>Ausschnitt aus dem Workshop · KI-Figur, künstliche Stimme</figcaption></figure>
 <p>Seit 2025 müssen Unternehmen E-Rechnungen empfangen können, ab 2027 und 2028 auch selbst schreiben. Der Workshop zeigt Ihnen in etwa 45 Minuten, was eine E-Rechnung ist, wie Sie sie empfangen, lesen und prüfen und was für Ihren Betrieb ab wann gilt. Am Ende steht Ihr eigener Fahrplan bis 2028.</p>
 <ul class="punkte"><li>Direkt im Browser, wann es Ihnen passt, im eigenen Tempo</li><li>Videos mit Goch, Selbstchecks und eine Übung mit realistischen Beispielrechnungen und Musterlösung</li><li>Für Ihr Team: Kolleginnen und Kollegen gleich mit eintragen, jede Person bekommt ihren eigenen Zugang. Wer mag, zeigt den Workshop gemeinsam am Beamer oder im Call.</li><li>Checkliste, Karte „Fragen an Ihre Software“ und Teilnahmebestätigung für jede Person</li></ul>
 <p class="preis"><strong>Kostenlos bis 07.01.2027</strong> (Einführungsphase, Zugang 30 Tage ab Buchung), danach 47,60 € je Person (inkl. 19 % USt; 40 € netto).</p>

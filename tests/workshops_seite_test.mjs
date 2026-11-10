@@ -107,5 +107,12 @@ for (const s of WORKSHOPS) check(lesen(s.pfad).includes('class="ws-umschalter"')
 check(start.includes('id="workshop-e-rechnung"') && start.indexOf('id="workshop-e-rechnung"') > start.indexOf('id="workshops"') && !/workshop-buchen/.test((start.match(/<section class="blog-teaser workshops" id="workshops"[\s\S]*?<\/section>/) || [""])[0]), "Startseite: eigener Block E-Rechnung nach dem KI-Workshop, KI-Block unverändert");
 check(/^\| workshop-e-rechnung \|.*https:\/\/robin\.vision\/workshops\/e-rechnung\/ https:\/\/robin\.vision\/workshops\/en\/e-rechnung\/ \|$/m.test(links), "Gochs Linkliste kennt die Seite E-Rechnung");
 
+// Videoausschnitte (Robin, 10.11.2026): je Workshop ein eigener Ausschnitt mit Vorschaubild, ohne Autoplay
+const { existsSync, statSync } = await import("node:fs");
+for (const [pfad, datei] of [["workshops/index.html", "workshop-ki-kompetenz-ausschnitt"], ["workshops/en/index.html", "workshop-ki-kompetenz-ausschnitt"], ["workshops/e-rechnung/index.html", "workshop-e-rechnung-ausschnitt"], ["workshops/en/e-rechnung/index.html", "workshop-e-rechnung-ausschnitt"]]) {
+  const h = lesen(pfad);
+  check(h.includes(`assets/videos/${datei}.mp4`) && h.includes(`assets/videos/${datei}.jpg`) && !/autoplay/.test(h) && existsSync(root + `assets/videos/${datei}.mp4`) && statSync(root + `assets/videos/${datei}.mp4`).size < 4e6, `${pfad}: Videoausschnitt ${datei} (Datei da, unter 4 MB, kein Autoplay)`);
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nSeite „Workshops“ in Ordnung.");
 process.exit(fails ? 1 : 0);
