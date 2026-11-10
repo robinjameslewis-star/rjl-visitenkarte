@@ -16,7 +16,7 @@ import { handleLizenz } from "../worker/src/lizenz.js";
 
 const tmp = mkdtempSync(join(tmpdir(), "rv-lizenz-"));
 function kv() { const m = new Map(); return { get: async k => m.get(k) ?? null, put: async (k, v) => { m.set(k, String(v)); }, delete: async k => { m.delete(k); }, map: m }; }
-const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_BRUTTO_CENT: "23800" };
+const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_NETTO_CENT: "20000" };
 let uhr = Date.parse("2026-12-30T10:00:00+01:00");
 const echtesNow = Date.now;
 Date.now = () => uhr;

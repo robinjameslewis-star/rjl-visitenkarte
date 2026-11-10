@@ -44,13 +44,13 @@ export const TELEFON = "0151 68466088", ANBIETER_MAIL = "robin@robin.vision";
 export const ADRESSEN = { agb: "https://member.robin.vision/agb", belehrung: "https://member.robin.vision/widerrufsbelehrung#lizenz",
   widerruf: "https://member.robin.vision/widerruf", kuendigen: "https://member.robin.vision/kuendigen" };
 
-// Preis je Werkzeug: LIZENZ_BRUTTO_CENT_<WERKZEUG> (sonst LIZENZ_BRUTTO_CENT) ist maßgeblich (Gesamtpreis inkl. 19 % USt),
-// netto und Steuer werden daraus gerechnet
+// Preis je Werkzeug, nur an dieser Stelle: LIZENZ_NETTO_CENT_<WERKZEUG> (sonst LIZENZ_NETTO_CENT). Rechenweise wie im Memberbereich:
+// netto mal Menge (hier 1), Umsatzsteuer 19 % gerundet, brutto = netto + Steuer. Angezeigt wird der Bruttopreis hervorgehoben.
 export function preisDaten(env, werkzeug = "") {
-  const brutto = Math.round(+(env["LIZENZ_BRUTTO_CENT_" + String(werkzeug).toUpperCase()] || env.LIZENZ_BRUTTO_CENT) || 0);
-  if (!(brutto > 0)) return null;
-  const netto = Math.round(brutto * 100 / 119);
-  return { brutto_cent: brutto, netto_cent: netto, ust_cent: brutto - netto, satz: 19 };
+  const netto = Math.round(+(env["LIZENZ_NETTO_CENT_" + String(werkzeug).toUpperCase()] || env.LIZENZ_NETTO_CENT) || 0);
+  if (!(netto > 0)) return null;
+  const ust = Math.round(netto * 19 / 100);
+  return { brutto_cent: netto + ust, netto_cent: netto, ust_cent: ust, satz: 19 };
 }
 const euro = (cent, lang) => lang === "en" ? "€" + (cent / 100).toFixed(2) : (cent / 100).toFixed(2).replace(".", ",") + " €";
 export const preisText = (p, lang = "de") => !p ? "" : lang === "en"
@@ -284,7 +284,9 @@ const datumDe = ms => new Date(ms).toLocaleDateString("de-DE", { day: "2-digit",
 // Bestätigung des Vertrags (§ 312f Abs. 2 BGB, Art. 246a § 1 EGBGB): Vertragsinhalt, Lizenzbedingungen, Belehrung – im Text der E-Mail,
 // die AGB als Anhang (Abruf von member.robin.vision/agb; fehlt er, geht die Mail trotzdem, mit Link, und Robin bekommt einen Hinweis im Log).
 export function bestaetigungText(env, konto, kauf) {
-  const w = WERKZEUGE[kauf.werkzeug], brutto = kauf.brutto_cent ?? preisDaten(env, kauf.werkzeug)?.brutto_cent ?? 0, netto = Math.round(brutto * 100 / 119);
+  // Betrag wie bezahlt; Steuer aus dem eingestellten Preis, solange der Betrag dazu passt, sonst aus dem Betrag herausgerechnet
+  const w = WERKZEUGE[kauf.werkzeug], p = preisDaten(env, kauf.werkzeug), brutto = kauf.brutto_cent ?? p?.brutto_cent ?? 0;
+  const netto = p && p.brutto_cent === brutto ? p.netto_cent : Math.round(brutto * 100 / 119);
   return `Guten Tag,
 
 Ihr Kauf ist bestätigt. Hier steht alles, was zu Ihrem Vertrag gehört.

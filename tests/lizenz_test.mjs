@@ -80,9 +80,9 @@ r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1, bestellt: t
 check(r.status === 503 && /7\. Januar 2027/.test(r.error), "Kauf ohne Zahlungsdienst und Testkauf: Hinweis auf den 7. Januar 2027");
 
 // Testkauf
-env.LIZENZ_TESTKAUF = "1"; env.LIZENZ_BRUTTO_CENT = "23800";
+env.LIZENZ_TESTKAUF = "1"; env.LIZENZ_NETTO_CENT = "20000";
 r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
-check(r.kauf === true && r.preis === "238,00 € je Benutzer und Jahr (inkl. 19 % USt; 200,00 € netto)", "Preistext brutto zuerst, aus LIZENZ_BRUTTO_CENT gerechnet", r.preis);
+check(r.kauf === true && r.preis === "238,00 € je Benutzer und Jahr (inkl. 19 % USt; 200,00 € netto)", "Preistext brutto zuerst, aus LIZENZ_NETTO_CENT gerechnet (USt gerundet)", r.preis);
 check(r.preisDaten.netto_cent === 20000 && r.preisDaten.ust_cent === 3800 && r.geraete === 2 && r.adressen.widerruf === "https://member.robin.vision/widerruf", "Preisdaten, Geräte und Adressen für die Zusammenfassung");
 check((await post("status", { werkzeug: "erechnung", lang: "en", sitzung: sitzung1 })).preis === "€238.00 per user per year (including 19% German VAT; €200.00 net)", "Preistext englisch");
 r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1 });
