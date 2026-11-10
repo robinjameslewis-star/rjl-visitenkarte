@@ -3,3 +3,6 @@
 figuren/*
 !figuren/goch/
 __pycache__/
+
+# Lokale Einstellungen von Claude Code (freigegebene Befehle wörtlich, können Zugangsdaten enthalten)
+.claude/settings.local.json
