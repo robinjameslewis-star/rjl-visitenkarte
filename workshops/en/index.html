@@ -174,7 +174,11 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 .grundsaetze .gs-titel { display: block; margin: 3px 0 6px; font: 500 18px/1.3 var(--serif); color: var(--green); }
 .grundsaetze .gs-nb { white-space: nowrap; }
 .grundsaetze .gs-text { margin: 0; max-width: none; font-size: 14px; line-height: 1.55; color: var(--ink-soft); text-align: left; hyphens: manual; }
-@media (max-width: 720px) { .grundsaetze { grid-template-columns: 1fr; gap: 18px; } }</style>
+@media (max-width: 720px) { .grundsaetze { grid-template-columns: 1fr; gap: 18px; } }
+.ws-umschalter { display: flex; gap: 6px; margin: 0 0 22px; font: 500 13px/1.4 var(--sans); }
+.ws-umschalter a { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); text-decoration: none; }
+.ws-umschalter a:hover { border-color: var(--green); color: var(--green); }
+.ws-umschalter a[aria-current="page"] { border-color: var(--green); background: var(--green); color: var(--paper); }</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"AI literacy workshop for your team – With EU AI Act training","description":"AI literacy for your team: a workshop that breaks down barriers, an online course that trains your staff and builds their skills, and a test with a certificate that documents your measures under Article 4 of the EU AI Act. For accounting firms and companies, online or on site, in German or English.","url":"https://robin.vision/workshops/en/","inLanguage":"en","provider":{"@type":"Person","@id":"https://robin.vision/#person","name":"Robin James Lewis","url":"https://robin.vision/"},"educationalLevel":"Beginner","timeRequired":"PT3H","teaches":["What AI is today – and what it is not","The EU AI Act in ten minutes","Data that must never go in","Checking results","Asking well, working well","Everyday risks","House rules"],"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"Online","courseWorkload":"PT3H","name":"Online workshop"},{"@type":"CourseInstance","courseMode":"Onsite","courseWorkload":"PT4H30M","name":"On-site workshop"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","inLanguage":"en","mainEntity":[{"@type":"Question","name":"Is this training mandatory?","acceptedAnswer":{"@type":"Answer","text":"The EU AI Act requires organisations that use AI to take measures to ensure the AI literacy of their staff – how is for the organisation to decide. This workshop is one such measure, with evidence."}},{"@type":"Question","name":"Why a workshop and not just an online course?","acceptedAnswer":{"@type":"Answer","text":"Because barriers fall in conversation and questions from your own daily work help most. In the workshop your team develops its own use cases and gets to know selected tools; the course deepens that knowledge and carries it into daily work with practical tasks, and the test completes it."}},{"@type":"Question","name":"What do I see as the employer?","acceptedAnswer":{"@type":"Answer","text":"Each person's status – invited, started, course completed, passed – and the certificate number, as a list for your training records. Scores and attempts are not shown."}},{"@type":"Question","name":"What happens if someone fails the test?","acceptedAnswer":{"@type":"Answer","text":"After every submission the correct answer and an explanation are shown for each question. The test can be repeated as often as needed, with freshly drawn questions."}},{"@type":"Question","name":"What do we need technically?","acceptedAnswer":{"@type":"Answer","text":"A browser and an email address per person. Participants sign in with a link sent by email; anyone who prefers can set up a passkey, for example by fingerprint. There is no password. The course runs in the browser, on a phone too."}},{"@type":"Question","name":"Are products shown in the workshop?","acceptedAnswer":{"@type":"Answer","text":"Yes: selected tools such as SmartFormular, demonstrated with sample data. The content of the training is not affected; what you use is your decision."}},{"@type":"Question","name":"Is the workshop legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It explains obligations in general terms and refers to tax advisers, lawyers and data protection officers for individual cases."}}]}</script>
 </head>
@@ -189,6 +193,7 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 </header>
 <main>
 <article class="workshops">
+<nav class="ws-umschalter" aria-label="Workshops"><a href="../../workshops/en/" aria-current="page">AI literacy</a><a href="../../workshops/en/e-rechnung/">E-invoicing</a></nav>
 <h1>AI literacy workshop for your team</h1>
 <p class="abzeichen">With EU AI Act training</p>
 <p class="untertitel">A workshop that breaks down barriers. An online course that trains your team and builds their skills. A certificate that documents your measure under Article 4 of the EU AI Act.</p>
@@ -201,14 +206,6 @@ html[lang="en"] .teil::before { content: "Part " counter(teil); }
 <li><a class="knopf" href="#anfrage">Enquire about a workshop</a></li>
 <li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
 </ul>
-<section class="unterweisung erechnung" id="e-rechnung" aria-labelledby="e-rechnung-titel">
-<h2 id="e-rechnung-titel">E-invoicing workshop (in German)</h2>
-<p class="frei">Since 2025, businesses in Germany must be able to receive e-invoices; from 2027 and 2028 they must also issue them. In about 45 minutes, this workshop shows what an e-invoice is, how to receive, read and check one, and what applies to your business and when. You finish with your own roadmap to 2028.</p>
-<ul class="fakten"><li>Right in your browser, whenever it suits you, at your own pace</li><li>Videos with Goch, self-checks and an exercise with realistic sample invoices and model solutions</li><li>For your team: add colleagues when booking, each person gets their own access. If you like, show it together on a projector or in a call.</li><li>Checklist, a card “Questions for your software” and a certificate of attendance for each person</li></ul>
-<p class="frei"><strong>Free until 7 January 2027</strong> (launch phase, 30 days access from booking), then €47.60 per person (incl. 19% VAT; €40 net).</p>
-<p class="frei"><a class="knopf" href="https://member.robin.vision/workshop-buchen?workshop=e-rechnung&utm_source=website&utm_medium=workshops-en">Book the e-invoicing workshop</a></p>
-<p class="klein frei">For companies and accounting firms. Self-study format without tutoring: questions about the content are not part of the workshop.</p>
-</section>
 <h2 id="zusammenarbeit">How we work together</h2>
 <ol class="schritte">
 <li><span class="nr">01</span><strong>Analyse</strong><span class="was">It starts with a short, no-obligation call: I get a picture of your processes, of the software and AI you already use – and of where the process stalls today.</span></li>

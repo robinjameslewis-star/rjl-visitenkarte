@@ -38,10 +38,7 @@ for (const s of WORKSHOPS) {
   check((html.match(/<section class="teil">/g) || []).length === 3, "drei Teile");
   check((((html.match(/<ol class="kapitel">[\s\S]*?<\/ol>/) || [""])[0]).match(/<li><span class="nr">0\d<\/span>/g) || []).length === 7, "sieben Kapitel");
   check(t.formate.every(f => html.includes(`<h3>${f}</h3>`)) && (html.match(new RegExp(`<p class="preis frei">${t.preis}</p>`, "g")) || []).length === 2 && (html.match(/<section class="format">/g) || []).length === 2, "zwei Formate, Preis auf Anfrage");
-  // Der Workshop E-Rechnung (Selbstlernformat) nennt seinen Preis (W1/W2, freigegeben 10.11.2026); der KI-Workshop bleibt „auf Anfrage“.
-  const erechnung = (html.match(/<section class="unterweisung erechnung"[\s\S]*?<\/section>/) || [""])[0], ohneErechnung = html.replace(erechnung, "");
-  check(erechnung && /47,60 €|€47\.60/.test(erechnung) && erechnung.includes("workshop-buchen?workshop=e-rechnung"), "Workshop E-Rechnung mit Preis und Buchungslink");
-  check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b|"price"/.test(ohneErechnung), "sonst keine Preise auf der Seite (auf Anfrage)", (ohneErechnung.match(/.{0,30}(?:\d ?€|€ ?\d|EUR|"price").{0,30}/) || [""])[0]);
+  check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b|"price"/.test(html), "keine Preise auf der Seite (auf Anfrage)", (html.match(/.{0,30}(?:\d ?€|€ ?\d|EUR|"price").{0,30}/) || [""])[0]);
   check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 5, "Ablauf in fünf Schritten");
   check(/Online-Lehrgang|online course/.test(html) && !/Folien|slides/.test(html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/nicht mit Folien|not with slides/g, "")), "Online-Lehrgang statt Folien (die Abgrenzung „nicht mit Folien“ darf stehen)");
   check(html.includes(`href="${MEMBER_PRUEFUNG}"`) && /keine amtliche Bescheinigung|not an official attestation/.test(html), "Nachweis: Prüfseite verlinkt, Zertifikat ehrlich eingeordnet");
@@ -91,6 +88,24 @@ const links = lesen("worker/links.md");
 check(/^\| workshops \|.*https:\/\/robin\.vision\/workshops\/ https:\/\/robin\.vision\/workshops\/en\/ \|$/m.test(links), "Gochs Linkliste kennt die Seite");
 const profil = lesen("worker/profile.md");
 check(/\*\*Workshops\*\* – im Menü „Workshops“ \(Link „workshops“\)/.test(profil) && /„workshops“ im Feld "link"/.test(profil), "Goch kennt den Bereich Workshops und den Link");
+
+// Workshop E-Rechnung: eigene Seite, nicht mit dem KI-Workshop vermischt (Robin, 10.11.2026); beide Seiten tragen den Umschalter.
+const { WORKSHOP_ERECHNUNG, workshopErechnungSeite, workshopErechnungUrl } = await import("../worker/src/workshop_erechnung.js");
+for (const s of WORKSHOP_ERECHNUNG) {
+  const html = lesen(s.pfad), up = s.lang === "en" ? "../../../" : "../../";
+  console.log(`\n${s.pfad}`);
+  check(html === workshopErechnungSeite(s.lang), "entsteht genau aus worker/src/workshop_erechnung.js");
+  check(html.includes(`<link rel="canonical" href="${workshopErechnungUrl(s.lang)}">`), "canonical");
+  check(/47,60 €|€47\.60/.test(html) && /07\.01\.2027|7 January 2027/.test(html), "Preis und Einführungsphase wie im Memberbereich");
+  check((html.match(/workshop-buchen\?workshop=e-rechnung&amp;utm_source=website/g) || []).length === 2, "zwei Knöpfe zur Selbstbuchung");
+  check(html.includes(`<a href="${up}workshops/${s.lang === "en" ? "en/" : ""}e-rechnung/" aria-current="page">`), "Umschalter markiert E-Rechnung");
+  check(!/EU AI Act|KI-Verordnung|Unterweisung|AI literacy<\/h1>/.test(html.replace(/<nav class="ws-umschalter"[\s\S]*?<\/nav>/, "").replace(/<header[\s\S]*?<\/header>/, "").replace(/<footer[\s\S]*?<\/footer>/, "")), "kein Inhalt des KI-Workshops");
+  check(!PRIVAT.test(html.replace(/<script[\s\S]*?<\/script>/g, "")), "keine privaten Daten");
+  check(sitemap.includes(`<loc>${workshopErechnungUrl(s.lang)}</loc>`), "sitemap.xml kennt die Seite");
+}
+for (const s of WORKSHOPS) check(lesen(s.pfad).includes('class="ws-umschalter"') && !/e-rechnung-titel|workshop-buchen/.test(lesen(s.pfad)), `${s.pfad}: Umschalter, aber kein Inhalt des Workshops E-Rechnung`);
+check(start.includes('id="workshop-e-rechnung"') && start.indexOf('id="workshop-e-rechnung"') > start.indexOf('id="workshops"') && !/workshop-buchen/.test((start.match(/<section class="blog-teaser workshops" id="workshops"[\s\S]*?<\/section>/) || [""])[0]), "Startseite: eigener Block E-Rechnung nach dem KI-Workshop, KI-Block unverändert");
+check(/^\| workshop-e-rechnung \|.*https:\/\/robin\.vision\/workshops\/e-rechnung\/ https:\/\/robin\.vision\/workshops\/en\/e-rechnung\/ \|$/m.test(links), "Gochs Linkliste kennt die Seite E-Rechnung");
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nSeite „Workshops“ in Ordnung.");
 process.exit(fails ? 1 : 0);
