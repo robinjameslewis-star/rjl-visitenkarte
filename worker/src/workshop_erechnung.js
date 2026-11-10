@@ -84,7 +84,7 @@ html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterr
 .ws-szene .scene { position: relative; width: min(38vw, 470px); aspect-ratio: 1153 / 710; }
 .ws-szene img { position: absolute; left: 0; display: block; max-width: none; height: auto; }
 .ws-szene .vogel { top: 0; width: 100%; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
-.ws-szene .ast { top: 76.48%; width: 100%; }
+.ws-szene .ast { top: 76.48%; width: 242.8447528%; } /* wie .landscape-on .branch auf der Startseite: Gochs Füße greifen den Ast, der nach rechts aus dem Bild läuft */
 @media (max-width: 720px) { .ws-szene .scene { width: 78vw; } }
 ` + UMSCHALTER_CSS;
 
