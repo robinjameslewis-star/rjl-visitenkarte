@@ -20,6 +20,7 @@ globalThis.fetch = async (url, init) => {
   const u = String(url);
   if (u.startsWith("https://api.resend.com")) { mails.push(JSON.parse(init.body)); return new Response('{"id":"x"}', { status: 200 }); }
   if (u.startsWith("https://api.stripe.com")) { stripe.push(Object.fromEntries(new URLSearchParams(init.body))); return new Response('{"id":"cs_1","url":"https://checkout.stripe.com/c/pay/cs_1"}', { status: 200 }); }
+  if (u === "https://member.robin.vision/agb") return new Response("<h1>AGB agb-2026-8</h1>", { status: 200 });
   return new Response("offline", { status: 503 });
 };
 const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_GERAETE: "2" };
@@ -75,18 +76,22 @@ check(r.status === 401 && r.abgemeldet, "unbekannte Sitzung → neu anmelden");
 uhr = LIZENZPFLICHT_AB + 31 * TAG;
 r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
 check(r.status.typ === "testende" && r.status.gueltigBis <= uhr, "nach vier Wochen: Testende, nicht mehr frei");
-r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1 });
-check(r.status === 503, "Kauf ohne Stripe und Testkauf: noch nicht freigeschaltet");
+r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1, bestellt: true });
+check(r.status === 503 && /7\. Januar 2027/.test(r.error), "Kauf ohne Zahlungsdienst und Testkauf: Hinweis auf den 7. Januar 2027");
 
 // Testkauf
-env.LIZENZ_TESTKAUF = "1"; env.LIZENZ_PREIS = "199 € je Benutzer und Jahr";
+env.LIZENZ_TESTKAUF = "1"; env.LIZENZ_BRUTTO_CENT = "23681";
 r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
-check(r.kauf === true && r.preis.startsWith("199"), "Preistext kommt vom Worker");
+check(r.kauf === true && r.preis === "236,81 € je Benutzer und Jahr (inkl. 19 % USt; 199,00 € netto)", "Preistext brutto zuerst, aus LIZENZ_BRUTTO_CENT gerechnet", r.preis);
+check(r.preisDaten.netto_cent === 19900 && r.preisDaten.ust_cent === 3781 && r.geraete === 2 && r.adressen.widerruf === "https://member.robin.vision/widerruf", "Preisdaten, Geräte und Adressen für die Zusammenfassung");
+check((await post("status", { werkzeug: "erechnung", lang: "en", sitzung: sitzung1 })).preis === "€236.81 per user per year (incl. 19% German VAT; €199.00 net)", "Preistext englisch");
 r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1 });
+check(r.status === 409 && /Zahlungspflichtig bestellen/.test(r.error), "ohne Klick auf „Zahlungspflichtig bestellen“ kein Kauf (ältere Fassung)");
+r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1, bestellt: true });
 check(r.testkauf && r.status.typ === "lizenz" && r.status.bis === uhr + 365 * TAG, "Testkauf: Lizenz ein Jahr");
 check(r.status.gueltigBis === uhr + 30 * TAG, "offline höchstens 30 Tage, dann Prüfung");
 uhr += 360 * TAG;
-r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1 });
+r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1, bestellt: true });
 check(r.status.bis === LIZENZPFLICHT_AB + 31 * TAG + 730 * TAG, "Verlängerung schließt an (keine Tage verloren)");
 uhr += 800 * TAG;
 r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
@@ -95,21 +100,33 @@ env.LIZENZ_TESTKAUF = "0";
 
 // Stripe
 env.STRIPE_SECRET_KEY = "sk_test_x"; env.STRIPE_PREIS_ERECHNUNG = "price_123"; env.STRIPE_WEBHOOK_SECRET = "whsec_test";
-r = await post("kaufen", { werkzeug: "erechnung", lang: "de", sitzung: sitzung1 });
+r = await post("kaufen", { werkzeug: "erechnung", lang: "de", sitzung: sitzung1, bestellt: true });
 check(r.url === "https://checkout.stripe.com/c/pay/cs_1", "Stripe-Checkout-Adresse zurück");
 const f = stripe.at(-1);
 check(f.mode === "payment" && f["line_items[0][price]"] === "price_123" && f.customer_email === "kanzlei@beispiel.de" && f["metadata[werkzeug]"] === "erechnung", "Checkout: Einmalzahlung, Preis, Adresse, Werkzeug");
+check(f.billing_address_collection === "required" && f["tax_id_collection[enabled]"] === "true" && /^20\d\d-/.test(f["metadata[bestellt_am]"]), "Checkout: Anschrift (Land) Pflicht, USt-IdNr. möglich, Zeitpunkt der Bestellung");
 check(f.success_url.startsWith("https://robin.vision/werkzeuge/e-rechnung-pruefen/"), "zurück auf die Werkzeugseite");
 const eh = f["metadata[eh]"];
-const ereignis = JSON.stringify({ type: "checkout.session.completed", data: { object: { id: "cs_1", payment_status: "paid", metadata: { werkzeug: "erechnung", eh }, client_reference_id: eh } } });
+const ereignis = JSON.stringify({ type: "checkout.session.completed", data: { object: { id: "cs_1", payment_status: "paid", amount_total: 23681, metadata: { werkzeug: "erechnung", eh, lang: "de" }, client_reference_id: eh,
+  customer_details: { email: "kanzlei@beispiel.de", address: { country: "at" }, tax_ids: [] } } } });
 const sign = (roh, t = Math.floor(uhr / 1000), geheim = "whsec_test") => `t=${t},v1=${createHmac("sha256", geheim).update(t + "." + roh).digest("hex")}`;
 r = await post("stripe", ereignis, { "stripe-signature": sign(ereignis, Math.floor(uhr / 1000), "falsch") });
 check(r.status === 400, "Webhook mit falscher Signatur abgelehnt");
 r = await post("stripe", ereignis, { "stripe-signature": sign(ereignis, Math.floor(uhr / 1000) - 600) });
 check(r.status === 400, "Webhook zu alt abgelehnt");
+const mailsVorher = mails.length;
 r = await post("stripe", ereignis, { "stripe-signature": sign(ereignis) });
 check(r.ok, "Webhook angenommen");
 await post("stripe", ereignis, { "stripe-signature": sign(ereignis) });
+const best = mails.slice(mailsVorher).filter(m => /Bestätigung und Vertragsunterlagen/.test(m.subject));
+check(best.length === 1 && best[0].to[0] === "kanzlei@beispiel.de", "Bestätigung genau einmal an die Käuferin");
+const bt = best[0]?.text || "";
+check(/Telefon 0151 68466088/.test(bt) && /236,81 € einschließlich 37,81 € Umsatzsteuer \(19 %\)/.test(bt) && /endet dann von selbst/.test(bt), "Bestätigung: Anbieter mit Telefon, Gesamtpreis mit Steuer, Laufzeit ohne Verlängerung");
+check(/https:\/\/member\.robin\.vision\/widerruf/.test(bt) && /Verträge hier kündigen: https:\/\/member\.robin\.vision\/kuendigen/.test(bt), "Bestätigung: Widerruf und Kündigen verlinkt");
+check(best[0]?.attachments?.[0]?.filename === "AGB-robin.vision.html" && Buffer.from(best[0].attachments[0].content, "base64").toString().includes("agb-2026-8"), "Bestätigung: AGB als Anhang");
+check(bt.includes("Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.") && bt.includes("Muster-Widerrufsformular") && bt.includes("(*) Unzutreffendes streichen."), "Bestätigung: Widerrufsbelehrung W2 und Musterformular im Wortlaut");
+const umsatz = JSON.parse(env.USAGE.map.get("lizenz:umsatz:" + new Date(uhr).getUTCFullYear()));
+check(umsatz.AT.verbraucher.n === 1 && umsatz.AT.verbraucher.brutto_cent === 23681 && !umsatz.AT.unternehmen, "Auswertung je Land: ohne USt-IdNr. als Verbraucher, einmal gezählt");
 r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
 check(r.status.typ === "lizenz" && r.status.bis === uhr + 365 * TAG, "Zahlung schaltet ein Jahr frei, doppeltes Ereignis zählt einmal");
 check(await stripeSignaturOk("geheim", "t=1,v1=abc", "x", 1000) === false, "Signaturprüfung ohne gültigen Zeitstempel falsch");

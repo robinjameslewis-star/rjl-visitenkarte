@@ -16,7 +16,7 @@ import { handleLizenz } from "../worker/src/lizenz.js";
 
 const tmp = mkdtempSync(join(tmpdir(), "rv-lizenz-"));
 function kv() { const m = new Map(); return { get: async k => m.get(k) ?? null, put: async (k, v) => { m.set(k, String(v)); }, delete: async k => { m.delete(k); }, map: m }; }
-const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_PREIS: "199 € je Benutzer und Jahr" };
+const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_BRUTTO_CENT: "23681" };
 let uhr = Date.parse("2026-12-30T10:00:00+01:00");
 const echtesNow = Date.now;
 Date.now = () => uhr;
@@ -94,18 +94,24 @@ netz = true;
 await zeit("2027-02-05T09:00:00+01:00");
 await laden();
 check(/Test ist beendet/.test(await text(".rvl-maske")) && !(await sichtbar(".ewz-start")), "5.2.: Test beendet, Ablage gesperrt");
-check(/noch nicht freigeschaltet/.test(await text(".rvl-maske")), "ohne Kauf: Hinweis auf robin@robin.vision");
+check(/ab dem 7\. Januar 2027/.test(await text(".rvl-maske")) && !(await page.locator("#rvl-bestellen").count()), "ohne Kauf: Hinweis auf den 7. Januar 2027, kein Bestellknopf");
 await page.goto(DATEI + "#erstellen"); await page.waitForTimeout(400);
 check(!(await sichtbar("#ewz-tab-erstellen")) && !(await sichtbar("#ewz-panel-erstellen")) && !(await page.locator("#ewz-panel-erstellen .ewe").count()) && /Test ist beendet/.test(await text(".rvl-maske")),
   "5.2.: auch „Erstellen“ gesperrt – kein Reiter, keine Maske, auch mit #erstellen");
 await page.goto(DATEI); await page.waitForTimeout(400);
 env.LIZENZ_TESTKAUF = "1";
 await page.click("#rvl-neu-laden");
-await page.waitForSelector("#rvl-kaufen");
-check(/199 € je Benutzer und Jahr/.test(await text(".rvl-maske")), "Preis aus dem Worker sichtbar");
-await page.click("#rvl-kaufen");
+await page.waitForSelector("#rvl-bestellen");
+const zf = await text(".rvl-zusammenfassung");
+check(/236,81 €/.test(await page.locator(".rvl-zusammenfassung strong.rvl-preis").innerText()) && /inkl\. 19 % USt \(37,81 €\); 199,00 € netto/.test(zf), "Zusammenfassung: Bruttopreis hervorgehoben, Steuer und netto dahinter");
+check(/kanzlei@beispiel\.de, auf bis zu 3 Geräten/.test(zf) && /endet von selbst/.test(zf) && /per Karte/.test(zf), "Zusammenfassung: Person, Geräte, Laufzeit, Zahlungsmittel");
+check(await page.locator("#rvl-bestellen").innerText() === "Zahlungspflichtig bestellen", "Knopf heißt genau „Zahlungspflichtig bestellen“");
+check(await page.evaluate(() => { const z = document.querySelector(".rvl-zusammenfassung"), k = document.querySelector("#rvl-bestellen").parentElement; return z.nextElementSibling === k && k.children.length === 1; }), "zwischen Zusammenfassung und Knopf steht nichts");
+check(await page.evaluate(() => [...document.querySelectorAll(".rvl-maske a")].map(a => a.href).join(" ")).then(h => h.includes("/widerrufsbelehrung#lizenz") && h.includes("member.robin.vision/agb") && h.includes("#nutzungsbedingungen")), "Links zu Lizenzbedingungen, AGB und Widerrufsbelehrung vor der Bestellung");
+await page.click("#rvl-bestellen");
 await page.waitForSelector(".rvl-leiste:not([hidden])");
 check(/Lizenz bis 05\.02\.2028/.test(await text(".rvl-leiste")), "Testkauf: Lizenz bis 05.02.2028");
+check(/Vertrag widerrufen/.test(await text(".rvl-leiste")) && /Verträge hier kündigen/.test(await text(".rvl-leiste")), "Leiste mit Lizenz: „Vertrag widerrufen“ und „Verträge hier kündigen“");
 
 // e) Uhr zurück auf 2026: kein Schlupfloch
 await zeit("2026-12-01T09:00:00+01:00");
