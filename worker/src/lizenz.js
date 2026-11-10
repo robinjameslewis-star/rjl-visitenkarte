@@ -29,8 +29,8 @@
 // <eh> = SHA-256 von "lizenz:" + E-Mail-Adresse (klein geschrieben).
 
 export const WERKZEUGE = {
-  erechnung: { name: "SmartFormular E-Rechnung lite", seite: "https://robin.vision/werkzeuge/e-rechnung-pruefen/", seiteEn: "https://robin.vision/werkzeuge/e-invoice-viewer/" },
-  fibu: { name: "SmartFormular FiBu lite", seite: "https://robin.vision/werkzeuge/buchungsstapel-generator/", seiteEn: "https://robin.vision/werkzeuge/booking-batch-generator/" },
+  erechnung: { name: "SmartFormular E-Rechnung lite", leistung: "Erstellen von E-Rechnungen und die Datei zum Herunterladen; Lesen und Prüfen bleiben ohnehin kostenlos", seite: "https://robin.vision/werkzeuge/e-rechnung-pruefen/", seiteEn: "https://robin.vision/werkzeuge/e-invoice-viewer/" },
+  fibu: { name: "SmartFormular FiBu lite", leistung: "Nutzung der Datei zum Herunterladen nach dem Test", seite: "https://robin.vision/werkzeuge/buchungsstapel-generator/", seiteEn: "https://robin.vision/werkzeuge/booking-batch-generator/" },
 };
 // Beginn der Lizenzpflicht: 1. Januar 2027, 0 Uhr in Deutschland (MEZ = UTC+1)
 export const LIZENZPFLICHT_AB = Date.UTC(2026, 11, 31, 23);
@@ -145,7 +145,7 @@ async function statusAntwort(env, eh, konto, werkzeug, lang = "de") {
   const frei = s.typ === "lizenz" || s.typ === "test";
   // offline gültig bis: höchstens OFFLINE_TAGE, nie über das Ende von Test oder Lizenz hinaus
   const inhalt = { w: werkzeug, typ: s.typ, bis: s.bis, gueltigBis: frei ? Math.min(s.bis, jetzt + OFFLINE_TAGE * TAG) : jetzt, ausgestellt: jetzt, email: konto.email };
-  return { status: inhalt, token: await signieren(env, inhalt), preis: preisText(preisDaten(env, werkzeug), lang) || env.LIZENZ_PREIS || "", preisDaten: preisDaten(env, werkzeug), geraete: geraete(env), adressen: ADRESSEN, kauf: !!(stripeBereit(env, werkzeug) || env.LIZENZ_TESTKAUF === "1") };
+  return { status: inhalt, token: await signieren(env, inhalt), preis: preisText(preisDaten(env, werkzeug), lang) || env.LIZENZ_PREIS || "", preisDaten: preisDaten(env, werkzeug), geraete: geraete(env), adressen: ADRESSEN, kauf: kaufOffen(env, werkzeug) };
 }
 
 async function sitzungLesen(env, token) {
@@ -160,6 +160,8 @@ async function sitzungLesen(env, token) {
 }
 
 const geraete = env => Math.max(1, +(env.LIZENZ_GERAETE || 3));
+// Kaufen nur mit eingestelltem Preis: sonst stünde ein Bestellknopf unter einem leeren Gesamtpreis
+const kaufOffen = (env, werkzeug) => !!preisDaten(env, werkzeug) && (stripeBereit(env, werkzeug) || env.LIZENZ_TESTKAUF === "1");
 
 // Lizenz gewähren oder verlängern (Kauf, Testkauf, später auch von Hand). Doppelte Zahlungs-IDs zählen nur einmal.
 // angaben: weitere Felder des Kaufs (Land, Betrag, USt-IdNr. ja/nein) für Bestätigung und Auswertung
@@ -186,8 +188,9 @@ async function stripeCheckout(env, konto, eh, werkzeug, lang) {
     mode: "payment", "line_items[0][price]": stripePreis(env, werkzeug), "line_items[0][quantity]": "1",
     customer_email: konto.email, client_reference_id: eh, "metadata[werkzeug]": werkzeug, "metadata[eh]": eh,
     "payment_intent_data[metadata][werkzeug]": werkzeug, "invoice_creation[enabled]": "true", locale: lang === "en" ? "en" : "de",
-    // Anschrift (Land) für die Auswertung je Staat, USt-IdNr. freiwillig: mit Nummer zählt der Kauf als Unternehmen
-    billing_address_collection: "required", "tax_id_collection[enabled]": "true", "metadata[lang]": lang === "en" ? "en" : "de", "metadata[bestellt_am]": new Date().toISOString(),
+    // Anschrift (Land) für die Auswertung je Staat. Keine USt-IdNr.: Die Lizenz wird immer mit deutscher USt berechnet (Reverse Charge
+    // ist nicht gebaut), darum zählt jeder Kauf in der Auswertung als Verbraucher (zählt eher zu viel als zu wenig)
+    billing_address_collection: "required", "metadata[lang]": lang === "en" ? "en" : "de", "metadata[bestellt_am]": new Date().toISOString(),
     success_url: seite + "?lizenz=gekauft", cancel_url: seite,
   });
   const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
@@ -220,12 +223,20 @@ async function stripeWebhook(request, env) {
       const vorher = await kvJson(env, kontoSchluessel(eh));
       const schonDa = (vorher?.kaeufe || []).some(k => k.id === s.id);
       const land = String(s.customer_details?.address?.country || "").toUpperCase().slice(0, 2) || null;
-      const angaben = { land, brutto_cent: Number.isInteger(s.amount_total) ? s.amount_total : null, ustid: !!(s.customer_details?.tax_ids || []).length, lang: s.metadata?.lang === "en" ? "en" : "de" };
+      const angaben = { land, brutto_cent: Number.isInteger(s.amount_total) ? s.amount_total : null, ustid: false, lang: s.metadata?.lang === "en" ? "en" : "de" };
       const konto = await gewaehren(env, eh, werkzeug, "stripe", s.id, angaben);
-      if (!konto) console.error("Lizenz: Konto zu Zahlung fehlt", s.id);
-      else if (!schonDa) {
+      if (!konto) { console.error("Lizenz: Konto zu Zahlung fehlt", s.id); return json({ ok: true }); }
+      if (!schonDa) {
         await umsatzZaehlen(env, angaben);
-        await bestaetigen(env, konto, konto.kaeufe.at(-1), s.customer_details?.email || konto.email);
+        const p = preisDaten(env, werkzeug);
+        if (p && angaben.brutto_cent !== null && angaben.brutto_cent !== p.brutto_cent) console.error("Lizenz: bezahlter Betrag weicht vom eingestellten Preis ab", s.id, angaben.brutto_cent, p.brutto_cent);
+      }
+      // Bestätigung genau einmal; scheitert sie, antwortet der Webhook mit 500 und die Zustellung wird wiederholt
+      const kauf = konto.kaeufe.find(k => k.id === s.id);
+      if (!kauf.mail_am) {
+        if (!await bestaetigen(env, konto, kauf, s.customer_details?.email || konto.email)) return json({ error: "Bestätigung nicht verschickt." }, 500);
+        kauf.mail_am = new Date().toISOString();
+        await env.USAGE.put(kontoSchluessel(eh), JSON.stringify(konto));
       }
     }
   }
@@ -282,7 +293,7 @@ const base64 = b => { let t = ""; for (let i = 0; i < b.length; i += 0x8000) t +
 const datumDe = ms => new Date(ms).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" });
 
 // Bestätigung des Vertrags (§ 312f Abs. 2 BGB, Art. 246a § 1 EGBGB): Vertragsinhalt, Lizenzbedingungen, Belehrung – im Text der E-Mail,
-// die AGB als Anhang (Abruf von member.robin.vision/agb; fehlt er, geht die Mail trotzdem, mit Link, und Robin bekommt einen Hinweis im Log).
+// die AGB als Anhang (Abruf von member.robin.vision/agb; fehlt er, geht keine Mail, der Webhook antwortet 500 und wird wiederholt).
 export function bestaetigungText(env, konto, kauf) {
   // Betrag wie bezahlt; Steuer aus dem eingestellten Preis, solange der Betrag dazu passt, sonst aus dem Betrag herausgerechnet
   const w = WERKZEUGE[kauf.werkzeug], p = preisDaten(env, kauf.werkzeug), brutto = kauf.brutto_cent ?? p?.brutto_cent ?? 0;
@@ -293,7 +304,7 @@ Ihr Kauf ist bestätigt. Hier steht alles, was zu Ihrem Vertrag gehört.
 
 Vertragspartner: ${ANBIETER}, Telefon ${TELEFON}, ${ANBIETER_MAIL}
 
-Leistung: Lizenz für ${w.name} – Erstellen von E-Rechnungen und die Datei zum Herunterladen – für eine Person (${konto.email}) auf bis zu ${geraete(env)} Geräten. Lesen und Prüfen bleiben ohnehin kostenlos.
+Leistung: Lizenz für ${w.name} (${w.leistung}) für eine Person (${konto.email}) auf bis zu ${geraete(env)} Geräten.
 Gesamtpreis: ${euro(brutto)} einschließlich ${euro(brutto - netto)} Umsatzsteuer (19 %), bezahlt per Karte am ${datumDe(Date.parse(kauf.am))}. Die Rechnung kommt mit gesonderter E-Mail.
 Laufzeit: ein Jahr, bis ${datumDe(Date.parse(kauf.bis))}. Der Vertrag endet dann von selbst; eine Verlängerung gibt es nicht.
 Technik: aktueller Browser; Internet für die Anmeldung per Code, danach arbeitet das Werkzeug bis zu 30 Tage auch ohne Verbindung. Ihre Rechnungsdaten bleiben in Ihrem Browser.
@@ -313,10 +324,14 @@ async function bestaetigen(env, konto, kauf, an) {
   if (!env.RESEND_API_KEY || !adresseOk(an || "")) { console.error("Lizenz: Bestätigung nicht möglich", kauf.id); return false; }
   const anhaenge = [];
   try {
-    const r = await fetch(env.LIZENZ_AGB_URL || ADRESSEN.agb, { headers: { accept: "text/html" } });
+    // Über die Service Binding MEMBER (Memberbereich in derselben Zone), sonst über das Netz
+    const holen = env.MEMBER ? (u, o) => env.MEMBER.fetch(u, o) : fetch;
+    const r = await holen(env.LIZENZ_AGB_URL || ADRESSEN.agb, { headers: { accept: "text/html" } });
     if (r.ok) anhaenge.push({ filename: "AGB-robin.vision.html", content: base64(enc.encode(await r.text())) });
     else console.error("Lizenz: AGB nicht abrufbar", r.status);
   } catch (e) { console.error("Lizenz: AGB nicht abrufbar", String(e)); }
+  // Ohne AGB kein dauerhafter Datenträger (§ 312f BGB): nicht senden, der Webhook antwortet 500 und die Zustellung kommt wieder
+  if (!anhaenge.length) return false;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + env.RESEND_API_KEY },
     body: JSON.stringify({ from: env.LIZENZ_MAIL_FROM || "SmartFormular <lizenz@robin.vision>", to: [an], reply_to: ANBIETER_MAIL,
@@ -395,6 +410,7 @@ export async function handleLizenz(request, env, ctx) {
   if (pfad === "kaufen") {
     // Nur der Klick auf „Zahlungspflichtig bestellen“ nach der Zusammenfassung startet die Zahlung (ältere Fassungen ohne Zusammenfassung nicht)
     if (body.bestellt !== true) return json({ error: t.nichtBestellt }, 409);
+    if (!kaufOffen(env, werkzeug)) return json({ error: t.kaufAus }, 503);
     if (stripeBereit(env, werkzeug)) {
       const ziel = await stripeCheckout(env, s.konto, s.eh, werkzeug, lang);
       return ziel ? json({ url: ziel }) : json({ error: t.kaufFehler }, 502);

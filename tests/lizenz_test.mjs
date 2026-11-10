@@ -16,11 +16,12 @@ Date.now = () => uhr;
 
 function kv() { const m = new Map(); return { get: async k => m.get(k) ?? null, put: async (k, v) => { m.set(k, String(v)); }, delete: async k => { m.delete(k); }, map: m }; }
 const mails = [], stripe = [];
+let agbDa = true;
 globalThis.fetch = async (url, init) => {
   const u = String(url);
   if (u.startsWith("https://api.resend.com")) { mails.push(JSON.parse(init.body)); return new Response('{"id":"x"}', { status: 200 }); }
   if (u.startsWith("https://api.stripe.com")) { stripe.push(Object.fromEntries(new URLSearchParams(init.body))); return new Response('{"id":"cs_1","url":"https://checkout.stripe.com/c/pay/cs_1"}', { status: 200 }); }
-  if (u === "https://member.robin.vision/agb") return new Response("<h1>AGB agb-2026-8</h1>", { status: 200 });
+  if (u === "https://member.robin.vision/agb") return agbDa ? new Response("<h1>AGB agb-2026-8</h1>", { status: 200 }) : new Response("weg", { status: 502 });
   return new Response("offline", { status: 503 });
 };
 const env = { USAGE: kv(), RESEND_API_KEY: "r", LIZENZ_TESTKAUF: "0", LIZENZ_GERAETE: "2" };
@@ -78,6 +79,10 @@ r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
 check(r.status.typ === "testende" && r.status.gueltigBis <= uhr, "nach vier Wochen: Testende, nicht mehr frei");
 r = await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1, bestellt: true });
 check(r.status === 503 && /7\. Januar 2027/.test(r.error), "Kauf ohne Zahlungsdienst und Testkauf: Hinweis auf den 7. Januar 2027");
+env.LIZENZ_TESTKAUF = "1";
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzung1 });
+check(r.kauf === false && r.preis === "", "Testkauf ohne eingestellten Preis: kein Bestellknopf");
+check((await post("kaufen", { werkzeug: "erechnung", sitzung: sitzung1, bestellt: true })).status === 503, "Kauf ohne eingestellten Preis abgelehnt");
 
 // Testkauf
 env.LIZENZ_TESTKAUF = "1"; env.LIZENZ_NETTO_CENT = "20000";
@@ -104,7 +109,7 @@ r = await post("kaufen", { werkzeug: "erechnung", lang: "de", sitzung: sitzung1,
 check(r.url === "https://checkout.stripe.com/c/pay/cs_1", "Stripe-Checkout-Adresse zurück");
 const f = stripe.at(-1);
 check(f.mode === "payment" && f["line_items[0][price]"] === "price_123" && f.customer_email === "kanzlei@beispiel.de" && f["metadata[werkzeug]"] === "erechnung", "Checkout: Einmalzahlung, Preis, Adresse, Werkzeug");
-check(f.billing_address_collection === "required" && f["tax_id_collection[enabled]"] === "true" && /^20\d\d-/.test(f["metadata[bestellt_am]"]), "Checkout: Anschrift (Land) Pflicht, USt-IdNr. möglich, Zeitpunkt der Bestellung");
+check(f.billing_address_collection === "required" && !("tax_id_collection[enabled]" in f) && /^20\d\d-/.test(f["metadata[bestellt_am]"]), "Checkout: Anschrift (Land) Pflicht, keine USt-IdNr., Zeitpunkt der Bestellung");
 check(f.success_url.startsWith("https://robin.vision/werkzeuge/e-rechnung-pruefen/"), "zurück auf die Werkzeugseite");
 const eh = f["metadata[eh]"];
 const ereignis = JSON.stringify({ type: "checkout.session.completed", data: { object: { id: "cs_1", payment_status: "paid", amount_total: 23800, metadata: { werkzeug: "erechnung", eh, lang: "de" }, client_reference_id: eh,
@@ -115,6 +120,10 @@ check(r.status === 400, "Webhook mit falscher Signatur abgelehnt");
 r = await post("stripe", ereignis, { "stripe-signature": sign(ereignis, Math.floor(uhr / 1000) - 600) });
 check(r.status === 400, "Webhook zu alt abgelehnt");
 const mailsVorher = mails.length;
+agbDa = false;
+r = await post("stripe", ereignis, { "stripe-signature": sign(ereignis) });
+check(r.status === 500 && mails.length === mailsVorher, "AGB nicht abrufbar: keine Bestätigung, Webhook 500 (wird wiederholt)");
+agbDa = true;
 r = await post("stripe", ereignis, { "stripe-signature": sign(ereignis) });
 check(r.ok, "Webhook angenommen");
 await post("stripe", ereignis, { "stripe-signature": sign(ereignis) });

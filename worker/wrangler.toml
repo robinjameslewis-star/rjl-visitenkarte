@@ -100,6 +100,11 @@ name = "LOGIN_LIMIT"
 namespace_id = "2509"
 simple = { limit = 10, period = 60 }
 
+# Lizenzkauf (src/lizenz.js): AGB des Memberbereichs als Anhang der Bestätigung, abgerufen über diese Bindung statt über das Netz
+[[services]]
+binding = "MEMBER"
+service = "rv-member"
+
 [[rules]]
 type = "Text"
 globs = ["**/*.md"]
