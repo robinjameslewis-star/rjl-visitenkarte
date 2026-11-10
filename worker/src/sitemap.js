@@ -5,8 +5,12 @@
 export const SEITEN = [
   { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-24" },
   { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-24" },
-  { id: "workshops", lang: "de", adresse: "workshops/", stand: "2026-10-24" },
-  { id: "workshops", lang: "en", adresse: "workshops/en/", stand: "2026-10-24" },
+  // Übersicht „Workshops“ (seit 10.11.2026: zwei gleichrangige Workshops, Menüpunkt führt hierher; workshops_uebersicht.js)
+  { id: "workshops-uebersicht", lang: "de", adresse: "workshops/", stand: "2026-11-10" },
+  { id: "workshops-uebersicht", lang: "en", adresse: "workshops/en/", stand: "2026-11-10" },
+  // Workshop KI-Kompetenz (workshops.js; bis 10.11.2026 unter workshops/, alte Sprungmarken leitet die Übersicht weiter)
+  { id: "workshops", lang: "de", adresse: "workshops/ki-kompetenz/", stand: "2026-11-10" },
+  { id: "workshops", lang: "en", adresse: "workshops/en/ki-kompetenz/", stand: "2026-11-10" },
   // Eigene Seite Workshop E-Rechnung (workshop_erechnung.js, seit 10.11.2026; Robin: nicht mit dem KI-Workshop vermischen)
   { id: "workshop-e-rechnung", lang: "de", adresse: "workshops/e-rechnung/", stand: "2026-11-10" },
   { id: "workshop-e-rechnung", lang: "en", adresse: "workshops/en/e-rechnung/", stand: "2026-11-10" },

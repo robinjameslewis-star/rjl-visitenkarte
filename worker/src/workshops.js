@@ -360,7 +360,7 @@ const SKRIPT = (lang, t) => `<script>
 export function workshopsSeite(lang) {
   const t = TEXT[lang];
   if (!t) throw new Error("Unbekannte Sprache: " + lang);
-  const andere = lang === "en" ? "de" : "en", up = lang === "en" ? "../../" : "../", home = up + (lang === "en" ? "?lang=en" : "");
+  const andere = lang === "en" ? "de" : "en", up = lang === "en" ? "../../../" : "../../", home = up + (lang === "en" ? "?lang=en" : "");
   const canonical = workshopsUrl(lang);
   const main = `<article class="workshops">
 ${workshopUmschalter(lang, up, "ki")}
