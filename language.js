@@ -55,7 +55,7 @@
       ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshop für Ihr Team', ctaWorkshopsZusatz: 'mit Unterweisung nach EU AI Act',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
-      navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'Mehr zum Workshop', workshopsAnfrage: 'Workshop anfragen',
+      navWorkshops: 'Workshops', workshopsTitle: 'Workshop KI-Kompetenz', workshopsMore: 'Mehr zum Workshop', workshopsAnfrage: 'Workshop anfragen',
       workshopsLead: 'KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act. Für Kanzleien und Unternehmen, online oder vor Ort, auf Deutsch oder Englisch. Termine ab Januar 2027; Anfragen sind schon möglich.',
       // Startseite nach Option B (Robin, 23.10.2026): Workshops ausführlicher, Hinweis für Anbieter weiter unten
       workshopsTeil1Titel: 'Workshop:', workshopsTeil1: '90 Minuten online oder ein halber Tag vor Ort – Hemmschwellen abbauen, Anwendungsfälle aus Ihrem Alltag.',
@@ -169,7 +169,7 @@
       ctaTool: 'Try the tools', ctaWorkshops: 'Workshop for your team', ctaWorkshopsZusatz: 'with EU AI Act training',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
-      navWorkshops: 'Workshops', workshopsTitle: 'Workshops', workshopsMore: 'More about the workshop', workshopsAnfrage: 'Enquire about a workshop',
+      navWorkshops: 'Workshops', workshopsTitle: 'AI literacy workshop', workshopsMore: 'More about the workshop', workshopsAnfrage: 'Enquire about a workshop',
       workshopsLead: 'AI literacy for your team, with EU AI Act training. For accounting firms and businesses, online or on site, in German or English. Dates from January 2027; enquiries are welcome now.',
       // Startseite nach Option B (Robin, 23.10.2026): Workshops ausführlicher, Hinweis für Anbieter weiter unten
       workshopsTeil1Titel: 'Workshop:', workshopsTeil1: '90 minutes online or half a day on site – overcoming hesitation, use cases from your daily work.',

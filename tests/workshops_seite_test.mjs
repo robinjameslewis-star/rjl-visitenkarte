@@ -81,7 +81,7 @@ check(/data-i18n="workshopsMore">Mehr zum Workshop<\/a>/.test(start) && /data-i1
   && /data-i18n="workshopsTeil3">[^<]*als Nachweis Ihrer Maßnahme nach Art\. 4 KI-Verordnung/.test(start) && /data-i18n="workshopsLeitung">Ich leite die Workshops selbst/.test(start),
   "Startseite (Option B): Unterweisung nach EU AI Act, drei Teile, Leitung, „Workshop anfragen“ und „Mehr zum Workshop“");
 const lang = lesen("language.js");
-check((lang.match(/workshopsTitle: 'Workshops'/g) || []).length === 2 && /workshopsLead: '[^']*with EU AI Act training/.test(lang) && /workshopsMore: 'More about the workshop'/.test(lang) && /workshopsAnfrage: 'Enquire about a workshop'/.test(lang), "language.js: Titel, Text und Verweis in beiden Sprachen");
+check(/workshopsTitle: 'Workshop KI-Kompetenz'/.test(lang) && /workshopsTitle: 'AI literacy workshop'/.test(lang) && /workshopsLead: '[^']*with EU AI Act training/.test(lang) && /workshopsMore: 'More about the workshop'/.test(lang) && /workshopsAnfrage: 'Enquire about a workshop'/.test(lang), "language.js: Titel, Text und Verweis in beiden Sprachen");
 const sitemap = lesen("sitemap.xml");
 check(WORKSHOPS.every(s => sitemap.includes(`<loc>${workshopsUrl(s.lang)}</loc>`)), "sitemap.xml nennt beide Fassungen");
 const links = lesen("worker/links.md");
