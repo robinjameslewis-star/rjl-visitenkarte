@@ -109,6 +109,14 @@ article li { margin-bottom: 6px; }
 .erechnung-seite .ablauf { padding-left: 22px; }
 .erechnung-seite .ablauf li { margin: 0 0 8px; }
 .erechnung-seite .klein { font-size: 14px; color: var(--ink-soft); }
+html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterrand, ohne Querscrollen */
+/* Goch auf dem Ast wie auf der Startseite: der Ast kommt vom rechten Bildrand (Regel 03.11.2026), Szene 1153 × 710 wie index.html */
+.ws-szene { width: 100vw; margin: 0 0 8px calc(50% - 50vw); display: flex; justify-content: flex-end; pointer-events: none; }
+.ws-szene .scene { position: relative; width: min(38vw, 470px); aspect-ratio: 1153 / 710; }
+.ws-szene img { position: absolute; left: 0; display: block; max-width: none; height: auto; }
+.ws-szene .vogel { top: 0; width: 100%; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
+.ws-szene .ast { top: 76.48%; width: 100%; }
+@media (max-width: 720px) { .ws-szene .scene { width: 78vw; } }
 .ws-umschalter { display: flex; gap: 6px; margin: 0 0 22px; font: 500 13px/1.4 var(--sans); }
 .ws-umschalter a { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); text-decoration: none; }
 .ws-umschalter a:hover { border-color: var(--green); color: var(--green); }
@@ -127,6 +135,7 @@ article li { margin-bottom: 6px; }
 <main>
 <article class="workshops erechnung-seite">
 <nav class="ws-umschalter" aria-label="Workshops"><a href="../../../workshops/en/">AI literacy</a><a href="../../../workshops/en/e-rechnung/" aria-current="page">E-invoicing</a></nav>
+<figure class="ws-szene" aria-hidden="true"><span class="scene"><img class="vogel" src="../../../figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"><img class="ast" src="../../../assets/ast.webp" alt="" width="2800" height="167" decoding="async"></span></figure>
 <h1>E-invoicing workshop (in German)</h1>
 <p class="untertitel">Self-study, about 45 minutes, in your own browser</p>
 <p>Since 2025, businesses in Germany must be able to receive e-invoices; from 2027 and 2028 they must also issue them. In about 45 minutes, this workshop shows what an e-invoice is, how to receive, read and check one, and what applies to your business and when. You finish with your own roadmap to 2028.</p>
