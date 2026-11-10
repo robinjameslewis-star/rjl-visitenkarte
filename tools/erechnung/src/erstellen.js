@@ -3,6 +3,8 @@
 // (maske.js), die Vorschau zeigt genau das, was in der Datei steht (dieselbe Lesestrecke wie beim Prüfen), und vor dem Speichern
 // läuft der eigene Prüfkern mit den offiziellen Regeln: Mit Fehlern wird nicht gespeichert. Kein Archiv – die XML-Datei ist das Original.
 // Prüfkern, Ansicht, Befunde, GiroCode, Druck und Speichern kommen aus app.js (ctx), damit beide Reiter dasselbe zeigen.
+// Eine bestehende Rechnung (Word, PDF, Excel, Text oder XML) lässt sich übernehmen: gelesen nur im Browser (einlesen.js, erkennen.js),
+// danach steht sie in der Maske zum Prüfen; ihre Summe wird mit der des Dokuments verglichen.
 // Dazu, nur bei Bedarf sichtbar: Rechnungsarten (Abschlag, Dauer, Storno), eine frühere Rechnung als Vorlage (vorlage.js) und gemerkte
 // Empfänger und Positionen mit Vorschlägen beim Tippen, CSV und einer Sicherung aller lokalen Daten (stamm.js, csv.js).
 import { ZUSATZ, Q, STAND_ERSTELLEN } from "./recht.js";
@@ -17,6 +19,8 @@ import { rechnungAusDaten, folgeRechnung, stornoRechnung, spracheWechseln } from
 import { maskePruefen, naechsteNummer, nummerSpaeter, speichernErlaubt } from "./maske.js";
 import { firmaLeer, firmaBereinigen, firmaLesen, firmaSichern, firmaLoeschen, nummerLesen, nummerMerken, firmaExport, firmaImport, speicherDa } from "./firma.js";
 import { maskenfeld } from "./regeltexte.js";
+import { dokumentLesen } from "./einlesen.js";
+import { rechnungErkennen, firmaErgaenzen } from "./erkennen.js";
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ersetze = (s, w) => s.replace(/\{(\w+)\}/g, (_, k) => w[k] ?? "");
@@ -84,8 +88,9 @@ ${hilfe ? `<p class="ewe-hilfe" id="${id}-h">${esc(hilfe)}</p>` : ""}<p class="e
 
   // ---------- Gerüst ----------
   wurzel.innerHTML = `<div class="ewe">
-<div class="ewe-start"><p class="ewe-lead">${esc(E.lead)}</p><p class="ewe-knoepfe">${knopf("probe", E.probe)}${knopf("vorlage-auf", E.vorlageAuf, "ewz-zweit", ' aria-expanded="false" aria-controls="ewe-vorlage"')}${knopf("stamm-auf", E.stammAuf, "ewz-zweit", ' aria-expanded="false" aria-controls="ewe-stamm"')}</p>
-<div id="ewe-probe"></div><div id="ewe-vorlage" hidden></div><div id="ewe-stamm" hidden></div></div>
+<div class="ewe-start"><p class="ewe-lead">${esc(E.lead)}</p><p class="ewe-knoepfe">${knopf("einlesen", E.einlesen, "ewz-zweit", ' aria-describedby="ewe-einlesen-h"')}${knopf("probe", E.probe)}${knopf("vorlage-auf", E.vorlageAuf, "ewz-zweit", ' aria-expanded="false" aria-controls="ewe-vorlage"')}${knopf("stamm-auf", E.stammAuf, "ewz-zweit", ' aria-expanded="false" aria-controls="ewe-stamm"')}</p>
+<p class="ewz-klein ewe-einlesen-hilfe" id="ewe-einlesen-h">${esc(E.einlesenHilfe)}</p>
+<div id="ewe-einlesen"></div><div id="ewe-probe"></div><div id="ewe-vorlage" hidden></div><div id="ewe-stamm" hidden></div></div>
 <div class="ewe-raster">
 <div class="ewe-eingabe">
 <section class="ewz-abschnitt ewe-firma" aria-labelledby="ewe-hf"><div class="ewz-n ewe-n-leer" aria-hidden="true"></div><div class="ewz-inhalt" id="ewe-firma"></div></section>
@@ -101,7 +106,7 @@ ${abschnitt("03", "ewe-h3", E.schrittE3, `<div id="ewe-s3"></div>`)}
 </div>
 <p class="ewe-status" id="ewe-status" role="status" aria-live="polite"></p>
 <input type="file" id="ewe-import-datei" accept=".json,application/json" hidden>
-<input type="file" id="ewe-vorlage-eingabe" accept=".xml,application/xml,text/xml" hidden><input type="file" id="ewe-csv-eingabe" accept=".csv,text/csv,text/plain" hidden>
+<input type="file" id="ewe-vorlage-eingabe" accept=".xml,.pdf,.docx,.odt,.xlsx,.txt,application/xml,text/xml,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" hidden><input type="file" id="ewe-einlesen-eingabe" accept=".xml,.pdf,.docx,.odt,.xlsx,.txt,application/xml,text/xml,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" hidden><input type="file" id="ewe-csv-eingabe" accept=".csv,text/csv,text/plain" hidden>
 <input type="file" id="ewe-alle-eingabe" accept=".json,application/json" hidden>
 </div>`;
   const $ = id => document.getElementById(id);
@@ -232,16 +237,18 @@ ${feld("bemerkung", { typ: "textarea", klasse: "ewe-breit" })}
     $("ewe-aktion").innerHTML = `<p class="ewe-aktion-betrag"><span class="ewz-mini">${esc(z.rechnung.art === "storno" ? E.betragStorno : E.zuZahlen)}</span> <strong id="ewe-zahlbetrag" class="ewz-z"></strong></p>
 ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
   }
-  function allesZeichnen() { firmaZeichnen(); schritt1Zeichnen(); schritt2Zeichnen(); schritt3Zeichnen(); aktionZeichnen(); probeZeichnen(); vorlageZeichnen(); stammZeichnen(); aktualisieren(); }
+  function allesZeichnen() { einlesenZeichnen(); firmaZeichnen(); schritt1Zeichnen(); schritt2Zeichnen(); schritt3Zeichnen(); aktionZeichnen(); probeZeichnen(); vorlageZeichnen(); stammZeichnen(); aktualisieren(); }
   function probeZeichnen() {
     $("ewe-probe").innerHTML = z.probe ? `<p class="ewe-hinweis ewe-probe-hinweis">${esc(E.probeHinweis)} ${knopf("probe-ende", E.probeEnde)}</p>` : "";
     // Im Beispiel keine eigenen gemerkten Daten
-    for (const e of ["probe", "vorlage-auf", "stamm-auf"]) wurzel.querySelector(`[data-e="${e}"]`).hidden = z.probe;
+    for (const e of ["einlesen", "probe", "vorlage-auf", "stamm-auf"]) wurzel.querySelector(`[data-e="${e}"]`).hidden = z.probe;
+    $("ewe-einlesen-h").hidden = z.probe;
     if (z.probe) { z.vorlageOffen = false; z.stammOffen = false; }
   }
   // Nach jeder Änderung: Maske, Summen, Fehler am Feld, Vorschau und Prüfung planen
   function aktualisieren() {
     z.meldungen = maskePruefen(z.firma, z.rechnung, lang);
+    if (z.einlesen) einlesenFehltZeichnen();
     fehlerZeigen();
     summenZeigen();
     vorschauPlanen();
@@ -366,6 +373,16 @@ ${knopf("speichern", E.speichernKnopf, "ewz-haupt ewe-speichern")}`;
       return true;
     };
     if (gesperrt()) return;
+    // Nummer aus einem übernommenen Dokument, aber anderer Betrag: so nicht speichern (zwei verschiedene Rechnungen, eine Nummer)
+    const u = z.uebernommen;
+    if (u && z.rechnung.nummer.trim() === u.nummer) {
+      const s = summen({ ...z.rechnung, art: "rechnung" }, z.firma, lang), hier = u.brutto ? s.brutto : s.netto;
+      if (String(hier) !== u.soll) {
+        status(`${esc(ersetze(E.gleicheNummerAnders, { nummer: u.nummer, original: geldAnzeige(BigInt(u.soll), lang), hier: geldAnzeige(hier, lang) }))} ${knopf("nummer-neu", E.gleicheNummerNeu, "ewe-link")}`);
+        $("ewe-status").querySelector("button").focus();
+        return;
+      }
+    }
     // Dieselbe Nummer noch einmal: nur nach ausdrücklicher Bestätigung (Rechnungsnummern nur einmal vergeben)
     if (!trotzDoppelt && istDoppelt(z.rechnung.nummer)) {
       status(`${esc(ersetze(E.doppeltFrage, { nummer: z.rechnung.nummer.trim() }))} ${knopf("speichern-doch", E.doppeltDoch, "ewe-link")}`);
@@ -418,7 +435,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
   }
   function naechste() {
     const ziel = z.rechnung.zielTage;
-    z.rechnung = neueRechnung(z.firma, z.probe ? { letzte: z.rechnung.nummer } : z.letzte, ziel);
+    z.rechnung = neueRechnung(z.firma, z.probe ? { letzte: z.rechnung.nummer } : z.letzte, ziel); z.einlesen = null; z.uebernommen = null;
     z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.artOffen = false;
     allesZeichnen();
     $(domId("empfaenger.name")).focus();
@@ -426,7 +443,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
 
   // ---------- Beispieldaten (Regel 12): erfunden, nichts wird im Gerät gespeichert, die Nummer zählt nicht weiter ----------
   function probeStarten() {
-    z.sicherung = { firma: z.firma, rechnung: z.rechnung, firmaOffen: z.firmaOffen };
+    z.sicherung = { firma: z.firma, rechnung: z.rechnung, firmaOffen: z.firmaOffen }; z.einlesen = null; z.uebernommen = null;
     z.probe = true; z.firmaOffen = false;
     z.firma = firmaBereinigen({ name: "Glaserei Lindgrün GmbH", strasse: "Uferweg 12", plz: "54321", ort: "Beispielhausen", steuernummer: "21/815/08150", ustid: "DE999999999",
       register: "HRB 1234, Amtsgericht Beispielhausen", kontakt: { name: "Jonas Feldberg", telefon: "+49 1234 98765-0", email: "rechnung@glaserei-lindgruen.example" },
@@ -460,7 +477,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
     const erste = z.meldungen.find(m => m.feld.startsWith("firma."));
     if (erste) { zumFeld(erste.feld); return; }
     if (!z.probe) firmaSichern(z.firma);
-    z.firmaOffen = false; firmaZeichnen(); schritt2Zeichnen(); aktualisieren();
+    z.firmaOffen = false; firmaZeichnen(); schritt2Zeichnen(); einlesenZeichnen(); aktualisieren();
     $(domId("empfaenger.name")).focus();
   }
   function firmaWeg() {
@@ -573,11 +590,21 @@ ${z.vorlageDatei ? `<p class="ewz-klein">${esc(ersetze(E.vorlageAusDatei, { date
 ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.vorlageAbweichung, { original: geldAnzeige(z.vorlageDatei.abweichung.original, lang), hier: geldAnzeige(z.vorlageDatei.abweichung.hier, lang) }))}</p>` : ""}` : ""}
 <div class="ewe-knoepfe">${knopf("vorlage-datei", E.vorlageDatei)}${knopf("vorlage-zu", E.schliessen)}</div></section>`;
   }
+  // Eine Datei lesen: E-Rechnung (XML, ZUGFeRD) genau über die Lesestrecke des Prüfens, sonst Word, PDF, Excel, Text über erkennen.js
+  async function dokumentAuswerten(datei) {
+    const e = await dateiLesen(datei).catch(() => null);
+    if (e && e.art === "rechnung" && e.daten && !e.daten.fehler) return { ...rechnungAusDaten(e.daten, lang), quelle: "xml", gefunden: null, firma: null };
+    if (e && ["xml-defekt", "xml-dtd", "xml-fremd", "zugferd1"].includes(e.art)) return { fehler: "format" };
+    const bytes = new Uint8Array(await datei.arrayBuffer().catch(() => new ArrayBuffer(0)));
+    const d = await dokumentLesen(bytes, datei.name).catch(() => ({ fehler: "defekt" }));
+    if (d.fehler) return d;
+    try { return { ...rechnungErkennen(d.zeilen, { firma: z.firma.name.trim() ? z.firma : null, lang }), quelle: d.art }; } catch { return { fehler: "defekt" }; }
+  }
   async function vorlageAusDatei(datei) {
     status(esc(E.vorlageLaedt));
-    const e = await dateiLesen(datei).catch(() => null);
-    if (!e || e.art !== "rechnung" || !e.daten || e.daten.fehler) { status(esc(E.vorlageFehler)); return; }
-    z.vorlageDatei = { datei: datei.name, ...rechnungAusDaten(e.daten, lang) };
+    const e = await dokumentAuswerten(datei);
+    if (e.fehler || (e.quelle !== "xml" && !e.rechnung.positionen.length)) { status(esc(e.fehler ? E.einlesenFehler[e.fehler] || E.vorlageFehler : E.vorlageFehler)); return; }
+    z.vorlageDatei = { datei: datei.name, rechnung: e.rechnung, hinweise: e.quelle === "xml" ? e.hinweise : [], abweichung: e.abweichung };
     status("");
     vorlageZeichnen();
     wurzel.querySelector('#ewe-vorlage [data-q="datei"]').focus();
@@ -592,7 +619,7 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
     if (wie !== "storno" && z.firma.kleinunternehmer) r.positionen.forEach(p => { p.steuer = "E"; });
     else if (wie !== "storno" && alt.klein === true) r.positionen.forEach(p => { if (p.steuer === "E") p.steuer = z.firma.vorgaben.satz || "S19"; });
     if (!r.positionen.length) r.positionen = [neuePosition(z.firma)];
-    z.rechnung = r; z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.vorlageOffen = false; z.artOffen = r.art !== "rechnung";
+    z.rechnung = r; z.beruehrt.clear(); z.alleZeigen = false; z.gespeichert = null; z.vorlageOffen = false; z.artOffen = r.art !== "rechnung"; z.einlesen = null; z.uebernommen = null;
     allesZeichnen();
     const HT = { steuer: E.vorlageSteuer, einheit: E.vorlageEinheit, zuschlag: E.vorlageZuschlag, basis: E.vorlageBasis };
     const h = [...new Set(quelle.hinweise.map(x => ersetze(x.art === "zuschlag" && !x.name ? E.vorlageZuschlagR : HT[x.art] || "", { wert: x.wert, name: x.name })))];
@@ -600,6 +627,65 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
     const ab = quelle.abweichung ? " " + ersetze(E.vorlageAbweichung, { original: geldAnzeige(quelle.abweichung.original, lang), hier: geldAnzeige(quelle.abweichung.hier, lang) }) : "";
     status(esc(ersetze(wie === "storno" ? E.stornoOk : E.folgeOk, { nummer: alt.nummer }) + kleinWechsel + (h.length ? " " + ersetze(E.vorlageHinweise, { liste: h.join("; ") }) : "") + ab));
     $(domId(wie === "storno" ? "storno.nummer" : "nummer")).focus();
+  }
+
+  // ---------- Bestehende Rechnung übernehmen: so, wie sie ist (gleiche Nummer, gleiches Datum), zum Prüfen in der Maske ----------
+  async function einlesenUebernehmen(datei) {
+    status(esc(E.einlesenLaedt));
+    const e = await dokumentAuswerten(datei);
+    if (e.fehler) { status(esc(E.einlesenFehler[e.fehler] || E.einlesenFehler.defekt)); return; }
+    const r = spracheWechseln(e.rechnung, lang), g = e.gefunden || { nummer: !!r.nummer, datum: !!r.datum, leistung: true, empfaenger: !!r.empfaenger.name, positionen: r.positionen.length };
+    if (!Object.values(g).some(Boolean)) { status(esc(ersetze(E.einlesenNichts, { datei: datei.name }))); return; }
+    const vorher = z.rechnung, teile = [];
+    if (!r.nummer.trim()) { r.nummer = vorher.nummer; teile.push(E.einlesenOhneNummer); }
+    if (!r.datum) r.datum = heute();
+    if (r.leistung.art === "datum" && !r.leistung.datum) r.leistung.datum = r.datum;
+    if (!String(r.zielTage).trim()) r.zielTage = String(z.firma.vorgaben.zielTage);
+    if (z.firma.kleinunternehmer) r.positionen.forEach(p => { p.steuer = "E"; });
+    if (!r.positionen.length) r.positionen = [neuePosition(z.firma)];
+    // Eigene Angaben nur in leere Felder; kommt das Dokument von jemand anderem, bleibt alles, wie es ist
+    let firmaNeu = [];
+    if (e.firma) {
+      const a = falten(e.firma.name), b = falten(z.firma.name);
+      if (b && a && a !== b && !a.includes(b) && !b.includes(a)) teile.push(ersetze(E.einlesenAnders, { name: e.firma.name }));
+      else { const x = firmaErgaenzen(z.firma, e.firma); firmaNeu = x.neu; if (firmaNeu.length) { z.firma = x.firma; z.firmaOffen = true; } }
+    }
+    z.rechnung = r; z.beruehrt.clear(); firmaNeu.forEach(f => z.beruehrt.add(f)); z.alleZeigen = true; z.gespeichert = null; z.vorlageOffen = false; z.artOffen = r.art !== "rechnung";
+    allesZeichnen();
+    const T = E.einlesenTeile, liste = [g.nummer && T.nummer, g.datum && T.datum, g.leistung && T.leistung, g.empfaenger && T.empfaenger,
+      g.positionen && (g.positionen === 1 ? T.positionen1 : ersetze(T.positionen, { n: g.positionen })), g.ziel && T.ziel].filter(Boolean);
+    const H = E.einlesenHinweis, VT = { steuer: E.vorlageSteuer, einheit: E.vorlageEinheit, zuschlag: E.vorlageZuschlag, basis: E.vorlageBasis };
+    const text = x => x.art === "zuschlag" && !x.name ? E.vorlageZuschlagR : e.quelle === "xml" ? VT[x.art] || "" : x.art === "steuer" && !x.name ? H.steuerAlle : H[x.art] || VT[x.art] || "";
+    const h = [...new Set(e.hinweise.map(x => ersetze(text(x), { wert: x.wert, name: x.name })).filter(Boolean))];
+    const geld = c => geldAnzeige(BigInt(c), lang);
+    // Gleiche Nummer nur bei gleichem Inhalt (§ 14c UStG): Nummer und Betrag des Dokuments merken, beim Speichern vergleichen
+    const jetzt = summen({ ...z.rechnung, art: "rechnung" }, z.firma, lang), mitBrutto = !e.summe || e.summe.brutto != null;
+    const soll = e.summe ? (e.summe.brutto ?? e.summe.netto) : e.abweichung ? e.abweichung.original : jetzt.brutto;
+    z.uebernommen = g.nummer && r.nummer.trim() && soll != null ? { nummer: r.nummer.trim(), soll: String(soll), brutto: mitBrutto } : null;
+    if (z.uebernommen) teile.push(E.einlesenGleicheNummer);
+    z.einlesen = { text: [ersetze(E.einlesenOk, { datei: datei.name, liste: liste.join(", ") || "–" }), ...teile].filter(Boolean).join(" "), firma: firmaNeu.length > 0,
+      summe: e.abweichung ? { warn: true, text: ersetze(E.einlesenAbweichung, { original: geld(e.abweichung.original), hier: geld(e.abweichung.hier) }) } : e.bestaetigt ? { warn: false, text: ersetze(E.einlesenSumme, { betrag: geld(e.summe.brutto ?? e.summe.netto) }) } : null,
+      hinweise: h.length ? ersetze(E.vorlageHinweise, { liste: h.join("; ") }) : "" };
+    status("");
+    einlesenZeichnen();
+    const box = $("ewe-einlesen-box");
+    box.focus(); box.scrollIntoView({ block: "start", behavior: "auto" });
+  }
+  function einlesenFehltZeichnen() {
+    const p = $("ewe-einlesen-fehlt");
+    if (!p) return;
+    const fehlt = [...new Map(z.meldungen.map(m => [m.feld, m])).values()];
+    p.innerHTML = fehlt.length ? `${esc(E.einlesenFehlt)} ${fehlt.slice(0, 8).map(m => `<a href="#${domId(m.feld)}" data-zumfeld="${esc(m.feld)}">${esc(label(m.feld))}</a>`).join(", ")}${fehlt.length > 8 ? " …" : ""}` : esc(E.einlesenVollstaendig);
+  }
+  // Ergebnis des Übernehmens oben im Blick: was gefunden wurde, ob der Betrag stimmt, was noch fehlt (mit Sprung zum Feld)
+  function einlesenZeichnen() {
+    const box = $("ewe-einlesen"), x = z.einlesen;
+    if (!x) { box.innerHTML = ""; return; }
+    box.innerHTML = `<div class="ewe-hinweis ewe-einlesen-ergebnis" id="ewe-einlesen-box" tabindex="-1"><p>${esc(x.text)}${x.firma && z.firmaOffen ? ` ${esc(E.einlesenFirma)}` : ""}</p>
+${x.summe ? `<p class="${x.summe.warn ? "ewe-warn" : "ewe-ok"}"><strong>${esc(x.summe.text)}</strong></p>` : ""}${x.hinweise ? `<p>${esc(x.hinweise)}</p>` : ""}
+<p id="ewe-einlesen-fehlt"></p>
+<p>${knopf("einlesen-zu", E.schliessen, "ewe-link")}</p></div>`;
+    einlesenFehltZeichnen();
   }
 
   // ---------- Gemerkte Empfänger und Katalog: ändern, löschen, CSV, alle lokalen Daten ----------
@@ -799,6 +885,7 @@ ${teil("empfaenger")}${teil("katalog")}
   });
   $("ewe-import-datei").addEventListener("change", ev => { const d = ev.target.files[0]; ev.target.value = ""; if (d) firmaAusDatei(d); });
   $("ewe-vorlage-eingabe").addEventListener("change", ev => { const d = ev.target.files[0]; ev.target.value = ""; if (d) vorlageAusDatei(d); });
+  $("ewe-einlesen-eingabe").addEventListener("change", ev => { const d = ev.target.files[0]; ev.target.value = ""; if (d) einlesenUebernehmen(d); });
   let csvArt = "empfaenger";
   $("ewe-csv-eingabe").addEventListener("change", ev => { const d = ev.target.files[0]; ev.target.value = ""; if (d) csvEinlesen(d, csvArt); });
   $("ewe-alle-eingabe").addEventListener("change", ev => { const d = ev.target.files[0]; ev.target.value = ""; if (d) alleAusDatei(d); });
@@ -815,6 +902,16 @@ ${teil("empfaenger")}${teil("katalog")}
       case "vorlage-auf": z.vorlageOffen = !z.vorlageOffen; vorlageZeichnen(); if (z.vorlageOffen) $("ewe-hvl").focus(); break;
       case "vorlage-zu": z.vorlageOffen = false; vorlageZeichnen(); wurzel.querySelector('[data-e="vorlage-auf"]').focus(); break;
       case "vorlage-datei": $("ewe-vorlage-eingabe").click(); break;
+      case "einlesen": $("ewe-einlesen-eingabe").click(); break;
+      case "nummer-neu": {
+        z.rechnung.nummer = naechsteNummer(z.letzte && z.letzte.letzte, heute());
+        if (z.uebernommen && z.rechnung.nummer === z.uebernommen.nummer) z.rechnung.nummer = naechsteNummer(z.rechnung.nummer, heute());
+        allesZeichnen();
+        status(esc(ersetze(E.gleicheNummerNeuOk, { nummer: z.rechnung.nummer })));
+        $(domId("nummer")).focus();
+        break;
+      }
+      case "einlesen-zu": z.einlesen = null; einlesenZeichnen(); wurzel.querySelector('[data-e="einlesen"]').focus(); break;
       case "folge": vorlageNehmen(b.dataset.q, "folge"); break;
       case "vorlage-weg": {
         const i = +b.dataset.q, liste = [...z.rechnungen], [x] = liste.splice(i, 1);

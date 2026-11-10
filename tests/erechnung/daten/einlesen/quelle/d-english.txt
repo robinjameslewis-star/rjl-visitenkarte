@@ -1,0 +1,29 @@
+Northwind Software Ltd
+14 Harbour Lane
+Exampleton EX1 2AB
+United Kingdom
+VAT: GB123456782                                    accounts@northwind.example
+
+Bill to:
+Brandt Elektrotechnik GmbH
+Industriestraße 8
+23458 Kleinölbach
+Germany
+VAT ID: DE999999903
+
+INVOICE
+
+Invoice No.:  NW-2026-0457
+Invoice Date: 04/11/2026
+Service period: 01/10/2026 - 31/10/2026
+
+Description                         Qty      Unit Price        Amount
+Licence "Planner Pro", per user      12          29.00         348.00
+Onboarding session (remote)           1         450.00         450.00
+Support hours                       3.5          80.00         280.00
+
+Subtotal                                                     1,078.00
+Total due                                                    1,078.00
+
+Reverse charge: VAT to be accounted for by the recipient.
+Payment within 30 days to IBAN GB33 BUKB 2020 1555 5555 55, BIC BUKBGB22
