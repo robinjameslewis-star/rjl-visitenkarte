@@ -674,6 +674,12 @@ FiBu lite läuft es **direkt auf der Seite** (`app: "erechnung"` in `WERKZEUGE`)
 - **Abgleich mit der offiziellen Prüfung:** `node tools/erechnung/testdaten-holen.mjs`, `node tests/erechnung_korpus.mjs`,
   `tools/erechnung/.cache/venv/bin/python tests/erechnung_referenz.py 8` (saxonche, `pip install saxonche`), dann
   `node tests/erechnung_regeln_test.mjs`: dieselben Regelnummern im Browser wie mit Saxon, jede Abweichung ist ein Fehler.
+- **Rechnung übernehmen (Erstellen):** Eine bestehende Rechnung als Word (.docx), PDF mit Textebene, OpenDocument (.odt), Excel (.xlsx),
+  Text oder XML wird im Browser gelesen (`src/einlesen.js`, `src/pdftext.js`, ohne Bibliothek) und in die Maske übernommen
+  (`src/erkennen.js`: Nummer, Datum, Leistung, Zahlungsziel, Anschriften, Positionen, Steuer, Summen); leere Firmendaten werden ergänzt,
+  der Betrag wird mit dem des Dokuments verglichen. E-Rechnungen (XML, ZUGFeRD) laufen über dieselbe Lesestrecke wie beim Prüfen. Nicht
+  gelesen: Scans ohne Text, .doc, RTF, verschlüsselte PDFs. Test: `node tests/erechnung_einlesen_test.mjs` (Testrechnungen und ihre
+  Quellen in `tests/erechnung/daten/einlesen/`, Erzeuger Chrome, macOS-Druck und textutil; Word- und Excel-Aufbau im Test gebaut).
 - **Kundenreisen, Datenschutz, axe, Tastatur:** `node tests/erechnung_reisen_test.mjs` (Chrome über playwright-core; Fotos, Druck-PDF
   und Berichte in `tools/erechnung/.cache/reisen/`); nach dem Deploy mit `--basis https://robin.vision`.
 - **Regel-Lexikon** (Robin, 23.10.2026): je Prüfregel mit eigener Erklärung (`eigeneErklaerung` in `src/regeltexte.js`, derzeit 290)
