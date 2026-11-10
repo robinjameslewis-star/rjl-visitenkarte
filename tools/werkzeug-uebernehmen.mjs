@@ -60,9 +60,9 @@ Kontoauszüge, Vorlage und Buchungen werden nur in Ihrem Browserfenster verarbei
 
 **Keine Beratung, Ergebnis prüfen.** Das Werkzeug ist eine technische Hilfe und keine Steuer- oder Rechtsberatung. Prüfen Sie jeden Buchungsstapel vor dem Import und vor der Festschreibung; die Summenprüfung je Auszug hilft dabei.
 
-**Gewährleistung und Haftung.** Das Werkzeug wird unentgeltlich überlassen. Ich hafte nur für Vorsatz und grobe Fahrlässigkeit, für Mängel nur, wenn ich sie arglistig verschwiegen habe. Unberührt bleibt die Haftung für Schäden aus der Verletzung von Leben, Körper oder Gesundheit und nach dem Produkthaftungsgesetz.
+**Gewährleistung und Haftung.** Soweit ich das Werkzeug kostenlos überlasse, hafte ich nur für Vorsatz und grobe Fahrlässigkeit, für Mängel nur, wenn ich sie arglistig verschwiegen habe. Für eine bezahlte Lizenz gelten die gesetzlichen Mängelrechte und die Haftungsregeln der AGB von robin.vision. Unberührt bleibt in jedem Fall die Haftung für Schäden aus der Verletzung von Leben, Körper oder Gesundheit und nach dem Produkthaftungsgesetz.
 
-**Weiterentwicklung.** Ein Anspruch auf Aktualisierungen, Unterstützung oder dauerhafte Bereitstellung besteht nicht.
+**Weiterentwicklung.** Für kostenlos überlassene Teile besteht kein Anspruch auf Aktualisierungen, Unterstützung oder dauerhafte Bereitstellung. Während einer bezahlten Lizenz stelle ich die Aktualisierungen bereit, die für die vertragsgemäße Nutzung nötig sind.
 
 **Marken.** DATEV ist eine eingetragene Marke der DATEV eG. Das Werkzeug steht in keiner Verbindung zur DATEV eG und wird von ihr weder geprüft noch unterstützt. Weitere genannte Namen sind Marken ihrer Inhaber.
 
@@ -112,9 +112,9 @@ Bank statements, template and postings are processed only in your browser window
 
 **No advice, check the result.** The tool is a technical aid and not tax or legal advice. Check every booking batch before importing it and before finalising it; the balance check for each statement helps with this.
 
-**Warranty and liability.** The tool is provided free of charge. I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. Liability for injury to life, body or health and under the German Product Liability Act remains unaffected.
+**Warranty and liability.** Where I provide the tool free of charge, I am liable only for intent and gross negligence, and for defects only if I fraudulently concealed them. For a paid licence, your statutory rights for defects and the liability rules of robin.vision’s general terms apply. In every case, liability for injury to life, body or health and under the German Product Liability Act remains unaffected.
 
-**Further development.** There is no entitlement to updates, support or permanent availability.
+**Further development.** For the parts provided free of charge there is no entitlement to updates, support or permanent availability. During a paid licence I provide the updates needed to keep the tool working as agreed.
 
 **Trademarks.** DATEV is a registered trademark of DATEV eG. The tool is not affiliated with DATEV eG and is neither reviewed nor endorsed by it. Other names mentioned are trademarks of their respective owners.
 
