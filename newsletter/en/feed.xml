@@ -6,6 +6,20 @@
   <description>Food for Thought, tools and workshops by email</description>
   <language>en</language>
   <item>
+    <title>SmartFormular E-Rechnung lite: Version db63821</title>
+    <link>https://robin.vision/werkzeuge/e-invoice-viewer/#fassung-db63821</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/e-invoice-viewer/#fassung-db63821</guid>
+    <pubDate>Tue, 10 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
+<p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
+<h3>Tools</h3>
+<p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">More about the workshop</a></p>]]></description>
+  </item>
+  <item>
     <title>SmartFormular E-Rechnung lite: Version 485de8d</title>
     <link>https://robin.vision/werkzeuge/e-invoice-viewer/#fassung-485de8d</link>
     <guid isPermaLink="true">https://robin.vision/werkzeuge/e-invoice-viewer/#fassung-485de8d</guid>
@@ -43,8 +57,8 @@
 <p>With an agent, the cost lies not in the individual question but in the route it picks for itself: steps, retries, sub-agents working side by side, restarts. Without a ceiling, usage climbs whether or not the benefit does. That makes it a job for financial control, as with any other contractor.</p>
 <p><a href="https://robin.vision/blog/agents-need-a-budget/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
@@ -147,8 +161,8 @@
 <p>Three kinds of software tend to get lumped together at the moment. Automation follows fixed rules: same input, same result. It is fast and can be checked, but it only knows what someone has set up in advance. An assistant answers questions and makes suggestions; a person decides and acts. An agent, by contrast, pursues a goal, decides on the next step itself and carries it out – even where no rule has been laid down.</p>
 <p><a href="https://robin.vision/blog/agent-automation-or-assistant/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
@@ -181,8 +195,8 @@
 <p>At the same time, tax firms are looking for staff and cannot find them. According to the STAX survey of the German Federal Chamber of Tax Advisers (2024, reference year 2023), among sole practitioners who had tried to fill positions, 43.4 % could not fill any and a further 33.4 % could fill only some of their vacancies. Most of those sought were tax assistants (Steuerfachangestellte).</p>
 <p><a href="https://robin.vision/blog/the-position-that-can-t-be-filled/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
@@ -229,8 +243,8 @@
 <p>An ERP system is an excellent archive. It tells you what happened. Since 2025, a term has been doing the rounds that promises rather more: ARP, agentic resource planning. Agents keep constant watch, work out the consequences and act within guardrails set by a person – or put the decision forward for approval. That is how the software company SHAKE describes it; in 2026, it declared ARP a category of its own.</p>
 <p><a href="https://robin.vision/blog/mistakes-multiply/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
@@ -263,8 +277,8 @@
 <p>My last piece was about breaks in the digital chain. An interface closes that break, but the transfer remains: the same data sits in two systems, has to be reconciled and matched, and every hand-off can go wrong. Sales invoices travel from the inventory system into accounting through an invoicing interface; payroll entries come across from the payroll system. These interfaces only exist because two systems within the same business are kept apart. They are bridges over a gap that a shared data model would never have had.</p>
 <p><a href="https://robin.vision/blog/the-end-of-erp/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
@@ -283,8 +297,8 @@
 <p>So is it enough to leave the scanned invoice behind? Not quite. Data gets keyed in twice in plenty of other places. Copying figures by hand from one system into another, because nobody has set up an interface, is just as much a break in the chain. More on that in my next piece, on interfaces.</p>
 <p><a href="https://robin.vision/blog/seamless-data-flow-where-data-still-changes-media/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
@@ -303,8 +317,8 @@
 <p>The principle will be familiar from integrated business software (ERP) and from digital HR systems with an employee portal: master data and transactions are passed on for processing as soon as they arise, either in real time or at set intervals. ERP systems have done exactly this with sales invoicing for decades. The billing data goes straight to accounts receivable as structured data, and the printed invoice never played any part in the outcome. It was only ever needed by the customer and for the tax audit.</p>
 <p><a href="https://robin.vision/blog/e-invoicing-from-invoice-image-to-data-record/">Read the whole post</a></p>
 <h3>New in SmartFormular E-Rechnung lite</h3>
-<p><em>Version 485de8d of 8 November 2026</em></p>
-<p>Checking stays free: reading and checking on this page stay free of charge and need no sign-in, from 2027 too. From 1 January 2027, creating invoices and the downloadable file require a licence – before that you get a free four-week trial from your first sign-in. Until 31 December 2026 nothing changes.</p>
+<p><em>Version db63821 of 10 November 2026</em></p>
+<p>Take over an invoice: on the “Create” tab you can take over an existing invoice as a Word file, PDF, OpenDocument, Excel or text file. The tool reads it in this browser only, fills in the recipient, line items, number and dates, and compares the amount with the document. You check it, add anything missing and save it as an XRechnung.</p>
 <p><a href="https://robin.vision/werkzeuge/e-invoice-viewer/">To the tool: SmartFormular E-Rechnung lite</a></p>
 <h3>Tools</h3>
 <p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
