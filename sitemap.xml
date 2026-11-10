@@ -57,15 +57,27 @@
   </url>
   <url>
     <loc>https://robin.vision/workshops/</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/workshops/en/</loc>
-    <lastmod>2026-10-24</lastmod>
+    <lastmod>2026-11-10</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/workshops/ki-kompetenz/</loc>
+    <lastmod>2026-11-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/ki-kompetenz/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/ki-kompetenz/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/workshops/en/ki-kompetenz/</loc>
+    <lastmod>2026-11-10</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/workshops/ki-kompetenz/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/ki-kompetenz/"/>
   </url>
   <url>
     <loc>https://robin.vision/workshops/e-rechnung/</loc>

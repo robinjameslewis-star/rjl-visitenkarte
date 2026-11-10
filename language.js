@@ -52,7 +52,7 @@
       title: 'robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien',
       // Über der Falz und „Über mich“ (Robin, 16.10.2026)
       slogan: 'Prozesse effizient gestalten',
-      ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshop für Ihr Team', ctaWorkshopsZusatz: 'mit Unterweisung nach EU AI Act',
+      ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshops für Ihr Team', ctaWorkshopsZusatz: 'KI-Kompetenz · E-Rechnung',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
       navWorkshops: 'Workshops', workshopsTitle: 'Workshop KI-Kompetenz', workshopsMore: 'Mehr zum Workshop', workshopsAnfrage: 'Workshop anfragen',
@@ -166,7 +166,7 @@
       description: 'Accounting tools: check and pay e-invoices free of charge, turn bank statements into booking batches – free to try until 31 December 2026. AI literacy workshops with EU AI Act training. New Food for Thought every Friday.',
       title: 'robin.vision – Tools and workshops for businesses and accounting firms',
       slogan: 'Streamlining processes',
-      ctaTool: 'Try the tools', ctaWorkshops: 'Workshop for your team', ctaWorkshopsZusatz: 'with EU AI Act training',
+      ctaTool: 'Try the tools', ctaWorkshops: 'Workshops for your team', ctaWorkshopsZusatz: 'AI literacy · e-invoicing',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
       navWorkshops: 'Workshops', workshopsTitle: 'AI literacy workshop', workshopsMore: 'More about the workshop', workshopsAnfrage: 'Enquire about a workshop',

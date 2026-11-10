@@ -7,8 +7,9 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 import { WORKSHOPS, workshopsSeite } from "../worker/src/workshops.js";
 import { WORKSHOP_ERECHNUNG, workshopErechnungSeite } from "../worker/src/workshop_erechnung.js";
+import { UEBERSICHT, uebersichtSeite } from "../worker/src/workshops_uebersicht.js";
 
-for (const s of [...WORKSHOPS.map(w => ({ ...w, bau: workshopsSeite })), ...WORKSHOP_ERECHNUNG.map(w => ({ ...w, bau: workshopErechnungSeite }))]) {
+for (const s of [...WORKSHOPS.map(w => ({ ...w, bau: workshopsSeite })), ...WORKSHOP_ERECHNUNG.map(w => ({ ...w, bau: workshopErechnungSeite })), ...UEBERSICHT.map(w => ({ ...w, bau: uebersichtSeite }))]) {
   const html = s.bau(s.lang);
   const alt = existsSync(s.pfad) ? readFileSync(s.pfad, "utf8") : null;
   mkdirSync(dirname(s.pfad), { recursive: true });

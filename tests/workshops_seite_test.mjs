@@ -22,8 +22,8 @@ const PRIVAT = /\b01[5-7]\d[ \-]?\d{3}[ \-]?\d{3,}\b|gmail|googlemail|Höchststr
 const UEBERTRIEBEN = /(?<![„“"])Pflichtschulung|zertifizierungspflichtig|sonst droht|Bußgeld droht|(?<![“"])mandatory course|or face a fine|!/;
 const DU = /\b(du|dich|dir|dein|deine|deinen|deinem|deiner)\b/i;
 const T = {
-  de: { h1: "Workshop KI-Kompetenz für Ihr Team", abzeichen: "Mit Unterweisung nach EU AI Act", up: "../", nav: /<a href="\.\.\/workshops\/" aria-current="page">Workshops<\/a>/, home: "../", formate: ["Workshop online", "Workshop vor Ort"], preis: "Preis auf Anfrage", recht: /Verordnung \(EU\) 2024\/1689/, titel: "Workshop KI-Kompetenz mit Unterweisung nach EU AI Act", kasten: "Die Unterweisung nach EU AI Act" },
-  en: { h1: "AI literacy workshop for your team", abzeichen: "With EU AI Act training", up: "../../", nav: /<a href="\.\.\/\.\.\/workshops\/en\/" aria-current="page">Workshops<\/a>/, home: "../../?lang=en", formate: ["Online workshop", "On-site workshop"], preis: "Price on request", recht: /Regulation \(EU\) 2024\/1689/, titel: "AI literacy workshop with EU AI Act training", kasten: "The EU AI Act training" },
+  de: { h1: "Workshop KI-Kompetenz für Ihr Team", abzeichen: "Mit Unterweisung nach EU AI Act", up: "../../", nav: /<a href="\.\.\/\.\.\/workshops\/" aria-current="page">Workshops<\/a>/, home: "../../", formate: ["Workshop online", "Workshop vor Ort"], preis: "Preis auf Anfrage", recht: /Verordnung \(EU\) 2024\/1689/, titel: "Workshop KI-Kompetenz mit Unterweisung nach EU AI Act", kasten: "Die Unterweisung nach EU AI Act" },
+  en: { h1: "AI literacy workshop for your team", abzeichen: "With EU AI Act training", up: "../../../", nav: /<a href="\.\.\/\.\.\/\.\.\/workshops\/en\/" aria-current="page">Workshops<\/a>/, home: "../../../?lang=en", formate: ["Online workshop", "On-site workshop"], preis: "Price on request", recht: /Regulation \(EU\) 2024\/1689/, titel: "AI literacy workshop with EU AI Act training", kasten: "The EU AI Act training" },
 };
 for (const s of WORKSHOPS) {
   const t = T[s.lang], html = lesen(s.pfad);
@@ -77,7 +77,7 @@ const start = lesen("index.html");
 check((start.match(/<a href="workshops\/" data-href-de="workshops\/" data-href-en="workshops\/en\/" data-i18n="navWorkshops">Workshops<\/a><a href="ueber-mich\/"/g) || []).length === 2, "Startseite: Menüpunkt „Workshops“ in beiden Navigationen vor „Über mich“");
 check(start.includes('<section class="blog-teaser workshops" id="workshops" aria-labelledby="workshops-title">') && start.indexOf('id="workshops"') > start.indexOf('id="werkzeuge"') && start.indexOf('id="workshops"') < start.indexOf('id="ueber-mich"'), "Startseite: Abschnitt zwischen SmartFormularen und Über mich");
 check(/data-i18n="workshopsMore">Mehr zum Workshop<\/a>/.test(start) && /data-i18n="workshopsLead">[^<]*mit Unterweisung nach EU AI Act/.test(start)
-  && /href="workshops\/#anfrage" data-href-de="workshops\/#anfrage" data-href-en="workshops\/en\/#anfrage" data-i18n="workshopsAnfrage">Workshop anfragen<\/a>/.test(start)
+  && /href="workshops\/ki-kompetenz\/#anfrage" data-href-de="workshops\/ki-kompetenz\/#anfrage" data-href-en="workshops\/en\/ki-kompetenz\/#anfrage" data-i18n="workshopsAnfrage">Workshop anfragen<\/a>/.test(start)
   && /data-i18n="workshopsTeil3">[^<]*als Nachweis Ihrer Maßnahme nach Art\. 4 KI-Verordnung/.test(start) && /data-i18n="workshopsLeitung">Ich leite die Workshops selbst/.test(start),
   "Startseite (Option B): Unterweisung nach EU AI Act, drei Teile, Leitung, „Workshop anfragen“ und „Mehr zum Workshop“");
 const lang = lesen("language.js");
@@ -85,7 +85,7 @@ check(/workshopsTitle: 'Workshop KI-Kompetenz'/.test(lang) && /workshopsTitle: '
 const sitemap = lesen("sitemap.xml");
 check(WORKSHOPS.every(s => sitemap.includes(`<loc>${workshopsUrl(s.lang)}</loc>`)), "sitemap.xml nennt beide Fassungen");
 const links = lesen("worker/links.md");
-check(/^\| workshops \|.*https:\/\/robin\.vision\/workshops\/ https:\/\/robin\.vision\/workshops\/en\/ \|$/m.test(links), "Gochs Linkliste kennt die Seite");
+check(/^\| workshops \|.*https:\/\/robin\.vision\/workshops\/ki-kompetenz\/ https:\/\/robin\.vision\/workshops\/en\/ki-kompetenz\/ \|$/m.test(links), "Gochs Linkliste kennt die Seite");
 const profil = lesen("worker/profile.md");
 check(/\*\*Workshops\*\* – im Menü „Workshops“ \(Link „workshops“\)/.test(profil) && /„workshops“ im Feld "link"/.test(profil), "Goch kennt den Bereich Workshops und den Link");
 
@@ -109,10 +109,23 @@ check(/^\| workshop-e-rechnung \|.*https:\/\/robin\.vision\/workshops\/e-rechnun
 
 // Videoausschnitte (Robin, 10.11.2026): je Workshop ein eigener Ausschnitt mit Vorschaubild, ohne Autoplay
 const { existsSync, statSync } = await import("node:fs");
-for (const [pfad, datei] of [["workshops/index.html", "workshop-ki-kompetenz-ausschnitt"], ["workshops/en/index.html", "workshop-ki-kompetenz-ausschnitt"], ["workshops/e-rechnung/index.html", "workshop-e-rechnung-ausschnitt"], ["workshops/en/e-rechnung/index.html", "workshop-e-rechnung-ausschnitt"]]) {
+for (const [pfad, datei] of [["workshops/ki-kompetenz/index.html", "workshop-ki-kompetenz-ausschnitt"], ["workshops/en/ki-kompetenz/index.html", "workshop-ki-kompetenz-ausschnitt"], ["workshops/e-rechnung/index.html", "workshop-e-rechnung-ausschnitt"], ["workshops/en/e-rechnung/index.html", "workshop-e-rechnung-ausschnitt"]]) {
   const h = lesen(pfad);
   check(h.includes(`assets/videos/${datei}.mp4`) && h.includes(`assets/videos/${datei}.jpg`) && !/autoplay/.test(h) && existsSync(root + `assets/videos/${datei}.mp4`) && statSync(root + `assets/videos/${datei}.mp4`).size < 4e6, `${pfad}: Videoausschnitt ${datei} (Datei da, unter 4 MB, kein Autoplay)`);
 }
+
+// Übersicht „Workshops“ (seit 10.11.2026): zwei gleich gebaute Karten, Menüpunkt aktiv, alte Sprungmarken der KI-Seite werden weitergeleitet
+const { UEBERSICHT, uebersichtSeite } = await import("../worker/src/workshops_uebersicht.js");
+for (const s of UEBERSICHT) {
+  const h = lesen(s.pfad), en = s.lang === "en";
+  console.log(`\n${s.pfad}`);
+  check(h === uebersichtSeite(s.lang), "entsteht genau aus worker/src/workshops_uebersicht.js");
+  check((h.match(/<section class="ws-karte"/g) || []).length === 2 && h.includes(`href="${en ? "../../" : "../"}workshops/${en ? "en/" : ""}ki-kompetenz/"`) && h.includes(`href="${en ? "../../" : "../"}workshops/${en ? "en/" : ""}e-rechnung/"`), "zwei Karten, je mit Link auf die eigene Seite");
+  check(/location\.replace/.test(h) && h.includes('"anfrage"'), "alte Sprungmarken (#anfrage …) gehen auf die KI-Seite");
+  check(h.includes('aria-current="page">Workshops</a>'), "Menüpunkt Workshops aktiv");
+  check(sitemap.includes(`<loc>https://robin.vision/${s.adresse}</loc>`), "sitemap.xml kennt die Übersicht");
+}
+check(/data-i18n="ctaWorkshops">Workshops für Ihr Team<\/span><small data-i18n="ctaWorkshopsZusatz">KI-Kompetenz · E-Rechnung<\/small>/.test(start), "Startknopf oben nennt beide Workshops gleichrangig");
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nSeite „Workshops“ in Ordnung.");
 process.exit(fails ? 1 : 0);

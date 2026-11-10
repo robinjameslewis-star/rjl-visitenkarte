@@ -6,8 +6,8 @@ const T = {
   en: { label: "Workshops", ki: "AI literacy", erechnung: "E-invoicing" },
 };
 const ADRESSEN = {
-  de: { ki: "workshops/", erechnung: "workshops/e-rechnung/" },
-  en: { ki: "workshops/en/", erechnung: "workshops/en/e-rechnung/" },
+  de: { ki: "workshops/ki-kompetenz/", erechnung: "workshops/e-rechnung/" },
+  en: { ki: "workshops/en/ki-kompetenz/", erechnung: "workshops/en/e-rechnung/" },
 };
 
 export function workshopUmschalter(lang, up, aktiv) {
