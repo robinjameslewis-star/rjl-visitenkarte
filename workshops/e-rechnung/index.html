@@ -109,6 +109,14 @@ article li { margin-bottom: 6px; }
 .erechnung-seite .ablauf { padding-left: 22px; }
 .erechnung-seite .ablauf li { margin: 0 0 8px; }
 .erechnung-seite .klein { font-size: 14px; color: var(--ink-soft); }
+html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterrand, ohne Querscrollen */
+/* Goch auf dem Ast wie auf der Startseite: der Ast kommt vom rechten Bildrand (Regel 03.11.2026), Szene 1153 × 710 wie index.html */
+.ws-szene { width: 100vw; margin: 0 0 8px calc(50% - 50vw); display: flex; justify-content: flex-end; pointer-events: none; }
+.ws-szene .scene { position: relative; width: min(38vw, 470px); aspect-ratio: 1153 / 710; }
+.ws-szene img { position: absolute; left: 0; display: block; max-width: none; height: auto; }
+.ws-szene .vogel { top: 0; width: 100%; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
+.ws-szene .ast { top: 76.48%; width: 100%; }
+@media (max-width: 720px) { .ws-szene .scene { width: 78vw; } }
 .ws-umschalter { display: flex; gap: 6px; margin: 0 0 22px; font: 500 13px/1.4 var(--sans); }
 .ws-umschalter a { padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); text-decoration: none; }
 .ws-umschalter a:hover { border-color: var(--green); color: var(--green); }
@@ -127,6 +135,7 @@ article li { margin-bottom: 6px; }
 <main>
 <article class="workshops erechnung-seite">
 <nav class="ws-umschalter" aria-label="Workshops"><a href="../../workshops/">KI-Kompetenz</a><a href="../../workshops/e-rechnung/" aria-current="page">E-Rechnung</a></nav>
+<figure class="ws-szene" aria-hidden="true"><span class="scene"><img class="vogel" src="../../figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"><img class="ast" src="../../assets/ast.webp" alt="" width="2800" height="167" decoding="async"></span></figure>
 <h1>Workshop E-Rechnung</h1>
 <p class="untertitel">Selbstlernformat, etwa 45 Minuten, im eigenen Browser</p>
 <p>Seit 2025 müssen Unternehmen E-Rechnungen empfangen können, ab 2027 und 2028 auch selbst schreiben. Der Workshop zeigt Ihnen in etwa 45 Minuten, was eine E-Rechnung ist, wie Sie sie empfangen, lesen und prüfen und was für Ihren Betrieb ab wann gilt. Am Ende steht Ihr eigener Fahrplan bis 2028.</p>
