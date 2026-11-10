@@ -64,7 +64,8 @@ console.log("Wissen und Links");
   const sys2 = prompts.at(-1)?.system?.[0]?.text || "";
   check(/Für Anbieter \*\*„Partner werden“\*\*, wenn jemand erzählt, dass er Software oder KI-Lösungen entwickelt/.test(sys2) && /Auftritten auf Fachmessen und Netzwerkveranstaltungen/.test(sys2)
     && /für eine Partneranfrage nach Unternehmen\s+und Produkt oder Website – in einer Frage/.test(sys2) && /\*\*Werkzeuge und Partner\.\*\*/.test(sys2) && /- partner \(„Partner werden“\): wenn jemand erzählt, dass er Software/.test(sys2), "Profil: „Partner werden“ aktiv anbieten, Zusagen und Draht für Anbieter (Robin, 18.10.2026)");
-  check(/Dass die Teilnehmenden im\s+Workshop selbst ein Werkzeug bauen, sagst du nicht/.test(sys2) && !/baut mit Robin ein kleines Werkzeug/.test(sys2), "Profil: kein selbst gebautes Werkzeug im Workshop (Robin, 18.10.2026)");
+  // Robin, 04.11.2026 (Commit d00aadf): Im Workshop entsteht für einen Pain Point ein Plan-B-Tool; ersetzt die Regel vom 18.10.2026.
+  check(/baut Robin mit dem Team sofort ein \*\*Plan-B-Tool\*\*/.test(sys2) && /doppeltem Boden/.test(sys2) && !/Dass die Teilnehmenden im\s+Workshop selbst ein Werkzeug bauen, sagst du nicht/.test(sys2), "Profil: Plan-B-Tool im Workshop (Robin, 04.11.2026)");
 }
 
 console.log("Was gibt's Neues?");
