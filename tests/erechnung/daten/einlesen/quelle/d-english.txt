@@ -1,15 +1,15 @@
 Northwind Software Ltd
 14 Harbour Lane
-Bristol BS1 4XY
+Exampleton EX1 2AB
 United Kingdom
 VAT: GB123456782                                    accounts@northwind.example
 
 Bill to:
 Brandt Elektrotechnik GmbH
 Industriestraße 8
-71034 Böblingen
+23458 Kleinölbach
 Germany
-VAT ID: DE298765432
+VAT ID: DE999999903
 
 INVOICE
 

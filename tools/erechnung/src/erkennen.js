@@ -72,7 +72,7 @@ const ANREDE = /^(herrn?|frau|firma|an|to|z\.?\s?hd\.?|attn\.?)$/i;
 
 // Zeilen vorbereiten: Text je Zeile; senkrecht zerlegte Tabellen (Zelle je Absatz, z. B. aus Konvertern) wieder zu Zeilen machen
 function vorbereiten(zeilen) {
-  const z = zeilen.map(r => ({ ...r, zellen: r.zellen.map(c => ({ ...c, t: String(c.t).replace(/\s+/g, " ").trim() })).filter(c => c.t) })).filter(r => r.zellen.length);
+  const z = zeilen.map(r => ({ bereich: "haupt", ...r, zellen: r.zellen.map(c => ({ ...c, t: String(c.t).replace(/\s+/g, " ").trim() })).filter(c => c.t) })).filter(r => r.zellen.length);
   const out = [];
   for (let i = 0; i < z.length; i++) {
     // Kopf aus mindestens drei einzelligen Zeilen, die alle Spaltenköpfe sind (darunter Menge, Preis oder Betrag)
@@ -213,10 +213,12 @@ function zeileLesen(r, dezimal) {
   } else if (zahlen.length === 2) {
     const a = zahlen[0];
     if (Math.abs(a.wert - gesamt.wert) < 0.005) { preis = a; menge = { wert: 1, text: "1", stellen: 0 }; }
+    else if (a.wert === 0) { preis = { wert: gesamt.wert, text: gesamt.text }; menge = { wert: 1, text: "1", stellen: 0 }; }
     else if (a.stellen <= 3 && !a.betrag && gesamt.wert !== 0 && Number.isFinite(gesamt.wert / a.wert)) { menge = a; }
     else { preis = a; menge = { wert: Math.round(gesamt.wert / a.wert * 1000) / 1000, text: zahlText(BigInt(Math.round(gesamt.wert / a.wert * 1000)), 3), stellen: 3 }; }
   }
   if (!menge) menge = { wert: 1, text: "1", stellen: 0 };
+  if (!menge.wert) menge = { wert: 1, text: "1", stellen: 0 };
   if (!preis) {
     const p = gesamt.wert / menge.wert;
     preis = { wert: p, text: String(Math.round(p * 10000) / 10000) };
@@ -301,7 +303,7 @@ export function rechnungErkennen(zeilenRoh, { firma = null, lang = "de" } = {}) 
 
   // Rechnungsdatum: Bezeichnung, „Ort, den …“, sonst das erste Datum, das keiner anderen Bezeichnung gehört
   const datumHinter = re => { const h = hinter(zeilen, re, s => datenIn(s).length > 0 && datenIn(s)[0].i < 4); return h ? datenIn(h.wert)[0].d : ""; };
-  let datum = datumHinter(/(rechnungsdatum|belegdatum|invoice\s*date|date\s+of\s+invoice|(?<![A-Za-zäöü-])datum(?![a-zäöü])|(?<![A-Za-z ])date(?![a-z]))/i);
+  let datum = datumHinter(/(rechnungsdatum|belegdatum|invoice\s*date|date\s+of\s+invoice|(?:^|[^A-Za-zäöüß-])datum(?![a-zäöü])|(?:^|[^A-Za-z ])date(?![a-z]))/i);
   if (!datum) { const m = /,\s*(den|am)?\s*(\d{1,2}\.\s?\d{1,2}\.\s?\d{2,4}|\d{1,2}\.\s+[A-Za-zä]+\s+\d{4})/i.exec(alles); if (m) datum = (datenIn(m[2])[0] || {}).d || ""; }
   if (!datum) {
     for (const r of zeilen) { if (/(leistung|liefer|fällig|zahlbar|bis zum|zeitraum|period|due|service|delivery|geburt)/i.test(r.text)) continue; const d = datenIn(r.text)[0]; if (d) { datum = d.d; break; } }

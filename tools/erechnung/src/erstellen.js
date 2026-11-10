@@ -106,7 +106,7 @@ ${abschnitt("03", "ewe-h3", E.schrittE3, `<div id="ewe-s3"></div>`)}
 </div>
 <p class="ewe-status" id="ewe-status" role="status" aria-live="polite"></p>
 <input type="file" id="ewe-import-datei" accept=".json,application/json" hidden>
-<input type="file" id="ewe-vorlage-eingabe" accept=".xml,.pdf,.docx,.odt,.ods,.xlsx,.txt,application/xml,text/xml,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" hidden><input type="file" id="ewe-einlesen-eingabe" accept=".xml,.pdf,.docx,.odt,.ods,.xlsx,.txt,application/xml,text/xml,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" hidden><input type="file" id="ewe-csv-eingabe" accept=".csv,text/csv,text/plain" hidden>
+<input type="file" id="ewe-vorlage-eingabe" accept=".xml,.pdf,.docx,.odt,.xlsx,.txt,application/xml,text/xml,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" hidden><input type="file" id="ewe-einlesen-eingabe" accept=".xml,.pdf,.docx,.odt,.xlsx,.txt,application/xml,text/xml,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain" hidden><input type="file" id="ewe-csv-eingabe" accept=".csv,text/csv,text/plain" hidden>
 <input type="file" id="ewe-alle-eingabe" accept=".json,application/json" hidden>
 </div>`;
   const $ = id => document.getElementById(id);
@@ -467,7 +467,7 @@ ${z.probe ? "" : `<p class="ewz-klein">${esc(ersetze(E.naechsteNr, { nummer: nae
     const erste = z.meldungen.find(m => m.feld.startsWith("firma."));
     if (erste) { zumFeld(erste.feld); return; }
     if (!z.probe) firmaSichern(z.firma);
-    z.firmaOffen = false; firmaZeichnen(); schritt2Zeichnen(); aktualisieren();
+    z.firmaOffen = false; firmaZeichnen(); schritt2Zeichnen(); einlesenZeichnen(); aktualisieren();
     $(domId("empfaenger.name")).focus();
   }
   function firmaWeg() {
@@ -588,7 +588,7 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
     const bytes = new Uint8Array(await datei.arrayBuffer().catch(() => new ArrayBuffer(0)));
     const d = await dokumentLesen(bytes, datei.name).catch(() => ({ fehler: "defekt" }));
     if (d.fehler) return d;
-    return { ...rechnungErkennen(d.zeilen, { firma: z.firma.name.trim() ? z.firma : null, lang }), quelle: d.art };
+    try { return { ...rechnungErkennen(d.zeilen, { firma: z.firma.name.trim() ? z.firma : null, lang }), quelle: d.art }; } catch { return { fehler: "defekt" }; }
   }
   async function vorlageAusDatei(datei) {
     status(esc(E.vorlageLaedt));
@@ -648,7 +648,7 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
     const text = x => x.art === "zuschlag" && !x.name ? E.vorlageZuschlagR : e.quelle === "xml" ? VT[x.art] || "" : x.art === "steuer" && !x.name ? H.steuerAlle : H[x.art] || VT[x.art] || "";
     const h = [...new Set(e.hinweise.map(x => ersetze(text(x), { wert: x.wert, name: x.name })).filter(Boolean))];
     const geld = c => geldAnzeige(BigInt(c), lang);
-    z.einlesen = { text: [ersetze(E.einlesenOk, { datei: datei.name, liste: liste.join(", ") || "–" }), ...teile, firmaNeu.length ? E.einlesenFirma : ""].filter(Boolean).join(" "),
+    z.einlesen = { text: [ersetze(E.einlesenOk, { datei: datei.name, liste: liste.join(", ") || "–" }), ...teile].filter(Boolean).join(" "), firma: firmaNeu.length > 0,
       summe: e.abweichung ? { warn: true, text: ersetze(E.einlesenAbweichung, { original: geld(e.abweichung.original), hier: geld(e.abweichung.hier) }) } : e.bestaetigt ? { warn: false, text: ersetze(E.einlesenSumme, { betrag: geld(e.summe.brutto ?? e.summe.netto) }) } : null,
       hinweise: h.length ? ersetze(E.vorlageHinweise, { liste: h.join("; ") }) : "" };
     status("");
@@ -666,7 +666,7 @@ ${z.vorlageDatei.abweichung ? `<p class="ewe-hinweis ewe-warn">${esc(ersetze(E.v
   function einlesenZeichnen() {
     const box = $("ewe-einlesen"), x = z.einlesen;
     if (!x) { box.innerHTML = ""; return; }
-    box.innerHTML = `<div class="ewe-hinweis ewe-einlesen-ergebnis" id="ewe-einlesen-box" tabindex="-1"><p>${esc(x.text)}</p>
+    box.innerHTML = `<div class="ewe-hinweis ewe-einlesen-ergebnis" id="ewe-einlesen-box" tabindex="-1"><p>${esc(x.text)}${x.firma && z.firmaOffen ? ` ${esc(E.einlesenFirma)}` : ""}</p>
 ${x.summe ? `<p class="${x.summe.warn ? "ewe-warn" : "ewe-ok"}"><strong>${esc(x.summe.text)}</strong></p>` : ""}${x.hinweise ? `<p>${esc(x.hinweise)}</p>` : ""}
 <p id="ewe-einlesen-fehlt"></p>
 <p>${knopf("einlesen-zu", E.schliessen, "ewe-link")}</p></div>`;

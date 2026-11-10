@@ -8,7 +8,8 @@
 //   node tests/erechnung_einlesen_test.mjs [--nur-node] [ordner]
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { WURZEL, WZ, server, chrome, check, ergebnis } from "./erechnung/hilfen.mjs";
+import { pathToFileURL } from "node:url";
+import { WURZEL, WZ, server, chrome, check, ergebnis, axePfad } from "./erechnung/hilfen.mjs";
 import { dokumentLesen, zipLesen, textZeilen } from "../tools/erechnung/src/einlesen.js";
 import { rechnungErkennen, firmaErgaenzen, datenIn } from "../tools/erechnung/src/erkennen.js";
 import { firmaLeer } from "../tools/erechnung/src/firma.js";
@@ -43,10 +44,10 @@ const zeile = (...z) => `<w:tr><w:trPr/>${z.map(x => Array.isArray(x) ? zelle(..
 const textfeld = inhalt => `<w:r><mc:AlternateContent><mc:Choice Requires="wps"><w:drawing><wps:txbx><w:txbxContent>${inhalt}</w:txbxContent></wps:txbx></w:drawing></mc:Choice><mc:Fallback><w:pict><v:textbox><w:txbxContent>${inhalt}</w:txbxContent></v:textbox></w:pict></mc:Fallback></mc:AlternateContent></w:r>`;
 const wordStruktur = zip({
   "[Content_Types].xml": '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>',
-  "word/header1.xml": `<?xml version="1.0" encoding="UTF-8"?><w:hdr ${W}>${p("Elektro Funkenflug e. K. · Am Umspannwerk 7 · 72379 Hechingen")}</w:hdr>`,
-  "word/footer1.xml": `<?xml version="1.0" encoding="UTF-8"?><w:ftr ${W}>${p("Inhaber: Paul Funkenflug · Tel. 07471 55 66 77 · paul@funkenflug.example")}${p("Steuernummer 53/111/22233 · USt-IdNr. DE276543219 · IBAN DE22 6005 0101 0001 2345 67 · BIC SOLADEST600")}</w:ftr>`,
+  "word/header1.xml": `<?xml version="1.0" encoding="UTF-8"?><w:hdr ${W}>${p("Elektro Funkenflug e. K. · Am Umspannwerk 7 · 54330 Lindental")}</w:hdr>`,
+  "word/footer1.xml": `<?xml version="1.0" encoding="UTF-8"?><w:ftr ${W}>${p("Inhaber: Paul Funkenflug · Tel. 01234 55 66 77 · paul@funkenflug.example")}${p("Steuernummer 53/111/22233 · USt-IdNr. DE999999904 · IBAN DE22 6005 0101 0001 2345 67 · BIC SOLADEST600")}</w:ftr>`,
   "word/document.xml": `<?xml version="1.0" encoding="UTF-8"?><w:document ${W}><w:body>
-<w:p>${textfeld(p("Herrn") + p("Jonas Wiesengrund") + p("Kirchgasse 3") + p("72379 Hechingen"))}</w:p>
+<w:p>${textfeld(p("Herrn") + p("Jonas Wiesengrund") + p("Kirchgasse 3") + p("54330 Lindental"))}</w:p>
 ${p("Rechnung Nr. EF-2026-118")}${p("Datum:", "\t", "02.11.2026")}${p("Leistungszeitraum: 20.10.2026 bis 24.10.2026")}
 <w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/></w:tblPr>${zeile("Pos.", "Leistung", "Menge", "Einheit", "Einzelpreis", "Gesamtpreis")}
 ${zeile("1", "Unterverteilung erneuert", "1", "Stück", "1.180,00", "1.180,00")}${zeile("", ["inklusive Leitungsschutzschalter und FI", 5])}
@@ -56,7 +57,7 @@ ${p("Bitte zahlen Sie innerhalb von 10 Tagen.")}<w:p><w:del><w:r><w:delText>Rech
 const excel = zip({
   "xl/workbook.xml": "<workbook/>",
   "xl/styles.xml": '<styleSheet><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00\\ &quot;€&quot;"/></numFmts><cellXfs count="3"><xf numFmtId="0"/><xf numFmtId="14"/><xf numFmtId="164"/></cellXfs></styleSheet>',
-  "xl/sharedStrings.xml": `<sst>${["Gartenpflege Grünspan", "Wiesenstraße 2", "71083 Herrenberg", "Rechnung", "Rechnungsnummer", "GP-77", "Rechnungsdatum", "Hausverwaltung Efeu GmbH", "Marktplatz 9", "71634 Ludwigsburg",
+  "xl/sharedStrings.xml": `<sst>${["Gartenpflege Grünspan", "Wiesenstraße 2", "54331 Musterau", "Rechnung", "Rechnungsnummer", "GP-77", "Rechnungsdatum", "Hausverwaltung Efeu GmbH", "Marktplatz 9", "54332 Beispielfeld",
     "Beschreibung", "Menge", "Preis", "Betrag", "Rasen mähen", "Hecke schneiden", "Nettobetrag", "MwSt 19 %", "Gesamt", "Leistungsdatum", "info@gruenspan.example", "Steuernummer 70/123/45678", "IBAN DE89 3704 0044 0532 0130 00"].map(s => `<si><t>${s}</t></si>`).join("")}</sst>`,
   "xl/worksheets/sheet1.xml": `<worksheet><sheetData>
 <row r="1"><c r="A1" t="s"><v>0</v></c></row><row r="2"><c r="A2" t="s"><v>1</v></c></row><row r="3"><c r="A3" t="s"><v>2</v></c></row><row r="4"><c r="A4" t="s"><v>20</v></c></row>
@@ -75,24 +76,24 @@ writeFileSync(join(ORDNER, "excel.xlsx"), excel);
 // ---------- Teil Node ----------
 console.log("Rechnungen lesen und erkennen (Node)");
 const ERWARTET = [
-  { f: "a-chrome.pdf", art: "pdf", nr: "2026-0142", datum: "2026-11-03", l: { art: "datum", datum: "2026-10-28" }, ziel: "14", emp: ["Bäckerei Sonnenschein KG", "Hauptstraße 5", "70173", "Stuttgart"], zusatz: "z. Hd. Frau Petra Kern", ref: "B-7781",
+  { f: "a-chrome.pdf", art: "pdf", nr: "2026-0142", datum: "2026-11-03", l: { art: "datum", datum: "2026-10-28" }, ziel: "14", emp: ["Bäckerei Sonnenschein KG", "Hauptstraße 5", "54322", "Beispielhausen"], zusatz: "z. Hd. Frau Petra Kern", ref: "B-7781",
     pos: [["Theke aus Eiche, Maßanfertigung", "1", "C62", "2450", "S19"], ["Montage vor Ort", "6,5", "HUR", "58", "S19"], ["Anfahrt", "1", "LS", "45", "S19"]], brutto: 341768n,
-    firma: { name: "Tischlerei Holzwerk Brandt GmbH", strasse: "Sägewerkstraße 12", plz: "72401", steuernummer: "41/123/45678", ustid: "DE287654321", iban: "DE89370400440532013000", bic: "COBADEFFXXX", kontakt: "Holger Brandt", telefon: "07474 123456", email: "info@holzwerk-brandt.example", register: "Amtsgericht Stuttgart HRB 765432" } },
-  { f: "a-textutil.docx", art: "word", nr: "2026-0142", datum: "2026-11-03", l: { art: "datum", datum: "2026-10-28" }, ziel: "14", emp: ["Bäckerei Sonnenschein KG", "Hauptstraße 5", "70173", "Stuttgart"], zusatz: "z. Hd. Frau Petra Kern", n: 3, brutto: 341768n, firma: { name: "Tischlerei Holzwerk Brandt GmbH", iban: "DE89370400440532013000" } },
-  { f: "b-textutil.docx", art: "word", nr: "LV-26-031", datum: "2026-11-05", l: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" }, ziel: "14", emp: ["Verein Kulturbühne e. V.", "Am Markt 1", "79312", "Emmendingen"],
+    firma: { name: "Tischlerei Holzwerk Brandt GmbH", strasse: "Sägewerkstraße 12", plz: "54321", steuernummer: "41/123/45678", ustid: "DE999999901", iban: "DE89370400440532013000", bic: "COBADEFFXXX", kontakt: "Holger Brandt", telefon: "01234 567890", email: "info@holzwerk-brandt.example", register: "Amtsgericht Beispielhausen HRB 4711" } },
+  { f: "a-textutil.docx", art: "word", nr: "2026-0142", datum: "2026-11-03", l: { art: "datum", datum: "2026-10-28" }, ziel: "14", emp: ["Bäckerei Sonnenschein KG", "Hauptstraße 5", "54322", "Beispielhausen"], zusatz: "z. Hd. Frau Petra Kern", n: 3, brutto: 341768n, firma: { name: "Tischlerei Holzwerk Brandt GmbH", iban: "DE89370400440532013000" } },
+  { f: "b-textutil.docx", art: "word", nr: "LV-26-031", datum: "2026-11-05", l: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" }, ziel: "14", emp: ["Verein Kulturbühne e. V.", "Am Markt 1", "12346", "Musterstadt"],
     pos: [["Plakatgestaltung Herbstprogramm", "1", "C62", "480", "E"], ["Illustrationen für Flyer", "4", "C62", "65", "E"], ["Druckdaten aufbereiten", "2,5", "C62", "40", "E"]], brutto: 84000n,
-    firma: { name: "Lena Vogt – Grafik und Illustration", strasse: "Lindenweg 3a", plz: "79098", ort: "Freiburg im Breisgau", steuernummer: "06/234/56789", iban: "DE02120300000000202051", bic: "BYLADEM1001", email: "lena@vogt-grafik.example", klein: true } },
-  { f: "b-textutil.odt", art: "odt", nr: "LV-26-031", datum: "2026-11-05", l: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" }, ziel: "14", emp: ["Verein Kulturbühne e. V.", "Am Markt 1", "79312", "Emmendingen"], n: 3, brutto: 84000n, firma: { klein: true } },
+    firma: { name: "Lena Vogt – Grafik und Illustration", strasse: "Lindenweg 3a", plz: "12345", ort: "Musterstadt am See", steuernummer: "06/234/56789", iban: "DE02120300000000202051", bic: "BYLADEM1001", email: "lena@vogt-grafik.example", klein: true } },
+  { f: "b-textutil.odt", art: "odt", nr: "LV-26-031", datum: "2026-11-05", l: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" }, ziel: "14", emp: ["Verein Kulturbühne e. V.", "Am Markt 1", "12346", "Musterstadt"], n: 3, brutto: 84000n, firma: { klein: true } },
   { f: "c-chrome.pdf", art: "pdf", nr: "C-1107", datum: "2026-11-06", l: { art: "datum", datum: "2026-10-31" }, ziel: "30", emp: ["Stadtverwaltung Musterhausen", "Rathausplatz 2", "72336", "Musterhausen"], zusatz: "Amt für Kultur", leitweg: "08111-12345-67", n: 30, brutto: 179318n,
-    firma: { name: "Feinkost & Catering Morgentau OHG", ustid: "DE312345678", steuernummer: "51/987/65432", iban: "DE75512108001245126199", telefon: "07474 98765" } },
+    firma: { name: "Feinkost & Catering Morgentau OHG", ustid: "DE999999902", steuernummer: "51/987/65432", iban: "DE75512108001245126199", telefon: "01234 98765" } },
   { f: "c-textutil.docx", art: "word", nr: "C-1107", datum: "2026-11-06", l: { art: "datum", datum: "2026-10-31" }, ziel: "30", emp: ["Stadtverwaltung Musterhausen", "Rathausplatz 2", "72336", "Musterhausen"], leitweg: "08111-12345-67", n: 30, brutto: 179318n },
-  { f: "d-quartz.pdf", art: "pdf", nr: "NW-2026-0457", datum: "2026-11-04", l: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" }, ziel: "30", emp: ["Brandt Elektrotechnik GmbH", "Industriestraße 8", "71034", "Böblingen"], empUst: "DE298765432", n: 3,
+  { f: "d-quartz.pdf", art: "pdf", nr: "NW-2026-0457", datum: "2026-11-04", l: { art: "zeitraum", von: "2026-10-01", bis: "2026-10-31" }, ziel: "30", emp: ["Brandt Elektrotechnik GmbH", "Industriestraße 8", "23458", "Kleinölbach"], empUst: "DE999999903", n: 3,
     abweichung: true, hinweise: ["umkehr", "ohneSteuer"], firma: { ustid: "GB123456782", iban: "GB33BUKB20201555555555", bic: "BUKBGB22" } },
   { f: "../ohne-xml.pdf", art: "pdf", nr: "2026-1047", datum: "2026-10-15", l: { art: "datum", datum: "2026-10-10" }, ziel: "14", emp: ["Schreinerei Holzwerk Becker", "Lindenweg 17", "12347", "Musterstadt"], n: 4, brutto: 134232n, firma: { name: "Malerbetrieb Farbe und Fläche GmbH", iban: "DE89370400440532013000" } },
-  { f: "wordstruktur.docx", bytes: wordStruktur, art: "word", nr: "EF-2026-118", datum: "2026-11-02", l: { art: "zeitraum", von: "2026-10-20", bis: "2026-10-24" }, ziel: "10", emp: ["Jonas Wiesengrund", "Kirchgasse 3", "72379", "Hechingen"],
+  { f: "wordstruktur.docx", bytes: wordStruktur, art: "word", nr: "EF-2026-118", datum: "2026-11-02", l: { art: "zeitraum", von: "2026-10-20", bis: "2026-10-24" }, ziel: "10", emp: ["Jonas Wiesengrund", "Kirchgasse 3", "54330", "Lindental"],
     pos: [["Unterverteilung erneuert", "1", "C62", "1180", "S19", "inklusive Leitungsschutzschalter und FI"], ["Elektromeister", "7,5", "HUR", "68", "S19"]], brutto: 201110n,
-    firma: { name: "Elektro Funkenflug e. K.", strasse: "Am Umspannwerk 7", plz: "72379", ustid: "DE276543219", steuernummer: "53/111/22233", iban: "DE22600501010001234567", bic: "SOLADEST600", telefon: "07471 55 66 77", email: "paul@funkenflug.example", kontakt: "Paul Funkenflug" } },
-  { f: "excel.xlsx", bytes: excel, art: "excel", nr: "GP-77", datum: "2026-11-05", l: { art: "datum", datum: "2026-11-01" }, emp: ["Hausverwaltung Efeu GmbH", "Marktplatz 9", "71634", "Ludwigsburg"],
+    firma: { name: "Elektro Funkenflug e. K.", strasse: "Am Umspannwerk 7", plz: "54330", ustid: "DE999999904", steuernummer: "53/111/22233", iban: "DE22600501010001234567", bic: "SOLADEST600", telefon: "01234 55 66 77", email: "paul@funkenflug.example", kontakt: "Paul Funkenflug" } },
+  { f: "excel.xlsx", bytes: excel, art: "excel", nr: "GP-77", datum: "2026-11-05", l: { art: "datum", datum: "2026-11-01" }, emp: ["Hausverwaltung Efeu GmbH", "Marktplatz 9", "54332", "Beispielfeld"],
     pos: [["Rasen mähen", "3", "C62", "45", "S19"], ["Hecke schneiden", "2,5", "C62", "52", "S19"]], brutto: 31535n, firma: { name: "Gartenpflege Grünspan", steuernummer: "70/123/45678", email: "info@gruenspan.example" } },
 ];
 const gleich = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -151,6 +152,22 @@ const kaputt = new Uint8Array(datei("a-chrome.pdf").subarray(0, 40000));
 const k = await dokumentLesen(kaputt, "halb.pdf").catch(e => ({ fehler: "wurf " + e }));
 check(!String(k.fehler || "").startsWith("wurf"), `abgeschnittenes PDF: kein Absturz (${k.fehler || k.art})`);
 check((await zipLesen(wordStruktur)).size === 4, "ZIP: Einträge ohne Kompression lesbar");
+// Zufallsfälle mit festem Startwert: Zellen gemischt, weggelassen, auf 0 oder Unsinn gesetzt – erkennen.js wirft nie
+let zufall = 20261110;
+const zz = n => { zufall = (zufall * 1103515245 + 12345) % 2147483648; return zufall % n; };
+const quellen = [];
+for (const x of ERWARTET) { const d = await dokumentLesen(x.bytes || datei(x.f), x.f); if (!d.fehler) quellen.push(d.zeilen); }
+let wuerfe = 0, faelle = 0;
+const UNSINN = ["0,00", "0", "-", "%", "€", "0 Stück", "1.2.3", "Summe", "Pos.", "19 %", "", "IBAN", "31.02.2026", "999999999999", "x"];
+for (let i = 0; i < 3000; i++) {
+  const basis = quellen[zz(quellen.length)];
+  const zeilen = basis.filter(() => zz(10) > 0).map(r => ({ ...r, zellen: r.zellen.filter(() => zz(8) > 0).map(c => zz(6) === 0 ? { ...c, t: UNSINN[zz(UNSINN.length)] } : c) }));
+  if (zz(3) === 0) zeilen.sort(() => zz(3) - 1);
+  faelle++;
+  try { const e = rechnungErkennen(zeilen, { lang: zz(2) ? "de" : "en" }); if (!e.rechnung) wuerfe++; } catch (err) { wuerfe++; if (wuerfe === 1) console.log("  erster Wurf:", String(err).slice(0, 200)); }
+}
+check(!wuerfe, `${faelle} Zufallsfälle (gemischt, gekürzt, 0,00 und Unsinn): kein Absturz (${wuerfe})`);
+check(rechnungErkennen([{ zellen: [{ t: "Beschreibung", x: 0 }, { t: "Menge", x: 100 }, { t: "Preis", x: 200 }, { t: "Betrag", x: 300 }] }, { zellen: [{ t: "Gratis", x: 0 }, { t: "0,00", x: 200 }, { t: "12,00", x: 300 }] }]).rechnung.positionen.length === 1, "Position mit 0,00 und Betrag: kein Teilen durch null");
 
 if (args.includes("--nur-node")) { const { fails, oks } = ergebnis(); console.log(`\n${oks} ok, ${fails} fehlen`); process.exit(fails ? 1 : 0); }
 
@@ -265,6 +282,35 @@ const pruefOk = async pg => /Geprüft: keine Fehler|Checked: no errors/.test(awa
   const st = await uebernehmen(pg, join(ORDNER, "excel.xlsx"));
   check(/Taken over from “excel\.xlsx”/.test(st) && /€315\.35/.test(st) && await pg.inputValue("#ewe-pos-1-menge") === "2.5", `d: Excel auf der englischen Seite – 2.5, €315.35 (${st.slice(0, 120)})`);
   await foto(pg, "einlesen-englisch-desktop");
+}
+// e) Barrierefreiheit mit sichtbarem Kasten (axe-core)
+{
+  const c = await browser.newContext({ viewport: { width: 1280, height: 900 }, bypassCSP: true });
+  const pg = await c.newPage();
+  await pg.goto(SEITE.de + "#erstellen"); await pg.waitForSelector("#ewz-panel-erstellen:not([hidden]) .ewe");
+  await uebernehmen(pg, join(DATEN, "c-chrome.pdf"));
+  await pg.addScriptTag({ path: axePfad() });
+  const v = await pg.evaluate(async () => (await window.axe.run(document.getElementById("erechnung"), { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] } })).violations.map(v => `${v.id} (${v.nodes.length})`));
+  check(!v.length, `e: axe-core mit Ergebniskasten und Fehlern am Feld – keine Verstöße (${v.join(", ")})`);
+  await c.close();
+}
+// f) Datei ohne Netz (file://): übernehmen und speichern
+{
+  const c = await browser.newContext({ viewport: { width: 1280, height: 900 }, offline: true, acceptDownloads: true });
+  const netz = [];
+  c.on("request", r => { if (!/^(file|data|blob):/.test(r.url())) netz.push(r.url()); });
+  await c.route(/^https?:|^wss?:/, r => r.abort());
+  const pg = await c.newPage();
+  pg.fehler = []; pg.on("pageerror", e => pg.fehler.push(String(e)));
+  await pg.goto(pathToFileURL(join(WURZEL, "werkzeuge", "e-rechnung-pruefen", "E-Rechnung-lite.html")).href + "#erstellen");
+  await pg.waitForSelector("#ewz-panel-erstellen:not([hidden]) .ewe");
+  const st = await uebernehmen(pg, join(DATEN, "a-textutil.docx"));
+  await pg.fill("#ewe-empfaenger-email", "buchhaltung@sonnenschein.example");
+  await pg.click('[data-e="firma-weiter"]');
+  await geprueft(pg);
+  const xml = await speichern(pg, "f-datei");
+  check(/3\.417,68 €/.test(st) && /<cbc:PayableAmount currencyID="EUR">3417\.68</.test(xml) && !netz.length && !pg.fehler.length, `f: in der Datei ohne Netz übernommen und gespeichert (Anfragen ${netz.length}, Fehler ${pg.fehler.length})`);
+  await c.close();
 }
 await browser.close(); await srv.schliessen();
 const fremd = anfragen.filter(a => /^(https?|wss?):/.test(a.url) && new URL(a.url).origin !== srv.url);
