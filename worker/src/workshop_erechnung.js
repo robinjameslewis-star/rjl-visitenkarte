@@ -5,7 +5,7 @@
 import { rahmen } from "./werkzeug.js";
 import { newsletterKasten } from "./kasten.js";
 import { SEITEN } from "./sitemap.js";
-import { workshopUmschalter, UMSCHALTER_CSS } from "./workshop_umschalter.js";
+import { workshopUmschalter, UMSCHALTER_CSS, workshopVideo, VIDEO_CSS } from "./workshop_umschalter.js";
 
 const SITE = "https://robin.vision/";
 export const ERECHNUNG_BUCHEN = "https://member.robin.vision/workshop-buchen?workshop=e-rechnung&utm_source=website&utm_medium=";
@@ -38,6 +38,7 @@ const TEXT = {
     ],
     klein: "Für Unternehmen und Kanzleien. Selbstlernformat ohne Betreuung: Fragen zum Inhalt sind nicht Teil des Workshops.",
     andere: "English version",
+    videoLabel: "Ausschnitt aus Kapitel 1: Ist ein PDF eine E-Rechnung?",
   },
   en: {
     titel: "E-invoicing workshop (in German)",
@@ -64,6 +65,7 @@ const TEXT = {
     ],
     klein: "For companies and accounting firms. Self-study format without tutoring: questions about the content are not part of the workshop. The workshop itself is in German.",
     andere: "Deutsche Fassung",
+    videoLabel: "Excerpt from chapter 1: is a PDF an e-invoice?",
   },
 };
 
@@ -78,15 +80,7 @@ const CSS = `.erechnung-seite .untertitel { margin-bottom: 22px; }
 .erechnung-seite .ablauf { padding-left: 22px; }
 .erechnung-seite .ablauf li { margin: 0 0 8px; }
 .erechnung-seite .klein { font-size: 14px; color: var(--ink-soft); }
-html, body { overflow-x: clip; } /* die Szene reicht bis an den rechten Fensterrand, ohne Querscrollen */
-/* Goch auf dem Ast wie auf der Startseite: der Ast kommt vom rechten Bildrand (Regel 03.11.2026), Szene 1153 × 710 wie index.html */
-.ws-szene { width: 100vw; margin: 0 0 8px calc(50% - 50vw); display: flex; justify-content: flex-end; pointer-events: none; }
-.ws-szene .scene { position: relative; width: min(38vw, 470px); aspect-ratio: 1153 / 710; }
-.ws-szene img { position: absolute; left: 0; display: block; max-width: none; height: auto; }
-.ws-szene .vogel { top: 0; width: 100%; mix-blend-mode: multiply; clip-path: inset(0 0 2.5% 0); }
-.ws-szene .ast { top: 76.48%; width: 242.8447528%; } /* wie .landscape-on .branch auf der Startseite: Gochs Füße greifen den Ast, der nach rechts aus dem Bild läuft */
-@media (max-width: 720px) { .ws-szene .scene { width: 78vw; } }
-` + UMSCHALTER_CSS;
+` + UMSCHALTER_CSS + "\n" + VIDEO_CSS;
 
 export function workshopErechnungSeite(lang) {
   const t = TEXT[lang];
@@ -95,9 +89,9 @@ export function workshopErechnungSeite(lang) {
   const canonical = workshopErechnungUrl(lang), buchen = ERECHNUNG_BUCHEN + t.medium;
   const main = `<article class="workshops erechnung-seite">
 ${workshopUmschalter(lang, up, "erechnung")}
-<figure class="ws-szene" aria-hidden="true"><span class="scene"><img class="vogel" src="${up}figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"><img class="ast" src="${up}assets/ast.webp" alt="" width="2800" height="167" decoding="async"></span></figure>
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
+${workshopVideo(lang, up, "workshop-e-rechnung-ausschnitt", esc(t.videoLabel))}
 <p>${esc(t.text)}</p>
 <ul class="punkte">${t.punkte.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
 <p class="preis"><strong>${esc(t.preisFett)}</strong>${esc(t.preis)}</p>

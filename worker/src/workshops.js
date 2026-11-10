@@ -13,7 +13,7 @@ import { SEITEN } from "./sitemap.js";
 import { partnerListe } from "./partner.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
 import { PORTRAIT } from "./ueber_mich.js";
-import { workshopUmschalter, UMSCHALTER_CSS } from "./workshop_umschalter.js";
+import { workshopUmschalter, UMSCHALTER_CSS, workshopVideo, VIDEO_CSS } from "./workshop_umschalter.js";
 
 const SITE = "https://robin.vision/";
 export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
@@ -368,6 +368,7 @@ ${workshopUmschalter(lang, up, "ki")}
 <p class="abzeichen">${esc(t.abzeichen)}</p>
 <p class="untertitel">${esc(t.untertitel)}</p>
 <p class="meta">${esc(t.meta)}</p>
+${workshopVideo(lang, up, "workshop-ki-kompetenz-ausschnitt", lang === "en" ? "Excerpt: Goch introduces himself" : "Ausschnitt: Goch stellt sich vor")}
 <div class="einleitung">
 ${t.intro.map(p => `<p>${esc(p)}</p>`).join("\n")}
 </div>
@@ -465,5 +466,5 @@ ${SKRIPT(lang, t)}`;
     mainEntity: t.fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c");
   return rahmen({ lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: workshopsUrl(andere) }],
-    head: `<script type="application/ld+json">${kurs}</script>\n<script type="application/ld+json">${faq}</script>\n`, css: CSS + "\n" + GRUNDSAETZE_CSS + "\n" + UMSCHALTER_CSS, main, aktiv: "workshops" });
+    head: `<script type="application/ld+json">${kurs}</script>\n<script type="application/ld+json">${faq}</script>\n`, css: CSS + "\n" + GRUNDSAETZE_CSS + "\n" + UMSCHALTER_CSS + "\n" + VIDEO_CSS, main, aktiv: "workshops" });
 }
