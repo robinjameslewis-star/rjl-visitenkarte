@@ -556,6 +556,34 @@
     .landscape-particles { display: none; }
   }
 
+  /* ---------- Tal unterhalb der Bühne („Ein Tal“, 11.11.2026; landscape.js baut es nach dem ersten Bild) ----------
+     Fest im Fenster hinter der Seite, in fester großer Höhe (springt nicht, wenn der Browser seine Leiste ein- oder ausfährt).
+     Die Bereiche liegen als Blätter darüber: Fläche aus der Farbrolle surface, damit die Lesbarkeit aus landscape.js gilt. */
+  .tal { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100lvh; z-index: 0; overflow: hidden; overflow: clip; pointer-events: none; }
+  .tal > * { position: absolute; top: 0; will-change: transform; }
+  .tal-fern { left: 0; width: 100%; height: 100%; opacity: 0; }
+  .tal-himmel { position: absolute; inset: 0; background: linear-gradient(var(--sky-top), var(--sky-bottom) 62%); opacity: .5; -webkit-mask-image: linear-gradient(black 30%, transparent 92%); mask-image: linear-gradient(black 30%, transparent 92%); }
+  .tal-burg { position: absolute; top: 0; left: 14%; width: 46%; -webkit-mask-image: linear-gradient(black 58%, transparent 100%); mask-image: linear-gradient(black 58%, transparent 100%); }
+  .tal-ebene { left: calc((100% - max(100%, 1000px)) * var(--ax, .5)); width: max(100%, 1000px); }
+  .tal .landscape-picture img { display: block; width: 100%; height: auto; }
+  @media (max-width: 720px) { .tal-burg { left: 4%; width: 72%; } }
+  .tal-on main, .tal-on footer { position: relative; z-index: 1; }
+  /* main schneidet ab (overflow: clip): Platz für das letzte Blatt samt Schatten, der Abstand zum Fuß liegt am Fuß. */
+  .tal-on main { padding-bottom: 70px; }
+  .tal-on main > section:last-child { margin-bottom: 0 !important; }
+  .tal-on .stage + section { margin-top: clamp(90px, 20vh, 190px); }
+  .tal-on main > section:not(.stage) { position: relative; isolation: isolate; padding-bottom: 0; margin-bottom: clamp(96px, 22vh, 210px); }
+  .tal-on main > section:not(.stage)::before { content: ""; position: absolute; z-index: -1; inset: -28px 0 -30px; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--surface); background: color-mix(in srgb, var(--surface) 90%, transparent); box-shadow: 0 26px 50px -24px rgba(40, 32, 20, .28); }
+  .landscape-ready.tal-on main > section:not(.stage)::before, .landscape-ready.tal-on footer::before { transition: background-color 2s, border-color 2s; }
+  /* Auch der Fuß liegt auf einem Blatt: Impressum und Datenschutz bleiben über dem Talgrund lesbar. */
+  .tal-on footer { isolation: isolate; padding-top: 18px; padding-bottom: 22px; margin-top: clamp(40px, 12vh, 120px); margin-bottom: clamp(60px, 14vh, 130px); }
+  .tal-on footer::before { content: ""; position: absolute; z-index: -1; inset: 0; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--surface); background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 26px 50px -24px rgba(40, 32, 20, .28); }
+  @media (max-width: 720px) { .tal-on footer::before { inset: 0 8px; } }
+  @media (max-width: 720px) { .tal-on main > section:not(.stage)::before { inset: -22px 8px -24px; } }
+  @media (prefers-reduced-motion: reduce) { .tal > *, .tal-on main > section:not(.stage)::before { transition: none !important; } }
+
   /* Werkzeug-Slider (Robin, 18.10.2026; worker/src/slider.js baut die Karten); nachts in den Farben des Cal.com-Kalenders (landscape.js) */
   .wzs { margin: 18px 0 6px; }
   .wzs-spur { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 300px); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 2px 14px; scrollbar-width: none; }
@@ -579,7 +607,7 @@
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
 <script src="landscape.js?v=20261023"></script>
 </head>
-<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-goch-signalton="figuren/goch/toene/zwitschern" data-goch-stimme="an" data-version="20261010">
+<body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-tal="an" data-goch-signalton="figuren/goch/toene/zwitschern" data-goch-stimme="an" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
 
 <header class="kopf start">
