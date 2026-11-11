@@ -191,6 +191,13 @@ def bbox_below_white(image: Image.Image, threshold: int = 245) -> tuple[int, int
     return int(x.min()), int(y.min()), int(x.max()) + 1, int(y.max()) + 1
 
 
+# Ebenen eines Satzes: Größen und Budgets wie LAYERS in landscape.js (dort führend). Die Talebenen (mitte = Höhenzüge,
+# hang, grund = Talgrund) liegen unterhalb der Bühne („Ein Tal“, 11.11.2026).
+KINDS = {'krone': ([1000, 560], 120000), 'ferne': ([1400, 800], 150000),
+         'mitte': ([1400, 900], 200000), 'hang': ([1400, 900], 200000), 'grund': ([1400, 900], 200000)}
+TAL = ('mitte', 'hang', 'grund')
+
+
 def crop_for(image: Image.Image, kind: str) -> tuple[int, int, int, int]:
     left, top, right, bottom = bbox_below_white(image)
     width, height = image.size
@@ -201,7 +208,7 @@ def crop_for(image: Image.Image, kind: str) -> tuple[int, int, int, int]:
     # Sehr blasse seitliche Höhenzüge bleiben erhalten; nur leeren Himmel entfernen.
     pad = max(8, round(height * 0.024))
     crop_top = max(0, top-pad)
-    crop_height = max(round(width/3.8), bottom + pad - crop_top)
+    crop_height = max(round(width/(2.58 if kind in TAL else 3.8)), bottom + pad - crop_top)
     if crop_top + crop_height > height:
         crop_top = max(0, height-crop_height)
     return 0, crop_top, width, min(height, crop_top+crop_height)
@@ -216,6 +223,17 @@ def soften_edges(image: Image.Image, horizontal: float = 0.025, vertical: float 
     sx = np.clip(x, 0, 1); sy = np.clip(y, 0, 1)
     sx = sx*sx*(3-2*sx); sy = sy*sy*(3-2*sy)
     pixels[:, :, 3] = np.rint(pixels[:, :, 3] * sy[:, None] * sx[None, :]).astype(np.uint8)
+    pixels[pixels[:, :, 3] == 0, :3] = 0
+    return Image.fromarray(pixels, 'RGBA')
+
+
+def soften_bottom(image: Image.Image, fraction: float = 0.28) -> Image.Image:
+    """Talebenen laufen nur unten aus; die Kammlinie oben und die Seitenränder bleiben, wie sie sind."""
+    pixels = np.array(image)
+    height = image.size[1]
+    fade = max(1, round(height*fraction))
+    t = np.clip((height - 1 - np.arange(height)) / fade, 0, 1)
+    pixels[:, :, 3] = np.rint(pixels[:, :, 3] * (t*t*(3-2*t))[:, None]).astype(np.uint8)
     pixels[pixels[:, :, 3] == 0, :3] = 0
     return Image.fromarray(pixels, 'RGBA')
 
@@ -304,8 +322,8 @@ def register_layers(set_dir: Path, slug: str, season: str, images: list, avif: b
     for entry in images:
         for out in entry['outputs']:
             name = Path(out['file']).name
-            m = re.fullmatch(r'(krone|ferne)-([a-z0-9-]+)-(\d+)\.webp', name)
-            if m and m.group(2) == season and int(m.group(3)) == (1000 if m.group(1) == 'krone' else 1400):
+            m = re.fullmatch(r'(' + '|'.join(KINDS) + r')-([a-z0-9-]+)-(\d+)\.webp', name)
+            if m and m.group(2) == season and int(m.group(3)) == KINDS[m.group(1)][0][0]:
                 data['ebenen'].setdefault(season, {})[m.group(1)] = {'avif': bool(avif), 'bytes': out['bytes']}
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
@@ -318,9 +336,9 @@ def build_landscape(path: Path, kind: str, season: str, output: Path, avif: bool
     report.update({'crop': list(crop), 'cropped_size': list(cropped.size),
                    'horizontal_edge_fade_fraction': 0.025 if kind == 'ferne' else 0,
                    'vertical_edge_fade_fraction': 0.025 if kind == 'ferne' else 0,
+                   'bottom_fade_fraction': 0.28 if kind in TAL else 0,
                    'outputs': []})
-    sizes = [1000, 560] if kind == 'krone' else [1400, 800]
-    budget = 120000 if kind == 'krone' else 150000
+    sizes, budget = KINDS[kind]
     for width in sizes:
         height = round(width * cropped.height / cropped.width)
         radius = (1.0 if width == 1000 else 0.5) if kind == 'krone' else 0.0
@@ -331,6 +349,8 @@ def build_landscape(path: Path, kind: str, season: str, output: Path, avif: bool
         cutout = white_to_alpha(resized_source)
         if kind == 'ferne':
             cutout = soften_edges(cutout)
+        elif kind in TAL:
+            cutout = soften_bottom(cutout)
         for ext in ['webp', *(['avif'] if avif else [])]:
             name = f'{kind}-{season}-{width}.{ext}'
             entry = export(cutout, output/name, 82 if ext == 'avif' else 83,
@@ -438,6 +458,9 @@ def main() -> None:
     parser.add_argument('--set', dest='landscape_set', default='burgberg-herbst', help='Satz-Ordner unter assets/landschaften/ für Krone und Ferne')
     parser.add_argument('--crown', type=Path, help='Original-PNG der Krone')
     parser.add_argument('--distance', type=Path, help='Original-PNG der Ferne')
+    parser.add_argument('--mid', type=Path, help='Original-PNG der Höhenzüge (Talebene mitte); nur mit Angabe gebaut')
+    parser.add_argument('--slope', type=Path, help='Original-PNG des Hangs (Talebene hang); nur mit Angabe gebaut')
+    parser.add_argument('--valley', type=Path, help='Original-PNG des Talgrunds (Talebene grund); nur mit Angabe gebaut')
     parser.add_argument('--branch', type=Path, help='Quellbild der rechten Astverlängerung')
     parser.add_argument('--skip-branch', action='store_true')
     parser.add_argument('--skip-crown', action='store_true')
@@ -494,7 +517,10 @@ def main() -> None:
         report['images'].append(build_landscape(crown, 'krone', args.season, set_dir, avif))
     if not args.skip_distance:
         report['images'].append(build_landscape(distance, 'ferne', args.season, set_dir, avif))
-    if not args.output_dir and not (args.skip_crown and args.skip_distance):
+    tal = [(k, p) for k, p in (('mitte', args.mid), ('hang', args.slope), ('grund', args.valley)) if p]
+    for kind, source_path in tal:
+        report['images'].append(build_landscape(source_path, kind, args.season, set_dir, avif))
+    if not args.output_dir and (tal or not (args.skip_crown and args.skip_distance)):
         register_layers(set_dir, args.landscape_set, args.season, report['images'], avif)
     if not args.skip_birds:
         report['images'].extend(build_birds(repo, args.output_dir or repo/BIRD_DIR))

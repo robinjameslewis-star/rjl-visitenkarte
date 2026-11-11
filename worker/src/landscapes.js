@@ -1,6 +1,6 @@
-// Landschaften der Startseite: ein Satz = Bilder je Ebene (ferne, krone) und Jahreszeit, dazu Blätterart und
+// Landschaften der Startseite: ein Satz = Bilder je Ebene (ferne, krone, dazu die Talebenen mitte, hang, grund) und Jahreszeit, dazu Blätterart und
 // Himmelsfarben. Speicher ist das Repository: assets/landschaften/<satz>/landschaft.json und daneben
-// <ebene>-<jahreszeit>-<breite>.webp (Ferne 1400/800, Krone 1000/560). Die Bilder bereitet der Browser der
+// <ebene>-<jahreszeit>-<breite>.webp (Ferne 1400/800, Krone 1000/560, Talebenen 1400/900). Die Bilder bereitet der Browser der
 // Redaktion auf (Weiß → Transparenz, Beschnitt, zwei Größen, WebP); hier wird nur geprüft und committet.
 // Beschreibung und Standardwerte (normalizeSet, Größen, Budgets) teilt sich der Worker mit der Seite: landscape.js.
 import * as gh from "./github.js";
@@ -11,7 +11,7 @@ export const DIR = landscape.SET_DIR.replace(/\/$/, "");
 export const DEFAULT_SLUG = "burgberg-herbst";
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEASON_NAMES = { herbst: "Herbst", winter: "Winter", fruehling: "Frühling", sommer: "Sommer" };
-const LAYER_NAMES = { ferne: "Ferne", krone: "Krone" };
+const LAYER_NAMES = { ferne: "Ferne", krone: "Krone", mitte: "Höhenzüge", hang: "Hang", grund: "Talgrund" };
 const fail = msg => { const e = new Error(msg); e.status = 400; throw e; };
 
 export function slugify(s) {

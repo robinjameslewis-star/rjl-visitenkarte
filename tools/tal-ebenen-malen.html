@@ -1,0 +1,193 @@
+<!doctype html><meta charset="utf-8"><title>Talebenen malen</title>
+<body style="margin:0;background:#F3EFE5">
+<pre id="out"></pre>
+<script>
+/* Talebenen der Landschaft „Ein Tal“ (Höhenzüge, Hang, Talgrund) als gerechnete Vorlage im Stil des gemalten Burgbergs:
+   Baumreihen im Dunst, gedeckte Farben. Sie stehen im Satz, bis Robin gemalte Ebenen über die Redaktion hochlädt
+   (Leitung, 11.11.2026). Gebaut wird mit `node tools/tal-ebenen-bauen.mjs`; diese Seite rechnet nur und legt die Bilder
+   als WebP-Daten in #out ab: je Ebene und Jahreszeit zwei Breiten, verdichtet bis unter das Budget (?budget=Bytes).
+   Mit ?zeig erscheinen die Ebenen zum Ansehen. Gleiche Eingaben ergeben gleiche Bilder (fester Zufall). */
+const W = 1600, H = 620, KORN = +new URLSearchParams(location.search).get('korn') || 0; // Papierkorn nur zur Probe (?korn=26000): Es liegt in der Deckkraft, die WebP verlustfrei speichert, und kostet rund 100 KB je Bild
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = (c, a) => `rgba(${c.map(v => Math.round(v)).join(',')},${a})`;
+const hex = h => h.match(/\w\w/g).map(v => parseInt(v, 16));
+
+const PAL = {
+  herbst: {
+    dunst: hex('F3EFE5'), boden: [hex('CDBE98'), hex('B4B08A'), hex('A1A683')], stamm: hex('6A5744'),
+    laub: [hex('B98558'), hex('C9A566'), hex('A9714F'), hex('A39C68'), hex('8A8E66'), hex('BE9460'), hex('9C8F6A')], tanne: hex('66756A'),
+    wasser: hex('B4C6CB'), dach: hex('9A6A52'), wand: hex('E9E1D0'),
+  },
+  winter: {
+    dunst: hex('F4F2EC'), boden: [hex('DCDDD9'), hex('C9CED0'), hex('B7BFC4')], stamm: hex('6F6A66'),
+    laub: [hex('8D8B88'), hex('9A9794'), hex('7F8286')], tanne: hex('6C7880'),
+    wasser: hex('AEBFC8'), dach: hex('E6E6E2'), wand: hex('D9D3C7'),
+  },
+};
+
+function kamm(r, basis, hub, breit) {
+  const a = [r() * 6, r() * 6, r() * 6];
+  return x => basis - hub * (.55 * Math.sin(x / breit + a[0]) + .3 * Math.sin(x / (breit * .43) + a[1]) + .15 * Math.sin(x / (breit * .19) + a[2]));
+}
+/* weiche Geländefläche, nach unten in Dunst auslaufend */
+function flaeche(g, f, farbe, deck, tief) {
+  for (const [blur, a] of [[14, .55], [3, .5]]) {
+    g.save(); g.filter = `blur(${blur}px)`;
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    let top = 1e9; for (let x = 0; x <= W; x += 40) top = Math.min(top, f(x));
+    const t0 = top / H, t1 = Math.min(1, t0 + tief);
+    gr.addColorStop(Math.max(0, t0 - .01), rgba(farbe, deck * a)); gr.addColorStop(t0 + (t1 - t0) * .45, rgba(farbe, deck * a * .7)); gr.addColorStop(t1, rgba(farbe, 0));
+    g.fillStyle = gr; g.beginPath(); g.moveTo(-40, H + 40);
+    for (let x = -40; x <= W + 40; x += 8) g.lineTo(x, f(x));
+    g.lineTo(W + 40, H + 40); g.fill(); g.restore();
+  }
+}
+function tanne(g, r, x, y, h, farbe, a, schnee) {
+  const w = h * (.3 + r() * .1), stufen = 5 + Math.floor(r() * 3);
+  g.fillStyle = rgba(farbe, a);
+  for (let i = 0; i < stufen; i++) {
+    const t = i / stufen, yy = y - h + t * h * .92, ww = w * (.18 + t * .82) * (.85 + r() * .3), hh = h / stufen * 1.7;
+    g.beginPath(); g.moveTo(x + (r() - .5) * 2, yy - hh * .5);
+    g.lineTo(x - ww / 2, yy + hh * .5 + r() * 2); g.lineTo(x - ww * .2, yy + hh * .35); g.lineTo(x + ww * .2, yy + hh * .4); g.lineTo(x + ww / 2, yy + hh * .5 + r() * 2);
+    g.closePath(); g.fill();
+    if (schnee && i < stufen - 1) { g.fillStyle = `rgba(244,244,240,${a * .32})`; g.beginPath(); g.moveTo(x, yy - hh * .5); g.lineTo(x - ww * .34, yy + hh * .2); g.lineTo(x + ww * .3, yy + hh * .12); g.closePath(); g.fill(); g.fillStyle = rgba(farbe, a); }
+  }
+  g.fillRect(x - h * .018, y - h * .1, h * .036, h * .12);
+}
+function aeste(g, r, x, y, len, winkel, dick, tiefe) {
+  if (tiefe === 0 || len < 2) return;
+  const x2 = x + Math.sin(winkel) * len, y2 = y - Math.cos(winkel) * len;
+  g.lineWidth = dick; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + (r() - .5) * len * .2, (y + y2) / 2, x2, y2); g.stroke();
+  const n = tiefe > 3 ? 2 : 2 + Math.floor(r() * 2);
+  for (let i = 0; i < n; i++) aeste(g, r, x2, y2, len * (.62 + r() * .16), winkel + (r() - .5) * 1.25, Math.max(.5, dick * .62), tiefe - 1);
+}
+function laubbaum(g, r, x, y, h, p, a, winter) {
+  g.strokeStyle = rgba(p.stamm, a * .9); g.lineCap = 'round';
+  if (winter) { aeste(g, r, x, y, h * .34, (r() - .5) * .2, Math.max(1.4, h * .06), h > 60 ? 7 : h > 26 ? 6 : 5); return; }
+  /* Stamm und zwei, drei Äste */
+  g.lineWidth = Math.max(1, h * .045); g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + (r() - .5) * h * .08, y - h * .3, x + (r() - .5) * h * .06, y - h * .55); g.stroke();
+  for (let i = 0; i < 3; i++) { g.lineWidth = Math.max(.6, h * .018); g.beginPath(); g.moveTo(x, y - h * (.3 + r() * .15)); g.lineTo(x + (r() - .5) * h * .5, y - h * (.5 + r() * .25)); g.stroke(); }
+  /* Krone aus vielen kleinen Tupfern, oben hell, unten dunkel */
+  const farbe = p.laub[Math.floor(r() * p.laub.length)], neben = p.laub[Math.floor(r() * p.laub.length)];
+  const lappen = Array.from({ length: 4 + Math.floor(r() * 3) }, () => ({ x: x + (r() - .5) * h * .5, y: y - h * (.5 + r() * .38), r: h * (.16 + r() * .12) }));
+  const n = Math.round(Math.min(520, 30 + h * 3.4));
+  for (let i = 0; i < n; i++) {
+    const l = lappen[Math.floor(r() * lappen.length)], w = r() * 6.283, d = Math.sqrt(r()) * l.r;
+    const px = l.x + Math.cos(w) * d * 1.15, py = l.y + Math.sin(w) * d * .9, licht = 1 - (py - (y - h)) / (h * .6);
+    let c = mix(farbe, neben, r() * .5); c = mix(c, licht > .5 ? [240, 226, 196] : [96, 88, 76], Math.abs(licht - .5) * .4 * r()); c = mix(c, p.dunst, .22);
+    g.fillStyle = rgba(c, a * (.35 + r() * .5));
+    const s = Math.max(1.2, h * (.028 + r() * .03));
+    g.beginPath(); g.ellipse(px, py, s * 1.3, s * .8, r() * 3.14, 0, 6.283); g.fill();
+  }
+}
+function baumreihe(g, r, f, p, opt) {
+  const { von, bis, dichte, tannen, a, winter, streu = 0, x0 = -20, x1 = W + 20, luecke } = opt;
+  const liste = [];
+  for (let x = x0; x < x1; x += dichte * (.5 + r())) {
+    if (luecke && luecke(x)) continue;
+    const tief = streu ? r() * r() * streu : 0;
+    liste.push({ x, y: f(x) + tief + 2, h: (von + r() * (bis - von)) * (1 - tief / (streu * 2.2 || 1)), t: r() < tannen, a: a * (1 - tief / (streu * 1.25 || 1e9)) });
+  }
+  liste.sort((u, v) => u.y - v.y);
+  /* ganze Reihe ohne Filter auf eine eigene Fläche, dann einmal weich auftragen (Filter je Tupfer wäre viel zu langsam) */
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const t = c.getContext('2d');
+  for (const b of liste) { if (b.t) tanne(t, r, b.x, b.y, b.h * 1.15, p.tanne, b.a, winter); else laubbaum(t, r, b.x, b.y, b.h, p, b.a, winter); }
+  g.save(); g.filter = `blur(${Math.min(1.3, Math.max(.4, (von + bis) / 2 * .012)).toFixed(2)}px)`; g.drawImage(c, 0, 0);
+  g.filter = 'blur(7px)'; g.globalAlpha = .3; g.drawImage(c, 0, 0); g.restore(); /* nasser Rand: Farbe läuft leicht aus */
+}
+function dunst(g, r, y0, y1, n, staerke) {
+  g.save(); g.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < n; i++) {
+    const x = r() * W, y = y0 + r() * (y1 - y0), rx = 160 + r() * 320, ry = 26 + r() * 46;
+    const gr = g.createRadialGradient(x, y, 0, x, y, rx); gr.addColorStop(0, `rgba(0,0,0,${staerke * (.5 + r() * .5)})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.save(); g.translate(x, y); g.scale(1, ry / rx); g.translate(-x, -y); g.fillStyle = gr; g.fillRect(x - rx, y - rx, rx * 2, rx * 2); g.restore();
+  }
+  g.restore();
+}
+function koernung(g, r) { /* Papierkorn: Pigment setzt sich ungleich ab */
+  g.save(); g.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < KORN; i++) { g.fillStyle = `rgba(0,0,0,${r() * .09})`; g.fillRect(r() * W, r() * H, 1 + r() * 2.4, 1 + r() * 2.4); }
+  g.restore();
+}
+function auslauf(g) { /* unten und an den Rändern in Papier auslaufen */
+  g.save(); g.globalCompositeOperation = 'destination-out';
+  const gr = g.createLinearGradient(0, H * .72, 0, H); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,1)');
+  g.fillStyle = gr; g.fillRect(0, H * .72, W, H * .28); g.restore();
+}
+function haus(g, r, x, y, s, p, kirche) {
+  g.save(); g.filter = 'blur(.5px)';
+  g.fillStyle = rgba(p.wand, .85); g.fillRect(x, y - s * .6, s, s * .6);
+  g.fillStyle = rgba(p.dach, .85); g.beginPath(); g.moveTo(x - s * .08, y - s * .6); g.lineTo(x + s * .5, y - s * 1.05); g.lineTo(x + s * 1.08, y - s * .6); g.closePath(); g.fill();
+  g.fillStyle = rgba(p.stamm, .5); g.fillRect(x + s * .2, y - s * .42, s * .14, s * .16); g.fillRect(x + s * .62, y - s * .42, s * .14, s * .16);
+  if (kirche) {
+    g.fillStyle = rgba(p.wand, .9); g.fillRect(x + s * 1.02, y - s * 1.5, s * .36, s * 1.5);
+    g.fillStyle = rgba(p.dach, .9); g.beginPath(); g.moveTo(x + s * .98, y - s * 1.5); g.lineTo(x + s * 1.2, y - s * 2.5); g.lineTo(x + s * 1.42, y - s * 1.5); g.closePath(); g.fill();
+  }
+  g.restore();
+}
+
+const EBENEN = {
+  /* mittlere Höhenzüge: bewaldete Rücken wie am Burgberg, klein und dunstig */
+  mitte(g, r, p, winter) {
+    const f2 = kamm(r, 150, 44, 310), f1 = kamm(r, 215, 52, 240);
+    flaeche(g, f2, mix(p.boden[0], p.dunst, .35), .7, .5);
+    baumreihe(g, r, f2, p, { von: 12, bis: 22, dichte: 3, tannen: .55, a: .36, winter, streu: 46 });
+    dunst(g, r, 190, 260, 9, .5);
+    flaeche(g, f1, p.boden[0], .8, .55);
+    baumreihe(g, r, f1, p, { von: 18, bis: 32, dichte: 3.2, tannen: .45, a: .5, winter, streu: 78 });
+    dunst(g, r, 280, 420, 12, .6);
+  },
+  /* Hang: einzelne Bäume werden erkennbar */
+  hang(g, r, p, winter) {
+    const f2 = kamm(r, 150, 40, 330), f1 = kamm(r, 250, 46, 270);
+    flaeche(g, f2, p.boden[1], .82, .6);
+    baumreihe(g, r, f2, p, { von: 34, bis: 58, dichte: 7, tannen: .4, a: .62, winter, streu: 90 });
+    dunst(g, r, 215, 270, 6, .4);
+    flaeche(g, f1, mix(p.boden[1], p.boden[2], .5), .85, .6);
+    baumreihe(g, r, f1, p, { von: 60, bis: 104, dichte: 17, tannen: .3, a: .78, winter, streu: 150 });
+    dunst(g, r, 380, 520, 10, .55);
+  },
+  /* Talgrund: Wiese, Bach, ein Dorf mit Kirche, große Bäume vorn */
+  grund(g, r, p, winter) {
+    const f = kamm(r, 205, 16, 420);
+    flaeche(g, f, p.boden[2], .9, .75);
+    /* Bach mit hellem Glanz */
+    g.save(); g.filter = 'blur(2.5px)'; g.lineCap = 'round';
+    const bach = () => { g.beginPath(); g.moveTo(-30, 372); g.bezierCurveTo(260, 300, 420, 430, 760, 352); g.bezierCurveTo(1040, 290, 1280, 400, 1640, 330); };
+    g.strokeStyle = rgba(p.wasser, .85); g.lineWidth = 30; bach(); g.stroke();
+    g.strokeStyle = 'rgba(250,250,246,.6)'; g.lineWidth = 7; bach(); g.stroke(); g.restore();
+    /* Dorf am Hangfuß */
+    const dx = 1010; [[0, 30, 0], [44, 26, 0], [84, 34, 1], [150, 28, 0], [-46, 24, 0], [192, 22, 0]].forEach(([o, s, k]) => haus(g, r, dx + o, f(dx + o) + 26 + (o % 3) * 4, s, p, k));
+    baumreihe(g, r, x => f(x) + 6, p, { von: 44, bis: 76, dichte: 11, tannen: .3, a: .7, winter, streu: 46, luecke: x => x > 960 && x < 1250 });
+    baumreihe(g, r, x => f(x) + 40, p, { von: 26, bis: 40, dichte: 60, tannen: .1, a: .7, winter, x0: 940, x1: 1280 });
+    /* große Bäume vorn links und rechts */
+    baumreihe(g, r, x => 395 + Math.sin(x / 90) * 8, p, { von: 46, bis: 70, dichte: 26, tannen: .05, a: .7, winter, luecke: x => (x > 300 && x < 520) || (x > 900 && x < 1200) });
+    baumreihe(g, r, x => 500 + Math.sin(x / 200) * 12, p, { von: 190, bis: 270, dichte: 120, tannen: .2, a: .9, winter, luecke: x => x > 330 && x < 1260 });
+    dunst(g, r, 420, 560, 6, .35);
+  },
+};
+
+const Q = new URLSearchParams(location.search), BUDGET = +Q.get('budget') || 200000, BREITEN = (Q.get('breiten') || '1400,900').split(',').map(Number); /* gemalt wird immer in 1600 × 620, gespeichert in den Breiten aus landscape.js */
+const bytes = url => Math.floor((url.length - url.indexOf(',') - 1) * 3 / 4);
+function verdichte(canvas) { /* dieselbe Stufenfolge wie die Redaktion (encodeWebp) */
+  let letzte;
+  for (const q of [.83, .76, .7, .62, .55, .48]) { const url = canvas.toDataURL('image/webp', q); letzte = { url, q, bytes: bytes(url) }; if (letzte.bytes <= BUDGET) return letzte; }
+  return { ...letzte, ueber: true }; /* das Bauskript bricht dann mit der Größe ab */
+}
+const out = {};
+for (const jahr of ['herbst', 'winter']) for (const name of Object.keys(EBENEN)) {
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), r = rng(name.length * 7919 + 17);
+  EBENEN[name](g, r, PAL[jahr], jahr === 'winter');
+  koernung(g, rng(5)); auslauf(g);
+  const eintrag = out[`${name}-${jahr}`] = {};
+  for (const breite of BREITEN) {
+    let bild = c;
+    if (breite !== W) { bild = document.createElement('canvas'); bild.width = breite; bild.height = Math.round(H * breite / W); const x = bild.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(c, 0, 0, bild.width, bild.height); }
+    eintrag[breite] = verdichte(bild);
+  }
+  if (Q.has('zeig')) { c.style.cssText = 'display:block;width:100%'; document.body.append(c); }
+}
+document.getElementById('out').textContent = JSON.stringify(out);
+</script>

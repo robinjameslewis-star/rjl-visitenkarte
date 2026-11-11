@@ -281,7 +281,7 @@ Jahreszeit, bleibt die Seite ohne diese Ebene nutzbar.
 `assets/landschaften/<satz>/` mit `landschaft.json` (`name`, `ebenen` je Jahreszeit `herbst|winter|fruehling|sommer`
 × Ebene `ferne|krone` mit `{avif, bytes}`, `blaetter` je Jahreszeit `blaetter|schnee|blueten|keine`, `himmel` je
 Zustand `tag|tief|daemmerung|nacht` als drei Farben oben/unten/Glühen) und den Bildern
-`<ebene>-<jahreszeit>-<breite>.webp` (Ferne 1400/800, Krone 1000/560; AVIF optional). Welcher Satz läuft, steht am
+`<ebene>-<jahreszeit>-<breite>.webp` (Ferne 1400/800, Krone 1000/560, Talebenen `mitte`, `hang`, `grund` 1400/900; AVIF optional). Welcher Satz läuft, steht am
 `<body>`: `data-landschaft-satz="<satz>"` neben dem Schalter `data-landschaft`; `landscape.js` lädt die
 `landschaft.json` nach, baut nur vorhandene Ebenen, nimmt Blätterart und Himmelsfarben daraus.
 `?landschaft=<satz>` zeigt jeden Satz zur Probe. Beschreibung und Standardwerte (`normalizeSet`, Größen, Budgets)

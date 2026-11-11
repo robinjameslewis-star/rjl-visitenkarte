@@ -137,3 +137,22 @@ Grenzen: Chrome geprüft, kein echter iOS-Safari-Gerätetest. Der ältere zusät
 `goch-landscape_test.py` konnte wegen fehlendem Paket `websockets` nicht starten; die acht unabhängigen
 Node-Anflugtests bestanden. Ein versuchsweise gestarteter Worker-Bündeltest wurde beim
 Wrangler-Vorlauf ohne Ergebnis abgebrochen; am Worker wurde nichts geändert. Keine Veröffentlichung vorgenommen.
+
+## Talebenen im Datenmodell (11.11.2026, „Ein Tal“, Schritt 1)
+Vorbereitung für das Tal unterhalb der Bühne; für Besucher ändert sich mit diesem Schritt nichts, weil die Startseite weiter nur
+Ferne und Krone zeigt (`seasonal()` in `landscape.js`).
+- `landscape.js`: `LAYERS` kennt zusätzlich `mitte` (Höhenzüge), `hang` und `grund` (Talgrund), je 1400/900 px und 200 KB Budget.
+  `normalizeSet` behält sie damit; vorher hätte die Redaktion solche Einträge beim Speichern verworfen.
+- Redaktion „Landschaften“: drei weitere Kästen unter „Tal unterhalb der Bühne“. Aufbereitung im Browser wie bei der Ferne (Weiß →
+  Transparenz, Streifen mindestens Breite/2,58 hoch), aber nur unten weich auslaufend; Kammlinie und Seitenränder bleiben. Der Bestand
+  nennt je Jahreszeit die vorhandenen Ebenen oder „alle 5 Ebenen“.
+- `tools/landschaft-bilder.py`: dieselben Ebenen über `--mid`, `--slope`, `--valley` (nur mit Angabe gebaut), Größen und Budgets in `KINDS`.
+- Satz `burgberg-herbst`: Talebenen für Herbst und Winter als gerechnete Vorlage (`node tools/tal-ebenen-bauen.mjs`, Quelle
+  `tools/tal-ebenen-malen.html`), 147 bis 187 KB in 1400 px, 74 bis 97 KB in 900 px. Sie stehen im Satz, bis gemalte Ebenen über die
+  Redaktion kommen. Die Bäume liegen halbtransparent übereinander; WebP speichert Deckkraft verlustfrei, deshalb sind die Dateien
+  größer als die gemalte Ferne, und ein Papierkorn in der Deckkraft (rund 100 KB je Bild) wurde weggelassen.
+- Geprüft: `node tests/site_test.mjs` (Datenmodell, Dateien, Budgets, Beschreibung), `node tests/landscape.test.cjs` 15/15,
+  `node tests/moon.test.cjs` 12/12, `python3 tests/admin_test.py` (Abschnitt 9: fünf Kästen, Hang in 1400/900 unter Budget, Himmel
+  durchsichtig, unten ausgelaufen, Speichern), `node tests/bundle_check.mjs`, `tools/landschaft-bilder.py --slope` mit Prüfbild.
+- Offen für Schritt 2: Die Ebenen anzeigen und beim Scrollen verschieben; erst dann laden Besucher sie.
+
