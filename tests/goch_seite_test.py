@@ -58,14 +58,14 @@ async def main():
             except Exception: time.sleep(0.2)
         page = [t for t in targets if t["type"] == "page"][0]
         async with websockets.connect(page["webSocketDebuggerUrl"], max_size=80_000_000) as ws:
-            mid = 0; console = []; pending = {}; anfragen = []; gewicht = [0, 0]; kaputt = []
+            mid = 0; console = []; pending = {}; anfragen = []; gewicht = [0, 0, 0]; kaputt = []
             def handle(msg):
                 if 'id' in msg and msg['id'] in pending:
                     pending[msg['id']].set_result(msg.get('result', msg)); return
                 if msg.get('method') == 'Network.requestWillBeSent': anfragen.append(msg['params']['request']['url'])
                 if msg.get('method') == 'Network.responseReceived' and msg['params']['response']['status'] >= 400: kaputt.append((msg['params']['response']['status'], msg['params']['response']['url']))
                 if msg.get('method') == 'Network.loadingFinished': gewicht[0] += msg['params'].get('encodedDataLength', 0)
-                if msg.get('method') == 'Page.loadEventFired': gewicht[1] = gewicht[0]
+                if msg.get('method') == 'Page.loadEventFired': gewicht[1] = gewicht[0]; gewicht[2] = len(anfragen)
                 if msg.get('method') == 'Runtime.exceptionThrown':
                     console.append(msg['params']['exceptionDetails'].get('text', '') + ' ' + str(msg['params']['exceptionDetails'].get('exception', {}).get('description', ''))[:200])
             async def pump(timeout):
@@ -89,7 +89,7 @@ async def main():
                 r = await send("Page.captureScreenshot", {"format": "jpeg", "quality": 82})
                 open(os.path.join(OUT, name + '.jpg'), "wb").write(base64.b64decode(r["data"]))
             async def goto(url, wait=1.5):
-                anfragen.clear(); gewicht[0] = gewicht[1] = 0
+                anfragen.clear(); gewicht[0] = gewicht[1] = gewicht[2] = 0
                 await send("Page.navigate", {"url": url})
                 for _ in range(40):
                     if await ev("location.href.startsWith(" + json.dumps(BASE) + ") && document.readyState === 'complete'"): break
@@ -112,7 +112,7 @@ async def main():
                     await send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x, "y": y + dy * i / 5}]})
                 await send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
                 await pump(0.4)
-            async def bis(js, gut, dauer=8):  # wartet auf den Zustand statt auf eine feste Pause; gibt den letzten Stand zurück
+            async def bis(js, gut, dauer=14):  # wartet auf den Zustand statt auf eine feste Pause; gibt den letzten Stand zurück
                 ende = time.time() + dauer
                 while True:
                     wert = await ev(js)
@@ -143,7 +143,7 @@ async def main():
             vogel = """(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect(),b=s.querySelector('.bird-rest'),a=s.querySelector('.branch img'),k=document.getElementById('goch-kopf').getBoundingClientRect();
               return {vogel:b.complete&&b.naturalWidth>0&&getComputedStyle(b).opacity==='1',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,imStreifen:r.top>=k.top-2&&r.bottom<=k.bottom+12,frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))&&s.contains(document.elementFromPoint(r.left+r.width*.45,r.top+r.height*.82)),breite:Math.round(r.width),quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             klein = """(()=>{const m=document.getElementById('goch-mini'),r=m.getBoundingClientRect(),a=m.querySelector('.goch-mini-ast'),p=document.getElementById('goch').getBoundingClientRect();
-              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,neben:m.querySelector('.goch-mini-vogel').getBoundingClientRect().left>=p.right-46};})()"""
+              return {ruht:!m.dataset.flug,da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,neben:m.querySelector('.goch-mini-vogel').getBoundingClientRect().left>=p.right-46};})()"""
             GROESSEN = (('Handy', 375, 667, True), ('Tablet', 820, 1180, False), ('Tablet_quer', 1024, 768, False), ('Rechner', 1280, 800, False))
             SEITEN = (('workshops/', 'de'), ('ueber-mich/', 'de'), ('blog/', 'de'), ('werkzeuge/en/', 'en'), ('workshops/e-rechnung/', 'de'), ('blog/das-ende-des-erp/', 'de'))
             nr = 0
@@ -159,6 +159,9 @@ async def main():
                     await pump(1.0)
                     v = await bis(vogel, lambda v: v['vogel'] and v['ast'] and v['astBisRand'])
                     check(v['vogel'] and v['ast'] and v['astBisRand'], "Goch sitzt auf seinem Ast, der Ast kommt vom rechten Rand", v)
+                    flug = await bis("[document.getElementById('scene').dataset.ready || '', document.getElementById('scene').dataset.state || '']", lambda f: f == ['true', 'rest'])
+                    vorLoad = [u for u in anfragen[:gewicht[2]] if any(w in urllib.parse.urlparse(u).path for w in ('flugpose', 'bird-flight', 'goch', 'language.js', 'figuren/'))]
+                    check(flug == ['true', 'rest'] and len([u for u in anfragen if 'flugpose' in u]) == 4 and vorLoad == [u for u in vorLoad if 'goch-seite.js' in u], "Goch ist angeflogen und gelandet; Flugbilder und Skripte kamen erst nach dem Laden der Seite", [flug, vorLoad[:3]])
                     check(v['imStreifen'] and v['frei'] and not v['quer'], "er sitzt im Kopf der Seite, nichts liegt über ihm, kein seitliches Scrollen", v)
                     oben = await ev("[window.__mainOben, Math.round(document.querySelector('main').getBoundingClientRect().top + scrollY)]")
                     check(oben[0] is not None and oben[0] == oben[1], "der Inhalt steht, wo er vor Goch stand (kein Sprung)", oben)
@@ -194,7 +197,7 @@ async def main():
                             check(await klasse('goch-fokus') and o['fest'] and o['imFenster'] and o['frei'] and -26 <= o['ueberBlatt'] <= 40, "„Goch spricht“ am Handy: Goch groß, direkt über dem Blatt, nicht verdeckt", o)
                             await shot(f"unterseite_{name}_fokus")
                             await klick('#goch-zur-seite'); await ev("window.scrollTo(0,700)"); await pump(0.8)
-                            k = await bis(klein, lambda k: k['da'] and k['ast'])
+                            k = await bis(klein, lambda k: k['ruht'] and k['da'] and k['ast'])
                             check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['neben'], "Seite freigegeben: kleiner Goch auf seinem Ast neben der Kapsel", k)
                             for _ in range(20):
                                 if await ev("!!document.getElementById('goch-mini').dataset.leben"): break
@@ -205,7 +208,7 @@ async def main():
                             await shot(f"unterseite_{name}_begleiter")
                         else:
                             await ev("window.scrollTo(0,900)"); await pump(0.9)
-                            k = await bis(klein, lambda k: k['da'] and k['ast'] and k['astBisRand']); f = await bis(frei, lambda f: f['drin'] and f['verdeckt'] == 0)
+                            k = await bis(klein, lambda k: k['ruht'] and k['da'] and k['ast'] and k['astBisRand']); f = await bis(frei, lambda f: f['drin'] and f['verdeckt'] == 0)
                             check(await klasse('goch-angeheftet') and f['drin'] and f['verdeckt'] == 0 and k['da'] and k['astBisRand'] and k['ueberBlatt'], "weitergescrollt: Blatt bleibt, kleiner Goch auf seinem Ast darüber", [f, k])
                             await shot(f"unterseite_{name}_gescrollt")
                             await klick('#goch-zur-seite')

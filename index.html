@@ -290,7 +290,15 @@
      Größe vor, der Ast liegt in Prozent dazu. Antippbar ist nur der Vogel selbst (.goch-mini-knopf), alles andere lässt die
      Seite darunter bedienbar. */
   /* Größe wie im Entwurf vom 11.11.2026: Der Vogel ist am Handy rund 75 px breit zu sehen (Bildfläche --gm, rechts leer). */
-  .goch-mini { --gm: clamp(180px, 22vw, 230px); position: fixed; z-index: 21; right: 0; width: calc(var(--gm) * .74 + 2vw); padding: 0 0 14px; overflow: hidden; pointer-events: none; }
+  .goch-mini { --gm: clamp(180px, 22vw, 230px); position: fixed; z-index: 21; right: 0; width: calc(var(--gm) * .74 + 2vw); padding: 0 0 14px; pointer-events: none; }
+  /* Flug des kleinen Goch (Schritt 7, goch-gespraech.js): Er fliegt bei jedem Auftritt von rechts oben an und bei jedem Rückzug
+     nach links oben ab. Flugposen wie auf der Bühne (Lage in Prozent der Sitzpose). Bei reduzierter Bewegung kein Flug. */
+  .goch-mini-flug { position: absolute; width: 133.2177%; max-width: none; height: auto; opacity: 0; pointer-events: none; }
+  .goch-mini-tier.fliegt > :not(.goch-mini-flug) { visibility: hidden !important; }
+  .goch-mini.spricht .goch-mini-tier.fliegt { animation: none; }
+  .goch-mini.fliegt-ab.fliegt-ab { display: block !important; }
+  .goch-mini.fliegt-ab .goch-mini-knopf { pointer-events: none; }
+  .goch-mini.fliegt-ab .goch-mini-ast { opacity: 0; transition: opacity .5s ease .45s; } /* der Ast zieht sich mit zurück: nie ein Ast ohne Goch */
   .goch-mini-bild { position: relative; display: block; width: var(--gm); }
   .goch-mini-tier { position: relative; display: block; transform-origin: 45% 80%; }
   .goch-mini-vogel { display: block; width: 100%; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
@@ -1030,7 +1038,7 @@
 
 
 <script>window.RJLLandscape?.init();</script>
-<script src="bird-flight.js?v=20260922" defer onerror="document.documentElement.classList.remove('js')"></script>
+<script src="bird-flight.js?v=20261113" defer onerror="document.documentElement.classList.remove('js')"></script>
 <script>
   // Werkzeug-Slider: Pfeile blättern um eine Karte, die Punkte zeigen die Stelle; ohne Skript lässt sich wischen und scrollen
   document.querySelectorAll('.wzs').forEach(function (box) {
@@ -1054,7 +1062,7 @@
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261112b" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261113c" defer></script>
+<script src="goch-gespraech.js?v=20261113d" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>

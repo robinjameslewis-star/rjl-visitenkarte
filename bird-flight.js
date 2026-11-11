@@ -6,7 +6,8 @@
   const branch = scene.querySelector('.branch');
   const frames = [...scene.querySelectorAll('[data-pose]')];
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  const flightDuration = 4200;
+  const fullFlight = 4200;
+  let flightDuration = fullFlight;
   const settleDuration = 950;
   let request = 0;
   let generation = 0;
@@ -103,7 +104,8 @@
     request = requestAnimationFrame(tick);
   }
 
-  function play() {
+  function play(duration) {
+    flightDuration = duration || fullFlight;
     if (!ready || motion.matches || document.hidden) { finish(); return; }
     finish();
     bounds = scene.getBoundingClientRect();
@@ -117,6 +119,8 @@
   // Mit Goch (goch.js setzt data-chat="on") öffnet der Klick das Gespräch, nicht den Anflug;
   // der Flug wiederholt sich dann beim Neuladen über den Namen.
   scene.addEventListener('click', () => { if (scene.dataset.chat !== 'on') play(); });
+  // Für goch-gespraech.js („Ein Tal“, Schritt 7): Goch fliegt wieder an, wenn er zurückkommt – kürzer als beim ersten Mal.
+  window.GochFlug = { an: (kurz = true) => { if (ready && !request) play(kurz ? 1900 : fullFlight); }, bereit: () => ready };
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) finish();
   });
