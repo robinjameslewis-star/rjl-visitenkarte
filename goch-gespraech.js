@@ -96,12 +96,23 @@
     };
     requestAnimationFrame(schritt);
   }
+  // Ist der große Goch gerade im Fenster? Sofort gemessen – der IntersectionObserver meldet erst ein Bild später.
+  const grossImBild = () => { const r = scene.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+  // Flug sofort beenden und den kleinen Goch ohne Abflug verschwinden lassen
+  function flugAus() {
+    flugLauf++; tier.classList.remove('fliegt'); tier.style.transform = ''; tier.style.opacity = '';
+    if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; });
+    mini.dataset.flug = ''; mini.classList.remove('fliegt-ab'); mini.style.bottom = '';
+  }
   function miniPruefen() {
     const soll = !mini.hidden && !mini.classList.contains('goch-mini-weg') && (lage === 'unterwegs' || !!breit);
     if (soll && !mini.classList.contains('fliegt-ab')) boden = getComputedStyle(mini).bottom;
     if (soll === miniDa) return;
     miniDa = soll;
     if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => {}); }
+    // Nie zwei Gochs zugleich (Robin, 11.11.2026): Kommt der große Goch ins Bild, ist der kleine sofort weg – ohne Abflug.
+    // Er fliegt nur ab, wenn der große nicht zu sehen ist (Gespräch geschlossen, „Seite ansehen“ aufgehoben).
+    else if (sichtbar > .02 || grossImBild()) flugAus();
     else { mini.style.bottom = boden; mini.classList.add('fliegt-ab'); miniFlug(false, () => { if (!miniDa) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; } }); }
   }
   new MutationObserver(miniPruefen).observe(mini, { attributes: true, attributeFilter: ['hidden', 'class'] });
@@ -213,9 +224,16 @@
   // Der kleine Goch erscheint erst, wenn der große aus dem Bild ist – nie zwei Gochs zugleich
   if ('IntersectionObserver' in window) new IntersectionObserver(es => {
     sichtbar = es[es.length - 1].intersectionRatio;
-    mini.classList.toggle('goch-mini-weg', sichtbar > .35);
+    mini.classList.toggle('goch-mini-weg', sichtbar > .02); // schon der Rand des großen Goch genügt: nie beide zugleich
+    if (sichtbar > .02 && (mini.classList.contains('fliegt-ab') || mini.dataset.flug)) flugAus();
     breitPruefen();
-  }, { threshold: [0, .1, .35, .5, 1] }).observe(scene);
+  }, { threshold: [0, .02, .1, .35, .5, 1] }).observe(scene);
+  // Der IntersectionObserver meldet erst ein Bild später. Solange der kleine Goch zu sehen ist, prüft deshalb schon das
+  // Scrollen selbst, ob der große ins Bild kommt – dann ist der kleine im selben Bild weg.
+  window.addEventListener('scroll', () => {
+    if (!miniDa && !mini.classList.contains('fliegt-ab')) return;
+    if (grossImBild()) { sichtbar = Math.max(sichtbar, .03); mini.classList.add('goch-mini-weg'); miniPruefen(); }
+  }, { passive: true });
   // Der kleine Goch wippt, solange Goch spricht (data-spricht an der Szene, goch-audio.js, bewegung)
   new MutationObserver(() => mini.classList.toggle('spricht', !!scene.dataset.spricht)).observe(scene, { attributes: true, attributeFilter: ['data-spricht'] });
 })();
