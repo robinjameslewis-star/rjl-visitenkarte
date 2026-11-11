@@ -270,7 +270,14 @@ def main(pfad_db, ausgabe, nur_marken=False, stimme_id=None):
         liste = s['karte'] if isinstance(s['karte'], list) else [s['karte']]  # mehrere Karten teilen sich den Satz
         for k, karte in enumerate(liste):
             teil = (bis - von) / len(liste)
-            karten.append({**karte, 'von': round(von + k * teil, 3), 'bis': round(von + (k + 1) * teil + (.25 if k < len(liste) - 1 else 0), 3)})
+            neu = {**karte, 'von': round(von + k * teil, 3), 'bis': round(von + (k + 1) * teil + (.25 if k < len(liste) - 1 else 0), 3)}
+            # Dieselbe Karte im nächsten Satz (z. B. dieselbe Folie): weiterzeigen statt aus- und wieder einblenden
+            # (Robin, 11.11.2026: „gochs folie flackert alle ca. 10 sekunden neu auf, auch wenn die folie gar nicht wechselt“)
+            vorige = karten[-1] if karten else None
+            if vorige and {x: v for x, v in vorige.items() if x not in ('von', 'bis')} == karte and abs(vorige['bis'] - neu['von']) < .3:
+                vorige['bis'] = neu['bis']
+            else:
+                karten.append(neu)
     for name, cfg in db.get('bilder', {}).items(): bild_vorbereiten(name, cfg, basis, clip)
     for k in karten:
         if k.get('art') in ('bild', 'folie'): k['src'] = '/_clip/' + k['src']
