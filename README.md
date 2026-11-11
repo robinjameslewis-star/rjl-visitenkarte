@@ -880,6 +880,11 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   oben auf Sie.“, keine Anfrage), das Gespräch geht zu (damit auch das Mikrofon), er fliegt ab, und am rechten Rand bleibt die
   Spitze seines Zweigs (`#goch-zweig`). Ein Tipp darauf ruft ihn zurück. Die Bitte gilt für den Besuch, auch über Seitenwechsel
   (`sessionStorage`, `rjl-goch-platz`); wer Goch selbst antippt, hebt sie auf. Knopf und Zweig baut `goch-gespraech.js`.
+- **Laub im Tal und Blätter aus der Tiefe (Robin, 11.11.2026, aus dem Entwurf):** Im Tal hinter der Seite fallen wenige
+  Blätter (`.tal-laub` in `.tal-laubfeld`, `landscape.js`), im Winter Schnee (zwölf Flocken), im Frühling Blüten – je nach
+  `blaetter` des Satzes. Sichtbar erst unterhalb der Bühne, weil dort schon das Laub der Krone fällt. Die Blätter der
+  Startseite, die unter dem Fenster liegen, stehen etwas tiefer und kleiner (`.tal-tief`) und rücken an ihren Platz, sobald
+  sie ins Fenster kommen – einmal, nicht wieder zurück. Beides nicht bei reduzierter Bewegung; nur `transform` und `opacity`.
 - **Flug überall (Schritt 7, Robin 11.11.2026: „bei jedem neuen Auftritt anfliegen und bei jedem Rückzug abfliegen“):**
   Unterseiten: Goch fliegt im Kopf an wie auf der Startseite (`goch-seite.js` lädt `bird-flight.js`; Flugbilder erst nach
   dem ersten Bild der Seite). Kleiner Goch: fliegt bei jedem Erscheinen von rechts oben an und bei jedem Rückzug nach links

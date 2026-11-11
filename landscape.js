@@ -434,6 +434,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   const talWish=new URLSearchParams(location.search).get('tal');
   const talOn=talWish?talWish!=='aus':document.body.dataset.tal==='an';
   const TAL=[{kind:'mitte',ax:.35,y:.86,w:.54},{kind:'hang',ax:.55,y:1.1,w:.64},{kind:'grund',ax:.8,y:1.42,w:.82}];
+  let talLaub=null;
   let tal=null, talFar=null, talFrames=[], talKey='', talState=null, talWaiting=false;
   function talLayers(state) {
     talState=state;
@@ -458,6 +459,15 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       });
     }
     talFrames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
+    // Laub im Tal (Entwurf vom 11.11.2026): wenige Blätter fallen hinter den Blättern der Seite durchs Tal, im Winter Schnee,
+    // im Frühling Blüten – je nach Satz (blaetter). Erst unterhalb der Bühne sichtbar (dort fällt schon das Laub der Krone),
+    // nicht bei reduzierter Bewegung.
+    const art=api.PARTICLES[set.blaetter[FILE[state.current]]]||'';
+    if (talLaub && talLaub.dataset.art!==art) {
+      talLaub.dataset.art=art; talLaub.replaceChildren();
+      const zahl=art==='snow'?12:art==='petal'?6:art?4:0;
+      for (let i=0;i<zahl;i++) { const b=document.createElement('i'); b.className='tal-laub '+art; b.style.cssText=`left:${art==='snow'?6+i*7:art==='petal'?30+i*10:48+i*9}%;--d:${9+(i%5)*2.3}s;--w:${(i*1.3).toFixed(1)}s`; talLaub.append(b); }
+    }
     talDraw();
   }
   function talDraw() {
@@ -471,16 +481,26 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     // Ferne des Tals erst zeigen, wenn die echte Bühne oben hinaus ist – sonst stünden zwei Burgberge übereinander.
     const gone=Math.min(1,Math.max(0,(y-end*.75)/(H*.35)));
     talFar.style.opacity=(gone*(1-depth*.5)).toFixed(3);
+    if (talLaub) talLaub.style.opacity=still?'0':gone.toFixed(3);
     talFar.querySelectorAll('.tal-burg').forEach(p=>{ p.style.transform=`translate3d(0,${((.25-depth*.2)*H).toFixed(1)}px,0) scale(${(1+depth*.22).toFixed(3)})`; });
   }
   if (talOn) {
     const build=()=>{
       tal=document.createElement('div'); tal.className='tal'; tal.setAttribute('aria-hidden','true');
-      tal.innerHTML='<div class="tal-fern"><div class="tal-himmel"></div></div>'; talFar=tal.firstChild;
+      tal.innerHTML='<div class="tal-fern"><div class="tal-himmel"></div></div><div class="tal-laubfeld"></div>'; talFar=tal.firstChild; talLaub=tal.lastChild;
       document.body.prepend(tal); root.classList.add('tal-on');
       window.addEventListener('scroll',()=>{ if(!talWaiting){ talWaiting=true; requestAnimationFrame(talDraw); } },{passive:true});
       window.addEventListener('resize',talDraw); motion.addEventListener('change',talDraw);
       if (talState) talLayers(talState);
+      // Die Blätter der Seite rücken aus der Tiefe heran (Entwurf vom 11.11.2026): Was unter dem Fenster liegt, steht etwas
+      // tiefer und kleiner und kommt an seinen Platz, sobald es ins Fenster kommt – einmal, nicht wieder zurück. Nur transform.
+      // Nicht bei reduzierter Bewegung.
+      if (!motion.matches && 'IntersectionObserver' in window) {
+        const fern=[...document.querySelectorAll('main > section:not(.stage)')].filter(b=>!b.hidden && b.getBoundingClientRect().top>innerHeight*.86);
+        const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.remove('tal-tief'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -12% 0px'});
+        fern.forEach(b=>{ b.classList.add('tal-tief'); io.observe(b); });
+        motion.addEventListener('change',()=>{ if(motion.matches) fern.forEach(b=>b.classList.remove('tal-tief')); });
+      }
     };
     // Die Blätter stehen sofort (Klasse), die Bilder des Tals kommen nach dem ersten Bild der Seite.
     root.classList.add('tal-on');
