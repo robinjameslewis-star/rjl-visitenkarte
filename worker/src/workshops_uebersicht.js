@@ -89,7 +89,7 @@ ${t.karten.map(karte).join("\n")}
 <p class="meta"><a href="${up}${UEBERSICHT.find(s => s.lang === andere).adresse}" lang="${andere}" hreflang="${andere}">${esc(t.andere)}</a></p>
 ${newsletterKasten(lang, up, "impuls")}
 </article>`;
-  return rahmen({ lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
+  return rahmen({ goch: true, lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: url(andere) }],
     head: weiter + "\n", css: CSS, main, aktiv: "workshops" });
 }

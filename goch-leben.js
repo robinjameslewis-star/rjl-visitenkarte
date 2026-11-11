@@ -146,10 +146,11 @@
   // Startseite: in die Szene über der Sitzpose; Teile laden, sobald Goch gelandet ist
   const scene = document.getElementById('scene'), tilt = scene && scene.querySelector('.bird-tilt');
   if (!scene || !tilt || ruhig.matches) return;
-  fetch('figuren/goch/figur.json').then(r => r.ok ? r.json() : null).then(figur => {
+  const wurzel = window.RJLWurzel || ''; // Unterseiten: Adresse der Wurzel (goch-seite.js)
+  fetch(wurzel + 'figuren/goch/figur.json').then(r => r.ok ? r.json() : null).then(figur => {
     const a = figur && figur.animation, t = a && a.teile, s = a && a.posen && a.posen.sitzend;
     if (!t || !s) return;
-    const leben = bauen({ ziel: tilt, basis: 'figuren/goch/', teile: t, breite: s.breite, hoehe: s.hoehe,
+    const leben = bauen({ ziel: tilt, basis: wurzel + 'figuren/goch/', teile: t, breite: s.breite, hoehe: s.hoehe,
       sitzt: () => scene.dataset.state === 'rest',
       // war die Stimme schon vor der Landung an (ganze Schnabelposen angefordert), gleich auch die Schnabelköpfe laden
       bereit: () => { scene.dataset.leben = '1'; if (scene.querySelector('.bird-mund[src]')) leben.posenLaden(); } });

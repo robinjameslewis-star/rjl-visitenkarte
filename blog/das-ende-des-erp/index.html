@@ -47,6 +47,8 @@ body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper)
 .kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
 .kopf .menue nav a[aria-current="page"] { color: var(--green); }
 @media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
+.goch-kopf { --gw: clamp(150px, 20vw, 220px); position: relative; height: calc(66px + var(--gw) * .616 + 8px); margin-top: -66px; overflow: hidden; overflow: clip visible; background: linear-gradient(rgba(176, 204, 218, .5), rgba(176, 204, 218, 0) 88%); }
+.goch-kopf + main { padding-top: clamp(22px, 4vh, 44px); }
 main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 36px; }
@@ -117,6 +119,7 @@ article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
 <nav aria-label="Seiten"><a href="../../werkzeuge/">Werkzeuge</a><a href="../../blog/" aria-current="page">Impulse</a><a href="../../workshops/">Workshops</a><a href="../../ueber-mich/">Über mich</a><a href="../../#nachricht">Nachricht</a><a href="../../?lang=en" lang="en" hreflang="en">English</a></nav>
 </details>
 </header>
+<div class="goch-kopf" id="goch-kopf"></div>
 <main>
 <article lang="de">
 <h1>Das Ende des ERP, wie wir es kennen – warum interne Schnittstellen ein Zwischenschritt sind</h1>
@@ -152,5 +155,6 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
 </main>
 <footer class="foot"><a href="../../#privacy">Impressum · Datenschutz</a><a href="#newsletter">Newsletter</a><a href="../../blog/feed.xml">RSS</a></footer>
 <script src="../../newsletter.js?v=20261016" defer></script>
+<script src="../../goch-seite.js?v=20261112" defer></script>
 </body>
 </html>

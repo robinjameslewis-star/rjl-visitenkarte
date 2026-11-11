@@ -826,6 +826,17 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und antwortet in der schmalen Leiste. Zurück: Tipp auf
   die Leiste oder den kleinen Goch, Wisch nach oben am Griff. Der kleine Goch erscheint erst, wenn der große aus dem Bild
   ist. Tippen ins Textfeld, die Tastatur und Scrollen im Verlauf heben nichts auf.
+- **Goch auf den Unterseiten** (11.11.2026, `goch-seite.js`, `goch-seite.css`): Die Seitenrahmen (`worker/src/werkzeug.js`
+  `rahmen` mit `goch: true`, `worker/src/blog.js` `shell`) tragen einen Himmelsstreifen mit festem Platz (`#goch-kopf`,
+  `GOCH_KOPF_CSS` in `worker/src/kopf.js`) und das Skript. Nach dem ersten Bild holt `goch-seite.js` alles Weitere aus der
+  Startseite: Schalter und Endpunkt aus deren `<body>` (Goch aus heißt überall aus), Vogel, Blatt und kleinen Goch als
+  Markup, die Stile zwischen den Marken `goch-seite:an` und `goch-seite:aus` in `index.html`, die Skripte mit ihren
+  Versionsangaben. **Die Marken in `index.html` nicht entfernen.** Goch sitzt schon (kein Anflug), sein Ast kommt vom
+  rechten Rand; das Gespräch ist in jeder Breite ein Blatt. Keine Begrüßung und keine Anfrage von selbst, kein „Goch
+  zeigt“, kein Zwitschern, kein Blickkontakt. Sprache aus `<html lang>` (`language.js`, Unterseiten-Modus). Mit Goch:
+  Workshops (Übersicht und beide Seiten), Werkzeuge-Übersicht, Über mich, Impulse. Ohne: Regel-Lexikon, alle dunklen
+  SmartFormular-Seiten (auch die Werkzeugseiten), Seiten mit der E-Rechnung-App. Geprüft in `tests/goch_seite_test.py`.
+  Nach Änderungen am Rahmen: alle Bauwege laufen lassen und den Worker ausrollen.
 - **Tablet und Rechner: mitlaufendes Blatt** (11.11.2026, `goch-gespraech.js`, `goch.js` `place`): Über 720 px gibt es kein
   Vollbild. Das Blatt hängt neben Goch; scrollt Goch bei offenem Gespräch aus dem Bild, läuft es als festes Blatt unten
   rechts mit (`html.goch-angeheftet`, an `<body>` umgehängt wie am Handy). „Seite ansehen“ oder ein Wisch am Griff
