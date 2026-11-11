@@ -1,0 +1,20 @@
+/* Goch auf den Unterseiten („Ein Tal“, Schritt 4, 11.11.2026): eigene Stile zu dem, was goch-seite.js aus der Startseite
+   übernimmt. Der Platz selbst (.goch-kopf, Höhe, Himmel) steht im Seitenrahmen (worker/src/kopf.js, GOCH_KOPF_CSS). */
+:root { --accent: #D97932; --hover: #EDE5D8; --warning: #A63D2F; --surface: rgba(255,255,255,.55); --reply: rgba(11,61,46,.07); --shadow: rgba(31,31,31,.10); }
+[hidden] { display: none !important; }
+/* Goch auf seinem Ast: Der Ast kommt wie auf der Startseite vom rechten Rand (242,84 % der Szene). Keine eigene Ebene am
+   Streifen (kein z-index), sonst bliebe Goch im Gesprächsmodus am Handy unter dem Papier. */
+.goch-kopf .stage { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--gw) * .616); opacity: 0; transition: opacity .6s ease; }
+.goch-kopf.bereit .stage { opacity: 1; }
+.goch-kopf .perch { position: absolute; right: clamp(40px, 9vw, 150px); bottom: 2px; width: var(--gw); }
+.goch-kopf .bird-move { mix-blend-mode: normal; }
+.goch-kopf .bird-rest { opacity: 1; }
+.goch-kopf .branch { width: 242.8447528%; }
+.goch-kopf .branch img { max-width: none; }
+.goch-kopf .scene:not([data-chat="on"]) { cursor: default; }
+@media (prefers-reduced-motion: reduce) { .goch-kopf .stage { transition: none; } }
+/* Tablet und Rechner: Das Gespräch ist ein festes Blatt unten rechts, die Seite bleibt bedienbar. */
+@media (min-width: 721px) {
+  body[data-goch-seite] .goch { position: fixed; z-index: 20; inset: auto 20px calc(20px + var(--goch-unten, 0px)) auto; width: min(380px, calc(100vw - 40px)); max-height: min(72dvh, 620px); }
+  body[data-goch-seite] .goch::after { display: none; }
+}

@@ -464,7 +464,7 @@ ${SKRIPT(lang, t)}`;
     ] }).replace(/</g, "\\u003c");
   const faq = JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", inLanguage: lang,
     mainEntity: t.fragen.map(([f, a]) => ({ "@type": "Question", name: f, acceptedAnswer: { "@type": "Answer", text: a } })) }).replace(/</g, "\\u003c");
-  return rahmen({ lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
+  return rahmen({ goch: true, lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: workshopsUrl(andere) }],
     head: `<script type="application/ld+json">${kurs}</script>\n<script type="application/ld+json">${faq}</script>\n`, css: CSS + "\n" + GRUNDSAETZE_CSS + "\n" + UMSCHALTER_CSS + "\n" + VIDEO_CSS, main, aktiv: "workshops" });
 }

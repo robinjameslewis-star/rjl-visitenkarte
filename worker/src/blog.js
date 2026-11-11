@@ -7,7 +7,7 @@
 
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { renderSitemap } from "./sitemap.js";
-import { kopf, KOPF_CSS } from "./kopf.js";
+import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
 
 export const POSTS_DIR = "blog/posts";
@@ -197,6 +197,7 @@ ${jsonld ? `<script type="application/ld+json">${jsonld}</script>\n` : ""}<style
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
 ${KOPF_CSS}
+${GOCH_KOPF_CSS}
 main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
 h1 { font: 400 clamp(30px, 4.2vw, 42px)/1.15 var(--serif); color: var(--green); margin: 0 0 8px; letter-spacing: .005em; }
 .meta { color: var(--ink-muted); font-size: 13px; margin: 0 0 36px; }
@@ -245,11 +246,12 @@ ${NEWSLETTER_CSS}
 </head>
 <body${newsletter ? ` data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}"` : ""}>
 ${kopf(lang, up, { aktiv: "posts" })}
+${gochKopf(up)}
 <main>
 ${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
 </main>
 <footer class="foot"><a href="${homeHref}#privacy">${t.legal}</a>${newsletter ? '<a href="#newsletter">Newsletter</a>' : ""}<a href="${feedHref}">${t.feed}</a></footer>
-${newsletter ? `<script src="${up}${NEWSLETTER_SKRIPT}" defer></script>\n` : ""}</body>
+${newsletter ? `<script src="${up}${NEWSLETTER_SKRIPT}" defer></script>\n` : ""}${gochSkript(up)}</body>
 </html>
 `;
 }

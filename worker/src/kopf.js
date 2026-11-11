@@ -32,6 +32,15 @@ export function kopf(lang, up, { aktiv = null, andere = "" } = {}) {
 </header>`;
 }
 
+// Goch im Kopf der Unterseiten („Ein Tal“, Schritt 4, 11.11.2026): ein Himmelsstreifen mit festem Platz unter dem Seitenkopf,
+// damit nichts springt, wenn goch-seite.js nach dem Laden Goch auf seinen Ast setzt. Ist Goch ausgeschaltet, bleibt der
+// Streifen leer. Schalter, Blatt und Stile holt goch-seite.js aus der Startseite – hier steht nur der Platz.
+export const GOCH_SKRIPT = "goch-seite.js?v=20261112";
+export const gochKopf = up => `<div class="goch-kopf" id="goch-kopf"></div>`;
+export const gochSkript = up => `<script src="${up}${GOCH_SKRIPT}" defer></script>\n`;
+export const GOCH_KOPF_CSS = `.goch-kopf { --gw: clamp(150px, 20vw, 220px); position: relative; height: calc(66px + var(--gw) * .616 + 8px); margin-top: -66px; overflow: hidden; overflow: clip visible; background: linear-gradient(rgba(176, 204, 218, .5), rgba(176, 204, 218, 0) 88%); }
+.goch-kopf + main { padding-top: clamp(22px, 4vh, 44px); }`;
+
 // Stile des Kopfes; die Startseite ergänzt .kopf.start (über der Bühne, Sprachwahl statt Wortmarke)
 export const KOPF_CSS = `.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px min(6vw, 48px) 0; display: flex; align-items: center; gap: 18px; }
 .kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }

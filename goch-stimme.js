@@ -33,6 +33,7 @@
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
   document.querySelectorAll('[data-goch-stimme-text]').forEach(el => { el.hidden = false; }); // Datenschutzabsatz
 
+  const kannZeigen = !document.body.dataset.gochSeite; // „Goch zeigt“ kennt nur Stellen der Startseite
   let erlaubt = false;           // Einwilligung dieses Besuchs, nur im Speicher
   let mikroAn = false, lautAn = false, schonGesprochen = false, wartet = null;
   let einmal = false;            // „Goch hört“ ist nur für eine Frage an (Mikrofon-Symbol)
@@ -114,7 +115,7 @@
   let stimmCfg = null;
   async function browserStimme(text) {
     if (!stimmCfg) {
-      try { stimmCfg = (await (await fetch('figuren/goch/figur.json')).json()).stimme || {}; } catch (_) { stimmCfg = {}; }
+      try { stimmCfg = (await (await fetch((window.RJLWurzel || '') + 'figuren/goch/figur.json')).json()).stimme || {}; } catch (_) { stimmCfg = {}; }
     }
     if (stimmCfg.rueckfall !== 'browser') return false;
     const charakter = stimmCfg.browser || {};
@@ -138,12 +139,12 @@
     anfrage(opts) {
       denkt = true;
       if (ohr) { ohr.anhalten(); if (zustand !== 'pause') setzeZustand('denkt'); }
-      if (!erlaubt) return { kannZeigen: true };
+      if (!erlaubt) return kannZeigen ? { kannZeigen: true } : {};
       const z = {};
       if (opts && opts.gesprochen) z.gesprochen = true;
       if (lautAn) { schweigen(); z.stimme = { erste: !schonGesprochen, teile: true }; schonGesprochen = true; if (kiHinweis.hidden) { kiHinweis.hidden = false; nachziehen(); } }
       if (Object.keys(z).length) z.figur = 'goch';
-      z.kannZeigen = true; // die Seite kann zu Stellen führen (goch-gespraech.js)
+      if (kannZeigen) z.kannZeigen = true; // die Seite kann zu Stellen führen (goch-gespraech.js)
       return z;
     },
     async rest(reader, buf, dec, antwort) {

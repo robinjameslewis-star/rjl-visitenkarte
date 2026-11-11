@@ -228,7 +228,10 @@
       elevenlabsPrivacy: 'ElevenLabs privacy policy',
     }
   };
-  const fromURL = () => new URL(location.href).searchParams.get('lang') === 'en' ? 'en' : 'de';
+  // Unterseiten (goch-seite.js, data-goch-seite am <body>): Jede Sprache ist eine eigene Seite. Die Sprache kommt dann aus
+  // <html lang>, Titel und Beschreibung der Seite bleiben; übersetzt werden nur Gochs Texte.
+  const unter = !!document.body.dataset.gochSeite;
+  const fromURL = () => (unter ? document.documentElement.lang === 'en' : new URL(location.href).searchParams.get('lang') === 'en') ? 'en' : 'de';
   let language = fromURL();
   const t = key => messages[language][key];
 
@@ -253,7 +256,8 @@
     document.querySelectorAll('.blog-teaser li[lang]').forEach(item => { item.hidden = item.lang !== language; });
     document.querySelectorAll('[data-langs]').forEach(element => { element.hidden = !element.dataset.langs.split(' ').includes(language); });
     document.querySelectorAll('[data-href-de]').forEach(link => { link.href = link.dataset['href' + (language === 'en' ? 'En' : 'De')] || link.dataset.hrefDe; });
-    document.querySelector('.language-nav').setAttribute('aria-label', t('language'));
+    const nav = document.querySelector('.language-nav');
+    if (nav) nav.setAttribute('aria-label', t('language'));
     document.querySelectorAll('[data-language]').forEach(link => {
       if (link.dataset.language === language) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
@@ -262,6 +266,7 @@
     const chat = scene.dataset.chat === 'on'; // goch.js: Klick öffnet das Gespräch statt des Anflugs
     scene.setAttribute('aria-label', t(chat ? 'gochOpen' : 'replay'));
     scene.title = t(chat ? 'gochOpenTitle' : 'replayTitle');
+    if (unter) return;
     const nameLink = document.getElementById('name-link');
     nameLink.title = t('reloadTitle');
     nameLink.href = '?lang=' + language; // ohne Skript führt der Link auf ./
@@ -276,7 +281,7 @@
   }
 
   window.SiteLanguage = { t, get current() { return language; }, refresh: () => apply(language) };
-  window.addEventListener('popstate', () => apply(fromURL()));
+  if (!unter) window.addEventListener('popstate', () => apply(fromURL()));
   apply(language);
-  document.querySelector('.language-nav').hidden = false;
+  if (!unter) document.querySelector('.language-nav').hidden = false;
 })();

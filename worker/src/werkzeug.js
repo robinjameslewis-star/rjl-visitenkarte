@@ -8,7 +8,7 @@
 import { renderMarkdown } from "./blog.js";
 import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
-import { kopf, KOPF_CSS } from "./kopf.js";
+import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
 import { kostenlos, KENNZ_CSS } from "./partner.js";
 
@@ -176,7 +176,7 @@ const datumText = (iso, lang) => {
 
 // Gemeinsamer Rahmen der Werkzeugseiten und der Seite „Über mich“ (ueber_mich.js): Seitenkopf (kopf.js) mit Wortmarke, Seiten,
 // Termin und Menü, Fuß, Newsletter-Skript; css ergänzt die Stile der Seite, aktiv markiert den Menüpunkt dieser Seite
-export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, alternates = [], head = "", css = "", main, aktiv = null, bild = "" }) {
+export function rahmen({ lang, up, titel, seitentitel = "", beschr, canonical, alternates = [], head = "", css = "", main, aktiv = null, bild = "", goch = false }) {
   const andere = (alternates.find(a => a.lang !== lang) || {}).href || "";
   const t = T[lang];
   return `<!doctype html>
@@ -230,7 +230,7 @@ article li { margin-bottom: 6px; }
 .download .hinweis { margin: 0; }
 .download + .newsletter { margin-top: 18px; }
 ${NEWSLETTER_CSS}
-.nutzung { font-size: 15px; color: var(--ink-soft); }
+${goch ? GOCH_KOPF_CSS + "\n" : ""}.nutzung { font-size: 15px; color: var(--ink-soft); }
 .nutzung strong { color: var(--ink); font-weight: 500; }
 .fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
 .fragen p { color: var(--ink-soft); }
@@ -248,12 +248,12 @@ ${css}</style>
 ${head}</head>
 <body data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}">
 ${kopf(lang, up, { aktiv, andere })}
-<main>
+${goch ? gochKopf(up) + "\n" : ""}<main>
 ${main}
 </main>
 <footer class="foot"><a href="${up}${t.home}#privacy">${t.legal}</a><a href="#newsletter">Newsletter</a><a href="${up}${lang === "en" ? "blog/en/" : "blog/"}feed.xml">RSS</a></footer>
 <script src="${up}${NEWSLETTER_SKRIPT}" defer></script>
-</body>
+${goch ? gochSkript(up) : ""}</body>
 </html>
 `;
 }

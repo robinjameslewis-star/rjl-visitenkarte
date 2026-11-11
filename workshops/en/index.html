@@ -86,6 +86,8 @@ article li { margin-bottom: 6px; }
 .newsletter .msg-status.warn { color: #8a3b12; }
 .newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
 .newsletter .hint a { color: inherit; }
+.goch-kopf { --gw: clamp(150px, 20vw, 220px); position: relative; height: calc(66px + var(--gw) * .616 + 8px); margin-top: -66px; overflow: hidden; overflow: clip visible; background: linear-gradient(rgba(176, 204, 218, .5), rgba(176, 204, 218, 0) 88%); }
+.goch-kopf + main { padding-top: clamp(22px, 4vh, 44px); }
 .nutzung { font-size: 15px; color: var(--ink-soft); }
 .nutzung strong { color: var(--ink); font-weight: 500; }
 .fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
@@ -128,6 +130,7 @@ article li { margin-bottom: 6px; }
 <nav aria-label="Pages"><a href="../../werkzeuge/en/">Tools</a><a href="../../blog/en/">Food for Thought</a><a href="../../workshops/en/" aria-current="page">Workshops</a><a href="../../about/">About</a><a href="../../?lang=en#nachricht">Message</a><a href="https://robin.vision/workshops/" lang="de" hreflang="de">Deutsch</a></nav>
 </details>
 </header>
+<div class="goch-kopf" id="goch-kopf"></div>
 <main>
 <article class="workshops">
 <h1>Workshops</h1>
@@ -155,5 +158,6 @@ article li { margin-bottom: 6px; }
 </main>
 <footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="#newsletter">Newsletter</a><a href="../../blog/en/feed.xml">RSS</a></footer>
 <script src="../../newsletter.js?v=20261016" defer></script>
+<script src="../../goch-seite.js?v=20261112" defer></script>
 </body>
 </html>

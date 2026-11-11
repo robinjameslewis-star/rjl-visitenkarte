@@ -128,6 +128,7 @@
   const nameLink = document.getElementById('name-link');
   const narrow = matchMedia('(max-width: 720px)');
   const panelHome = panel.parentNode;
+  const unterseite = !!document.body.dataset.gochSeite, heim = document.body.dataset.gochHeim || ''; // heim: Adresse der Startseite
   // Mit Sprachschaltern (goch-stimme.js) braucht die Blase mehr Platz: so hoch wie ihr Inhalt plus Raum für den Verlauf,
   // sonst schrumpft der Verlauf auf null und die Fußzeile ragt über die Seite (Robin, 23.10.2026).
   function mindesthoehe() {
@@ -140,7 +141,8 @@
     // Das feste Handyfenster gehört auf die Seitenebene, nicht in die isolierte Landschaft.
     // Desktop: zurück an den Ast. Ereignisse und Gesprächszustand bleiben am selben DOM-Knoten.
     // Ebenso das mitlaufende Blatt auf breiten Bildschirmen (goch-gespraech.js, html.goch-angeheftet): Goch ist aus dem Bild.
-    const blatt = narrow.matches || document.documentElement.classList.contains('goch-angeheftet');
+    // Auf Unterseiten (goch-seite.js) ist das Gespräch in jeder Breite ein Blatt am unteren Rand.
+    const blatt = narrow.matches || unterseite || document.documentElement.classList.contains('goch-angeheftet');
     const parent = blatt ? document.body : panelHome;
     if (panel.parentNode !== parent) {
       const aktiv = panel.contains(document.activeElement) ? document.activeElement : null; // Umhängen nimmt den Fokus
@@ -239,7 +241,7 @@
     thinking.classList.remove('goch-thinking');
     thinking.textContent = data.reply;
     if (data.action === 'calendar') {
-      thinking.append(' ', link('#kontakt', t('gochCalendar')));
+      thinking.append(' ', link(heim + '#kontakt', t('gochCalendar')));
     } else if (data.action === 'contact') {
       thinking.append(' ', link('mailto:robin@robin.vision', 'robin@robin.vision'));
     }
