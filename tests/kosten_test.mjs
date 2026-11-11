@@ -141,6 +141,35 @@ console.log("Grenze je Adresse und Minute");
   check(modellAufrufe <= 20, "zwei Adressen, je 15 Fragen: höchstens 10 je Adresse beim Modell", "Aufrufe " + modellAufrufe);
 }
 
+console.log("Anmeldecode der Lizenz (M4)");
+{
+  const e = await umgebung({ RESEND_API_KEY: "r", MAX_LIZENZ_CODES_PER_DAY: "100" }), c = ctx();
+  const mails = [], alt = globalThis.fetch;
+  globalThis.fetch = async (url, init) => String(url).startsWith("https://api.resend.com") ? (mails.push(JSON.parse(init.body)), new Response('{"id":"x"}')) : alt(url, init);
+  const lizenz = (pfad, body, ip = "10.5.0.1") => worker.fetch(new Request("https://goch.robin.vision/lizenz/" + pfad, { method: "POST",
+    headers: { "content-type": "application/json", "CF-Connecting-IP": ip }, body: JSON.stringify({ werkzeug: "erechnung", email: "test@example.test", ...body }) }), e, c);
+  check((await lizenz("code", {})).status === 200 && mails.length === 1, "Code verschickt");
+  const code = mails[0].text.match(/\b\d{6}\b/)[0];
+  const falsch = String((+code + 1) % 1_000_000).padStart(6, "0");
+  const antworten = await Promise.all(Array.from({ length: 20 }, (_, n) => lizenz("anmelden", { code: falsch }, "10.5.1." + n).then(r => r.json())));
+  check(antworten.filter(a => /falsch|incorrect|stimmt nicht/i.test(a.error || "")).length <= 5, "20 gleichzeitige falsche Versuche: höchstens 5 verglichen",
+    antworten.map(a => a.error).filter(Boolean).length + " Fehler");
+  const danach = await (await lizenz("anmelden", { code }, "10.5.2.1")).json();
+  check(!danach.sitzung, "danach hilft auch der richtige Code nicht mehr (neuen Code anfordern)");
+  mails.length = 0; await lizenz("code", {}, "10.5.3.1");
+  const neu = mails[0].text.match(/\b\d{6}\b/)[0];
+  await lizenz("anmelden", { code: falsch === neu ? "000000" : falsch }, "10.5.3.2");
+  const gut = await (await lizenz("anmelden", { code: neu }, "10.5.3.3")).json();
+  check(typeof gut.sitzung === "string" && gut.sitzung.length > 20, "neuer Code: nach einem Fehlversuch klappt die Anmeldung");
+  // Tagesdeckel atomar: 120 gleichzeitige Anforderungen für verschiedene Adressen, Deckel 100
+  const e2 = await umgebung({ RESEND_API_KEY: "r", MAX_LIZENZ_CODES_PER_DAY: "100" }); mails.length = 0;
+  await Promise.all(Array.from({ length: 120 }, (_, n) => worker.fetch(new Request("https://goch.robin.vision/lizenz/code", { method: "POST",
+    headers: { "content-type": "application/json", "CF-Connecting-IP": "10.6." + Math.floor(n / 9) + "." + n },
+    body: JSON.stringify({ werkzeug: "erechnung", email: `p${n}@example.test` }) }), e2, ctx())));
+  check(mails.length === 100, "120 gleichzeitige Code-Anforderungen, Deckel 100: genau 100 Mails", mails.length + " Mails");
+  globalThis.fetch = alt;
+}
+
 console.log("Sicherheitsköpfe (N1)");
 {
   const e = await umgebung(), c = ctx();

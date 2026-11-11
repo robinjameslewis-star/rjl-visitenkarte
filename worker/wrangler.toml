@@ -35,7 +35,7 @@ MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldu
 LIZENZ_PREIS = ""                  # Text im Werkzeug neben „Lizenz kaufen“, z. B. "199 € je Benutzer und Jahr" – erst, wenn der Preis auf der Website steht
 LIZENZ_TESTKAUF = "0"
 LIZENZ_GERAETE = "3"               # angemeldete Geräte je Person
-MAX_LIZENZ_CODES_PER_DAY = "300"   # Anmeldecodes je Tag insgesamt (Kostenbremse Resend)
+MAX_LIZENZ_CODES_PER_DAY = "100"   # Anmeldecodes je Tag insgesamt (Kostenbremse Resend); bis Jahresende 100 statt 300 (Sicherheitsprüfung 11.11.2026, M4)
 # Sprechender Goch (23.10.2026): Spracheingabe POST /listen über Workers AI (Whisper large-v3-turbo, Bindung AI),
 # Stimme über ElevenLabs. Schalter, Modell des Sprachmodus, voiceId und Grenzen in der Redaktion – beides ist aus,
 # bis Robin einschaltet; hier nur die Ausgangswerte der Grenzen.

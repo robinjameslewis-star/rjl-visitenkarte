@@ -25,6 +25,7 @@ export const WERKZEUGE = {
   erechnung: { name: "SmartFormular E-Rechnung lite", seite: "https://robin.vision/werkzeuge/e-rechnung-pruefen/", seiteEn: "https://robin.vision/werkzeuge/e-invoice-viewer/" },
   fibu: { name: "SmartFormular FiBu lite", seite: "https://robin.vision/werkzeuge/buchungsstapel-generator/", seiteEn: "https://robin.vision/werkzeuge/booking-batch-generator/" },
 };
+import { kostenBuchen, buchenIn, adresseFrei } from "./kosten.js";
 // Beginn der Lizenzpflicht: 1. Januar 2027, 0 Uhr in Deutschland (MEZ = UTC+1)
 export const LIZENZPFLICHT_AB = Date.UTC(2026, 11, 31, 23);
 const TAG = 86400000;
@@ -208,14 +209,18 @@ export async function handleLizenz(request, env, ctx) {
   if (pfad === "code") {
     const email = String(body.email || "").trim().toLowerCase();
     if (!adresseOk(email)) return json({ error: t.email }, 400);
-    if (!ipGrenze(request.headers.get("CF-Connecting-IP") || "?")) return json({ error: t.zuViele }, 429);
+    const ip = request.headers.get("CF-Connecting-IP") || "?";
+    if (!ipGrenze(ip) || !(await adresseFrei(env, "lizenz-code", ip))) return json({ error: t.zuViele }, 429);
     const eh = await sha256("lizenz:" + email), stunde = new Date().toISOString().slice(0, 13);
     const tag = "lizenz:codes:" + stunde.slice(0, 10), jeAdresse = `lizenz:codes:${eh}:${stunde}`;
     const n = +(await env.USAGE.get(jeAdresse) || 0), nTag = +(await env.USAGE.get(tag) || 0);
     if (n >= MAX_CODES_JE_ADRESSE_STUNDE || nTag >= +(env.MAX_LIZENZ_CODES_PER_DAY || 300)) return json({ error: t.zuViele }, 429);
     if (!env.RESEND_API_KEY) return json({ error: t.nichtEingerichtet }, 503);
+    // Tagesdeckel atomar (Sicherheitsprüfung 11.11.2026, M4); der KV-Zähler davor bleibt als erste, schnelle Grenze
+    const gebucht = await kostenBuchen(env, "lizenzcodes", 1, +(env.MAX_LIZENZ_CODES_PER_DAY || 300), "tag", nTag);
+    if (!gebucht.ok) return json({ error: t.zuViele }, 429);
     await env.USAGE.put(jeAdresse, String(n + 1), { expirationTtl: 3600 });
-    await env.USAGE.put(tag, String(nTag + 1), { expirationTtl: 2 * 86400 });
+    await env.USAGE.put(tag, String(gebucht.ohne ? nTag + 1 : gebucht.stand), { expirationTtl: 2 * 86400 });
     const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, "0");
     await env.USAGE.put("lizenz:code:" + eh, JSON.stringify({ hash: await sha256(code), exp: Date.now() + CODE_TTL * 1000, tries: 0 }), { expirationTtl: CODE_TTL });
     const r = await fetch("https://api.resend.com/emails", {
@@ -229,9 +234,14 @@ export async function handleLizenz(request, env, ctx) {
   if (pfad === "anmelden") {
     const email = String(body.email || "").trim().toLowerCase(), code = String(body.code || "").replace(/\D/g, "");
     if (!adresseOk(email)) return json({ error: t.email }, 400);
+    if (!(await adresseFrei(env, "lizenz-anmelden", request.headers.get("CF-Connecting-IP") || "?"))) return json({ error: t.zuViele }, 429);
     const eh = await sha256("lizenz:" + email), ck = "lizenz:code:" + eh, eintrag = await kvJson(env, ck);
     if (!eintrag || eintrag.exp < Date.now()) return json({ error: t.keinCode }, 400);
     if (eintrag.tries >= MAX_TRIES) { await env.USAGE.delete(ck); return json({ error: t.versuche }, 400); }
+    // Jeder Versuch zählt atomar je Code, bevor verglichen wird (M4): gleichzeitige Versuche kommen nicht über MAX_TRIES
+    if (!(await buchenIn(env, "lizenz:" + eh, "versuche:" + eintrag.hash.slice(0, 16), 1, MAX_TRIES, "gesamt")).ok) {
+      await env.USAGE.delete(ck); return json({ error: t.versuche }, 400);
+    }
     if (code.length !== 6 || await sha256(code) !== eintrag.hash) {
       eintrag.tries += 1;
       await env.USAGE.put(ck, JSON.stringify(eintrag), { expirationTtl: CODE_TTL });

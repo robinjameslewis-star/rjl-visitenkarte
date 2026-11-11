@@ -7,10 +7,14 @@
 // Negative Menge bucht zurück (nicht vertont, nicht erkannt).
 export const KOSTEN = "website:kosten";
 
-export async function kostenBuchen(env, art, menge, grenze, zeitraum = "tag", start = 0) {
+export function kostenBuchen(env, art, menge, grenze, zeitraum = "tag", start = 0) {
+  return buchenIn(env, KOSTEN, art, menge, grenze, zeitraum, start);
+}
+// dasselbe in einer eigenen Instanz (z. B. Fehlversuche je Anmeldecode, src/lizenz.js)
+export async function buchenIn(env, name, art, menge, grenze, zeitraum = "tag", start = 0) {
   if (!env.GERAETE) return { ok: true, ohne: true }; // ohne Bindung (alte Tests): nur der KV-Zähler davor
   try {
-    const o = env.GERAETE.get(env.GERAETE.idFromName(KOSTEN));
+    const o = env.GERAETE.get(env.GERAETE.idFromName(name));
     const r = await o.fetch("https://geraet/buchen", { method: "POST", body: JSON.stringify({ art, menge, grenze, zeitraum, start: +start || 0 }) });
     const d = await r.json();
     return { ok: d.ok === true, stand: d.stand };
