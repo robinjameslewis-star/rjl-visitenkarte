@@ -137,7 +137,7 @@ async def main():
             vogel = """(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect(),b=s.querySelector('.bird-rest'),a=s.querySelector('.branch img'),k=document.getElementById('goch-kopf').getBoundingClientRect();
               return {vogel:b.complete&&b.naturalWidth>0&&getComputedStyle(b).opacity==='1',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,imStreifen:r.top>=k.top-2&&r.bottom<=k.bottom+12,frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))&&s.contains(document.elementFromPoint(r.left+r.width*.45,r.top+r.height*.82)),breite:Math.round(r.width),quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             klein = """(()=>{const m=document.getElementById('goch-mini'),r=m.getBoundingClientRect(),a=m.querySelector('.goch-mini-ast'),p=document.getElementById('goch').getBoundingClientRect();
-              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2};})()"""
+              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,neben:m.querySelector('.goch-mini-vogel').getBoundingClientRect().left>=p.right-46};})()"""
             GROESSEN = (('Handy', 375, 667, True), ('Tablet', 820, 1180, False), ('Tablet_quer', 1024, 768, False), ('Rechner', 1280, 800, False))
             SEITEN = (('workshops/', 'de'), ('ueber-mich/', 'de'), ('blog/', 'de'), ('werkzeuge/en/', 'en'), ('workshops/e-rechnung/', 'de'), ('blog/das-ende-des-erp/', 'de'))
             nr = 0
@@ -184,12 +184,12 @@ async def main():
                         await shot(f"unterseite_{name}_offen")
                         if mobil:
                             await klick('#goch-laut'); await pump(0.6)
-                            o = await ev("(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect();return [getComputedStyle(s).position, Math.round(r.top), s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))];})()")
-                            check(await klasse('goch-fokus') and o[0] == 'fixed' and o[1] < 80 and o[2], "„Goch spricht“ am Handy: Goch groß oben, nicht verdeckt", o)
+                            o = await ev("""(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect(),p=document.getElementById('goch').getBoundingClientRect();return {fest:getComputedStyle(s).position==='fixed',imFenster:r.top>=0,ueberBlatt:Math.round(p.top-r.bottom),frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))};})()""")
+                            check(await klasse('goch-fokus') and o['fest'] and o['imFenster'] and o['frei'] and -26 <= o['ueberBlatt'] <= 40, "„Goch spricht“ am Handy: Goch groß, direkt über dem Blatt, nicht verdeckt", o)
                             await shot(f"unterseite_{name}_fokus")
                             await klick('#goch-zur-seite'); await ev("window.scrollTo(0,700)"); await pump(0.8)
                             k = await ev(klein)
-                            check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['ueberBlatt'], "Seite freigegeben: kleiner Goch auf seinem Ast über der Leiste", k)
+                            check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['neben'], "Seite freigegeben: kleiner Goch auf seinem Ast neben der Kapsel", k)
                             for _ in range(20):
                                 if await ev("!!document.getElementById('goch-mini').dataset.leben"): break
                                 await pump(0.25)

@@ -125,7 +125,7 @@ async def main():
               return {fest:getComputedStyle(p).position==='fixed',drin:r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1,verdeckt:zu,amBody:p.parentNode===document.body,quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             klein = """(()=>{const m=document.getElementById('goch-mini'),r=m.getBoundingClientRect(),a=m.querySelector('.goch-mini-ast'),v=m.querySelector('.goch-mini-vogel'),p=document.getElementById('goch').getBoundingClientRect();
               const vr=v.getBoundingClientRect(),ar=a.getBoundingClientRect();
-              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,vogel:v.complete&&v.naturalWidth>0,fuesse:Math.abs((ar.top-vr.top)-vr.height*.8524)<1.5&&Math.abs(ar.left-vr.left)<1,rand:Math.round(innerWidth-r.right),astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,imBild:r.top>=0};})()"""
+              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,vogel:v.complete&&v.naturalWidth>0,fuesse:Math.abs((ar.top-vr.top)-vr.height*.8524)<1.5&&Math.abs(ar.left-vr.left)<1,rand:Math.round(innerWidth-r.right),astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,neben:vr.left>=p.right-46&&vr.left+vr.width*.2<=innerWidth&&Math.abs(r.bottom-p.bottom)<40,imBild:r.top>=0};})()"""
             for name, breite, hoehe, touch in (('Tablet_hoch', 820, 1180, True), ('Tablet_quer', 1024, 768, True), ('Rechner', 1280, 800, False)):
                 print(f"1. Mitlaufendes Blatt, {name} ({breite} × {hoehe})")
                 await send("Emulation.setDeviceMetricsOverride", {"width": breite, "height": hoehe, "deviceScaleFactor": 1, "mobile": False})
@@ -154,15 +154,17 @@ async def main():
                 await klick('#goch-zur-seite')
                 check(await klasse('goch-zeile') and await ev("getComputedStyle(document.getElementById('goch-form')).display") == 'none', "„Seite ansehen“ verkleinert das Blatt zur Zeile")
                 k = await ev(klein)
-                check(k['da'] and k['ueberBlatt'], "der kleine Goch rückt mit herunter", k)
+                check(k['da'] and k['neben'] and k['fuesse'], "der kleine Goch sitzt rechts neben der Kapsel", k)
+                kap = await ev("(()=>{const p=document.getElementById('goch').getBoundingClientRect();return [Math.round(p.height), getComputedStyle(document.querySelector('.goch-title small')).display, !!document.getElementById('goch-close').offsetParent];})()")
+                check(kap[0] <= 70 and kap[1] == 'none' and kap[2], "die Zeile ist eine einzeilige Kapsel: „Goch“, letzter Satz, Schließen", kap)
                 await shot(f"zeile_{name}")
                 await klick('#goch-log')
                 check(not await klasse('goch-zeile') and await sichtbar('#goch-form'), "Tipp auf die Zeile klappt das Blatt wieder auf")
                 if touch:
                     await wisch('.goch-head', 90)
                     check(await klasse('goch-zeile'), "Wisch nach unten am Griff: Zeile")
-                    await wisch('.goch-head', -90)
-                    check(not await klasse('goch-zeile'), "Wisch nach oben am Griff: Blatt")
+                    await wisch('#goch', -90)
+                    check(not await klasse('goch-zeile'), "Wisch nach oben auf der Kapsel: Blatt")
                 await klick('#goch-mini-knopf'); await pump(1.6)
                 f = await ev(frei)
                 check(await ev("scrollY") < 5 and not await klasse('goch-angeheftet') and not f['fest'] and not f['amBody'] and f['verdeckt'] == 0, "Tipp auf den kleinen Goch führt zurück: Das Blatt hängt wieder am Ast", f)
@@ -180,7 +182,7 @@ async def main():
             check(await klasse('goch-fokus') and not await klasse('goch-angeheftet'), "Handy: Gesprächsmodus wie bisher")
             await klick('#goch-zur-seite'); await pump(0.8)
             k = await ev(klein)
-            check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['rand'] == 0 and k['ueberBlatt'], "kleiner Goch sitzt auf seinem Ast vom rechten Rand, über der Leiste", k)
+            check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['rand'] == 0 and k['neben'], "kleiner Goch sitzt auf seinem Ast vom rechten Rand, neben der Kapsel", k)
             check(not await ev("document.documentElement.scrollWidth > innerWidth + 1"), "kein seitliches Scrollen")
             check(k['fuesse'], "der Ast liegt unter den Füßen (Lage in Prozent zum Vogel)", k)
             await shot("kleiner_Goch_mit_Ast_Handy")
@@ -222,7 +224,7 @@ async def main():
             check(await klasse('goch-unterwegs') and await rand() >= 80, "Begleitleiste endet über der Leiste des Browsers", await rand())
             pause = await ev("(()=>{const r=document.getElementById('goch-mikro-knopf').getBoundingClientRect();return Math.round(innerHeight-r.bottom);})()")
             check(pause >= 80 and await sichtbar('#goch-mikro-knopf'), "„Pause“ liegt ganz über der Leiste", pause)
-            check(k['da'] and k['ueberBlatt'] and k['astBisRand'], "kleiner Goch sitzt auf seinem Ast über der Begleitleiste", k)
+            check(k['da'] and k['neben'] and k['astBisRand'], "kleiner Goch sitzt auf seinem Ast neben der Kapsel", k)
             await shot("leiste_unten_begleiter_Handy")
             await klick('#goch-close')
             check(console == [], "keine Skriptfehler", console[:3])

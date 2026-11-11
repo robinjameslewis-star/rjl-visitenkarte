@@ -185,7 +185,7 @@ async def main():
             if frei: await punkt(frei[0], frei[1])
             check(await klasse('goch-unterwegs') and not await klasse('goch-fokus'), "Tipp neben das Blatt gibt die Seite frei")
             check(abs(await ev("scrollY") - 700) < 3 and await ev("getComputedStyle(document.documentElement).overflowY") != 'hidden', "die Seite steht wieder, wo sie war, und scrollt", await ev("scrollY"))
-            leiste = [(await z())['offen'], await sichtbar('#goch-mikro'), await ev("getComputedStyle(document.getElementById('goch-form')).display")]
+            leiste = [(await z())['offen'], await sichtbar('#goch-mikro-knopf'), await ev("getComputedStyle(document.getElementById('goch-form')).display")]
             check(leiste == [1, True, 'none'], "Goch hört weiter zu, das Gespräch ist eine schmale Leiste", leiste)
             check(await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'block' and not await ev("document.getElementById('goch-mini').classList.contains('goch-mini-weg')"), "kleiner Goch in der Ecke")
             await shot("begleiter_Handy")
@@ -199,8 +199,8 @@ async def main():
             check(await klasse('goch-fokus'), "Tipp auf die Leiste holt Goch zurück")
             await wisch('.goch-head', 90)
             check(await klasse('goch-unterwegs') and abs(await ev("scrollY") - 700) < 3, "Wisch nach unten am Griff gibt die Seite frei")
-            await wisch('.goch-head', -90)
-            check(await klasse('goch-fokus'), "Wisch nach oben am Griff holt Goch zurück")
+            await wisch('#goch', -90)
+            check(await klasse('goch-fokus'), "Wisch nach oben auf der Kapsel holt Goch zurück")
             await wisch('#scene', -80)
             check(await klasse('goch-unterwegs'), "Wisch über den großen Goch gibt die Seite frei")
             await ev("window.scrollTo(0,1100)"); await pump(0.3)
