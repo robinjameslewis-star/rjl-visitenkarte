@@ -1,5 +1,5 @@
 """Prüft den sprechenden Goch auf der Startseite (23.10.2026) in einem frischen Headless-Chrome gegen die Worker-Attrappe:
-Schalter „Mit Goch sprechen“ und „Goch spricht laut“, eigene Einwilligung nur für den Besuch, Gespräch ohne Knopf (Goch
+Schalter „Goch hört“ und „Goch spricht“, eigene Einwilligung nur für den Besuch, Gespräch ohne Knopf (Goch
 erkennt selbst, wann jemand fertig ist; WAV 16 kHz an /listen; während er antwortet, hört er nicht zu; „Fertig“, „Pause“,
 Mikrofon aus nach Stille), Stimme zur Antwort mit Schnabel und Bewegung, KI-Hinweis, Grenzen (Text statt Stimme, ohne
 Fehlermeldung), sichtbares und hörbares Zwitschern, auch in Gesprächspausen, reduzierte Bewegung, Englisch, Handy.
@@ -201,7 +201,7 @@ async def main():
             await real_click('#goch-stumm')
             check(await ev("localStorage.getItem('rjl-goch-stumm')") is None, "Stumm wieder aus")
 
-            print("3. „Goch spricht laut“: eigene Einwilligung, ablehnen, erlauben")
+            print("3. „Goch spricht“: eigene Einwilligung, ablehnen, erlauben")
             await real_click('#goch-laut')
             check(await sichtbar('#goch-stimme-consent') and not await sichtbar('#goch-sprache'), "eigene Einwilligung erscheint, Schalter ausgeblendet")
             check(await ev("document.activeElement.id") == 'goch-stimme-allow', "Fokus auf „Sprechen erlauben“")
@@ -259,7 +259,7 @@ async def main():
             await real_click('#goch-laut'); await pump(0.3)
             check(await laut() == 'true', "Stimme lässt sich wieder einschalten")
 
-            print("6. „Mit Goch sprechen“: Gespräch ohne Knopf – Goch merkt selbst, wann jemand fertig ist")
+            print("6. „Goch hört“: Gespräch ohne Knopf – Goch merkt selbst, wann jemand fertig ist")
             zustand = lambda: ev("document.getElementById('goch-mikro').dataset.zustand")
             knopftext = lambda: ev("document.getElementById('goch-mikro-knopf').textContent")
             statustext = lambda: ev("document.getElementById('goch-mikro-status').textContent")
@@ -418,7 +418,7 @@ async def main():
             await goto(BASE + q('&t=11&lang=en'), wait=2.5)
             await ev("window.scrollTo(0,0)"); await real_click('#scene')
             labels = await ev("[...document.querySelectorAll('#goch-sprache button')].map(b=>b.textContent)")
-            check(labels[:2] == ['Talk to Goch', 'Goch speaks aloud'], "Schalter auf Englisch", labels)
+            check(labels[:2] == ['Goch listens', 'Goch speaks'], "Schalter auf Englisch", labels)
             await real_click('#goch-laut')
             check((await ev("document.querySelector('#goch-stimme-consent p').textContent")).startswith('Talking to Goch:'), "Einwilligung auf Englisch")
             await real_click('#goch-stimme-allow'); await ev("document.querySelector('.goch-starter').click()"); await pump(2.5)
