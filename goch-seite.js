@@ -77,6 +77,9 @@
     if (adressen.some(a => !a)) return;
     adressen.forEach(a => { const s = document.createElement('script'); s.src = wurzel + a; s.async = false; document.head.append(s); });
     platz.classList.add('bereit');
+    // Unterkante des Kopfes: Darunter endet das offene Blatt, damit Goch und sein Ast frei bleiben (goch-seite.css)
+    const kante = () => document.documentElement.style.setProperty('--goch-kopf-unten', Math.round(platz.getBoundingClientRect().bottom + scrollY) + 'px');
+    kante(); window.addEventListener('resize', kante, { passive: true });
   }
   const bald = () => (window.requestIdleCallback || (f => setTimeout(f, 200)))(holen);
   if (document.readyState === 'complete') bald(); else window.addEventListener('load', bald, { once: true });

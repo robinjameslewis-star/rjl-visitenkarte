@@ -13,8 +13,12 @@
 .goch-kopf .branch img { max-width: none; }
 .goch-kopf .scene:not([data-chat="on"]) { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .goch-kopf .stage { transition: none; } }
+/* Goch bleibt frei: Am Seitenanfang endet das offene Blatt unter seinem Ast (--goch-kopf-unten setzt goch-seite.js).
+   Im Gesprächsmodus am Handy gelten die Höhen der Startseite. */
+html:not(.goch-fokus):not(.goch-unterwegs) body[data-goch-seite] .goch { max-height: max(240px, min(80dvh, calc(100dvh - var(--goch-kopf-unten, 180px) - 26px - var(--goch-unten, 0px)))) !important; }
 /* Tablet und Rechner: Das Gespräch ist ein festes Blatt unten rechts, die Seite bleibt bedienbar. */
 @media (min-width: 721px) {
-  body[data-goch-seite] .goch { position: fixed; z-index: 20; inset: auto 20px calc(20px + var(--goch-unten, 0px)) auto; width: min(380px, calc(100vw - 40px)); max-height: min(72dvh, 620px); }
+  body[data-goch-seite] .goch { position: fixed; z-index: 20; inset: auto 20px calc(20px + var(--goch-unten, 0px)) auto; width: min(380px, calc(100vw - 40px)); }
+  html:not(.goch-zeile) body[data-goch-seite] .goch { max-height: max(240px, min(72dvh, 620px, calc(100dvh - var(--goch-kopf-unten, 220px) - 36px))) !important; }
   body[data-goch-seite] .goch::after { display: none; }
 }

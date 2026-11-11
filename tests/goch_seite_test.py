@@ -58,11 +58,12 @@ async def main():
             except Exception: time.sleep(0.2)
         page = [t for t in targets if t["type"] == "page"][0]
         async with websockets.connect(page["webSocketDebuggerUrl"], max_size=80_000_000) as ws:
-            mid = 0; console = []; pending = {}; anfragen = []; gewicht = [0, 0]
+            mid = 0; console = []; pending = {}; anfragen = []; gewicht = [0, 0]; kaputt = []
             def handle(msg):
                 if 'id' in msg and msg['id'] in pending:
                     pending[msg['id']].set_result(msg.get('result', msg)); return
                 if msg.get('method') == 'Network.requestWillBeSent': anfragen.append(msg['params']['request']['url'])
+                if msg.get('method') == 'Network.responseReceived' and msg['params']['response']['status'] >= 400: kaputt.append((msg['params']['response']['status'], msg['params']['response']['url']))
                 if msg.get('method') == 'Network.loadingFinished': gewicht[0] += msg['params'].get('encodedDataLength', 0)
                 if msg.get('method') == 'Page.loadEventFired': gewicht[1] = gewicht[0]
                 if msg.get('method') == 'Runtime.exceptionThrown':
@@ -134,16 +135,16 @@ async def main():
               const pts=[[.08,.06],[.92,.06],[.5,.5],[.08,.94],[.92,.94]].map(([a,b])=>[r.left+r.width*a,r.top+r.height*b]);
               return {fest:getComputedStyle(p).position==='fixed',drin:r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1,verdeckt:pts.filter(([x,y])=>!p.contains(document.elementFromPoint(x,y))).length,quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             vogel = """(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect(),b=s.querySelector('.bird-rest'),a=s.querySelector('.branch img'),k=document.getElementById('goch-kopf').getBoundingClientRect();
-              return {vogel:b.complete&&b.naturalWidth>0&&getComputedStyle(b).opacity==='1',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,imStreifen:r.top>=k.top-2&&r.bottom<=k.bottom+12,frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4)),breite:Math.round(r.width),quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
+              return {vogel:b.complete&&b.naturalWidth>0&&getComputedStyle(b).opacity==='1',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,imStreifen:r.top>=k.top-2&&r.bottom<=k.bottom+12,frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))&&s.contains(document.elementFromPoint(r.left+r.width*.45,r.top+r.height*.82)),breite:Math.round(r.width),quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             klein = """(()=>{const m=document.getElementById('goch-mini'),r=m.getBoundingClientRect(),a=m.querySelector('.goch-mini-ast'),p=document.getElementById('goch').getBoundingClientRect();
               return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2};})()"""
-            GROESSEN = (('Handy', 375, 667, True), ('Tablet', 820, 1180, False), ('Rechner', 1280, 800, False))
-            SEITEN = (('workshops/', 'de'), ('ueber-mich/', 'de'), ('blog/', 'de'), ('werkzeuge/en/', 'en'), ('workshops/e-rechnung/', 'de'))
+            GROESSEN = (('Handy', 375, 667, True), ('Tablet', 820, 1180, False), ('Tablet_quer', 1024, 768, False), ('Rechner', 1280, 800, False))
+            SEITEN = (('workshops/', 'de'), ('ueber-mich/', 'de'), ('blog/', 'de'), ('werkzeuge/en/', 'en'), ('workshops/e-rechnung/', 'de'), ('blog/das-ende-des-erp/', 'de'))
             nr = 0
             for name, breite, hoehe, mobil in GROESSEN:
                 await send("Emulation.setDeviceMetricsOverride", {"width": breite, "height": hoehe, "deviceScaleFactor": 2 if mobil else 1, "mobile": mobil})
-                await send("Emulation.setTouchEmulationEnabled", {"enabled": mobil or name == 'Tablet', "maxTouchPoints": 1})
-                for pfad, lang in (SEITEN if name != 'Tablet' else SEITEN[:2]):
+                await send("Emulation.setTouchEmulationEnabled", {"enabled": mobil or name.startswith('Tablet'), "maxTouchPoints": 1})
+                for pfad, lang in (SEITEN if not name.startswith('Tablet') else SEITEN[:2]):
                     nr += 1
                     print(f"{nr}. {pfad} am {name} ({breite} × {hoehe})")
                     await goto(BASE + pfad + q('&t=s%d' % nr))
@@ -157,10 +158,13 @@ async def main():
                     check(oben[0] is not None and oben[0] == oben[1], "der Inhalt steht, wo er vor Goch stand (kein Sprung)", oben)
                     check(await ev("document.title") == titel and await ev("document.documentElement.lang") == lang, "Titel und Sprache der Seite bleiben")
                     check(zum_worker() == [] and (await z())['gum'] == 0, "ohne Antippen: keine Anfrage an Goch, kein Mikrofon", zum_worker()[:2])
+                    if pfad == 'ueber-mich/': await shot(f"unterseite_{name}_zu")
                     if nr == 1: print(f"     Gewicht {pfad}: {gewicht[1]/1000:.0f} KB bis load, {gewicht[0]/1000:.0f} KB mit Goch")
                     await ev("window.scrollTo(0,0)"); await klick('#scene')
                     f = await ev(frei)
                     check(await ev("!document.getElementById('goch').hidden") and f['fest'] and f['drin'] and f['verdeckt'] == 0 and not f['quer'], "Tipp auf Goch: Das Gespräch öffnet als Blatt, ganz im Fenster, nichts liegt darüber", f)
+                    v = await ev(vogel)
+                    check(v['frei'] and v['astBisRand'], "Goch und sein Ast bleiben frei, wenn das Blatt offen ist", v)
                     gruss = (await ev(bubbles))[0]
                     check(gruss.startswith("goch: I'm Goch" if lang == 'en' else 'goch: Ich bin Goch'), "Gruß in der Sprache der Seite", gruss[:40])
                     check(zum_worker() == [], "geöffnet: weiter keine Anfrage – Goch begrüßt nicht über den Worker")
@@ -196,6 +200,7 @@ async def main():
                         await ev("window.scrollTo(0,0)"); await shot(f"unterseite_{name}_{pfad.strip('/').replace('/', '_')}")
                     await klick('#goch-close')
                     check(await ev("document.getElementById('goch').hidden") and (await z())['offen'] == 0, "geschlossen: Mikrofon zu")
+                    check(kaputt == [], "keine Datei fehlt (keine Antwort ab 400)", kaputt[:3]); kaputt.clear()
 
             print("Goch ausgeschaltet: Die Unterseite bleibt wie zuvor")
             await send("Emulation.setDeviceMetricsOverride", {"width": 375, "height": 667, "deviceScaleFactor": 2, "mobile": True})
