@@ -112,6 +112,12 @@ async def main():
                     await send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x, "y": y + dy * i / 5}]})
                 await send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
                 await pump(0.4)
+            async def bis(js, gut, dauer=8):  # wartet auf den Zustand statt auf eine feste Pause; gibt den letzten Stand zurück
+                ende = time.time() + dauer
+                while True:
+                    wert = await ev(js)
+                    if gut(wert) or time.time() > ende: return wert
+                    await pump(0.2)
             z = lambda: ev("({gum: __z.gum, offen: __z.streams.filter(s => s.getTracks().some(t => t.readyState === 'live')).length})")
             an = lambda id: ev(f"document.getElementById('{id}').getAttribute('aria-pressed')")
             sichtbar = lambda sel: ev(f"!document.querySelector({json.dumps(sel)}).hidden && !!document.querySelector({json.dumps(sel)}).offsetParent")
@@ -126,8 +132,8 @@ async def main():
             neu_listen = lambda: fake('/_listen')[listen0:]
 
             async def bereit():
-                for _ in range(40):
-                    if await ev("!!document.querySelector('#goch-kopf.bereit') && !!window.Goch"): return True
+                for _ in range(80):
+                    if await ev("!!document.querySelector('#goch-kopf.bereit') && !!window.Goch && !!window.GochStimme && !!window.GochZeigen"): return True
                     await pump(0.25)
                 return False
             zum_worker = lambda: [u for u in anfragen if u.startswith(FAKE)]
@@ -137,7 +143,7 @@ async def main():
             vogel = """(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect(),b=s.querySelector('.bird-rest'),a=s.querySelector('.branch img'),k=document.getElementById('goch-kopf').getBoundingClientRect();
               return {vogel:b.complete&&b.naturalWidth>0&&getComputedStyle(b).opacity==='1',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,imStreifen:r.top>=k.top-2&&r.bottom<=k.bottom+12,frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))&&s.contains(document.elementFromPoint(r.left+r.width*.45,r.top+r.height*.82)),breite:Math.round(r.width),quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             klein = """(()=>{const m=document.getElementById('goch-mini'),r=m.getBoundingClientRect(),a=m.querySelector('.goch-mini-ast'),p=document.getElementById('goch').getBoundingClientRect();
-              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2};})()"""
+              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,neben:m.querySelector('.goch-mini-vogel').getBoundingClientRect().left>=p.right-46};})()"""
             GROESSEN = (('Handy', 375, 667, True), ('Tablet', 820, 1180, False), ('Tablet_quer', 1024, 768, False), ('Rechner', 1280, 800, False))
             SEITEN = (('workshops/', 'de'), ('ueber-mich/', 'de'), ('blog/', 'de'), ('werkzeuge/en/', 'en'), ('workshops/e-rechnung/', 'de'), ('blog/das-ende-des-erp/', 'de'))
             nr = 0
@@ -151,7 +157,7 @@ async def main():
                     titel = await ev("document.title")
                     check(await bereit(), "Goch ist da (Platz gefüllt, Gespräch bereit)")
                     await pump(1.0)
-                    v = await ev(vogel)
+                    v = await bis(vogel, lambda v: v['vogel'] and v['ast'] and v['astBisRand'])
                     check(v['vogel'] and v['ast'] and v['astBisRand'], "Goch sitzt auf seinem Ast, der Ast kommt vom rechten Rand", v)
                     check(v['imStreifen'] and v['frei'] and not v['quer'], "er sitzt im Kopf der Seite, nichts liegt über ihm, kein seitliches Scrollen", v)
                     oben = await ev("[window.__mainOben, Math.round(document.querySelector('main').getBoundingClientRect().top + scrollY)]")
@@ -184,12 +190,12 @@ async def main():
                         await shot(f"unterseite_{name}_offen")
                         if mobil:
                             await klick('#goch-laut'); await pump(0.6)
-                            o = await ev("(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect();return [getComputedStyle(s).position, Math.round(r.top), s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))];})()")
-                            check(await klasse('goch-fokus') and o[0] == 'fixed' and o[1] < 80 and o[2], "„Goch spricht“ am Handy: Goch groß oben, nicht verdeckt", o)
+                            o = await ev("""(()=>{const s=document.getElementById('scene'),r=s.getBoundingClientRect(),p=document.getElementById('goch').getBoundingClientRect();return {fest:getComputedStyle(s).position==='fixed',imFenster:r.top>=0,ueberBlatt:Math.round(p.top-r.bottom),frei:s.contains(document.elementFromPoint(r.left+r.width*.35,r.top+r.height*.4))};})()""")
+                            check(await klasse('goch-fokus') and o['fest'] and o['imFenster'] and o['frei'] and -26 <= o['ueberBlatt'] <= 40, "„Goch spricht“ am Handy: Goch groß, direkt über dem Blatt, nicht verdeckt", o)
                             await shot(f"unterseite_{name}_fokus")
                             await klick('#goch-zur-seite'); await ev("window.scrollTo(0,700)"); await pump(0.8)
-                            k = await ev(klein)
-                            check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['ueberBlatt'], "Seite freigegeben: kleiner Goch auf seinem Ast über der Leiste", k)
+                            k = await bis(klein, lambda k: k['da'] and k['ast'])
+                            check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['neben'], "Seite freigegeben: kleiner Goch auf seinem Ast neben der Kapsel", k)
                             for _ in range(20):
                                 if await ev("!!document.getElementById('goch-mini').dataset.leben"): break
                                 await pump(0.25)
@@ -199,9 +205,16 @@ async def main():
                             await shot(f"unterseite_{name}_begleiter")
                         else:
                             await ev("window.scrollTo(0,900)"); await pump(0.9)
-                            k = await ev(klein); f = await ev(frei)
+                            k = await bis(klein, lambda k: k['da'] and k['ast'] and k['astBisRand']); f = await bis(frei, lambda f: f['drin'] and f['verdeckt'] == 0)
                             check(await klasse('goch-angeheftet') and f['drin'] and f['verdeckt'] == 0 and k['da'] and k['astBisRand'] and k['ueberBlatt'], "weitergescrollt: Blatt bleibt, kleiner Goch auf seinem Ast darüber", [f, k])
                             await shot(f"unterseite_{name}_gescrollt")
+                            await klick('#goch-zur-seite')
+                            kap = await bis("""(()=>{const p=document.getElementById('goch').getBoundingClientRect(),c=document.getElementById('goch-close'),cr=c.getBoundingClientRect(),v=document.querySelector('#goch-mini .goch-mini-vogel').getBoundingClientRect();
+                              return {zeile:document.documentElement.classList.contains('goch-zeile'),hoch:Math.round(p.height),drin:p.left>=0&&p.right<=innerWidth,zu:c.contains(document.elementFromPoint(cr.left+cr.width/2,cr.top+cr.height/2)),neben:v.left>=p.right-46};})()""", lambda k: k['zeile'] and k['neben'] and k['hoch'] <= 76)
+                            check(kap['zeile'] and kap['hoch'] <= 76 and kap['drin'] and kap['zu'] and kap['neben'], "„Seite ansehen“: Kapsel links neben dem kleinen Goch, Schließen erreichbar", kap)
+                            await shot(f"unterseite_{name}_kapsel")
+                            await klick('#goch-log')
+                            check(not await klasse('goch-zeile'), "Tipp auf die Kapsel klappt das Blatt wieder auf")
                     else:
                         await ev("window.scrollTo(0,0)"); await shot(f"unterseite_{name}_{pfad.strip('/').replace('/', '_')}")
                     await klick('#goch-close')

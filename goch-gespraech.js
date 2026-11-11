@@ -76,7 +76,7 @@
     else if (breit && sichtbar > .5) breitSetzen('');       // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
-  const hoehe = () => { if (breit || lage === 'unterwegs') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
+  const hoehe = () => { if (breit || lage !== 'aus') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
   // Leiste des Browsers am unteren Rand (Safari am iPhone, Robin 11.11.2026: sie schwebte über der Begleitleiste und verdeckte
   // „Pause“): Was das sichtbare Fenster unten kürzer ist als das Fenster der Seite, rückt das Blatt als --goch-unten nach oben.
   // Nur bis 140 px – die Tastatur ist höher und hebt das Blatt nicht an; nicht beim Zoomen. Lokal zum Prüfen: ?unten=80.
@@ -142,15 +142,18 @@
   // Griff am Blatt: nach unten wischen gibt frei, nach oben holt Goch zurück
   if (kopf) {
     let y0 = null;
-    kopf.addEventListener('touchstart', e => { y0 = lage === 'aus' && !breit ? null : e.touches[0].clientY; }, { passive: true });
-    kopf.addEventListener('touchmove', e => {
+    // Nur am Griff des offenen Blatts. Auf der Kapsel gibt es keinen Wisch: Sie liegt in der Daumenzone, dort wäre es dieselbe
+    // Geste wie Weiterscrollen. Ein Tipp auf die Kapsel oder den kleinen Goch klappt auf.
+    const kapsel = () => lage === 'unterwegs' || breit === 'zeile';
+    panel.addEventListener('touchstart', e => { y0 = (lage === 'aus' && !breit) || kapsel() || !e.target.closest('.goch-head') ? null : e.touches[0].clientY; }, { passive: true });
+    panel.addEventListener('touchmove', e => {
       if (y0 === null) return;
       const dy = e.touches[0].clientY - y0;
       if (breit) { if (dy > 36 && breit === 'blatt') { y0 = null; breitSetzen('zeile'); } else if (dy < -36 && breit === 'zeile') { y0 = null; breitSetzen('blatt'); } return; }
       if (dy > 36 && lage === 'fokus') { y0 = null; freigeben(); }
       else if (dy < -36 && lage === 'unterwegs') { y0 = null; setzen('fokus'); }
     }, { passive: true });
-    kopf.addEventListener('touchend', () => { y0 = null; });
+    panel.addEventListener('touchend', () => { y0 = null; });
   }
   // Die schmale Leiste ist das eingeklappte Blatt: Ein Tipp darauf (nicht auf Knöpfe oder Verweise) klappt es wieder auf
   panel.addEventListener('click', e => {

@@ -848,6 +848,13 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Prozent dazu; antippbar ist nur der Vogel (`#goch-mini-knopf`), die Seite daneben bleibt bedienbar. Größe wie im Entwurf
   (`--gm`). Er bekommt dieselben beweglichen Teile wie der große Goch (`GochLeben.bauen`) und bewegt den Schnabel synchron
   zur Stimme (`data-schnabel` an der Szene, `goch-stimme.js`); bei reduzierter Bewegung bleibt das ruhige Bild.
+- **Wie im Entwurf (Schritt 4c, 11.11.2026):** Die Blätter der Startseite sind schmaler (Rechner höchstens 820 px, Handy
+  14 px Tal je Seite) und stehen weiter auseinander, das Tal ist rundum zu sehen. Die Begleitzeile ist eine einzeilige Kapsel
+  links neben dem kleinen Goch (`html.goch-unterwegs`, `html.goch-zeile`): Mikrofon als runder Knopf (derselbe Knopf wie
+  „Pause“ / „Weiter zuhören“ / „Fertig“, der Text bleibt für Vorleseprogramme), „Goch“, Status und letzter Satz, Schließen;
+  der Hinweis „KI · künstliche Stimme“ steht dort kurz als „KI“. Tipp oder Wisch nach oben klappt das Blatt auf. Der große
+  Goch am Handy sitzt direkt über dem Blatt (`--goch-blatt-h`) statt fest am oberen Rand. Nachts wird der Ast des kleinen
+  Goch heller, damit er auf dunklen Blättern sichtbar bleibt.
 - **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
   Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
   das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch
