@@ -156,3 +156,23 @@ Ferne und Krone zeigt (`seasonal()` in `landscape.js`).
   durchsichtig, unten ausgelaufen, Speichern), `node tests/bundle_check.mjs`, `tools/landschaft-bilder.py --slope` mit Prüfbild.
 - Offen für Schritt 2: Die Ebenen anzeigen und beim Scrollen verschieben; erst dann laden Besucher sie.
 
+## Tal hinter der Startseite (11.11.2026, „Ein Tal“, Schritt 2)
+Unterhalb der Bühne liegt jetzt das Tal fest im Fenster hinter der Seite; die Bereiche der Startseite liegen als Blätter darüber.
+- Schalter: `data-tal="an"` am `<body>` der Startseite; `?tal=aus` und `?tal=an` übersteuern zum Prüfen. Ohne Landschaft
+  (`data-landschaft` aus, Skriptfehler) gibt es kein Tal und keine Blätter – die Seite sieht dann aus wie bisher.
+- Die Bühne bleibt unverändert und scrollt mit der Seite weg: Himmel, Sonne, Mond, Sterne, Masken und Geometrie sind nicht
+  angefasst. Die Gestirne stehen deshalb weiter nur in der Bühne; die Talebenen können sie nicht überlagern (die Maske muss
+  dafür nicht neu gerechnet werden). Hat die Bühne das Fenster verlassen, stehen Himmel und Burgberg blass als Ferne im Tal.
+- `landscape.js` (`talLayers`, `talDraw`): Höhenzüge, Hang und Talgrund kommen beim Scrollen herauf, vorn schneller als hinten;
+  früh deutlich, danach ruhiger. Jahreszeiten blenden wie in der Bühne über, die Nachtfarben kommen aus denselben Farbrollen.
+  Gezeichnet wird je Bild höchstens einmal (requestAnimationFrame), nur `transform` und `opacity`.
+- Gewicht: Die Talebenen laden erst nach dem load-Ereignis und in der Leerlaufzeit. Am Handy kommt die 900-px-Fassung
+  (rund 250 KB für alle drei), am Rechner die 1400-px-Fassung (rund 500 KB). Der Erstaufruf bis zum load-Ereignis bleibt gleich.
+- Reduzierte Bewegung: Das Tal steht still (oben die Bühne, darunter ein festes Bild).
+- Fuß: Impressum und Datenschutz liegen auf einem eigenen Blatt, damit sie über dem Talgrund lesbar bleiben.
+- Schichtung: Das Tal liegt mit `z-index: -1` unter allem; `main` und der Fuß bilden bewusst keine eigene Schicht, damit Goch,
+  sein Gespräch (auch im Fokusmodus am Handy) und das Menü ihre Reihenfolge über den Blättern behalten.
+- Prüfung: `python3 tests/tal_test.py http://127.0.0.1:8788 /tmp/tal` (Chrome, websockets) – Gewicht des Erstaufrufs am Handy
+  (Grenze 1,2 MB, unverdichtet gemessen), spätes Laden, Aufbau, Bewegung, kein seitliches Scrollen, `?tal=aus`, reduzierte
+  Bewegung; legt Bildschirmfotos in 375 px (Tag/Nacht, Herbst/Winter) und am Rechner ab.
+

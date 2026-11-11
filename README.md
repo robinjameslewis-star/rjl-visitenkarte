@@ -29,7 +29,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
 - `tests/blog_test.mjs` – Blog-Renderer ohne Worker: Open-Graph-Angaben, Vorschaubild-Regeln
-- `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter, Sätze aus `assets/landschaften/` (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tools/landschaft-schablone.py` – Schablone für Bildagenten; `tests/landscape.test.cjs`, `tests/site_test.mjs`
+- `landscape.js` – Landschaft: Himmel, Sonne, Mond, Sterne, Jahreszeit, Nachtpalette, Blätter, Sätze aus `assets/landschaften/` (Abschnitt „Landschaft“); `tools/landschaft-bilder.py` – Bilder freistellen und exportieren; `tools/landschaft-schablone.py` – Schablone für Bildagenten; `tests/landscape.test.cjs`, `tests/site_test.mjs`, `tests/tal_test.py` (Tal hinter der Startseite: Gewicht, Aufbau, Bildschirmfotos)
 - `tests/bundle_check.mjs` – prüft vor dem Deploy das gebündelte Worker-Paket (eingebetteter Renderer läuft ohne Bündler-Helfer, Seitenskript der Redaktion)
 - `tests/admin_test.py` – Prüfung des Blog-Editors (Werkzeuge, Karte/Video, Live-Vorschau, eigenes Fenster, lokale Sicherung) in Headless-Chrome gegen die Attrappe
 - `figuren/goch/bilder/vogel.webp` – Vogel-Ebene (Sitzpose; `bilder/bestand/vogel.webp` WebP q92 auf Weiß, 66 KB; Beine enden an der Astkante); bis 22.10.2026 unter `assets/`
