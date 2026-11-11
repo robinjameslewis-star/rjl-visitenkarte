@@ -3,6 +3,7 @@
 // WebM/Opus, Safari MP4/AAC) gleich ankommt und die Dauer exakt im Kopf steht – so zählt die Tagesgrenze echte
 // Sekunden. Whisper large-v3-turbo über Workers AI erkennt den Text. Gespeichert wird nichts, gezählt nur Sekunden.
 import { Buffer } from "node:buffer";
+import { kostenBuchen, adresseFrei } from "./kosten.js";
 
 export const MODELL = "@cf/openai/whisper-large-v3-turbo";
 export const MAX_SEKUNDEN = 20;
@@ -67,7 +68,7 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
   if (ipGrenze) {
     const ip = request.headers.get("CF-Connecting-IP") || "0";
     const hits = (perIp.get(ip) || []).filter(x => now - x < 3600_000);
-    if (hits.length >= +(env.MAX_HOEREN_PER_IP_PER_HOUR || 30)) return antwort({ text: "", grenze: true }, 200, cors);
+    if (hits.length >= +(env.MAX_HOEREN_PER_IP_PER_HOUR || 30) || !(await adresseFrei(env, "hoeren", ip))) return antwort({ text: "", grenze: true }, 200, cors);
     hits.push(now); perIp.set(ip, hits);
   }
   const tagKey = zaehler + new Date(now).toISOString().slice(0, 10);
@@ -79,6 +80,16 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
   if (zaehlen && stand.sekunden + dauer > (sprache.minutenTag || 0) * 60) return antwort({ text: "", grenze: true }, 200, cors);
   // Zweiter Deckel: Zahl der Aufnahmen je Tag (viele sehr kurze Aufnahmen kosten KV-Schreibvorgänge und Erkennungen)
   if (zaehlen && stand.anfragen >= +(env.MAX_HOEREN_ANFRAGEN_TAG || 400)) return antwort({ text: "", grenze: true }, 200, cors);
+  // beide Deckel atomar im Durable Object (src/kosten.js); scheitert der zweite, geht der erste zurück
+  const sek = Math.round(dauer * 10) / 10;
+  const zurueck = () => Promise.all([kostenBuchen(env, "sekunden", -sek, 0), kostenBuchen(env, "anfragen", -1, 0)]);
+  if (zaehlen) {
+    if (!(await kostenBuchen(env, "sekunden", sek, (sprache.minutenTag || 0) * 60, "tag", stand.sekunden)).ok) return antwort({ text: "", grenze: true }, 200, cors);
+    if (!(await kostenBuchen(env, "anfragen", 1, +(env.MAX_HOEREN_ANFRAGEN_TAG || 400), "tag", stand.anfragen)).ok) {
+      await kostenBuchen(env, "sekunden", -sek, 0);
+      return antwort({ text: "", grenze: true }, 200, cors);
+    }
+  }
 
   const started = Date.now();
   let out;
@@ -87,6 +98,7 @@ export async function handleListen(request, env, ctx, cors, settings, { zaehler 
       condition_on_previous_text: false, initial_prompt: KONTEXT[lang] });
   } catch (e) {
     console.error("Spracheingabe", String(e && e.message || e).slice(0, 300)); // nie den Inhalt protokollieren
+    if (zaehlen) await zurueck();
     return antwort({ error: "Ich habe Sie gerade nicht verstanden. Bitte tippen Sie Ihre Frage." }, 502, cors);
   }
   const ms = Date.now() - started;

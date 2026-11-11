@@ -9,8 +9,8 @@
     "fragen": "sh fragen.sh"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "latest",
-    "zod": "latest"
+    "@anthropic-ai/sdk": "0.126.0",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "wrangler": "^4"
