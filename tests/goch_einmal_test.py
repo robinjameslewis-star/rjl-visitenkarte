@@ -212,6 +212,8 @@ async def main():
             check(await klasse('goch-fokus') and await an('goch-mikro-an') == 'true', "wieder geöffnet: „Goch hört“ ist noch gewählt, Goch groß")
             await klick('#goch-zur-seite')
             check(await klasse('goch-unterwegs'), "„Seite ansehen“ gibt die Seite frei")
+            check(await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "am Seitenanfang ist nur der große Goch zu sehen, nicht auch der kleine")
+            await ev("window.scrollTo(0,700)"); await pump(0.5)
             await klick('#goch-mini')
             check(await klasse('goch-fokus'), "Tipp auf den kleinen Goch holt ihn zurück")
             await klick('#goch-close'); await pump(0.3)

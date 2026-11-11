@@ -275,18 +275,31 @@
     html.goch-fokus .goch-head, html.goch-unterwegs .goch-head { position: relative; padding-top: 10px; touch-action: none; }
     html.goch-fokus .goch-head::before, html.goch-unterwegs .goch-head::before { content: ""; position: absolute; top: 0; left: 50%; width: 38px; height: 4px; margin-left: -19px; border-radius: 2px; background: var(--line); }
     html.goch-unterwegs .goch { cursor: pointer; }
-    html.goch-unterwegs .goch-mini.goch-mini-weg { display: none; } /* solange der große Goch im Bild ist */
     /* Goch zeigt etwas: klein in der Ecke, das Gespräch als schmale Leiste */
     html.goch-unterwegs .goch { max-height: 32dvh !important; }
     html.goch-unterwegs .goch-log > :not(:last-child), html.goch-unterwegs #goch-starters, html.goch-unterwegs #goch-form,
       html.goch-unterwegs #goch-sprache, html.goch-unterwegs .goch-note { display: none; }
-    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; position: fixed; z-index: 21; right: 4vw; bottom: calc(32dvh + 16px); width: 96px;
-      padding: 0; border: 0; background: transparent; cursor: pointer; }
-    .goch-mini img { display: block; width: 100%; height: auto; transform-origin: 45% 80%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
-    .goch-mini.spricht img { animation: goch-mini 0.45s ease-in-out infinite alternate; }
-    @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }
+    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; bottom: calc(32dvh + 16px); }
   }
-  @media (max-width: 720px) and (prefers-reduced-motion: reduce) { .goch-mini.spricht img { animation: none; } }
+  /* Kleiner Goch: nie ohne Ast (Robin, 03.11.2026). Der Ast kommt wie auf der Bühne vom rechten Rand; Maße wie dort
+     (Vogel 1153 × 637, Ast auf 76,48 % der Höhe, 242,84 % der Breite), hier auf 96 px Vogelbreite verkleinert. */
+  .goch-mini { position: fixed; z-index: 21; right: 0; width: calc(96px + 4vw); height: 60px; padding: 0; border: 0; background: transparent; cursor: pointer; overflow: hidden; }
+  .goch-mini-vogel { position: absolute; left: 0; top: 0; display: block; width: 96px; height: auto; transform-origin: 45% 80%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
+  .goch-mini-ast { position: absolute; left: 0; top: 40.6px; display: block; width: 233.1px; max-width: none; height: auto; pointer-events: none; }
+  .goch-mini.goch-mini-weg { display: none !important; } /* solange der große Goch im Bild ist: nie zwei Gochs zugleich */
+  .goch-mini.spricht .goch-mini-vogel { animation: goch-mini 0.45s ease-in-out infinite alternate; }
+  @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }
+  @media (prefers-reduced-motion: reduce) { .goch-mini.spricht .goch-mini-vogel { animation: none; } }
+  /* Tablet und Rechner: Goch ist aus dem Bild, das Blatt läuft unten rechts mit (goch-gespraech.js) */
+  @media (min-width: 721px) {
+    html.goch-angeheftet .goch { position: fixed; z-index: 20; inset: auto 20px 20px auto; width: min(380px, calc(100vw - 40px)); max-height: min(72dvh, 620px); }
+    html.goch-angeheftet .goch::after { display: none; }
+    html.goch-angeheftet .goch-head { position: relative; padding-top: 10px; touch-action: none; }
+    html.goch-angeheftet .goch-head::before { content: ""; position: absolute; top: 0; left: 50%; width: 38px; height: 4px; margin-left: -19px; border-radius: 2px; background: var(--line); }
+    html.goch-angeheftet .goch-mini:not([hidden]) { display: block; bottom: calc(var(--goch-blatt-h, 300px) + 24px); width: 116px; }
+    html.goch-zeile .goch { max-height: 32dvh; cursor: pointer; }
+    html.goch-zeile .goch-log > :not(:last-child), html.goch-zeile #goch-starters, html.goch-zeile #goch-form, html.goch-zeile #goch-sprache, html.goch-zeile .goch-note { display: none; }
+  }
   @media (max-width: 720px) { .goch:has(#goch-sprache:not([hidden])), .goch:has(#goch-mikro:not([hidden])), .goch:has(#goch-stimme-consent:not([hidden])) { max-height: 80dvh; }
     #goch-stimme-consent { min-height: 0; flex-shrink: 1; overflow-y: auto; } } /* Handy: Platz für Verlauf und Einwilligung trotz Schaltern */
   @media (prefers-reduced-motion: no-preference) {
@@ -917,7 +930,7 @@
 </main>
 <!-- Gesprächsmodus auf dem Handy (goch-gespraech.js): Papier über der Seite, kleiner Goch, wenn er eine Stelle zeigt -->
 <div class="goch-papier" id="goch-papier" aria-hidden="true"></div>
-<button class="goch-mini" id="goch-mini" type="button" aria-label="Zurück zu Goch" data-i18n-aria="gochMini" hidden><img data-src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"></button>
+<button class="goch-mini" id="goch-mini" type="button" aria-label="Zurück zu Goch" data-i18n-aria="gochMini" hidden><img class="goch-mini-vogel" data-src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"><img class="goch-mini-ast" data-src="assets/ast.webp" alt="" width="2800" height="167" decoding="async"></button>
 
 <footer>
   <details id="privacy">
@@ -970,12 +983,12 @@
 </script>
 <script src="language.js?v=20261111" defer></script>
 <script src="site.js?v=20261016b" defer></script>
-<script src="goch.js?v=20261023" defer></script>
+<script src="goch.js?v=20261112" defer></script>
 <script src="goch-audio.js?v=20261106" defer></script>
 <script src="goch-leben.js?v=20261024" defer></script>
 <script src="goch-stimme.js?v=20261111" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261111" defer></script>
+<script src="goch-gespraech.js?v=20261112" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
