@@ -124,7 +124,8 @@ async def main():
               const zu=pts.filter(([x,y])=>!p.contains(document.elementFromPoint(x,y))).length;
               return {fest:getComputedStyle(p).position==='fixed',drin:r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1,verdeckt:zu,amBody:p.parentNode===document.body,quer:document.documentElement.scrollWidth>innerWidth+1};})()"""
             klein = """(()=>{const m=document.getElementById('goch-mini'),r=m.getBoundingClientRect(),a=m.querySelector('.goch-mini-ast'),v=m.querySelector('.goch-mini-vogel'),p=document.getElementById('goch').getBoundingClientRect();
-              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,vogel:v.complete&&v.naturalWidth>0,rand:Math.round(innerWidth-r.right),astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,imBild:r.top>=0};})()"""
+              const vr=v.getBoundingClientRect(),ar=a.getBoundingClientRect();
+              return {da:getComputedStyle(m).display==='block',ast:a.complete&&a.naturalWidth>0,vogel:v.complete&&v.naturalWidth>0,fuesse:Math.abs((ar.top-vr.top)-vr.height*.8524)<1.5&&Math.abs(ar.left-vr.left)<1,rand:Math.round(innerWidth-r.right),astBisRand:a.getBoundingClientRect().right>=innerWidth-1,ueberBlatt:r.bottom<=p.top+2,imBild:r.top>=0};})()"""
             for name, breite, hoehe, touch in (('Tablet_hoch', 820, 1180, True), ('Tablet_quer', 1024, 768, True), ('Rechner', 1280, 800, False)):
                 print(f"1. Mitlaufendes Blatt, {name} ({breite} × {hoehe})")
                 await send("Emulation.setDeviceMetricsOverride", {"width": breite, "height": hoehe, "deviceScaleFactor": 1, "mobile": False})
@@ -162,7 +163,7 @@ async def main():
                     check(await klasse('goch-zeile'), "Wisch nach unten am Griff: Zeile")
                     await wisch('.goch-head', -90)
                     check(not await klasse('goch-zeile'), "Wisch nach oben am Griff: Blatt")
-                await klick('#goch-mini'); await pump(1.6)
+                await klick('#goch-mini-knopf'); await pump(1.6)
                 f = await ev(frei)
                 check(await ev("scrollY") < 5 and not await klasse('goch-angeheftet') and not f['fest'] and not f['amBody'] and f['verdeckt'] == 0, "Tipp auf den kleinen Goch führt zurück: Das Blatt hängt wieder am Ast", f)
                 check(await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "der kleine Goch ist weg")
@@ -181,7 +182,28 @@ async def main():
             k = await ev(klein)
             check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['rand'] == 0 and k['ueberBlatt'], "kleiner Goch sitzt auf seinem Ast vom rechten Rand, über der Leiste", k)
             check(not await ev("document.documentElement.scrollWidth > innerWidth + 1"), "kein seitliches Scrollen")
+            check(k['fuesse'], "der Ast liegt unter den Füßen (Lage in Prozent zum Vogel)", k)
             await shot("kleiner_Goch_mit_Ast_Handy")
+            # Die Seite bleibt unter dem kleinen Goch bedienbar: Nur der Vogel selbst nimmt Tipps an
+            durch = await ev("(()=>{const m=document.getElementById('goch-mini'),a=m.querySelector('.goch-mini-ast').getBoundingClientRect(),v=m.querySelector('.goch-mini-vogel').getBoundingClientRect();const p=(x,y)=>{const e=document.elementFromPoint(x,y);return !!e&&!m.contains(e);};return [p(innerWidth-6,a.top+a.height/2),p(v.left+2,v.top+2),m.contains(document.elementFromPoint(v.left+v.width*.5,v.top+v.height*.5))];})()")
+            check(durch == [True, True, True], "Tipps neben dem Vogel gehen an die Seite, der Vogel selbst bleibt antippbar", durch)
+            print("2b. Der kleine Goch bewegt den Schnabel, wenn Goch spricht")
+            for _ in range(20):
+                if await ev("!!document.getElementById('goch-mini').dataset.leben"): break
+                await pump(0.25)
+            kopf = "(()=>{const m=document.getElementById('goch-mini'),k=[...m.querySelectorAll('[data-kopf]')].find(i=>i.style.opacity==='1');return [m.dataset.schnabel||'', k?k.dataset.kopf:''];})()"
+            check(await ev("!!document.getElementById('goch-mini').dataset.leben") and (await ev(kopf))[1] == 'rest', "kleiner Goch hat Körper, Kopf und Schwanz; Schnabel zu", await ev(kopf))
+            await ev("window.Goch.ask('Woran arbeitet Robin gerade?')")
+            gesehen = set()
+            for _ in range(60):
+                x = await ev(kopf); gesehen.add(x[1]); await pump(0.08)
+                if x[0] != ('zu' if x[1] == 'rest' else x[1]): gesehen.add('ungleich:' + str(x))
+            check(('offen' in gesehen or 'halb' in gesehen) and 'rest' in gesehen and not any(g.startswith('ungleich') for g in gesehen), "der Schnabel geht auf und zu, synchron zum großen Goch", sorted(gesehen))
+            await pump(3.0)
+            check((await ev(kopf))[1] == 'rest', "nach der Antwort ist der Schnabel wieder zu", await ev(kopf))
+            k = await ev(klein)
+            check(k['fuesse'] and k['astBisRand'], "auch mit beweglichen Teilen sitzt er auf dem Ast", k)
+            await shot("kleiner_Goch_spricht_Handy")
             await ev("window.scrollTo(0,0)"); await pump(0.6)
             check(await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "großer Goch im Bild: Der kleine ist nicht zu sehen")
             await klick('#goch-close')

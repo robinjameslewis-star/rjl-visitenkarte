@@ -832,7 +832,11 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   verkleinern es zur Zeile (`html.goch-zeile`), ein Tipp darauf klappt es auf. Ein Tipp auf den kleinen Goch führt zurück an
   den Seitenanfang; dort hängt das Blatt wieder am Ast. Geprüft in `tests/goch_blatt_test.py` (820 × 1180, 1024 × 768, 1280 × 800).
 - **Kleiner Goch nie ohne Ast** (Robin, 03.11.2026): `#goch-mini` trägt Vogel und Ast (`assets/ast.webp`); der Ast kommt wie
-  auf der Bühne vom rechten Rand. Er ist nur zu sehen, wenn der große Goch aus dem Bild ist.
+  auf der Bühne vom rechten Rand. Er ist nur zu sehen, wenn der große Goch aus dem Bild ist. Seit 11.11.2026 hängt die Lage
+  an keinem Knopf mehr (in Safari am iPhone saß Goch versetzt zum Ast): Der Vogel gibt die Größe vor, der Ast liegt in
+  Prozent dazu; antippbar ist nur der Vogel (`#goch-mini-knopf`), die Seite daneben bleibt bedienbar. Größe wie im Entwurf
+  (`--gm`). Er bekommt dieselben beweglichen Teile wie der große Goch (`GochLeben.bauen`) und bewegt den Schnabel synchron
+  zur Stimme (`data-schnabel` an der Szene, `goch-stimme.js`); bei reduzierter Bewegung bleibt das ruhige Bild.
 - **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
   Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
   das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch

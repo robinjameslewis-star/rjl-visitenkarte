@@ -39,7 +39,25 @@
   }
   // Der Besucher gibt die Seite frei: zurück an die Stelle, an der er war, bevor Goch groß wurde.
   function freigeben() { if (lage !== 'fokus') return; setzen('unterwegs'); scrollTo(0, zuletzt); }
-  const miniLaden = () => mini.querySelectorAll('img[data-src]').forEach(img => { if (!img.getAttribute('src')) img.src = img.dataset.src; });
+  // Kleiner Goch: Vogel und Ast laden erst, wenn er gebraucht wird. Danach bekommt er dieselben beweglichen Teile wie der
+  // große (goch-leben.js) und bewegt den Schnabel synchron zur Stimme (data-schnabel an der Szene, goch-stimme.js). Er steht
+  // sonst still. Bei reduzierter Bewegung bleibt das ruhige Bild.
+  let miniLeben = null, miniBaut = false;
+  const schnabel = () => { if (miniLeben) { const s = scene.dataset.schnabel; miniLeben.kopf(s === 'halb' || s === 'offen' ? s : 'rest'); mini.dataset.schnabel = s || 'zu'; } };
+  function miniLaden() {
+    mini.querySelectorAll('.goch-mini-vogel, .goch-mini-ast').forEach(img => { if (!img.getAttribute('src')) img.src = img.dataset.src; });
+    if (miniBaut || ruhig.matches || !window.GochLeben) return;
+    miniBaut = true;
+    const basis = (window.RJLWurzel || '') + 'figuren/goch/';
+    fetch(basis + 'figur.json').then(r => r.ok ? r.json() : null).then(figur => {
+      const a = figur && figur.animation, t = a && a.teile, s = a && a.posen && a.posen.sitzend;
+      if (!t || !s) return;
+      const leben = window.GochLeben.bauen({ ziel: mini.querySelector('.goch-mini-tier'), basis, teile: t, breite: s.breite, hoehe: s.hoehe,
+        bereit: () => { mini.dataset.leben = '1'; leben.posenLaden(); miniLeben = leben; schnabel(); } });
+      leben.laden();
+    }).catch(() => {});
+  }
+  new MutationObserver(schnabel).observe(scene, { attributes: true, attributeFilter: ['data-schnabel'] });
   // ---------- Breite Bildschirme: mitlaufendes Blatt ----------
   let breit = '', sichtbar = 1; // breit: '' | 'blatt' | 'zeile'; sichtbar: Anteil des großen Goch im Fenster
   function breitSetzen(neu) {

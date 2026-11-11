@@ -67,6 +67,7 @@
   }
   function mund(stufe) { // 'zu' | 'halb' | 'offen'
     if (ruhig.matches) stufe = 'zu';
+    scene.dataset.schnabel = stufe; // für den kleinen Goch (goch-gespraech.js): derselbe Schnabel, synchron zur Stimme
     if (stufe === 'zu') { delete scene.dataset.mund; if (zustand !== 'spricht') zeige('rest'); return; }
     if (zeige(stufe)) delete scene.dataset.mund; else scene.dataset.mund = stufe;
   }
