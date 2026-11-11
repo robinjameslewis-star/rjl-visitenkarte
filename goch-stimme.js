@@ -1,9 +1,12 @@
-// Sprechender Goch auf der Startseite (Robin, 23.10.2026). Im geöffneten Gespräch zwei Schalter: „Mit Goch sprechen“
+// Sprechender Goch auf der Startseite (Robin, 23.10.2026). Im geöffneten Gespräch zwei Schalter: „Goch hört“
 // (Gespräch ohne Knopf: Goch hört zu und antwortet, sobald der Besucher eine kurze Pause macht; höchstens 20 s je Frage)
-// und „Goch spricht laut“ (Stimme, auch beim Tippen). Beides erst nach einer eigenen Einwilligung, getrennt von der des
+// und „Goch spricht“ (Stimme, auch beim Tippen). Beides erst nach einer eigenen Einwilligung, getrennt von der des
 // Gesprächs; sie gilt nur für diesen Besuch (nur im Speicher, nicht im Browser abgelegt) und ist jederzeit abschaltbar.
 // Ohne Aktivierung: keine Mikrofonfreigabe, kein Ton, keine Anfrage an /listen oder die Stimme. Gochs Antwort steht immer
 // auch als Text da. Aktiv nur mit data-goch-stimme="an" am <body> (zum Testen lokal ?stimme=an).
+// Mikrofon-Symbol am Eingabefeld (Robin, 11.11.2026): eine einzelne Frage sprechen. Es schaltet „Goch hört“ sichtbar ein
+// und nach dieser einen Frage wieder aus (Entscheidung der Leitung: So stimmt die Einwilligung wörtlich – das Mikrofon ist
+// nur offen, solange „Goch hört“ an ist). Am Handy vergrößert es Goch nicht (goch-gespraech.js, einmal).
 (() => {
   'use strict';
   const language = window.SiteLanguage;
@@ -24,7 +27,7 @@
   const leiste = $('goch-sprache'), mikroSchalter = $('goch-mikro-an'), lautSchalter = $('goch-laut');
   const einwilligung = $('goch-stimme-consent'), erlauben = $('goch-stimme-allow'), ablehnen = $('goch-stimme-deny');
   const mikro = $('goch-mikro'), knopf = $('goch-mikro-knopf'), pegelBalken = $('goch-pegel'), status = $('goch-mikro-status');
-  const kiHinweis = $('goch-ki'), beenden = $('goch-stimme-ende');
+  const kiHinweis = $('goch-ki'), beenden = $('goch-stimme-ende'), einmalKnopf = $('goch-mikro-einmal');
   const listenEndpunkt = window.Goch.endpoint.replace(/\/chat$/, '/listen');
   const MAX_MS = 20000, STILLE_MS = Math.max(1000, +(testwert('stille') || 60000));
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)');
@@ -32,6 +35,7 @@
 
   let erlaubt = false;           // Einwilligung dieses Besuchs, nur im Speicher
   let mikroAn = false, lautAn = false, schonGesprochen = false, wartet = null;
+  let einmal = false;            // „Goch hört“ ist nur für eine Frage an (Mikrofon-Symbol)
   let denkt = false, restLaeuft = false, spielt = false; // Goch beantwortet gerade eine Frage bzw. spricht
 
   const say = text => { const p = document.createElement('p'); p.className = 'goch-bubble goch-goch'; p.textContent = text; log.append(p); log.scrollTop = log.scrollHeight; };
@@ -188,7 +192,7 @@
   window.addEventListener('goch-fertig', () => { denkt = false; setTimeout(() => { if (!restLaeuft && !spielt) weiterHoeren(); }, 0); });
 
   // ---------- Gespräch ohne Knopf (Robin, 23.10.2026) ----------
-  // Ist „Mit Goch sprechen“ an, hört Goch zu: Der Browser erkennt selbst, wann jemand spricht und wann er nach einer kurzen
+  // Ist „Goch hört“ an, hört Goch zu: Der Browser erkennt selbst, wann jemand spricht und wann er nach einer kurzen
   // Pause fertig ist (goch-audio.js, zuhoeren); erst dann geht dieser Abschnitt (WAV 16 kHz, höchstens 20 s) an /listen.
   // Während Goch versteht, denkt oder spricht, hört er nicht zu. Nach einer Minute ohne Sprache, beim Wechsel des Tabs, mit
   // „Pause“ oder beim Schließen des Gesprächs schließt er das Mikrofon; „Weiter zuhören“ öffnet es wieder.
@@ -221,7 +225,9 @@
         ende: abschnitt,
       });
     } catch (_) {
+      const nurEinmal = einmal;
       oeffnet = false; mikroAn = false; setzeZustand('aus'); aktualisieren(); meldung(t('gochMikroVerweigert'));
+      if (nurEinmal) say(t('gochMikroVerweigert')); // die Zeile mit dem Hinweis ist dann ausgeblendet
       return;
     }
     oeffnet = false;
@@ -236,8 +242,18 @@
     if (ohr) { ohr.stopp(); ohr = null; }
     if (scene.dataset.lauscht) lauschen(false);
   }
-  function schlafen(text) { zuhoerenStoppen(); setzeZustand('pause', text); }
-  function mikroAus(text) { mikroAn = false; zuhoerenStoppen(); setzeZustand('aus'); aktualisieren(); meldung(text); input.focus(); }
+  function schlafen(text) { if (einmal) { einmalEnde(); return; } zuhoerenStoppen(); setzeZustand('pause', text); }
+  function mikroAus(text) {
+    if (einmal) { einmalEnde(); if (text) say(text); return; }
+    mikroAn = false; zuhoerenStoppen(); setzeZustand('aus'); aktualisieren(); meldung(text); input.focus();
+  }
+  // Die eine Frage ist gestellt (oder „Pause“, Stille, Gespräch zu): „Goch hört“ geht wieder aus, das Mikrofon ist zu.
+  function einmalEnde() {
+    einmal = false; mikroAn = false;
+    zuhoerenStoppen(); setzeZustand('aus'); meldung('');
+    aktualisieren();
+    if (einmalKnopf && !einmalKnopf.hidden && !panel.hidden) einmalKnopf.focus({ preventScroll: true }); // nicht ins Textfeld: Am Handy ginge die Tastatur auf
+  }
   function restzeitZeigen() {
     const beginn = performance.now();
     const schritt = () => {
@@ -265,6 +281,7 @@
     if (d.grenze) { mikroAus(t('gochMikroGrenze')); return; } // Grenze erreicht: Tippen, ohne Fehlermeldung
     if (!d.text) { weiterHoeren(t('gochMikroNichts')); return; }
     meldung('');
+    if (einmal) einmalEnde(); // Mikrofon zu, bevor Goch antwortet
     window.Goch.ask(d.text, { gesprochen: true });
   }
   // Nach der Antwort (und Gochs Stimme) wieder zuhören – nicht, wenn der Besucher inzwischen „Pause“ gewählt hat.
@@ -292,11 +309,13 @@
     mikroSchalter.setAttribute('aria-pressed', String(mikroAn));
     lautSchalter.setAttribute('aria-pressed', String(lautAn));
     mikro.hidden = !mikroAn || leiste.hidden;
+    if (!mikroAn) einmal = false;
+    if (einmalKnopf) einmalKnopf.hidden = mikroAn || leiste.hidden;
     beenden.hidden = !erlaubt;
     if (!mikroAn && ohr) { zuhoerenStoppen(); setzeZustand('aus'); }
     blicken();
     nachziehen();
-    window.dispatchEvent(new CustomEvent('goch-modus', { detail: { mikro: mikroAn, laut: lautAn } })); // goch-gespraech.js
+    window.dispatchEvent(new CustomEvent('goch-modus', { detail: { mikro: mikroAn, laut: lautAn, einmal } })); // goch-gespraech.js
   }
   function umschalten(welcher) {
     entsperren(); // in der Berührung: Ton und Sprachausgabe freischalten (iOS/Safari)
@@ -307,7 +326,11 @@
       return;
     }
     posenLaden();
-    if (welcher === 'mikro') {
+    if (welcher === 'einmal') {
+      if (mikroAn) return;
+      einmal = true; mikroAn = true;
+    } else if (welcher === 'mikro') {
+      einmal = false;
       mikroAn = !mikroAn;
       if (!mikroAn) { zuhoerenStoppen(); setzeZustand('aus'); meldung(''); }
     } else {
@@ -316,8 +339,9 @@
       else schweigen();
     }
     aktualisieren();
-    if (welcher === 'mikro' && mikroAn) { knopf.focus(); zuhoerenStarten(); }
+    if (welcher !== 'laut' && mikroAn) { knopf.focus({ preventScroll: true }); zuhoerenStarten(); }
   }
+  if (einmalKnopf) einmalKnopf.addEventListener('click', () => umschalten('einmal'));
   mikroSchalter.addEventListener('click', () => umschalten('mikro'));
   lautSchalter.addEventListener('click', () => umschalten('laut'));
   erlauben.addEventListener('click', () => {

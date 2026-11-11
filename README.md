@@ -782,11 +782,16 @@ nur Platzhalter) oder `--stimme elevenlabs` mit `ELEVENLABS_API_KEY` und `GOCH_V
 Alles ist aus, bis `data-goch-stimme="an"` am `<body>` steht (zum Testen lokal `?stimme=an`). Robin setzt das Attribut,
 wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redaktion eingeschaltet sind.
 
-- **Schalter** (`goch-stimme.js`): im geöffneten Gespräch „Mit Goch sprechen“ und „Goch spricht laut“. Beim ersten
+- **Schalter** (`goch-stimme.js`): im geöffneten Gespräch „Goch hört“ und „Goch spricht“. Beim ersten
   Einschalten fragt eine eigene Einwilligung (getrennt von der des Gesprächs); sie gilt nur für diesen Besuch, liegt nur im
   Speicher der Seite und endet mit „Sprechen beenden“. Ohne Einschalten: kein `getUserMedia`, kein Ton, kein AudioContext,
   keine Anfrage an `/listen` oder die Stimme (geprüft).
-- **Sprechen – Gespräch ohne Knopf** (Robin, 23.10.2026): Ist „Mit Goch sprechen“ an, hört Goch zu. Der Browser erkennt
+- **Eine Frage sprechen** (Robin, 11.11.2026): Das Mikrofon-Symbol am Eingabefeld (`#goch-mikro-einmal`) schaltet
+  „Goch hört“ sichtbar ein und nach genau einer Frage wieder aus; das Mikrofon ist danach zu. So bleibt die Einwilligung
+  wörtlich richtig (offen nur, solange „Goch hört“ an ist). Es braucht dieselbe Einwilligung, vergrößert Goch am Handy
+  nicht und endet auch mit „Pause“, nach einer Minute Stille, mit einem Tipp auf den Schalter oder beim Schließen. Ist
+  „Goch hört“ an, ist das Symbol ausgeblendet. Geprüft in `tests/goch_einmal_test.py` (auch: ohne Antippen kein Mikrofon).
+- **Sprechen – Gespräch ohne Knopf** (Robin, 23.10.2026): Ist „Goch hört“ an, hört Goch zu. Der Browser erkennt
   selbst an der Lautstärke, wann jemand spricht und wann er nach einer kurzen Pause (0,9 s) fertig ist (`goch-audio.js`,
   `erkenner` und `zuhoeren`; Grundrauschen = leisester Block der letzten 1,5 s, kurze Geräusche unter 0,25 s werden
   verworfen). Erst dann geht der gesprochene Abschnitt mit kurzem Vor- und Nachlauf als WAV (16 kHz mono, höchstens 20 s)
@@ -795,7 +800,7 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   sofort) oder „Weiter zuhören“. Das Mikrofon schließt nach einer Minute ohne Sprache, mit „Pause“, beim
   Schließen des Gesprächs und mit „Sprechen beenden“. Test: `node tests/goch_hoeren_test.mjs` (Erkennung) und
   `tests/goch_stimme_test.py` (künstliche Stimme im Browser statt Mikrofon).
-- **Stimme:** Ist „Goch spricht laut“ an, verlangt `goch.js` die Stimme (NDJSON, in Abschnitten) und zeigt die Antwort zusammen mit dem ersten Satz als Text;
+- **Stimme:** Ist „Goch spricht“ an, verlangt `goch.js` die Stimme (NDJSON, in Abschnitten) und zeigt die Antwort zusammen mit dem ersten Satz als Text;
   das MP3 spielt über Web Audio, der Schnabel folgt der Lautstärke (`AnalyserNode` → zu/halb/offen): Die Seite tauscht
   dafür Bilder mit halb und weit geöffnetem Schnabel (`data-mundpose`, abgeleitet aus dem Original mit
   `tools/figur-schnabel.py`, geladen erst beim Einschalten über `data-src-spaet`). Dazu neigt er sich mit betonten Silben
@@ -811,11 +816,16 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Noten. Hörbar nur nach einer Handlung: leise beim Öffnen des Gesprächs und als Bestätigung beim Einschalten der Stimme;
   „Zwitschern aus“ in der Fußzeile des Gesprächs, gemerkt in `localStorage` (`rjl-goch-stumm`). Im offenen Gespräch zu
   Beginn und in Pausen ab und zu (nach 30–70 s Ruhe, höchstens viermal je Gespräch), nie während Goch denkt, spricht oder
-  zuhört und nie während getippt wird; hörbar nur mit „Goch spricht laut“. Solange es keine
+  zuhört und nie während getippt wird; hörbar nur mit „Goch spricht“. Solange es keine
   Tondatei gibt (`data-goch-signalton` leer), zwitschert Goch nur sichtbar. Datei: `figuren/goch/toene/zwitschern.ogg`
   und `.mp3`, dann `data-goch-signalton="figuren/goch/toene/zwitschern"`.
 - **Handy:** Mit Sprachschaltern oder deren Einwilligung darf das Blatt 80 % der Höhe nutzen, damit Verlauf und Knöpfe
   sichtbar bleiben.
+- **Großen Goch aufheben** (Robin, 11.11.2026, `goch-gespraech.js`): Im Gesprächsmodus am Handy gibt ein Tipp oder Wisch
+  neben dem Blatt, ein Wisch nach unten am Griff des Blatts oder „Seite ansehen“ die Seite frei. Sie steht dann wieder dort,
+  wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und antwortet in der schmalen Leiste. Zurück: Tipp auf
+  die Leiste oder den kleinen Goch, Wisch nach oben am Griff. Der kleine Goch erscheint erst, wenn der große aus dem Bild
+  ist. Tippen ins Textfeld, die Tastatur und Scrollen im Verlauf heben nichts auf.
 - **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
   Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
   das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch

@@ -5,7 +5,7 @@
 // Stimme (goch-stimme.js), mit Stummschalter; die Wahl „stumm“ merkt sich der Browser (localStorage rjl-goch-stumm).
 // Im offenen Gespräch (Robin, 23.10.2026): zu Beginn und in Pausen ab und zu ein Zwitschern – unregelmäßig, höchstens
 // viermal je Gespräch, nie während Goch versteht, denkt oder spricht, nie während jemand spricht oder tippt; hörbar nur mit
-// „Goch spricht laut“ und nicht stumm, sonst nur die Noten.
+// „Goch spricht“ und nicht stumm, sonst nur die Noten.
 // Ohne Tondatei (data-goch-signalton am <body>, Pfad ohne Endung) zwitschert Goch nur sichtbar.
 // Aktiv nur mit data-goch-stimme="an" (zum Testen lokal ?stimme=an, ?signalton=…, ?zwitschertakt=ms, ?pausentakt=ms).
 (() => {
