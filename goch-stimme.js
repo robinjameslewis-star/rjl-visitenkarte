@@ -231,7 +231,7 @@
       return;
     }
     oeffnet = false;
-    if (!mikroAn || panel.hidden) { o.stopp(); return; }
+    if (!mikroAn || panel.hidden) { o.stopp(); if (einmal) einmalEnde(); return; }
     ohr = o;
     if (denkt || restLaeuft || spielt) { ohr.anhalten(); setzeZustand('denkt'); return; }
     setzeZustand('hoert', t(ersteRunde ? 'gochMikroHinweis' : 'gochZuhoeren'));
@@ -339,7 +339,7 @@
       else schweigen();
     }
     aktualisieren();
-    if (welcher !== 'laut' && mikroAn) { knopf.focus({ preventScroll: true }); zuhoerenStarten(); }
+    if (welcher !== 'laut' && mikroAn) { knopf.focus(welcher === 'einmal' ? { preventScroll: true } : undefined); zuhoerenStarten(); }
   }
   if (einmalKnopf) einmalKnopf.addEventListener('click', () => umschalten('einmal'));
   mikroSchalter.addEventListener('click', () => umschalten('mikro'));

@@ -822,7 +822,7 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
 - **Handy:** Mit Sprachschaltern oder deren Einwilligung darf das Blatt 80 % der Höhe nutzen, damit Verlauf und Knöpfe
   sichtbar bleiben.
 - **Großen Goch aufheben** (Robin, 11.11.2026, `goch-gespraech.js`): Im Gesprächsmodus am Handy gibt ein Tipp oder Wisch
-  neben dem Blatt, ein Wisch nach unten am Griff des Blatts oder „Seite ansehen“ die Seite frei. Sie steht dann wieder dort,
+  neben dem Blatt, ein Wisch nach unten am Griff des Blatts, ein Wisch über den großen Goch oder „Seite ansehen“ die Seite frei. Sie steht dann wieder dort,
   wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und antwortet in der schmalen Leiste. Zurück: Tipp auf
   die Leiste oder den kleinen Goch, Wisch nach oben am Griff. Der kleine Goch erscheint erst, wenn der große aus dem Bild
   ist. Tippen ins Textfeld, die Tastatur und Scrollen im Verlauf heben nichts auf.

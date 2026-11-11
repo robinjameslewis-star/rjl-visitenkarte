@@ -5,7 +5,7 @@
 // Goch holt ihn zurück, „Seite ansehen“ schickt ihn von sich aus in die Ecke. Auf großen Bildschirmen steht in der Antwort
 // nur ein Verweis zur Stelle. Aktiv nur mit der Sprachfunktion (goch-stimme.js, data-goch-stimme="an").
 // Den großen Goch aufheben (Robin, 11.11.2026): Tipp oder Wisch neben dem Blatt, Wisch nach unten am Griff des Blatts oder
-// „Seite ansehen“. Die Seite steht dann wieder dort, wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und
+// „Seite ansehen“, Wisch über den großen Goch. Die Seite steht dann wieder dort, wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und
 // antwortet in der Leiste. Zurück: Tipp auf die Leiste oder den kleinen Goch, Wisch nach oben am Griff. Nie durch Tippen
 // ins Textfeld, die Tastatur oder Scrollen im Verlauf.
 (() => {
@@ -18,7 +18,7 @@
   const t = k => window.SiteLanguage.t(k);
   const stelle = ziel => $(ziel === 'grundsaetze' ? 'grundsaetze-' + (window.SiteLanguage.current === 'en' ? 'en' : 'de') : ziel);
 
-  let modus = { mikro: false, laut: false, einmal: false }, lage = 'aus', gemerkt = 0, zuletzt = 0; // lage: aus | fokus | unterwegs
+  let modus = { mikro: false, laut: false, einmal: false }, lage = 'aus', zuletzt = 0; // lage: aus | fokus | unterwegs
   function setzen(neu) {
     if (neu === lage) return;
     const vorher = lage;
@@ -28,8 +28,8 @@
     if (neu === 'unterwegs') { const img = mini.querySelector('img'); if (!img.getAttribute('src')) img.src = img.dataset.src; }
     mini.hidden = neu !== 'unterwegs';
     zurSeite.hidden = neu !== 'fokus';
-    if (neu === 'fokus') { zuletzt = scrollY; if (vorher === 'aus') gemerkt = scrollY; scrollTo(0, 0); }
-    if (neu === 'aus' && vorher === 'fokus') scrollTo(0, gemerkt);
+    if (neu === 'fokus') { zuletzt = scrollY; scrollTo(0, 0); } // zuletzt: wo die Seite stand, bevor Goch groß wurde
+    if (neu === 'aus' && vorher === 'fokus') scrollTo(0, zuletzt);
     window.Goch.place();
   }
   // Der Besucher gibt die Seite frei: zurück an die Stelle, an der er war, bevor Goch groß wurde.
@@ -66,10 +66,18 @@
   // Neben dem Blatt: Tipp, Wisch oder Mausrad auf dem Papier gibt die Seite frei
   const papier = $('goch-papier'), kopf = panel.querySelector('.goch-head');
   if (papier) {
-    papier.addEventListener('click', freigeben);
+    // Ist das Textfeld aktiv, schließt der Tipp daneben nur die Tastatur
+    let schrieb = false; // beim Aufsetzen gemerkt: Der Browser nimmt dem Textfeld den Fokus schon vor dem Klick
+    papier.addEventListener('pointerdown', () => { const a = document.activeElement; schrieb = !!a && panel.contains(a) && /^(TEXTAREA|INPUT)$/.test(a.tagName); });
+    papier.addEventListener('click', () => { if (schrieb) { schrieb = false; if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } else freigeben(); });
     papier.addEventListener('touchmove', freigeben, { passive: true });
     papier.addEventListener('wheel', freigeben, { passive: true });
   }
+  // Auch ein senkrechter Wisch über den großen Goch gibt frei (er füllt das obere Drittel); der Tipp auf ihn bleibt wie bisher
+  let sy = null;
+  scene.addEventListener('touchstart', e => { sy = lage === 'fokus' ? e.touches[0].clientY : null; }, { passive: true });
+  scene.addEventListener('touchmove', e => { if (sy !== null && Math.abs(e.touches[0].clientY - sy) > 36) { sy = null; freigeben(); } }, { passive: true });
+  scene.addEventListener('touchend', () => { sy = null; });
   // Griff am Blatt: nach unten wischen gibt frei, nach oben holt Goch zurück
   if (kopf) {
     let y0 = null;
