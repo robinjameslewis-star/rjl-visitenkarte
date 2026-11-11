@@ -868,6 +868,13 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   Einstiegsfragen je Seitenart stehen in `worker/src/kopf.js` (`GOCH_SEITEN`, deutsch und englisch) und kommen als
   `data-gruss` und `data-fragen` in den Rahmen. Der Gruß erscheint nach der Landung als kleine Blase neben Goch (einmal je
   Seite und Besuch, ohne Anfrage an den Worker) und ist der erste Satz im Gespräch. „Goch zeigt“ bleibt auf Unterseiten aus.
+- **Gespräch über Seitenwechsel (Schritt 6, 11.11.2026):** Der Verlauf (letzte 24 Einträge, Sprache, offen oder zu) bleibt für
+  den Besuch im Browser (`sessionStorage`, Schlüssel `rjl-goch-verlauf`, endet mit dem Tab), nie auf einem Server; ohne
+  Einwilligung ins Gespräch wird nichts gemerkt, beim Widerruf wird er gelöscht. Ebenso die Einwilligung in Stimme und
+  Spracheingabe und die Stellung der beiden Schalter (`rjl-goch-stimme`). Nach dem Seitenwechsel: auf breiten Bildschirmen
+  ist das Gespräch wieder offen; am Handy nur im Sprachmodus und dann als Kapsel. „Goch hört“ steht auf Pause – das
+  Mikrofon öffnet sich nie von selbst, erst mit „Weiter zuhören“. Der Deckel je Gespräch (`MAX_TURNS`) zählt die Antworten
+  im gesendeten Verlauf und gilt damit über alle Seiten. Tests starten je Seitenaufruf frisch, außer mit `&merken=1`.
 - **Flug überall (Schritt 7, Robin 11.11.2026: „bei jedem neuen Auftritt anfliegen und bei jedem Rückzug abfliegen“):**
   Unterseiten: Goch fliegt im Kopf an wie auf der Startseite (`goch-seite.js` lädt `bird-flight.js`; Flugbilder erst nach
   dem ersten Bild der Seite). Kleiner Goch: fliegt bei jedem Erscheinen von rechts oben an und bei jedem Rückzug nach links

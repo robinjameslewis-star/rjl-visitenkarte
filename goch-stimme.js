@@ -169,6 +169,7 @@
     },
     // für goch-zwitschern.js: in Gesprächspausen zwitschern, hörbar nur mit Stimme
     beschaeftigt: () => denkt || restLaeuft || spielt || zustand === 'spricht',
+    modus: () => ({ mikro: mikroAn, laut: lautAn, einmal }), // für goch-gespraech.js beim Start (nach einem Seitenwechsel)
     laut: () => lautAn,
     blinzeln: doppelt => blinzeln(!!doppelt), // für goch-blick.js: Goch bemerkt jemanden
     koerper,                    // für goch-blick.js: dem Gegenüber zuwenden
@@ -317,6 +318,7 @@
     if (!mikroAn && ohr) { zuhoerenStoppen(); setzeZustand('aus'); }
     blicken();
     nachziehen();
+    stimmeMerken();
     window.dispatchEvent(new CustomEvent('goch-modus', { detail: { mikro: mikroAn, laut: lautAn, einmal } })); // goch-gespraech.js
   }
   function umschalten(welcher) {
@@ -373,5 +375,30 @@
   new MutationObserver(aktualisieren).observe($('goch-consent'), { attributes: true, attributeFilter: ['hidden'] });
   panel.addEventListener('keydown', e => { if (e.key === 'Escape') { schweigen(); if (ohr) schlafen(''); } });
   ruhig.addEventListener('change', () => { mund('zu'); koerper.ende(); });
+  // ---------- Über Seitenwechsel (Schritt 6, 11.11.2026) ----------
+  // Die Einwilligung dieses Besuchs und die Stellung der beiden Schalter bleiben für den Besuch im Browser (sessionStorage,
+  // endet mit dem Tab). Nach dem Seitenwechsel ist „Goch spricht“ wieder an; „Goch hört“ steht auf Pause: Das Mikrofon öffnet
+  // sich erst wieder, wenn der Besucher „Weiter zuhören“ antippt – nie von selbst. Eine einzelne Frage (Symbol) wird nie gemerkt.
+  const stimmKey = 'rjl-goch-stimme';
+  let merkt = false;
+  function stimmeMerken() {
+    if (!merkt) return;
+    try {
+      if (!erlaubt || scene.dataset.chat !== 'on') sessionStorage.removeItem(stimmKey);
+      else sessionStorage.setItem(stimmKey, JSON.stringify({ v: 1, mikro: mikroAn && !einmal, laut: lautAn, gesprochen: schonGesprochen }));
+    } catch (_) {}
+  }
+  (() => {
+    let m = null;
+    try { m = JSON.parse(sessionStorage.getItem(stimmKey)); } catch (_) {}
+    if (!m || m.v !== 1) return;
+    erlaubt = true; lautAn = m.laut === true; schonGesprochen = m.gesprochen === true;
+    posenLaden();
+    if (lautAn) kiHinweis.hidden = false;
+    if (m.mikro === true) { mikroAn = true; ersteRunde = false; setzeZustand('pause', t('gochZuhoerenPause')); }
+    // Ton braucht nach dem Neuladen eine Berührung: die erste im Gespräch schaltet ihn frei
+    document.addEventListener('pointerdown', entsperren, { once: true, capture: true });
+  })();
+  merkt = true;
   aktualisieren();
 })();
