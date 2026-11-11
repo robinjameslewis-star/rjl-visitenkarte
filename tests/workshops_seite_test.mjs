@@ -96,7 +96,7 @@ for (const s of WORKSHOP_ERECHNUNG) {
   console.log(`\n${s.pfad}`);
   check(html === workshopErechnungSeite(s.lang), "entsteht genau aus worker/src/workshop_erechnung.js");
   check(html.includes(`<link rel="canonical" href="${workshopErechnungUrl(s.lang)}">`), "canonical");
-  check(/47,60 €|€47\.60/.test(html) && /07\.01\.2027|7 January 2027/.test(html), "Preis und Einführungsphase wie im Memberbereich");
+  check(!/47,60|47\.60/.test(html) && /07\.01\.2027|7 January 2027/.test(html), "Einführungsphase genannt, kein Preis (Robin 11.11.2026: Preis weglassen, solange kostenlos)");
   check((html.match(/workshop-buchen\?workshop=e-rechnung&amp;utm_source=website/g) || []).length === 2, "zwei Knöpfe zur Selbstbuchung");
   check(html.includes(`<a href="${up}workshops/${s.lang === "en" ? "en/" : ""}e-rechnung/" aria-current="page">`), "Umschalter markiert E-Rechnung");
   check(!/EU AI Act|KI-Verordnung|Unterweisung|AI literacy<\/h1>/.test(html.replace(/<nav class="ws-umschalter"[\s\S]*?<\/nav>/, "").replace(/<header[\s\S]*?<\/header>/, "").replace(/<footer[\s\S]*?<\/footer>/, "")), "kein Inhalt des KI-Workshops");
