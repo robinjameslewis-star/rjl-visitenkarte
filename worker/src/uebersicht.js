@@ -197,7 +197,22 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-form .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 @media (max-width: 720px) {
   .wz-raster, .wz-form .reihe { grid-template-columns: 1fr; }
-  .wz-tabelle { min-width: 620px; }
+}
+/* Vergleich am Handy (Robin, 11.11.2026: „sieht total zerschossen aus“): feste, lesbare Spalten zum Wischen statt
+   gequetschter Spalten mit Silbentrennung; die Spalte der Kriterien bleibt stehen. */
+@media (max-width: 720px) {
+  .wz-tabelle-rahmen { scroll-snap-type: x proximity; scroll-padding-left: 96px; overscroll-behavior-x: contain; }
+  .wz-tabelle { table-layout: auto; width: max-content; min-width: 0; font-size: 14px; }
+  .wz-tabelle td, .wz-tabelle thead th { width: 212px; min-width: 212px; max-width: 212px; box-sizing: border-box; }
+  .wz-tabelle col.wz-kriterium { width: 96px; }
+  .wz-tabelle th:first-child { width: 96px; min-width: 96px; max-width: 96px; box-sizing: border-box; }
+  .wz-tabelle th, .wz-tabelle td { hyphens: manual; overflow-wrap: normal; word-break: normal; }
+  .wz-tabelle td, .wz-tabelle thead th:not(:first-child) { scroll-snap-align: start; }
+  .wz-tabelle th:first-child { position: sticky; left: 0; z-index: 1; padding-right: 8px;
+    background: linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)), var(--paper); box-shadow: 1px 0 0 var(--line); }
+  .wz-tabelle tbody th { font-size: 10.5px; letter-spacing: .04em; overflow-wrap: anywhere; }
+  .wz-tabelle thead th { font-size: 18px; }
+  .wz-th-logo, .wz-th-ihr { max-width: none; white-space: nowrap; }
 }
 /* Vergleich auf großen Bildschirmen breiter als die Textspalte (Robin, 19.10.2026: Tabelle auf großem Bildschirm „zerschossen“) */
 .wz-tabelle thead th { hyphens: manual; overflow-wrap: normal; }
