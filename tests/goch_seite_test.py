@@ -190,6 +190,12 @@ async def main():
                             await klick('#goch-zur-seite'); await ev("window.scrollTo(0,700)"); await pump(0.8)
                             k = await ev(klein)
                             check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['ueberBlatt'], "Seite freigegeben: kleiner Goch auf seinem Ast über der Leiste", k)
+                            for _ in range(20):
+                                if await ev("!!document.getElementById('goch-mini').dataset.leben"): break
+                                await pump(0.25)
+                            await ev("document.getElementById('scene').dataset.schnabel = 'offen'"); await pump(0.3)
+                            check(await ev("(()=>{const k=[...document.querySelectorAll('#goch-mini [data-kopf]')].find(i=>i.style.opacity==='1');return !!k&&k.dataset.kopf==='offen'&&k.naturalWidth>0;})()"), "der kleine Goch zeigt auch hier den Schnabel des großen")
+                            await ev("document.getElementById('scene').dataset.schnabel = 'zu'")
                             await shot(f"unterseite_{name}_begleiter")
                         else:
                             await ev("window.scrollTo(0,900)"); await pump(0.9)
