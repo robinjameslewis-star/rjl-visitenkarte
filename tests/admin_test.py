@@ -167,7 +167,8 @@ async def main():
             check(await ev("editing") is None, "nach Schließen ist kein Beitrag mehr aktuell", await ev("editing"))
 
             print("9. Landschaften: Bestand, Editor, Aufbereitung, Vorschau, Speichern")
-            check(await ev("document.querySelectorAll('#ltable tbody tr').length") == 1 and await ev("document.querySelector('#ltable tbody td:nth-child(2)').textContent") == "Ferne, Krone", "Bestand zeigt den Herbst-Satz mit Ferne und Krone")
+            check(await ev("document.querySelectorAll('#ltable tbody tr').length") == 1 and await ev("document.querySelector('#ltable tbody td:nth-child(2)').textContent") == "alle 5 Ebenen", "Bestand zeigt den Herbst-Satz mit allen fünf Ebenen", await ev("document.querySelector('#ltable tbody td:nth-child(2)').textContent"))
+            check(await ev("[...document.querySelectorAll('#led .lbox')].map(b=>b.dataset.layer).join(',')") == "ferne,krone,mitte,hang,grund", "Editor hat fünf Kästen: Ferne, Krone und die drei Talebenen")
             await ev("document.getElementById('lnew').click()"); await wait(2500)
             check(await ev("!document.getElementById('led').hidden && document.getElementById('lframe').src.includes('landschaft=neu&zeit=')"), "neue Landschaft: Editor offen, Vorschau lädt die Startseite")
             check(await ev("document.getElementById('lframe').contentDocument.documentElement.classList.contains('landscape-on')"), "Startseite im Rahmen zeigt die Landschaft (ohne Ebenen)")
@@ -190,6 +191,14 @@ async def main():
             check(src.startswith("blob:"), "Vorschau im Rahmen zeigt das neue Kronenbild (per Nachricht, ungespeichert)", src[:30])
             await set_file('#led .lbox[data-layer="ferne"] .lfile', tmp + '/ferne.png'); await wait(2500)
             check(await ev("LE.pending.herbst.ferne.big.type") == "image/webp", "Ferne aufbereitet")
+            # Talebene: Kammlinie oben, Fläche darunter – wird ein Streifen in 1400/900, der nur unten ausläuft
+            im = Image.new('RGB', (1600, 1000), (255, 255, 255)); d = ImageDraw.Draw(im); d.polygon([(0, 420), (400, 330), (900, 400), (1600, 340), (1600, 1000), (0, 1000)], fill=(60, 80, 40)); im.save(tmp + '/hang.png')  # dunkel: Weiß → Transparenz lässt helle Töne durchscheinen
+            await set_file('#led .lbox[data-layer="hang"] .lfile', tmp + '/hang.png'); await wait(3000)
+            st = await ev("document.querySelector('#led .lbox[data-layer=\"hang\"] .lstate').textContent")
+            check(st.startswith("Neu:") and "KB" in st, "Hang aufbereitet (WebP unter Budget)", st)
+            check(await ev("Object.keys(LE.pending.herbst.hang.blobs).map(Number).sort((a,b)=>b-a).join(',')") == "1400,900" and await ev("LE.pending.herbst.hang.big.size") < 200000, "Hang: zwei Größen 1400/900, unter 200 KB")
+            hang = await ev("(async()=>{const b=await createImageBitmap(LE.pending.herbst.hang.big);const c=document.createElement('canvas');c.width=b.width;c.height=b.height;const x=c.getContext('2d');x.drawImage(b,0,0);const a=(px,py)=>x.getImageData(px,py,1,1).data[3];return [b.width,b.height,a(700,2),a(700,Math.round(b.height*.5)),a(700,b.height-1),a(2,Math.round(b.height*.5))];})()")
+            check(hang[0] == 1400 and hang[1] >= round(1400 / 2.58) - 2 and hang[2] == 0 and hang[3] > 200 and hang[4] == 0 and hang[5] > 200, "Hang: Himmel durchsichtig, Fläche deckend bis zum Seitenrand, unten ausgelaufen", str(hang))
             # Transparenz geprüft: Ecke außerhalb des Motivs ist durchsichtig
             alpha = await ev("(async()=>{const b=await createImageBitmap(LE.pending.herbst.krone.big);const c=document.createElement('canvas');c.width=b.width;c.height=b.height;const x=c.getContext('2d');x.drawImage(b,0,0);const p=x.getImageData(0,0,1,1).data;const q=x.getImageData(b.width-2,2,1,1).data;return [p[3],q[3],b.width,b.height];})()")
             check(alpha[0] == 0 and alpha[1] > 200, "Weiß wurde durchsichtig, Motiv deckend", str(alpha))
@@ -200,7 +209,7 @@ async def main():
             await ev("document.getElementById('ledsave').click()"); await wait(4000)
             msg = await ev("document.getElementById('mLe').textContent")
             check(msg.startswith("Gespeichert"), "Speichern: Beschreibung, Krone und Ferne", msg[:80])
-            check(await ev("[...document.querySelectorAll('#ltable tbody tr')].some(tr=>tr.textContent.includes('Test Alb')&&tr.children[1].textContent==='Ferne, Krone')"), "Bestand zeigt „Test Alb“ mit Ferne und Krone im Herbst")
+            check(await ev("[...document.querySelectorAll('#ltable tbody tr')].some(tr=>tr.textContent.includes('Test Alb')&&tr.children[1].textContent==='Ferne, Krone, Hang')"), "Bestand zeigt „Test Alb“ mit Ferne, Krone und Hang im Herbst")
             check(await ev("[...document.querySelectorAll('#lactive option')].map(o=>o.value).includes('test-alb')"), "neue Landschaft wählbar")
             check(await ev("document.getElementById('lframe').src.includes('landschaft=test-alb')"), "Vorschau nach dem Speichern auf dem gespeicherten Satz")
             await ev("document.querySelector('#led .ltime[data-t=nacht]').click()"); await wait(2500)

@@ -3,6 +3,7 @@
 // (sonst blitzt beim Laden erst der lange und dann der kurze Ast auf).
 //   node tests/site_test.mjs
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { applyLandscape } from "../worker/src/admin.js";
 let fails = 0;
 const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEHLT ") + label + (detail ? ` (${detail})` : "")); if (!ok) fails++; };
@@ -53,6 +54,21 @@ check(satz(applyLandscape(html, "an", "meer")) === "meer" && satz(applyLandscape
 check(applyLandscape("<body data-landschaft=\"aus\">", "an", "meer") === "<body data-landschaft=\"an\" data-landschaft-satz=\"meer\">", "fehlendes Satz-Attribut wird ergänzt");
 const setJson = JSON.parse(readFileSync(root + "assets/landschaften/burgberg-herbst/landschaft.json", "utf8"));
 check(setJson.ebenen.herbst.ferne && setJson.ebenen.herbst.krone && ["ferne-herbst-1400.webp", "ferne-herbst-800.webp", "krone-herbst-1000.webp", "krone-herbst-560.webp"].every(f => { try { readFileSync(root + "assets/landschaften/burgberg-herbst/" + f); return true; } catch { return false; } }), "Satz burgberg-herbst: Beschreibung und Dateien vorhanden");
+// Talebenen („Ein Tal“): im Datenmodell, im Satz für Herbst und Winter, jede Datei unter ihrem Budget
+const landscapeApi = createRequire(import.meta.url)(root + "landscape.js");
+const TAL = ["mitte", "hang", "grund"];
+check(TAL.every(e => landscapeApi.LAYERS[e] && String(landscapeApi.LAYERS[e].sizes) === "1400,900" && landscapeApi.LAYERS[e].budget === 200000), "landscape.js kennt die Talebenen mitte, hang, grund (1400/900, 200 KB)");
+check(landscapeApi.normalizeSet({ ebenen: { herbst: { hang: { bytes: 5 }, fremd: { bytes: 5 } } } }).ebenen.herbst.hang.bytes === 5 && !landscapeApi.normalizeSet({ ebenen: { herbst: { fremd: { bytes: 5 } } } }).ebenen.herbst, "normalizeSet behält Talebenen und verwirft Unbekanntes");
+const talFehlt = [];
+for (const jahr of ["herbst", "winter"]) for (const e of TAL) {
+  if (!(setJson.ebenen[jahr] || {})[e]) talFehlt.push(`${e}-${jahr}: kein Eintrag`);
+  for (const w of landscapeApi.LAYERS[e].sizes) {
+    let bytes = -1; try { bytes = readFileSync(root + `assets/landschaften/burgberg-herbst/${e}-${jahr}-${w}.webp`).length; } catch {}
+    if (bytes < 1000 || bytes > landscapeApi.LAYERS[e].budget) talFehlt.push(`${e}-${jahr}-${w}.webp: ${bytes} Bytes`);
+    else if (w === landscapeApi.LAYERS[e].sizes[0] && setJson.ebenen[jahr][e] && setJson.ebenen[jahr][e].bytes !== bytes) talFehlt.push(`${e}-${jahr}: Beschreibung nennt ${setJson.ebenen[jahr][e].bytes}, Datei hat ${bytes}`);
+  }
+}
+check(!talFehlt.length, "Satz burgberg-herbst: Talebenen für Herbst und Winter vorhanden, unter Budget, Beschreibung stimmt", talFehlt.join("; "));
 
 // 3. landscape.js tauscht zur Laufzeit in beide Richtungen (dasselbe Muster wie im Skript)
 const js = readFileSync(root + "landscape.js", "utf8");

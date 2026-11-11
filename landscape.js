@@ -151,10 +151,12 @@
     const x = (1-sin(azimuth))/2;
     return { x: lat<0 ? 1-x : x, y: 1-clamp(altitude/rad/65), visible: altitude>=0 };
   }
-  // Eine Landschaft ist ein Satz aus Bildern je Ebene (ferne, krone) und Jahreszeit, dazu Blätterart und
-  // Himmelsfarben; beschrieben in assets/landschaften/<satz>/landschaft.json (schreibt die Redaktion).
+  // Eine Landschaft ist ein Satz aus Bildern je Ebene und Jahreszeit, dazu Blätterart und Himmelsfarben; beschrieben in
+  // assets/landschaften/<satz>/landschaft.json (schreibt die Redaktion). Ferne und Krone gehören zur Bühne; mitte
+  // (Höhenzüge), hang und grund (Talgrund) sind die Talebenen unterhalb der Bühne („Ein Tal“, 11.11.2026).
   const SET_DIR = 'assets/landschaften/', SEASONS = ['herbst','winter','fruehling','sommer'];
-  const LAYERS = { ferne: { sizes: [1400, 800], budget: 150000 }, krone: { sizes: [1000, 560], budget: 120000 } };
+  const LAYERS = { ferne: { sizes: [1400, 800], budget: 150000 }, krone: { sizes: [1000, 560], budget: 120000 },
+    mitte: { sizes: [1400, 900], budget: 200000 }, hang: { sizes: [1400, 900], budget: 200000 }, grund: { sizes: [1400, 900], budget: 200000 } };
   const PARTICLES = { blaetter: 'leaf', schnee: 'snow', blueten: 'petal', keine: '' };
   const DEFAULT_SET = { name: '', ebenen: {},
     blaetter: { herbst: 'blaetter', winter: 'schnee', fruehling: 'blueten', sommer: 'keine' },

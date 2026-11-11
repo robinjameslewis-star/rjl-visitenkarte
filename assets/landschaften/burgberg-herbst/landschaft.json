@@ -9,6 +9,18 @@
       "krone": {
         "avif": true,
         "bytes": 114608
+      },
+      "mitte": {
+        "avif": false,
+        "bytes": 163808
+      },
+      "hang": {
+        "avif": false,
+        "bytes": 184920
+      },
+      "grund": {
+        "avif": false,
+        "bytes": 150888
       }
     },
     "winter": {
@@ -19,6 +31,18 @@
       "krone": {
         "avif": false,
         "bytes": 118476
+      },
+      "mitte": {
+        "avif": false,
+        "bytes": 155732
+      },
+      "hang": {
+        "avif": false,
+        "bytes": 191652
+      },
+      "grund": {
+        "avif": false,
+        "bytes": 185256
       }
     }
   },

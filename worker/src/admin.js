@@ -855,7 +855,7 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <p class="note" style="margin:6px 0 0">Aus heißt: Die Startseite ist genau die Fassung von vor der Landschaft. Zum Prüfen, ohne dass Besucher etwas sehen: <span id="lprev"></span></p>
 <div class="bar"><button id="lsave">Veröffentlichen</button><span class="msg" id="mLs"></span></div>
 <h3 style="font:600 14px/1.3 Georgia,serif;margin:20px 0 4px">Bestand</h3>
-<p class="note" style="margin:0 0 8px">Eine Landschaft besteht aus zwei Bild-Ebenen je Jahreszeit: der <b>Ferne</b> (hinter dem Vogel, auf Körperhöhe) und der <b>Krone</b> (oben rechts, Gochs Baum). Himmel, Sonne, Mond, Sterne und Ast bleiben immer gleich – die kommen aus dem Code. Fehlt eine Jahreszeit, bleibt die Bühne dort leer. Bilder entstehen mit dem Rahmenprompt und der Schablone (Vault, „Landschaft_Rahmenprompt“) in ChatGPT, Nano Banana o. ä.: PNG auf reinem Weiß, ohne Himmel und ohne Schatten.</p>
+<p class="note" style="margin:0 0 8px">Eine Landschaft besteht aus bis zu fünf Bild-Ebenen je Jahreszeit: der <b>Ferne</b> (hinter dem Vogel, auf Körperhöhe) und der <b>Krone</b> (oben rechts, Gochs Baum) für die Bühne, dazu <b>Höhenzüge</b>, <b>Hang</b> und <b>Talgrund</b> für das Tal unterhalb der Bühne. Himmel, Sonne, Mond, Sterne und Ast bleiben immer gleich – die kommen aus dem Code. Fehlt eine Jahreszeit, bleibt die Bühne dort leer. Bilder entstehen mit dem Rahmenprompt und der Schablone (Vault, „Landschaft_Rahmenprompt“) in ChatGPT, Nano Banana o. ä.: PNG auf reinem Weiß, ohne Himmel und ohne Schatten.</p>
 <table id="ltable"><thead><tr><th>Landschaft</th><th>Herbst</th><th>Winter</th><th>Frühling</th><th>Sommer</th><th></th></tr></thead><tbody></tbody></table>
 <div class="bar"><button class="quiet" id="lnew">Neue Landschaft anlegen</button></div>
 <div id="led" class="box" hidden><h3 id="ledtitle">Landschaft</h3>
@@ -865,6 +865,12 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="boxes" style="margin-top:10px">
 <div class="box lbox" data-layer="ferne" style="margin:0"><h3>Ferne</h3><p class="note">Landschaft hinter dem Vogel. Querformat, Inhalt als Streifen; wird auf 1400 px und 800 px gebracht, Ränder laufen weich aus.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
 <div class="box lbox" data-layer="krone" style="margin:0"><h3>Krone</h3><p class="note">Baum oben rechts, hängt von der oberen Kante herein. Wird auf 1000 px und 560 px gebracht.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
+</div>
+<h3 style="font:600 14px/1.3 Georgia,serif;margin:16px 0 2px">Tal unterhalb der Bühne</h3><p class="note" style="margin:0 0 6px">Drei Ebenen, die beim Scrollen heraufkommen: zuerst die Höhenzüge, dann der Hang, zuletzt der Talgrund. Querformat auf Weiß, das Motiv oben als Kammlinie; jede Ebene wird auf 1400 px und 900 px gebracht und läuft unten weich aus. Fehlt eine Ebene, bleibt ihre Stelle leer.</p>
+<div class="boxes">
+<div class="box lbox" data-layer="mitte" style="margin:0"><h3>Höhenzüge</h3><p class="note">Am weitesten weg: bewaldete Rücken im Dunst, kleine Bäume.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
+<div class="box lbox" data-layer="hang" style="margin:0"><h3>Hang</h3><p class="note">Näher: einzelne Bäume werden erkennbar.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
+<div class="box lbox" data-layer="grund" style="margin:0"><h3>Talgrund</h3><p class="note">Ganz unten: Wiese, Bach, Dorf, große Bäume vorn.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
 </div>
 <label for="lkind">Was in dieser Jahreszeit fällt</label><select id="lkind" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="blaetter">Blätter (aus der Krone – nur wenn es eine gibt)</option><option value="schnee">Schnee</option><option value="blueten">Blüten</option><option value="keine">Nichts</option></select>
 <h3 style="font:600 14px/1.3 Georgia,serif;margin:18px 0 2px">Himmelsfarben</h3><p class="note" style="margin:0 0 6px">Der Himmel bleibt gerechnet – Sonne, Mond, Sterne und die Uhrzeit des Besuchers. Hier nur seine Farben je Zustand: oben, unten, Glühen um die Sonne.</p>
@@ -994,7 +1000,7 @@ let L=null,LE=null,LTimer=null;
 const LSEASONS=[['herbst','Herbst'],['winter','Winter'],['fruehling','Frühling'],['sommer','Sommer']];
 const LSKY=[['tag','Tag'],['tief','Tiefe Sonne'],['daemmerung','Dämmerung'],['nacht','Nacht']];
 const LKINDS={blaetter:'Blätter',schnee:'Schnee',blueten:'Blüten',keine:'nichts'};
-const LLAYERS={ferne:'Ferne',krone:'Krone'};
+const LLAYERS={ferne:'Ferne',krone:'Krone',mitte:'Höhenzüge',hang:'Hang',grund:'Talgrund'},LTAL=['mitte','hang','grund'];
 const lcopy=o=>JSON.parse(JSON.stringify(o));
 function lslug(s){return String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);}
 function lzeit(season,t){const y=new Date().getFullYear();const day={herbst:'-10-15',winter:'-01-15',fruehling:'-04-15',sommer:'-07-15'}[season];
@@ -1006,7 +1012,7 @@ function renderLand(d){L=d;const on=d.landschaft==='an';$('lenabled').checked=on
  const cur=d.landschaften.find(s=>s.slug===d.satz);
  $('lstat').innerHTML=d.landschaft==null?'Schalter auf der Startseite nicht gefunden.':(on?'<b>An:</b> „'+esc(cur?cur.name:d.satz)+'“. Besucher sehen Himmel, Sonne, Mond und Jahreszeit.':'<b style="color:var(--warn)">Aus.</b> Die Startseite zeigt die Fassung ohne Landschaft.');
  renderPrev();
- $('ltable').querySelector('tbody').innerHTML=d.landschaften.map(s=>{const cells=LSEASONS.map(([k])=>{const e=s.ebenen[k]||{};const t=e.ferne&&e.krone?'Ferne, Krone':e.ferne?'nur Ferne':e.krone?'nur Krone':'–';return '<td'+(t==='–'?' style="color:var(--muted)"':'')+'>'+t+'</td>';}).join('');
+ $('ltable').querySelector('tbody').innerHTML=d.landschaften.map(s=>{const cells=LSEASONS.map(([k])=>{const e=s.ebenen[k]||{},da=Object.keys(LLAYERS).filter(l=>e[l]);const t=!da.length?'–':da.length===Object.keys(LLAYERS).length?'alle '+da.length+' Ebenen':da.length===1?'nur '+LLAYERS[da[0]]:da.map(l=>LLAYERS[l]).join(', ');return '<td'+(t==='–'?' style="color:var(--muted)"':'')+'>'+t+'</td>';}).join('');
   return '<tr><td><b>'+esc(s.name||s.slug)+'</b>'+(s.slug===d.satz?' <span class="lang">aktiv</span>':'')+'<br><span class="src">'+esc(s.slug)+'</span></td>'+cells+'<td style="white-space:nowrap"><button class="quiet ledit" data-slug="'+esc(s.slug)+'" style="padding:4px 10px;font-size:13px">Bearbeiten</button> <a href="'+esc(d.url+'?landschaft='+s.slug)+'" target="_blank" rel="noopener" style="font-size:13px">Vorschau</a></td></tr>';}).join('')||'<tr><td colspan="6" class="note">Noch keine Landschaft.</td></tr>';
  document.querySelectorAll('.ledit').forEach(b=>{b.onclick=()=>openLand(d.landschaften.find(s=>s.slug===b.dataset.slug));});}
 function renderPrev(){if(!L)return;const slug=$('lactive').value||L.satz||'an',base=L.url,d=new Date().toISOString().slice(0,10);
@@ -1065,7 +1071,8 @@ $('leddelete').onclick=async()=>{if(!LE||LE.neu)return;if(!confirm('Landschaft �
  try{await api('landschaften/satz','DELETE',{slug:LE.slug});closeLand();renderLand(await api('landschaften'));say('mLs','Landschaft gelöscht.',true);}catch(e){say('mLe',e.message);}};
 const toB64=blob=>new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=()=>rej(new Error('Bild nicht lesbar.'));fr.readAsDataURL(blob);});
 // Aufbereitung wie tools/landschaft-bilder.py, nur im Browser: Weiß → Transparenz (a = 1 − min(R,G,B)/255, reines Weiß → 0),
-// Beschnitt (Krone: Inhalt plus Rand; Ferne: Streifen mindestens Breite/3,8 hoch), zwei Größen, Ferne mit weichem Rand, WebP unter Budget.
+// Beschnitt (Krone: Inhalt plus Rand; Ferne: Streifen mindestens Breite/3,8 hoch; Talebenen: Streifen mindestens Breite/2,58 hoch), zwei Größen,
+// Ferne mit weichem Rand ringsum, Talebenen laufen nur unten aus (oben bleibt die Kammlinie scharf), WebP unter Budget.
 async function prepareLayer(file,layer){const sizes=L.sizes[layer],budget=L.budgets[layer];
  const bmp=await createImageBitmap(file).catch(()=>{throw new Error('Bild nicht lesbar – bitte PNG, JPEG oder WebP.');});
  const W=bmp.width,H=bmp.height;if(W<sizes[1])throw new Error('Bild zu klein: '+W+' px breit, mindestens '+sizes[1]+' px (besser '+sizes[0]+').');
@@ -1078,13 +1085,15 @@ async function prepareLayer(file,layer){const sizes=L.sizes[layer],budget=L.budg
  if(maxX<0)throw new Error('Das Bild ist leer – nur Weiß.');
  ctx.putImageData(id,0,0);let crop;
  if(layer==='krone'){const pad=Math.max(4,Math.round(H*.008));crop=[Math.max(0,minX-pad),Math.max(0,minY-pad),Math.min(W,maxX+1+pad),Math.min(H,maxY+1+pad)];}
- else{const pad=Math.max(8,Math.round(H*.024));let top=Math.max(0,minY-pad);const h=Math.max(Math.round(W/3.8),maxY+1+pad-top);if(top+h>H)top=Math.max(0,H-h);crop=[0,top,W,Math.min(H,top+h)];}
+ else{const pad=Math.max(8,Math.round(H*.024));let top=Math.max(0,minY-pad);const h=Math.max(Math.round(W/(LTAL.includes(layer)?2.58:3.8)),maxY+1+pad-top);if(top+h>H)top=Math.max(0,H-h);crop=[0,top,W,Math.min(H,top+h)];}
  const cw=crop[2]-crop[0],ch=crop[3]-crop[1],blobs={};
  for(const width of sizes){const height=Math.round(width*ch/cw),c2=document.createElement('canvas');c2.width=width;c2.height=height;const x=c2.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(c,crop[0],crop[1],cw,ch,0,0,width,height);
-  if(layer==='ferne')soften(x,width,height);blobs[width]=await encodeWebp(c2,budget);}
+  if(layer==='ferne')soften(x,width,height);else if(LTAL.includes(layer))softenBottom(x,width,height);blobs[width]=await encodeWebp(c2,budget);}
  return {blobs,big:blobs[sizes[0]],bytes:blobs[sizes[0]].size,note:W<sizes[0]?'Quelle nur '+W+' px breit – wird hochgerechnet.':''};}
 function soften(ctx,w,h){const id=ctx.getImageData(0,0,w,h),p=id.data,fx=Math.max(1,Math.round(w*.025)),fy=Math.max(1,Math.round(h*.025)),s=t=>{t=Math.min(1,t);return t*t*(3-2*t);};
  for(let y=0;y<h;y++){const sy=s(Math.min(y,h-1-y)/fy);for(let x=0;x<w;x++){const o=4*(y*w+x);if(p[o+3])p[o+3]=Math.round(p[o+3]*s(Math.min(x,w-1-x)/fx)*sy);}}ctx.putImageData(id,0,0);}
+function softenBottom(ctx,w,h){const id=ctx.getImageData(0,0,w,h),p=id.data,f=Math.max(1,Math.round(h*.28)),s=t=>{t=Math.min(1,t);return t*t*(3-2*t);};
+ for(let y=h-f;y<h;y++){const sy=s((h-1-y)/f);for(let x=0;x<w;x++){const o=4*(y*w+x);if(p[o+3])p[o+3]=Math.round(p[o+3]*sy);}}ctx.putImageData(id,0,0);}
 async function encodeWebp(canvas,budget){for(const q of [.83,.76,.7,.62,.55,.48]){const blob=await new Promise(r=>canvas.toBlob(r,'image/webp',q));
  if(!blob||blob.type!=='image/webp')throw new Error('Dieser Browser kann kein WebP erzeugen – bitte Chrome, Edge oder Firefox verwenden.');if(blob.size<=budget)return blob;}
  throw new Error('Das Bild bleibt auch stark verdichtet über dem Budget von '+lkb(budget)+' – einfacher malen lassen: weniger Kleinteiliges, mehr ruhige Fläche.');}
