@@ -826,6 +826,13 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und antwortet in der schmalen Leiste. Zurück: Tipp auf
   die Leiste oder den kleinen Goch, Wisch nach oben am Griff. Der kleine Goch erscheint erst, wenn der große aus dem Bild
   ist. Tippen ins Textfeld, die Tastatur und Scrollen im Verlauf heben nichts auf.
+- **Tablet und Rechner: mitlaufendes Blatt** (11.11.2026, `goch-gespraech.js`, `goch.js` `place`): Über 720 px gibt es kein
+  Vollbild. Das Blatt hängt neben Goch; scrollt Goch bei offenem Gespräch aus dem Bild, läuft es als festes Blatt unten
+  rechts mit (`html.goch-angeheftet`, an `<body>` umgehängt wie am Handy). „Seite ansehen“ oder ein Wisch am Griff
+  verkleinern es zur Zeile (`html.goch-zeile`), ein Tipp darauf klappt es auf. Ein Tipp auf den kleinen Goch führt zurück an
+  den Seitenanfang; dort hängt das Blatt wieder am Ast. Geprüft in `tests/goch_blatt_test.py` (820 × 1180, 1024 × 768, 1280 × 800).
+- **Kleiner Goch nie ohne Ast** (Robin, 03.11.2026): `#goch-mini` trägt Vogel und Ast (`assets/ast.webp`); der Ast kommt wie
+  auf der Bühne vom rechten Rand. Er ist nur zu sehen, wenn der große Goch aus dem Bild ist.
 - **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
   Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
   das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch

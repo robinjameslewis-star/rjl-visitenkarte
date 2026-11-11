@@ -139,9 +139,15 @@
   function place() {
     // Das feste Handyfenster gehört auf die Seitenebene, nicht in die isolierte Landschaft.
     // Desktop: zurück an den Ast. Ereignisse und Gesprächszustand bleiben am selben DOM-Knoten.
-    const parent = narrow.matches ? document.body : panelHome;
-    if (panel.parentNode !== parent) parent.appendChild(panel);
-    if (panel.hidden || narrow.matches) { panel.style.cssText = ''; return; }
+    // Ebenso das mitlaufende Blatt auf breiten Bildschirmen (goch-gespraech.js, html.goch-angeheftet): Goch ist aus dem Bild.
+    const blatt = narrow.matches || document.documentElement.classList.contains('goch-angeheftet');
+    const parent = blatt ? document.body : panelHome;
+    if (panel.parentNode !== parent) {
+      const aktiv = panel.contains(document.activeElement) ? document.activeElement : null; // Umhängen nimmt den Fokus
+      parent.appendChild(panel);
+      if (aktiv) aktiv.focus({ preventScroll: true });
+    }
+    if (panel.hidden || blatt) { panel.style.cssText = ''; return; }
     const base = (panel.offsetParent || stage).getBoundingClientRect(); // .perch, der Bezugsrahmen der Lage
     const nameBox = nameLink.getBoundingClientRect(), sceneBox = scene.getBoundingClientRect();
     const left = nameBox.left - base.left;

@@ -8,6 +8,10 @@
 // „Seite ansehen“, Wisch über den großen Goch. Die Seite steht dann wieder dort, wo der Besucher war, und scrollt wie gewohnt; Goch hört weiter zu und
 // antwortet in der Leiste. Zurück: Tipp auf die Leiste oder den kleinen Goch, Wisch nach oben am Griff. Nie durch Tippen
 // ins Textfeld, die Tastatur oder Scrollen im Verlauf.
+// Tablet und Rechner (über 720 px, 11.11.2026): kein Vollbild. Das Blatt hängt neben Goch; scrollt Goch aus dem Bild, läuft
+// es als festes Blatt unten rechts mit (html.goch-angeheftet), darüber der kleine Goch auf seinem Ast vom rechten Rand.
+// „Seite ansehen“ oder der Griff verkleinern es zur Zeile (html.goch-zeile), ein Tipp darauf klappt es wieder auf, ein Tipp
+// auf den kleinen Goch führt zurück zu Goch.
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -25,15 +29,54 @@
     lage = neu;
     html.classList.toggle('goch-fokus', neu === 'fokus');
     html.classList.toggle('goch-unterwegs', neu === 'unterwegs');
-    if (neu === 'unterwegs') { const img = mini.querySelector('img'); if (!img.getAttribute('src')) img.src = img.dataset.src; }
+    if (neu === 'unterwegs') miniLaden();
     mini.hidden = neu !== 'unterwegs';
     zurSeite.hidden = neu !== 'fokus';
     if (neu === 'fokus') { zuletzt = scrollY; scrollTo(0, 0); } // zuletzt: wo die Seite stand, bevor Goch groß wurde
     if (neu === 'aus' && vorher === 'fokus') scrollTo(0, zuletzt);
     window.Goch.place();
+    hoehe(); untenBald();
   }
   // Der Besucher gibt die Seite frei: zurück an die Stelle, an der er war, bevor Goch groß wurde.
   function freigeben() { if (lage !== 'fokus') return; setzen('unterwegs'); scrollTo(0, zuletzt); }
+  const miniLaden = () => mini.querySelectorAll('img[data-src]').forEach(img => { if (!img.getAttribute('src')) img.src = img.dataset.src; });
+  // ---------- Breite Bildschirme: mitlaufendes Blatt ----------
+  let breit = '', sichtbar = 1; // breit: '' | 'blatt' | 'zeile'; sichtbar: Anteil des großen Goch im Fenster
+  function breitSetzen(neu) {
+    if (neu === breit) return;
+    breit = neu;
+    html.classList.toggle('goch-angeheftet', !!neu);
+    html.classList.toggle('goch-zeile', neu === 'zeile');
+    if (neu) miniLaden();
+    if (lage === 'aus') { mini.hidden = !neu; zurSeite.hidden = neu !== 'blatt'; }
+    window.Goch.place();
+    hoehe();
+  }
+  function breitPruefen() {
+    if (schmal.matches || panel.hidden) { breitSetzen(''); return; }
+    if (!breit && sichtbar < .1) breitSetzen('blatt');      // Goch ist aus dem Bild
+    else if (breit && sichtbar > .5) breitSetzen('');       // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast
+  }
+  // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
+  const hoehe = () => { if (breit || lage === 'unterwegs') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
+  // Leiste des Browsers am unteren Rand (Safari am iPhone, Robin 11.11.2026: sie schwebte über der Begleitleiste und verdeckte
+  // „Pause“): Was das sichtbare Fenster unten kürzer ist als das Fenster der Seite, rückt das Blatt als --goch-unten nach oben.
+  // Nur bis 140 px – die Tastatur ist höher und hebt das Blatt nicht an; nicht beim Zoomen. Lokal zum Prüfen: ?unten=80.
+  const vv = window.visualViewport, lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const probe = lokal ? +(new URL(location.href).searchParams.get('unten') || 0) : 0;
+  let untenWartet = false;
+  function unten() {
+    untenWartet = false;
+    let d = probe;
+    if (!d && vv && Math.abs(vv.scale - 1) < .01) d = Math.round(html.clientHeight - vv.height - vv.offsetTop);
+    html.style.setProperty('--goch-unten', (d > 0 && d <= 140 ? d : 0) + 'px');
+  }
+  const untenBald = () => { if (!untenWartet && !panel.hidden) { untenWartet = true; requestAnimationFrame(unten); } };
+  if (vv) { vv.addEventListener('resize', untenBald); vv.addEventListener('scroll', untenBald); }
+  window.addEventListener('scroll', untenBald, { passive: true });
+  new MutationObserver(untenBald).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  if ('ResizeObserver' in window) new ResizeObserver(hoehe).observe(panel);
+  new MutationObserver(breitPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   function pruefen() {
     // Eine einzelne gesprochene Frage (Mikrofon-Symbol, modus.einmal) vergrößert Goch nicht.
     if (!(schmal.matches && !panel.hidden && ((modus.mikro && !modus.einmal) || modus.laut))) setzen('aus');
@@ -60,9 +103,9 @@
   window.addEventListener('goch-modus', e => { modus = e.detail; pruefen(); });
   // Im Gesprächsmodus führt die Seite von selbst hin, während Goch spricht
   window.addEventListener('goch-antwort', e => { const z = e.detail && e.detail.zeigen; if (lage !== 'aus' && ZIELE.includes(z)) zeigen(z); });
-  schmal.addEventListener('change', pruefen);
-  mini.addEventListener('click', () => setzen('fokus'));
-  zurSeite.addEventListener('click', freigeben);
+  schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
+  mini.addEventListener('click', () => { if (breit) scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); else setzen('fokus'); });
+  zurSeite.addEventListener('click', () => { if (breit) breitSetzen('zeile'); else freigeben(); });
   // Neben dem Blatt: Tipp, Wisch oder Mausrad auf dem Papier gibt die Seite frei
   const papier = $('goch-papier'), kopf = panel.querySelector('.goch-head');
   if (papier) {
@@ -81,19 +124,27 @@
   // Griff am Blatt: nach unten wischen gibt frei, nach oben holt Goch zurück
   if (kopf) {
     let y0 = null;
-    kopf.addEventListener('touchstart', e => { y0 = lage === 'aus' ? null : e.touches[0].clientY; }, { passive: true });
+    kopf.addEventListener('touchstart', e => { y0 = lage === 'aus' && !breit ? null : e.touches[0].clientY; }, { passive: true });
     kopf.addEventListener('touchmove', e => {
       if (y0 === null) return;
       const dy = e.touches[0].clientY - y0;
+      if (breit) { if (dy > 36 && breit === 'blatt') { y0 = null; breitSetzen('zeile'); } else if (dy < -36 && breit === 'zeile') { y0 = null; breitSetzen('blatt'); } return; }
       if (dy > 36 && lage === 'fokus') { y0 = null; freigeben(); }
       else if (dy < -36 && lage === 'unterwegs') { y0 = null; setzen('fokus'); }
     }, { passive: true });
     kopf.addEventListener('touchend', () => { y0 = null; });
   }
   // Die schmale Leiste ist das eingeklappte Blatt: Ein Tipp darauf (nicht auf Knöpfe oder Verweise) klappt es wieder auf
-  panel.addEventListener('click', e => { if (lage === 'unterwegs' && !e.target.closest('button, a, input, textarea')) setzen('fokus'); });
+  panel.addEventListener('click', e => {
+    if (e.target.closest('button, a, input, textarea')) return;
+    if (lage === 'unterwegs') setzen('fokus'); else if (breit === 'zeile') breitSetzen('blatt');
+  });
   // Der kleine Goch erscheint erst, wenn der große aus dem Bild ist – nie zwei Gochs zugleich
-  if ('IntersectionObserver' in window) new IntersectionObserver(es => mini.classList.toggle('goch-mini-weg', es[es.length - 1].intersectionRatio > .35), { threshold: [0, .35, 1] }).observe(scene);
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => {
+    sichtbar = es[es.length - 1].intersectionRatio;
+    mini.classList.toggle('goch-mini-weg', sichtbar > .35);
+    breitPruefen();
+  }, { threshold: [0, .1, .35, .5, 1] }).observe(scene);
   // Der kleine Goch wippt, solange Goch spricht (data-spricht an der Szene, goch-audio.js, bewegung)
   new MutationObserver(() => mini.classList.toggle('spricht', !!scene.dataset.spricht)).observe(scene, { attributes: true, attributeFilter: ['data-spricht'] });
 })();
