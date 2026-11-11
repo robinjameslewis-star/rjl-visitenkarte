@@ -216,13 +216,55 @@
     sichtbar = es[es.length - 1].intersectionRatio;
     mini.classList.toggle('goch-mini-weg', sichtbar > .35);
     breitPruefen();
+    if (typeof zweigPruefen === 'function') zweigPruefen();
   }, { threshold: [0, .1, .35, .5, 1] }).observe(scene);
   // Der kleine Goch wippt, solange Goch spricht (data-spricht an der Szene, goch-audio.js, bewegung)
   new MutationObserver(() => mini.classList.toggle('spricht', !!scene.dataset.spricht)).observe(scene, { attributes: true, attributeFilter: ['data-spricht'] });
+  // ---------- „Platz machen“ (Entwurf vom 11.11.2026) ----------
+  // Knopf über dem kleinen Goch. Goch antwortet kurz (fester Satz der Seite, keine Anfrage), das Gespräch geht zu – damit ist auch
+  // das Mikrofon zu –, er fliegt ab, und am rechten Rand bleibt die Spitze seines Zweigs. Ein Tipp darauf ruft ihn zurück: Das
+  // Gespräch ist wieder da wie zuvor (Kapsel am Handy, Blatt auf breiten Bildschirmen). Die Bitte gilt für den Besuch, auch über
+  // Seitenwechsel (sessionStorage); wer Goch selbst antippt, hebt sie auf. Der Zweig zeigt sich nur, wenn Goch nicht im Bild ist.
+  const platzKey = 'rjl-goch-platz';
+  let platz = false, geht = 0;
+  try { platz = sessionStorage.getItem(platzKey) === '1'; } catch (_) {}
+  const platzKnopf = document.createElement('button'), zweig = document.createElement('button');
+  platzKnopf.type = 'button'; platzKnopf.className = 'goch-platz'; platzKnopf.id = 'goch-platz';
+  zweig.type = 'button'; zweig.className = 'goch-zweig'; zweig.id = 'goch-zweig'; zweig.hidden = true;
+  const zweigBild = document.createElement('img'); zweigBild.alt = ''; zweig.append(zweigBild);
+  const platzTexte = () => { platzKnopf.textContent = t('gochPlatz'); zweig.setAttribute('aria-label', t('gochZweig')); zweig.title = t('gochZweig'); };
+  platzTexte(); window.addEventListener('site-languagechange', platzTexte);
+  mini.append(platzKnopf); document.body.append(zweig);
+  function platzMerken() { try { if (platz) sessionStorage.setItem(platzKey, '1'); else sessionStorage.removeItem(platzKey); } catch (_) {} }
+  function zweigPruefen() {
+    const zeigen = platz && panel.hidden && !miniDa && !mini.classList.contains('fliegt-ab') && sichtbar < .35;
+    if (zeigen && !zweigBild.getAttribute('src')) { const ast = mini.querySelector('.goch-mini-ast'); zweigBild.src = ast.getAttribute('src') || ast.dataset.src; }
+    zweig.hidden = !zeigen;
+  }
+  platzKnopf.addEventListener('click', e => {
+    e.stopPropagation(); // nicht der Tipp auf den kleinen Goch
+    if (geht) return;
+    mini.classList.add('geht');
+    const wort = document.createElement('span');
+    wort.className = 'goch-platz-wort'; wort.setAttribute('role', 'status'); wort.textContent = t('gochPlatzWort');
+    mini.append(wort);
+    geht = setTimeout(() => {
+      geht = 0; wort.remove(); mini.classList.remove('geht');
+      platz = true; platzMerken();
+      window.Goch.schliessen(); // Gespräch zu: Der kleine Goch fliegt ab (miniPruefen), das Mikrofon ist zu
+      setTimeout(zweigPruefen, 1300);
+    }, ruhig.matches ? 1400 : 1500);
+  });
+  zweig.addEventListener('click', () => {
+    platz = false; platzMerken(); zweig.hidden = true;
+    wiederda = schmal.matches; window.Goch.oeffnen(); pruefen(); breitPruefen();
+  });
+  // Wer Goch selbst antippt und das Gespräch öffnet, hebt die Bitte auf
+  new MutationObserver(() => { if (!panel.hidden && platz) { platz = false; platzMerken(); } zweigPruefen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   // Nach einem Seitenwechsel (Schritt 6): War das Gespräch offen, geht es wieder auf – auf breiten Bildschirmen als Blatt, am
   // Handy nur im Sprachmodus und dann als Kapsel neben dem kleinen Goch. Ohne Sprachmodus bleibt es am Handy zu (der Verlauf
   // ist beim Öffnen wieder da), sonst läge das Blatt beim Ankommen über der neuen Seite.
   modus = window.GochStimme.modus();
-  if (window.Goch.wiederOffen && window.Goch.wiederOffen() && (!schmal.matches || modus.mikro || modus.laut)) { wiederda = schmal.matches; window.Goch.oeffnen(); }
-  pruefen(); breitPruefen();
+  if (!platz && window.Goch.wiederOffen && window.Goch.wiederOffen() && (!schmal.matches || modus.mikro || modus.laut)) { wiederda = schmal.matches; window.Goch.oeffnen(); }
+  pruefen(); breitPruefen(); zweigPruefen();
 })();

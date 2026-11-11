@@ -42,7 +42,7 @@ def fake(path):
 # Zählt alles, was Ton oder Mikrofon bedeutet – vor jedem Skript der Seite.
 INSTRUMENT = """
 // Schritt 6: Verlauf und Sprachschalter bleiben für den Besuch im Tab. Jeder Seitenaufruf der Tests beginnt frisch, außer mit &merken=1.
-if (!/[?&]merken=1/.test(location.search)) { try { sessionStorage.removeItem('rjl-goch-stimme'); sessionStorage.removeItem('rjl-goch-verlauf'); } catch (_) {} }
+if (!/[?&]merken=1/.test(location.search)) { try { sessionStorage.removeItem('rjl-goch-stimme'); sessionStorage.removeItem('rjl-goch-verlauf'); sessionStorage.removeItem('rjl-goch-platz'); } catch (_) {} }
 window.__z = { gum: 0, play: 0, start: 0, speak: 0, ctx: 0, streams: [], folge: [] };
 window.__mund = []; window.__bewegt = [];
 (() => {
