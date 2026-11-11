@@ -559,7 +559,7 @@
   /* ---------- Tal unterhalb der Bühne („Ein Tal“, 11.11.2026; landscape.js baut es nach dem ersten Bild) ----------
      Fest im Fenster hinter der Seite, in fester großer Höhe (springt nicht, wenn der Browser seine Leiste ein- oder ausfährt).
      Die Bereiche liegen als Blätter darüber: Fläche aus der Farbrolle surface, damit die Lesbarkeit aus landscape.js gilt. */
-  .tal { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100lvh; z-index: 0; overflow: hidden; overflow: clip; pointer-events: none; }
+  .tal { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100lvh; z-index: -1; overflow: hidden; overflow: clip; pointer-events: none; }
   .tal > * { position: absolute; top: 0; will-change: transform; }
   .tal-fern { left: 0; width: 100%; height: 100%; opacity: 0; }
   .tal-himmel { position: absolute; inset: 0; background: linear-gradient(var(--sky-top), var(--sky-bottom) 62%); opacity: .5; -webkit-mask-image: linear-gradient(black 30%, transparent 92%); mask-image: linear-gradient(black 30%, transparent 92%); }
@@ -567,7 +567,9 @@
   .tal-ebene { left: calc((100% - max(100%, 1000px)) * var(--ax, .5)); width: max(100%, 1000px); }
   .tal .landscape-picture img { display: block; width: 100%; height: auto; }
   @media (max-width: 720px) { .tal-burg { left: 4%; width: 72%; } }
-  .tal-on main, .tal-on footer { position: relative; z-index: 1; }
+  /* Das Tal liegt unter allem (z-index -1), main und Fuß bilden bewusst keine eigene Schicht: Goch, sein Gespräch und das
+     Menü behalten so ihre Reihenfolge über den Blättern. */
+  .tal-on footer { position: relative; }
   /* main schneidet ab (overflow: clip): Platz für das letzte Blatt samt Schatten, der Abstand zum Fuß liegt am Fuß. */
   .tal-on main { padding-bottom: 70px; }
   .tal-on main > section:last-child { margin-bottom: 0 !important; }

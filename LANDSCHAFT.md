@@ -170,6 +170,8 @@ Unterhalb der Bühne liegt jetzt das Tal fest im Fenster hinter der Seite; die B
   (rund 250 KB für alle drei), am Rechner die 1400-px-Fassung (rund 500 KB). Der Erstaufruf bis zum load-Ereignis bleibt gleich.
 - Reduzierte Bewegung: Das Tal steht still (oben die Bühne, darunter ein festes Bild).
 - Fuß: Impressum und Datenschutz liegen auf einem eigenen Blatt, damit sie über dem Talgrund lesbar bleiben.
+- Schichtung: Das Tal liegt mit `z-index: -1` unter allem; `main` und der Fuß bilden bewusst keine eigene Schicht, damit Goch,
+  sein Gespräch (auch im Fokusmodus am Handy) und das Menü ihre Reihenfolge über den Blättern behalten.
 - Prüfung: `python3 tests/tal_test.py http://127.0.0.1:8788 /tmp/tal` (Chrome, websockets) – Gewicht des Erstaufrufs am Handy
   (Grenze 1,2 MB, unverdichtet gemessen), spätes Laden, Aufbau, Bewegung, kein seitliches Scrollen, `?tal=aus`, reduzierte
   Bewegung; legt Bildschirmfotos in 375 px (Tag/Nacht, Herbst/Winter) und am Rechner ab.
