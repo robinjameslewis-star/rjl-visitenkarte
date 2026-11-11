@@ -200,7 +200,7 @@
   .goch-note a { color: inherit; }
   .goch-note .goch-withdraw { font-size: 12px; padding: 0; color: inherit; margin-left: 4px; }
   @media (max-width: 720px) {
-    .goch { position: fixed; inset: auto 7vw max(10px, env(safe-area-inset-bottom)); width: auto; max-height: 60dvh; border-radius: 8px; padding: 10px 14px 10px; gap: 8px; font-size: 14px; z-index: 20; }
+    .goch { position: fixed; inset: auto 7vw calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)); width: auto; max-height: 60dvh; border-radius: 8px; padding: 10px 14px 10px; gap: 8px; font-size: 14px; z-index: 20; }
     .goch-bubble { padding: 6px 9px; }
     .goch-note { font-size: 11px; }
     .goch::after { display: none; }
@@ -279,7 +279,7 @@
     html.goch-unterwegs .goch { max-height: 32dvh !important; }
     html.goch-unterwegs .goch-log > :not(:last-child), html.goch-unterwegs #goch-starters, html.goch-unterwegs #goch-form,
       html.goch-unterwegs #goch-sprache, html.goch-unterwegs .goch-note { display: none; }
-    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; bottom: calc(32dvh + 16px); }
+    html.goch-unterwegs .goch-mini:not([hidden]) { display: block; bottom: calc(var(--goch-blatt-h, 32dvh) + var(--goch-unten, 0px) + 16px); }
   }
   /* Kleiner Goch: nie ohne Ast (Robin, 03.11.2026). Der Ast kommt wie auf der Bühne vom rechten Rand; Maße wie dort
      (Vogel 1153 × 637, Ast auf 76,48 % der Höhe, 242,84 % der Breite), hier auf 96 px Vogelbreite verkleinert. */
@@ -292,11 +292,11 @@
   @media (prefers-reduced-motion: reduce) { .goch-mini.spricht .goch-mini-vogel { animation: none; } }
   /* Tablet und Rechner: Goch ist aus dem Bild, das Blatt läuft unten rechts mit (goch-gespraech.js) */
   @media (min-width: 721px) {
-    html.goch-angeheftet .goch { position: fixed; z-index: 20; inset: auto 20px 20px auto; width: min(380px, calc(100vw - 40px)); max-height: min(72dvh, 620px); }
+    html.goch-angeheftet .goch { position: fixed; z-index: 20; inset: auto 20px calc(20px + var(--goch-unten, 0px)) auto; width: min(380px, calc(100vw - 40px)); max-height: min(72dvh, 620px); }
     html.goch-angeheftet .goch::after { display: none; }
     html.goch-angeheftet .goch-head { position: relative; padding-top: 10px; touch-action: none; }
     html.goch-angeheftet .goch-head::before { content: ""; position: absolute; top: 0; left: 50%; width: 38px; height: 4px; margin-left: -19px; border-radius: 2px; background: var(--line); }
-    html.goch-angeheftet .goch-mini:not([hidden]) { display: block; bottom: calc(var(--goch-blatt-h, 300px) + 24px); width: 116px; }
+    html.goch-angeheftet .goch-mini:not([hidden]) { display: block; bottom: calc(var(--goch-blatt-h, 300px) + var(--goch-unten, 0px) + 24px); width: 116px; }
     html.goch-zeile .goch { max-height: 32dvh; cursor: pointer; }
     html.goch-zeile .goch-log > :not(:last-child), html.goch-zeile #goch-starters, html.goch-zeile #goch-form, html.goch-zeile #goch-sprache, html.goch-zeile .goch-note { display: none; }
   }
@@ -988,7 +988,7 @@
 <script src="goch-leben.js?v=20261024" defer></script>
 <script src="goch-stimme.js?v=20261111" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261112" defer></script>
+<script src="goch-gespraech.js?v=20261112b" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>

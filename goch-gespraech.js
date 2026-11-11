@@ -35,6 +35,7 @@
     if (neu === 'fokus') { zuletzt = scrollY; scrollTo(0, 0); } // zuletzt: wo die Seite stand, bevor Goch groß wurde
     if (neu === 'aus' && vorher === 'fokus') scrollTo(0, zuletzt);
     window.Goch.place();
+    hoehe(); untenBald();
   }
   // Der Besucher gibt die Seite frei: zurück an die Stelle, an der er war, bevor Goch groß wurde.
   function freigeben() { if (lage !== 'fokus') return; setzen('unterwegs'); scrollTo(0, zuletzt); }
@@ -57,7 +58,23 @@
     else if (breit && sichtbar > .5) breitSetzen('');       // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
-  const hoehe = () => { if (breit) html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); };
+  const hoehe = () => { if (breit || lage === 'unterwegs') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
+  // Leiste des Browsers am unteren Rand (Safari am iPhone, Robin 11.11.2026: sie schwebte über der Begleitleiste und verdeckte
+  // „Pause“): Was das sichtbare Fenster unten kürzer ist als das Fenster der Seite, rückt das Blatt als --goch-unten nach oben.
+  // Nur bis 140 px – die Tastatur ist höher und hebt das Blatt nicht an; nicht beim Zoomen. Lokal zum Prüfen: ?unten=80.
+  const vv = window.visualViewport, lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const probe = lokal ? +(new URL(location.href).searchParams.get('unten') || 0) : 0;
+  let untenWartet = false;
+  function unten() {
+    untenWartet = false;
+    let d = probe;
+    if (!d && vv && Math.abs(vv.scale - 1) < .01) d = Math.round(html.clientHeight - vv.height - vv.offsetTop);
+    html.style.setProperty('--goch-unten', (d > 0 && d <= 140 ? d : 0) + 'px');
+  }
+  const untenBald = () => { if (!untenWartet && !panel.hidden) { untenWartet = true; requestAnimationFrame(unten); } };
+  if (vv) { vv.addEventListener('resize', untenBald); vv.addEventListener('scroll', untenBald); }
+  window.addEventListener('scroll', untenBald, { passive: true });
+  new MutationObserver(untenBald).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   if ('ResizeObserver' in window) new ResizeObserver(hoehe).observe(panel);
   new MutationObserver(breitPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   function pruefen() {
