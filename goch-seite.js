@@ -12,7 +12,7 @@
   const skript = document.currentScript, platz = document.getElementById('goch-kopf');
   if (!skript || !platz || window.RJLWurzel) return;
   const wurzel = new URL('.', skript.src).href; // Adresse der Wurzel der Website, mit Schrägstrich am Ende
-  const SKRIPTE = ['language.js', 'goch.js', 'goch-audio.js', 'goch-leben.js', 'goch-stimme.js', 'goch-gespraech.js'];
+  const SKRIPTE = ['bird-flight.js', 'language.js', 'goch.js', 'goch-audio.js', 'goch-leben.js', 'goch-stimme.js', 'goch-gespraech.js'];
   const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   const absolut = v => /^([a-z]+:|\/|#)/i.test(v);
 
@@ -56,26 +56,29 @@
       }));
       return k;
     };
-    // Goch sitzt schon (kein Anflug auf Unterseiten): Flugposen weglassen, Zustand „rest“ wie nach der Landung
+    // Goch fliegt an wie auf der Startseite (Robin, 11.11.2026: bei jedem Auftritt): bird-flight.js lädt die Flugbilder erst
+    // jetzt, also nach dem ersten Bild der Seite, und setzt nach der Landung den Zustand „rest“. Bis dahin ist der Ast leer
+    // (Klasse js wie auf der Startseite). Bei reduzierter Bewegung sitzt er sofort.
     const scene = uebernehmen(quelle.scene);
-    scene.querySelectorAll('.bird-flight').forEach(f => f.remove());
+    document.documentElement.classList.add('js');
     scene.querySelectorAll('img').forEach(i => { i.removeAttribute('fetchpriority'); i.decoding = 'async'; });
-    // „rest“ erst mit dem ersten Öffnen: Dann erst laden Gochs bewegliche Teile (goch-leben.js, rund 130 KB) – wer nur liest,
-    // lädt sie nicht.
     const stage = document.createElement('div'), perch = document.createElement('div');
     stage.className = 'stage'; perch.className = 'perch';
     perch.append(scene); stage.append(perch); platz.append(stage);
     const blatt = uebernehmen(quelle.blatt);
     blatt.hidden = true;
     blatt.querySelectorAll('#goch-blick-an, #goch-kamera-consent, #goch-stumm').forEach(e => e.remove()); // Blickkontakt und Zwitschern gibt es nur auf der Startseite
-    new MutationObserver(() => { if (!blatt.hidden) scene.dataset.state = 'rest'; }).observe(blatt, { attributes: true, attributeFilter: ['hidden'] });
     blatt.querySelectorAll('a[href^="#"]').forEach(a => a.setAttribute('href', body.dataset.gochHeim + a.getAttribute('href'))); // Impressum & Datenschutz stehen auf der Startseite
     body.append(uebernehmen(quelle.papier), uebernehmen(quelle.mini), blatt);
 
     // Skripte in der Reihenfolge der Startseite, mit deren Versionsangaben
     const adressen = SKRIPTE.map(name => { const s = [...doc.querySelectorAll('script[src]')].find(x => x.getAttribute('src').split('?')[0] === name); return s && s.getAttribute('src'); });
     if (adressen.some(a => !a)) return;
-    adressen.forEach(a => { const s = document.createElement('script'); s.src = wurzel + a; s.async = false; document.head.append(s); });
+    adressen.forEach((a, i) => {
+      const s = document.createElement('script'); s.src = wurzel + a; s.async = false;
+      if (i === 0) s.onerror = () => { document.documentElement.classList.remove('js'); scene.dataset.state = 'rest'; }; // ohne Flugskript sitzt Goch einfach
+      document.head.append(s);
+    });
     platz.classList.add('bereit');
     // Unterkante des Kopfes: Darunter endet das offene Blatt, damit Goch und sein Ast frei bleiben (goch-seite.css)
     const kante = () => document.documentElement.style.setProperty('--goch-kopf-unten', Math.round(platz.getBoundingClientRect().bottom + scrollY) + 'px');

@@ -105,6 +105,12 @@ async def main():
                     await send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x, "y": y + dy * i / 5}]})
                 await send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
                 await pump(0.4)
+            async def bis(js, gut, dauer=14):  # wartet auf den Zustand statt auf eine feste Pause; gibt den letzten Stand zurück
+                ende = time.time() + dauer
+                while True:
+                    wert = await ev(js)
+                    if gut(wert) or time.time() > ende: return wert
+                    await pump(0.2)
             z = lambda: ev("({gum: __z.gum, offen: __z.streams.filter(s => s.getTracks().some(t => t.readyState === 'live')).length})")
             an = lambda id: ev(f"document.getElementById('{id}').getAttribute('aria-pressed')")
             sichtbar = lambda sel: ev(f"!document.querySelector({json.dumps(sel)}).hidden && !!document.querySelector({json.dumps(sel)}).offsetParent")
@@ -187,7 +193,7 @@ async def main():
             check(abs(await ev("scrollY") - 700) < 3 and await ev("getComputedStyle(document.documentElement).overflowY") != 'hidden', "die Seite steht wieder, wo sie war, und scrollt", await ev("scrollY"))
             leiste = [(await z())['offen'], await sichtbar('#goch-mikro-knopf'), await ev("getComputedStyle(document.getElementById('goch-form')).display")]
             check(leiste == [1, True, 'none'], "Goch hört weiter zu, das Gespräch ist eine schmale Leiste", leiste)
-            check(await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'block' and not await ev("document.getElementById('goch-mini').classList.contains('goch-mini-weg')"), "kleiner Goch in der Ecke")
+            check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'block') == 'block' and not await ev("document.getElementById('goch-mini').classList.contains('goch-mini-weg')"), "kleiner Goch in der Ecke")
             await shot("begleiter_Handy")
             n0 = len(neu_listen())
             await ev("__sprich = true"); await pump(1.3); await ev("__sprich = false"); await pump(5.0)
@@ -214,7 +220,7 @@ async def main():
             check(await klasse('goch-fokus') and await an('goch-mikro-an') == 'true', "wieder geöffnet: „Goch hört“ ist noch gewählt, Goch groß")
             await klick('#goch-zur-seite')
             check(await klasse('goch-unterwegs'), "„Seite ansehen“ gibt die Seite frei")
-            check(await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "am Seitenanfang ist nur der große Goch zu sehen, nicht auch der kleine")
+            check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "am Seitenanfang ist nur der große Goch zu sehen, nicht auch der kleine")
             await ev("window.scrollTo(0,700)"); await pump(0.5)
             await klick('#goch-mini-knopf')
             check(await klasse('goch-fokus'), "Tipp auf den kleinen Goch holt ihn zurück")

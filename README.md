@@ -855,6 +855,12 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   der Hinweis „KI · künstliche Stimme“ steht dort kurz als „KI“. Tipp oder Wisch nach oben klappt das Blatt auf. Der große
   Goch am Handy sitzt direkt über dem Blatt (`--goch-blatt-h`) statt fest am oberen Rand. Nachts wird der Ast des kleinen
   Goch heller, damit er auf dunklen Blättern sichtbar bleibt.
+- **Flug überall (Schritt 7, Robin 11.11.2026: „bei jedem neuen Auftritt anfliegen und bei jedem Rückzug abfliegen“):**
+  Unterseiten: Goch fliegt im Kopf an wie auf der Startseite (`goch-seite.js` lädt `bird-flight.js`; Flugbilder erst nach
+  dem ersten Bild der Seite). Kleiner Goch: fliegt bei jedem Erscheinen von rechts oben an und bei jedem Rückzug nach links
+  oben ab (`goch-gespraech.js`, `miniFlug`, Zustand in `data-flug`); der Ast blendet mit aus. Großer Goch: fliegt kurz neu
+  an, wenn er zurückkommt (`GochFlug.an` in `bird-flight.js`), aber nur, wenn er gerade weder spricht noch zuhört – im Flug
+  ruht der Schnabel. Bei reduzierter Bewegung, im verborgenen Tab oder ohne Flugbilder gibt es keinen Flug.
 - **Gesprächsmodus auf dem Handy** (`goch-gespraech.js`, Robin, 23.10.2026): Ist im offenen Gespräch Stimme oder
   Spracheingabe an, rückt Goch in den Fokus – Papier über der Seite (`.goch-papier`), Goch groß oben auf dem Ast, darunter
   das Gespräch. „Seite ansehen“ oder eine Antwort mit `zeigen` schicken ihn klein in die Ecke (`#goch-mini`), das Gespräch

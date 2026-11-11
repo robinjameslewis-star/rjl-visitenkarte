@@ -58,6 +58,54 @@
     }).catch(() => {});
   }
   new MutationObserver(schnabel).observe(scene, { attributes: true, attributeFilter: ['data-schnabel'] });
+  // ---------- Flug des kleinen Goch (Robin, 11.11.2026: bei jedem Auftritt anfliegen, bei jedem Rückzug abfliegen) ----------
+  // Die Flugbilder sind die des großen Goch (bird-flight.js hat sie nach dem ersten Bild der Seite geladen). Sind sie nicht da,
+  // bei reduzierter Bewegung oder im verborgenen Tab erscheint und verschwindet er ohne Flug.
+  const FLUG = { up: [-14.7441, -45.52], glide: [-15.4380, -43.17], down: [-16.9124, -34.22], landing: [-16.5655, -43.64] }; // links, oben in % der Sitzpose
+  const tier = mini.querySelector('.goch-mini-tier');
+  let flugBilder = null, flugLauf = 0, miniDa = false, boden = '';
+  function flugBauen() {
+    if (flugBilder) return;
+    flugBilder = {};
+    scene.querySelectorAll('.bird-flight[data-pose]').forEach(f => {
+      const src = f.getAttribute('src'), ort = FLUG[f.dataset.pose];
+      if (!src || !ort) return; // noch nicht geladen: beim nächsten Mal
+      const i = document.createElement('img');
+      i.className = 'goch-mini-flug'; i.alt = ''; i.src = src; i.style.left = ort[0] + '%'; i.style.top = ort[1] + '%';
+      tier.append(i); flugBilder[f.dataset.pose] = i;
+    });
+    if (Object.keys(flugBilder).length < 4) { Object.values(flugBilder).forEach(i => i.remove()); flugBilder = null; }
+  }
+  function miniFlug(an, fertig) {
+    const lauf = ++flugLauf;
+    const ende = () => { tier.classList.remove('fliegt'); tier.style.transform = ''; tier.style.opacity = ''; if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; }); mini.dataset.flug = ''; fertig(); };
+    flugBauen();
+    if (ruhig.matches || document.hidden || !flugBilder || !Object.values(flugBilder).every(i => i.complete && i.naturalWidth)) { ende(); return; }
+    const dauer = an ? 1500 : 1100, start = performance.now(), w = tier.offsetWidth || 180;
+    tier.classList.add('fliegt'); mini.dataset.flug = an ? 'an' : 'ab';
+    const schritt = now => {
+      if (lauf !== flugLauf) return;
+      const p = Math.min(1, (now - start) / dauer);
+      const fern = an ? Math.pow(1 - p, 1.7) : Math.pow(p, 1.6); // 1 = weit weg, 0 = auf dem Ast
+      const x = (an ? .9 : -1.25) * fern * w, y = -(an ? 1.35 : 1.5) * fern * w - Math.sin(p * Math.PI) * w * .06;
+      const pose = an && p > .78 ? 'landing' : ['up', 'glide', 'down', 'glide'][Math.floor((now - start) / 72) % 4];
+      Object.entries(flugBilder).forEach(([k, i]) => { i.style.opacity = k === pose ? '1' : '0'; });
+      tier.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${(1 - fern * .42).toFixed(3)})`;
+      tier.style.opacity = an ? Math.min(1, p / .12).toFixed(2) : (1 - Math.max(0, (p - .7) / .3)).toFixed(2);
+      if (p < 1) requestAnimationFrame(schritt); else ende();
+    };
+    requestAnimationFrame(schritt);
+  }
+  function miniPruefen() {
+    const soll = !mini.hidden && !mini.classList.contains('goch-mini-weg') && (lage === 'unterwegs' || !!breit);
+    if (soll && !mini.classList.contains('fliegt-ab')) boden = getComputedStyle(mini).bottom;
+    if (soll === miniDa) return;
+    miniDa = soll;
+    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => {}); }
+    else { mini.style.bottom = boden; mini.classList.add('fliegt-ab'); miniFlug(false, () => { if (!miniDa) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; } }); }
+  }
+  new MutationObserver(miniPruefen).observe(mini, { attributes: true, attributeFilter: ['hidden', 'class'] });
+  new MutationObserver(miniPruefen).observe(html, { attributes: true, attributeFilter: ['class'] });
   // ---------- Breite Bildschirme: mitlaufendes Blatt ----------
   let breit = '', sichtbar = 1; // breit: '' | 'blatt' | 'zeile'; sichtbar: Anteil des großen Goch im Fenster
   function breitSetzen(neu) {
@@ -73,7 +121,7 @@
   function breitPruefen() {
     if (schmal.matches || panel.hidden) { breitSetzen(''); return; }
     if (!breit && sichtbar < .1) breitSetzen('blatt');      // Goch ist aus dem Bild
-    else if (breit && sichtbar > .5) breitSetzen('');       // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast
+    else if (breit && sichtbar > .5) { breitSetzen(''); grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
   const hoehe = () => { if (breit || lage !== 'aus') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
@@ -122,7 +170,9 @@
   // Im Gesprächsmodus führt die Seite von selbst hin, während Goch spricht
   window.addEventListener('goch-antwort', e => { const z = e.detail && e.detail.zeigen; if (lage !== 'aus' && ZIELE.includes(z)) zeigen(z); });
   schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
-  mini.addEventListener('click', () => { if (breit) scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); else setzen('fokus'); });
+  // Kommt der große Goch zurück, fliegt er wieder an – nur wenn er gerade weder spricht noch zuhört (im Flug ruht der Schnabel)
+  function grossAn() { if (window.GochFlug && !ruhig.matches && !window.GochStimme.beschaeftigt() && !modus.mikro) window.GochFlug.an(); }
+  mini.addEventListener('click', () => { if (breit) scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); else { setzen('fokus'); grossAn(); } });
   zurSeite.addEventListener('click', () => { if (breit) breitSetzen('zeile'); else freigeben(); });
   // Neben dem Blatt: Tipp, Wisch oder Mausrad auf dem Papier gibt die Seite frei
   const papier = $('goch-papier'), kopf = panel.querySelector('.goch-head');
