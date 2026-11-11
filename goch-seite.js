@@ -72,6 +72,19 @@
     body.append(uebernehmen(quelle.papier), uebernehmen(quelle.mini), blatt);
 
     // Skripte in der Reihenfolge der Startseite, mit deren Versionsangaben
+    // Landschaft wie auf der Startseite (Schritt 8, Robin 11.11.2026): Der Kopf ist eine kleine Bühne mit Himmel, Sonne, Mond,
+    // Sternen, Krone und Ferne; hinter der Seite liegt das Tal. Schalter: der der Redaktion (data-landschaft der Startseite)
+    // und je Seite data-tal="aus" am Platz (Rahmen); zum Prüfen ?landschaft=aus und ?tal=aus wie auf der Startseite.
+    const land = [...doc.querySelectorAll('script[src]')].map(x => x.getAttribute('src')).find(a => a.split('?')[0] === 'landscape.js');
+    if (land && platz.dataset.tal !== 'aus' && schalter.landschaft !== 'aus') {
+      body.dataset.landschaft = schalter.landschaft || 'an';
+      if (schalter.landschaftSatz) body.dataset.landschaftSatz = schalter.landschaftSatz;
+      if (schalter.tal) body.dataset.tal = schalter.tal;
+      const da = await new Promise(f => { const s = document.createElement('script'); s.src = wurzel + land; s.onload = () => f(true); s.onerror = () => f(false); document.head.append(s); });
+      try {
+        if (da && window.RJLLandscape) { window.RJLLandscape.prepare(); window.RJLLandscape.init(); delete scene.dataset.flightRoute; } // Anflug von oben: Unter dem Ast liegt hier das Blatt der Seite
+      } catch (_) { document.documentElement.classList.add('landscape-off'); }
+    } else body.dataset.landschaft = 'aus';
     const adressen = SKRIPTE.map(name => { const s = [...doc.querySelectorAll('script[src]')].find(x => x.getAttribute('src').split('?')[0] === name); return s && s.getAttribute('src'); });
     if (adressen.some(a => !a)) return;
     adressen.forEach((a, i) => {

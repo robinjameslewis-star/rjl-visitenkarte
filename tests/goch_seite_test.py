@@ -162,6 +162,13 @@ async def main():
                     flug = await bis("[document.getElementById('scene').dataset.ready || '', document.getElementById('scene').dataset.state || '']", lambda f: f == ['true', 'rest'])
                     vorLoad = [u for u in anfragen[:gewicht[2]] if any(w in urllib.parse.urlparse(u).path for w in ('flugpose', 'bird-flight', 'goch', 'language.js', 'figuren/'))]
                     check(flug == ['true', 'rest'] and len([u for u in anfragen if 'flugpose' in u]) == 4 and vorLoad == [u for u in vorLoad if 'goch-seite.js' in u], "Goch ist angeflogen und gelandet; Flugbilder und Skripte kamen erst nach dem Laden der Seite", [flug, vorLoad[:3]])
+                    land = await bis("""(()=>{const r=document.documentElement,k=document.getElementById('goch-kopf'),m=document.querySelector('main'),e=[...document.querySelectorAll('.tal-ebene img')];
+                      return {an:r.classList.contains('landscape-on')&&r.classList.contains('tal-on'),himmel:!!k.querySelector('.landscape-sky'),gestirne:!!k.querySelector('.landscape-sun')&&!!k.querySelector('.landscape-moon')&&k.querySelectorAll('.landscape-stars circle').length>20,
+                        krone:!!k.querySelector('.landscape-crown img'),ferne:!!k.querySelector('.landscape-far img'),ebenen:e.length,geladen:e.filter(i=>i.complete&&i.naturalWidth>0).length,klein:e.every(i=>/-900\\./.test(i.currentSrc)),
+                        blatt:getComputedStyle(m).backgroundColor!=='rgba(0, 0, 0, 0)',talHinten:getComputedStyle(document.querySelector('.tal')||document.body).zIndex};})()""", lambda l: l['an'] and l['ebenen'] == 3 and l['geladen'] == 3 and l['blatt'])
+                    check(land['an'] and land['himmel'] and land['gestirne'] and land['krone'] and land['ferne'], "Kopf mit Landschaft: Himmel, Sonne, Mond, Sterne, Krone, Ferne", land)
+                    check(land['ebenen'] == 3 and land['geladen'] == 3 and land['talHinten'] == '-1' and land['blatt'] and (land['klein'] or not mobil), "Tal hinter der Seite (drei Ebenen" + (", am Handy die 900-px-Fassung" if mobil else "") + "), der Inhalt steht als Blatt darüber", land)
+                    check(not [u for u in anfragen[:gewicht[2]] if 'landschaften/' in u or 'landscape.js' in u], "Landschaft und Tal laden erst nach dem Laden der Seite")
                     check(v['imStreifen'] and v['frei'] and not v['quer'], "er sitzt im Kopf der Seite, nichts liegt über ihm, kein seitliches Scrollen", v)
                     oben = await ev("[window.__mainOben, Math.round(document.querySelector('main').getBoundingClientRect().top + scrollY)]")
                     check(oben[0] is not None and oben[0] == oben[1], "der Inhalt steht, wo er vor Goch stand (kein Sprung)", oben)
@@ -224,6 +231,17 @@ async def main():
                     check(await ev("document.getElementById('goch').hidden") and (await z())['offen'] == 0, "geschlossen: Mikrofon zu")
                     check(kaputt == [], "keine Datei fehlt (keine Antwort ab 400)", kaputt[:3]); kaputt.clear()
 
+            print("Schalter: ?tal=aus und ?landschaft=aus; Nacht")
+            await send("Emulation.setDeviceMetricsOverride", {"width": 375, "height": 667, "deviceScaleFactor": 2, "mobile": True})
+            await goto(BASE + 'workshops/' + q('&t=ta&tal=aus')); check(await bereit(), "mit ?tal=aus: Goch ist da")
+            check(await bis("[!!document.querySelector('.tal'), document.documentElement.classList.contains('landscape-on'), getComputedStyle(document.querySelector('main')).backgroundColor]", lambda x: x[1]) == [False, True, 'rgba(0, 0, 0, 0)'], "?tal=aus: Landschaft im Kopf, kein Tal, kein Blatt")
+            await goto(BASE + 'workshops/' + q('&t=la&landschaft=aus')); check(await bereit(), "mit ?landschaft=aus: Goch ist da")
+            check(await ev("[!!document.querySelector('.tal'), !!document.querySelector('.landscape'), document.documentElement.classList.contains('landscape-on')]") == [False, False, False] and (await bis(vogel, lambda v: v['vogel']))['vogel'], "?landschaft=aus: keine Landschaft, kein Tal; Goch sitzt im Himmelsstreifen")
+            await goto(BASE + 'workshops/' + q('&t=na&zeit=2026-11-11T23:00')); check(await bereit(), "nachts: Goch ist da")
+            nacht = await bis("""(()=>{const h=c=>{const m=c.match(/[\\d.]+/g).map(Number);return (m[0]*299+m[1]*587+m[2]*114)/1000;};const m=document.querySelector('main'),p=m.querySelector('p');
+              return {nacht:+getComputedStyle(document.documentElement).getPropertyValue('--nacht'),text:Math.round(h(getComputedStyle(p).color)),grund:Math.round(h(getComputedStyle(document.body).backgroundColor)),sterne:getComputedStyle(document.querySelector('.landscape-stars')).opacity};})()""", lambda n: n['nacht'] > .9)
+            check(nacht['nacht'] > .9 and nacht['text'] - nacht['grund'] > 110 and float(nacht['sterne']) > .5, "nachts: dunkle Seite, heller Text (lesbar), Sterne am Himmel", nacht)
+            await shot("unterseite_Nacht")
             print("Goch ausgeschaltet: Die Unterseite bleibt wie zuvor")
             await send("Emulation.setDeviceMetricsOverride", {"width": 375, "height": 667, "deviceScaleFactor": 2, "mobile": True})
             await ev("sessionStorage.clear()")

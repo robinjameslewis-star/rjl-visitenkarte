@@ -512,6 +512,7 @@
     .stage + section { margin-top: 32px; }
   }
 
+  /* goch-seite:an – Landschaft (Himmel, Gestirne, Krone, Ferne, Tagesfarben) und Talebenen: auch im Kopf und hinter den Unterseiten (goch-seite.js) */
   /* ---------- Landschaft: zwei Ebenen, unveränderte Vogelgeometrie ---------- */
   :root {
     --nacht: 0; --nacht-prozent: 0%;
@@ -654,6 +655,7 @@
   .tal-ebene { left: calc((100% - max(100%, 1000px)) * var(--ax, .5)); width: max(100%, 1000px); }
   .tal .landscape-picture img { display: block; width: 100%; height: auto; }
   @media (max-width: 720px) { .tal-burg { left: 4%; width: 72%; } }
+  /* goch-seite:aus */
   /* Das Tal liegt unter allem (z-index -1), main und Fuß bilden bewusst keine eigene Schicht: Goch, sein Gespräch und das
      Menü behalten so ihre Reihenfolge über den Blättern. */
   .tal-on footer { position: relative; }
@@ -707,7 +709,7 @@
   .wzs[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
-<script src="landscape.js?v=20261111"></script>
+<script src="landscape.js?v=20261113"></script>
 </head>
 <body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-tal="an" data-goch-signalton="figuren/goch/toene/zwitschern" data-goch-stimme="an" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
