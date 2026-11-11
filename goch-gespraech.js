@@ -142,9 +142,10 @@
   // Griff am Blatt: nach unten wischen gibt frei, nach oben holt Goch zurück
   if (kopf) {
     let y0 = null;
-    // Als Kapsel (unterwegs, Zeile) zählt der Wisch nach oben überall auf ihr; im Blatt nur am Griff
+    // Nur am Griff des offenen Blatts. Auf der Kapsel gibt es keinen Wisch: Sie liegt in der Daumenzone, dort wäre es dieselbe
+    // Geste wie Weiterscrollen. Ein Tipp auf die Kapsel oder den kleinen Goch klappt auf.
     const kapsel = () => lage === 'unterwegs' || breit === 'zeile';
-    panel.addEventListener('touchstart', e => { y0 = (lage === 'aus' && !breit) || !(kapsel() || e.target.closest('.goch-head')) ? null : e.touches[0].clientY; }, { passive: true });
+    panel.addEventListener('touchstart', e => { y0 = (lage === 'aus' && !breit) || kapsel() || !e.target.closest('.goch-head') ? null : e.touches[0].clientY; }, { passive: true });
     panel.addEventListener('touchmove', e => {
       if (y0 === null) return;
       const dy = e.touches[0].clientY - y0;
