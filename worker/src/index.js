@@ -28,6 +28,7 @@ import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
 import { stimmeFuerAntwort, stimmeInTeilen, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
+import { kostenBuchen, adresseFrei } from "./kosten.js";
 import { handleListen } from "./hoeren.js";
 import { handleKiosk, kundenSystem, kundenVortrag, stillAntwort, GOCH_AM_GERAET } from "./kiosk.js";
 import { laden as seitenLaden, prompt as seitenPrompt, links as seitenLinks } from "./seitenwissen.js";
@@ -173,7 +174,7 @@ const worker = {
     if (!intern && ["angekommen", "zurueck", "nachfrage"].includes(body.anlass)) {
       const ip = request.headers.get("CF-Connecting-IP") || "0", jetzt = Date.now();
       const hits = (perIp.get(ip) || []).filter(x => jetzt - x < 3600_000);
-      if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12)) return json({ reply: "", action: null }, 200, cors);
+      if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12) || !(await adresseFrei(env, "chat", ip))) return json({ reply: "", action: null }, 200, cors);
       hits.push(jetzt); perIp.set(ip, hits);
       const saetze = t[body.anlass];
       return json({ reply: saetze[Math.floor(Math.random() * saetze.length)], action: null, anlass: body.anlass }, 200, cors);
@@ -194,7 +195,7 @@ const worker = {
     const now = Date.now(), hour = 3600_000, day = 86400_000;
     if (!intern) { // Messegerät: Gerätebudget statt IP-Grenze (src/kiosk.js)
       const hits = (perIp.get(ip) || []).filter(x => now - x < hour);
-      if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12)) return json({ reply: t.quiet, action: null }, 200, cors);
+      if (hits.length >= +(env.MAX_PER_IP_PER_HOUR || 12) || !(await adresseFrei(env, "chat", ip))) return json({ reply: t.quiet, action: null }, 200, cors);
       hits.push(now); perIp.set(ip, hits);
     }
 
@@ -229,9 +230,12 @@ const worker = {
     // Tagesgrenze: zählt nur Modellaufrufe (die kosten), nicht die Antworten des Workers selbst. Messegerät: Gerätebudget.
     if (env.USAGE && !intern) {
       const key = "usage:" + new Date().toISOString().slice(0, 10);
-      const used = +(await env.USAGE.get(key) || 0);
-      if (used >= +(env.MAX_PER_DAY || 60)) return json({ reply: t.quiet, action: null }, 200, cors);
-      ctx.waitUntil(env.USAGE.put(key, String(used + 1), { expirationTtl: 35 * 86400 }));
+      const used = +(await env.USAGE.get(key) || 0), grenze = +(env.MAX_PER_DAY || 60);
+      if (used >= grenze) return json({ reply: t.quiet, action: null }, 200, cors);
+      // atomar im Durable Object (src/kosten.js); der KV-Zähler bleibt für die Anzeige in der Redaktion
+      const gebucht = await kostenBuchen(env, "antworten", 1, grenze, "tag", used);
+      if (!gebucht.ok) return json({ reply: t.quiet, action: null }, 200, cors);
+      ctx.waitUntil(env.USAGE.put(key, String(gebucht.ohne ? used + 1 : gebucht.stand), { expirationTtl: 35 * 86400 }));
     }
 
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);

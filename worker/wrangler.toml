@@ -98,6 +98,13 @@ name = "LOGIN_LIMIT"
 namespace_id = "2509"
 simple = { limit = 10, period = 60 }
 
+# Anfragen je Adresse und Minute an /chat und /listen (Sicherheitsprüfung 11.11.2026, M3): zählt über alle Instanzen eines
+# Standorts, anders als die weichen Grenzen je Instanz (MAX_PER_IP_PER_HOUR, MAX_HOEREN_PER_IP_PER_HOUR).
+[[ratelimits]]
+name = "GOCH_IP_LIMIT"
+namespace_id = "2511"
+simple = { limit = 10, period = 60 }
+
 [[rules]]
 type = "Text"
 globs = ["**/*.md"]

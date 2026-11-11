@@ -3,6 +3,7 @@
 // gibt es nicht. Anbieter umschaltbar; heute ElevenLabs (Secret ELEVENLABS_API_KEY). Ohne Stimme vom Server antwortet
 // Goch nur als Text (figur.json: rueckfall „keine“ – jeder Besucher hört dieselbe Stimme oder keine).
 import { Buffer } from "node:buffer";
+import { kostenBuchen } from "./kosten.js";
 
 export const ANBIETER = { elevenlabs: "ElevenLabs" };
 // Modelle laut ElevenLabs (abgerufen 23.10.2026): v4 am menschlichsten, v4 Turbo ausdrucksstark in Echtzeit.
@@ -124,7 +125,9 @@ export async function stimmeInTeilen(env, ctx, text, { sprache, voiceId, lang, m
   const now = Date.now(), stand = await stimmeMonat(env, now);
   if (stand.fehler) return schreiben({ stimme: null, grund: "fehler" });
   if (stand.zeichen + text.length > (sprache.zeichenMonat || 0)) return schreiben({ stimme: null, grund: "grenze" });
-  if (budget && !(await budget(text.length))) return schreiben({ stimme: null, grund: "grenze_termin" });
+  // Monatsdeckel atomar vormerken (src/kosten.js); was nicht zum Anbieter geht, bucht finally zurück
+  if (!(await kostenBuchen(env, "zeichen", text.length, sprache.zeichenMonat || 0, "monat", stand.zeichen)).ok) return schreiben({ stimme: null, grund: "grenze" });
+  if (budget && !(await budget(text.length))) { await kostenBuchen(env, "zeichen", -text.length, 0, "monat"); return schreiben({ stimme: null, grund: "grenze_termin" }); }
   const teile = sprechTeile(text), opts = { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }, beginn = Date.now(), auftraege = [];
   let zeichen = 0, msErster = null, naechster = 0;
   const starten = satz => (fest.includes(satz) ? festerSatz(env, ctx, satz, opts) : vertonenMitGeduld(env, satz, opts))
@@ -141,6 +144,7 @@ export async function stimmeInTeilen(env, ctx, text, { sprache, voiceId, lang, m
   } finally {
     // Budget je Termin: was nicht zum Anbieter ging (Fehler, Abbruch, gemerkter Satz), zurückbuchen
     if (budget && text.length > zeichen) await Promise.resolve(budget(zeichen - text.length)).catch(() => {});
+    if (text.length > zeichen) await kostenBuchen(env, "zeichen", zeichen - text.length, 0, "monat");
     if (env.USAGE && msErster !== null) {
       const next = { ...stand, zeichen: stand.zeichen + zeichen, antworten: stand.antworten + 1,
         msModell: stand.msModell + (msModell || 0), msStimme: stand.msStimme + msErster,
@@ -162,11 +166,13 @@ export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang
   const now = Date.now(), stand = await stimmeMonat(env, now);
   if (stand.fehler) return { stimme: null, grund: "fehler" }; // KV nicht lesbar: lieber keine Stimme als ohne Deckel
   if (stand.zeichen + zeichen > (sprache.zeichenMonat || 0)) return { stimme: null, grund: "grenze" };
-  if (budget && !(await budget(zeichen))) return { stimme: null, grund: "grenze_termin" };
+  if (!(await kostenBuchen(env, "zeichen", zeichen, sprache.zeichenMonat || 0, "monat", stand.zeichen)).ok) return { stimme: null, grund: "grenze" };
+  if (budget && !(await budget(zeichen))) { await kostenBuchen(env, "zeichen", -zeichen, 0, "monat"); return { stimme: null, grund: "grenze_termin" }; }
   let a;
   try { a = await vertonen(env, text, { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }); }
   catch (e) {
     console.error("Stimme", String(e && e.message || e).slice(0, 300));
+    await kostenBuchen(env, "zeichen", -zeichen, 0, "monat"); // nichts vertont: Monatsdeckel zurück
     if (budget) await Promise.resolve(budget(-zeichen)).catch(() => {}); // nichts vertont: Budget je Termin zurück
     return { stimme: null, grund: "fehler" };
   }

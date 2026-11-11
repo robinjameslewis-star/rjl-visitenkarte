@@ -48,8 +48,10 @@ export class Geraetebudget {
     if (url.pathname === "/buchen") {
       // erst aufräumen, dann buchen: ein abgelaufenes Gesamtbudget zählt neu, statt nach dem Buchen zu verschwinden
       if (!(await s.get("aufgeraeumt:" + tag))) await this.aufraeumen(tag);
-      const gesamt = body.zeitraum === "gesamt";
-      const key = (gesamt ? "gesamt:" : "tag:" + tag + ":") + body.art, stand = (await s.get(key)) || 0, menge = +body.menge || 0;
+      const gesamt = body.zeitraum === "gesamt", monat = body.zeitraum === "monat";
+      const key = (gesamt ? "gesamt:" : monat ? "monat:" + tag.slice(0, 7) + ":" : "tag:" + tag + ":") + body.art, menge = +body.menge || 0;
+      // start (Kostenbremsen der Website, src/kosten.js): ein neuer Zähler beginnt beim Stand aus dem KV
+      const gespeichert = await s.get(key), stand = gespeichert === undefined || gespeichert === null ? Math.max(0, +body.start || 0) : gespeichert;
       if (menge < 0) { await s.put(key, Math.max(0, stand + menge)); return Response.json({ ok: true, stand: Math.max(0, stand + menge) }); }
       if (stand + menge > (+body.grenze || 0)) return Response.json({ ok: false, stand });
       await s.put(key, stand + menge);
@@ -69,6 +71,7 @@ export class Geraetebudget {
   async aufraeumen(tag) {
     const s = this.state.storage, grenze = new Date(Date.now() - 40 * 86400_000).toISOString().slice(0, 10);
     const alt = [...(await s.list({ prefix: "tag:" })).keys()].filter(k => k.slice(4, 14) < grenze);
+    alt.push(...[...(await s.list({ prefix: "monat:" })).keys()].filter(k => k.slice(6, 13) < grenze.slice(0, 7)));
     const seit = await s.get("gesamt:seit");
     if (seit && Date.parse(seit) < Date.now() - GESAMT_TAGE * 86400_000) alt.push(...(await s.list({ prefix: "gesamt:" })).keys());
     if (alt.length) await s.delete(alt);
