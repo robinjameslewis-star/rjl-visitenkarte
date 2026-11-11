@@ -175,6 +175,23 @@ async def main():
                 await s.scrolle(999999)
                 await s.foto(f'tal-1440-{name}-3-ende')
 
+            # 5b. Gochs Sprechblase liegt über den Blättern (Rechner: sie hängt am Ast und reicht unter die Bühne; Handy: fest unten)
+            FREI = """(async () => { document.getElementById('scene').click(); await new Promise(r => setTimeout(r, 2200));
+              const g = document.getElementById('goch'), r = g.getBoundingClientRect(), out = [];
+              if (g.hidden || !r.width) return 'geschlossen';
+              for (const y of [0, Math.round(document.documentElement.scrollHeight * .4)]) { scrollTo(0, y); await new Promise(r => setTimeout(r, 300));
+                const q = g.getBoundingClientRect();
+                for (const b of [.08, .3, .5, .7, .9, .97]) { const px = q.left + q.width * .5, py = q.top + q.height * b;
+                  if (py < 0 || py >= innerHeight) continue; const h = document.elementFromPoint(px, py);
+                  if (!h || !g.contains(h)) out.push(y + '/' + b + ':' + (h ? h.tagName + '.' + h.className : '-')); } }
+              return out.join(' ') || 'frei'; })()"""
+            for name, masse in (('Rechner', {'width': 1280, 'height': 800, 'deviceScaleFactor': 1, 'mobile': False}), ('Handy', handy)):
+                await s.send('Emulation.setDeviceMetricsOverride', masse)
+                await s.oeffne('/?zeit=' + ZEITEN['herbst-tag'], 2.5)
+                frei = await s.js(FREI)
+                pruefe(frei == 'frei', f'{name}: Gochs Sprechblase liegt über den Blättern ({frei})')
+                await s.foto(f'tal-{masse["width"]}-gespraech')
+
             # 6. Schalter und reduzierte Bewegung
             await s.send('Emulation.setDeviceMetricsOverride', handy)
             _, _, erst, spaet = await s.oeffne('/?tal=aus&zeit=' + ZEITEN['herbst-tag'], 2)
