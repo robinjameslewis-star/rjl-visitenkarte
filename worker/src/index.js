@@ -302,7 +302,7 @@ const worker = {
 export default worker;
 
 // Sicherheitsköpfe für alle Antworten des Workers; offene Verbindungen (WebSocket, Status 101) bleiben unverändert.
-export function mitSicherheitskoepfen(response) {
+function mitSicherheitskoepfen(response) {
   if (!response || response.status === 101 || response.webSocket) return response;
   const headers = new Headers(response.headers);
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");

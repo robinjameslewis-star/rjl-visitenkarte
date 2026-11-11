@@ -126,7 +126,8 @@ export async function stimmeInTeilen(env, ctx, text, { sprache, voiceId, lang, m
   if (stand.fehler) return schreiben({ stimme: null, grund: "fehler" });
   if (stand.zeichen + text.length > (sprache.zeichenMonat || 0)) return schreiben({ stimme: null, grund: "grenze" });
   // Monatsdeckel atomar vormerken (src/kosten.js); was nicht zum Anbieter geht, bucht finally zurück
-  if (!(await kostenBuchen(env, "zeichen", text.length, sprache.zeichenMonat || 0, "monat", stand.zeichen)).ok) return schreiben({ stimme: null, grund: "grenze" });
+  const vorgemerkt = await kostenBuchen(env, "zeichen", text.length, sprache.zeichenMonat || 0, "monat", stand.zeichen);
+  if (!vorgemerkt.ok) return schreiben({ stimme: null, grund: vorgemerkt.fehler ? "fehler" : "grenze" });
   if (budget && !(await budget(text.length))) { await kostenBuchen(env, "zeichen", -text.length, 0, "monat"); return schreiben({ stimme: null, grund: "grenze_termin" }); }
   const teile = sprechTeile(text), opts = { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }, beginn = Date.now(), auftraege = [];
   let zeichen = 0, msErster = null, naechster = 0;
@@ -166,7 +167,8 @@ export async function stimmeFuerAntwort(env, ctx, text, { sprache, voiceId, lang
   const now = Date.now(), stand = await stimmeMonat(env, now);
   if (stand.fehler) return { stimme: null, grund: "fehler" }; // KV nicht lesbar: lieber keine Stimme als ohne Deckel
   if (stand.zeichen + zeichen > (sprache.zeichenMonat || 0)) return { stimme: null, grund: "grenze" };
-  if (!(await kostenBuchen(env, "zeichen", zeichen, sprache.zeichenMonat || 0, "monat", stand.zeichen)).ok) return { stimme: null, grund: "grenze" };
+  const vorgemerkt = await kostenBuchen(env, "zeichen", zeichen, sprache.zeichenMonat || 0, "monat", stand.zeichen);
+  if (!vorgemerkt.ok) return { stimme: null, grund: vorgemerkt.fehler ? "fehler" : "grenze" }; // Fehler: keine Grenz-Mail an Robin
   if (budget && !(await budget(zeichen))) { await kostenBuchen(env, "zeichen", -zeichen, 0, "monat"); return { stimme: null, grund: "grenze_termin" }; }
   let a;
   try { a = await vertonen(env, text, { voiceId, modell: sprache.ttsModell, lang, einstellungen, seed }); }

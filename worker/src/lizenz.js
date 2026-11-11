@@ -218,7 +218,7 @@ export async function handleLizenz(request, env, ctx) {
     if (!env.RESEND_API_KEY) return json({ error: t.nichtEingerichtet }, 503);
     // Tagesdeckel atomar (Sicherheitsprüfung 11.11.2026, M4); der KV-Zähler davor bleibt als erste, schnelle Grenze
     const gebucht = await kostenBuchen(env, "lizenzcodes", 1, +(env.MAX_LIZENZ_CODES_PER_DAY || 300), "tag", nTag);
-    if (!gebucht.ok) return json({ error: t.zuViele }, 429);
+    if (!gebucht.ok) return gebucht.fehler ? json({ error: t.nichtEingerichtet }, 503) : json({ error: t.zuViele }, 429);
     await env.USAGE.put(jeAdresse, String(n + 1), { expirationTtl: 3600 });
     await env.USAGE.put(tag, String(gebucht.ohne ? nTag + 1 : gebucht.stand), { expirationTtl: 2 * 86400 });
     const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, "0");
@@ -239,9 +239,9 @@ export async function handleLizenz(request, env, ctx) {
     if (!eintrag || eintrag.exp < Date.now()) return json({ error: t.keinCode }, 400);
     if (eintrag.tries >= MAX_TRIES) { await env.USAGE.delete(ck); return json({ error: t.versuche }, 400); }
     // Jeder Versuch zählt atomar je Code, bevor verglichen wird (M4): gleichzeitige Versuche kommen nicht über MAX_TRIES
-    if (!(await buchenIn(env, "lizenz:" + eh, "versuche:" + eintrag.hash.slice(0, 16), 1, MAX_TRIES, "gesamt")).ok) {
-      await env.USAGE.delete(ck); return json({ error: t.versuche }, 400);
-    }
+    const versuch = await buchenIn(env, "lizenz:" + eh, "versuche:" + eintrag.hash.slice(0, 16), 1, MAX_TRIES, "gesamt");
+    if (versuch.fehler) return json({ error: t.nichtEingerichtet }, 503); // Zähler nicht erreichbar: Code bleibt gültig
+    if (!versuch.ok) { await env.USAGE.delete(ck); return json({ error: t.versuche }, 400); }
     if (code.length !== 6 || await sha256(code) !== eintrag.hash) {
       eintrag.tries += 1;
       await env.USAGE.put(ck, JSON.stringify(eintrag), { expirationTtl: CODE_TTL });

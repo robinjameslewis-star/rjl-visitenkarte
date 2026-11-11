@@ -3,7 +3,7 @@
 // später zurück; viele gleichzeitige Anfragen kamen so über den Deckel. Die KV-Zähler bleiben für die Anzeige in der Redaktion.
 //   art: "antworten" (Modellaufrufe je Tag), "zeichen" (vertonte Zeichen je Monat), "sekunden"/"anfragen" (Spracheingabe je Tag)
 //   start: Stand aus dem KV, mit dem ein neuer Zeitraum beginnt (Übergang: der laufende Tag oder Monat zählt weiter)
-// Ergebnis { ok, stand }; ist das Durable Object nicht erreichbar, { ok: false } – lieber keine Antwort als ohne Deckel.
+// Ergebnis { ok, stand }; ist das Durable Object nicht erreichbar, { ok: false, fehler: true } – lieber keine Antwort als ohne Deckel.
 // Negative Menge bucht zurück (nicht vertont, nicht erkannt).
 export const KOSTEN = "website:kosten";
 
@@ -20,7 +20,7 @@ export async function buchenIn(env, name, art, menge, grenze, zeitraum = "tag", 
     return { ok: d.ok === true, stand: d.stand };
   } catch (e) {
     console.error("Kostenbremse", String(e && e.message || e).slice(0, 200));
-    return { ok: false };
+    return { ok: false, fehler: true };
   }
 }
 

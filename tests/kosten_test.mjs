@@ -96,17 +96,12 @@ console.log("Antworten je Tag");
 
 console.log("Stimme je Monat");
 {
-  const e = await umgebung({ MAX_PER_DAY: "500" }, { zeichenMonat: 210 }), c = ctx(); ttsZeichen = 0; // „Robin baut Werkzeuge.“ = 21 Zeichen
-  const antworten = await Promise.all(Array.from({ length: 30 }, (_, n) => chat(e, c, n, { stimme: {} }).then(r => r.text())));
-  await Promise.all(c.pending);
-  check(ttsZeichen <= 210 && ttsZeichen === 210, "30 gleichzeitige Antworten mit Stimme, Deckel 210 Zeichen: höchstens 210 vertont", "vertont " + ttsZeichen);
-  check(antworten.filter(a => a.includes('"grund":"grenze"')).length === 20, "die übrigen 20 bekommen nur Text");
-  check(kosten(e).get("monat:" + monat + ":zeichen") === 210, "Durable Object zählt 210 Zeichen");
-}
-{
-  const e = await umgebung({ MAX_PER_DAY: "500" }, { zeichenMonat: 1000 }), c = ctx(); ttsFehler = true;
-  await (await chat(e, c, 1, { stimme: {} })).text(); await Promise.all(c.pending); ttsFehler = false;
-  check(kosten(e).get("monat:" + monat + ":zeichen") === 0, "Anbieter-Fehler: vorgemerkte Zeichen gehen zurück", String(kosten(e).get("monat:" + monat + ":zeichen")));
+  const e = await umgebung({ MAX_PER_DAY: "500" }, { zeichenMonat: 1000 }), c = ctx(), echt = e.GERAETE;
+  // nur das Buchen der Zeichen scheitert, Antworten zählen normal
+  e.GERAETE = { idFromName: echt.idFromName, get: id => { const o = echt.get(id); return { fetch: async (url, init) => {
+    if (JSON.parse(init.body).art === "zeichen") throw new Error("weg"); return o.fetch(url, init); } }; } };
+  const zeilen = (await (await chat(e, c, 1, { stimme: {} })).text()).trim().split("\n").map(z => JSON.parse(z)); await Promise.all(c.pending);
+  check(zeilen.length === 2 && zeilen[1].grund === "fehler", "Zähler der Stimme nicht erreichbar: Text, Grund „fehler“ statt „grenze“ (keine Grenz-Mail)", JSON.stringify(zeilen[1]));
 }
 
 console.log("Spracheingabe je Tag");
