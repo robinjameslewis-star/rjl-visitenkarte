@@ -252,6 +252,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   scene.dataset.flightRoute = 'under-branch';
   // Welcher Satz: ?landschaft=<satz> zeigt einen bestimmten (Vorschau), sonst der von der Redaktion gesetzte.
   const slug = wish && wish !== 'an' && /^[a-z0-9-]{1,40}$/.test(wish) ? wish : (document.body.dataset.landschaftSatz || 'burgberg-herbst');
+  const SETS = (window.RJLWurzel || '') + api.SET_DIR; // Unterseiten (goch-seite.js) holen die Sätze von der Wurzel der Website
   let set = api.normalizeSet(null), preview = {}; // preview: Blob-URLs der Redaktion je Jahreszeit+Ebene, noch ungespeichert
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const input = api.parseOverrides(location.search, new Date());
@@ -390,7 +391,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
           const own=layer(season,kind), url=preview[FILE[season]+kind];
           if (!own && !url) return;
           const [big,small]=api.LAYERS[kind].sizes;
-          const base=api.SET_DIR+slug+'/'+kind+'-'+FILE[season]+'-', sizes=kind==='krone'?'(max-width:720px) 60vw, 560px':'(max-width:720px) 62vw, 616px';
+          const base=SETS+slug+'/'+kind+'-'+FILE[season]+'-', sizes=kind==='krone'?'(max-width:720px) 60vw, 560px':'(max-width:720px) 62vw, 616px';
           const picture=document.createElement('picture'); picture.className='landscape-picture landscape-'+(kind==='krone'?'crown':'far');
           picture.dataset.season=season;
           if (url) picture.innerHTML=`<img src="${url}" alt="" decoding="async">`; // ungespeicherte Vorschau aus der Redaktion
@@ -444,7 +445,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       const picture=(season,kind,sizes,cls)=>{
         const own=layer(season,kind), url=preview[FILE[season]+kind];
         if (!own && !url) return null;
-        const [big,small]=api.LAYERS[kind].sizes, base=api.SET_DIR+slug+'/'+kind+'-'+FILE[season]+'-';
+        const [big,small]=api.LAYERS[kind].sizes, base=SETS+slug+'/'+kind+'-'+FILE[season]+'-';
         const p=document.createElement('picture'); p.className='landscape-picture '+cls; p.dataset.season=season;
         p.innerHTML=url?`<img src="${url}" alt="" decoding="async">`:(own.avif?`<source type="image/avif" srcset="${base+small}.avif ${small}w, ${base+big}.avif ${big}w" sizes="${sizes}">`:'')+`<img src="${base+big}.webp" srcset="${base+small}.webp ${small}w, ${base+big}.webp ${big}w" sizes="${sizes}" alt="" decoding="async">`;
         p.querySelector('img').onerror=()=>p.remove();
@@ -510,7 +511,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   update();
   let previewed=false;
   const applySet=raw=>{set=api.normalizeSet(raw); seasonKey=''; talKey=''; update();};
-  fetch(api.SET_DIR+slug+'/landschaft.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(raw=>{if(!previewed) applySet(raw);}).catch(()=>{});
+  fetch(SETS+slug+'/landschaft.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(raw=>{if(!previewed) applySet(raw);}).catch(()=>{});
   // Vorschau aus der Redaktion (eingebettet oder im eigenen Fenster): ungespeicherte Bilder, Blätterart und
   // Himmelsfarben werden per postMessage hereingereicht – nur vom Worker, dessen Adresse die Seite selbst nennt.
   const worker=document.body.dataset.contactEndpoint||document.body.dataset.chatEndpoint||'';

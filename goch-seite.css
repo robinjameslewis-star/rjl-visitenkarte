@@ -4,7 +4,8 @@
 [hidden] { display: none !important; }
 /* Goch auf seinem Ast: Der Ast kommt wie auf der Startseite vom rechten Rand (242,84 % der Szene). Keine eigene Ebene am
    Streifen (kein z-index), sonst bliebe Goch im Gesprächsmodus am Handy unter dem Papier. */
-.goch-kopf .stage { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--gw) * .616); opacity: 0; transition: opacity .6s ease; }
+.goch-kopf .stage { position: absolute; inset: 0; padding: 0; opacity: 0; transition: opacity .6s ease; } /* der ganze Kopf ist die Bühne der Landschaft */
+.landscape-on .goch-kopf { background: none; } /* der Himmel kommt dann aus der Landschaft */
 .goch-kopf.bereit .stage { opacity: 1; }
 .goch-kopf .perch { position: absolute; right: clamp(40px, 9vw, 150px); bottom: 2px; width: var(--gw); }
 .goch-kopf .bird-move { mix-blend-mode: normal; }

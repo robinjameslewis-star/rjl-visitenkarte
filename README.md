@@ -855,6 +855,13 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   der Hinweis „KI · künstliche Stimme“ steht dort kurz als „KI“. Tipp oder Wisch nach oben klappt das Blatt auf. Der große
   Goch am Handy sitzt direkt über dem Blatt (`--goch-blatt-h`) statt fest am oberen Rand. Nachts wird der Ast des kleinen
   Goch heller, damit er auf dunklen Blättern sichtbar bleibt.
+- **Das ganze Tal auf den Unterseiten (Schritt 8, Robin 11.11.2026):** Der Kopf der Unterseiten ist eine kleine Bühne.
+  `goch-seite.js` lädt nach dem ersten Bild `landscape.js` und ruft `prepare()` und `init()` wie die Startseite: Himmel, Sonne,
+  Mond mit Phase, Sterne, Krone, Ferne, Tages- und Nachtfarben, Jahreszeit; dahinter die Talebenen (am Handy 900 px). Die
+  Stile kommen aus der Startseite (dritte Marke `goch-seite:an` um die Landschaftsstile), die Sätze von der Wurzel
+  (`RJLWurzel` in `landscape.js`). Der Inhalt (`main`) steht als ein Blatt darüber; Maße im Rahmen (`GOCH_KOPF_CSS`), Fläche
+  erst mit `html.tal-on`. Schalter: der der Redaktion (Landschaft aus = überall aus), je Seite `gochKopf(up, false)`
+  (`data-tal="aus"`), zum Prüfen `?landschaft=aus` und `?tal=aus`. Ohne Goch (ausgeschaltet) bleibt der Himmelsstreifen.
 - **Flug überall (Schritt 7, Robin 11.11.2026: „bei jedem neuen Auftritt anfliegen und bei jedem Rückzug abfliegen“):**
   Unterseiten: Goch fliegt im Kopf an wie auf der Startseite (`goch-seite.js` lädt `bird-flight.js`; Flugbilder erst nach
   dem ersten Bild der Seite). Kleiner Goch: fliegt bei jedem Erscheinen von rechts oben an und bei jedem Rückzug nach links
