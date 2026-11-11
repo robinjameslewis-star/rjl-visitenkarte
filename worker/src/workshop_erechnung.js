@@ -107,7 +107,7 @@ ${newsletterKasten(lang, up, "impuls")}
     provider: { "@type": "Person", "@id": SITE + "#person", name: "Robin James Lewis", url: SITE },
     educationalLevel: "Beginner", timeRequired: "PT45M",
     hasCourseInstance: [{ "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT45M" }] }).replace(/</g, "\\u003c");
-  return rahmen({ goch: true, lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
+  return rahmen({ goch: "erechnung", lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: workshopErechnungUrl(andere) }],
     head: `<script type="application/ld+json">${kurs}</script>\n`, css: CSS, main, aktiv: "workshops" });
 }

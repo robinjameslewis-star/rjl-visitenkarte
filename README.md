@@ -862,6 +862,12 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   (`RJLWurzel` in `landscape.js`). Der Inhalt (`main`) steht als ein Blatt darüber; Maße im Rahmen (`GOCH_KOPF_CSS`), Fläche
   erst mit `html.tal-on`. Schalter: der der Redaktion (Landschaft aus = überall aus), je Seite `gochKopf(up, false)`
   (`data-tal="aus"`), zum Prüfen `?landschaft=aus` und `?tal=aus`. Ohne Goch (ausgeschaltet) bleibt der Himmelsstreifen.
+- **Goch kennt die Seite (Schritt 5, 11.11.2026):** Unterseiten schicken im Gespräch ihren Pfad mit (`seite` in der Anfrage
+  an `/chat`, `goch.js`). Der Worker (`seitenwissen.js`, `jetzt`) nimmt ihn nur, wenn er zu einer Seite gehört, die er selbst
+  eingelesen hat, und schreibt dann Titel und Kennung dieser Seite in den Prompt – nie den gesendeten Text. Gruß und drei
+  Einstiegsfragen je Seitenart stehen in `worker/src/kopf.js` (`GOCH_SEITEN`, deutsch und englisch) und kommen als
+  `data-gruss` und `data-fragen` in den Rahmen. Der Gruß erscheint nach der Landung als kleine Blase neben Goch (einmal je
+  Seite und Besuch, ohne Anfrage an den Worker) und ist der erste Satz im Gespräch. „Goch zeigt“ bleibt auf Unterseiten aus.
 - **Flug überall (Schritt 7, Robin 11.11.2026: „bei jedem neuen Auftritt anfliegen und bei jedem Rückzug abfliegen“):**
   Unterseiten: Goch fliegt im Kopf an wie auf der Startseite (`goch-seite.js` lädt `bird-flight.js`; Flugbilder erst nach
   dem ersten Bild der Seite). Kleiner Goch: fliegt bei jedem Erscheinen von rechts oben an und bei jedem Rückzug nach links

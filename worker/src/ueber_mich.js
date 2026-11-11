@@ -171,7 +171,7 @@ ${newsletterKasten(lang, up, "impuls")}
     mainEntity: { "@type": "Person", "@id": SITE + "#person", name: "Robin James Lewis", url: SITE, image: SITE + PORTRAIT.datei, jobTitle: t.beruf,
       address: { "@type": "PostalAddress", addressLocality: "Balingen", addressCountry: "DE" }, email: "mailto:robin@robin.vision",
       knowsLanguage: ["de", "en"], sameAs: [LINKEDIN] } }).replace(/</g, "\\u003c");
-  return rahmen({ goch: true, lang, up, titel: t.titel, beschr: t.beschr, canonical,
+  return rahmen({ goch: "robin", lang, up, titel: t.titel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: ueberMichUrl(andere) }],
     head: `<meta property="og:image" content="${SITE}${PORTRAIT.datei}">\n<script type="application/ld+json">${jsonld}</script>\n`, css: CSS, main, aktiv: "about" });
 }

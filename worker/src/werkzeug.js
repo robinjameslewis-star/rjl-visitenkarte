@@ -248,7 +248,7 @@ ${css}</style>
 ${head}</head>
 <body data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}">
 ${kopf(lang, up, { aktiv, andere })}
-${goch ? gochKopf(up) + "\n" : ""}<main>
+${goch ? gochKopf(up, true, typeof goch === "string" ? goch : "", lang) + "\n" : ""}<main>
 ${main}
 </main>
 <footer class="foot"><a href="${up}${t.home}#privacy">${t.legal}</a><a href="#newsletter">Newsletter</a><a href="${up}${lang === "en" ? "blog/en/" : "blog/"}feed.xml">RSS</a></footer>

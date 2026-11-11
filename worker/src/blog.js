@@ -165,7 +165,7 @@ const T = {
     zeile: "What automation and AI change in accounting – every Friday, with sources." },
 };
 
-function shell({ lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
+function shell({ gochArt = "impulse", lang, title, description, depth, main, siteUrl, canonical, base, og = {}, allHref, newsletter = true, jsonld = "" }) {
   const up = base || "../".repeat(depth), t = T[lang];
   // Jede Sprache bleibt unter sich: Startseite, Liste und Feed in der Sprache der Seite
   const homeHref = up + (lang === "en" ? "?lang=en" : ""), feedHref = `${up}blog/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`;
@@ -246,7 +246,7 @@ ${NEWSLETTER_CSS}
 </head>
 <body${newsletter ? ` data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}"` : ""}>
 ${kopf(lang, up, { aktiv: "posts" })}
-${gochKopf(up)}
+${gochKopf(up, true, gochArt, lang)}
 <main>
 ${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
 </main>
@@ -294,7 +294,7 @@ document.querySelectorAll(".yt-play").forEach(function (b) {
     inLanguage: post.lang, ...(canonical ? { mainEntityOfPage: canonical, url: canonical } : {}), ...(image ? { image } : {}),
     author: { "@type": "Person", name: "Robin James Lewis", ...(siteUrl ? { url: siteUrl } : {}) },
     publisher: { "@type": "Person", name: "Robin James Lewis", ...(siteUrl ? { url: siteUrl } : {}) } }).replace(/</g, "\\u003c");
-  return shell({ lang: post.lang, title: post.title, description, depth: 2, main,
+  return shell({ gochArt: "impuls", lang: post.lang, title: post.title, description, depth: 2, main,
     siteUrl, canonical, base, allHref: post.lang === "en" ? `../${EN_DIR}/` : "../",
     og: { type: "article", image, published: post.date }, jsonld });
 }

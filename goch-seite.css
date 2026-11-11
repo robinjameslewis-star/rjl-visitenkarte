@@ -13,6 +13,14 @@
 .goch-kopf .branch img { max-width: none; }
 .goch-kopf .scene:not([data-chat="on"]) { cursor: default; }
 @media (prefers-reduced-motion: reduce) { .goch-kopf .stage { transition: none; } }
+/* Kleine Begrüßung neben Goch (Schritt 5): links von ihm im Kopf, wie im Entwurf. */
+.goch-gruss { position: absolute; z-index: 3; left: max(14px, calc(50% - 390px + min(6vw, 48px))); bottom: calc(var(--gw) * .2); width: min(44%, 250px); padding: 9px 12px 10px; border: 1px solid var(--line); border-radius: 4px;
+  background: var(--paper) url("assets/papier.jpg"); background-size: 512px; background-blend-mode: multiply; box-shadow: 0 10px 24px -14px rgba(40, 32, 20, .4); color: var(--ink); font: 13px/1.4 var(--sans); text-align: left; cursor: pointer;
+  opacity: 0; transform: translateY(6px); transition: opacity .45s ease, transform .45s ease; }
+.goch-gruss.da { opacity: 1; transform: none; }
+.goch-gruss-wer { display: block; margin-bottom: 2px; font-size: 11px; letter-spacing: .04em; color: var(--ink-soft); }
+.goch-gruss:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .goch-gruss { transition: none; } }
 /* Goch bleibt frei: Am Seitenanfang endet das offene Blatt unter seinem Ast (--goch-kopf-unten setzt goch-seite.js).
    Im Gesprächsmodus am Handy gelten die Höhen der Startseite. */
 html:not(.goch-fokus):not(.goch-unterwegs) body[data-goch-seite] .goch { max-height: max(240px, min(80dvh, calc(100dvh - var(--goch-kopf-unten, 180px) - 26px - var(--goch-unten, 0px)))) !important; }

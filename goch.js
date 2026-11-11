@@ -65,6 +65,7 @@
     try { localStorage.removeItem(storeKey); } catch (_) {}
   }
 
+  const unterseite = !!document.body.dataset.gochSeite, heim = document.body.dataset.gochHeim || ''; // Unterseiten (goch-seite.js); heim: Adresse der Startseite
   // ---------- Gespräch ----------
   const history = []; // {role, content} – nur die Runde, kein Speicher
   let opened = false, busy = false, pending = null, returnFocus = null;
@@ -128,7 +129,6 @@
   const nameLink = document.getElementById('name-link');
   const narrow = matchMedia('(max-width: 720px)');
   const panelHome = panel.parentNode;
-  const unterseite = !!document.body.dataset.gochSeite, heim = document.body.dataset.gochHeim || ''; // heim: Adresse der Startseite
   // Mit Sprachschaltern (goch-stimme.js) braucht die Blase mehr Platz: so hoch wie ihr Inhalt plus Raum für den Verlauf,
   // sonst schrumpft der Verlauf auf null und die Fußzeile ragt über die Seite (Robin, 23.10.2026).
   function mindesthoehe() {
@@ -173,7 +173,7 @@
     place();
     panel.scrollIntoView({ block: 'nearest' });
     scene.setAttribute('aria-expanded', 'true');
-    if (!opened) { opened = true; bubble('goch', t('gochGreeting')); }
+    if (!opened) { opened = true; bubble('goch', document.body.dataset.gochGruss || t('gochGreeting')); }
     if (choice && !choice.allowed) bubble('goch', t('gochDeniedNote'));
     setAvailability();
     (form.hidden ? closeButton : input).focus();
@@ -223,7 +223,8 @@
     try {
       const r = await fetch(endpoint, {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), ...zusatz(opts) })
+        // Unterseiten nennen ihren Pfad, damit Goch weiß, wo der Besucher ist (der Worker nimmt nur Seiten, die er selbst kennt)
+        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), ...(unterseite ? { seite: location.pathname } : {}), ...zusatz(opts) })
       });
       if (r.status === 503) { switchOff(); return; } // in der Redaktion ausgeschaltet: Vogel fliegt wieder statt zu sprechen
       if (!r.ok) throw new Error(String(r.status));

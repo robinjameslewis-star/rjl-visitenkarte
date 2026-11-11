@@ -31,7 +31,7 @@ import { stimmeFuerAntwort, stimmeInTeilen, KI_HINWEIS, GESPROCHEN } from "./sti
 import { kostenBuchen, adresseFrei } from "./kosten.js";
 import { handleListen } from "./hoeren.js";
 import { handleKiosk, kundenSystem, kundenVortrag, stillAntwort, GOCH_AM_GERAET } from "./kiosk.js";
-import { laden as seitenLaden, prompt as seitenPrompt, links as seitenLinks } from "./seitenwissen.js";
+import { laden as seitenLaden, prompt as seitenPrompt, links as seitenLinks, jetzt as seiteJetzt } from "./seitenwissen.js";
 // Durable Object des Messegeräts (Gerätebudget, src/kiosk.js) – muss vom Hauptmodul exportiert werden
 export { Geraetebudget } from "./kiosk.js";
 import { workshopAnfrage } from "./workshop.js";
@@ -240,7 +240,7 @@ const worker = {
 
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
     const system = kunde ? kundenSystem(intern.figur, lang)
-      : ohneKommentarkopf(content.profile) + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
+      : ohneKommentarkopf(content.profile) + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + (intern ? "" : seiteJetzt(content.seiten, body.seite)) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
     const zeigen = body.kannZeigen === true && !intern && !kunde;
     // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
     const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
