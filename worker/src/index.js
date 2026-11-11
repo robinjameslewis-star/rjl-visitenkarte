@@ -108,7 +108,11 @@ const TEXT = {
 
 const worker = {
   // Vorne: Stimme zur Antwort von /chat (NDJSON), nur wenn die Seite sie verlangt; sonst unverändert durchgereicht.
+  // Jede Antwort bekommt HSTS und nosniff (Sicherheitsprüfung 11.11.2026, N1), auch /admin.
   async fetch(request, env, ctx) {
+    return mitSicherheitskoepfen(await worker.antwort(request, env, ctx));
+  },
+  async antwort(request, env, ctx) {
     if (request.method === "POST" && new URL(request.url).pathname === "/chat") {
       let body = null;
       try { body = await request.clone().json(); } catch {}
@@ -292,6 +296,15 @@ const worker = {
 };
 
 export default worker;
+
+// Sicherheitsköpfe für alle Antworten des Workers; offene Verbindungen (WebSocket, Status 101) bleiben unverändert.
+export function mitSicherheitskoepfen(response) {
+  if (!response || response.status === 101 || response.webSocket) return response;
+  const headers = new Headers(response.headers);
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  headers.set("X-Content-Type-Options", "nosniff");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
 
 // Benannter Eingang für die Service Binding des Memberbereichs (src/workshop.js); keine Route, von außen nicht erreichbar.
 export const Workshop = { fetch: (request, env, ctx) => workshopAnfrage(request, env, ctx, { handle: worker.handle, mitStimme }) };
