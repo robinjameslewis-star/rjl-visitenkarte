@@ -464,6 +464,8 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
         const far=picture(season,'ferne','(max-width:720px) 62vw, 616px','tal-burg') /* dieselbe Angabe wie die Bühne: das Bild liegt schon im Cache */; if (far) talFar.append(far);
         // Am Handy genügt die kleine Fassung (Dunst hinter den Blättern): spart dort rund 250 KB, auch bei dreifacher Pixeldichte.
         TAL.forEach(t=>{ const p=picture(season,t.kind,'(max-width:720px) 300px, max(100vw, 1000px)','tal-ebene'); if (p) { p.dataset.kind=t.kind; p.style.setProperty('--ax',t.ax); tal.append(p); } });
+        // Talstück vor dem ersten Blatt: dieselbe Datei wie die Höhenzüge darunter (schon geladen), gespiegelt.
+        if (talStueck) { const p=picture(season,'mitte','(max-width:720px) 300px, max(100vw, 1000px)','tal-stueck-bild'); if (p) { talStueck.append(p); if (season===state.to) { const da=()=>talStueck.classList.add('da'), img=p.querySelector('img'); if (img.complete) da(); else img.addEventListener('load',da,{once:true}); } } }
       });
     }
     talFrames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
@@ -477,6 +479,20 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       for (let i=0;i<zahl;i++) { const b=document.createElement('i'); b.className='tal-laub '+art; b.style.cssText=`left:${art==='snow'?6+i*7:art==='petal'?30+i*10:48+i*9}%;--d:${9+(i%5)*2.3}s;--w:${(i*1.3).toFixed(1)}s`; talLaub.append(b); }
     }
     talDraw();
+  }
+  // Talstück („Hang und Nebel“, Robin 12.11.2026): Im freien Streifen zwischen Bühne und erstem Blatt stehen Höhenzüge im Dunst.
+  // Es liegt im Dokument (scrollt ohne Skript mit), hinter Bühne und Blättern; der Kamm steht mittig im Streifen, der Dunst
+  // läuft hinter das erste Blatt. Nur wo es Bühne und Streifen gibt (Startseite). Platz nimmt es keinen: kein Sprung beim Laden.
+  let talStueck=null;
+  function talStueckLage() {
+    if (!talStueck) return;
+    const blatt=stage.nextElementSibling, r=stage.getBoundingClientRect();
+    const frei=blatt?parseFloat(getComputedStyle(blatt).marginTop)-28:0; // 28 px: Das Blatt ragt über seinen Bereich hinaus
+    talStueck.hidden=!(frei>=70);
+    if (talStueck.hidden) return;
+    const breit=Math.max(root.clientWidth,1000), hoch=breit*349/900; // Seitenverhältnis der Talebenen; der Kamm liegt bei gut einem Viertel der Höhe
+    talStueck.style.top=(r.bottom+window.scrollY+frei/2-hoch*.235).toFixed(1)+'px';
+    talStueck.style.height=hoch.toFixed(1)+'px';
   }
   function talDraw() {
     talWaiting=false;
@@ -497,6 +513,11 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       tal=document.createElement('div'); tal.className='tal'; tal.setAttribute('aria-hidden','true');
       tal.innerHTML='<div class="tal-fern"><div class="tal-himmel"></div></div><div class="tal-laubfeld"></div>'; talFar=tal.firstChild; talLaub=tal.lastChild;
       document.body.prepend(tal); root.classList.add('tal-on');
+      if (stage && stage.nextElementSibling && stage.nextElementSibling.matches('section')) {
+        talStueck=document.createElement('div'); talStueck.className='tal-stueck'; talStueck.setAttribute('aria-hidden','true'); tal.after(talStueck);
+        talStueckLage(); window.addEventListener('resize',talStueckLage);
+        if ('ResizeObserver' in window) new ResizeObserver(talStueckLage).observe(stage);
+      }
       window.addEventListener('scroll',()=>{ if(!talWaiting){ talWaiting=true; requestAnimationFrame(talDraw); } },{passive:true});
       window.addEventListener('resize',talDraw); motion.addEventListener('change',talDraw);
       if (talState) talLayers(talState);
