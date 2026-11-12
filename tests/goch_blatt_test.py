@@ -180,7 +180,8 @@ async def main():
                 check(await ev("scrollY") < 5 and not await klasse('goch-angeheftet') and not f['fest'] and not f['amBody'] and f['verdeckt'] == 0, "Tipp auf den kleinen Goch führt zurück: Das Blatt hängt wieder am Ast", f)
                 check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "der kleine Goch ist weg")
                 await klick('#goch-close'); await ev("window.scrollTo(0,1000)"); await pump(0.6)
-                check(not await klasse('goch-angeheftet') and await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "Gespräch zu: kein Blatt, kein kleiner Goch")
+                # seit dem Begleiter mit Stationen (12.11.2026): Ohne offenes Gespräch begleitet der kleine Goch, ein Blatt gibt es nicht
+                check(not await klasse('goch-angeheftet') and await bis("document.documentElement.classList.contains('goch-begleitet') && getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'block') == 'block' and await ev("document.getElementById('goch').hidden"), "Gespräch zu: kein Blatt, der kleine Goch begleitet")
 
             print("2. Handy: kleiner Goch mit Ast")
             await send("Emulation.setDeviceMetricsOverride", {"width": 375, "height": 667, "deviceScaleFactor": 2, "mobile": True})
@@ -218,9 +219,21 @@ async def main():
             k = await bis(klein, lambda k: k['ruht'] and k['da'] and k['ast'])
             check(k['fuesse'] and k['astBisRand'], "auch mit beweglichen Teilen sitzt er auf dem Ast", k)
             await shot("kleiner_Goch_spricht_Handy")
-            await ev("__flug.length = 0; window.scrollTo(0,0)"); await pump(0.3)
-            check(await bis("__flug[0] || ''", lambda x: x == 'ab', 4) == 'ab' and await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'block', "Rückzug: Der kleine Goch fliegt ab und ist dabei noch zu sehen", await ev("__flug"))
-            check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "großer Goch im Bild: Der kleine ist nicht zu sehen")
+            # Nie zwei Gochs zugleich: Beim Hochscrollen ist der kleine sofort weg, sobald der große ins Bild kommt – ohne Abflug
+            await ev("""__flug.length = 0; window.__beide = 0; window.__misst = true; (function bild() { const s = document.getElementById('scene').getBoundingClientRect(), m = document.getElementById('goch-mini');
+              if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().top < innerHeight) __beide++; if (__misst) requestAnimationFrame(bild); })()""")
+            for y in (560, 420, 280, 140, 0):
+                await ev(f"window.scrollTo(0,{y})"); await pump(0.25)
+            await pump(0.6)
+            check(await ev("__misst = false, __beide") == 0 and await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "hochgescrollt: nie beide Gochs zugleich, der kleine ist sofort weg", await ev("__beide"))
+            check('ab' not in await ev("__flug"), "kein Abflug über dem großen Goch", await ev("__flug"))
+            # Gespräch schließen: Die Seite springt zum großen Goch – auch dabei nie beide zugleich
+            await ev("window.scrollTo(0,700)"); k = await bis(klein, lambda k: k['ruht'] and k['da'] and k['ast'])
+            await ev("""window.__beide = 0; window.__misst = true; (function bild() { const s = document.getElementById('scene').getBoundingClientRect(), m = document.getElementById('goch-mini');
+              if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().top < innerHeight) __beide++; if (__misst) requestAnimationFrame(bild); })()""")
+            await ev("document.getElementById('goch-close').click()"); await pump(1.5)
+            check(await ev("__misst = false, __beide") == 0 and await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "Gespräch geschlossen: der kleine Goch ist weg, nie beide zugleich", await ev("__beide"))
+            await ev("window.scrollTo(0,0)"); await bis("document.getElementById('scene').dataset.state", lambda x: x == 'rest'); await klick('#scene'); await klick('#goch-zur-seite'); await pump(0.5)
             print("2c. Reduzierte Bewegung: kein Flug")
             await send("Emulation.setEmulatedMedia", {"features": [{"name": "prefers-reduced-motion", "value": "reduce"}]})
             await ev("__flug.length = 0; window.scrollTo(0,700)"); await pump(0.8)
