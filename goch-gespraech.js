@@ -23,6 +23,9 @@
   const stelle = ziel => $(ziel === 'grundsaetze' ? 'grundsaetze-' + (window.SiteLanguage.current === 'en' ? 'en' : 'de') : ziel);
 
   let modus = { mikro: false, laut: false, einmal: false }, lage = 'aus', zuletzt = 0; // lage: aus | fokus | unterwegs
+  let begleitet = false, weicht = false; // Begleiter ohne offenes Gespräch; weicht: Unter ihm liegt gerade etwas Bedienbares (unten: Begleiter mit Stationen)
+  // Der kleine Goch ist da: im Gesprächsmodus unterwegs, neben dem mitlaufenden Blatt oder als Begleiter
+  const miniSicht = () => { mini.hidden = !(lage === 'unterwegs' || (lage === 'aus' && (!!breit || (begleitet && !weicht)))); };
   function setzen(neu) {
     if (neu === lage) return;
     const vorher = lage;
@@ -30,7 +33,7 @@
     html.classList.toggle('goch-fokus', neu === 'fokus');
     html.classList.toggle('goch-unterwegs', neu === 'unterwegs');
     if (neu === 'unterwegs') miniLaden();
-    mini.hidden = neu !== 'unterwegs';
+    miniSicht();
     zurSeite.hidden = neu !== 'fokus';
     if (neu === 'fokus') { zuletzt = scrollY; scrollTo(0, 0); } // zuletzt: wo die Seite stand, bevor Goch groß wurde
     if (neu === 'aus' && vorher === 'fokus') scrollTo(0, zuletzt);
@@ -105,11 +108,11 @@
     mini.dataset.flug = ''; mini.classList.remove('fliegt-ab'); mini.style.bottom = '';
   }
   function miniPruefen() {
-    const soll = !mini.hidden && !mini.classList.contains('goch-mini-weg') && (lage === 'unterwegs' || !!breit);
+    const soll = !mini.hidden && !mini.classList.contains('goch-mini-weg') && (lage === 'unterwegs' || !!breit || begleitet);
     if (soll && !mini.classList.contains('fliegt-ab')) boden = getComputedStyle(mini).bottom;
     if (soll === miniDa) return;
     miniDa = soll;
-    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => {}); }
+    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => { gelandet = performance.now(); begleiterBald(); }); }
     // Nie zwei Gochs zugleich (Robin, 11.11.2026): Kommt der große Goch ins Bild, ist der kleine sofort weg – ohne Abflug.
     // Er fliegt nur ab, wenn der große nicht zu sehen ist (Gespräch geschlossen, „Seite ansehen“ aufgehoben).
     else if (sichtbar > .02 || grossImBild()) flugAus();
@@ -125,7 +128,7 @@
     html.classList.toggle('goch-angeheftet', !!neu);
     html.classList.toggle('goch-zeile', neu === 'zeile');
     if (neu) miniLaden();
-    if (lage === 'aus') { mini.hidden = !neu; zurSeite.hidden = neu !== 'blatt'; }
+    if (lage === 'aus') { miniSicht(); zurSeite.hidden = neu !== 'blatt'; }
     window.Goch.place();
     hoehe();
   }
@@ -148,7 +151,7 @@
     if (!d && vv && Math.abs(vv.scale - 1) < .01) d = Math.round(html.clientHeight - vv.height - vv.offsetTop);
     html.style.setProperty('--goch-unten', (d > 0 && d <= 140 ? d : 0) + 'px');
   }
-  const untenBald = () => { if (!untenWartet && !panel.hidden) { untenWartet = true; requestAnimationFrame(unten); } };
+  const untenBald = () => { if (!untenWartet && (!panel.hidden || begleitet)) { untenWartet = true; requestAnimationFrame(unten); } };
   if (vv) { vv.addEventListener('resize', untenBald); vv.addEventListener('scroll', untenBald); }
   window.addEventListener('scroll', untenBald, { passive: true });
   new MutationObserver(untenBald).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
@@ -183,7 +186,12 @@
   schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
   // Kommt der große Goch zurück, fliegt er wieder an – nur wenn er gerade weder spricht noch zuhört (im Flug ruht der Schnabel)
   function grossAn() { if (window.GochFlug && !ruhig.matches && !window.GochStimme.beschaeftigt() && !modus.mikro) window.GochFlug.an(); }
-  mini.addEventListener('click', () => { if (breit) scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); else { setzen('fokus'); grossAn(); } });
+  mini.addEventListener('click', () => {
+    // Begleiter: Der Tipp öffnet das Gespräch – auf breiten Bildschirmen als mitlaufendes Blatt an Ort und Stelle, am Handy
+    // bei Goch am Seitenanfang (dort steht das Gespräch ohne Sprachfunktion), er fliegt dort wieder an.
+    if (begleitet) { wortAus(); if (schmal.matches) scrollTo(0, 0); else breitSetzen('blatt'); window.Goch.oeffnen(); if (schmal.matches) { rueckkehr = false; grossAn(); } return; }
+    if (breit) scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); else { setzen('fokus'); grossAn(); }
+  });
   zurSeite.addEventListener('click', () => { if (breit) breitSetzen('zeile'); else freigeben(); });
   // Neben dem Blatt: Tipp, Wisch oder Mausrad auf dem Papier gibt die Seite frei
   const papier = $('goch-papier'), kopf = panel.querySelector('.goch-head');
@@ -226,14 +234,136 @@
     sichtbar = es[es.length - 1].intersectionRatio;
     mini.classList.toggle('goch-mini-weg', sichtbar > .02); // schon der Rand des großen Goch genügt: nie beide zugleich
     if (sichtbar > .02 && (mini.classList.contains('fliegt-ab') || mini.dataset.flug)) flugAus();
+    if (sichtbar > 0 && rueckkehr) { rueckkehr = false; grossAn(); } // der Begleiter ist abgeflogen: Der große fliegt wieder an
     breitPruefen();
   }, { threshold: [0, .02, .1, .35, .5, 1] }).observe(scene);
   // Der IntersectionObserver meldet erst ein Bild später. Solange der kleine Goch zu sehen ist, prüft deshalb schon das
   // Scrollen selbst, ob der große ins Bild kommt – dann ist der kleine im selben Bild weg.
   window.addEventListener('scroll', () => {
     if (!miniDa && !mini.classList.contains('fliegt-ab')) return;
-    if (grossImBild()) { sichtbar = Math.max(sichtbar, .03); mini.classList.add('goch-mini-weg'); miniPruefen(); }
+    if (grossImBild()) { sichtbar = Math.max(sichtbar, .03); mini.classList.add('goch-mini-weg'); if (mini.classList.contains('fliegt-ab') || mini.dataset.flug) flugAus(); miniPruefen(); }
   }, { passive: true });
+  // ---------- Begleiter mit Stationen (Robin, 11.11.2026: „auf der startseite soll goch auch mitfliegen“) ----------
+  // Auch ohne offenes Gespräch: Ist der große Goch weit genug aus dem Bild, fliegt der kleine an und sitzt unten rechts auf
+  // seinem Ast. Kommt ein Abschnitt ins Bild, zu dem er etwas weiß, fliegt er eine kurze Runde, landet und sagt einen Satz
+  // als Sprechblase – je Abschnitt höchstens einmal je Seitenaufruf (nur im Arbeitsspeicher, nichts wird im Browser abgelegt).
+  // Die Sätze stehen in language.js (gochStation_…), es geht keine Anfrage an den Worker, und er spricht sie nicht.
+  // Scrollt der Besucher zurück, fliegt der kleine ab, bevor der große erscheint (Vorlauf: ein gutes Drittel der Fensterhöhe); der große
+  // fliegt dann wieder an. Ein Tipp auf den kleinen öffnet das Gespräch. Liegt ein Knopf, ein Feld, ein Video oder ein
+  // Verweis unter ihm, fliegt er ab und kommt erst wieder, wenn sein Platz eine Weile frei ist (sein Platz steht fest im
+  // Fenster und wird gemerkt, solange er zu sehen ist). Die Sprechblase erscheint nur, wo sie nichts Bedienbares verdeckt.
+  const unter = !!document.body.dataset.gochSeite;
+  const ORTE = unter
+    ? { 'k-workshops': 'workshops', 'k-workshop-e-rechnung': 'ws_erechnung', ablauf: 'ablauf', anfrage: 'anfrage', fragen: 'fragen', vergleich: 'vergleich',
+        stationen: 'stationen', rotkehlchen: 'rotkehlchen', kontakt: 'kontakt', neu: 'neu' }
+    : { werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', 'ueber-mich': 'ueber_mich', nachricht: 'nachricht' };
+  const TITEL = { 'was es kann': 'kann', 'was er kann': 'kann', 'what it does': 'kann', 'so geht es': 'so_geht_es', 'how it works': 'so_geht_es' };
+  const BEDIENBAR = 'button, input, textarea, select, video, summary, a[class*="cta"], .wzs-karte a, .ws-karte a';
+  const knopf = mini.querySelector('.goch-mini-knopf'), wort = document.createElement('span');
+  wort.className = 'goch-mini-wort'; wort.hidden = true; wort.innerHTML = '<small></small><span></span>';
+  mini.append(wort);
+  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, gelandet = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null;
+  const gesehen = new Set();
+  function stationenSuchen() {
+    stationen = [];
+    if (unter) document.querySelectorAll('main h2').forEach(h => {
+      const key = ORTE[h.id] || (!h.id && TITEL[h.textContent.trim().toLowerCase()]);
+      if (key) stationen.push({ el: h, key, kopf: true });
+    });
+    else Object.keys(ORTE).forEach(id => { const el = $(id); if (el) stationen.push({ el, key: ORTE[id], kopf: false }); });
+  }
+  function stationJetzt() {
+    const vh = innerHeight; let treffer = null;
+    for (const s of stationen) {
+      if (s.el.hidden) continue;
+      const r = s.el.getBoundingClientRect();
+      if (!r.height) continue;
+      if (s.kopf ? r.top < vh * .6 && r.top > -vh * .4 : r.top < vh * .6 && r.bottom > vh * .3) treffer = s;
+    }
+    return treffer;
+  }
+  // Liegt unter der Fläche etwas Bedienbares der Seite?
+  function frei(z, was) {
+    if (!z || !z.width) return true;
+    for (const k of document.querySelectorAll(was || BEDIENBAR)) {
+      if (mini.contains(k) || panel.contains(k)) continue;
+      const r = k.getBoundingClientRect();
+      if (r.width && r.bottom > z.top && r.top < z.bottom && r.right > z.left && r.left < z.right && r.bottom > 0 && r.top < innerHeight) return false;
+    }
+    return true;
+  }
+  function wortAus() { clearTimeout(wortT); wort.classList.remove('da'); wort.hidden = true; }
+  // Kurze Runde von Ast zu Ast: Der Ast bleibt, Goch hebt ab, fliegt einen Bogen und landet wieder
+  function miniRunde(fertig) {
+    const lauf = ++flugLauf;
+    const ende = () => { tier.classList.remove('fliegt'); tier.style.transform = ''; tier.style.opacity = ''; if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; }); mini.dataset.flug = ''; fertig(); };
+    flugBauen();
+    if (ruhig.matches || document.hidden || !flugBilder || !Object.values(flugBilder).every(i => i.complete && i.naturalWidth)) { fertig(); return; }
+    const dauer = 1250, start = performance.now(), w = tier.offsetWidth || 180;
+    tier.classList.add('fliegt'); mini.dataset.flug = 'runde';
+    const schritt = now => {
+      if (lauf !== flugLauf) return;
+      const p = Math.min(1, (now - start) / dauer), hoch = Math.sin(p * Math.PI);
+      const x = (-hoch * .34 + Math.sin(p * Math.PI * 2) * .12) * w, y = -hoch * .62 * w;
+      const pose = p > .8 ? 'landing' : ['up', 'glide', 'down', 'glide'][Math.floor((now - start) / 72) % 4];
+      Object.entries(flugBilder).forEach(([k, i]) => { i.style.opacity = k === pose ? '1' : '0'; });
+      tier.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${(1 - hoch * .16).toFixed(3)})`;
+      if (p < 1) requestAnimationFrame(schritt); else ende();
+    };
+    requestAnimationFrame(schritt);
+  }
+  function stationSagen(s) {
+    if (!begleitet || kandidat !== s || gesehen.has(s.key)) return;
+    const spaeter = ms => { kandidatT = setTimeout(() => stationSagen(s), ms); };
+    if (!miniDa || mini.dataset.flug || weicht) { spaeter(400); return; } // er ist noch im Anflug oder macht gerade Platz
+    wort.firstChild.textContent = t('gochWortWer'); wort.lastChild.textContent = t('gochStation_' + s.key);
+    wort.hidden = false;
+    if (!frei(wort.getBoundingClientRect())) { wort.hidden = true; spaeter(700); return; } // hier würde die Sprechblase etwas Bedienbares verdecken: später noch einmal
+    wort.hidden = true;
+    gesehen.add(s.key);
+    const zeigen = () => {
+      if (!begleitet || kandidat !== s || !miniDa) return;
+      wort.hidden = false;
+      if (!frei(wort.getBoundingClientRect())) { wort.hidden = true; return; }
+      void wort.offsetWidth; wort.classList.add('da');
+      clearTimeout(wortT); wortT = setTimeout(wortAus, 6500);
+    };
+    if (performance.now() - gelandet < 2500) zeigen(); else miniRunde(zeigen); // gerade erst angeflogen: keine zweite Runde
+  }
+  function stationPruefen() {
+    const s = stationJetzt();
+    if (s !== kandidat) {
+      kandidat = s; clearTimeout(kandidatT); wortAus();
+      if (s && !gesehen.has(s.key)) kandidatT = setTimeout(() => stationSagen(s), 550); // erst wenn der Besucher im Abschnitt verweilt
+    }
+    if (!wort.hidden && !frei(wort.getBoundingClientRect())) wortAus();
+    // Platz machen: Der Vogel nimmt Tipps an, deshalb zählen unter ihm auch gewöhnliche Verweise
+    const r = knopf.getBoundingClientRect();
+    if (r.width) knopfOrt = r;
+    if (!frei(knopfOrt, BEDIENBAR + ', a[href]')) { clearTimeout(weichtT); weichtT = 0; if (!weicht) { weicht = true; wortAus(); miniSicht(); } }
+    else if (weicht && !weichtT) weichtT = setTimeout(() => { weichtT = 0; weicht = false; if (begleitet) miniSicht(); }, 700);
+  }
+  const knopfText = () => knopf.setAttribute('aria-label', t(begleitet ? 'gochMiniFragen' : 'gochMini'));
+  function begleiterPruefen() {
+    begleiterWartet = false;
+    const r = scene.getBoundingClientRect(), vor = innerHeight * .35;
+    const an = panel.hidden && scene.dataset.chat === 'on' && lage === 'aus' && !breit && r.bottom < -vor - (begleitet ? 0 : 40);
+    if (an !== begleitet) {
+      begleitet = an;
+      html.classList.toggle('goch-begleitet', an);
+      if (an) { if (!stationen) stationenSuchen(); miniLaden(); unten(); }
+      else { clearTimeout(kandidatT); clearTimeout(weichtT); weichtT = 0; weicht = false; kandidat = null; wortAus(); rueckkehr = panel.hidden; }
+      miniSicht(); knopfText();
+    }
+    if (begleitet) stationPruefen();
+  }
+  const begleiterBald = () => { if (!begleiterWartet) { begleiterWartet = true; requestAnimationFrame(begleiterPruefen); } };
+  window.addEventListener('scroll', begleiterBald, { passive: true });
+  window.addEventListener('resize', () => { knopfOrt = null; begleiterBald(); }, { passive: true });
+  window.addEventListener('site-languagechange', () => { knopfText(); wortAus(); });
+  new MutationObserver(begleiterPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  new MutationObserver(begleiterBald).observe(scene, { attributes: true, attributeFilter: ['data-chat'] });
+  begleiterBald();
   // Der kleine Goch wippt, solange Goch spricht (data-spricht an der Szene, goch-audio.js, bewegung)
   new MutationObserver(() => mini.classList.toggle('spricht', !!scene.dataset.spricht)).observe(scene, { attributes: true, attributeFilter: ['data-spricht'] });
 })();
