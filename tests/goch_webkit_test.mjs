@@ -40,7 +40,7 @@ async function seiteAuf() {
   await p.locator("#scene").click({ position: { x: 150, y: 90 } }); await p.waitForTimeout(500);
   return { p, ctx };
 }
-const stand = p => p.evaluate(() => ({ lage: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), zustand: document.getElementById("goch-mikro").dataset.zustand, an: document.getElementById("goch-mikro-an").getAttribute("aria-pressed"), blasen: document.querySelectorAll(".goch-bubble").length, letzte: [...document.querySelectorAll(".goch-bubble")].pop().textContent.slice(0, 60) }));
+const stand = p => p.evaluate(() => ({ lage: (document.documentElement.className.match(/goch-\w+/g) || []).filter(k => k !== "goch-fort").join(" "), zustand: document.getElementById("goch-mikro").dataset.zustand, an: document.getElementById("goch-mikro-an").getAttribute("aria-pressed"), blasen: document.querySelectorAll(".goch-bubble").length, letzte: [...document.querySelectorAll(".goch-bubble")].pop().textContent.slice(0, 60) }));
 async function frage(p) { const n = await listen(); await p.evaluate(() => { __sprich = true; }); await p.waitForTimeout(1500); await p.evaluate(() => { __sprich = false; }); await p.waitForTimeout(4200); return (await listen()) - n; }
 async function hoertAn(p) { await p.locator("#goch-mikro-an").click(); await p.waitForTimeout(400); await p.locator("#goch-stimme-allow").click(); await p.waitForTimeout(1500); }
 
@@ -82,11 +82,12 @@ for (const art of ["gross", "kapsel"]) {
   await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug; }, null, { timeout: 8000 });
   check(true, "unten sitzt der kleine Goch");
   // je gezeichnetem Bild messen (requestAnimationFrame läuft nach den Scroll-Ereignissen, kurz vor dem Zeichnen)
-  await p.evaluate(() => { window.__beide = 0; window.__misst = true; const bild = () => { const s = document.getElementById("scene").getBoundingClientRect(), m = document.getElementById("goch-mini"); if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== "none") __beide++; if (__misst) requestAnimationFrame(bild); }; requestAnimationFrame(bild); });
+  await p.evaluate(() => { window.__beide = 0; window.__misst = true; const bild = () => { const s = document.getElementById("scene").getBoundingClientRect(), m = document.getElementById("goch-mini"); if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== "none" && getComputedStyle(document.querySelector("#scene .bird-move")).visibility !== "hidden") __beide++; if (__misst) requestAnimationFrame(bild); }; requestAnimationFrame(bild); });
   for (const y of [760, 620, 480, 340, 200, 60, 0]) { await p.evaluate(v => scrollTo(0, v), y); await p.waitForTimeout(180); }
-  await p.waitForTimeout(700);
-  const r = await p.evaluate(() => { __misst = false; return { beide: __beide, klein: getComputedStyle(document.getElementById("goch-mini")).display }; });
-  check(r.beide === 0 && r.klein === "none", "beim Hochscrollen ist der kleine weg, sobald der große ins Bild kommt", r);
+  // seit der Übergabe (12.11.2026) fliegt derselbe Vogel hinauf: Der kleine ist weg, wenn der große wieder auf dem Bühnen-Ast sitzt
+  await p.waitForFunction(() => getComputedStyle(document.getElementById("goch-mini")).display === "none" && !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {});
+  const r = await p.evaluate(() => { __misst = false; return { beide: __beide, klein: getComputedStyle(document.getElementById("goch-mini")).display, gross: getComputedStyle(document.querySelector("#scene .bird-move")).visibility }; });
+  check(r.beide === 0 && r.klein === "none" && r.gross !== "hidden", "beim Hochscrollen fliegt er hinauf: nie zwei Gochs, oben sitzt wieder der große", r);
   await p.evaluate(() => scrollTo(0, 900));
   await p.waitForFunction(() => getComputedStyle(document.getElementById("goch-mini")).display === "block", null, { timeout: 8000 });
   check(true, "wieder unten fliegt der kleine neu an");

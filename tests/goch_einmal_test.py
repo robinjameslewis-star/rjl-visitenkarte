@@ -201,6 +201,7 @@ async def main():
             await ev("__sprich = true"); await pump(1.3); await ev("__sprich = false"); await pump(5.0)
             check(len(neu_listen()) == n0 + 1 and (await ev(bubbles))[-1].startswith('goch: '), "als Begleiter gefragt: Goch antwortet in der Leiste")
             await ev("window.scrollTo(0,0)"); await pump(0.5)
+            await bis("document.documentElement.classList.contains('goch-fort')", lambda x: not x, 6); await pump(0.4)  # Übergabe: Er fliegt erst hinauf
             check(await ev("document.getElementById('goch-mini').classList.contains('goch-mini-weg')"), "ist der große Goch im Bild, bleibt der kleine weg")
             await ev("window.scrollTo(0,700)"); await pump(0.5)
             await klick('#goch-log'); await pump(0.3)
