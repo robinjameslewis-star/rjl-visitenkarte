@@ -315,7 +315,7 @@
   .goch-zweig[hidden] { display: none; }
   .goch-mini.fliegt-ab .goch-mini-ast { opacity: 0; transition: opacity .5s ease .45s; } /* der Ast zieht sich mit zurück: nie ein Ast ohne Goch */
   .goch-mini-bild { position: relative; display: block; width: var(--gm); }
-  .goch-mini-tier { position: relative; display: block; transform-origin: 45% 80%; }
+  .goch-mini-tier { position: relative; display: block; transform-origin: 44% 94%; } /* Drehpunkt an den Füßen (wie goch-leben.js): Im Sitzen bleiben sie auf dem Ast, nur der Körper darüber bewegt sich (Robin, 12.11.2026) */
   .goch-mini-vogel { display: block; width: 100%; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,.12)); } /* freigestellte Fassung */
   .goch-mini[data-leben] .goch-mini-vogel { visibility: hidden; } /* Körper, Kopf und Schwanz aus goch-leben.js: der Schnabel bewegt sich */
   .goch-mini-ast { position: absolute; z-index: 1; left: 0; top: 85.24%; display: block; width: 242.8447528%; max-width: none; height: auto; }
@@ -335,7 +335,7 @@
   @media (prefers-reduced-motion: reduce) { .goch-mini-wort { transition: none; } }
   .goch-mini.goch-mini-weg { display: none !important; } /* solange der große Goch im Bild ist: nie zwei Gochs zugleich */
   .goch-mini.spricht .goch-mini-tier { animation: goch-mini 0.45s ease-in-out infinite alternate; }
-  @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }
+  @keyframes goch-mini { to { transform: rotate(-2deg); } }
   @media (prefers-reduced-motion: reduce) { .goch-mini.spricht .goch-mini-tier { animation: none; } .goch-mini[data-leben] .goch-mini-vogel { visibility: visible; } }
   /* Tablet und Rechner: Goch ist aus dem Bild, das Blatt läuft unten rechts mit (goch-gespraech.js) */
   @media (min-width: 721px) {

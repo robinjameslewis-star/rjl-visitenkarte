@@ -73,6 +73,32 @@ for (const breit of [false, true]) {
   s = await stand(p);
   check(!s.flug.runde && s.flug.an === anfluege && !s.flug.ab && s.klein, "er sitzt beim Abschnittswechsel: kein Flug, nur die Sprechblase wechselt", s.flug);
   check(s.verdeckt === 0 && s.imFenster, "auch diese Sprechblase verdeckt nichts Bedienbares", { verdeckt: s.verdeckt, imFenster: s.imFenster });
+  // Füße am Ast (Robin, 12.11.2026): Im Sitzen bewegt sich nur der Körper über den Füßen – beim Sprechen, Knicksen, Atmen, Kopfdrehen.
+  // Drei Messpunkte an den Zehen laufen mit allen Bewegungen des Körpers mit; gemessen wird ihre Lage zum Ast in jedem gezeichneten Bild.
+  const fuss = await p.evaluate(() => new Promise(fertig => {
+    const mini = document.getElementById("goch-mini"), tier = mini.querySelector(".goch-mini-tier"), ast = mini.querySelector(".goch-mini-ast"), scene = document.getElementById("scene");
+    const knicks = tier.querySelector(".leben-knicks"), traeger = knicks || tier;
+    const punkte = [[38, 96], [44.5, 94], [51, 96]].map(([x, y]) => { const i = document.createElement("i"); i.style.cssText = `position:absolute;left:${x}%;top:${y}%;width:1px;height:1px;pointer-events:none`; traeger.append(i); return i; });
+    const kopf = tier.querySelector(".leben-kopf"), start = performance.now(), lagen = [], koepfe = [];
+    scene.dataset.spricht = "1"; // der kleine Goch übernimmt „spricht“ von der Szene
+    const bild = now => {
+      const a = ast.getBoundingClientRect();
+      lagen.push(punkte.map(i => { const r = i.getBoundingClientRect(); return [r.left - a.left, r.top - a.top]; }));
+      if (kopf) koepfe.push(kopf.getBoundingClientRect().top - a.top);
+      const t = now - start;
+      if (knicks) { if (t > 500 && t < 700) knicks.dataset.knickst = "1"; else delete knicks.dataset.knickst; }
+      if (kopf && t > 900 && t < 1300) kopf.style.transform = "rotate(5deg)";
+      if (t < 1900) requestAnimationFrame(bild);
+      else {
+        const sprach = mini.classList.contains("spricht"); delete scene.dataset.spricht; if (kopf) kopf.style.transform = ""; punkte.forEach(i => i.remove());
+        const weg = Math.max(...lagen.flatMap(l => l.map((q, n) => Math.hypot(q[0] - lagen[0][n][0], q[1] - lagen[0][n][1]))));
+        fertig({ bilder: lagen.length, weg: +weg.toFixed(2), kopf: koepfe.length ? +(Math.max(...koepfe) - Math.min(...koepfe)).toFixed(2) : null, leben: !!knicks, spricht: sprach });
+      }
+    };
+    requestAnimationFrame(bild);
+  }));
+  check(fuss.bilder > 40 && fuss.spricht && fuss.weg <= .75, "im Sitzen bleiben die Füße auf dem Ast: beim Sprechen, Knicksen und Kopfdrehen höchstens 0,75 px in jedem gezeichneten Bild", fuss);
+  check(fuss.kopf === null || fuss.kopf > 1, "dabei bewegt sich der Körper über den Füßen", fuss);
   await zu(p, "#workshops", .75); await p.waitForTimeout(3200);
   s = await stand(p);
   check(s.wort === "" && !s.flug.runde && s.flug.an === anfluege, "zurück bei den Werkzeugen sagt er nichts mehr und bleibt sitzen (einmal je Abschnitt)", { wort: s.wort, flug: s.flug });
