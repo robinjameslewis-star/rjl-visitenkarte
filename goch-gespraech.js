@@ -23,9 +23,10 @@
   const stelle = ziel => $(ziel === 'grundsaetze' ? 'grundsaetze-' + (window.SiteLanguage.current === 'en' ? 'en' : 'de') : ziel);
 
   let modus = { mikro: false, laut: false, einmal: false }, lage = 'aus', zuletzt = 0; // lage: aus | fokus | unterwegs
+  let ohneGoch = false; // „Platz machen“ bei offenem Gespräch: Goch ist weg, die Leiste bleibt
   let begleitet = false, weicht = false; // Begleiter ohne offenes Gespräch; weicht: Unter ihm liegt gerade etwas Bedienbares (unten: Begleiter mit Stationen)
   // Der kleine Goch ist da: im Gesprächsmodus unterwegs, neben dem mitlaufenden Blatt oder als Begleiter
-  const miniSicht = () => { mini.hidden = !(lage === 'unterwegs' || (lage === 'aus' && (!!breit || (begleitet && !weicht)))); };
+  const miniSicht = () => { mini.hidden = ohneGoch || !(lage === 'unterwegs' || (lage === 'aus' && (!!breit || (begleitet && !weicht)))); };
   function setzen(neu) {
     if (neu === lage) return;
     const vorher = lage;
@@ -35,13 +36,13 @@
     if (neu === 'unterwegs') miniLaden();
     miniSicht();
     zurSeite.hidden = neu !== 'fokus';
-    if (neu === 'fokus') { zuletzt = scrollY; scrollTo(0, 0); } // zuletzt: wo die Seite stand, bevor Goch groß wurde
-    if (neu === 'aus' && vorher === 'fokus') scrollTo(0, zuletzt);
+    if (neu === 'fokus') { zuletzt = scrollY; eigen(); scrollTo(0, 0); } // zuletzt: wo die Seite stand, bevor Goch groß wurde
+    if (neu === 'aus' && vorher === 'fokus') { eigen(); scrollTo(0, zuletzt); }
     window.Goch.place();
     hoehe(); untenBald();
   }
   // Der Besucher gibt die Seite frei: zurück an die Stelle, an der er war, bevor Goch groß wurde.
-  function freigeben() { if (lage !== 'fokus') return; setzen('unterwegs'); scrollTo(0, zuletzt); }
+  function freigeben() { if (lage !== 'fokus') return; klein = true; vomScrollen = false; setzen('unterwegs'); eigen(); scrollTo(0, zuletzt); }
   // Kleiner Goch: Vogel und Ast laden erst, wenn er gebraucht wird. Danach bekommt er dieselben beweglichen Teile wie der
   // große (goch-leben.js) und bewegt den Schnabel synchron zur Stimme (data-schnabel an der Szene, goch-stimme.js). Er steht
   // sonst still. Bei reduzierter Bewegung bleibt das ruhige Bild.
@@ -132,9 +133,11 @@
     window.Goch.place();
     hoehe();
   }
+  // Wer gerade im Fenster schreibt, behält es: Dann läuft es als Fenster mit, bis das Textfeld verlassen ist
+  const schreibt = () => { const a = document.activeElement; return !!a && panel.contains(a) && /^(TEXTAREA|INPUT)$/.test(a.tagName); };
   function breitPruefen() {
     if (schmal.matches || panel.hidden) { breitSetzen(''); return; }
-    if (!breit && sichtbar < .1) breitSetzen('blatt');      // Goch ist aus dem Bild
+    if (!breit && sichtbar < .1) breitSetzen(schreibt() ? 'blatt' : 'zeile'); // Goch ist aus dem Bild: Leiste (Robin, 12.11.2026), kein mitlaufendes Fenster
     else if (breit && sichtbar > .5) { breitSetzen(''); grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
@@ -151,22 +154,98 @@
     if (!d && vv && Math.abs(vv.scale - 1) < .01) d = Math.round(html.clientHeight - vv.height - vv.offsetTop);
     html.style.setProperty('--goch-unten', (d > 0 && d <= 140 ? d : 0) + 'px');
   }
+  // Messhilfe für das echte Gerät (12.11.2026: Die Leiste lag an Robins iPhone teils unter der Leiste von Safari; in der
+  // Prüfumgebung gibt es diese Leiste nicht). Mit ?goch-messen=1 stehen die Maße oben links – ein Bildschirmfoto genügt.
+  if (new URL(location.href).searchParams.has('goch-messen')) {
+    const m = document.createElement('pre'), fuss = document.createElement('i');
+    m.style.cssText = 'position:fixed;z-index:99;left:6px;top:6px;margin:0;padding:6px 8px;font:11px/1.35 ui-monospace,monospace;background:#fff;color:#000;border:1px solid #999;pointer-events:none;white-space:pre';
+    fuss.style.cssText = 'position:fixed;left:0;bottom:0;width:1px;height:env(safe-area-inset-bottom);visibility:hidden';
+    document.body.append(m, fuss);
+    const zeigen = () => { m.textContent = `innerHeight ${innerHeight}\nclientHeight ${html.clientHeight}\nvv.height ${vv ? Math.round(vv.height) : '-'}\nvv.offsetTop ${vv ? Math.round(vv.offsetTop) : '-'}\nvv.scale ${vv ? vv.scale.toFixed(2) : '-'}\nsafe-bottom ${fuss.offsetHeight}\n--goch-unten ${html.style.getPropertyValue('--goch-unten') || '-'}\nscrollY ${Math.round(scrollY)}`; };
+    setInterval(zeigen, 300); zeigen();
+  }
   const untenBald = () => { if (!untenWartet && (!panel.hidden || begleitet)) { untenWartet = true; requestAnimationFrame(unten); } };
   if (vv) { vv.addEventListener('resize', untenBald); vv.addEventListener('scroll', untenBald); }
   window.addEventListener('scroll', untenBald, { passive: true });
   new MutationObserver(untenBald).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   if ('ResizeObserver' in window) new ResizeObserver(hoehe).observe(panel);
   new MutationObserver(breitPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
-  let wiederda = false;
+  // ---------- Gesprächsleiste (Robin, 12.11.2026) ----------
+  // Eine verkleinerte Form für alle Lagen – Text, „Goch spricht“, „Goch hört“: Beginnt der Besucher bei offenem Gespräch zu
+  // scrollen, wird aus dem Fenster eine Leiste (klein). Sie trägt beide Schalter, die letzte Zeile des Gesprächs und das X;
+  // ein Tipp auf die Zeile holt das Fenster zurück. Ob die Leiste steht, hängt nicht an den Schaltern: Wer in der Leiste
+  // „Goch hört“ oder „Goch spricht“ schaltet, bleibt in der Leiste und an seiner Stelle der Seite.
+  let wiederda = false, klein = false, eigenScroll = 0, scrollStart = 0, frage = false, frageZeile = false;
+  const stimmeAn = () => (modus.mikro && !modus.einmal) || modus.laut; // eine einzelne gesprochene Frage (einmal) vergrößert Goch nicht
+  const eigen = () => { eigenScroll = performance.now(); };
   function pruefen() {
-    // Eine einzelne gesprochene Frage (Mikrofon-Symbol, modus.einmal) vergrößert Goch nicht.
-    if (!(schmal.matches && !panel.hidden && ((modus.mikro && !modus.einmal) || modus.laut))) setzen('aus');
-    else if (lage === 'aus') { setzen(wiederda ? 'unterwegs' : 'fokus'); wiederda = false; } // nach einem Seitenwechsel als Kapsel, nicht groß
+    if (!schmal.matches || panel.hidden) { klein = false; setzen('aus'); return; }
+    if (wiederda) { klein = true; wiederda = false; } // nach einem Seitenwechsel als Leiste, nicht groß
+    setzen(frage ? 'aus' : klein ? 'unterwegs' : stimmeAn() ? 'fokus' : 'aus'); // frage: Die Einwilligung für die Stimme steht im Fenster
   }
+  function einklappen() {
+    if (panel.hidden) return;
+    if (schmal.matches) { klein = true; pruefen(); } else if (breit === 'blatt') breitSetzen('zeile');
+  }
+  function aufklappen(fokus) {
+    if (panel.hidden) return;
+    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') breitSetzen('blatt');
+    scrollStart = scrollY;
+    const feld = $('goch-input');
+    if (fokus && feld && feld.offsetParent) feld.focus({ preventScroll: true }); // im selben Tipp, sonst öffnet iOS die Tastatur nicht
+  }
+  // Schalter der Leiste: Sie drücken die Schalter des Fensters – Einwilligung, Grenzen und Hinweise bleiben, wie sie sind
+  const leisteKnopf = (id, ziel, zeichen) => {
+    const k = document.createElement('button');
+    k.type = 'button'; k.id = id; k.className = 'goch-l-knopf'; k.setAttribute('aria-pressed', 'false');
+    k.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${zeichen}</svg>`;
+    k.addEventListener('click', e => { e.stopPropagation(); const z = $(ziel); if (z) z.click(); });
+    return k;
+  };
+  const lLaut = leisteKnopf('goch-l-laut', 'goch-laut', '<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.4 7.4 0 0 1 0 10.4"/>');
+  const lMikro = leisteKnopf('goch-l-mikro', 'goch-mikro-an', '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>');
+  panel.prepend(lLaut, lMikro);
+  function leisteStand() {
+    const sprache = $('goch-sprache'), da = !!sprache && !sprache.hidden;
+    lLaut.hidden = lMikro.hidden = !da;
+    lLaut.setAttribute('aria-label', t('gochLaut')); lMikro.setAttribute('aria-label', t('gochMikroAn'));
+    lLaut.setAttribute('aria-pressed', String(!!modus.laut)); lMikro.setAttribute('aria-pressed', String(!!modus.mikro && !modus.einmal));
+  }
+  leisteStand();
+  if ($('goch-sprache')) new MutationObserver(leisteStand).observe($('goch-sprache'), { attributes: true, attributeFilter: ['hidden'] });
+  window.addEventListener('site-languagechange', leisteStand);
+  // Fragt „Goch hört“ zum ersten Mal nach der Einwilligung, braucht sie das Fenster
+  const stimmFrage = $('goch-stimme-consent');
+  // (nur solange sie offen ist; danach steht wieder die Leiste, die Seite bleibt, wo sie war).
+  if (stimmFrage) new MutationObserver(() => {
+    if (!stimmFrage.hidden) {
+      if (lage === 'unterwegs') { frage = true; eigen(); pruefen(); }
+      else if (breit === 'zeile') { frageZeile = true; breitSetzen('blatt'); }
+    } else {
+      if (frage) { frage = false; eigen(); pruefen(); scrollStart = scrollY; }
+      if (frageZeile) { frageZeile = false; if (breit === 'blatt') breitSetzen('zeile'); }
+    }
+  }).observe(stimmFrage, { attributes: true, attributeFilter: ['hidden'] });
+  // Scrollen bei offenem Fenster: nach 40 px zur Leiste. Nicht bei eigenem Scrollen der Seite, nicht solange im Fenster
+  // geschrieben wird (die Tastatur verschiebt die Seite), nicht im Vollbild mit Stimme (dort gibt ein Wisch die Seite frei).
+  // Am Handy liegt das Fenster fest im Bild; am Rechner hängt es an Goch und wird zur Leiste, sobald Goch aus dem Bild ist.
+  // Zurück ganz oben beim großen Goch wird aus der Leiste des Text-Gesprächs wieder das Fenster.
+  let vomScrollen = false;
+  window.addEventListener('scroll', () => {
+    if (panel.hidden) return;
+    if (performance.now() - eigenScroll < 900) { scrollStart = scrollY; return; }
+    const a = document.activeElement;
+    if (a && panel.contains(a) && /^(TEXTAREA|INPUT)$/.test(a.tagName)) { scrollStart = scrollY; return; }
+    if (!schmal.matches) { if (breit === 'blatt' && Math.abs(scrollY - scrollStart) >= 40) breitSetzen('zeile'); return; } // aufgeklapptes Fenster am Rechner
+    if (lage === 'aus' && !frage && Math.abs(scrollY - scrollStart) >= 40) { vomScrollen = true; einklappen(); }
+    else if (lage === 'unterwegs' && vomScrollen && !stimmeAn() && scrollY <= 8) { vomScrollen = false; klein = false; pruefen(); scrollStart = scrollY; }
+  }, { passive: true });
+  new MutationObserver(() => { scrollStart = scrollY; vomScrollen = false; eigen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   function zeigen(ziel) {
     const el = stelle(ziel);
     if (!el) return;
-    if (lage === 'fokus') setzen('unterwegs');
+    if (lage === 'fokus') { klein = true; setzen('unterwegs'); }
+    eigen();
     el.scrollIntoView({ behavior: ruhig.matches ? 'auto' : 'smooth', block: 'start' });
     el.classList.remove('goch-gezeigt'); void el.offsetWidth; el.classList.add('goch-gezeigt');
     setTimeout(() => el.classList.remove('goch-gezeigt'), 3200);
@@ -181,7 +260,7 @@
       return a;
     },
   };
-  window.addEventListener('goch-modus', e => { modus = e.detail; pruefen(); });
+  window.addEventListener('goch-modus', e => { modus = e.detail; leisteStand(); pruefen(); });
   // Im Gesprächsmodus führt die Seite von selbst hin, während Goch spricht
   window.addEventListener('goch-antwort', e => { const z = e.detail && e.detail.zeigen; if (lage !== 'aus' && ZIELE.includes(z)) zeigen(z); });
   schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
@@ -190,10 +269,12 @@
   mini.addEventListener('click', () => {
     // Begleiter: Der Tipp öffnet das Gespräch – auf breiten Bildschirmen als mitlaufendes Blatt an Ort und Stelle, am Handy
     // bei Goch am Seitenanfang (dort steht das Gespräch ohne Sprachfunktion), er fliegt dort wieder an.
-    if (begleitet) { wortAus(); if (schmal.matches) scrollTo(0, 0); else breitSetzen('blatt'); window.Goch.oeffnen(); if (schmal.matches) { rueckkehr = false; grossAn(); } return; }
-    if (breit) scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); else { setzen('fokus'); grossAn(); }
+    if (begleitet) { wortAus(); eigen(); if (schmal.matches) scrollTo(0, 0); else breitSetzen('blatt'); window.Goch.oeffnen(); if (schmal.matches) { rueckkehr = false; grossAn(); } return; }
+    // Tipp auf den kleinen Goch neben der Leiste: das normale Gesprächsfenster (mit Stimme am Handy groß bei Goch)
+    if (breit) { if (breit === 'zeile') aufklappen(true); else { eigen(); scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); } }
+    else { aufklappen(true); if (lage === 'fokus') grossAn(); }
   });
-  zurSeite.addEventListener('click', () => { if (breit) breitSetzen('zeile'); else freigeben(); });
+  zurSeite.addEventListener('click', () => { if (breit) breitSetzen('zeile'); else if (lage === 'fokus') freigeben(); else einklappen(); });
   // Neben dem Blatt: Tipp, Wisch oder Mausrad auf dem Papier gibt die Seite frei
   const papier = $('goch-papier'), kopf = panel.querySelector('.goch-head');
   if (papier) {
@@ -221,14 +302,14 @@
       const dy = e.touches[0].clientY - y0;
       if (breit) { if (dy > 36 && breit === 'blatt') { y0 = null; breitSetzen('zeile'); } else if (dy < -36 && breit === 'zeile') { y0 = null; breitSetzen('blatt'); } return; }
       if (dy > 36 && lage === 'fokus') { y0 = null; freigeben(); }
-      else if (dy < -36 && lage === 'unterwegs') { y0 = null; setzen('fokus'); }
+      else if (dy < -36 && lage === 'unterwegs') { y0 = null; aufklappen(false); }
     }, { passive: true });
     panel.addEventListener('touchend', () => { y0 = null; });
   }
   // Die schmale Leiste ist das eingeklappte Blatt: Ein Tipp darauf (nicht auf Knöpfe oder Verweise) klappt es wieder auf
   panel.addEventListener('click', e => {
     if (e.target.closest('button, a, input, textarea')) return;
-    if (lage === 'unterwegs') setzen('fokus'); else if (breit === 'zeile') breitSetzen('blatt');
+    if (lage === 'unterwegs' || breit === 'zeile') aufklappen(true);
   });
   // Der kleine Goch erscheint erst, wenn der große aus dem Bild ist – nie zwei Gochs zugleich
   if ('IntersectionObserver' in window) new IntersectionObserver(es => {
@@ -398,7 +479,7 @@
   mini.append(platzKnopf); document.body.append(zweig);
   function platzMerken() { try { if (platz) sessionStorage.setItem(platzKey, '1'); else sessionStorage.removeItem(platzKey); } catch (_) {} }
   function zweigPruefen() {
-    const zeigen = platz && panel.hidden && !miniDa && !mini.classList.contains('fliegt-ab') && sichtbar < .35;
+    const zeigen = platz && (panel.hidden || ohneGoch) && !miniDa && !mini.classList.contains('fliegt-ab') && sichtbar < .35;
     if (zeigen && !zweigBild.getAttribute('src')) { const ast = mini.querySelector('.goch-mini-ast'); zweigBild.src = ast.getAttribute('src') || ast.dataset.src; }
     zweig.hidden = !zeigen;
   }
@@ -413,18 +494,20 @@
       geht = 0; wort.remove(); mini.classList.remove('geht');
       platzAlsBegleiter = panel.hidden;
       platz = true; platzMerken();
-      window.Goch.schliessen(); // Gespräch zu: Der kleine Goch fliegt ab (miniPruefen), das Mikrofon ist zu
+      // Bei offenem Gespräch bleibt die Leiste (Robin, 12.11.2026): Nur Goch fliegt ab, der Zweig ruft ihn zurück
+      if (!panel.hidden) { ohneGoch = true; einklappen(); miniSicht(); setTimeout(zweigPruefen, 1300); return; }
       begleiterPruefen(); // war er Begleiter ohne Gespräch, fliegt er hier ab
       setTimeout(zweigPruefen, 1300);
     }, ruhig.matches ? 1400 : 1500);
   });
   zweig.addEventListener('click', () => {
     platz = false; platzMerken(); zweig.hidden = true;
+    if (ohneGoch) { ohneGoch = false; miniSicht(); return; } // das Gespräch war die ganze Zeit offen: Goch setzt sich wieder neben die Leiste
     if (platzAlsBegleiter) { platzAlsBegleiter = false; begleiterPruefen(); return; } // er kommt als Begleiter zurück, das Gespräch bleibt zu
     wiederda = schmal.matches; window.Goch.oeffnen(); pruefen(); breitPruefen();
   });
   // Wer Goch selbst antippt und das Gespräch öffnet, hebt die Bitte auf
-  new MutationObserver(() => { if (!panel.hidden && platz) { platz = false; platzMerken(); } zweigPruefen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  new MutationObserver(() => { if (panel.hidden && ohneGoch) { ohneGoch = false; miniSicht(); } if (!panel.hidden && platz && !ohneGoch) { platz = false; platzMerken(); } zweigPruefen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   // Nach einem Seitenwechsel (Schritt 6): War das Gespräch offen, geht es wieder auf – auf breiten Bildschirmen als Blatt, am
   // Handy nur im Sprachmodus und dann als Kapsel neben dem kleinen Goch. Ohne Sprachmodus bleibt es am Handy zu (der Verlauf
   // ist beim Öffnen wieder da), sonst läge das Blatt beim Ankommen über der neuen Seite.
