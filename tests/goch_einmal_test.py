@@ -193,7 +193,7 @@ async def main():
             if frei: await punkt(frei[0], frei[1])
             check(await klasse('goch-unterwegs') and not await klasse('goch-fokus'), "Tipp neben das Blatt gibt die Seite frei")
             check(abs(await ev("scrollY") - 700) < 3 and await ev("getComputedStyle(document.documentElement).overflowY") != 'hidden', "die Seite steht wieder, wo sie war, und scrollt", await ev("scrollY"))
-            leiste = [(await z())['offen'], await sichtbar('#goch-mikro-knopf'), await ev("getComputedStyle(document.getElementById('goch-form')).display")]
+            leiste = [(await z())['offen'], await sichtbar('#goch-l-mikro'), await ev("getComputedStyle(document.getElementById('goch-form')).display")]
             check(leiste == [1, True, 'none'], "Goch hört weiter zu, das Gespräch ist eine schmale Leiste", leiste)
             check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'block') == 'block' and not await ev("document.getElementById('goch-mini').classList.contains('goch-mini-weg')"), "kleiner Goch in der Ecke")
             await shot("begleiter_Handy")

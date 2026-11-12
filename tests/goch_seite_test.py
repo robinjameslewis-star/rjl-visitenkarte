@@ -299,7 +299,7 @@ async def main():
             check(await klasse('goch-fokus'), "„Goch spricht“ an: großer Goch")
             await goto(BASE + 'blog/' + q('&merken=1&t=h3')); check(await bereit(), "Seite 3 mit Sprachmodus: Goch ist da")
             kap = await bis("[document.documentElement.classList.contains('goch-unterwegs'), document.documentElement.classList.contains('goch-fokus'), !document.getElementById('goch').hidden, Math.round(document.getElementById('goch').getBoundingClientRect().height)]", lambda k: k[0], 6)
-            check(kap[0] and not kap[1] and kap[2] and kap[3] <= 80 and (await z())['gum'] == 0, "mit Sprachmodus: Goch ist als Kapsel wieder da, nicht groß, kein Mikrofon", kap)
+            check(kap[0] and not kap[1] and kap[2] and kap[3] <= 130 and (await z())['gum'] == 0, "mit Sprachmodus: Goch ist als Leiste wieder da (am Handy zweizeilig), nicht groß, kein Mikrofon", kap)
             await shot("unterseite_Handy_nach_Seitenwechsel")
             await klick('#goch-close'); await ev("localStorage.clear(); sessionStorage.clear()")
 

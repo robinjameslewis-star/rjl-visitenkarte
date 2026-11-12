@@ -384,6 +384,31 @@
   html:is(.goch-unterwegs, .goch-zeile) .goch-mikro-status { grid-column: 4; grid-row: 1; flex-basis: auto; font-size: 11.5px; line-height: 1.3; color: var(--copper); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   html:is(.goch-unterwegs, .goch-zeile) .goch-mikro-status:empty { display: none; }
   /* Der kleine Goch sitzt rechts neben der Kapsel */
+  /* Gesprächsleiste (Robin, 12.11.2026): eine Form für Text, „Goch spricht“ und „Goch hört“. Links der Lautsprecher und das
+     Mikrofon (je 44 px, drücken die Schalter des Fensters), „KI“, die letzte Zeile, rechts das X. Am Handy steht die Zeile
+     über den Knöpfen: Links neben dem kleinen Goch bleiben rund 235 px – zu wenig für drei Knöpfe und lesbaren Text in einer Reihe. */
+  .goch-l-knopf { display: none; }
+  html:is(.goch-unterwegs, .goch-zeile) body .goch-title, html:is(.goch-unterwegs, .goch-zeile) body .goch-mikro-knopf { display: none; }
+  html:is(.goch-unterwegs, .goch-zeile) .goch-l-knopf:not([hidden]) { grid-row: 1 / 3; display: grid; place-items: center; width: 44px; height: 44px; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--ink-soft); background: transparent; cursor: pointer; }
+  html:is(.goch-unterwegs, .goch-zeile) #goch-l-laut { grid-column: 1; }
+  html:is(.goch-unterwegs, .goch-zeile) #goch-l-mikro { grid-column: 2; }
+  html:is(.goch-unterwegs, .goch-zeile) .goch-l-knopf[aria-pressed="true"] { border-color: var(--copper); color: var(--ink); background: color-mix(in srgb, var(--copper) 20%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--copper) 22%, transparent); }
+  html:is(.goch-unterwegs, .goch-zeile) .goch-l-knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+  html:is(.goch-unterwegs, .goch-zeile) body .goch-ki, html:is(.goch-unterwegs, .goch-zeile) body .goch-ki[hidden] { display: block !important; }
+  html:is(.goch-unterwegs, .goch-zeile) .goch { animation: goch-leiste .22s ease-out; }
+  @keyframes goch-leiste { from { opacity: .4; transform: translateY(10px); } }
+  @media (prefers-reduced-motion: reduce) { html:is(.goch-unterwegs, .goch-zeile) .goch { animation: none; } }
+  .goch-log { overscroll-behavior: contain; }
+  @media (max-width: 720px) {
+    /* links neben dem kleinen Goch: Sein Kasten ist clamp(180px, 22vw, 230px) * .74 + 2vw breit – die Leiste endet davor */
+    html.goch-unterwegs body .goch { grid-template-rows: auto auto auto; gap: 2px 8px; inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 6px) calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)) max(8px, env(safe-area-inset-left));
+      max-width: none; padding: 8px 6px 5px 12px; border-radius: 18px; }
+    html.goch-unterwegs body .goch-mikro-status { grid-column: 1 / -1; grid-row: 1; }
+    html.goch-unterwegs body .goch-log { grid-column: 1 / -1; grid-row: 2; }
+    html.goch-unterwegs body .goch-l-knopf:not([hidden]), html.goch-unterwegs body .goch-close, html.goch-unterwegs body .goch-ki { grid-row: 3; }
+    html.goch-unterwegs body .goch-l-knopf:not([hidden]) { margin-left: -6px; }
+    html.goch-unterwegs body #goch-l-mikro:not([hidden]) { margin-left: 0; }
+  }
   html.goch-unterwegs .goch-mini:not([hidden]), html.goch-zeile .goch-mini:not([hidden]) { bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)); }
   @media (min-width: 721px) { html.goch-zeile body .goch { inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 4px) calc(20px + var(--goch-unten, 0px)) auto; width: min(420px, calc(100vw - 260px)); max-height: none; } }
   /* Großer Goch am Handy sitzt direkt über dem Blatt (wie im Entwurf), nicht mehr fest am oberen Rand: weniger Luft zwischen
@@ -1106,7 +1131,7 @@
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261116" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261118" defer></script>
+<script src="goch-gespraech.js?v=20261121" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
