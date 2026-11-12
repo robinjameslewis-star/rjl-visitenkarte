@@ -176,3 +176,19 @@ Unterhalb der Bühne liegt jetzt das Tal fest im Fenster hinter der Seite; die B
   (Grenze 1,2 MB, unverdichtet gemessen), spätes Laden, Aufbau, Bewegung, kein seitliches Scrollen, `?tal=aus`, reduzierte
   Bewegung; legt Bildschirmfotos in 375 px (Tag/Nacht, Herbst/Winter) und am Rechner ab.
 
+## Frühling und Sommer vorbereitet (12.11.2026)
+
+Der Satz `burgberg-herbst` nennt jetzt alle vier Jahreszeiten mit je fünf Ebenen. Sie erscheinen ohne weiteren Schritt nach
+dem Kalender: Frühling ab 24.02. (Überblendung bis 06.03.), Sommer ab 27.05., Herbst ab 27.08.
+
+- **Talebenen** (`mitte`, `hang`, `grund`): gerechnet wie Herbst und Winter, `node tools/tal-ebenen-bauen.mjs`
+  (Farben in `tools/tal-ebenen-malen.html`: Frühling junges Grün mit blühenden Bäumen und lichten Kronen, Sommer sattes Grün).
+- **Krone und Ferne: vorläufig.** Gemalt sind nur Herbst und Winter. Frühling und Sommer entstehen mit
+  `python3 tools/landschaft-umfaerben.py` aus den Herbstbildern: Laub und Hänge wandern ins Grün, Ast, Zweige und Burg
+  bleiben, die zwei frei fallenden Blätter der Krone entfallen. Nicht schwerer als der Herbst (WebP, ohne AVIF).
+  Gemalte Bilder ersetzen sie über die Redaktion („Landschaften“) oder `tools/landschaft-bilder.py --season fruehling|sommer`.
+- Probe: `?zeit=2027-04-15T12:00` (Frühling), `?zeit=2027-07-15T12:00` (Sommer), Nacht mit `T23:30`,
+  Überblendungen `2027-03-01`, `2027-06-01`, `2027-09-01`.
+- Geprüft in WebKit (390 px und 1280 px): Tag, Dämmerung, Nacht, die drei Überblendungen; Blüten im Frühling, im Sommer
+  fällt nichts; keine fehlende Datei.
+
