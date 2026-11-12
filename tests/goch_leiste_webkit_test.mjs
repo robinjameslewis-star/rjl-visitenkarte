@@ -107,6 +107,45 @@ for (const breit of [false, true]) for (const art of ["Text", "Goch spricht", "G
   check(p.fehler.length === 0, "keine Skriptfehler", p.fehler);
   await ctx.close();
 }
+// „Platz machen“ bei offenem Gespräch (Robin, 12.11.2026): Die Leiste zieht mit Goch nach oben und wird zur Pille neben dem Zweig
+for (const breit of [false, true]) {
+  console.log(`Platz machen mit Leiste, ${breit ? "Rechner 1280" : "Handy 390"}`);
+  const { p, ctx } = await auf(breit);
+  await p.locator("#goch-laut").click(); await p.waitForTimeout(400); await p.locator("#goch-stimme-allow").click(); await p.waitForTimeout(1300);
+  if (!breit) { await p.evaluate(() => document.getElementById("goch-papier").dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true }))); await p.waitForTimeout(300); }
+  await rollen(p, 900);
+  await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug; }, null, { timeout: 8000 }).catch(() => {});
+  await p.evaluate(() => document.getElementById("goch-platz").click());
+  await p.waitForFunction(() => !document.getElementById("goch-zweig").hidden, null, { timeout: 8000 }).catch(() => {});
+  await p.waitForTimeout(500);
+  const oben = () => p.evaluate(() => { const g = document.getElementById("goch"), r = g.getBoundingClientRect(), z = document.getElementById("goch-zweig"), zr = z.getBoundingClientRect(), m = document.getElementById("goch-mini"), k = document.querySelector("header");
+    const kr = k ? k.getBoundingClientRect() : { bottom: 0 }, sichtbar = e => !!e && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().width > 0;
+    const unten = [g, z, m].filter(e => sichtbar(e) && e.getBoundingClientRect().bottom > innerHeight * .6).length;
+    return { pille: sichtbar(g) && !g.hidden, pr: [r.left, r.top, r.right, r.bottom].map(Math.round), hoehe: Math.round(r.height), breite: Math.round(r.width), zweig: !z.hidden, zr: [zr.left, zr.top, zr.right].map(Math.round), neben: Math.abs(r.top - zr.top) < 30 && r.right <= zr.left + 6,
+      unten, klein: getComputedStyle(m).display, kopfFrei: r.top >= kr.bottom - 1 || kr.bottom <= 0, zeile: sichtbar(document.getElementById("goch-log")), x: sichtbar(document.getElementById("goch-close")), ki: getComputedStyle(document.getElementById("goch-ki")).display !== "none",
+      laut: document.getElementById("goch-l-laut").getAttribute("aria-pressed"), mikro: document.getElementById("goch-l-mikro").getAttribute("aria-pressed"), w: Math.round(document.getElementById("goch-l-laut").getBoundingClientRect().width), y: Math.round(scrollY), m: { ...__m } }; });
+  let o = await oben();
+  check(o.pille && o.zweig && o.neben && o.pr[1] < 200 && o.hoehe <= 60, "nach „Platz machen“ sitzt oben eine Pille neben dem Zweig", o);
+  check(o.unten === 0 && o.klein === "none", "unten bleibt nichts liegen, der kleine Goch ist fort", { unten: o.unten, klein: o.klein });
+  check(!o.zeile && !o.x && o.ki && o.w >= 44, "die Pille trägt Lautsprecher, Mikrofon und „KI“, keine Textzeile", { zeile: o.zeile, x: o.x, ki: o.ki, w: o.w });
+  check(o.kopfFrei, "sie liegt unter der Kopfleiste, nicht darüber", o.pr);
+  const y0 = o.y, laut0 = o.laut;
+  await p.locator("#goch-l-laut").click(); await p.waitForTimeout(500);
+  await p.locator("#goch-l-mikro").click(); await p.waitForTimeout(1300);
+  o = await oben();
+  check(o.pille && o.laut !== laut0 && o.mikro === "true" && Math.abs(o.y - y0) < 3, "die Schalter wirken in der Pille; Pille und Stelle der Seite bleiben", { laut: o.laut, mikro: o.mikro, y: o.y });
+  await rollen(p, 1400); await p.waitForTimeout(600);
+  o = await oben();
+  check(o.pille && o.zweig && o.mikro === "true", "beim Weiterlesen bleiben Pille und Zweig oben, das Mikrofon bleibt offen", o.pr);
+  await p.locator("#goch-ki").click(); // Tipp auf die Pille (nicht auf einen Schalter)
+  await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug; }, null, { timeout: 8000 }).catch(() => {});
+  await p.waitForTimeout(400);
+  const s = await stand(p), u = await oben();
+  check(klein(s) && !s.zu && u.klein === "block" && !u.zweig && u.pr[3] > 400 && u.zeile, "ein Tipp auf die Pille holt Goch und die Leiste zurück nach unten", { lage: s.lage, klein: u.klein, zweig: u.zweig, pr: u.pr });
+  check(s.m.beide === 0 && s.m.ueber === 0, "dabei nie zwei Gochs, die Leiste nie über Goch oder Ast", s.m);
+  check(p.fehler.length === 0, "keine Skriptfehler", p.fehler);
+  await ctx.close();
+}
 // Leiste des Browsers am unteren Rand (Safari): Die Leiste rückt darüber
 for (const unten of [0, 80]) {
   const { p, ctx } = await auf(false, "&unten=" + unten);

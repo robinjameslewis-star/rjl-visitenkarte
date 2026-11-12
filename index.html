@@ -318,6 +318,15 @@
   .goch-zweig { position: fixed; z-index: 21; right: 0; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px) + 16px); width: 52px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; overflow: hidden; overflow: clip; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .goch-zweig img { position: absolute; left: 10px; top: 12px; width: 420px; max-width: none; height: auto; filter: brightness(calc(1 + var(--nacht, 0) * 1.2)); }
   .goch-zweig[hidden] { display: none; }
+  /* „Platz machen“ bei offenem Gespräch (Robin, 12.11.2026): Die Leiste zieht mit Goch nach oben. Zweig und eine kleine Pille
+     (Lautsprecher, Mikrofon, „KI“) sitzen oben rechts unter der Kopfleiste (--goch-oben, goch-gespraech.js); unten ist frei. */
+  html.goch-oben .goch-zweig { bottom: auto; top: calc(var(--goch-oben, 64px) + env(safe-area-inset-top, 0px)); }
+  html.goch-oben body .goch { inset: calc(var(--goch-oben, 64px) + env(safe-area-inset-top, 0px)) 54px auto auto !important; display: flex !important; flex-direction: row !important; align-items: center; gap: 6px; width: auto !important; min-height: 0; max-width: none; max-height: none !important; padding: 3px 10px 3px 4px !important; border-radius: 999px !important; animation: none; }
+  html.goch-oben:not(.goch-zweig-da) body .goch { display: none !important; }
+  html.goch-oben body .goch-log, html.goch-oben body .goch-mikro-status, html.goch-oben body .goch-close, html.goch-oben body .goch-head { display: none !important; }
+  html.goch-oben body .goch-l-knopf:not([hidden]) { margin: 0 !important; }
+  .goch-mini.durch .goch-mini-bild { opacity: .8; transition: opacity .3s; }
+
   .goch-mini.fliegt-ab .goch-mini-ast { opacity: 0; transition: opacity .5s ease .45s; } /* der Ast zieht sich mit zurück: nie ein Ast ohne Goch */
   .goch-mini-bild { position: relative; display: block; width: var(--gm); }
   .goch-mini-tier { position: relative; display: block; transform-origin: 44% 94%; } /* Drehpunkt an den Füßen (wie goch-leben.js): Im Sitzen bleiben sie auf dem Ast, nur der Körper darüber bewegt sich (Robin, 12.11.2026) */
@@ -1136,7 +1145,7 @@
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261116" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261122" defer></script>
+<script src="goch-gespraech.js?v=20261124" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
