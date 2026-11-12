@@ -13,7 +13,7 @@ Abnahme: Ohne Aktivierung keine Mikrofonanfrage (getUserMedia), kein Ton, keine 
 kein hörbares Zwitschern vor einer Handlung; sichtbares Zwitschern höchstens dreimal; Grenze erreicht → Text statt Stimme.
 Mikrofon: eine künstliche Stimme im Browser, die der Test mit window.__sprich ein- und ausschaltet (getUserMedia liefert
 ihren Stream); Gochs Stimme ist ein kurzer Sinuston der Attrappe."""
-import asyncio, base64, io, json, math, os, re, struct, subprocess, sys, tempfile, time, urllib.parse, urllib.request, wave
+import asyncio, base64, io, json, math, os, re, struct, shutil, subprocess, sys, tempfile, time, urllib.parse, urllib.request, wave
 import websockets
 
 BASE = sys.argv[1].rstrip('/') + '/'
@@ -489,6 +489,10 @@ async def main():
             check(extern() == [], "keine fremden Hosts im letzten Lauf", extern()[:3])
     finally:
         proc.terminate()
+        # Das Temp-Profil dieses Laufs wieder löschen (12.11.2026: Über viele Läufe lief sonst die Platte voll)
+        try: proc.wait(timeout=5)
+        except Exception: proc.kill()
+        shutil.rmtree(profile, ignore_errors=True)
     print(f"\nBildschirmfotos: {OUT}")
     print("Alle Prüfungen bestanden." if not failures else f"{len(failures)} Prüfung(en) fehlgeschlagen: " + ", ".join(failures))
     sys.exit(1 if failures else 0)

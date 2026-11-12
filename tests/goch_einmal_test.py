@@ -4,7 +4,7 @@ ohne Antippen kein Mikrofon, und am Handy lässt sich der große Goch aufheben u
 
 Voraussetzungen wie goch_stimme_test.py (Chrome, websockets, laufende Seite und Attrappe).
 Aufruf:  python3 tests/goch_einmal_test.py http://localhost:8788/ http://localhost:8787 [Ordner für Bildschirmfotos]"""
-import asyncio, base64, json, os, subprocess, sys, tempfile, time, urllib.parse, urllib.request
+import asyncio, base64, json, os, shutil, subprocess, sys, tempfile, time, urllib.parse, urllib.request
 import websockets
 
 BASE = sys.argv[1].rstrip('/') + '/'
@@ -231,6 +231,10 @@ async def main():
             check(console == [], "keine Skriptfehler", console[:3])
     finally:
         proc.terminate()
+        # Das Temp-Profil dieses Laufs wieder löschen (12.11.2026: Über viele Läufe lief sonst die Platte voll)
+        try: proc.wait(timeout=5)
+        except Exception: proc.kill()
+        shutil.rmtree(profile, ignore_errors=True)
 
 asyncio.run(main())
 print('\n' + ('ALLE PRÜFUNGEN BESTANDEN' if not failures else f'{len(failures)} FEHLER: ' + '; '.join(failures)))
