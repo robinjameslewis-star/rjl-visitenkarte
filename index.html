@@ -302,6 +302,7 @@
   .goch-mini.spricht .goch-mini-tier.fliegt { animation: none; }
   .goch-mini.fliegt-ab.fliegt-ab { display: block !important; }
   .goch-mini.fliegt-ab .goch-mini-knopf { pointer-events: none; }
+  .goch-mini.durch .goch-mini-knopf, .goch-mini.durch .goch-platz { pointer-events: none; } /* kein freier Platz am Rand: Er sitzt, Tipps gehen durch ihn zur Seite */
   /* „Platz machen“ (Entwurf vom 11.11.2026, goch-gespraech.js): kleiner Knopf über dem kleinen Goch – am Handy immer zu sehen,
      am Rechner beim Überfahren und mit der Tastatur. Goch sagt „Gern. Ich warte oben auf Sie.“, fliegt ab, und am rechten Rand
      bleibt nur die Spitze seines Zweigs; ein Tipp darauf ruft ihn zurück. */
@@ -329,11 +330,15 @@
   .goch-mini-knopf:focus-visible { outline: 1px solid var(--copper); outline-offset: -2px; }
   /* Begleiter mit Stationen (goch-gespraech.js): Der kleine Goch sitzt auch ohne offenes Gespräch unten rechts und sagt je
      Abschnitt einen Satz. Die Sprechblase lässt Tipps durch und trägt wie jede Äußerung von Goch die Kennzeichnung als KI-Figur. */
-  html.goch-begleitet .goch-mini:not([hidden]) { display: block; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)); }
+  html.goch-begleitet .goch-mini:not([hidden]) { display: block; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px) + var(--goch-hoch, 0px)); }
   .goch-mini-wort { position: absolute; right: calc(var(--gm) * .36 + 2vw); bottom: calc(var(--gm) * .5 + 16px); width: max-content; max-width: min(232px, calc(100vw - var(--gm) * .36 - 2vw - 14px)); padding: 9px 12px 10px;
     border: 1px solid var(--line); border-radius: 4px; background: var(--paper, #F5EFE6); color: var(--ink); font-size: 13.5px; line-height: 1.4; text-align: left;
     box-shadow: 0 8px 24px -8px rgba(31, 31, 31, .28); pointer-events: none; opacity: 0; transform: translateY(6px); transition: opacity .4s, transform .4s; }
   .goch-mini-wort.da { opacity: 1; transform: none; }
+  /* Ausweichplätze (goch-gespraech.js, wortPlatz): links neben dem Vogel und weiter oben, wenn am gewohnten Platz etwas Bedienbares läge */
+  .goch-mini-wort[data-platz="links"] { right: calc(var(--gm) * .68 + 2vw); bottom: calc(var(--gm) * .16); max-width: min(232px, calc(100vw - var(--gm) * .68 - 2vw - 12px)); }
+  .goch-mini-wort[data-platz="links"]::after { right: -7px; bottom: 20px; transform: rotate(-45deg); }
+  .goch-mini-wort[data-platz="hoch"] { bottom: calc(var(--gm) * .5 + 150px); }
   .goch-mini-wort::after { content: ""; position: absolute; right: 22px; bottom: -7px; width: 12px; height: 12px; background: inherit; border: 1px solid var(--line); border-width: 0 1px 1px 0; transform: rotate(45deg); }
   .goch-mini-wort small { display: block; margin-bottom: 2px; font-size: 11px; letter-spacing: .04em; color: var(--ink-soft, #5B5B5B); }
   @media (prefers-reduced-motion: reduce) { .goch-mini-wort { transition: none; } }
@@ -1099,14 +1104,14 @@
     zeigen();
   })();
 </script>
-<script src="language.js?v=20261117" defer></script>
+<script src="language.js?v=20261120" defer></script>
 <script src="site.js?v=20261016b" defer></script>
 <script src="goch.js?v=20261118" defer></script>
 <script src="goch-audio.js?v=20261106" defer></script>
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261116" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261118" defer></script>
+<script src="goch-gespraech.js?v=20261120" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
