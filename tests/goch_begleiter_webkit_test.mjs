@@ -12,6 +12,11 @@ catch (_) { console.log("playwright-core nicht gefunden (PLAYWRIGHT=/pfad setzen
 
 let fails = 0;
 const check = (ok, label, info) => { console.log((ok ? "  ok   " : "  FAIL ") + label + (info !== undefined ? " (" + (typeof info === "string" ? info : JSON.stringify(info)) + ")" : "")); if (!ok) fails++; };
+const TASTE = p => p.evaluate(() => { const m = document.getElementById("goch-mini"), t = document.getElementById("goch-platz"), r = t.getBoundingClientRect(), w = document.querySelector(".goch-mini-wort"), wr = w.getBoundingClientRect();
+          const da = getComputedStyle(t).display !== "none" && r.width > 0, oben = da && document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          const blase = !w.hidden && w.classList.contains("da") && wr.right > r.left && wr.left < r.right && wr.bottom > r.top && wr.top < r.bottom;
+          const vogel = m.querySelector(".goch-mini-tier").getBoundingClientRect(), ueberVogel = r.right > vogel.left + vogel.width * .236;
+          return { da, trifft: oben === t, durch: m.classList.contains("platz-durch"), h: Math.round(r.height), imBild: r.left >= 0 && r.bottom <= innerHeight, blase, ueberVogel, sagt: m.classList.contains("sagt") }; });
 const q = "?goch=" + encodeURIComponent(attrappe + "/chat") + "&stimme=an&zwitschertakt=60000&zeit=2026-11-11T12:00";
 const b = await webkit.launch();
 async function auf(pfad, opt = {}) {
@@ -142,14 +147,17 @@ for (const breit of [false, true]) {
     const weg = WEG.filter((_, i) => da[i]);
     check(weg.length >= 8, "die Startseite hat mindestens acht Abschnitte mit Station", weg.length);
     for (const [richtung, liste] of [["hinunter", weg], ["hinauf", [...weg].reverse().slice(1)]]) {
-      const stumm = [];
+      const stumm = [], ohneTaste = [], tasten = [];
       for (const [z, l, re] of liste) {
         await zu(p, z, l);
         if (!await wort(p, re, 8000)) stumm.push(re);
         const b = await p.evaluate(() => { const w = document.querySelector(".goch-mini-wort").getBoundingClientRect(); return w.left >= 0 && w.top >= 0 && w.right <= innerWidth + 1 && w.bottom <= innerHeight + 1; });
         if (!b) stumm.push(re + " (Sprechblase nicht im Fenster)");
+        // „Platz machen“ parallel zur Sprechblase (Robin, 12.11.2026) – am Handy an jeder Station
+        if (!breit) { const t = await TASTE(p); tasten.push(t); if (!(t.da && t.sagt && (t.trifft || t.durch) && t.h >= 44 && t.imBild && !t.blase && !t.ueberVogel)) ohneTaste.push(re + " " + JSON.stringify(t)); }
       }
       check(stumm.length === 0, `${richtung}: jeder Abschnitt bekommt seine Sprechblase, ganz im Fenster`, stumm);
+      if (!breit) check(ohneTaste.length === 0 && tasten.filter(t => t.trifft).length >= tasten.length / 2, `${richtung}: an jeder Station steht „Platz machen“ sichtbar neben Goch, 44 px hoch, nicht unter der Sprechblase; antippbar, wo sie nicht selbst über Bedienbarem liegt`, ohneTaste.length ? ohneTaste : { stationen: tasten.length, antippbar: tasten.filter(t => t.trifft).length, ueberBedienbarem: tasten.filter(t => t.durch).length });
     }
     s = await stand(p);
     check(!s.flug.runde && s.beide === 0, "dabei keine Runde und nie zwei Gochs", { flug: s.flug, beide: s.beide });
@@ -243,6 +251,7 @@ for (const [pfad, ziel, re, name] of [["workshops/ki-kompetenz/", "#ablauf", "Sc
   check(await wort(p, re), "der Begleiter sagt den Satz zum Abschnitt");
   let s = await stand(p);
   check(s.klasse === "goch-begleitet" && s.verdeckt === 0 && s.imFenster, "Begleiter da, Sprechblase frei", { klasse: s.klasse, verdeckt: s.verdeckt, wort: s.wort });
+  { const t = await TASTE(p); check(t.da && (t.trifft || t.durch) && t.h >= 44 && !t.blase && !t.ueberVogel, "Unterseite: „Platz machen“ steht neben Goch, zugleich mit der Sprechblase", t); }
   await zu(p, 0); await p.waitForTimeout(600);
   s = await stand(p);
   check(!s.klein && s.beide === 0 && s.ohneAst === 0, "oben ist der kleine weg; nie zwei Gochs, nie ohne Ast", { beide: s.beide, ohneAst: s.ohneAst });

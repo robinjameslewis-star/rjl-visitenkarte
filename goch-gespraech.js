@@ -468,6 +468,9 @@
     if (r.width) knopfOrt = r;
     const besetzt = !frei(knopfOrt, BEDIENBAR + ', a[href]');
     if (besetzt !== durch) { durch = besetzt; mini.classList.toggle('durch', durch); }
+    // „Platz machen“ sitzt am Handy links neben ihm und bleibt bedienbar – außer die Taste läge selbst über Bedienbarem
+    const taste = mini.querySelector('.goch-platz'), tr = taste && taste.getBoundingClientRect();
+    mini.classList.toggle('platz-durch', !!tr && tr.width > 0 && !frei(tr, BEDIENBAR + ', a[href]'));
   }
   const knopfText = () => knopf.setAttribute('aria-label', t(begleitet ? 'gochMiniFragen' : 'gochMini'));
   // ---------- Übergabe auf der Startseite (Robin, 12.11.2026: „B mit kleinem A“) ----------
