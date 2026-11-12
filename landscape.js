@@ -380,6 +380,14 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   }
   // Die Rechenschicht spricht englisch (autumn …), die Dateien deutsch (herbst …).
   const FILE={autumn:'herbst',winter:'winter',spring:'fruehling',summer:'sommer'};
+  // <picture> Stück für Stück bauen: Über innerHTML holt WebKit das WebP des <img>, bevor die AVIF-Quelle zählt – beide Dateien
+  // kämen dann (12.11.2026: Krone rund 115 KB doppelt). Die Quelle hängt deshalb schon im <picture>, bevor das <img> seine Adresse bekommt.
+  function fill(picture,own,base,small,big,sizes) {
+    const img=document.createElement('img'); img.alt=''; img.decoding='async';
+    if (own.avif) { const source=document.createElement('source'); source.type='image/avif'; source.sizes=sizes; source.srcset=`${base+small}.avif ${small}w, ${base+big}.avif ${big}w`; picture.append(source); }
+    picture.append(img);
+    img.sizes=sizes; img.srcset=`${base+small}.webp ${small}w, ${base+big}.webp ${big}w`; img.src=base+big+'.webp';
+  }
   function seasonal(state) {
     const key=state.from+state.to;
     if (key!==seasonKey) {
@@ -396,7 +404,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
           picture.dataset.season=season;
           if (url) picture.innerHTML=`<img src="${url}" alt="" decoding="async">`; // ungespeicherte Vorschau aus der Redaktion
           else {
-            picture.innerHTML=(own.avif?`<source type="image/avif" srcset="${base+small}.avif ${small}w, ${base+big}.avif ${big}w" sizes="${sizes}">`:'')+`<img src="${base+big}.webp" srcset="${base+small}.webp ${small}w, ${base+big}.webp ${big}w" sizes="${sizes}" alt="" decoding="async">`;
+            fill(picture,own,base,small,big,sizes);
             const ext=own.avif?'avif':'webp', preload=document.createElement('link'); preload.rel='preload'; preload.as='image'; preload.type='image/'+ext;
             preload.href=base+big+'.'+ext; preload.imageSrcset=base+small+'.'+ext+' '+small+'w, '+base+big+'.'+ext+' '+big+'w'; preload.imageSizes=sizes;
             document.head.append(preload);
@@ -448,7 +456,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
         if (!own && !url) return null;
         const [big,small]=api.LAYERS[kind].sizes, base=SETS+slug+'/'+kind+'-'+FILE[season]+'-';
         const p=document.createElement('picture'); p.className='landscape-picture '+cls; p.dataset.season=season;
-        p.innerHTML=url?`<img src="${url}" alt="" decoding="async">`:(own.avif?`<source type="image/avif" srcset="${base+small}.avif ${small}w, ${base+big}.avif ${big}w" sizes="${sizes}">`:'')+`<img src="${base+big}.webp" srcset="${base+small}.webp ${small}w, ${base+big}.webp ${big}w" sizes="${sizes}" alt="" decoding="async">`;
+        if (url) p.innerHTML=`<img src="${url}" alt="" decoding="async">`; else fill(p,own,base,small,big,sizes);
         p.querySelector('img').onerror=()=>p.remove();
         talFrames.push(p); return p;
       };

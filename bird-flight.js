@@ -134,11 +134,13 @@
 
   async function prepare() {
     if (motion.matches) return;
+    const klein = matchMedia('(max-width: 720px)').matches;
     const token = ++generation;
     let timeout;
     try {
       frames.forEach(frame => {
-        if (frame.dataset.src && !frame.getAttribute('src')) frame.src = frame.dataset.src;
+        // Am Handy genügt die 1024er-Fassung (Flug, kurz im Bild): spart beim Erstaufruf rund 240 KB. Dieselbe Grenze wie die Preloads im <head>.
+        if (frame.dataset.src && !frame.getAttribute('src')) frame.src = klein ? frame.dataset.src.replace(/(flugpose-[^/]+?)(-1024)?\.webp$/, '$1-1024.webp') : frame.dataset.src;
       });
       await Promise.race([
         Promise.all(frames.map(frame => frame.decode())),
