@@ -30,6 +30,9 @@
 @media (min-width: 1900px) { :root { --gb: 1.25; } }
 @media (min-width: 2400px) { :root { --gb: 1.33; } }`;
   document.head.append(gross);
+  // Nachtfarben (Robin, 12.11.2026): Der Seitenrahmen setzt die Palette schon vor dem ersten Bild (worker/src/kopf.js,
+  // NACHT_START). Kommt die Seite aus dem Zurück-Cache des Browsers, stimmt die Uhrzeit nicht mehr: neu rechnen.
+  window.addEventListener('pageshow', e => { try { if (e.persisted && window.RJLLandscape && document.documentElement.classList.contains('landscape-on')) window.RJLLandscape.prepare(); } catch (_) {} });
   const wurzel = new URL('.', skript.src).href; // Adresse der Wurzel der Website, mit Schrägstrich am Ende
   const SKRIPTE = ['bird-flight.js', 'language.js', 'goch.js', 'goch-audio.js', 'goch-leben.js', 'goch-stimme.js', 'goch-gespraech.js'];
   const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
@@ -103,11 +106,13 @@
       body.dataset.landschaft = schalter.landschaft || 'an';
       if (schalter.landschaftSatz) body.dataset.landschaftSatz = schalter.landschaftSatz;
       if (schalter.tal) body.dataset.tal = schalter.tal;
-      const da = await new Promise(f => { const s = document.createElement('script'); s.src = wurzel + land; s.onload = () => f(true); s.onerror = () => f(false); document.head.append(s); });
+      // Der Seitenrahmen hat landscape.js schon im Kopf geladen; nur wenn die Startseite eine andere Fassung trägt, lädt sie hier neu.
+      const schon = !!(window.RJLLandscape && window.RJLLandscape.init) && [...document.scripts].some(s => s.src === wurzel + land);
+      const da = schon || await new Promise(f => { const s = document.createElement('script'); s.src = wurzel + land; s.onload = () => f(true); s.onerror = () => f(false); document.head.append(s); });
       try {
         if (da && window.RJLLandscape) { window.RJLLandscape.prepare(); window.RJLLandscape.init(); delete scene.dataset.flightRoute; } // Anflug von oben: Unter dem Ast liegt hier das Blatt der Seite
       } catch (_) { document.documentElement.classList.add('landscape-off'); }
-    } else body.dataset.landschaft = 'aus';
+    } else { body.dataset.landschaft = 'aus'; document.documentElement.classList.remove('landscape-on'); } // Schalter aus: die früh gesetzten Nachtfarben wieder nehmen
     const adressen = SKRIPTE.map(name => { const s = [...doc.querySelectorAll('script[src]')].find(x => x.getAttribute('src').split('?')[0] === name); return s && s.getAttribute('src'); });
     if (adressen.some(a => !a)) return;
     adressen.forEach((a, i) => {

@@ -4,6 +4,8 @@ Benötigt Chrome und websockets. Keine externen Dienste werden verwendet.
 """
 import asyncio
 import json
+import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -36,13 +38,17 @@ requestAnimationFrame(sample);
 """
 
 async def main():
-    process = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', '--remote-debugging-port=9368',
-        '--user-data-dir=' + tempfile.mkdtemp(prefix='nachtstart-chrome-'), '--no-first-run',
+    # Eigener freier Port und eigenes Profil, das am Ende gelöscht wird (Leitung, 12.11.2026)
+    with socket.socket() as frei:
+        frei.bind(('127.0.0.1', 0)); port = frei.getsockname()[1]
+    profil = tempfile.mkdtemp(prefix='rjl-goch-nachtstart-')
+    process = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={port}',
+        '--user-data-dir=' + profil, '--no-first-run',
         'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         for _ in range(50):
             try:
-                pages = json.load(urllib.request.urlopen('http://127.0.0.1:9368/json'))
+                pages = json.load(urllib.request.urlopen(f'http://127.0.0.1:{port}/json'))
                 break
             except OSError:
                 await asyncio.sleep(.2)
@@ -82,9 +88,16 @@ async def main():
                 ('skriptfehler', 'an', '00:00', True, [243,239,229])]
             for name, mode, time, blocked, expected in cases:
                 await send('Network.setBlockedURLs', {'urls': ['*landscape.js*'] if blocked else []})
+                # Schalter der Redaktion: index.html trägt seit dem Einschalten data-landschaft="an". Für den Fall „am <body> aus“
+                # setzt ein Beobachter den Schalter um, sobald der <body> steht – vor dessen erstem Skript (prepare()).
+                schalter = None
+                if name == 'body-aus':
+                    schalter = (await send('Page.addScriptToEvaluateOnNewDocument', {'source': "new MutationObserver((_, o) => { if (document.body) { document.body.dataset.landschaft = 'aus'; o.disconnect(); } }).observe(document, {childList: true, subtree: true});"}))['identifier']
                 await send('Page.navigate', {'url': BASE + '/?zeit=2026-10-15T' + time + '&ort=48.27,8.85' + ('&landschaft=' + mode if mode else '')})
                 await asyncio.sleep(4)
                 data = await evaluate('({frames:__frames,paints:__paints,scene:!!document.getElementById("scene"),route:document.getElementById("scene")?.dataset.flightRoute})')
+                if schalter:
+                    await send('Page.removeScriptToEvaluateOnNewDocument', {'identifier': schalter})
                 assert data['frames'] and data['scene'], (name, data)
                 assert all(f['rgb'] == expected and f['visible'] for f in data['frames']), (name, data)
                 assert any(p['name'] == 'first-contentful-paint' for p in data['paints']), (name, data)
@@ -101,5 +114,6 @@ async def main():
     finally:
         process.terminate()
         process.wait()
+        shutil.rmtree(profil, ignore_errors=True)
 
 asyncio.run(main())
