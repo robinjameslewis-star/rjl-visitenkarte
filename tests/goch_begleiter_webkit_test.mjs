@@ -82,6 +82,9 @@ for (const breit of [false, true]) {
     check(await wort(p, "Werkzeuge", 6000), "nach der Landung sagt er gleich den Satz zu den Werkzeugen");
     g = await gabe();
     check(g.klein && !g.flug && g.m.beide === 0 && g.m.ohneAst === 0, "er sitzt auf dem kleinen Ast; in keinem Bild zwei Gochs, nie ohne Ast", g.m);
+    // ganz im Bild: Der Vogel füllt 23,6 % bis 79,2 % der Breite seines Bildes (vogel.webp); der Ast läuft bis zum Rand
+    const rand = await p.evaluate(() => { const m = document.getElementById("goch-mini"), t = m.querySelector(".goch-mini-tier").getBoundingClientRect(), a = m.querySelector(".goch-mini-ast").getBoundingClientRect(); return { rechts: Math.round(innerWidth - (t.left + t.width * .792)), links: Math.round(t.left + t.width * .236), ast: a.right >= innerWidth - 1 }; });
+    check(rand.rechts >= 6 && rand.links >= 0 && rand.ast, "der kleine Goch ist nicht angeschnitten (mindestens 6 px bis zum rechten Rand), der Ast läuft bis zum Rand", rand);
     await zu(p, 0);
     await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort") && getComputedStyle(document.getElementById("goch-mini")).display === "none", null, { timeout: 6000 }).catch(() => {});
     g = await gabe();
