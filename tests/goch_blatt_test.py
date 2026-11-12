@@ -178,7 +178,8 @@ async def main():
                 check(await ev("scrollY") < 5 and not await klasse('goch-angeheftet') and not f['fest'] and not f['amBody'] and f['verdeckt'] == 0, "Tipp auf den kleinen Goch führt zurück: Das Blatt hängt wieder am Ast", f)
                 check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "der kleine Goch ist weg")
                 await klick('#goch-close'); await ev("window.scrollTo(0,1000)"); await pump(0.6)
-                check(not await klasse('goch-angeheftet') and await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "Gespräch zu: kein Blatt, kein kleiner Goch")
+                # seit dem Begleiter mit Stationen (12.11.2026): Ohne offenes Gespräch begleitet der kleine Goch, ein Blatt gibt es nicht
+                check(not await klasse('goch-angeheftet') and await bis("document.documentElement.classList.contains('goch-begleitet') && getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'block') == 'block' and await ev("document.getElementById('goch').hidden"), "Gespräch zu: kein Blatt, der kleine Goch begleitet")
 
             print("2. Handy: kleiner Goch mit Ast")
             await send("Emulation.setDeviceMetricsOverride", {"width": 375, "height": 667, "deviceScaleFactor": 2, "mobile": True})

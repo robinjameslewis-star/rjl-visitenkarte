@@ -320,7 +320,7 @@
     input.focus();
   });
   // Für goch-stimme.js: erkannten Text als Besuchertext senden, Endpunkt für /listen ableiten.
-  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen,
+  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen, oeffnen: () => open(),
     begonnen: () => history.some(m => m.role === 'user') };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });
