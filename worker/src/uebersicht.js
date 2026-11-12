@@ -309,6 +309,10 @@ ${SF_LOGO}
 // eine Zeile zur Herkunft der Angaben und zur Reihenfolge. Jede Spalte trägt im Kopf dasselbe Kennzeichen „Anzeige · Anbieter“ wie die
 // Karten (Robin, 18.10.2026, Option C); eigene kostenlose Werkzeuge tragen „Kostenlos“ (Robin, 23.10.2026). Steckbriefe mit Filter folgen
 // später (Option B).
+// Vergleichstabelle vorübergehend aus (Robin, 12.11.2026: „die vergleichstabelle machen wir mal vorübergehend ganz weg …
+// die arbeiten wir bei gelgenheit mal in ruhe sorgfältig aus“). Daten und Aufbau bleiben; true schaltet sie wieder ein.
+export const VERGLEICH_SICHTBAR = false;
+
 function vergleich(lang, t, up) {
   const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
   const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
@@ -330,7 +334,7 @@ ${zeilen}
 }
 
 // Die Übersicht einer Sprache
-export function werkzeugeUebersicht(lang) {
+export function werkzeugeUebersicht(lang, { vergleich: mitVergleich = VERGLEICH_SICHTBAR } = {}) {
   const t = TEXT[lang];
   if (!t) throw new Error("Unbekannte Sprache: " + lang);
   const andere = lang === "en" ? "de" : "en", up = lang === "en" ? "../../" : "../";
@@ -347,10 +351,10 @@ ${reihe(lang, t, up)}
 ${karten(lang, t, up).partner}
 </div>
 ${grundsaetze(lang)}
-<h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
+${mitVergleich ? `<h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
 <p class="wz-hinweis frei">${esc(t.vergleichLead)}</p>
 ${vergleich(lang, t, up)}
-<section class="wz-kasten" aria-labelledby="workshops-hinweis">
+` : ""}<section class="wz-kasten" aria-labelledby="workshops-hinweis">
 <p class="kicker">${esc(t.workshopKicker)}</p>
 <h2 id="workshops-hinweis">${esc(t.workshopTitel)}</h2>
 <p class="frei">${esc(t.workshopText)}</p>
