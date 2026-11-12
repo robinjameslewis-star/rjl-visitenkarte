@@ -99,9 +99,31 @@ for (const breit of [false, true]) {
   }));
   check(fuss.bilder > 40 && fuss.spricht && fuss.weg <= .75, "im Sitzen bleiben die Füße auf dem Ast: beim Sprechen, Knicksen und Kopfdrehen höchstens 0,75 px in jedem gezeichneten Bild", fuss);
   check(fuss.kopf === null || fuss.kopf > 1, "dabei bewegt sich der Körper über den Füßen", fuss);
-  await zu(p, "#workshops", .75); await p.waitForTimeout(3200);
+  await zu(p, "#workshops", .75);
+  check(await wort(p, "Werkzeuge"), "zurück bei den Werkzeugen sagt er seinen Satz wieder (Robin, 12.11.2026: nicht nur einmal je Abschnitt)");
   s = await stand(p);
-  check(s.wort === "" && !s.flug.runde && s.flug.an === anfluege, "zurück bei den Werkzeugen sagt er nichts mehr und bleibt sitzen (einmal je Abschnitt)", { wort: s.wort, flug: s.flug });
+  check(!s.flug.runde, "auch dabei keine Runde", s.flug);
+  // Keine stumme Station: alle Abschnitte der Startseite hinunter und wieder hinauf, je Abschnitt eine Sprechblase
+  {
+    const WEG = [["#workshops", .75, "Werkzeuge"], ["#workshops", .4, "leitet Robin"], ["#workshop-e-rechnung", .4, "führe ich"], ["#blog", .4, "Freitag"], ["#newsletter", .4, "per E-Mail"],
+      ["#ueber-mich", .4, "stellt Robin"], ["section.contact", .4, "Gespräch mit Robin"], ["#nachricht", .4, "antwortet"], ["#anbieter", .4, "vorstellen"]];
+    const da = await p.evaluate(w => w.map(([z]) => { const e = document.querySelector(z); return !!e && !e.hidden; }), WEG);
+    const weg = WEG.filter((_, i) => da[i]);
+    check(weg.length >= 8, "die Startseite hat mindestens acht Abschnitte mit Station", weg.length);
+    for (const [richtung, liste] of [["hinunter", weg], ["hinauf", [...weg].reverse().slice(1)]]) {
+      const stumm = [];
+      for (const [z, l, re] of liste) {
+        await zu(p, z, l);
+        if (!await wort(p, re, 8000)) stumm.push(re);
+        const b = await p.evaluate(() => { const w = document.querySelector(".goch-mini-wort").getBoundingClientRect(); return w.left >= 0 && w.top >= 0 && w.right <= innerWidth + 1 && w.bottom <= innerHeight + 1; });
+        if (!b) stumm.push(re + " (Sprechblase nicht im Fenster)");
+      }
+      check(stumm.length === 0, `${richtung}: jeder Abschnitt bekommt seine Sprechblase, ganz im Fenster`, stumm);
+    }
+    s = await stand(p);
+    check(!s.flug.runde && s.beide === 0, "dabei keine Runde und nie zwei Gochs", { flug: s.flug, beide: s.beide });
+    await zu(p, "#workshops", .75); await p.waitForTimeout(600);
+  }
   check(p.worker === 0, "bis hierher ging keine Anfrage an den Worker", p.worker);
   // zurück nach oben: der kleine fliegt ab, bevor der große erscheint
   const ab0 = s.flug.ab || 0;
@@ -124,9 +146,15 @@ for (const breit of [false, true]) {
     else {
       await zu(p, (await p.evaluate(() => scrollY)) + dy); await p.waitForTimeout(1700);
       const r = await p.evaluate(o => { const m = document.getElementById("goch-mini"), e = document.elementFromPoint(o.x, o.y); return { klein: getComputedStyle(m).display, trifft: !!e && !m.contains(e) && !!e.closest("main a[href], main button"), was: e && e.tagName + "." + e.className }; }, ort);
-      check(r.klein === "none" && r.trifft, "liegt ein Knopf oder Verweis unter ihm, ist er abgeflogen und der Tipp erreicht die Seite", r);
+      check(r.trifft, "liegt ein Knopf oder Verweis unter seinem Platz, ist er dort weg und der Tipp erreicht die Seite", r);
       for (let i = 0; i < 6; i++) { await p.evaluate(() => scrollBy(0, 4)); await p.waitForTimeout(150); }
-      check(await p.evaluate(() => getComputedStyle(document.getElementById("goch-mini")).display) === "none", "er bleibt weg, solange der Platz belegt ist (kein Hin und Her)");
+      await p.waitForTimeout(2200);
+      // Astwechsel statt Verschwinden: Er darf auf einer freien Höhe wieder sitzen, aber nie über etwas Bedienbarem
+      const neu = await p.evaluate(() => { const m = document.getElementById("goch-mini"), k = document.getElementById("goch-mini-knopf").getBoundingClientRect();
+        const sitzt = getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("fliegt-ab");
+        const ueber = sitzt && [...document.querySelectorAll("main a[href], main button, main input, main textarea")].some(e => { const r = e.getBoundingClientRect(); return r.width && r.bottom > k.top && r.top < k.bottom && r.right > k.left && r.left < k.right; });
+        return { sitzt, ueber, ast: sitzt && m.querySelector(".goch-mini-ast").getBoundingClientRect().right >= innerWidth - 1 }; });
+      check(!neu.ueber && (!neu.sitzt || neu.ast), "sitzt er wieder, dann auf einer freien Höhe, mit Ast vom rechten Rand, über nichts Bedienbarem", neu);
     }
   }
   await zu(p, "#blog", .2);
