@@ -287,7 +287,7 @@
       return a;
     },
   };
-  window.addEventListener('goch-modus', e => { modus = e.detail; leisteStand(); pruefen(); });
+  window.addEventListener('goch-modus', e => { modus = e.detail; leisteStand(); pruefen(); if (ohneGoch) zweigPruefen(); });
   // Im Gesprächsmodus führt die Seite von selbst hin, während Goch spricht
   window.addEventListener('goch-antwort', e => { const z = e.detail && e.detail.zeigen; if (lage !== 'aus' && ZIELE.includes(z)) zeigen(z); });
   schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
@@ -336,6 +336,7 @@
   // Die schmale Leiste ist das eingeklappte Blatt: Ein Tipp darauf (nicht auf Knöpfe oder Verweise) klappt es wieder auf
   panel.addEventListener('click', e => {
     if (e.target.closest('button, a, input, textarea')) return;
+    if (ohneGoch) { zweig.click(); return; } // Pille oben: Der Tipp holt Goch und die Leiste zurück nach unten
     if (lage === 'unterwegs' || breit === 'zeile') aufklappen(true);
   });
   // Der kleine Goch erscheint erst, wenn der große aus dem Bild ist – nie zwei Gochs zugleich
@@ -374,7 +375,6 @@
   wort.className = 'goch-mini-wort'; wort.hidden = true; wort.innerHTML = '<small></small><span></span>';
   mini.append(wort);
   let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null, hoch = 0, durch = false, seitWeg = 0;
-  const HOEHEN = [0, .26, .5]; // Höhen des Astes am rechten Rand, in Fensterhöhen über dem gewohnten Platz
   const PLAETZE = ['', 'links', 'hoch']; // Plätze der Sprechblase: über dem Vogel, links neben ihm, weiter oben
   // Jeder Abschnitt ist eine Station (Robin, 12.11.2026: keine stumme Station). Hat er keinen eigenen Satz, bietet Goch an,
   // Fragen zur Überschrift zu beantworten – mehr als dort steht, sagt er nicht.
@@ -441,31 +441,13 @@
       if (s) kandidatT = setTimeout(() => stationSagen(s), 300);
     }
     if (!wort.hidden && !frei(wort.getBoundingClientRect())) wortPlatz(); // beim Scrollen liegt jetzt etwas darunter: Platz wechseln
-    // Platz machen: Der Vogel nimmt Tipps an, deshalb zählen unter ihm auch gewöhnliche Verweise
+    // Er bleibt sitzen (Robin, 12.11.2026: „Der kleine Goch ist einfach da bis er mit Platz machen weggeschickt wird“): kein
+    // Abflug, keine neue Höhe. Liegt unter ihm etwas Bedienbares – auch ein gewöhnlicher Verweis –, wird er durchlässig und
+    // etwas blasser (.durch): Tipps gehen durch ihn hindurch zur Seite, bis sein Platz wieder frei ist.
     const r = knopf.getBoundingClientRect();
     if (r.width) knopfOrt = r;
-    // Astwechsel statt Verschwinden (Robin, 12.11.2026: keine stumme Station): Liegt unter ihm etwas Bedienbares, fliegt er ab und
-    // kommt auf der ersten freien Höhe am rechten Rand wieder – unten, auf einem Viertel oder auf halber Höhe des Fensters.
-    const unterIhm = BEDIENBAR + ', a[href]';
-    const ortBei = h => knopfOrt && new DOMRect(knopfOrt.left, knopfOrt.top + hoch - h, knopfOrt.width, knopfOrt.height);
-    const freieHoehe = () => HOEHEN.map(f => Math.round(f * innerHeight)).find(h => frei(ortBei(h), unterIhm));
-    // Ist auf keiner Höhe Platz (etwa in einer Liste aus lauter Verweisen), sitzt er nach kurzer Zeit trotzdem unten – dann
-    // durchlässig: Tipps gehen durch ihn hindurch zur Seite (.durch), bis sein Platz wieder frei ist.
-    const besetzt = !frei(knopfOrt, unterIhm);
-    if (durch) { if (!besetzt) { durch = false; mini.classList.remove('durch'); } }
-    else if (!weicht) { if (besetzt) { clearTimeout(weichtT); weichtT = 0; seitWeg = performance.now(); weicht = true; wortAus(); miniSicht(); begleiterBald(); } } // gleich weiterprüfen, auch wenn die Seite jetzt ruht
-    else if (!weichtT) weichtT = setTimeout(() => {
-      weichtT = 0;
-      if (!begleitet) return;
-      if (mini.dataset.flug || mini.classList.contains('fliegt-ab')) { begleiterBald(); return; } // der Abflug läuft noch: erst danach wiederkommen
-      let h = freieHoehe();
-      if (h === undefined) {
-        if (performance.now() - seitWeg < 1500) { begleiterBald(); return; }
-        h = 0; durch = true; mini.classList.add('durch');
-      }
-      knopfOrt = ortBei(h); hoch = h; mini.style.setProperty('--goch-hoch', h + 'px');
-      weicht = false; miniSicht();
-    }, 700);
+    const besetzt = !frei(knopfOrt, BEDIENBAR + ', a[href]');
+    if (besetzt !== durch) { durch = besetzt; mini.classList.toggle('durch', durch); }
   }
   const knopfText = () => knopf.setAttribute('aria-label', t(begleitet ? 'gochMiniFragen' : 'gochMini'));
   // ---------- Übergabe auf der Startseite (Robin, 12.11.2026: „B mit kleinem A“) ----------
@@ -493,7 +475,7 @@
     } else if (platz || ohneGoch) { fortSetzen(false); }
     else if (sicht > .5 && (oben > vh * .78 || scrollY < vh * .05)) {
       wortAus();
-      // Er sitzt gerade nicht (Astwechsel) oder die Bewegung ist reduziert: ohne Flug hinauf; sonst fliegt er oben wieder an
+      // Er sitzt gerade nicht (noch im Anflug) oder die Bewegung ist reduziert: ohne Flug hinauf; sonst fliegt er oben wieder an
       if (!miniDa || ruhig.matches) { const flug = !miniDa && !ruhig.matches; fortSetzen(false); mini.classList.add('goch-mini-weg'); miniSicht(); begleiterBald(); breitPruefen(); if (flug && panel.hidden) grossAn(); return; }
       gabeZurueck = true; boden = getComputedStyle(mini).bottom; mini.style.bottom = boden; mini.classList.add('fliegt-ab');
       let erledigt = false;
@@ -555,10 +537,21 @@
   platzTexte(); window.addEventListener('site-languagechange', platzTexte);
   mini.append(platzKnopf); document.body.append(zweig);
   function platzMerken() { try { if (platz) sessionStorage.setItem(platzKey, '1'); else sessionStorage.removeItem(platzKey); } catch (_) {} }
+  // „Platz machen“ bei offenem Gespräch: Pille und Zweig sitzen oben rechts, immer unter der Kopfleiste der Seite
+  function obenLage() {
+    const kopf = document.querySelector('header'), u = kopf ? kopf.getBoundingClientRect().bottom : 0;
+    html.style.setProperty('--goch-oben', Math.round(Math.max(10, u + 8)) + 'px');
+  }
+  function obenAus() { ohneGoch = false; html.classList.remove('goch-oben'); html.style.removeProperty('--goch-oben'); miniSicht(); hoehe(); }
+  window.addEventListener('scroll', () => { if (ohneGoch) obenLage(); }, { passive: true });
   function zweigPruefen() {
     const zeigen = platz && (panel.hidden || ohneGoch) && !miniDa && !mini.classList.contains('fliegt-ab') && sichtbar < .35;
     if (zeigen && !zweigBild.getAttribute('src')) { const ast = mini.querySelector('.goch-mini-ast'); zweigBild.src = ast.getAttribute('src') || ast.dataset.src; }
     zweig.hidden = !zeigen;
+    // Die Pille zeigt sich mit dem Zweig. Beim großen Goch oben ruhen beide – außer das Mikrofon ist offen: Dann bleibt die
+    // Pille stehen, damit ein offenes Mikrofon nie ohne Anzeige ist.
+    html.classList.toggle('goch-zweig-da', zeigen || (ohneGoch && !!modus.mikro && !modus.einmal));
+    if (ohneGoch) obenLage();
   }
   platzKnopf.addEventListener('click', e => {
     e.stopPropagation(); // nicht der Tipp auf den kleinen Goch
@@ -572,19 +565,20 @@
       platzAlsBegleiter = panel.hidden;
       platz = true; platzMerken();
       // Bei offenem Gespräch bleibt die Leiste (Robin, 12.11.2026): Nur Goch fliegt ab, der Zweig ruft ihn zurück
-      if (!panel.hidden) { ohneGoch = true; einklappen(); miniSicht(); setTimeout(zweigPruefen, 1300); return; }
+      // Die Leiste zieht mit: oben am Rand als kleine Pille neben dem Zweig, unten bleibt nichts liegen
+      if (!panel.hidden) { ohneGoch = true; einklappen(); html.classList.add('goch-oben'); obenLage(); miniSicht(); setTimeout(zweigPruefen, 1300); return; }
       begleiterPruefen(); // war er Begleiter ohne Gespräch, fliegt er hier ab
       setTimeout(zweigPruefen, 1300);
     }, ruhig.matches ? 1400 : 1500);
   });
   zweig.addEventListener('click', () => {
     platz = false; platzMerken(); zweig.hidden = true;
-    if (ohneGoch) { ohneGoch = false; miniSicht(); return; } // das Gespräch war die ganze Zeit offen: Goch setzt sich wieder neben die Leiste
+    if (ohneGoch) { obenAus(); return; } // das Gespräch war die ganze Zeit offen: Goch setzt sich wieder neben die Leiste, sie liegt wieder unten
     if (platzAlsBegleiter) { platzAlsBegleiter = false; begleiterPruefen(); return; } // er kommt als Begleiter zurück, das Gespräch bleibt zu
     wiederda = schmal.matches; window.Goch.oeffnen(); pruefen(); breitPruefen();
   });
   // Wer Goch selbst antippt und das Gespräch öffnet, hebt die Bitte auf
-  new MutationObserver(() => { if (panel.hidden && ohneGoch) { ohneGoch = false; miniSicht(); } if (!panel.hidden && platz && !ohneGoch) { platz = false; platzMerken(); } zweigPruefen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  new MutationObserver(() => { if (panel.hidden && ohneGoch) obenAus(); if (!panel.hidden && platz && !ohneGoch) { platz = false; platzMerken(); } zweigPruefen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   // Nach einem Seitenwechsel (Schritt 6): War das Gespräch offen, geht es wieder auf – auf breiten Bildschirmen als Blatt, am
   // Handy nur im Sprachmodus und dann als Kapsel neben dem kleinen Goch. Ohne Sprachmodus bleibt es am Handy zu (der Verlauf
   // ist beim Öffnen wieder da), sonst läge das Blatt beim Ankommen über der neuen Seite.

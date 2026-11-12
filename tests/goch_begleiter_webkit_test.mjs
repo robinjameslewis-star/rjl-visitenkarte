@@ -24,12 +24,13 @@ async function auf(pfad, opt = {}) {
   await p.waitForFunction(() => window.GochStimme && window.GochZeigen && document.getElementById("scene").dataset.state === "rest", null, { timeout: 40000 });
   // je gezeichnetem Bild: zwei Gochs zugleich? kleiner Goch ohne Ast? welche Flüge?
   await p.evaluate(() => {
-    window.__m = { beide: 0, ohneAst: 0, flug: {} };
+    window.__m = { beide: 0, ohneAst: 0, flug: {}, starts: { an: 0, ab: 0 }, letzter: "" }; // starts: begonnene Flüge
     const bild = () => {
       const s = document.getElementById("scene").getBoundingClientRect(), m = document.getElementById("goch-mini"), da = getComputedStyle(m).display !== "none";
       if (s.bottom > 2 && s.top < innerHeight - 2 && da && getComputedStyle(document.querySelector("#scene .bird-move")).visibility !== "hidden") __m.beide++; // der große zählt nur, solange sein Bild an ist (Übergabe)
       if (da) { const a = m.querySelector(".goch-mini-ast"), tier = m.querySelector(".goch-mini-tier"); if (a.complete && tier.getBoundingClientRect().width && !(a.naturalWidth && a.getBoundingClientRect().width > 100) && !m.classList.contains("fliegt-ab")) __m.ohneAst++; }
       if (m.dataset.flug) __m.flug[m.dataset.flug] = (__m.flug[m.dataset.flug] || 0) + 1;
+      const f = m.dataset.flug || ""; if (f && f !== __m.letzter && f in __m.starts) __m.starts[f]++; __m.letzter = f;
       requestAnimationFrame(bild);
     };
     requestAnimationFrame(bild);
@@ -49,7 +50,7 @@ const stand = p => p.evaluate(() => {
   if (sicht) { const z = w.getBoundingClientRect(); imFenster = z.left >= 0 && z.right <= innerWidth && z.top >= 0 && z.bottom <= innerHeight;
     document.querySelectorAll('button, input, textarea, select, video, summary, a[class*="cta"], .wzs-karte a, .ws-karte a').forEach(k => { if (m.contains(k) || document.getElementById("goch").contains(k)) return; const r = k.getBoundingClientRect(); if (r.width && r.bottom > z.top && r.top < z.bottom && r.right > z.left && r.left < z.right) verdeckt++; }); }
   return { klasse: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), klein: da, wort: sicht ? w.lastChild.textContent : "", wer: sicht ? w.firstChild.textContent : "", verdeckt, imFenster,
-    etikett: m.querySelector(".goch-mini-knopf").getAttribute("aria-label"), blatt: !document.getElementById("goch").hidden, y: Math.round(scrollY), gross: document.getElementById("scene").dataset.state, flug: __m.flug, beide: __m.beide, ohneAst: __m.ohneAst };
+    etikett: m.querySelector(".goch-mini-knopf").getAttribute("aria-label"), blatt: !document.getElementById("goch").hidden, y: Math.round(scrollY), gross: document.getElementById("scene").dataset.state, flug: __m.flug, starts: { ...__m.starts }, beide: __m.beide, ohneAst: __m.ohneAst };
 });
 const wort = (p, re, ms = 9000) => p.waitForFunction(r => { const w = document.querySelector(".goch-mini-wort"); return w && !w.hidden && w.classList.contains("da") && new RegExp(r).test(w.lastChild.textContent); }, re, { timeout: ms }).then(() => true, () => false);
 
@@ -123,6 +124,7 @@ for (const breit of [false, true]) {
   check(!s.flug.runde, "auch dabei keine Runde", s.flug);
   // Keine stumme Station: alle Abschnitte der Startseite hinunter und wieder hinauf, je Abschnitt eine Sprechblase
   {
+    const starts0 = (await stand(p)).starts; // Flüge bis hierher: die Übergabe hin, zurück und wieder hin
     const WEG = [["#workshops", .75, "Werkzeuge"], ["#workshops", .4, "leitet Robin"], ["#workshop-e-rechnung", .4, "führe ich"], ["#blog", .4, "Freitag"], ["#newsletter", .4, "per E-Mail"],
       ["#ueber-mich", .4, "stellt Robin"], ["section.contact", .4, "Gespräch mit Robin"], ["#nachricht", .4, "antwortet"], ["#anbieter", .4, "vorstellen"]];
     const da = await p.evaluate(w => w.map(([z]) => { const e = document.querySelector(z); return !!e && !e.hidden; }), WEG);
@@ -140,6 +142,8 @@ for (const breit of [false, true]) {
     }
     s = await stand(p);
     check(!s.flug.runde && s.beide === 0, "dabei keine Runde und nie zwei Gochs", { flug: s.flug, beide: s.beide });
+    // Robin, 12.11.2026: „fliegt nur ab und an wenn es einen Wechsel von großen goch zu kleinem oder umgekehrt gibt“
+    check(s.starts.an === starts0.an && s.starts.ab === starts0.ab, "über die ganze Startseite hin und zurück kein weiterer Flug (er sitzt seit der Übergabe unten)", { vorher: starts0, jetzt: s.starts });
     await zu(p, "#workshops", .75); await p.waitForTimeout(600);
   }
   check(p.worker === 0, "bis hierher ging keine Anfrage an den Worker", p.worker);
@@ -165,15 +169,9 @@ for (const breit of [false, true]) {
     else {
       await zu(p, (await p.evaluate(() => scrollY)) + dy); await p.waitForTimeout(1700);
       const r = await p.evaluate(o => { const m = document.getElementById("goch-mini"), e = document.elementFromPoint(o.x, o.y); return { klein: getComputedStyle(m).display, trifft: !!e && !m.contains(e) && !!e.closest("main a[href], main button"), was: e && e.tagName + "." + e.className }; }, ort);
-      check(r.trifft, "liegt ein Knopf oder Verweis unter seinem Platz, ist er dort weg und der Tipp erreicht die Seite", r);
-      for (let i = 0; i < 6; i++) { await p.evaluate(() => scrollBy(0, 4)); await p.waitForTimeout(150); }
-      await p.waitForTimeout(2200);
-      // Astwechsel statt Verschwinden: Er darf auf einer freien Höhe wieder sitzen, aber nie über etwas Bedienbarem
-      const neu = await p.evaluate(() => { const m = document.getElementById("goch-mini"), k = document.getElementById("goch-mini-knopf").getBoundingClientRect();
-        const sitzt = getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("fliegt-ab");
-        const ueber = sitzt && [...document.querySelectorAll("main a[href], main button, main input, main textarea")].some(e => { const r = e.getBoundingClientRect(); return r.width && r.bottom > k.top && r.top < k.bottom && r.right > k.left && r.left < k.right; });
-        return { sitzt, ueber, ast: sitzt && m.querySelector(".goch-mini-ast").getBoundingClientRect().right >= innerWidth - 1 }; });
-      check(!neu.ueber && (!neu.sitzt || neu.ast), "sitzt er wieder, dann auf einer freien Höhe, mit Ast vom rechten Rand, über nichts Bedienbarem", neu);
+      check(r.trifft && r.klein === "block", "liegt ein Knopf oder Verweis unter ihm, bleibt er sitzen und der Tipp geht durch ihn zur Seite", r);
+      const d = await p.evaluate(() => { const m = document.getElementById("goch-mini"); return { durch: m.classList.contains("durch"), flug: m.dataset.flug || "", ast: m.querySelector(".goch-mini-ast").getBoundingClientRect().right >= innerWidth - 1, blass: +getComputedStyle(m.querySelector(".goch-mini-bild")).opacity }; });
+      check(d.durch && !d.flug && d.ast && d.blass < 1, "er ist durchlässig und etwas blasser, fliegt nicht, der Ast kommt vom rechten Rand", d);
     }
   }
   await zu(p, "#blog", .2);
@@ -215,7 +213,7 @@ for (const breit of [false, true]) {
   check(await p.evaluate(() => { const w = document.querySelector(".goch-platz-wort"); return !!w && /warte/.test(w.textContent); }), "„Platz machen“: Goch antwortet kurz");
   await p.waitForTimeout(3200);
   let r = await p.evaluate(() => ({ klein: getComputedStyle(document.getElementById("goch-mini")).display, zweig: !document.getElementById("goch-zweig").hidden, kl: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), blatt: !document.getElementById("goch").hidden }));
-  check(r.klein === "none" && r.zweig && r.kl === "" && !r.blatt, "er ist abgeflogen, der Zweig am Rand bleibt, das Gespräch ist zu", r);
+  check(r.klein === "none" && r.zweig && !/goch-(begleitet|unterwegs|zeile|fokus|oben)/.test(r.kl) && !r.blatt, "er ist abgeflogen, der Zweig am Rand bleibt, das Gespräch ist zu", r);
   await zu(p, "#blog", .2); await p.waitForTimeout(2500);
   check(await p.evaluate(() => getComputedStyle(document.getElementById("goch-mini")).display) === "none", "er bleibt weg, auch im nächsten Abschnitt");
   await p.locator("#goch-zweig").click();

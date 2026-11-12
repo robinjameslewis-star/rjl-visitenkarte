@@ -8,6 +8,7 @@ gemessene Gewicht ist deshalb eine Obergrenze gegenüber der Auslieferung (dort 
 import asyncio
 import base64
 import json
+import shutil
 import socket
 import subprocess
 import sys
@@ -109,8 +110,9 @@ class Seite:
 
 
 async def main():
+    profil = tempfile.mkdtemp(prefix='tal-chrome-')
     process = subprocess.Popen([CHROME, '--headless=new', '--mute-audio', f'--remote-debugging-port={PORT}', '--hide-scrollbars',
-        '--user-data-dir=' + tempfile.mkdtemp(prefix='tal-chrome-'), '--no-first-run', 'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        '--user-data-dir=' + profil, '--no-first-run', 'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         for _ in range(50):
             try:
@@ -250,6 +252,10 @@ async def main():
             s.leser.cancel()
     finally:
         process.terminate()
+        # Das Temp-Profil dieses Laufs wieder löschen (12.11.2026: Über viele Läufe lief sonst die Platte voll)
+        try: process.wait(timeout=5)
+        except Exception: process.kill()
+        shutil.rmtree(profil, ignore_errors=True)
     print(f'\nBildschirmfotos: {OUT}')
     if fehler:
         print(f'{len(fehler)} Fehler'); sys.exit(1)
