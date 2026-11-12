@@ -25,7 +25,7 @@ def fake(path):
 # Zählt Mikrofonanfragen; das Mikrofon ist ein Sägezahn, hörbar nur, solange __sprich wahr ist (wie goch_stimme_test.py).
 INSTRUMENT = """
 // Schritt 6: Verlauf und Sprachschalter bleiben für den Besuch im Tab. Jeder Seitenaufruf der Tests beginnt frisch, außer mit &merken=1.
-if (!/[?&]merken=1/.test(location.search)) { try { sessionStorage.removeItem('rjl-goch-stimme'); sessionStorage.removeItem('rjl-goch-verlauf'); } catch (_) {} }
+if (!/[?&]merken=1/.test(location.search)) { try { sessionStorage.removeItem('rjl-goch-stimme'); sessionStorage.removeItem('rjl-goch-verlauf'); sessionStorage.removeItem('rjl-goch-platz'); } catch (_) {} }
 window.__z = { gum: 0, streams: [] }; window.__sprich = false;
 (() => {
   const md = navigator.mediaDevices;

@@ -132,6 +132,26 @@ for (const breit of [false, true]) {
   check(s.beide === 0 && p.fehler.length === 0, "nie zwei Gochs, keine Skriptfehler", p.fehler.slice(0, 2));
   await ctx.close();
 }
+{
+  console.log("Platz machen als Begleiter, Handy");
+  const { p, ctx } = await auf("");
+  await zu(p, "#workshops", .75);
+  await p.waitForFunction(() => { const m = document.getElementById("goch-mini"), k = document.getElementById("goch-platz"); return getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("sagt") && k && getComputedStyle(k).display !== "none"; }, null, { timeout: 16000 }).catch(() => {});
+  await p.locator("#goch-platz").click(); await p.waitForTimeout(800);
+  check(await p.evaluate(() => { const w = document.querySelector(".goch-platz-wort"); return !!w && /warte/.test(w.textContent); }), "„Platz machen“: Goch antwortet kurz");
+  await p.waitForTimeout(3200);
+  let r = await p.evaluate(() => ({ klein: getComputedStyle(document.getElementById("goch-mini")).display, zweig: !document.getElementById("goch-zweig").hidden, kl: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), blatt: !document.getElementById("goch").hidden }));
+  check(r.klein === "none" && r.zweig && r.kl === "" && !r.blatt, "er ist abgeflogen, der Zweig am Rand bleibt, das Gespräch ist zu", r);
+  await zu(p, "#blog", .2); await p.waitForTimeout(2500);
+  check(await p.evaluate(() => getComputedStyle(document.getElementById("goch-mini")).display) === "none", "er bleibt weg, auch im nächsten Abschnitt");
+  await p.locator("#goch-zweig").click();
+  let da = false;
+  for (let i = 0; i < 20 && !da; i++) { da = await p.waitForFunction(() => document.documentElement.classList.contains("goch-begleitet") && getComputedStyle(document.getElementById("goch-mini")).display === "block", null, { timeout: 2600 }).then(() => true, () => false); if (!da) await p.evaluate(() => scrollBy(0, 70)); }
+  r = await p.evaluate(() => ({ zweig: !document.getElementById("goch-zweig").hidden, blatt: !document.getElementById("goch").hidden, beide: __m.beide }));
+  check(da && !r.zweig && !r.blatt && r.beide === 0, "ein Tipp auf den Zweig holt ihn als Begleiter zurück, das Gespräch bleibt zu", r);
+  check(p.worker === 0 && p.fehler.length === 0, "keine Anfrage an den Worker, keine Skriptfehler", { worker: p.worker, fehler: p.fehler.slice(0, 2) });
+  await ctx.close();
+}
 for (const [pfad, ziel, re, name] of [["workshops/ki-kompetenz/", "#ablauf", "Schritt für Schritt", "Workshop KI-Kompetenz"], ["ueber-mich/", "#rotkehlchen", "Rotkehlchen", "Über mich"], ["workshops/en/ki-kompetenz/", "#ablauf", "step by step", "Workshop KI-Kompetenz (englisch)"]]) {
   console.log("Unterseite " + name + ", Handy");
   const { p, ctx } = await auf(pfad);

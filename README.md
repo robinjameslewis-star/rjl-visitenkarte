@@ -875,6 +875,11 @@ wenn die Datenschutztexte freigegeben und Stimme und Spracheingabe in der Redakt
   ist das Gespräch wieder offen; am Handy nur im Sprachmodus und dann als Kapsel. „Goch hört“ steht auf Pause – das
   Mikrofon öffnet sich nie von selbst, erst mit „Weiter zuhören“. Der Deckel je Gespräch (`MAX_TURNS`) zählt die Antworten
   im gesendeten Verlauf und gilt damit über alle Seiten. Tests starten je Seitenaufruf frisch, außer mit `&merken=1`.
+- **„Platz machen“ (Robin, 11.11.2026, aus dem Entwurf):** Kleiner Knopf über dem kleinen Goch (`#goch-platz`, am Handy immer
+  zu sehen, am Rechner beim Überfahren und mit der Tastatur). Goch antwortet mit einem festen Satz der Seite („Gern. Ich warte
+  oben auf Sie.“, keine Anfrage), das Gespräch geht zu (damit auch das Mikrofon), er fliegt ab, und am rechten Rand bleibt die
+  Spitze seines Zweigs (`#goch-zweig`). Ein Tipp darauf ruft ihn zurück. Die Bitte gilt für den Besuch, auch über Seitenwechsel
+  (`sessionStorage`, `rjl-goch-platz`); wer Goch selbst antippt, hebt sie auf. Knopf und Zweig baut `goch-gespraech.js`.
 - **Flug überall (Schritt 7, Robin 11.11.2026: „bei jedem neuen Auftritt anfliegen und bei jedem Rückzug abfliegen“):**
   Unterseiten: Goch fliegt im Kopf an wie auf der Startseite (`goch-seite.js` lädt `bird-flight.js`; Flugbilder erst nach
   dem ersten Bild der Seite). Kleiner Goch: fliegt bei jedem Erscheinen von rechts oben an und bei jedem Rückzug nach links

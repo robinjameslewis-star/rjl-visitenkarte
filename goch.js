@@ -191,13 +191,13 @@
     if (still !== true) (form.hidden ? closeButton : input).focus();
     merken();
   }
-  function close() {
+  function close(still) { // still: „Platz machen“ – ohne Fokus auf Goch, sonst spränge die Seite zu ihm
     panel.hidden = true;
     merken();
     scene.setAttribute('aria-expanded', 'false');
     consentBox.hidden = true;
     const target = returnFocus && returnFocus !== document.body ? returnFocus : scene;
-    if (target.focus) target.focus();
+    if (still !== true && target.focus) target.focus();
     returnFocus = null;
   }
   function askConsent(text) {
@@ -312,7 +312,7 @@
   }
   const onClick = event => { event.preventDefault(); open(); };
   scene.addEventListener('click', onClick);
-  closeButton.addEventListener('click', close);
+  closeButton.addEventListener('click', () => close());
   panel.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
   form.addEventListener('submit', event => { event.preventDefault(); const v = input.value; input.value = ''; ask(v); });
   input.addEventListener('keydown', event => {
@@ -353,7 +353,7 @@
   })();
   window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen,
     // für goch-gespraech.js: war das Gespräch vor dem Seitenwechsel offen, geht es dort wieder auf (still)
-    wiederOffen: () => wiederOffen, oeffnen: () => { wiederOffen = false; open(true); },
+    wiederOffen: () => wiederOffen, oeffnen: () => { wiederOffen = false; open(true); }, schliessen: () => close(true),
     begonnen: () => history.some(m => m.role === 'user') };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });
