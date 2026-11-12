@@ -386,9 +386,18 @@
   const unter = !!document.body.dataset.gochSeite;
   const ORTE = unter
     ? { 'k-workshops': 'workshops', 'k-workshop-e-rechnung': 'ws_erechnung', ablauf: 'ablauf', anfrage: 'anfrage', fragen: 'fragen', vergleich: 'vergleich',
-        stationen: 'stationen', rotkehlchen: 'rotkehlchen', kontakt: 'kontakt', neu: 'neu' }
+        stationen: 'stationen', rotkehlchen: 'rotkehlchen', kontakt: 'kontakt', neu: 'neu', 'newsletter-title': 'newsletter_seite' }
     : { werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', newsletter: 'newsletter', 'ueber-mich': 'ueber_mich',
         termin: 'termin', nachricht: 'nachricht', anbieter: 'anbieter' };
+  // Eigene Sätze je Unterseite (12.11.2026): Die Kennungen der Überschriften sind allgemein (inhalt, werkzeuge, partner …),
+  // deshalb gelten sie nur auf der Seite, zu deren Text der Satz gehört. Deutsch und Englisch tragen dieselben Kennungen.
+  const SEITEN = [
+    [/\/workshops\/(en\/)?ki-kompetenz\/$/, { zusammenarbeit: 'ki_zusammenarbeit', 'plan-b': 'ki_plan_b', teile: 'ki_teile', unterweisung: 'ki_unterweisung', 'fuer-wen': 'ki_fuer_wen',
+      inhalt: 'ki_inhalt', werkzeuge: 'ki_werkzeuge', leitung: 'ki_leitung', formate: 'ki_formate', nachweis: 'ki_nachweis' }],
+    [/\/(ueber-mich|about)\/$/, { kenntnisse: 'um_kenntnisse', ehrenamt: 'um_ehrenamt' }],
+    [/\/werkzeuge\/(en\/)?$/, { ueberblick: 'wz_ueberblick', 'partner-anzeigen': 'wz_partner_anzeigen', 'workshops-hinweis': 'wz_workshops', partner: 'wz_partner' }],
+  ];
+  const EIGEN = unter ? (SEITEN.find(([muster]) => muster.test(location.pathname.replace(/index\.html$/, ''))) || [0, {}])[1] : {};
   const TITEL = { 'was es kann': 'kann', 'was er kann': 'kann', 'what it does': 'kann', 'so geht es': 'so_geht_es', 'how it works': 'so_geht_es' };
   const BEDIENBAR = 'button, input, textarea, select, video, summary, a[class*="cta"], .wzs-karte a, .ws-karte a';
   const knopf = mini.querySelector('.goch-mini-knopf'), wort = document.createElement('span');
@@ -402,7 +411,7 @@
     stationen = [];
     const titel = h => (h && h.textContent || '').replace(/\s+/g, ' ').trim();
     if (unter) document.querySelectorAll('main h2').forEach(h => {
-      const key = ORTE[h.id] || (!h.id && TITEL[titel(h).toLowerCase()]) || '';
+      const key = EIGEN[h.id] || ORTE[h.id] || (!h.id && TITEL[titel(h).toLowerCase()]) || '';
       if (key || titel(h)) stationen.push({ el: h, key, kopf: true, h });
     });
     else document.querySelectorAll('main > section:not(.stage)').forEach(el => {

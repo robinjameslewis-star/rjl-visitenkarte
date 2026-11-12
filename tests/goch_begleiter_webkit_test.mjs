@@ -246,6 +246,31 @@ for (const [pfad, ziel, re, name] of [["workshops/ki-kompetenz/", "#ablauf", "Sc
   check(p.worker === 0 && p.fehler.length === 0, "keine Anfrage an den Worker, keine Skriptfehler", { worker: p.worker, fehler: p.fehler.slice(0, 2) });
   await ctx.close();
 }
+// Eigene Sätze je Unterseite (12.11.2026): Jeder Abschnitt mit eigenem Satz sagt ihn – und nur auf der Seite, zu der er gehört
+const EIGEN = [
+  ["workshops/ki-kompetenz/", "Workshop KI-Kompetenz", [["zusammenarbeit", "unverbindliches Gespräch"], ["plan-b", "Ablauf hakt"], ["teile", "90 Minuten"], ["unterweisung", "Art. 4"], ["fuer-wen", "Vorkenntnisse"], ["inhalt", "Sieben Kapitel"],
+    ["werkzeuge", "Beispieldaten"], ["leitung", "Robin James Lewis"], ["formate", "Zwei Formate"], ["nachweis", "keine amtliche"], ["recht", "Fragen zu"], ["newsletter-title", "Newsletter"]]],
+  ["workshops/en/ki-kompetenz/", "Workshop KI-Kompetenz (englisch)", [["teile", "90 minutes"], ["nachweis", "not an official"], ["fuer-wen", "No prior knowledge"]]],
+  ["ueber-mich/", "Über mich", [["kenntnisse", "Software"], ["ehrenamt", "Verwaltungsgericht"]]],
+  // „ueberblick“ (erster Abschnitt) fehlt hier bewusst: Am Handy ist schon „Partner“ an der Reihe, wenn der kleine Goch erscheint; oben begrüßt der große
+  ["werkzeuge/", "Werkzeuge", [["partner-anzeigen", "Partnern"], ["workshops-hinweis", "Fällen aus Ihrem Alltag"], ["partner", "persönlich per E-Mail"]]],
+  ["workshops/e-rechnung/", "Workshop E-Rechnung", [["newsletter-title", "Newsletter"]]],
+];
+for (const [pfad, name, liste] of EIGEN) {
+  console.log(`Eigene Sätze, ${name}, Handy`);
+  const { p, ctx } = await auf(pfad);
+  const stumm = [];
+  for (const [id, re] of liste) {
+    if (!await p.evaluate(i => !!document.querySelector("main h2#" + CSS.escape(i)), id)) { stumm.push(id + " (Überschrift fehlt)"); continue; }
+    await zu(p, "main h2#" + id, .4);
+    // Der erste Abschnitt einer Seite liegt oft noch unter dem großen Goch im Kopf: dann weiter, bis der kleine da ist
+    if (!await wort(p, re, 5000)) await zu(p, "main h2#" + id, -.18);
+    if (!await wort(p, re, 8000)) stumm.push(id + ": " + await p.evaluate(() => (document.querySelector(".goch-mini-wort") || { textContent: "" }).textContent.slice(0, 60)));
+  }
+  check(stumm.length === 0, `${liste.length} Abschnitte sagen ihren Satz`, stumm);
+  check(p.worker === 0 && p.fehler.length === 0, "keine Anfrage an den Worker, keine Skriptfehler", { worker: p.worker, fehler: p.fehler });
+  await ctx.close();
+}
 await b.close();
 console.log(fails ? `\n${fails} FEHLER` : "\nWebKit, Begleiter: alles in Ordnung.");
 process.exit(fails ? 1 : 0);
