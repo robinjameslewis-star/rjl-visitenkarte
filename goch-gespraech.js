@@ -23,9 +23,9 @@
   const stelle = ziel => $(ziel === 'grundsaetze' ? 'grundsaetze-' + (window.SiteLanguage.current === 'en' ? 'en' : 'de') : ziel);
 
   let modus = { mikro: false, laut: false, einmal: false }, lage = 'aus', zuletzt = 0; // lage: aus | fokus | unterwegs
-  let begleitet = false; // Begleiter ohne offenes Gespräch (unten: Begleiter mit Stationen)
+  let begleitet = false, weicht = false; // Begleiter ohne offenes Gespräch; weicht: Unter ihm liegt gerade etwas Bedienbares (unten: Begleiter mit Stationen)
   // Der kleine Goch ist da: im Gesprächsmodus unterwegs, neben dem mitlaufenden Blatt oder als Begleiter
-  const miniSicht = () => { mini.hidden = !(lage === 'unterwegs' || (lage === 'aus' && (!!breit || begleitet))); };
+  const miniSicht = () => { mini.hidden = !(lage === 'unterwegs' || (lage === 'aus' && (!!breit || (begleitet && !weicht)))); };
   function setzen(neu) {
     if (neu === lage) return;
     const vorher = lage;
@@ -112,7 +112,7 @@
     if (soll && !mini.classList.contains('fliegt-ab')) boden = getComputedStyle(mini).bottom;
     if (soll === miniDa) return;
     miniDa = soll;
-    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => { gelandet = performance.now(); }); }
+    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => { gelandet = performance.now(); begleiterBald(); }); }
     // Nie zwei Gochs zugleich (Robin, 11.11.2026): Kommt der große Goch ins Bild, ist der kleine sofort weg – ohne Abflug.
     // Er fliegt nur ab, wenn der große nicht zu sehen ist (Gespräch geschlossen, „Seite ansehen“ aufgehoben).
     else if (sichtbar > .02 || grossImBild()) flugAus();
@@ -249,8 +249,9 @@
   // als Sprechblase – je Abschnitt höchstens einmal je Seitenaufruf (nur im Arbeitsspeicher, nichts wird im Browser abgelegt).
   // Die Sätze stehen in language.js (gochStation_…), es geht keine Anfrage an den Worker, und er spricht sie nicht.
   // Scrollt der Besucher zurück, fliegt der kleine ab, bevor der große erscheint (Vorlauf: ein gutes Drittel der Fensterhöhe); der große
-  // fliegt dann wieder an. Ein Tipp auf den kleinen öffnet das Gespräch. Liegt ein Knopf, ein Feld oder ein Video unter
-  // ihm, weicht er zur Seite; die Sprechblase erscheint nur, wo sie nichts Bedienbares verdeckt.
+  // fliegt dann wieder an. Ein Tipp auf den kleinen öffnet das Gespräch. Liegt ein Knopf, ein Feld, ein Video oder ein
+  // Verweis unter ihm, fliegt er ab und kommt erst wieder, wenn sein Platz eine Weile frei ist (sein Platz steht fest im
+  // Fenster und wird gemerkt, solange er zu sehen ist). Die Sprechblase erscheint nur, wo sie nichts Bedienbares verdeckt.
   const unter = !!document.body.dataset.gochSeite;
   const ORTE = unter
     ? { 'k-workshops': 'workshops', 'k-workshop-e-rechnung': 'ws_erechnung', ablauf: 'ablauf', anfrage: 'anfrage', fragen: 'fragen', vergleich: 'vergleich',
@@ -261,7 +262,7 @@
   const knopf = mini.querySelector('.goch-mini-knopf'), wort = document.createElement('span');
   wort.className = 'goch-mini-wort'; wort.hidden = true; wort.innerHTML = '<small></small><span></span>';
   mini.append(wort);
-  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, gelandet = 0, rueckkehr = false, begleiterWartet = false;
+  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, gelandet = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null;
   const gesehen = new Set();
   function stationenSuchen() {
     stationen = [];
@@ -282,10 +283,9 @@
     return treffer;
   }
   // Liegt unter der Fläche etwas Bedienbares der Seite?
-  function frei(el) {
-    const z = el.getBoundingClientRect();
-    if (!z.width) return true;
-    for (const k of document.querySelectorAll(BEDIENBAR)) {
+  function frei(z, was) {
+    if (!z || !z.width) return true;
+    for (const k of document.querySelectorAll(was || BEDIENBAR)) {
       if (mini.contains(k) || panel.contains(k)) continue;
       const r = k.getBoundingClientRect();
       if (r.width && r.bottom > z.top && r.top < z.bottom && r.right > z.left && r.left < z.right && r.bottom > 0 && r.top < innerHeight) return false;
@@ -315,16 +315,16 @@
   function stationSagen(s) {
     if (!begleitet || kandidat !== s || gesehen.has(s.key)) return;
     const spaeter = ms => { kandidatT = setTimeout(() => stationSagen(s), ms); };
-    if (!miniDa || mini.dataset.flug || mini.classList.contains('goch-mini-weicht')) { spaeter(400); return; } // er ist noch im Anflug oder weicht gerade aus
+    if (!miniDa || mini.dataset.flug || weicht) { spaeter(400); return; } // er ist noch im Anflug oder macht gerade Platz
     wort.firstChild.textContent = t('gochWortWer'); wort.lastChild.textContent = t('gochStation_' + s.key);
     wort.hidden = false;
-    if (!frei(wort)) { wort.hidden = true; spaeter(700); return; } // hier würde die Sprechblase etwas Bedienbares verdecken: später noch einmal
+    if (!frei(wort.getBoundingClientRect())) { wort.hidden = true; spaeter(700); return; } // hier würde die Sprechblase etwas Bedienbares verdecken: später noch einmal
     wort.hidden = true;
     gesehen.add(s.key);
     const zeigen = () => {
       if (!begleitet || kandidat !== s || !miniDa) return;
       wort.hidden = false;
-      if (!frei(wort)) { wort.hidden = true; return; }
+      if (!frei(wort.getBoundingClientRect())) { wort.hidden = true; return; }
       void wort.offsetWidth; wort.classList.add('da');
       clearTimeout(wortT); wortT = setTimeout(wortAus, 6500);
     };
@@ -336,8 +336,12 @@
       kandidat = s; clearTimeout(kandidatT); wortAus();
       if (s && !gesehen.has(s.key)) kandidatT = setTimeout(() => stationSagen(s), 550); // erst wenn der Besucher im Abschnitt verweilt
     }
-    if (!wort.hidden && !frei(wort)) wortAus();
-    mini.classList.toggle('goch-mini-weicht', !frei(knopf));
+    if (!wort.hidden && !frei(wort.getBoundingClientRect())) wortAus();
+    // Platz machen: Der Vogel nimmt Tipps an, deshalb zählen unter ihm auch gewöhnliche Verweise
+    const r = knopf.getBoundingClientRect();
+    if (r.width) knopfOrt = r;
+    if (!frei(knopfOrt, BEDIENBAR + ', a[href]')) { clearTimeout(weichtT); weichtT = 0; if (!weicht) { weicht = true; wortAus(); miniSicht(); } }
+    else if (weicht && !weichtT) weichtT = setTimeout(() => { weichtT = 0; weicht = false; if (begleitet) miniSicht(); }, 700);
   }
   const knopfText = () => knopf.setAttribute('aria-label', t(begleitet ? 'gochMiniFragen' : 'gochMini'));
   function begleiterPruefen() {
@@ -348,14 +352,14 @@
       begleitet = an;
       html.classList.toggle('goch-begleitet', an);
       if (an) { if (!stationen) stationenSuchen(); miniLaden(); unten(); }
-      else { clearTimeout(kandidatT); kandidat = null; wortAus(); mini.classList.remove('goch-mini-weicht'); rueckkehr = panel.hidden; }
+      else { clearTimeout(kandidatT); clearTimeout(weichtT); weichtT = 0; weicht = false; kandidat = null; wortAus(); rueckkehr = panel.hidden; }
       miniSicht(); knopfText();
     }
     if (begleitet) stationPruefen();
   }
   const begleiterBald = () => { if (!begleiterWartet) { begleiterWartet = true; requestAnimationFrame(begleiterPruefen); } };
   window.addEventListener('scroll', begleiterBald, { passive: true });
-  window.addEventListener('resize', begleiterBald, { passive: true });
+  window.addEventListener('resize', () => { knopfOrt = null; begleiterBald(); }, { passive: true });
   window.addEventListener('site-languagechange', () => { knopfText(); wortAus(); });
   new MutationObserver(begleiterPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   new MutationObserver(begleiterBald).observe(scene, { attributes: true, attributeFilter: ['data-chat'] });

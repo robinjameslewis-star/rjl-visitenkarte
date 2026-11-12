@@ -311,16 +311,13 @@
   /* Begleiter mit Stationen (goch-gespraech.js): Der kleine Goch sitzt auch ohne offenes Gespräch unten rechts und sagt je
      Abschnitt einen Satz. Die Sprechblase lässt Tipps durch und trägt wie jede Äußerung von Goch die Kennzeichnung als KI-Figur. */
   html.goch-begleitet .goch-mini:not([hidden]) { display: block; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)); }
-  .goch-mini { transition: transform .6s cubic-bezier(.3,.7,.2,1), opacity .45s; }
-  .goch-mini.goch-mini-weicht { transform: translateX(105%); opacity: 0; }
-  .goch-mini.goch-mini-weicht .goch-mini-knopf { pointer-events: none; }
   .goch-mini-wort { position: absolute; right: calc(var(--gm) * .36 + 2vw); bottom: calc(var(--gm) * .5 + 16px); width: max-content; max-width: min(232px, calc(100vw - var(--gm) * .36 - 2vw - 14px)); padding: 9px 12px 10px;
     border: 1px solid var(--line); border-radius: 4px; background: var(--paper, #F5EFE6); color: var(--ink); font-size: 13.5px; line-height: 1.4; text-align: left;
     box-shadow: 0 8px 24px -8px rgba(31, 31, 31, .28); pointer-events: none; opacity: 0; transform: translateY(6px); transition: opacity .4s, transform .4s; }
   .goch-mini-wort.da { opacity: 1; transform: none; }
   .goch-mini-wort::after { content: ""; position: absolute; right: 22px; bottom: -7px; width: 12px; height: 12px; background: inherit; border: 1px solid var(--line); border-width: 0 1px 1px 0; transform: rotate(45deg); }
   .goch-mini-wort small { display: block; margin-bottom: 2px; font-size: 11px; letter-spacing: .04em; color: var(--ink-soft, #5B5B5B); }
-  @media (prefers-reduced-motion: reduce) { .goch-mini, .goch-mini-wort { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .goch-mini-wort { transition: none; } }
   .goch-mini.goch-mini-weg { display: none !important; } /* solange der große Goch im Bild ist: nie zwei Gochs zugleich */
   .goch-mini.spricht .goch-mini-tier { animation: goch-mini 0.45s ease-in-out infinite alternate; }
   @keyframes goch-mini { to { transform: rotate(-2deg) translateY(-2%); } }

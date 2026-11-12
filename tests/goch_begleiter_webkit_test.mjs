@@ -48,7 +48,7 @@ const stand = p => p.evaluate(() => {
   let verdeckt = 0, imFenster = true;
   if (sicht) { const z = w.getBoundingClientRect(); imFenster = z.left >= 0 && z.right <= innerWidth && z.top >= 0 && z.bottom <= innerHeight;
     document.querySelectorAll('button, input, textarea, select, video, summary, a[class*="cta"], .wzs-karte a, .ws-karte a').forEach(k => { if (m.contains(k) || document.getElementById("goch").contains(k)) return; const r = k.getBoundingClientRect(); if (r.width && r.bottom > z.top && r.top < z.bottom && r.right > z.left && r.left < z.right) verdeckt++; }); }
-  return { klasse: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), klein: da, weicht: m.classList.contains("goch-mini-weicht"), wort: sicht ? w.lastChild.textContent : "", wer: sicht ? w.firstChild.textContent : "", verdeckt, imFenster,
+  return { klasse: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), klein: da, wort: sicht ? w.lastChild.textContent : "", wer: sicht ? w.firstChild.textContent : "", verdeckt, imFenster,
     etikett: m.querySelector(".goch-mini-knopf").getAttribute("aria-label"), blatt: !document.getElementById("goch").hidden, y: Math.round(scrollY), gross: document.getElementById("scene").dataset.state, flug: __m.flug, beide: __m.beide, ohneAst: __m.ohneAst };
 });
 const wort = (p, re, ms = 9000) => p.waitForFunction(r => { const w = document.querySelector(".goch-mini-wort"); return w && !w.hidden && w.classList.contains("da") && new RegExp(r).test(w.lastChild.textContent); }, re, { timeout: ms }).then(() => true, () => false);
@@ -88,8 +88,29 @@ for (const breit of [false, true]) {
   await p.waitForFunction(() => document.getElementById("scene").dataset.state === "rest", null, { timeout: 8000 }).catch(() => {});
   check((await stand(p)).gross === "rest", "der große Goch sitzt wieder auf seinem Ast");
   // Tipp auf den kleinen öffnet das Gespräch
+  // Platz machen: Liegt etwas Bedienbares unter dem Vogel, fliegt er ab; der Tipp dort erreicht die Seite
+  {
+    await zu(p, "#workshops", .75);
+    await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("fliegt-ab"); }, null, { timeout: 8000 }).catch(() => {});
+    const ort = await p.evaluate(() => { const r = document.getElementById("goch-mini-knopf").getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) }; });
+    const dy = await p.evaluate(o => { const k = [...document.querySelectorAll("main a[href], main button")].find(e => { const r = e.getBoundingClientRect(); return r.height > 20 && e.getClientRects().length === 1 && r.left < o.x - 10 && r.right > o.x + 10 && r.top > o.y; }); if (!k) return null; k.id = k.id || "probe-ziel"; window.__ziel = k; const r = k.getBoundingClientRect(); return Math.round(r.top + r.height / 2 - o.y); }, ort);
+    if (dy === null) check(breit, breit ? "am Rechner liegt unter seinem Platz am rechten Rand nichts Bedienbares" : "ein Knopf oder Verweis für die Probe „Platz machen“ gefunden");
+    else {
+      await zu(p, (await p.evaluate(() => scrollY)) + dy); await p.waitForTimeout(1700);
+      const r = await p.evaluate(o => { const m = document.getElementById("goch-mini"), e = document.elementFromPoint(o.x, o.y); return { klein: getComputedStyle(m).display, trifft: !!e && (e === __ziel || __ziel.contains(e)), was: e && e.tagName + "." + e.className }; }, ort);
+      check(r.klein === "none" && r.trifft, "liegt ein Knopf oder Verweis unter ihm, ist er abgeflogen und der Tipp erreicht die Seite", r);
+      for (let i = 0; i < 6; i++) { await p.evaluate(() => scrollBy(0, 4)); await p.waitForTimeout(150); }
+      check(await p.evaluate(() => getComputedStyle(document.getElementById("goch-mini")).display) === "none", "er bleibt weg, solange der Platz belegt ist (kein Hin und Her)");
+    }
+  }
   await zu(p, "#blog", .2);
-  await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("goch-mini-weicht"); }, null, { timeout: 8000 }).catch(() => {});
+  // eine Stelle suchen, an der sein Platz frei ist
+  let sitzt = false;
+  for (let i = 0; i < 30 && !sitzt; i++) {
+    sitzt = await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("fliegt-ab"); }, null, { timeout: 2600 }).then(() => true, () => false);
+    if (!sitzt) await p.evaluate(() => scrollBy(0, 70));
+  }
+  check(sitzt, "ist sein Platz wieder frei, kommt er zurück");
   const vor = await p.evaluate(() => scrollY);
   await p.locator("#goch-mini-knopf").click(); await p.waitForTimeout(1500);
   s = await stand(p);
