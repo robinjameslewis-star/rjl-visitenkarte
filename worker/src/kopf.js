@@ -71,7 +71,7 @@ export const gochKopf = (up, tal = true, art = "", lang = "de") => {
 // (tests/site_test.mjs vergleicht beide); die Versionsangabe ist die der Startseite, damit der Browser die Datei nur einmal lädt.
 // Ohne landscape.js (Fehler, blockiert) bleibt die Seite in den Tagfarben. Bilder der Landschaft laden weiter erst nach dem
 // Laden der Seite (goch-seite.js).
-export const LANDSCHAFT_SKRIPT = "landscape.js?v=20261130";
+export const LANDSCHAFT_SKRIPT = "landscape.js?v=20261201";
 export const nachtKopf = up => `<script src="${up}${LANDSCHAFT_SKRIPT}"></script>\n`;
 export const NACHT_START = `<script>window.RJLLandscape?.prepare();</script>\n`;
 export const NACHT_CSS = `:root {
