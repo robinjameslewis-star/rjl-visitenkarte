@@ -197,7 +197,7 @@ async def main():
             k = await bis(klein, lambda k: k['ruht'] and k['da'] and k['ast'])
             check(await klasse('goch-unterwegs') and k['da'] and k['ast'] and k['astBisRand'] and k['rand'] == 0 and k['neben'], "kleiner Goch sitzt auf seinem Ast vom rechten Rand, neben der Kapsel", k)
             check(not await ev("document.documentElement.scrollWidth > innerWidth + 1"), "kein seitliches Scrollen")
-            check(await ev("__flug.slice(0,2)") == ['an', 'ruht'], "der kleine Goch ist angeflogen und sitzt dann", await ev("__flug"))
+            check(await ev("__flug.slice(-2)") == ['an', 'ruht'], "der kleine Goch ist angeflogen und sitzt dann", await ev("__flug"))  # davor kann ein abgebrochener Flug der Übergabe stehen (Vollbild holt Goch sofort nach oben)
             check(k['fuesse'], "der Ast liegt unter den Füßen (Lage in Prozent zum Vogel)", k)
             await shot("kleiner_Goch_mit_Ast_Handy")
             # Die Seite bleibt unter dem kleinen Goch bedienbar: Nur der Vogel selbst nimmt Tipps an
