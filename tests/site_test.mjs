@@ -28,7 +28,11 @@ check(s === "aus" ? bestand === 6 : bestand === 0, `Bildpfade passen zum Schalte
 check(p.filter(x => x.startsWith("figuren/goch/bilder/")).length === 5 && p.filter(x => x.startsWith("assets/")).length === 1, "Vogel aus dem Figurenpaket, Ast aus assets/", p.join(", "));
 check(branchWidth(html) === (s === "aus" ? 1153 : 2800), "Astbreite passt zum Schalter", branchWidth(html));
 const pre = preloads(html);
-check(pre.length >= 5 && pre.every(x => p.includes(x)), "Vorabladen im <head> nennt genau die Bilder der Szene", pre.join(", "));
+// Flugposen stehen zweimal im <head>: die 1024er-Fassung fürs Handy (bis 720 px) und das Original (ab 721 px), je mit media.
+const gross = x => x.replace(/(flugpose-[^/]+?)-1024\.webp$/, "$1.webp");
+check(pre.length >= 9 && pre.every(x => p.includes(gross(x))) && pre.filter(x => x !== gross(x)).length === 4, "Vorabladen im <head> nennt genau die Bilder der Szene (Flugposen in Handy- und Originalfassung)", pre.join(", "));
+const medien = [...html.matchAll(/<link rel="preload" as="image" href="[^"]*flugpose-[^"]+?(-1024)?\.webp" media="([^"]+)"/g)].map(m => [!!m[1], m[2]]);
+check(medien.length === 8 && medien.every(([klein, m]) => m.includes(klein ? "(max-width: 720px)" : "(min-width: 721px)")), "jede Flugpose lädt nur in einer Fassung vor (Handy oder Original)", JSON.stringify(medien.slice(0, 2)));
 
 // 2. Umschalten in beide Richtungen
 const on = applyLandscape(html, "an"), off = applyLandscape(on, "aus");
