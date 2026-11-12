@@ -35,8 +35,36 @@ export function kopf(lang, up, { aktiv = null, andere = "" } = {}) {
 // Goch im Kopf der Unterseiten („Ein Tal“, Schritt 4, 11.11.2026): ein Himmelsstreifen mit festem Platz unter dem Seitenkopf,
 // damit nichts springt, wenn goch-seite.js nach dem Laden Goch auf seinen Ast setzt. Ist Goch ausgeschaltet, bleibt der
 // Streifen leer. Schalter, Blatt und Stile holt goch-seite.js aus der Startseite – hier steht nur der Platz.
-export const GOCH_SKRIPT = "goch-seite.js?v=20261113";
-export const gochKopf = (up, tal = true) => `<div class="goch-kopf" id="goch-kopf"${tal ? "" : ' data-tal="aus"'}></div>`; // tal: Schalter je Seite – ohne Landschaft und Tal bleibt der Himmelsstreifen
+export const GOCH_SKRIPT = "goch-seite.js?v=20261113b";
+// Goch kennt die Seite (Schritt 5): Gruß und Einstiegsfragen je Seitenart, in der Sprache der Seite. Der Gruß steht als kleine
+// Blase neben Goch und als erster Satz im Gespräch; er kommt aus der Seite, nicht vom Worker. Die Fragen ersetzen die der
+// Startseite. Alles lässt sich aus den Inhalten der Seite beantworten (Seitenwissen); keine Preise, keine Zusagen.
+export const GOCH_SEITEN = {
+  de: {
+    workshops: ["Willkommen bei den Workshops. Fragen Sie mich, welcher zu Ihnen passt.", ["Welcher Workshop passt zu uns?", "Was ist der Workshop E-Rechnung?", "Wie frage ich einen Workshop an?"]],
+    ki: ["Hier geht es um den Workshop KI-Kompetenz. Fragen Sie mich, was Sie wissen möchten.", ["Für wen ist der Workshop?", "Wie läuft der Workshop ab?", "Was bekommen wir am Ende?"]],
+    erechnung: ["Hier geht es um den Workshop E-Rechnung. Fragen Sie mich, was Sie wissen möchten.", ["Was lerne ich im Workshop?", "Wie lange dauert er?", "Wie buche ich den Workshop?"]],
+    werkzeuge: ["Hier finden Sie die Werkzeuge. Fragen Sie mich, welches zu Ihnen passt.", ["Welches Werkzeug passt zu mir?", "Was ist SmartFormular?", "Wie probiere ich ein Werkzeug aus?"]],
+    robin: ["Hier stellt sich Robin vor. Fragen Sie mich etwas über ihn.", ["Wer ist Robin?", "Woran arbeitet Robin gerade?", "Ich möchte Robin etwas ausrichten."]],
+    impulse: ["Hier stehen Robins Impulse. Fragen Sie mich, worum es geht.", ["Worum geht es in den Impulsen?", "Was gibt's Neues?", "Wie bekomme ich die Impulse per E-Mail?"]],
+    impuls: ["Fragen Sie mich etwas zu diesem Impuls.", ["Worum geht es in diesem Impuls?", "Was gibt's Neues?", "Ich möchte Robin etwas ausrichten."]],
+  },
+  en: {
+    workshops: ["Welcome to the workshops. Ask me which one suits you.", ["Which workshop suits us?", "What is the e-invoicing workshop?", "How do I request a workshop?"]],
+    ki: ["This page is about the AI literacy workshop. Ask me anything you'd like to know.", ["Who is the workshop for?", "How does the workshop work?", "What do we get at the end?"]],
+    erechnung: ["This page is about the e-invoicing workshop. Ask me anything you'd like to know.", ["What will I learn?", "How long does it take?", "How do I book the workshop?"]],
+    werkzeuge: ["Here you'll find the tools. Ask me which one suits you.", ["Which tool suits me?", "What is SmartFormular?", "How do I try a tool?"]],
+    robin: ["This is where Robin introduces himself. Ask me something about him.", ["Who is Robin?", "What is Robin working on?", "I'd like to leave Robin a message."]],
+    impulse: ["Here are Robin's articles. Ask me what they're about.", ["What are the articles about?", "What's new?", "How do I get the articles by email?"]],
+    impuls: ["Ask me something about this article.", ["What is this article about?", "What's new?", "I'd like to leave Robin a message."]],
+  },
+};
+const attr = s => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+// tal: Schalter je Seite – ohne Landschaft und Tal bleibt der Himmelsstreifen; art: Schlüssel aus GOCH_SEITEN
+export const gochKopf = (up, tal = true, art = "", lang = "de") => {
+  const t = (GOCH_SEITEN[lang === "en" ? "en" : "de"] || {})[art];
+  return `<div class="goch-kopf" id="goch-kopf"${tal ? "" : ' data-tal="aus"'}${t ? ` data-gruss="${attr(t[0])}" data-fragen="${attr(t[1].join("|"))}"` : ""}></div>`;
+};
 export const gochSkript = up => `<script src="${up}${GOCH_SKRIPT}" defer></script>\n`;
 export const GOCH_KOPF_CSS = `.goch-kopf { --gw: clamp(170px, 40vw, 330px); position: relative; height: calc(66px + var(--gw) * .616 + clamp(30px, 6vh, 64px)); margin-top: -66px; overflow: hidden; overflow: clip visible; background: linear-gradient(rgba(176, 204, 218, .5), rgba(176, 204, 218, 0) 88%); }
 /* Der Inhalt steht als ein Blatt über dem Tal (Schritt 8). Maße gelten immer, damit nichts springt; Fläche, Rand und Schatten

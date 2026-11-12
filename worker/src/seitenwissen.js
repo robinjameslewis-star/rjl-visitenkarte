@@ -128,6 +128,18 @@ export function prompt(wissen) {
     wissen.seiten.map(s => `\n## Seite: ${s.titel} (Link-Kennung ${s.id})\n\n${s.text}`).join("\n");
 }
 
+// Goch kennt die Seite („Ein Tal“, Schritt 5, 11.11.2026): Die Unterseiten schicken ihren Pfad mit (goch.js, Feld seite).
+// In den Prompt kommt nie der gesendete Text, nur Titel und Kennung einer Seite, die der Worker selbst eingelesen hat;
+// unbekannte Pfade, die Startseite und alles andere werden übergangen.
+export function jetzt(wissen, pfad) {
+  if (!wissen || !wissen.seiten || typeof pfad !== "string" || !pfad || pfad.length > 200) return "";
+  const norm = p => { try { return new URL(p, "https://robin.vision/").pathname.replace(/index\.html$/, "").replace(/\/?$/, "/"); } catch (_) { return ""; } };
+  const ziel = norm(pfad);
+  if (!ziel || ziel === "/") return "";
+  const s = wissen.seiten.find(x => [x.url, x.en].filter(Boolean).some(u => norm(u) === ziel));
+  return s ? `\n\n# Wo der Besucher gerade ist\n\nDer Besucher hat gerade die Seite „${s.titel}“ geöffnet (Link-Kennung ${s.id}). Meint eine Frage „hier“, „diese Seite“ oder „das hier“, geht es um diese Seite. Den Link zu dieser Seite brauchst du nicht anzubieten, der Besucher ist schon dort.` : "";
+}
+
 // Für die Redaktion: Stand, Seiten und Umfang
 export function stand(wissen) {
   if (!wissen || !wissen.seiten) return { stand: null, seiten: [], woerter: 0 };

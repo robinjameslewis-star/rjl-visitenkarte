@@ -68,6 +68,10 @@
     const blatt = uebernehmen(quelle.blatt);
     blatt.hidden = true;
     blatt.querySelectorAll('#goch-blick-an, #goch-kamera-consent, #goch-stumm').forEach(e => e.remove()); // Blickkontakt und Zwitschern gibt es nur auf der Startseite
+    // Goch kennt die Seite (Schritt 5): Gruß und Einstiegsfragen stehen im Rahmen der Seite (data-gruss, data-fragen)
+    const gruss = platz.dataset.gruss || '', fragen = (platz.dataset.fragen || '').split('|').filter(Boolean);
+    if (gruss) body.dataset.gochGruss = gruss;
+    if (fragen.length) blatt.querySelectorAll('#goch-starters .goch-starter').forEach((k, i) => { k.removeAttribute('data-i18n'); if (fragen[i]) k.textContent = fragen[i]; else k.remove(); });
     blatt.querySelectorAll('a[href^="#"]').forEach(a => a.setAttribute('href', body.dataset.gochHeim + a.getAttribute('href'))); // Impressum & Datenschutz stehen auf der Startseite
     body.append(uebernehmen(quelle.papier), uebernehmen(quelle.mini), blatt);
 
@@ -93,6 +97,32 @@
       document.head.append(s);
     });
     platz.classList.add('bereit');
+    // Kleine Begrüßung neben Goch, sobald er gelandet ist: einmal je Seite und Besuch, verschwindet von selbst, beim Scrollen
+    // und wenn das Gespräch aufgeht. Ein Tipp darauf öffnet das Gespräch. Sie stellt keine Anfrage.
+    if (gruss) {
+      const merk = 'rjl-goch-gruss:' + location.pathname;
+      let gezeigt = false; try { gezeigt = !!sessionStorage.getItem(merk); } catch (_) {}
+      if (!gezeigt) {
+        const blase = document.createElement('button');
+        blase.type = 'button'; blase.className = 'goch-gruss'; blase.id = 'goch-gruss';
+        const kopf = document.createElement('span'); kopf.className = 'goch-gruss-wer'; kopf.textContent = en ? 'Goch · AI character' : 'Goch · KI-Figur';
+        const text = document.createElement('span'); text.textContent = gruss;
+        blase.append(kopf, text);
+        let weg = false, uhr = 0;
+        const fort = () => { if (weg) return; weg = true; clearTimeout(uhr); blase.classList.remove('da'); setTimeout(() => blase.remove(), 500); removeEventListener('scroll', beimScrollen); };
+        const beimScrollen = () => { if (scrollY > 160) fort(); };
+        const zeigen = () => {
+          if (weg || blase.isConnected || !blatt.hidden) return;
+          platz.append(blase); void blase.offsetWidth; blase.classList.add('da');
+          try { sessionStorage.setItem(merk, '1'); } catch (_) {}
+          uhr = setTimeout(fort, 9000); addEventListener('scroll', beimScrollen, { passive: true });
+        };
+        blase.addEventListener('click', () => { fort(); scene.click(); });
+        new MutationObserver(() => { if (!blatt.hidden) fort(); }).observe(blatt, { attributes: true, attributeFilter: ['hidden'] });
+        const gelandet = () => { if (scene.dataset.state === 'rest') { landung.disconnect(); setTimeout(zeigen, 500); } };
+        const landung = new MutationObserver(gelandet); landung.observe(scene, { attributes: true, attributeFilter: ['data-state'] }); gelandet();
+      }
+    }
     // Unterkante des Kopfes: Darunter endet das offene Blatt, damit Goch und sein Ast frei bleiben (goch-seite.css)
     const kante = () => document.documentElement.style.setProperty('--goch-kopf-unten', Math.round(platz.getBoundingClientRect().bottom + scrollY) + 'px');
     kante(); window.addEventListener('resize', kante, { passive: true });

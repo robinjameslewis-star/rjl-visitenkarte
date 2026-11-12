@@ -377,6 +377,6 @@ ${vergleich(lang, t, up)}
 ${newsletterKasten(lang, up, "werkzeug")}
 </article>
 ${SKRIPT(lang, t, sfZiel)}`;
-  return rahmen({ goch: true, lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
+  return rahmen({ goch: "werkzeuge", lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: uebersichtUrl(andere) }], css: CSS + "\n" + GRUNDSAETZE_CSS, main, aktiv: "tools" });
 }
