@@ -313,6 +313,18 @@
   .goch-platz:focus-visible, .goch-zweig:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
   @media (hover: hover) and (min-width: 721px) { .goch-platz { opacity: 0; } .goch-mini:hover .goch-platz, .goch-platz:focus { opacity: 1; } }
   .goch-mini[data-flug="an"] .goch-platz, .goch-mini[data-flug="ab"] .goch-platz, .goch-mini.fliegt-ab .goch-platz, .goch-mini.geht .goch-platz, .goch-mini.sagt .goch-platz { display: none; }
+  /* Am Handy, als Begleiter (Robin, 12.11.2026: „Die Platz machen Taste ist kaum noch zu sehen … Das muss parallel
+     funktionieren“): Die Taste hat einen eigenen festen Ort links neben Goch auf Höhe des Astes und bleibt auch stehen,
+     während er etwas sagt; die Sprechblase sitzt immer darüber. Ausgeblendet nur während eines Flugs. Wird Goch
+     durchlässig (.durch), bleibt die Taste bedienbar – außer sie läge selbst über Bedienbarem (.platz-durch, goch-gespraech.js). */
+  @media (max-width: 720px) {
+    html.goch-begleitet .goch-platz { right: calc(100% + 4px); bottom: 18px; min-height: 44px; white-space: nowrap; }
+    html.goch-begleitet .goch-mini.sagt .goch-platz { display: block; }
+    html.goch-begleitet .goch-mini[data-flug="an"] .goch-platz, html.goch-begleitet .goch-mini[data-flug="ab"] .goch-platz, html.goch-begleitet .goch-mini.fliegt-ab .goch-platz, html.goch-begleitet .goch-mini.geht .goch-platz { display: none; }
+    html.goch-begleitet .goch-mini.durch:not(.platz-durch) .goch-platz { pointer-events: auto; }
+    html.goch-begleitet .goch-mini.platz-durch .goch-platz { pointer-events: none; opacity: .6; }
+    html.goch-begleitet .goch-mini-wort[data-platz="links"] { bottom: 74px; } /* über der Taste (18 px + 44 px + Luft) */
+  }
   .goch-platz-wort { position: absolute; right: max(8px, env(safe-area-inset-right)); bottom: calc(100% - 6px); width: max-content; max-width: min(230px, 64vw); padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px;
     background: var(--paper) url("assets/papier.jpg"); background-size: 512px; background-blend-mode: multiply; color: var(--ink); font: 13px/1.35 var(--sans); box-shadow: 0 10px 24px -14px rgba(40, 32, 20, .4); }
   .goch-zweig { position: fixed; z-index: 21; right: 0; bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px) + 16px); width: 52px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; overflow: hidden; overflow: clip; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -1150,7 +1162,7 @@
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261116" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261126" defer></script>
+<script src="goch-gespraech.js?v=20261128" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>
