@@ -24,12 +24,17 @@ async function auf(pfad, opt = {}) {
   await p.waitForFunction(() => window.GochStimme && window.GochZeigen && document.getElementById("scene").dataset.state === "rest", null, { timeout: 40000 });
   // je gezeichnetem Bild: zwei Gochs zugleich? kleiner Goch ohne Ast? welche Flüge?
   await p.evaluate(() => {
-    window.__m = { beide: 0, ohneAst: 0, flug: {}, starts: { an: 0, ab: 0 }, letzter: "" }; // starts: begonnene Flüge
+    window.__m = { beide: 0, ohneAst: 0, flug: {}, starts: { an: 0, ab: 0 }, letzter: "", rueckwaerts: 0, flugbilder: 0, rechts: 0, xAlt: null }; // starts: begonnene Flüge
     const bild = () => {
       const s = document.getElementById("scene").getBoundingClientRect(), m = document.getElementById("goch-mini"), da = getComputedStyle(m).display !== "none";
       if (s.bottom > 2 && s.top < innerHeight - 2 && da && getComputedStyle(document.querySelector("#scene .bird-move")).visibility !== "hidden") __m.beide++; // der große zählt nur, solange sein Bild an ist (Übergabe)
       if (da) { const a = m.querySelector(".goch-mini-ast"), tier = m.querySelector(".goch-mini-tier"); if (a.complete && tier.getBoundingClientRect().width && !(a.naturalWidth && a.getBoundingClientRect().width > 100) && !m.classList.contains("fliegt-ab")) __m.ohneAst++; }
       if (m.dataset.flug) __m.flug[m.dataset.flug] = (__m.flug[m.dataset.flug] || 0) + 1;
+      // Blickrichtung (Robin, 12.11.2026: „goch kann und soll nur vorwärts fliegen“): Alle Bilder blicken nach links; bewegt er
+      // sich nach rechts, muss das Bild gespiegelt sein (negativer Maßstab in x)
+      if (m.dataset.flug && da) { const t = new DOMMatrix(getComputedStyle(m.querySelector(".goch-mini-tier")).transform);
+        if (__m.xAlt !== null && Math.abs(t.m41 - __m.xAlt) > .6) { __m.flugbilder++; const nachRechts = t.m41 > __m.xAlt; if (nachRechts) __m.rechts++; if (nachRechts !== (t.a < 0)) __m.rueckwaerts++; }
+        __m.xAlt = t.m41; } else __m.xAlt = null;
       const f = m.dataset.flug || ""; if (f && f !== __m.letzter && f in __m.starts) __m.starts[f]++; __m.letzter = f;
       requestAnimationFrame(bild);
     };
@@ -50,7 +55,7 @@ const stand = p => p.evaluate(() => {
   if (sicht) { const z = w.getBoundingClientRect(); imFenster = z.left >= 0 && z.right <= innerWidth && z.top >= 0 && z.bottom <= innerHeight;
     document.querySelectorAll('button, input, textarea, select, video, summary, a[class*="cta"], .wzs-karte a, .ws-karte a').forEach(k => { if (m.contains(k) || document.getElementById("goch").contains(k)) return; const r = k.getBoundingClientRect(); if (r.width && r.bottom > z.top && r.top < z.bottom && r.right > z.left && r.left < z.right) verdeckt++; }); }
   return { klasse: (document.documentElement.className.match(/goch-\w+/g) || []).join(" "), klein: da, wort: sicht ? w.lastChild.textContent : "", wer: sicht ? w.firstChild.textContent : "", verdeckt, imFenster,
-    etikett: m.querySelector(".goch-mini-knopf").getAttribute("aria-label"), blatt: !document.getElementById("goch").hidden, y: Math.round(scrollY), gross: document.getElementById("scene").dataset.state, flug: __m.flug, starts: { ...__m.starts }, beide: __m.beide, ohneAst: __m.ohneAst };
+    etikett: m.querySelector(".goch-mini-knopf").getAttribute("aria-label"), blatt: !document.getElementById("goch").hidden, y: Math.round(scrollY), gross: document.getElementById("scene").dataset.state, flug: __m.flug, starts: { ...__m.starts }, blick: { rueckwaerts: __m.rueckwaerts, flugbilder: __m.flugbilder, rechts: __m.rechts }, beide: __m.beide, ohneAst: __m.ohneAst };
 });
 const wort = (p, re, ms = 9000) => p.waitForFunction(r => { const w = document.querySelector(".goch-mini-wort"); return w && !w.hidden && w.classList.contains("da") && new RegExp(r).test(w.lastChild.textContent); }, re, { timeout: ms }).then(() => true, () => false);
 
@@ -76,6 +81,9 @@ for (const breit of [false, true]) {
     await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort") && getComputedStyle(document.getElementById("goch-mini")).display === "none", null, { timeout: 6000 }).catch(() => {});
     g = await gabe();
     check(!g.fort && g.gross && !g.klein && g.m.beide === 0 && (g.m.flug.ab || 0) > 0, "zurück oben fliegt er hinauf und sitzt wieder groß auf dem Bühnen-Ast", { fort: g.fort, gross: g.gross, klein: g.klein, m: g.m });
+    check(g.m.flugbilder > 60 && g.m.rechts > 10 && g.m.rueckwaerts === 0, "in jedem Flugbild der Übergabe (hin und zurück) passt die Blickrichtung zur Bewegung: nie rückwärts", { flugbilder: g.m.flugbilder, nachRechts: g.m.rechts, rueckwaerts: g.m.rueckwaerts });
+    const sitz = await p.evaluate(() => new DOMMatrix(getComputedStyle(document.querySelector("#scene .bird-move")).transform).a);
+    check(sitz >= 0, "nach der Landung blickt er wieder in seine Sitzrichtung", sitz);
   }
   await zu(p, "#workshops", .75);
   check(await wort(p, "Werkzeuge"), "bei den Werkzeugen fliegt der kleine an und sagt seinen Satz");
@@ -156,6 +164,7 @@ for (const breit of [false, true]) {
   check(!s.klein && s.klasse === "", "am Seitenanfang ist der kleine weg", s.klasse);
   check((s.flug.ab || 0) > ab0 || s.gross !== undefined, "er ist hinaufgeflogen (oder oben neu angeflogen, wenn er gerade den Ast wechselte)", s.flug);
   check(s.beide === 0, "in keinem gezeichneten Bild waren zwei Gochs zu sehen", s.beide);
+  check(s.blick.rueckwaerts === 0, "bis hierher in keinem Flugbild rückwärts", s.blick);
   await p.waitForFunction(() => document.getElementById("scene").dataset.state === "rest", null, { timeout: 8000 }).catch(() => {});
   check((await stand(p)).gross === "rest", "der große Goch sitzt wieder auf seinem Ast");
   // Tipp auf den kleinen öffnet das Gespräch

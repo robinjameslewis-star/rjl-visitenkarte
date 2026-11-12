@@ -119,18 +119,38 @@
     const ende = () => { tier.classList.remove('fliegt'); tier.style.transform = ''; tier.style.opacity = ''; if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; }); mini.dataset.flug = ''; fertig(); };
     flugBauen();
     if (ruhig.matches || document.hidden || !flugBilder || !Object.values(flugBilder).every(i => i.complete && i.naturalWidth)) { ende(); return; }
-    const dauer = 1500, start = performance.now(), gross = scene.querySelector('.bird-rest');
+    // Goch fliegt nur vorwärts (Robin, 12.11.2026): Alle Bilder blicken nach links. Bewegt er sich nach rechts, ist das Bild
+    // für den Flug gespiegelt; zur Landung blickt er wieder in seine Sitzrichtung.
+    // Hin: Er hebt vom Bühnen-Ast ab und fliegt (gespiegelt) nach rechts hinaus bis zu dem Punkt, an dem der gewohnte Anflug
+    // des kleinen Goch beginnt – von dort landet er genau wie auf den Unterseiten: von rechts oben, vorwärts (miniFlug).
+    // Zurück: vom kleinen Ast nach links hinauf zur Bühne – das ist schon vorwärts.
+    const dauer = hin ? 800 : 1500, start = performance.now(), gross = scene.querySelector('.bird-rest');
     tier.classList.add('fliegt'); mini.dataset.flug = hin ? 'an' : 'ab';
+    let xAlt = null, rechts = hin;
     const schritt = now => {
       if (lauf !== flugLauf) { if (!hin) fertig(); return; } // ein anderer Flug hat übernommen: Der Rückweg wird trotzdem abgeschlossen
-      const p = Math.min(1, (now - start) / dauer), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, oben = hin ? 1 - e : e; // oben: 1 = auf dem Bühnen-Ast, 0 = auf dem kleinen
+      const p = Math.min(1, (now - start) / dauer);
       tier.style.transform = '';
-      const m = tier.getBoundingClientRect(), g = gross.getBoundingClientRect(); // Drehpunkt des kleinen: die Füße (44 % / 94 %)
-      const x = (g.left + g.width * .44 - m.left - m.width * .44) * oben, y = (g.top + g.height * .94 - m.top - m.height * .94) * oben - Math.sin(p * Math.PI) * innerHeight * .07;
-      const pose = (hin ? p > .8 : p > .82) ? 'landing' : ['up', 'glide', 'down', 'glide'][Math.floor((now - start) / 72) % 4];
+      const m = tier.getBoundingClientRect(), g = gross.getBoundingClientRect(), w = m.width || 180; // Drehpunkt des kleinen: die Füße (44 % / 94 %)
+      const bx = g.left + g.width * .44 - m.left - m.width * .44, by = g.top + g.height * .94 - m.top - m.height * .94, bs = g.width / m.width; // Bühnen-Ast, vom kleinen Ast aus
+      let x, y, s, sicht = 1;
+      if (hin) {
+        const e = p * p * (3 - 2 * p), ax = .9 * w, ay = -1.35 * w, as = .58; // Anfang des gewohnten Anflugs (miniFlug)
+        x = bx + (ax - bx) * e; y = by + (ay - by) * e - Math.sin(p * Math.PI) * innerHeight * .05; s = bs + (as - bs) * e;
+        sicht = 1 - Math.max(0, (p - .75) / .25);
+      } else {
+        const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        x = bx * e; y = by * e - Math.sin(p * Math.PI) * innerHeight * .07; s = 1 + (bs - 1) * e;
+      }
+      if (xAlt !== null && Math.abs(x - xAlt) > .3) rechts = x > xAlt;
+      xAlt = x;
+      const pose = !hin && p > .82 ? 'landing' : ['up', 'glide', 'down', 'glide'][Math.floor((now - start) / 72) % 4];
       Object.entries(flugBilder).forEach(([k, i]) => { i.style.opacity = k === pose ? '1' : '0'; });
-      tier.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${(1 + (g.width / m.width - 1) * oben).toFixed(3)})`;
-      if (p < 1) requestAnimationFrame(schritt); else ende();
+      tier.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${(rechts ? -s : s).toFixed(3)}, ${s.toFixed(3)})`;
+      tier.style.opacity = sicht.toFixed(2);
+      if (p < 1) requestAnimationFrame(schritt);
+      else if (hin) miniFlug(true, fertig); // ab hier der gewohnte Anflug von rechts oben
+      else ende();
     };
     schritt(start);
   }
