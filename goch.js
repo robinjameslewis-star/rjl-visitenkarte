@@ -69,6 +69,18 @@
   // ---------- Gespräch ----------
   const history = []; // {role, content} – nur die Runde, kein Speicher
   let opened = false, busy = false, pending = null, returnFocus = null;
+  // Gespräch über Seitenwechsel („Ein Tal“, Schritt 6, 11.11.2026): Der Verlauf bleibt für diesen Besuch im Browser
+  // (sessionStorage, endet mit dem Tab), nie auf einem Server. So beginnt Goch nicht auf jeder Seite neu. Gemerkt werden die
+  // letzten 24 Einträge, die Sprache und ob das Gespräch offen war. Der Deckel je Gespräch (Worker, MAX_TURNS) zählt die
+  // Antworten im gesendeten Verlauf und gilt damit über alle Seiten. Ohne Einwilligung ins Gespräch wird nichts gemerkt.
+  const merkKey = 'rjl-goch-verlauf';
+  const vergessen = () => { try { sessionStorage.removeItem(merkKey); } catch (_) {} };
+  function merken() {
+    try {
+      if (!choice || !choice.allowed || !history.length) { sessionStorage.removeItem(merkKey); return; }
+      sessionStorage.setItem(merkKey, JSON.stringify({ v: 1, lang: language.current, offen: !panel.hidden, verlauf: history.slice(-24) }));
+    } catch (_) { /* ohne Speicher beginnt das Gespräch auf der nächsten Seite neu */ }
+  }
 
   function bubble(role, text) {
     const p = document.createElement('p');
@@ -166,20 +178,22 @@
       panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
     }
   }
-  function open() {
+  function open(still) { // still: wieder geöffnet nach einem Seitenwechsel – ohne Fokus (am Handy ginge die Tastatur auf) und ohne Scrollen
     if (!panel.hidden) { input.focus(); return; }
     returnFocus = document.activeElement;
     panel.hidden = false;
     place();
-    panel.scrollIntoView({ block: 'nearest' });
+    if (still !== true) panel.scrollIntoView({ block: 'nearest' });
     scene.setAttribute('aria-expanded', 'true');
     if (!opened) { opened = true; bubble('goch', document.body.dataset.gochGruss || t('gochGreeting')); }
     if (choice && !choice.allowed) bubble('goch', t('gochDeniedNote'));
     setAvailability();
-    (form.hidden ? closeButton : input).focus();
+    if (still !== true) (form.hidden ? closeButton : input).focus();
+    merken();
   }
   function close() {
     panel.hidden = true;
+    merken();
     scene.setAttribute('aria-expanded', 'false');
     consentBox.hidden = true;
     const target = returnFocus && returnFocus !== document.body ? returnFocus : scene;
@@ -258,6 +272,7 @@
     // Sprachmodus (goch-gespraech.js): Verweis zur Stelle der Seite, die Goch zeigt; auf dem Handy führt die Seite hin
     if (data.zeigen && window.GochZeigen) thinking.append(' ', window.GochZeigen.link(data.zeigen));
     history.push({ role: 'assistant', content: remembered });
+    merken();
     window.dispatchEvent(new CustomEvent('goch-antwort', { detail: data }));
     const nl = data.action === 'newsletter' ? newsletterForm() : null;
     if (nl) log.append(nl);
@@ -281,7 +296,7 @@
     } catch (_) { data = null; }
     busy = false; setAvailability();
     const ok = !!(data && typeof data.reply === 'string' && data.reply.trim());
-    if (ok) { bubble('goch', data.reply); history.push({ role: 'assistant', content: data.reply }); log.scrollTop = log.scrollHeight; }
+    if (ok) { bubble('goch', data.reply); history.push({ role: 'assistant', content: data.reply }); log.scrollTop = log.scrollHeight; merken(); }
     window.dispatchEvent(new CustomEvent('goch-fertig'));
     return ok;
   }
@@ -289,6 +304,7 @@
   // Goch ausgeschaltet (Worker antwortet 503, z. B. weil die Seite noch aus dem Cache kommt): Gespräch schließen,
   // Vogel wie vor Goch – der Klick wiederholt den Anflug.
   function switchOff() {
+    vergessen();
     busy = false; history.length = 0; log.replaceChildren(); opened = false;
     panel.hidden = true; scene.setAttribute('aria-expanded', 'false');
     delete scene.dataset.chat; language.refresh();
@@ -311,17 +327,33 @@
     if (text) ask(text); else input.focus();
   });
   document.getElementById('goch-deny').addEventListener('click', () => {
-    store(false); pending = null; consentBox.hidden = true;
+    store(false); pending = null; consentBox.hidden = true; vergessen();
     bubble('goch', t('gochDeniedNote'));
     setAvailability(); closeButton.focus();
   });
   withdraw.addEventListener('click', () => {
-    forget(); consentBox.hidden = true; setAvailability();
+    forget(); vergessen(); consentBox.hidden = true; setAvailability();
     bubble('goch', t('gochWithdrawn'));
     input.focus();
   });
   // Für goch-stimme.js: erkannten Text als Besuchertext senden, Endpunkt für /listen ableiten.
-  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen, oeffnen: () => open(),
+  // Verlauf dieses Besuchs wieder aufnehmen (nur mit Einwilligung ins Gespräch und in derselben Sprache)
+  let wiederOffen = false;
+  (() => {
+    let m = null;
+    try { m = JSON.parse(sessionStorage.getItem(merkKey)); } catch (_) {}
+    if (!m) return;
+    if (m.v !== 1 || !Array.isArray(m.verlauf) || !choice || !choice.allowed || m.lang !== language.current) { vergessen(); return; }
+    const gut = m.verlauf.filter(e => e && (e.role === 'user' || e.role === 'assistant') && typeof e.content === 'string' && e.content.length <= 4000).slice(-24);
+    if (!gut.length) { vergessen(); return; }
+    opened = true;
+    bubble('goch', document.body.dataset.gochGruss || t('gochGreeting'));
+    gut.forEach(e => { history.push({ role: e.role, content: e.content }); bubble(e.role === 'user' ? 'you' : 'goch', e.role === 'assistant' ? e.content.replace(/ \(Link: [^)]*\)/g, '') : e.content); });
+    wiederOffen = m.offen === true;
+  })();
+  window.Goch = { ask: (text, opts) => ask(text, opts), endpoint, place, begruessen,
+    // für goch-gespraech.js: war das Gespräch vor dem Seitenwechsel offen, geht es dort wieder auf (still)
+    wiederOffen: () => wiederOffen, oeffnen: () => { wiederOffen = false; open(true); },
     begonnen: () => history.some(m => m.role === 'user') };
   window.addEventListener('site-languagechange', setAvailability);
   window.addEventListener('resize', place, { passive: true });

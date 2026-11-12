@@ -157,10 +157,11 @@
   new MutationObserver(untenBald).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   if ('ResizeObserver' in window) new ResizeObserver(hoehe).observe(panel);
   new MutationObserver(breitPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  let wiederda = false;
   function pruefen() {
     // Eine einzelne gesprochene Frage (Mikrofon-Symbol, modus.einmal) vergrößert Goch nicht.
     if (!(schmal.matches && !panel.hidden && ((modus.mikro && !modus.einmal) || modus.laut))) setzen('aus');
-    else if (lage === 'aus') setzen('fokus');
+    else if (lage === 'aus') { setzen(wiederda ? 'unterwegs' : 'fokus'); wiederda = false; } // nach einem Seitenwechsel als Kapsel, nicht groß
   }
   function zeigen(ziel) {
     const el = stelle(ziel);
@@ -366,4 +367,10 @@
   begleiterBald();
   // Der kleine Goch wippt, solange Goch spricht (data-spricht an der Szene, goch-audio.js, bewegung)
   new MutationObserver(() => mini.classList.toggle('spricht', !!scene.dataset.spricht)).observe(scene, { attributes: true, attributeFilter: ['data-spricht'] });
+  // Nach einem Seitenwechsel (Schritt 6): War das Gespräch offen, geht es wieder auf – auf breiten Bildschirmen als Blatt, am
+  // Handy nur im Sprachmodus und dann als Kapsel neben dem kleinen Goch. Ohne Sprachmodus bleibt es am Handy zu (der Verlauf
+  // ist beim Öffnen wieder da), sonst läge das Blatt beim Ankommen über der neuen Seite.
+  modus = window.GochStimme.modus();
+  if (window.Goch.wiederOffen && window.Goch.wiederOffen() && (!schmal.matches || modus.mikro || modus.laut)) { wiederda = schmal.matches; window.Goch.oeffnen(); }
+  pruefen(); breitPruefen();
 })();

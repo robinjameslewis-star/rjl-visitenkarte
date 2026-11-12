@@ -41,6 +41,8 @@ def fake(path):
 
 # Zählt alles, was Ton oder Mikrofon bedeutet – vor jedem Skript der Seite.
 INSTRUMENT = """
+// Schritt 6: Verlauf und Sprachschalter bleiben für den Besuch im Tab. Jeder Seitenaufruf der Tests beginnt frisch, außer mit &merken=1.
+if (!/[?&]merken=1/.test(location.search)) { try { sessionStorage.removeItem('rjl-goch-stimme'); sessionStorage.removeItem('rjl-goch-verlauf'); } catch (_) {} }
 window.__z = { gum: 0, play: 0, start: 0, speak: 0, ctx: 0, streams: [], folge: [] };
 window.__mund = []; window.__bewegt = [];
 (() => {
@@ -216,7 +218,7 @@ async def main():
             check(zz['play'] == 2 and zz['gum'] == 0, "Bestätigung als leises Zwitschern, weiter kein Mikrofon", zz)
             await pump(0.6)
             check(await ev("document.getElementById('scene').dataset.leben ? [...document.querySelectorAll('.leben-kopf img')].every(f => f.complete && f.naturalWidth === 1153) : [...document.querySelectorAll('.bird-mund')].every(f => f.complete && f.naturalWidth === 1153)"), "Schnabelposen nach dem Einschalten geladen (mit Teilen: nur die Köpfe)")
-            check(await ev("Object.keys(sessionStorage).concat(Object.keys(localStorage)).every(k => !/einwill|consent-stimme|stimme-erlaubt/i.test(k))"), "Einwilligung nirgends im Browser gespeichert")
+            check(await ev("Object.keys(localStorage).every(k => !/einwill|consent-stimme|stimme/i.test(k)) && Object.keys(sessionStorage).filter(k => /stimme|einwill/i.test(k)).every(k => k === 'rjl-goch-stimme' || k.startsWith('rjl-goch-test-'))"), "Einwilligung nur für den Besuch gemerkt (sessionStorage, endet mit dem Tab), nicht dauerhaft (seit 11.11.2026, vorher gar nicht)")
 
             print("4. Frage mit Stimme: KI-Hinweis, Ton, Schnabel; Text bleibt")
             await ev("document.querySelector('.goch-starter').click()"); await pump(0.4)
