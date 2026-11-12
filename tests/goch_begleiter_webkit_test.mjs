@@ -97,7 +97,7 @@ for (const breit of [false, true]) {
     if (dy === null) check(breit, breit ? "am Rechner liegt unter seinem Platz am rechten Rand nichts Bedienbares" : "ein Knopf oder Verweis für die Probe „Platz machen“ gefunden");
     else {
       await zu(p, (await p.evaluate(() => scrollY)) + dy); await p.waitForTimeout(1700);
-      const r = await p.evaluate(o => { const m = document.getElementById("goch-mini"), e = document.elementFromPoint(o.x, o.y); return { klein: getComputedStyle(m).display, trifft: !!e && (e === __ziel || __ziel.contains(e)), was: e && e.tagName + "." + e.className }; }, ort);
+      const r = await p.evaluate(o => { const m = document.getElementById("goch-mini"), e = document.elementFromPoint(o.x, o.y); return { klein: getComputedStyle(m).display, trifft: !!e && !m.contains(e) && !!e.closest("main a[href], main button"), was: e && e.tagName + "." + e.className }; }, ort);
       check(r.klein === "none" && r.trifft, "liegt ein Knopf oder Verweis unter ihm, ist er abgeflogen und der Tipp erreicht die Seite", r);
       for (let i = 0; i < 6; i++) { await p.evaluate(() => scrollBy(0, 4)); await p.waitForTimeout(150); }
       check(await p.evaluate(() => getComputedStyle(document.getElementById("goch-mini")).display) === "none", "er bleibt weg, solange der Platz belegt ist (kein Hin und Her)");

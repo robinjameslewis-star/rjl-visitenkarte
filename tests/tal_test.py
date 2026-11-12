@@ -192,6 +192,27 @@ async def main():
                 pruefe(frei == 'frei', f'{name}: Gochs Sprechblase liegt über den Blättern ({frei})')
                 await s.foto(f'tal-{masse["width"]}-gespraech')
 
+            # 5c. Laub im Tal und Blätter aus der Tiefe (Entwurf vom 11.11.2026)
+            LAUB = """(()=>{const f=document.querySelector('.tal-laubfeld'),l=[...document.querySelectorAll('.tal-laub')];
+              return {art:f?f.dataset.art:'',zahl:l.length,sichtbar:f?+getComputedStyle(f).opacity:0,faellt:l.length?getComputedStyle(l[0]).animationName:'',tief:document.querySelectorAll('main > section.tal-tief').length,blaetter:document.querySelectorAll('main > section:not(.stage):not([hidden])').length};})()"""
+            await s.send('Emulation.setDeviceMetricsOverride', handy)
+            await s.oeffne('/?zeit=' + ZEITEN['herbst-tag'], 3)
+            v = await s.js(LAUB)
+            pruefe(v['art'] == 'leaf' and v['zahl'] == 4 and v['sichtbar'] == 0, f'Herbst: vier Blätter im Tal, oben an der Bühne noch nicht zu sehen ({v})')
+            pruefe(v['tief'] >= 5 and v['tief'] < v['blaetter'] + 1, f'Blätter der Seite unter dem Fenster stehen in der Tiefe ({v["tief"]} von {v["blaetter"]})')
+            l = await s.lage()
+            await s.scrolle(l['hoehe'] * .45); await asyncio.sleep(1.4)
+            w = await s.js(LAUB)
+            pruefe(w['sichtbar'] > .9 and w['faellt'] == 'tal-fall', f'unterhalb der Bühne fällt das Laub ({w["sichtbar"]})')
+            pruefe(w['tief'] < v['tief'], f'beim Scrollen rücken die Blätter heran ({v["tief"]} → {w["tief"]})')
+            oben = await s.js("(()=>{const b=[...document.querySelectorAll('main > section:not(.stage):not([hidden])')].find(x=>{const r=x.getBoundingClientRect();return r.top<innerHeight*.5&&r.bottom>0;});return b?getComputedStyle(b).transform:'kein';})()")
+            pruefe(oben in ('none', 'matrix(1, 0, 0, 1, 0, 0)'), f'ein Blatt im Fenster steht an seinem Platz ({oben})')
+            await s.scrolle(0); await asyncio.sleep(.6)
+            pruefe((await s.js(LAUB))['tief'] == w['tief'], 'zurückgescrollt: Was einmal herangerückt ist, bleibt')
+            await s.oeffne('/?zeit=' + ZEITEN['winter-tag'], 3)
+            v = await s.js(LAUB)
+            pruefe(v['art'] == 'snow' and v['zahl'] == 12, f'Winter: Schnee statt Laub ({v["art"]}, {v["zahl"]})')
+
             # 6. Schalter und reduzierte Bewegung
             await s.send('Emulation.setDeviceMetricsOverride', handy)
             _, _, erst, spaet = await s.oeffne('/?tal=aus&zeit=' + ZEITEN['herbst-tag'], 2)
@@ -214,6 +235,8 @@ async def main():
             await s.scrolle(l['hoehe'] * .8)
             b = await s.lage()
             pruefe(len(a['ebenen']) == 3 and [e['y'] for e in a['ebenen']] == [e['y'] for e in b['ebenen']], 'reduzierte Bewegung: das Tal steht still')
+            v = await s.js(LAUB)
+            pruefe(v['tief'] == 0 and (v['zahl'] == 0 or v['sichtbar'] == 0), f'reduzierte Bewegung: kein fallendes Laub, kein Heranrücken ({v})')
             await s.foto('tal-375-herbst-tag-reduziert')
 
             pruefe(not s.ausnahmen, 'keine Skriptfehler' + (': ' + ' | '.join(s.ausnahmen[:3]) if s.ausnahmen else ''))
