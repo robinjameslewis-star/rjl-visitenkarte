@@ -1,6 +1,6 @@
 // Begleiter mit Stationen in WebKit (Playwright) – Robin, 11.11.2026: „auf der startseite soll goch auch mitfliegen“.
-// Ohne offenes Gespräch: Der kleine Goch fliegt an, wenn der große aus dem Bild ist, sitzt auf seinem Ast, fliegt je neuem
-// Abschnitt eine Runde und sagt einen Satz als Sprechblase – je Abschnitt einmal, ohne Anfrage an den Worker. Beim
+// Ohne offenes Gespräch: Der kleine Goch fliegt an, wenn der große aus dem Bild ist, sitzt auf seinem Ast und sagt je neuem
+// Abschnitt einen Satz als Sprechblase, ohne neu zu fliegen (Robin, 12.11.2026) – je Abschnitt einmal, ohne Anfrage an den Worker. Beim
 // Hochscrollen fliegt er ab, bevor der große erscheint; nie sind beide zu sehen. Ein Tipp öffnet das Gespräch.
 //   Voraussetzungen wie goch_webkit_test.mjs: Seite (python3 tests/pruefserver.py 8788), Attrappe (python3 tests/goch_fake_worker.py 8787),
 //   PLAYWRIGHT=/pfad/zum/ordner mit node_modules.  node tests/goch_begleiter_webkit_test.mjs http://127.0.0.1:8788/ http://127.0.0.1:8787
@@ -64,18 +64,18 @@ for (const breit of [false, true]) {
   check(s.klein && s.klasse === "goch-begleitet" && !s.blatt, "der Begleiter ist da, das Gespräch ist zu", s.klasse);
   check(/KI|AI/.test(s.wer), "die Sprechblase trägt die Kennzeichnung als KI-Figur", s.wer);
   check(s.verdeckt === 0 && s.imFenster, "die Sprechblase liegt im Fenster und verdeckt nichts Bedienbares", { verdeckt: s.verdeckt, imFenster: s.imFenster });
-  check(s.flug.an > 0 && !s.flug.runde, "er ist angeflogen (noch keine Runde)", s.flug);
+  check(s.flug.an > 0 && !s.flug.runde, "er ist angeflogen", s.flug);
+  const anfluege = s.flug.an;
   check(s.etikett === "Goch fragen", "der kleine Goch heißt jetzt „Goch fragen“", s.etikett);
   await p.waitForTimeout(2600);
   await zu(p, "#workshops", .2);
   check(await wort(p, "leitet Robin"), "beim Workshop KI-Kompetenz sagt er den nächsten Satz");
   s = await stand(p);
-  check(s.flug.runde > 0, "dazwischen fliegt er eine Runde", s.flug);
+  check(!s.flug.runde && s.flug.an === anfluege && !s.flug.ab && s.klein, "er sitzt beim Abschnittswechsel: kein Flug, nur die Sprechblase wechselt", s.flug);
   check(s.verdeckt === 0 && s.imFenster, "auch diese Sprechblase verdeckt nichts Bedienbares", { verdeckt: s.verdeckt, imFenster: s.imFenster });
-  const runden = s.flug.runde;
   await zu(p, "#workshops", .75); await p.waitForTimeout(3200);
   s = await stand(p);
-  check(s.wort === "" && s.flug.runde === runden, "zurück bei den Werkzeugen sagt er nichts mehr und fliegt keine Runde (einmal je Abschnitt)", { wort: s.wort, runden: s.flug.runde });
+  check(s.wort === "" && !s.flug.runde && s.flug.an === anfluege, "zurück bei den Werkzeugen sagt er nichts mehr und bleibt sitzen (einmal je Abschnitt)", { wort: s.wort, flug: s.flug });
   check(p.worker === 0, "bis hierher ging keine Anfrage an den Worker", p.worker);
   // zurück nach oben: der kleine fliegt ab, bevor der große erscheint
   const ab0 = s.flug.ab || 0;

@@ -112,7 +112,7 @@
     if (soll && !mini.classList.contains('fliegt-ab')) boden = getComputedStyle(mini).bottom;
     if (soll === miniDa) return;
     miniDa = soll;
-    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, () => { gelandet = performance.now(); begleiterBald(); }); }
+    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, begleiterBald); }
     // Nie zwei Gochs zugleich (Robin, 11.11.2026): Kommt der große Goch ins Bild, ist der kleine sofort weg – ohne Abflug.
     // Er fliegt nur ab, wenn der große nicht zu sehen ist (Gespräch geschlossen, „Seite ansehen“ aufgehoben).
     else if (sichtbar > .02 || grossImBild()) flugAus();
@@ -264,7 +264,7 @@
   const knopf = mini.querySelector('.goch-mini-knopf'), wort = document.createElement('span');
   wort.className = 'goch-mini-wort'; wort.hidden = true; wort.innerHTML = '<small></small><span></span>';
   mini.append(wort);
-  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, gelandet = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null;
+  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null;
   const gesehen = new Set();
   function stationenSuchen() {
     stationen = [];
@@ -295,25 +295,6 @@
     return true;
   }
   function wortAus() { clearTimeout(wortT); wort.classList.remove('da'); wort.hidden = true; mini.classList.remove('sagt'); }
-  // Kurze Runde von Ast zu Ast: Der Ast bleibt, Goch hebt ab, fliegt einen Bogen und landet wieder
-  function miniRunde(fertig) {
-    const lauf = ++flugLauf;
-    const ende = () => { tier.classList.remove('fliegt'); tier.style.transform = ''; tier.style.opacity = ''; if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; }); mini.dataset.flug = ''; fertig(); };
-    flugBauen();
-    if (ruhig.matches || document.hidden || !flugBilder || !Object.values(flugBilder).every(i => i.complete && i.naturalWidth)) { fertig(); return; }
-    const dauer = 1250, start = performance.now(), w = tier.offsetWidth || 180;
-    tier.classList.add('fliegt'); mini.dataset.flug = 'runde';
-    const schritt = now => {
-      if (lauf !== flugLauf) return;
-      const p = Math.min(1, (now - start) / dauer), hoch = Math.sin(p * Math.PI);
-      const x = (-hoch * .34 + Math.sin(p * Math.PI * 2) * .12) * w, y = -hoch * .62 * w;
-      const pose = p > .8 ? 'landing' : ['up', 'glide', 'down', 'glide'][Math.floor((now - start) / 72) % 4];
-      Object.entries(flugBilder).forEach(([k, i]) => { i.style.opacity = k === pose ? '1' : '0'; });
-      tier.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${(1 - hoch * .16).toFixed(3)})`;
-      if (p < 1) requestAnimationFrame(schritt); else ende();
-    };
-    requestAnimationFrame(schritt);
-  }
   function stationSagen(s) {
     if (!begleitet || kandidat !== s || gesehen.has(s.key)) return;
     const spaeter = ms => { kandidatT = setTimeout(() => stationSagen(s), ms); };
@@ -330,13 +311,13 @@
       void wort.offsetWidth; wort.classList.add('da'); mini.classList.add('sagt'); // solange er etwas sagt, ruht „Platz machen“
       clearTimeout(wortT); wortT = setTimeout(wortAus, 6500);
     };
-    if (performance.now() - gelandet < 2500) zeigen(); else miniRunde(zeigen); // gerade erst angeflogen: keine zweite Runde
+    zeigen(); // Er bleibt auf dem Ast sitzen (Robin, 12.11.2026): geflogen wird nur beim Astwechsel und beim Wechsel der Seite
   }
   function stationPruefen() {
     const s = stationJetzt();
     if (s !== kandidat) {
       kandidat = s; clearTimeout(kandidatT); wortAus();
-      if (s && !gesehen.has(s.key)) kandidatT = setTimeout(() => stationSagen(s), 550); // erst wenn der Besucher im Abschnitt verweilt
+      if (s && !gesehen.has(s.key)) kandidatT = setTimeout(() => stationSagen(s), 300); // kurz warten, damit beim schnellen Scrollen nichts aufblitzt
     }
     if (!wort.hidden && !frei(wort.getBoundingClientRect())) wortAus();
     // Platz machen: Der Vogel nimmt Tipps an, deshalb zählen unter ihm auch gewöhnliche Verweise
