@@ -26,9 +26,9 @@ export const ALTE_MARKEN = ["produkte", "fibu-lite", "fibu", "deklaration", "men
 const TEXT = {
   de: {
     titel: "Werkzeuge",
-    seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen im Vergleich | robin.vision",
-    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision. Mit SmartFormular, Vergleich und Partnerprogramm.",
-    untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
+    seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen | robin.vision",
+    beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und Partnerprogramm.",
+    untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
     ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular-Produkte", zuSf: "Mehr zu SmartFormular", partnerTitel: "Partner",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; FiBu und Abschluss kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
@@ -86,9 +86,9 @@ const TEXT = {
   },
   en: {
     titel: "Tools",
-    seitentitel: "Tools: accounting software and AI compared | robin.vision",
-    beschr: "Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision. With SmartFormular, a comparison and a partner programme.",
-    untertitel: "Software and AI solutions for accounting, administration and other business processes – presented and compared. I show a selection of them in the workshops, using cases from everyday work.",
+    seitentitel: "Tools: accounting software and AI | robin.vision",
+    beschr: "Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and a partner programme.",
+    untertitel: "Software and AI solutions for accounting, administration and other business processes – presented. I show a selection of them in the workshops, using cases from everyday work.",
     ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular products", zuSf: "More about SmartFormular", partnerTitel: "Partners",
     sf: { text: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; FiBu and Abschluss are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
