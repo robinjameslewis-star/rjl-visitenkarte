@@ -11,6 +11,25 @@
   'use strict';
   const skript = document.currentScript, platz = document.getElementById('goch-kopf');
   if (!skript || !platz || window.RJLWurzel) return;
+  // Sofort, noch vor dem Holen der Startseite (Robin, 12.11.2026, großer Bildschirm): Flattersatz in Karten und im
+  // Newsletter-Kasten auf jeder Breite; ab 1600 px Fensterbreite wachsen Kopfleiste, Blatt und Fuß maßvoll mit (zoom: Text,
+  // Karten und Bilder im selben Maß, die Zeilenlänge in Zeichen bleibt), Goch wird etwas größer, Krone und Burgberg bekommen
+  // eine Obergrenze. Unter 1600 px ändert sich außer dem Flattersatz nichts. Steht hier und nicht im Seitenrahmen des Workers,
+  // damit keine Seite neu gebaut werden muss; gehört beim nächsten Umbau des Rahmens dorthin (worker/src/kopf.js).
+  const gross = document.createElement('style');
+  gross.id = 'goch-seite-gross';
+  gross.textContent = `.ws-karte p, .ws-karte li, .newsletter p { text-align: left !important; hyphens: manual !important; }
+@media (min-width: 1600px) {
+  :root { --gb: 1.12; }
+  .kopf, .goch-kopf + main, .goch-kopf ~ .foot { zoom: var(--gb); }
+  .goch-kopf { --gw: clamp(330px, 19vw, 400px) !important; }
+  .goch-kopf .landscape-crown { width: min(max(320px, calc(40% + (100vw - 100%) * .15)), clamp(600px, 33vw, 720px)) !important; }
+  .goch-kopf .landscape-far { width: min(55%, 760px) !important; left: calc(39.5% - min(27.5%, 380px)) !important; }
+  .goch-kopf .goch-gruss { left: max(14px, calc(50% - (390px - 48px) * var(--gb))); }
+}
+@media (min-width: 1900px) { :root { --gb: 1.25; } }
+@media (min-width: 2400px) { :root { --gb: 1.33; } }`;
+  document.head.append(gross);
   const wurzel = new URL('.', skript.src).href; // Adresse der Wurzel der Website, mit Schrägstrich am Ende
   const SKRIPTE = ['bird-flight.js', 'language.js', 'goch.js', 'goch-audio.js', 'goch-leben.js', 'goch-stimme.js', 'goch-gespraech.js'];
   const lokal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
