@@ -339,22 +339,31 @@
   const ORTE = unter
     ? { 'k-workshops': 'workshops', 'k-workshop-e-rechnung': 'ws_erechnung', ablauf: 'ablauf', anfrage: 'anfrage', fragen: 'fragen', vergleich: 'vergleich',
         stationen: 'stationen', rotkehlchen: 'rotkehlchen', kontakt: 'kontakt', neu: 'neu' }
-    : { werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', 'ueber-mich': 'ueber_mich', nachricht: 'nachricht' };
+    : { werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', newsletter: 'newsletter', 'ueber-mich': 'ueber_mich',
+        termin: 'termin', nachricht: 'nachricht', anbieter: 'anbieter' };
   const TITEL = { 'was es kann': 'kann', 'was er kann': 'kann', 'what it does': 'kann', 'so geht es': 'so_geht_es', 'how it works': 'so_geht_es' };
   const BEDIENBAR = 'button, input, textarea, select, video, summary, a[class*="cta"], .wzs-karte a, .ws-karte a';
   const knopf = mini.querySelector('.goch-mini-knopf'), wort = document.createElement('span');
   wort.className = 'goch-mini-wort'; wort.hidden = true; wort.innerHTML = '<small></small><span></span>';
   mini.append(wort);
-  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null;
-  const gesehen = new Set();
+  let stationen = null, kandidat = null, kandidatT = 0, wortT = 0, rueckkehr = false, begleiterWartet = false, weichtT = 0, knopfOrt = null, hoch = 0, durch = false, seitWeg = 0;
+  const HOEHEN = [0, .26, .5]; // Höhen des Astes am rechten Rand, in Fensterhöhen über dem gewohnten Platz
+  const PLAETZE = ['', 'links', 'hoch']; // Plätze der Sprechblase: über dem Vogel, links neben ihm, weiter oben
+  // Jeder Abschnitt ist eine Station (Robin, 12.11.2026: keine stumme Station). Hat er keinen eigenen Satz, bietet Goch an,
+  // Fragen zur Überschrift zu beantworten – mehr als dort steht, sagt er nicht.
   function stationenSuchen() {
     stationen = [];
+    const titel = h => (h && h.textContent || '').replace(/\s+/g, ' ').trim();
     if (unter) document.querySelectorAll('main h2').forEach(h => {
-      const key = ORTE[h.id] || (!h.id && TITEL[h.textContent.trim().toLowerCase()]);
-      if (key) stationen.push({ el: h, key, kopf: true });
+      const key = ORTE[h.id] || (!h.id && TITEL[titel(h).toLowerCase()]) || '';
+      if (key || titel(h)) stationen.push({ el: h, key, kopf: true, h });
     });
-    else Object.keys(ORTE).forEach(id => { const el = $(id); if (el) stationen.push({ el, key: ORTE[id], kopf: false }); });
+    else document.querySelectorAll('main > section:not(.stage)').forEach(el => {
+      const h = el.querySelector('h2'), key = ORTE[el.id || (el.classList.contains('contact') ? 'termin' : '')] || '';
+      if (key || titel(h)) stationen.push({ el, key, kopf: false, h });
+    });
   }
+  const stationText = s => s.key ? t('gochStation_' + s.key) : t('gochStationAllgemein').replace('{titel}', (s.h.textContent || '').replace(/\s+/g, ' ').trim());
   function stationJetzt() {
     const vh = innerHeight; let treffer = null;
     for (const s of stationen) {
@@ -376,36 +385,59 @@
     return true;
   }
   function wortAus() { clearTimeout(wortT); wort.classList.remove('da'); wort.hidden = true; mini.classList.remove('sagt'); }
+  // Platz der Sprechblase: der erste, an dem sie nichts Bedienbares verdeckt. Ist keiner frei, erscheint sie trotzdem am
+  // gewohnten Platz – sie lässt Tipps durch und geht nach 6,5 s; stumm bleibt Goch an keiner Station.
+  function wortPlatz() {
+    for (const platz of PLAETZE) {
+      wort.dataset.platz = platz;
+      const r = wort.getBoundingClientRect();
+      if (r.left >= 4 && r.top >= 4 && frei(r)) return true;
+    }
+    wort.dataset.platz = '';
+    return false;
+  }
   function stationSagen(s) {
-    if (!begleitet || kandidat !== s || gesehen.has(s.key)) return;
-    const spaeter = ms => { kandidatT = setTimeout(() => stationSagen(s), ms); };
-    if (!miniDa || mini.dataset.flug || weicht) { spaeter(400); return; } // er ist noch im Anflug oder macht gerade Platz
-    wort.firstChild.textContent = t('gochWortWer'); wort.lastChild.textContent = t('gochStation_' + s.key);
-    wort.hidden = false;
-    if (!frei(wort.getBoundingClientRect())) { wort.hidden = true; spaeter(700); return; } // hier würde die Sprechblase etwas Bedienbares verdecken: später noch einmal
-    wort.hidden = true;
-    gesehen.add(s.key);
-    const zeigen = () => {
-      if (!begleitet || kandidat !== s || !miniDa) return;
-      wort.hidden = false;
-      if (!frei(wort.getBoundingClientRect())) { wort.hidden = true; return; }
-      void wort.offsetWidth; wort.classList.add('da'); mini.classList.add('sagt'); // solange er etwas sagt, ruht „Platz machen“
-      clearTimeout(wortT); wortT = setTimeout(wortAus, 6500);
-    };
-    zeigen(); // Er bleibt auf dem Ast sitzen (Robin, 12.11.2026): geflogen wird nur beim Astwechsel und beim Wechsel der Seite
+    if (!begleitet || kandidat !== s) return;
+    if (!miniDa || mini.dataset.flug || weicht) { kandidatT = setTimeout(() => stationSagen(s), 400); return; } // er ist noch im Anflug oder macht gerade Platz
+    wort.firstChild.textContent = t('gochWortWer'); wort.lastChild.textContent = stationText(s);
+    wort.hidden = false; wortPlatz();
+    // Er bleibt auf dem Ast sitzen (Robin, 12.11.2026): geflogen wird nur beim Astwechsel und beim Wechsel der Seite
+    void wort.offsetWidth; wort.classList.add('da'); mini.classList.add('sagt'); // solange er etwas sagt, ruht „Platz machen“
+    clearTimeout(wortT); wortT = setTimeout(wortAus, 6500);
   }
   function stationPruefen() {
     const s = stationJetzt();
     if (s !== kandidat) {
+      // Auch beim Zurückkommen sagt er den Satz wieder (Robin, 12.11.2026); die kurze Wartezeit verhindert Aufblitzen beim schnellen Scrollen
       kandidat = s; clearTimeout(kandidatT); wortAus();
-      if (s && !gesehen.has(s.key)) kandidatT = setTimeout(() => stationSagen(s), 300); // kurz warten, damit beim schnellen Scrollen nichts aufblitzt
+      if (s) kandidatT = setTimeout(() => stationSagen(s), 300);
     }
-    if (!wort.hidden && !frei(wort.getBoundingClientRect())) wortAus();
+    if (!wort.hidden && !frei(wort.getBoundingClientRect())) wortPlatz(); // beim Scrollen liegt jetzt etwas darunter: Platz wechseln
     // Platz machen: Der Vogel nimmt Tipps an, deshalb zählen unter ihm auch gewöhnliche Verweise
     const r = knopf.getBoundingClientRect();
     if (r.width) knopfOrt = r;
-    if (!frei(knopfOrt, BEDIENBAR + ', a[href]')) { clearTimeout(weichtT); weichtT = 0; if (!weicht) { weicht = true; wortAus(); miniSicht(); } }
-    else if (weicht && !weichtT) weichtT = setTimeout(() => { weichtT = 0; weicht = false; if (begleitet) miniSicht(); }, 700);
+    // Astwechsel statt Verschwinden (Robin, 12.11.2026: keine stumme Station): Liegt unter ihm etwas Bedienbares, fliegt er ab und
+    // kommt auf der ersten freien Höhe am rechten Rand wieder – unten, auf einem Viertel oder auf halber Höhe des Fensters.
+    const unterIhm = BEDIENBAR + ', a[href]';
+    const ortBei = h => knopfOrt && new DOMRect(knopfOrt.left, knopfOrt.top + hoch - h, knopfOrt.width, knopfOrt.height);
+    const freieHoehe = () => HOEHEN.map(f => Math.round(f * innerHeight)).find(h => frei(ortBei(h), unterIhm));
+    // Ist auf keiner Höhe Platz (etwa in einer Liste aus lauter Verweisen), sitzt er nach kurzer Zeit trotzdem unten – dann
+    // durchlässig: Tipps gehen durch ihn hindurch zur Seite (.durch), bis sein Platz wieder frei ist.
+    const besetzt = !frei(knopfOrt, unterIhm);
+    if (durch) { if (!besetzt) { durch = false; mini.classList.remove('durch'); } }
+    else if (!weicht) { if (besetzt) { clearTimeout(weichtT); weichtT = 0; seitWeg = performance.now(); weicht = true; wortAus(); miniSicht(); begleiterBald(); } } // gleich weiterprüfen, auch wenn die Seite jetzt ruht
+    else if (!weichtT) weichtT = setTimeout(() => {
+      weichtT = 0;
+      if (!begleitet) return;
+      if (mini.dataset.flug || mini.classList.contains('fliegt-ab')) { begleiterBald(); return; } // der Abflug läuft noch: erst danach wiederkommen
+      let h = freieHoehe();
+      if (h === undefined) {
+        if (performance.now() - seitWeg < 1500) { begleiterBald(); return; }
+        h = 0; durch = true; mini.classList.add('durch');
+      }
+      knopfOrt = ortBei(h); hoch = h; mini.style.setProperty('--goch-hoch', h + 'px');
+      weicht = false; miniSicht();
+    }, 700);
   }
   const knopfText = () => knopf.setAttribute('aria-label', t(begleitet ? 'gochMiniFragen' : 'gochMini'));
   function begleiterPruefen() {
@@ -416,7 +448,7 @@
       begleitet = an;
       html.classList.toggle('goch-begleitet', an);
       if (an) { if (!stationen) stationenSuchen(); miniLaden(); unten(); }
-      else { clearTimeout(kandidatT); clearTimeout(weichtT); weichtT = 0; weicht = false; kandidat = null; wortAus(); rueckkehr = panel.hidden; }
+      else { clearTimeout(kandidatT); clearTimeout(weichtT); weichtT = 0; weicht = false; kandidat = null; wortAus(); rueckkehr = panel.hidden; hoch = 0; knopfOrt = null; durch = false; mini.classList.remove('durch'); mini.style.removeProperty('--goch-hoch'); }
       miniSicht(); knopfText();
     }
     if (begleitet) stationPruefen();
