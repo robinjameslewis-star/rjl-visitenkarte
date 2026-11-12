@@ -230,7 +230,7 @@
     } catch (_) {
       const nurEinmal = einmal;
       oeffnet = false; mikroAn = false; setzeZustand('aus'); aktualisieren(); meldung(t('gochMikroVerweigert'));
-      if (nurEinmal) say(t('gochMikroVerweigert')); // die Zeile mit dem Hinweis ist dann ausgeblendet
+      say(t('gochMikroVerweigert')); // die Zeile mit dem Hinweis ist dann ausgeblendet
       return;
     }
     oeffnet = false;
@@ -248,7 +248,12 @@
   function schlafen(text) { if (einmal) { einmalEnde(); return; } zuhoerenStoppen(); setzeZustand('pause', text); }
   function mikroAus(text) {
     if (einmal) { einmalEnde(); if (text) say(text); return; }
-    mikroAn = false; zuhoerenStoppen(); setzeZustand('aus'); aktualisieren(); meldung(text); input.focus();
+    mikroAn = false; zuhoerenStoppen(); setzeZustand('aus'); aktualisieren(); meldung(text);
+    // Der Hinweis stand bisher nur in der Zeile des Mikrofons, und die ist dann ausgeblendet: „Goch hört“ ging nach der
+    // Sprechpause still aus (Robin am iPhone, 11.11.2026: „er nimmt die Frage nicht an“). Jetzt sagt Goch es im Gespräch –
+    // sichtbar im Blatt und in der Kapsel. Auslöser ist die Grenze der Spracheingabe im Worker (je Adresse oder je Tag).
+    if (text) say(text);
+    if (!document.documentElement.classList.contains('goch-unterwegs')) input.focus();
   }
   // Die eine Frage ist gestellt (oder „Pause“, Stille, Gespräch zu): „Goch hört“ geht wieder aus, das Mikrofon ist zu.
   function einmalEnde() {
