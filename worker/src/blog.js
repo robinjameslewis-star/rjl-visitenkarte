@@ -7,7 +7,7 @@
 
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { renderSitemap } from "./sitemap.js";
-import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS } from "./kopf.js";
+import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS, NACHT_CSS, NACHT_START, nachtKopf } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
 
 export const POSTS_DIR = "blog/posts";
@@ -196,6 +196,7 @@ ${jsonld ? `<script type="application/ld+json">${jsonld}</script>\n` : ""}<style
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+${NACHT_CSS}
 ${KOPF_CSS}
 ${GOCH_KOPF_CSS}
 main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
@@ -243,9 +244,9 @@ ${NEWSLETTER_CSS}
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 </style>
-</head>
+${nachtKopf(up)}</head>
 <body${newsletter ? ` data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}"` : ""}>
-${kopf(lang, up, { aktiv: "posts" })}
+${NACHT_START}${kopf(lang, up, { aktiv: "posts" })}
 ${gochKopf(up, true, gochArt, lang)}
 <main>
 ${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
