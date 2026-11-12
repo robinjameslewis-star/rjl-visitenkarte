@@ -44,6 +44,50 @@
         "avif": false,
         "bytes": 185256
       }
+    },
+    "fruehling": {
+      "ferne": {
+        "avif": false,
+        "bytes": 89080
+      },
+      "krone": {
+        "avif": false,
+        "bytes": 103940
+      },
+      "mitte": {
+        "avif": false,
+        "bytes": 165386
+      },
+      "hang": {
+        "avif": false,
+        "bytes": 196228
+      },
+      "grund": {
+        "avif": false,
+        "bytes": 159702
+      }
+    },
+    "sommer": {
+      "ferne": {
+        "avif": false,
+        "bytes": 88156
+      },
+      "krone": {
+        "avif": false,
+        "bytes": 96812
+      },
+      "mitte": {
+        "avif": false,
+        "bytes": 163844
+      },
+      "hang": {
+        "avif": false,
+        "bytes": 184524
+      },
+      "grund": {
+        "avif": false,
+        "bytes": 150132
+      }
     }
   },
   "blaetter": {

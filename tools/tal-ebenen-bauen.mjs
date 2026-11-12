@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Talebenen des Landschaftssatzes bauen: Höhenzüge (mitte), Hang (hang) und Talgrund (grund) für Herbst und Winter.
+// Talebenen des Landschaftssatzes bauen: Höhenzüge (mitte), Hang (hang) und Talgrund (grund) für alle vier Jahreszeiten.
 // Gerechnete Vorlage (tools/tal-ebenen-malen.html), bis gemalte Ebenen über die Redaktion kommen. Schreibt je Ebene und
 // Jahreszeit zwei WebP-Breiten nach assets/landschaften/<satz>/ und trägt sie in landschaft.json ein – derselbe Ort und
 // dieselbe Form wie die Redaktion (ohne AVIF). Größen und Budgets kommen aus landscape.js (LAYERS).
