@@ -295,6 +295,9 @@
      Seite darunter bedienbar. */
   /* Größe wie im Entwurf vom 11.11.2026: Der Vogel ist am Handy rund 75 px breit zu sehen (Bildfläche --gm, rechts leer). */
   .goch-mini { --gm: clamp(180px, 22vw, 230px); position: fixed; z-index: 21; right: 0; width: calc(var(--gm) * .74 + 2vw); padding: 0 0 14px; pointer-events: none; }
+  /* Am Handy reichte die Schwanzspitze bis über den rechten Rand (der Vogel endet bei 79 % seines Bildes, 180 px breit): Der
+     Kasten ist dort 14 px breiter, der Vogel sitzt ganz im Bild, der Ast läuft weiter bis zum Rand. */
+  @media (max-width: 720px) { .goch-mini { width: calc(var(--gm) * .74 + 2vw + 14px); } }
   /* Flug des kleinen Goch (Schritt 7, goch-gespraech.js): Er fliegt bei jedem Auftritt von rechts oben an und bei jedem Rückzug
      nach links oben ab. Flugposen wie auf der Bühne (Lage in Prozent der Sitzpose). Bei reduzierter Bewegung kein Flug. */
   .goch-mini-flug { position: absolute; width: 133.2177%; max-width: none; height: auto; opacity: 0; pointer-events: none; }
@@ -419,8 +422,8 @@
   @media (prefers-reduced-motion: reduce) { html:is(.goch-unterwegs, .goch-zeile) .goch { animation: none; } }
   .goch-log { overscroll-behavior: contain; }
   @media (max-width: 720px) {
-    /* links neben dem kleinen Goch: Sein Kasten ist clamp(180px, 22vw, 230px) * .74 + 2vw breit – die Leiste endet davor */
-    html.goch-unterwegs body .goch { grid-template-rows: auto auto auto; gap: 2px 8px; inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 6px) calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)) max(8px, env(safe-area-inset-left));
+    /* links neben dem kleinen Goch: Sein Kasten ist clamp(180px, 22vw, 230px) * .74 + 2vw + 14px breit – die Leiste endet davor */
+    html.goch-unterwegs body .goch { grid-template-rows: auto auto auto; gap: 2px 8px; inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 20px) calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)) max(8px, env(safe-area-inset-left));
       max-width: none; padding: 8px 6px 5px 12px; border-radius: 18px; }
     html.goch-unterwegs body .goch-mikro-status { grid-column: 1 / -1; grid-row: 1; }
     html.goch-unterwegs body .goch-log { grid-column: 1 / -1; grid-row: 2; }
