@@ -752,6 +752,39 @@
   @keyframes tal-fall { 0% { opacity: 0; transform: translate(0, 0) rotate(0); } 10% { opacity: .8; } 85% { opacity: .7; } 100% { opacity: 0; transform: translate(-70px, 78vh) rotate(300deg) scaleX(-.6); } }
   .landscape-paused .tal-laub { animation-play-state: paused; }
   @media (prefers-reduced-motion: reduce) { .tal-laub { display: none; } }
+  /* karten-nacht:an – Karten, Kästen, Schlagworte und Felder der Unterseiten bei Nacht (Robin, 12.11.2026: „zu blass … bitte farbe
+     und auftritt verbessern“). In den Seitenrahmen sind diese Flächen halbdurchsichtiges Weiß; über dem dunklen Blatt wurde
+     daraus Grau mit kaum lesbarer Schrift. Hier bekommen sie nachts die Töne der Startseite: dunkle Karte, klarer Rand, etwas
+     Schatten. Jede Regel mischt vom Tageswert zum Nachtwert (--nacht-prozent): Am Tag bleibt alles, wie es ist. Gilt nur auf
+     den Unterseiten (body[data-goch-seite], goch-seite.js); die Startseite hat ihre eigenen Regeln. */
+  @supports (color: color-mix(in srgb, white, black)) {
+    html.landscape-on { --karte-nacht: #2C3748; --karte-rand-nacht: #55627A; --marke-nacht: #3A475B; --feld-nacht: #171D29; }
+    .landscape-on body[data-goch-seite] :is(.ws-karte, article .ref, article .yt:not(.yt-on)) { background: color-mix(in srgb, rgba(255,255,255,.35), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] :is(.download, .newsletter) { background: color-mix(in srgb, rgba(255,255,255,.4), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] :is(.anfrage, .format, .karte, .leitung, .teil, .wz-kasten) { background: color-mix(in srgb, rgba(255,255,255,.45), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] :is(.wz-karte, .wz-tabelle-rahmen) { background: color-mix(in srgb, rgba(255,255,255,.55), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] .wz-tabelle th:first-child { background: linear-gradient(color-mix(in srgb, rgba(255,255,255,.55), var(--karte-nacht) var(--nacht-prozent)), color-mix(in srgb, rgba(255,255,255,.55), var(--karte-nacht) var(--nacht-prozent))), var(--paper); }
+    /* Rand und Schatten: oben, rechts, unten für alle; links nur, wo kein farbiger Balken steht */
+    .landscape-on body[data-goch-seite] :is(.ws-karte, article .ref, article .yt:not(.yt-on), .download, .newsletter, .anfrage, .format, .karte, .leitung, .teil, .wz-kasten, .wz-karte, .wz-tabelle-rahmen) {
+      border-top-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); border-right-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); border-bottom-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent));
+      box-shadow: 0 16px 30px -18px rgba(0, 0, 0, calc(var(--nacht, 0) * .7)); }
+    .landscape-on body[data-goch-seite] :is(.ws-karte, article .yt:not(.yt-on), .format, .karte, .teil, .wz-karte:not(.partner), .wz-tabelle-rahmen) { border-left-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
+    /* Schlagworte und Logo-Platz */
+    .landscape-on body[data-goch-seite] :is(.fakten li, .wz-chips li) { background: color-mix(in srgb, rgba(255,255,255,.6), var(--marke-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-soft), var(--ink) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] .marken li { background: color-mix(in srgb, rgba(255,255,255,.45), var(--marke-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] .wz-logo:not(.wz-logo-sf) { background: color-mix(in srgb, rgba(255,255,255,.6), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #8A96AB var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-muted), var(--ink) var(--nacht-prozent)); }
+    /* Felder: dunkel mit heller Schrift, wie im Formular der Startseite */
+    .landscape-on body[data-goch-seite] :is(.anfrage, .wz-form) :is(input, select, textarea) { background-color: color-mix(in srgb, rgba(255,255,255,.7), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #6B778C var(--nacht-prozent)); color: var(--ink); }
+    .landscape-on body[data-goch-seite] .newsletter input[type=email] { background-color: color-mix(in srgb, #fff, var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #6B778C var(--nacht-prozent)); color: var(--ink); }
+    .landscape-on body[data-goch-seite] :is(.anfrage, .wz-form, .newsletter) ::placeholder { color: color-mix(in srgb, #757575, #B5AFA4 var(--nacht-prozent)); opacity: 1; }
+    /* Feste Grautöne und Warnfarben, die nachts zu dunkel wären */
+    .landscape-on body[data-goch-seite] :is(.partner .kennzeichnung, .wz-karte .wz-kennz, .wz-th-kennz) { color: var(--ink-muted); } /* statt festem #767676: folgt Tag, Dämmerung und Nacht lesbar */
+    .landscape-on body[data-goch-seite] :is(.anfrage .status.warn, .wz-form .status.warn) { color: color-mix(in srgb, #A63D2F, #F0AC91 var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] .newsletter .msg-status.warn { color: color-mix(in srgb, #8a3b12, #F0AC91 var(--nacht-prozent)); }
+    /* Gefüllte Tasten: Beim Überfahren blieb das feste Dunkelgrün – nachts mit dunkler Schrift unlesbar */
+    .landscape-on body[data-goch-seite] :is(.wz-knopf:not(.zweit), .anfrage button, .download a.knopf, .erechnung-seite .knopf, .wege .knopf, .ws-karte .knoepfe .erst):hover { background: color-mix(in srgb, #082d22, #C6DFD2 var(--nacht-prozent)); }
+  }
+  /* karten-nacht:aus */
   /* goch-seite:aus */
   /* Das Tal liegt unter allem (z-index -1), main und Fuß bilden bewusst keine eigene Schicht: Goch, sein Gespräch und das
      Menü behalten so ihre Reihenfolge über den Blättern. */
