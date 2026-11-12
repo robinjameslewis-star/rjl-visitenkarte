@@ -33,10 +33,14 @@
   if (new URLSearchParams(location.search).get('landschaft') === 'aus') document.documentElement.classList.add('landscape-off');
 </script>
 <link rel="preload" as="image" href="figuren/goch/bilder/vogel.webp" fetchpriority="high">
-<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-3-abschlag.webp" media="(prefers-reduced-motion: no-preference)">
-<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-4-landeanflug.webp" media="(prefers-reduced-motion: no-preference)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-1-aufschlag-1024.webp" media="(prefers-reduced-motion: no-preference) and (max-width: 720px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-1-aufschlag.webp" media="(prefers-reduced-motion: no-preference) and (min-width: 721px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-2-gleiten-1024.webp" media="(prefers-reduced-motion: no-preference) and (max-width: 720px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-2-gleiten.webp" media="(prefers-reduced-motion: no-preference) and (min-width: 721px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-3-abschlag-1024.webp" media="(prefers-reduced-motion: no-preference) and (max-width: 720px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-3-abschlag.webp" media="(prefers-reduced-motion: no-preference) and (min-width: 721px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-4-landeanflug-1024.webp" media="(prefers-reduced-motion: no-preference) and (max-width: 720px)">
+<link rel="preload" as="image" href="figuren/goch/bilder/flugpose-4-landeanflug.webp" media="(prefers-reduced-motion: no-preference) and (min-width: 721px)">
 <style>
   @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
   [hidden] { display: none !important; }
@@ -747,7 +751,7 @@
   .wzs[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
-<script src="landscape.js?v=20261114"></script>
+<script src="landscape.js?v=20261119"></script>
 </head>
 <body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-tal="an" data-goch-signalton="figuren/goch/toene/zwitschern" data-goch-stimme="an" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>
@@ -1078,7 +1082,7 @@
 
 
 <script>window.RJLLandscape?.init();</script>
-<script src="bird-flight.js?v=20261113" defer onerror="document.documentElement.classList.remove('js')"></script>
+<script src="bird-flight.js?v=20261119" defer onerror="document.documentElement.classList.remove('js')"></script>
 <script>
   // Werkzeug-Slider: Pfeile blättern um eine Karte, die Punkte zeigen die Stelle; ohne Skript lässt sich wischen und scrollen
   document.querySelectorAll('.wzs').forEach(function (box) {

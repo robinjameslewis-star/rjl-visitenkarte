@@ -8,6 +8,7 @@ gemessene Gewicht ist deshalb eine Obergrenze gegenüber der Auslieferung (dort 
 import asyncio
 import base64
 import json
+import socket
 import subprocess
 import sys
 import tempfile
@@ -20,7 +21,13 @@ BASE = (sys.argv[1] if len(sys.argv) > 1 else 'http://127.0.0.1:8788').rstrip('/
 OUT = Path(sys.argv[2] if len(sys.argv) > 2 else tempfile.mkdtemp(prefix='tal-'))
 OUT.mkdir(parents=True, exist_ok=True)
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-PORT = 9371
+def freier_port():
+    # Eigener, freier Port: Auf einem festen Port verband sich der Test mit einem fremden, schon laufenden Chrome (12.11.2026:
+    # verborgenes Fenster, kein requestAnimationFrame, Abbruch mit Zeitüberschreitung; Messwerte schwankten).
+    with socket.socket() as s:
+        s.bind(('127.0.0.1', 0))
+        return s.getsockname()[1]
+PORT = freier_port()
 GRENZE = 1_200_000  # Erstaufruf am Handy, Entscheidung der Leitung vom 11.11.2026
 TALGRENZE = 300_000  # was das Tal nach dem ersten Bild am Handy nachlädt
 TALBILD = ('/mitte-', '/hang-', '/grund-')
