@@ -342,6 +342,11 @@
   .goch-mini-wort::after { content: ""; position: absolute; right: 22px; bottom: -7px; width: 12px; height: 12px; background: inherit; border: 1px solid var(--line); border-width: 0 1px 1px 0; transform: rotate(45deg); }
   .goch-mini-wort small { display: block; margin-bottom: 2px; font-size: 11px; letter-spacing: .04em; color: var(--ink-soft, #5B5B5B); }
   @media (prefers-reduced-motion: reduce) { .goch-mini-wort { transition: none; } }
+  /* Übergabe (Startseite): Der große Goch sitzt als kleiner unten – sein Bild ist aus, der Bühnen-Ast bleibt leer */
+  .scene.goch-fort .bird-move { visibility: hidden; }
+  /* Talstück zwischen Bühne und Werkzeuge: Landeplatz und Atempause, ohne Text und ohne Bedienbares */
+  .tal-on #werkzeuge { margin-top: 15vh; }
+  @media (max-width: 720px) { .tal-on #werkzeuge { margin-top: 25vh; } }
   .goch-mini.goch-mini-weg { display: none !important; } /* solange der große Goch im Bild ist: nie zwei Gochs zugleich */
   .goch-mini.spricht .goch-mini-tier { animation: goch-mini 0.45s ease-in-out infinite alternate; }
   @keyframes goch-mini { to { transform: rotate(-2deg); } }
@@ -1136,7 +1141,7 @@
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261116" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261122" defer></script>
+<script src="goch-gespraech.js?v=20261123" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>

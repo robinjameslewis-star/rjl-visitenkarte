@@ -23,6 +23,7 @@
   const stelle = ziel => $(ziel === 'grundsaetze' ? 'grundsaetze-' + (window.SiteLanguage.current === 'en' ? 'en' : 'de') : ziel);
 
   let modus = { mikro: false, laut: false, einmal: false }, lage = 'aus', zuletzt = 0; // lage: aus | fokus | unterwegs
+  let fort = false; // Übergabe (Startseite): Der große Goch ist von der Bühne auf den kleinen Ast geflogen, der Bühnen-Ast ist leer
   let ohneGoch = false; // „Platz machen“ bei offenem Gespräch: Goch ist weg, die Leiste bleibt
   let begleitet = false, weicht = false; // Begleiter ohne offenes Gespräch; weicht: Unter ihm liegt gerade etwas Bedienbares (unten: Begleiter mit Stationen)
   // Der kleine Goch ist da: im Gesprächsmodus unterwegs, neben dem mitlaufenden Blatt oder als Begleiter
@@ -31,6 +32,8 @@
     if (neu === lage) return;
     const vorher = lage;
     lage = neu;
+    // Vollbild mit Stimme: Goch sitzt groß oben. Saß er als kleiner unten (Übergabe), ist er sofort wieder der große.
+    if (neu === 'fokus' && fort) { flugAus(); gabeHin = false; gabeZurueck = false; miniDa = false; fortSetzen(false); mini.classList.add('goch-mini-weg'); }
     html.classList.toggle('goch-fokus', neu === 'fokus');
     html.classList.toggle('goch-unterwegs', neu === 'unterwegs');
     if (neu === 'unterwegs') miniLaden();
@@ -108,15 +111,39 @@
     if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; });
     mini.dataset.flug = ''; mini.classList.remove('fliegt-ab'); mini.style.bottom = '';
   }
+  // Übergabe: derselbe Vogel fliegt zwischen Bühnen-Ast und kleinem Ast. Gezeichnet wird der kleine Goch; er beginnt (oder
+  // endet) genau auf dem Platz und in der Größe des großen, dessen Bild in diesem Augenblick aus- oder eingeblendet wird.
+  let gabeHin = false, gabeZurueck = false;
+  function gabeFlug(hin, fertig) {
+    const lauf = ++flugLauf;
+    const ende = () => { tier.classList.remove('fliegt'); tier.style.transform = ''; tier.style.opacity = ''; if (flugBilder) Object.values(flugBilder).forEach(i => { i.style.opacity = '0'; }); mini.dataset.flug = ''; fertig(); };
+    flugBauen();
+    if (ruhig.matches || document.hidden || !flugBilder || !Object.values(flugBilder).every(i => i.complete && i.naturalWidth)) { ende(); return; }
+    const dauer = 1500, start = performance.now(), gross = scene.querySelector('.bird-rest');
+    tier.classList.add('fliegt'); mini.dataset.flug = hin ? 'an' : 'ab';
+    const schritt = now => {
+      if (lauf !== flugLauf) { if (!hin) fertig(); return; } // ein anderer Flug hat übernommen: Der Rückweg wird trotzdem abgeschlossen
+      const p = Math.min(1, (now - start) / dauer), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, oben = hin ? 1 - e : e; // oben: 1 = auf dem Bühnen-Ast, 0 = auf dem kleinen
+      tier.style.transform = '';
+      const m = tier.getBoundingClientRect(), g = gross.getBoundingClientRect(); // Drehpunkt des kleinen: die Füße (44 % / 94 %)
+      const x = (g.left + g.width * .44 - m.left - m.width * .44) * oben, y = (g.top + g.height * .94 - m.top - m.height * .94) * oben - Math.sin(p * Math.PI) * innerHeight * .07;
+      const pose = (hin ? p > .8 : p > .82) ? 'landing' : ['up', 'glide', 'down', 'glide'][Math.floor((now - start) / 72) % 4];
+      Object.entries(flugBilder).forEach(([k, i]) => { i.style.opacity = k === pose ? '1' : '0'; });
+      tier.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${(1 + (g.width / m.width - 1) * oben).toFixed(3)})`;
+      if (p < 1) requestAnimationFrame(schritt); else ende();
+    };
+    schritt(start);
+  }
   function miniPruefen() {
+    if (gabeZurueck) return; // der Rückflug zur Bühne läuft: Er endet selbst (gabePruefen)
     const soll = !mini.hidden && !mini.classList.contains('goch-mini-weg') && (lage === 'unterwegs' || !!breit || begleitet);
     if (soll && !mini.classList.contains('fliegt-ab')) boden = getComputedStyle(mini).bottom;
     if (soll === miniDa) return;
     miniDa = soll;
-    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; miniFlug(true, begleiterBald); }
+    if (soll) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; if (gabeHin) { gabeHin = false; gabeFlug(true, begleiterBald); } else miniFlug(true, begleiterBald); }
     // Nie zwei Gochs zugleich (Robin, 11.11.2026): Kommt der große Goch ins Bild, ist der kleine sofort weg – ohne Abflug.
     // Er fliegt nur ab, wenn der große nicht zu sehen ist (Gespräch geschlossen, „Seite ansehen“ aufgehoben).
-    else if (sichtbar > .02 || grossImBild()) flugAus();
+    else if (!fort && (sichtbar > .02 || grossImBild())) flugAus();
     else { mini.style.bottom = boden; mini.classList.add('fliegt-ab'); miniFlug(false, () => { if (!miniDa) { mini.classList.remove('fliegt-ab'); mini.style.bottom = ''; } }); }
   }
   new MutationObserver(miniPruefen).observe(mini, { attributes: true, attributeFilter: ['hidden', 'class'] });
@@ -137,8 +164,8 @@
   const schreibt = () => { const a = document.activeElement; return !!a && panel.contains(a) && /^(TEXTAREA|INPUT)$/.test(a.tagName); };
   function breitPruefen() {
     if (schmal.matches || panel.hidden) { breitSetzen(''); return; }
-    if (!breit && sichtbar < .1) breitSetzen(schreibt() ? 'blatt' : 'zeile'); // Goch ist aus dem Bild: Leiste (Robin, 12.11.2026), kein mitlaufendes Fenster
-    else if (breit && sichtbar > .5) { breitSetzen(''); grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
+    if (!breit && (sichtbar < .1 || fort)) breitSetzen(schreibt() ? 'blatt' : 'zeile'); // Goch ist aus dem Bild: Leiste (Robin, 12.11.2026), kein mitlaufendes Fenster
+    else if (breit && sichtbar > .5 && !fort) { breitSetzen(''); if (!gabeZurueck) grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
   const hoehe = () => { if (breit || lage !== 'aus') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
@@ -269,7 +296,7 @@
   mini.addEventListener('click', () => {
     // Begleiter: Der Tipp öffnet das Gespräch – auf breiten Bildschirmen als mitlaufendes Blatt an Ort und Stelle, am Handy
     // bei Goch am Seitenanfang (dort steht das Gespräch ohne Sprachfunktion), er fliegt dort wieder an.
-    if (begleitet) { wortAus(); eigen(); if (schmal.matches) scrollTo(0, 0); else breitSetzen('blatt'); window.Goch.oeffnen(); if (schmal.matches) { rueckkehr = false; grossAn(); } return; }
+    if (begleitet) { wortAus(); eigen(); if (schmal.matches) scrollTo(0, 0); else breitSetzen('blatt'); window.Goch.oeffnen(); if (schmal.matches) { rueckkehr = false; if (unter) grossAn(); } return; }
     // Tipp auf den kleinen Goch neben der Leiste: das normale Gesprächsfenster (mit Stimme am Handy groß bei Goch)
     if (breit) { if (breit === 'zeile') aufklappen(true); else { eigen(); scrollTo({ top: 0, behavior: ruhig.matches ? 'auto' : 'smooth' }); } }
     else { aufklappen(true); if (lage === 'fokus') grossAn(); }
@@ -314,9 +341,9 @@
   // Der kleine Goch erscheint erst, wenn der große aus dem Bild ist – nie zwei Gochs zugleich
   if ('IntersectionObserver' in window) new IntersectionObserver(es => {
     sichtbar = es[es.length - 1].intersectionRatio;
-    mini.classList.toggle('goch-mini-weg', sichtbar > .02); // schon der Rand des großen Goch genügt: nie beide zugleich
-    if (sichtbar > .02 && (mini.classList.contains('fliegt-ab') || mini.dataset.flug)) flugAus();
-    if (sichtbar > 0 && rueckkehr) { rueckkehr = false; grossAn(); } // der Begleiter ist abgeflogen: Der große fliegt wieder an
+    mini.classList.toggle('goch-mini-weg', sichtbar > .02 && !fort); // schon der Rand des großen Goch genügt: nie beide zugleich (fort: Sein Bild ist aus, er sitzt als kleiner unten)
+    if (sichtbar > .02 && !fort && (mini.classList.contains('fliegt-ab') || mini.dataset.flug)) flugAus();
+    if (sichtbar > 0 && rueckkehr) { rueckkehr = false; if (unter) grossAn(); } // der Begleiter ist abgeflogen: Der große fliegt wieder an
     breitPruefen();
     if (typeof zweigPruefen === 'function') zweigPruefen();
   }, { threshold: [0, .02, .1, .35, .5, 1] }).observe(scene);
@@ -324,7 +351,7 @@
   // Scrollen selbst, ob der große ins Bild kommt – dann ist der kleine im selben Bild weg.
   window.addEventListener('scroll', () => {
     if (!miniDa && !mini.classList.contains('fliegt-ab')) return;
-    if (grossImBild()) { sichtbar = Math.max(sichtbar, .03); mini.classList.add('goch-mini-weg'); if (mini.classList.contains('fliegt-ab') || mini.dataset.flug) flugAus(); miniPruefen(); }
+    if (grossImBild() && !fort) { sichtbar = Math.max(sichtbar, .03); mini.classList.add('goch-mini-weg'); if (mini.classList.contains('fliegt-ab') || mini.dataset.flug) flugAus(); miniPruefen(); }
   }, { passive: true });
   // ---------- Begleiter mit Stationen (Robin, 11.11.2026: „auf der startseite soll goch auch mitfliegen“) ----------
   // Auch ohne offenes Gespräch: Ist der große Goch weit genug aus dem Bild, fliegt der kleine an und sitzt unten rechts auf
@@ -370,7 +397,8 @@
       if (s.el.hidden) continue;
       const r = s.el.getBoundingClientRect();
       if (!r.height) continue;
-      if (s.kopf ? r.top < vh * .6 && r.top > -vh * .4 : r.top < vh * .6 && r.bottom > vh * .3) treffer = s;
+      const ab = s.key === 'werkzeuge' && !unter ? .78 : .6; // die erste Station gleich nach der Landung (Übergabe bei 70 %)
+      if (s.kopf ? r.top < vh * .6 && r.top > -vh * .4 : r.top < vh * ab && r.bottom > vh * .3) treffer = s;
     }
     return treffer;
   }
@@ -440,21 +468,70 @@
     }, 700);
   }
   const knopfText = () => knopf.setAttribute('aria-label', t(begleitet ? 'gochMiniFragen' : 'gochMini'));
+  // ---------- Übergabe auf der Startseite (Robin, 12.11.2026: „B mit kleinem A“) ----------
+  // Kommt die Überschrift „Werkzeuge“ ins Bild (ab 70 % der Fensterhöhe), hebt der große Goch von seinem Bühnen-Ast ab und
+  // fliegt im Bogen auf den kleinen Ast am rechten Rand; er wird dabei kleiner. Es ist derselbe Vogel: Das Bild des großen ist
+  // aus (.goch-fort), solange er unten sitzt – der Bühnen-Ast bleibt leer, nie sind zwei Gochs zu sehen. Zurück: Ist die Bühne
+  // wieder zu mehr als der Hälfte im Bild (und die Überschrift unter 78 %), fliegt er hinauf und wird groß. Bei reduzierter
+  // Bewegung ohne Flug. Ein offenes Gespräch wird dabei zur Leiste; im Vollbild mit Stimme bleibt er oben.
+  const werkzeugKopf = unter ? null : document.querySelector('#werkzeuge h2');
+  const fortSetzen = an => { fort = an; scene.classList.toggle('goch-fort', an); html.classList.toggle('goch-fort', an); if (an) mini.classList.remove('goch-mini-weg'); };
+  function gabePruefen() {
+    if (!werkzeugKopf || gabeZurueck || mini.dataset.flug) return;
+    const vh = innerHeight, oben = werkzeugKopf.getBoundingClientRect().top, s = scene.getBoundingClientRect();
+    const sicht = Math.max(0, Math.min(vh, s.bottom) - Math.max(0, s.top)) / Math.max(1, s.height);
+    if (!fort) {
+      // Am Rechner steht die Überschrift schon beim Laden im Bild: Er fliegt erst, wenn der Besucher ein Stück gescrollt hat
+      // Hängt am Rechner gerade das Gesprächsfenster an Goch, bleibt er, bis die Bühne aus dem Bild ist – sonst würde schon
+      // ein kleines Scrollen zum unteren Rand des Fensters das Gespräch zur Leiste machen
+      const amAst = !panel.hidden && !schmal.matches && !breit && sicht >= .1;
+      if (!amAst && oben < vh * .7 && scrollY > vh * .12 && scene.dataset.chat === 'on' && scene.dataset.state === 'rest' && lage !== 'fokus' && !platz && !ohneGoch) {
+        miniLaden(); gabeHin = true; fortSetzen(true);
+        if (!panel.hidden && !schmal.matches) breitPruefen(); // offenes Gespräch am Rechner: Leiste
+        miniPruefen();
+      }
+    } else if (platz || ohneGoch) { fortSetzen(false); }
+    else if (sicht > .5 && (oben > vh * .78 || scrollY < vh * .05)) {
+      wortAus();
+      // Er sitzt gerade nicht (Astwechsel) oder die Bewegung ist reduziert: ohne Flug hinauf; sonst fliegt er oben wieder an
+      if (!miniDa || ruhig.matches) { const flug = !miniDa && !ruhig.matches; fortSetzen(false); mini.classList.add('goch-mini-weg'); miniSicht(); begleiterBald(); breitPruefen(); if (flug && panel.hidden) grossAn(); return; }
+      gabeZurueck = true; boden = getComputedStyle(mini).bottom; mini.style.bottom = boden; mini.classList.add('fliegt-ab');
+      let erledigt = false;
+      const oben = () => {
+        if (erledigt) return;
+        erledigt = true;
+        // im selben Bild: kleiner weg, großer wieder da
+        miniDa = false; gabeZurueck = false; mini.classList.remove('fliegt-ab'); mini.style.bottom = '';
+        fortSetzen(false); mini.classList.add('goch-mini-weg'); rueckkehr = false;
+        begleiterPruefen(); breitPruefen();
+      };
+      gabeFlug(false, oben);
+      setTimeout(() => { if (!erledigt) { flugAus(); oben(); } }, 2600); // Sicherung: Der Rückweg endet in jedem Fall (verborgener Tab, abgebrochener Flug)
+    }
+  }
   function begleiterPruefen() {
     begleiterWartet = false;
     const r = scene.getBoundingClientRect(), vor = innerHeight * .35;
-    const an = panel.hidden && !platz && scene.dataset.chat === 'on' && lage === 'aus' && !breit && r.bottom < -vor - (begleitet ? 0 : 40);
+    gabePruefen();
+    // Unterseiten: sobald der große Goch weit genug aus dem Bild ist. Startseite: sobald er selbst heruntergeflogen ist (Übergabe)
+    const an = panel.hidden && !platz && scene.dataset.chat === 'on' && lage === 'aus' && !breit && (unter ? r.bottom < -vor - (begleitet ? 0 : 40) : fort);
     if (an !== begleitet) {
       begleitet = an;
       html.classList.toggle('goch-begleitet', an);
       if (an) { if (!stationen) stationenSuchen(); miniLaden(); unten(); }
-      else { clearTimeout(kandidatT); clearTimeout(weichtT); weichtT = 0; weicht = false; kandidat = null; wortAus(); rueckkehr = panel.hidden; hoch = 0; knopfOrt = null; durch = false; mini.classList.remove('durch'); mini.style.removeProperty('--goch-hoch'); }
+      else { clearTimeout(kandidatT); clearTimeout(weichtT); weichtT = 0; weicht = false; kandidat = null; wortAus(); rueckkehr = unter && panel.hidden; hoch = 0; knopfOrt = null; durch = false; mini.classList.remove('durch'); mini.style.removeProperty('--goch-hoch'); }
       miniSicht(); knopfText();
     }
-    if (begleitet) stationPruefen();
+    if (begleitet && !gabeZurueck) stationPruefen(); // im Rückflug zur Bühne weder Sätze noch Platz machen
   }
   const begleiterBald = () => { if (!begleiterWartet) { begleiterWartet = true; requestAnimationFrame(begleiterPruefen); } };
   window.addEventListener('scroll', begleiterBald, { passive: true });
+  if (werkzeugKopf) {
+    new MutationObserver(begleiterBald).observe(scene, { attributes: true, attributeFilter: ['data-state', 'data-chat'] });
+    // Vogel, Ast und Flugbilder des kleinen schon bereitlegen (dieselben Dateien wie oben, nach dem Laden der Seite)
+    const bereit = () => setTimeout(() => { miniLaden(); flugBauen(); }, 600);
+    if (document.readyState === 'complete') bereit(); else window.addEventListener('load', bereit, { once: true });
+  }
   window.addEventListener('resize', () => { knopfOrt = null; begleiterBald(); }, { passive: true });
   window.addEventListener('site-languagechange', () => { knopfText(); wortAus(); });
   new MutationObserver(begleiterPruefen).observe(panel, { attributes: true, attributeFilter: ['hidden'] });

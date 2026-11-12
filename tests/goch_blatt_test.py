@@ -176,6 +176,7 @@ async def main():
                     await klick('#goch-log')
                     check(not await klasse('goch-zeile'), "Tipp auf die Kapsel: Blatt")
                 await klick('#goch-mini-knopf'); await pump(1.6)
+                await bis("document.documentElement.classList.contains('goch-fort')", lambda x: not x, 6); await pump(0.5)  # Übergabe: Der Vogel fliegt erst hinauf
                 f = await ev(frei)
                 check(await ev("scrollY") < 5 and not await klasse('goch-angeheftet') and not f['fest'] and not f['amBody'] and f['verdeckt'] == 0, "Tipp auf den kleinen Goch führt zurück: Das Blatt hängt wieder am Ast", f)
                 check(await bis("getComputedStyle(document.getElementById('goch-mini')).display", lambda d: d == 'none') == 'none', "der kleine Goch ist weg")
@@ -221,17 +222,17 @@ async def main():
             await shot("kleiner_Goch_spricht_Handy")
             # Nie zwei Gochs zugleich: Beim Hochscrollen ist der kleine sofort weg, sobald der große ins Bild kommt – ohne Abflug
             await ev("""__flug.length = 0; window.__beide = 0; window.__misst = true; (function bild() { const s = document.getElementById('scene').getBoundingClientRect(), m = document.getElementById('goch-mini');
-              if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().top < innerHeight) __beide++; if (__misst) requestAnimationFrame(bild); })()""")
+              if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().top < innerHeight && getComputedStyle(document.querySelector('#scene .bird-move')).visibility !== 'hidden') __beide++; if (__misst) requestAnimationFrame(bild); })()""")
             for y in (560, 420, 280, 140, 0):
                 await ev(f"window.scrollTo(0,{y})"); await pump(0.25)
-            await pump(0.6)
-            check(await ev("__misst = false, __beide") == 0 and await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "hochgescrollt: nie beide Gochs zugleich, der kleine ist sofort weg", await ev("__beide"))
-            check('ab' not in await ev("__flug"), "kein Abflug über dem großen Goch", await ev("__flug"))
+            await bis("document.documentElement.classList.contains('goch-fort')", lambda x: not x, 6); await pump(0.6)
+            check(await ev("__misst = false, __beide") == 0 and await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "hochgescrollt: nie beide Gochs zugleich, oben sitzt wieder der große (Übergabe, 12.11.2026)", await ev("__beide"))
             # Gespräch schließen: Die Seite springt zum großen Goch – auch dabei nie beide zugleich
             await ev("window.scrollTo(0,700)"); k = await bis(klein, lambda k: k['ruht'] and k['da'] and k['ast'])
             await ev("""window.__beide = 0; window.__misst = true; (function bild() { const s = document.getElementById('scene').getBoundingClientRect(), m = document.getElementById('goch-mini');
-              if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().top < innerHeight) __beide++; if (__misst) requestAnimationFrame(bild); })()""")
+              if (s.bottom > 2 && s.top < innerHeight - 2 && getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().top < innerHeight && getComputedStyle(document.querySelector('#scene .bird-move')).visibility !== 'hidden') __beide++; if (__misst) requestAnimationFrame(bild); })()""")
             await ev("document.getElementById('goch-close').click()"); await pump(1.5)
+            await bis("document.documentElement.classList.contains('goch-fort')", lambda x: not x, 6); await pump(0.5)
             check(await ev("__misst = false, __beide") == 0 and await ev("getComputedStyle(document.getElementById('goch-mini')).display") == 'none', "Gespräch geschlossen: der kleine Goch ist weg, nie beide zugleich", await ev("__beide"))
             await ev("window.scrollTo(0,0)"); await bis("document.getElementById('scene').dataset.state", lambda x: x == 'rest'); await klick('#scene'); await klick('#goch-zur-seite'); await pump(0.5)
             print("2c. Reduzierte Bewegung: kein Flug")

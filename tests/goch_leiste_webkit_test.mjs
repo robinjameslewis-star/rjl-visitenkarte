@@ -28,7 +28,7 @@ async function auf(breit, mehr = "") {
       const m = document.getElementById("goch-mini"), s = document.getElementById("scene"), g = document.getElementById("goch"); if (!m || !s || !g) return;
       __m.bilder++;
       const klein = getComputedStyle(m).display !== "none" && +getComputedStyle(m).opacity > .05, r = s.getBoundingClientRect();
-      if (klein && r.bottom > 2 && r.top < innerHeight - 2 && getComputedStyle(s).visibility !== "hidden") __m.beide++;
+      if (klein && r.bottom > 2 && r.top < innerHeight - 2 && getComputedStyle(document.querySelector("#scene .bird-move")).visibility !== "hidden") __m.beide++;
       if (klein && !g.hidden && /goch-(unterwegs|zeile)/.test(document.documentElement.className)) {
         const l = g.getBoundingClientRect(), t = m.querySelector(".goch-mini-tier").getBoundingClientRect(), a = m.querySelector(".goch-mini-ast").getBoundingClientRect();
         if (!m.dataset.flug && (schneidet(l, t) || schneidet(l, a))) __m.ueber++;
@@ -99,7 +99,7 @@ for (const breit of [false, true]) for (const art of ["Text", "Goch spricht", "G
     await rollen(p, 0); await p.waitForTimeout(900); s = await stand(p);
     check(!klein(s) && !s.zu, "zurück ganz oben beim großen Goch ist es wieder das Fenster", s.lage);
     await rollen(p, 700); await p.waitForTimeout(900);
-  } else { await rollen(p, 0); await p.waitForTimeout(1200); s = await stand(p); check(!klein(s) && !s.zu && !/angeheftet/.test(s.lage), "zurück beim großen Goch hängt das Fenster wieder an seinem Ast", s.lage); await rollen(p, 900); await p.waitForTimeout(1200); }
+  } else { await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(600); s = await stand(p); check(!klein(s) && !s.zu && !/angeheftet/.test(s.lage), "zurück beim großen Goch hängt das Fenster wieder an seinem Ast", s.lage); await rollen(p, 900); await p.waitForTimeout(1200); }
   await p.locator("#goch-close").click(); await p.waitForTimeout(500);
   s = await stand(p);
   check(s.zu && !klein(s), "X schließt das Gespräch", s.lage);

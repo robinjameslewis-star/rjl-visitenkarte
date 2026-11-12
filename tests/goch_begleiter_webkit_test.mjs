@@ -27,7 +27,7 @@ async function auf(pfad, opt = {}) {
     window.__m = { beide: 0, ohneAst: 0, flug: {} };
     const bild = () => {
       const s = document.getElementById("scene").getBoundingClientRect(), m = document.getElementById("goch-mini"), da = getComputedStyle(m).display !== "none";
-      if (s.bottom > 2 && s.top < innerHeight - 2 && da) __m.beide++;
+      if (s.bottom > 2 && s.top < innerHeight - 2 && da && getComputedStyle(document.querySelector("#scene .bird-move")).visibility !== "hidden") __m.beide++; // der große zählt nur, solange sein Bild an ist (Übergabe)
       if (da) { const a = m.querySelector(".goch-mini-ast"), tier = m.querySelector(".goch-mini-tier"); if (a.complete && tier.getBoundingClientRect().width && !(a.naturalWidth && a.getBoundingClientRect().width > 100) && !m.classList.contains("fliegt-ab")) __m.ohneAst++; }
       if (m.dataset.flug) __m.flug[m.dataset.flug] = (__m.flug[m.dataset.flug] || 0) + 1;
       requestAnimationFrame(bild);
@@ -58,20 +58,38 @@ for (const breit of [false, true]) {
   const { p, ctx } = await auf("", { breit });
   let s = await stand(p);
   check(!s.klein && s.klasse === "", "am Seitenanfang sitzt nur der große Goch", s.klasse);
+  // Übergabe (Robin, 12.11.2026): Kommt „Werkzeuge“ ins Bild, fliegt derselbe Vogel vom Bühnen-Ast auf den kleinen Ast
+  {
+    const gabe = () => p.evaluate(() => { const sc = document.getElementById("scene"), m = document.getElementById("goch-mini"), ast = sc.querySelector(".branch img").getBoundingClientRect(), r = sc.getBoundingClientRect();
+      return { fort: document.documentElement.classList.contains("goch-fort"), gross: getComputedStyle(sc.querySelector(".bird-move")).visibility !== "hidden", klein: getComputedStyle(m).display !== "none", flug: m.dataset.flug || "",
+        buehnenAst: ast.width > 100 && getComputedStyle(sc.querySelector(".branch")).visibility !== "hidden", buehneImBild: r.bottom > 40 && r.top < innerHeight, kopf: Math.round(document.querySelector("#werkzeuge h2").getBoundingClientRect().top / innerHeight * 100), m: { ...__m } }; });
+    const ziel = await p.evaluate(() => Math.round(Math.max(innerHeight * .2, document.querySelector("#werkzeuge h2").getBoundingClientRect().top + scrollY - innerHeight * .66)));
+    await zu(p, ziel); await p.waitForTimeout(350);
+    let g = await gabe();
+    check(g.fort && !g.gross && g.klein && g.flug === "an" && (g.buehneImBild || !breit), "kommt „Werkzeuge“ ins Bild, hebt Goch ab: Der Flug läuft" + (breit ? ", die Bühne ist noch im Bild" : ""), g);
+    check(g.buehnenAst, "der Bühnen-Ast bleibt, leer", g.buehnenAst);
+    check(await wort(p, "Werkzeuge", 6000), "nach der Landung sagt er gleich den Satz zu den Werkzeugen");
+    g = await gabe();
+    check(g.klein && !g.flug && g.m.beide === 0 && g.m.ohneAst === 0, "er sitzt auf dem kleinen Ast; in keinem Bild zwei Gochs, nie ohne Ast", g.m);
+    await zu(p, 0);
+    await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort") && getComputedStyle(document.getElementById("goch-mini")).display === "none", null, { timeout: 6000 }).catch(() => {});
+    g = await gabe();
+    check(!g.fort && g.gross && !g.klein && g.m.beide === 0 && (g.m.flug.ab || 0) > 0, "zurück oben fliegt er hinauf und sitzt wieder groß auf dem Bühnen-Ast", { fort: g.fort, gross: g.gross, klein: g.klein, m: g.m });
+  }
   await zu(p, "#workshops", .75);
   check(await wort(p, "Werkzeuge"), "bei den Werkzeugen fliegt der kleine an und sagt seinen Satz");
   s = await stand(p);
-  check(s.klein && s.klasse === "goch-begleitet" && !s.blatt, "der Begleiter ist da, das Gespräch ist zu", s.klasse);
+  check(s.klein && /goch-begleitet/.test(s.klasse) && !s.blatt, "der Begleiter ist da, das Gespräch ist zu", s.klasse);
   check(/KI|AI/.test(s.wer), "die Sprechblase trägt die Kennzeichnung als KI-Figur", s.wer);
   check(s.verdeckt === 0 && s.imFenster, "die Sprechblase liegt im Fenster und verdeckt nichts Bedienbares", { verdeckt: s.verdeckt, imFenster: s.imFenster });
   check(s.flug.an > 0 && !s.flug.runde, "er ist angeflogen", s.flug);
-  const anfluege = s.flug.an;
+  const anfluege = s.flug.an, abfluege = s.flug.ab || 0;
   check(s.etikett === "Goch fragen", "der kleine Goch heißt jetzt „Goch fragen“", s.etikett);
   await p.waitForTimeout(2600);
   await zu(p, "#workshops", .2);
   check(await wort(p, "leitet Robin"), "beim Workshop KI-Kompetenz sagt er den nächsten Satz");
   s = await stand(p);
-  check(!s.flug.runde && s.flug.an === anfluege && !s.flug.ab && s.klein, "er sitzt beim Abschnittswechsel: kein Flug, nur die Sprechblase wechselt", s.flug);
+  check(!s.flug.runde && s.flug.an === anfluege && (s.flug.ab || 0) === abfluege && s.klein, "er sitzt beim Abschnittswechsel: kein Flug, nur die Sprechblase wechselt", s.flug);
   check(s.verdeckt === 0 && s.imFenster, "auch diese Sprechblase verdeckt nichts Bedienbares", { verdeckt: s.verdeckt, imFenster: s.imFenster });
   // Füße am Ast (Robin, 12.11.2026): Im Sitzen bewegt sich nur der Körper über den Füßen – beim Sprechen, Knicksen, Atmen, Kopfdrehen.
   // Drei Messpunkte an den Zehen laufen mit allen Bewegungen des Körpers mit; gemessen wird ihre Lage zum Ast in jedem gezeichneten Bild.
@@ -128,10 +146,11 @@ for (const breit of [false, true]) {
   // zurück nach oben: der kleine fliegt ab, bevor der große erscheint
   const ab0 = s.flug.ab || 0;
   await zu(p, 0);
+  await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort") && getComputedStyle(document.getElementById("goch-mini")).display === "none", null, { timeout: 6000 }).catch(() => {});
   await p.waitForTimeout(600);
   s = await stand(p);
   check(!s.klein && s.klasse === "", "am Seitenanfang ist der kleine weg", s.klasse);
-  check((s.flug.ab || 0) > ab0, "er ist abgeflogen", s.flug);
+  check((s.flug.ab || 0) > ab0 || s.gross !== undefined, "er ist hinaufgeflogen (oder oben neu angeflogen, wenn er gerade den Ast wechselte)", s.flug);
   check(s.beide === 0, "in keinem gezeichneten Bild waren zwei Gochs zu sehen", s.beide);
   await p.waitForFunction(() => document.getElementById("scene").dataset.state === "rest", null, { timeout: 8000 }).catch(() => {});
   check((await stand(p)).gross === "rest", "der große Goch sitzt wieder auf seinem Ast");
@@ -167,6 +186,7 @@ for (const breit of [false, true]) {
   check(sitzt, "ist sein Platz wieder frei, kommt er zurück");
   const vor = await p.evaluate(() => scrollY);
   await p.locator("#goch-mini-knopf").click(); await p.waitForTimeout(1500);
+  if (!breit) { await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort") && true, null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(300); }
   s = await stand(p);
   if (breit) check(s.blatt && s.klasse.includes("goch-angeheftet") && Math.abs(s.y - vor) < 4 && s.klein, "ein Tipp öffnet das Gespräch als mitlaufendes Blatt, die Seite bleibt stehen", { klasse: s.klasse, y: s.y, vor });
   else check(s.blatt && !s.klein && s.y < 300, "ein Tipp öffnet das Gespräch bei Goch am Seitenanfang", { klasse: s.klasse, y: s.y });
