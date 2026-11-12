@@ -9,7 +9,7 @@
 //   node tests/werkzeuge_uebersicht_test.mjs
 import { readFileSync } from "node:fs";
 import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
-import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT } from "../worker/src/uebersicht.js";
+import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT, VERGLEICH_SICHTBAR } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
 import { PARTNER } from "../worker/src/partner.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
@@ -58,15 +58,18 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Partnerkarte „Ihre Lösung auf robin.vision“ mit Weg zum Formular");
   check((raster.match(/<article class="wz-karte/g) || []).length === 1, "ohne Partner nur der Platzhalter");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Verweis mit rel=sponsored");
-  const tabelle = html.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
+  // Vergleich vorübergehend aus (Robin, 12.11.2026); Aufbau und Daten werden weiter an der eingeschalteten Fassung geprüft
+  check(VERGLEICH_SICHTBAR || (!html.includes('id="vergleich"') && !html.includes('<table class="wz-tabelle">') && !html.includes('class="meta wz-quelle"')), "Vergleichstabelle vorübergehend nicht auf der Seite (Robin, 12.11.2026)");
+  const htmlV = werkzeugeUebersicht(lang, { vergleich: true });
+  const tabelle = htmlV.match(/<table class="wz-tabelle">[\s\S]*?<\/table>/)?.[0] || "";
   const zeilen = [...tabelle.matchAll(/<tr><th scope="row">([^<]*)<\/th>/g)].map(m => m[1].replace(/\u00AD/g, ""));
   check(anzahl(tabelle, /<th scope="col"/g) === 6 && zeilen.join("|") === t.zeilen.join("|") && !/>(Bereich|Area|Programme|Software|Status|Einführung und Schulung|Implementation and training)</.test(tabelle) && /Komplettlösung aus einer Hand|all-in-one suites/.test(tabelle) && tabelle.includes('class="wz-frei-spalte"') && anzahl(tabelle, /href="#partner"/g) === 1, "Vergleich: vier Werkzeuge (E-Rechnung lite seit 23.10.2026), „Ihr Produkt“, acht Kriterien nach der Recherche vom 18.10.2026, Weg zum Formular");
   check(anzahl(tabelle, /<td><\/td>/g) === 0 && anzahl(tabelle, /<span class="wz-th-stand">/g) === 4 && tabelle.includes(`<span class="wz-th-stand">${t.stand} 10/2026</span>`), "jede SmartFormular-Zelle gefüllt, Stand der Angaben im Kopf je Spalte");
   check(anzahl(tabelle, new RegExp(thKennz(t, "robin.vision").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 2 && anzahl(tabelle, new RegExp(`<span class="wz-th-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</span>`, "g")) === 1 && anzahl(tabelle, new RegExp(`<span class="wz-th-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</span>`, "g")) === 1 && anzahl(tabelle, /class="wz-th-kennz"/g) === 4 && !/wz-frei-spalte"><span class="wz-th-kennz/.test(tabelle), "Vergleich: FiBu und Deklaration mit „Anzeige · robin.vision“, FiBu lite und E-Rechnung lite mit „Kostenlos“, die Spalte „Ihr Produkt“ ohne");
   check(!/Testsieger|empfohlen|recommended|★|\b[1-5],[0-9] \/ 5\b/.test(tabelle), "keine Noten, Sterne oder Empfehlungen im Vergleich (§ 6 UWG)");
-  const quelle = html.match(/<\/table>\n<\/div>\n<p class="meta wz-quelle">([^<]*)<\/p>/)?.[1] || "";
+  const quelle = htmlV.match(/<\/table>\n<\/div>\n<p class="meta wz-quelle">([^<]*)<\/p>/)?.[1] || "";
   check(quelle === t.quelle, "unter dem Vergleich: Herkunft der Angaben und Reihenfolge, ohne Partner kein Satz zur Bezahlung");
-  check(html.indexOf('id="ueberblick"') < html.indexOf('id="vergleich"') && html.indexOf('id="vergleich"') < html.indexOf('id="workshops-hinweis"') && html.indexOf('id="workshops-hinweis"') < html.indexOf('id="partner"'), "Reihenfolge: Überblick, Vergleich, Workshops, Partner werden");
+  check(htmlV.indexOf('id="ueberblick"') < htmlV.indexOf('id="vergleich"') && htmlV.indexOf('id="vergleich"') < htmlV.indexOf('id="workshops-hinweis"') && htmlV.indexOf('id="workshops-hinweis"') < htmlV.indexOf('id="partner"'), "Reihenfolge: Überblick, Vergleich, Workshops, Partner werden");
   const form = html.match(/<form class="wz-form wz-kasten" id="partner-anfrage"[\s\S]*?<\/form>/)?.[0] || "";
   check(["firma", "name", "email", "produkt", "nachricht", "website"].every(n => form.includes(`name="${n}"`)) && !form.includes('name="bereich"') && form.includes('tabindex="-1"') && form.includes('role="status"'), "Formular „Partner werden“: Felder, Falle, Statuszeile");
   check(['<select id="p-fuer" name="fuer"><option value="">', '<select id="p-standort" name="standort"><option value="">'].every(x => form.includes(x)) && !/<select[^>]*required/.test(form) && anzahl(form, /<option>/g) === 9 && html.includes("d.fuer ? T.fuer") && html.includes("d.standort ? T.standort"), "Formular: zwei freiwillige Auswahlfelder (Für wen, Datenstandort), in der Nachricht an Robin");
@@ -83,7 +86,7 @@ PARTNER.push({ id: "probe", name: "Probe-Werkzeug", anbieter: "Probe GmbH", url:
   text: { de: "Ein Satz zum Werkzeug.", en: "One sentence on the tool." } });
 try {
   for (const lang of ["de", "en"]) {
-    const t = T[lang], html = werkzeugeUebersicht(lang), s = slider(lang);
+    const t = T[lang], html = werkzeugeUebersicht(lang, { vergleich: true }), s = slider(lang);
     const karte = (html.match(/<article class="wz-karte">[\s\S]*?<\/article>/g) || []).find(k => k.includes("Probe-Werkzeug")) || "";
     check(karte.includes("<h3>Probe-Werkzeug</h3>") && karte.startsWith(`<article class="wz-karte">\n${kennz(t, "wz-kennz", "Probe GmbH")}`) && karte.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"'), `${lang}: Partnerkarte wie alle anderen – gleiches Kennzeichen mit dem Anbieter, Verweis mit rel="sponsored"`);
     check(s.includes("<h3>Probe-Werkzeug</h3>") && s.includes(kennz(t, "wzs-kennz", "Probe GmbH", "#anzeigen")) && s.includes('href="https://example.org/" rel="sponsored noopener" target="_blank"') && !s.includes(t.platz) && !/wzs-bereich">Partner</.test((s.match(/<article class="wzs-karte">(?:(?!<\/article>)[\s\S])*?Probe-Werkzeug[\s\S]*?<\/article>/) || ["wzs-bereich\">Partner<"])[0]), `${lang}: Slider zeigt den Partner, ohne Anbieterkarte, mit Kennzeichen, ohne Bereich „Partner“`);
@@ -118,7 +121,7 @@ check(!startHtml.includes("grundsaetze") && !startHtml.includes("gs-karte"), "St
 check(/<section class="blog-teaser anbieter" id="anbieter"/.test(startHtml) && /data-i18n="anbieterText">[^<]*robin.vision vor\.</.test(startHtml) && /href="werkzeuge\/#partner" data-href-de="werkzeuge\/#partner" data-href-en="werkzeuge\/en\/#partner" data-i18n="anbieterKnopf">Partner werden</.test(startHtml), "Startseite: Hinweis für Anbieter mit „Partner werden“ (Option B)");
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
-  check(html.includes(grundsaetze(lang)) && html.includes(GRUNDSAETZE_CSS) && html.indexOf('class="grundsaetze"') < html.indexOf('id="vergleich"') && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="grundsaetze"') && (lang === "en" || html.includes("Klardaten nur in Werkzeuge")) && !html.includes("gs-karte"), `${lang}: zwei Grundsätze als ruhiger Block vor dem Vergleich, mit „Klardaten“ (Robin, 04.11.2026)`);
+  check(html.includes(grundsaetze(lang)) && html.includes(GRUNDSAETZE_CSS) && (html.indexOf('id="vergleich"') < 0 || html.indexOf('class="grundsaetze"') < html.indexOf('id="vergleich"')) && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="grundsaetze"') && (lang === "en" || html.includes("Klardaten nur in Werkzeuge")) && !html.includes("gs-karte"), `${lang}: zwei Grundsätze als ruhiger Block vor dem Vergleich, mit „Klardaten“ (Robin, 04.11.2026)`);
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen` : "\nAlles in Ordnung");
