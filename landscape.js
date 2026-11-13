@@ -206,7 +206,8 @@
   function prepare() {
     const root = document.documentElement;
     const wish = new URLSearchParams(location.search).get('landschaft');
-    if (wish === 'aus' || (!wish && document.body.dataset.landschaft === 'aus')) {
+    // Läuft auf den Unterseiten schon im <head> (worker/src/kopf.js): Dort gibt es noch kein <body>.
+    if (wish === 'aus' || (!wish && document.body && document.body.dataset.landschaft === 'aus')) {
       root.classList.add('landscape-off');
       return;
     }
