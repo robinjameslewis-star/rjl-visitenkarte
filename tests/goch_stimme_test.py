@@ -128,6 +128,10 @@ async def main():
                     await pump(0.25)
                 await pump(wait)
             async def real_click(selector, hold=0):  # echte Maus: Nutzergeste für Ton (iOS-artige Freischaltung)
+                # Groß ↔ Klein (13.11.2026): Sind „Goch hört“ und „Goch spricht“ beide an, wird das Fenster am Rechner von selbst zur
+                # Leiste. Braucht der Test ein Bedienelement, das nur das Fenster zeigt, wählt er wie ein Besucher zuerst „Groß“.
+                if await ev(f"(()=>{{const e=document.querySelector({json.dumps(selector)}),u=document.getElementById('goch-gross-klein'),g=document.getElementById('goch');return !!e&&!!u&&!!g&&g.contains(e)&&e!==u&&!e.getBoundingClientRect().width&&u.dataset.zu==='gross'&&document.documentElement.classList.contains('goch-zeile');}})()"):
+                    await ev("document.getElementById('goch-gross-klein').click()"); await pump(0.5)
                 box = await ev(f"(()=>{{const e=document.querySelector({json.dumps(selector)});e.scrollIntoView({{block:'center'}});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2];}})()")
                 ziel = await ev(f"(()=>{{const e=document.elementFromPoint({box[0]},{box[1]});const t=document.querySelector({json.dumps(selector)});return t.contains(e)?'':(e&&(e.id||e.className||e.tagName));}})()")
                 if ziel: print(f"       Hinweis: Klick auf {selector} trifft {ziel}")
@@ -267,7 +271,10 @@ async def main():
             statustext = lambda: ev("document.getElementById('goch-mikro-status').textContent")
             await real_click('#goch-mikro-an'); await pump(0.8)
             zz = await z()
-            check(await sichtbar('#goch-mikro') and zz['gum'] == 1 and zz['offen'] == 1, "Einschalten öffnet das Mikrofon einmal", zz)
+            # Seit 13.11.2026 (Groß ↔ Klein): Ist „Goch spricht“ schon an, wird das Fenster am Rechner jetzt zur Leiste – dort zeigt
+            # die Mikrofon-Taste der Leiste das offene Mikrofon an
+            leiste = await ev("document.documentElement.classList.contains('goch-zeile') && document.getElementById('goch-l-mikro').getAttribute('aria-pressed') === 'true' && document.getElementById('goch-l-mikro').getBoundingClientRect().width >= 44")
+            check((await sichtbar('#goch-mikro') or leiste) and zz['gum'] == 1 and zz['offen'] == 1, "Einschalten öffnet das Mikrofon einmal", zz)
             check(await zustand() == 'hoert' and (await statustext()).startswith('Sprechen Sie einfach') and await knopftext() == 'Pause', "Goch hört zu: Hinweis „Sprechen Sie einfach …“, Knopf „Pause“")
             check(neu_listen() == [], "ohne Sprache nichts gesendet")
             await shot("04_zuhoeren")

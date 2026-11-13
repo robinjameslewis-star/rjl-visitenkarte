@@ -176,6 +176,14 @@
   .goch-title small { font-size: 13px; color: var(--ink-soft); font-family: var(--sans); letter-spacing: 0; }
   .goch-close { border: 0; background: transparent; color: var(--ink-soft); font: 400 22px/1 var(--serif); cursor: pointer; padding: 2px 6px; margin: -4px -8px 0 0; }
   .goch-close:hover { color: var(--ink); }
+  /* Groß ↔ Klein (Robin, 13.11.2026, goch-gespraech.js): ein Umschalter links neben dem X – im Fenster wie in der Leiste */
+  .goch-um { display: inline-flex; align-items: center; gap: 4px; align-self: center; margin: -4px 0 0 auto; padding: 5px 11px 5px 8px; min-height: 32px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-soft); font: 400 13px/1 var(--sans); cursor: pointer; white-space: nowrap; }
+  .goch-um:hover { color: var(--ink); border-color: var(--copper); }
+  .goch-um:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+  .goch-um svg { flex: none; transition: transform .2s; }
+  .goch-um[data-zu="gross"] svg { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: reduce) { .goch-um svg { transition: none; } }
+  @media (max-width: 720px) { .goch-head { gap: 8px; } .goch-title { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } .goch-title small { font-size: 12px; } .goch-um { flex: none; } }
   .goch-close:focus-visible, .goch-starter:focus-visible, .goch-send:focus-visible, #goch-input:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
   .goch-log { overflow-y: auto; min-height: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
   .goch-bubble { margin: 0; max-width: 92%; padding: 8px 11px; border-radius: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -388,7 +396,7 @@
   /* Begleitzeile als Kapsel wie im Entwurf vom 11.11.2026 (Schritt 4c): eine Zeile links neben dem kleinen Goch – Mikrofon
      (Pause, Weiter zuhören, Fertig), „Goch“, letzter Satz, Schließen. Dieselben Knöpfe wie im Blatt, nur anders angeordnet;
      ein Tipp auf die Kapsel klappt das Blatt auf. Der Hinweis „KI · künstliche Stimme“ steht hier kurz als „KI“. */
-  html:is(.goch-unterwegs, .goch-zeile) .goch { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto; grid-template-rows: auto auto; align-content: center; align-items: center; gap: 0 8px;
+  html:is(.goch-unterwegs, .goch-zeile) .goch { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto auto; grid-template-rows: auto auto; align-content: center; align-items: center; gap: 0 8px;
     inset: auto clamp(96px, 25vw, 300px) calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px) + 6px) max(14px, env(safe-area-inset-left)); width: auto; max-width: 420px; min-height: 54px;
     padding: 4px 4px 4px 8px; border-radius: 27px; overflow: hidden; cursor: pointer; font-size: 13.5px; }
   html:is(.goch-unterwegs, .goch-zeile) .goch::after { display: none; }
@@ -396,7 +404,8 @@
   html:is(.goch-unterwegs, .goch-zeile) .goch-head::before { display: none; }
   html:is(.goch-unterwegs, .goch-zeile) .goch-title { grid-column: 2; grid-row: 1 / 3; margin: 0 0 0 4px; font-size: 17px; }
   html:is(.goch-unterwegs, .goch-zeile) .goch-title small { display: none; }
-  html:is(.goch-unterwegs, .goch-zeile) .goch-close { grid-column: 5; grid-row: 1 / 3; width: 44px; height: 44px; margin: 0; padding: 0; }
+  html:is(.goch-unterwegs, .goch-zeile) .goch-close { grid-column: 6; grid-row: 1 / 3; width: 44px; height: 44px; margin: 0; padding: 0; }
+  html:is(.goch-unterwegs, .goch-zeile) .goch-um { grid-column: 5; grid-row: 1 / 3; min-height: 44px; margin: 0; }
   html:is(.goch-unterwegs, .goch-zeile) .goch-ki { grid-column: 3; grid-row: 1 / 3; align-self: center; margin: 0; padding: 0; border: 0; font-size: 0; }
   html:is(.goch-unterwegs, .goch-zeile) .goch-ki::after { content: "KI"; font: 10px/1.6 var(--sans); letter-spacing: .06em; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: 1px 6px; }
   html:is(.goch-unterwegs, .goch-zeile) .goch-log { grid-column: 4; grid-row: 2; display: block; min-height: 0; margin: 0; padding: 0; overflow: hidden; }
@@ -439,12 +448,25 @@
       max-width: none; padding: 8px 6px 5px 12px; border-radius: 18px; }
     html.goch-unterwegs body .goch-mikro-status { grid-column: 1 / -1; grid-row: 1; }
     html.goch-unterwegs body .goch-log { grid-column: 1 / -1; grid-row: 2; }
-    html.goch-unterwegs body .goch-l-knopf:not([hidden]), html.goch-unterwegs body .goch-close, html.goch-unterwegs body .goch-ki { grid-row: 3; }
+    html.goch-unterwegs body .goch-l-knopf:not([hidden]), html.goch-unterwegs body .goch-close, html.goch-unterwegs body .goch-um { grid-row: 3; }
+    /* Vier Tasten zu 44 px füllen die untere Zeile (Lautsprecher, Mikrofon, Groß, X); „KI“ steht deshalb oben rechts neben dem Text */
+    html.goch-unterwegs body .goch-ki { grid-column: 1 / -1; grid-row: 1 / 3; justify-self: end; align-self: start; margin: 1px 4px 0 0; }
+    html.goch-unterwegs body .goch-mikro-status, html.goch-unterwegs body .goch-log { padding-right: 34px; }
+    html.goch-unterwegs body .goch { grid-template-columns: auto auto minmax(0, 1fr) auto auto; }
+    html.goch-unterwegs body .goch-um { grid-column: 4; justify-content: center; width: 44px; padding: 0; border-radius: 50%; }
+    html.goch-unterwegs body .goch-close { grid-column: 5; }
+    @media (max-width: 389px) { html.goch-unterwegs body .goch { column-gap: 2px; padding-left: 8px; padding-right: 4px; } } /* 360 und 375 px: Alle vier Tasten bleiben ganz im Bild */
+    html.goch-unterwegs body .goch-um span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    html.goch-unterwegs body .goch-um svg { width: 20px; height: 20px; }
     html.goch-unterwegs body .goch-l-knopf:not([hidden]) { margin-left: -6px; }
     html.goch-unterwegs body #goch-l-mikro:not([hidden]) { margin-left: 0; }
   }
   html.goch-unterwegs .goch-mini:not([hidden]), html.goch-zeile .goch-mini:not([hidden]) { bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)); }
-  @media (min-width: 721px) { html.goch-zeile body .goch { inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 4px) calc(20px + var(--goch-unten, 0px)) auto; width: min(420px, calc(100vw - 260px)); max-height: none; } }
+  @media (min-width: 721px) { html.goch-zeile body .goch { inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 4px) calc(20px + var(--goch-unten, 0px)) auto; width: min(420px, calc(100vw - 260px)); max-height: none; }
+    /* Kleine Form bei der Bühne (13.11.2026): Der große Goch sitzt im Bild, neben der Leiste sitzt kein kleiner – sie rückt an den
+       Rand. Nur dorthin gleitet sie; kommt der kleine Goch, macht sie ihm sofort Platz (sonst läge sie im Gleiten über seinem Ast). */
+    html.goch-zeile.goch-zeile-frei body .goch { right: 20px; transition: right .3s ease; } }
+  @media (prefers-reduced-motion: reduce) { html.goch-zeile.goch-zeile-frei body .goch { transition: none; } }
   /* Großer Goch am Handy sitzt direkt über dem Blatt (wie im Entwurf), nicht mehr fest am oberen Rand: weniger Luft zwischen
      Ast und Blatt. Die Höhe des Blatts kommt als --goch-blatt-h aus goch-gespraech.js. */
   @media (max-width: 720px) {
@@ -1220,14 +1242,14 @@
     zeigen();
   })();
 </script>
-<script src="language.js?v=20261129" defer></script>
+<script src="language.js?v=20261206" defer></script>
 <script src="site.js?v=20261016b" defer></script>
 <script src="goch.js?v=20261118" defer></script>
 <script src="goch-audio.js?v=20261106" defer></script>
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261116" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261129" defer></script>
+<script src="goch-gespraech.js?v=20261206" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>

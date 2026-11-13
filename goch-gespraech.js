@@ -12,6 +12,9 @@
 // es als festes Blatt unten rechts mit (html.goch-angeheftet), darüber der kleine Goch auf seinem Ast vom rechten Rand.
 // „Seite ansehen“ oder der Griff verkleinern es zur Zeile (html.goch-zeile), ein Tipp darauf klappt es wieder auf, ein Tipp
 // auf den kleinen Goch führt zurück zu Goch.
+// Groß ↔ Klein (Robin, 13.11.2026): Ein Umschalter links neben dem X, in beiden Formen an derselben Stelle des Fensters, am
+// Handy wie am Rechner. Am Rechner gibt es die kleine Form jetzt auch bei der Bühne (ohne kleinen Goch – der große sitzt ja
+// da); sind „Goch hört“ und „Goch spricht“ beide an, wird das Fenster dort von selbst klein, damit die Landschaft frei bleibt.
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -170,6 +173,9 @@
   new MutationObserver(miniPruefen).observe(html, { attributes: true, attributeFilter: ['class'] });
   // ---------- Breite Bildschirme: mitlaufendes Blatt ----------
   let breit = '', sichtbar = 1; // breit: '' | 'blatt' | 'zeile'; sichtbar: Anteil des großen Goch im Fenster
+  // wunsch: was für dieses Gespräch gewählt ist – 'klein' (Umschalter oder beide Sprachschalter an) hält die Leiste auch bei
+  // der Bühne, 'gross' (Umschalter, Tipp auf die Leiste) schaltet die Automatik ab. Nur im Arbeitsspeicher, endet mit dem X.
+  let wunsch = '';
   function breitSetzen(neu) {
     if (neu === breit) return;
     breit = neu;
@@ -185,7 +191,7 @@
   function breitPruefen() {
     if (schmal.matches || panel.hidden) { breitSetzen(''); return; }
     if (!breit && (sichtbar < .1 || fort)) breitSetzen(schreibt() ? 'blatt' : 'zeile'); // Goch ist aus dem Bild: Leiste (Robin, 12.11.2026), kein mitlaufendes Fenster
-    else if (breit && sichtbar > .5 && !fort) { breitSetzen(''); if (!gabeZurueck) grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
+    else if (breit && sichtbar > .5 && !fort && wunsch !== 'klein') { breitSetzen(''); if (!gabeZurueck) grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
   const hoehe = () => { if (breit || lage !== 'aus') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
@@ -223,6 +229,7 @@
   // ein Tipp auf die Zeile holt das Fenster zurück. Ob die Leiste steht, hängt nicht an den Schaltern: Wer in der Leiste
   // „Goch hört“ oder „Goch spricht“ schaltet, bleibt in der Leiste und an seiner Stelle der Seite.
   let wiederda = false, klein = false, eigenScroll = 0, scrollStart = 0, frage = false, frageZeile = false;
+  const stimmFrage = $('goch-stimme-consent');
   const stimmeAn = () => (modus.mikro && !modus.einmal) || modus.laut; // eine einzelne gesprochene Frage (einmal) vergrößert Goch nicht
   const eigen = () => { eigenScroll = performance.now(); };
   function pruefen() {
@@ -236,7 +243,14 @@
   }
   function aufklappen(fokus) {
     if (panel.hidden) return;
-    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') breitSetzen('blatt');
+    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') {
+      wunsch = 'gross';
+      if (sichtbar > .5 && !fort) { // bei der Bühne hängt das Fenster wieder an Gochs Ast; liegt sein Kopf über dem Fensterrand, rückt die Seite nach
+        breitSetzen('');
+        const oben = panel.getBoundingClientRect().top;
+        if (oben < 70) { eigen(); scrollBy({ top: oben - 90, behavior: ruhig.matches ? 'auto' : 'smooth' }); }
+      } else breitSetzen('blatt');
+    }
     scrollStart = scrollY;
     const feld = $('goch-input');
     if (fokus && feld && feld.offsetParent) feld.focus({ preventScroll: true }); // im selben Tipp, sonst öffnet iOS die Tastatur nicht
@@ -261,8 +275,46 @@
   leisteStand();
   if ($('goch-sprache')) new MutationObserver(leisteStand).observe($('goch-sprache'), { attributes: true, attributeFilter: ['hidden'] });
   window.addEventListener('site-languagechange', leisteStand);
+  // ---------- Groß ↔ Klein (Robin, 13.11.2026) ----------
+  // Ein Knopf, eine Stelle: links neben dem X, im Fenster wie in der Leiste. Er zeigt, wohin er führt („Klein“ / „Groß“).
+  const beide = () => !!modus.mikro && !modus.einmal && !!modus.laut;
+  const istKlein = () => lage === 'unterwegs' || breit === 'zeile';
+  const um = document.createElement('button');
+  um.type = 'button'; um.id = 'goch-gross-klein'; um.className = 'goch-um';
+  um.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg><span></span>';
+  { const zu = panel.querySelector('.goch-close'); if (zu) zu.before(um); else panel.prepend(um); }
+  function umStand() {
+    const k = istKlein();
+    um.dataset.zu = k ? 'gross' : 'klein';
+    um.lastChild.textContent = t(k ? 'gochGross' : 'gochKlein');
+    um.setAttribute('aria-label', t(k ? 'gochGrossLang' : 'gochKleinLang')); um.title = t(k ? 'gochGrossLang' : 'gochKleinLang');
+  }
+  function kleinMachen() {
+    if (panel.hidden || istKlein()) return;
+    wunsch = 'klein';
+    if (!schmal.matches) { breitSetzen('zeile'); return; }
+    vomScrollen = false;
+    if (lage === 'fokus') freigeben(); else einklappen();
+  }
+  um.addEventListener('click', e => {
+    e.stopPropagation(); // nicht der Tipp auf die Leiste
+    if (istKlein()) { wunsch = 'gross'; aufklappen(false); } else kleinMachen();
+  });
+  // Beide Sprachschalter an: Am Rechner genügt die Leiste – wer spricht und zuhört, braucht das Textfeld nicht, und die
+  // Landschaft bleibt frei. Einmal, im Augenblick des Einschaltens; wer danach „Groß“ wählt, behält das Fenster.
+  function vonSelbstKlein() {
+    const feld = $('goch-input');
+    // Wer gerade etwas ins Textfeld getippt hat, behält es; ein leeres Feld mit Fokus (nach „Senden“ mit Enter) hält nichts auf
+    if (schmal.matches || panel.hidden || wunsch === 'gross' || (schreibt() && feld && feld.value.trim()) || (stimmFrage && !stimmFrage.hidden)) return;
+    wunsch = 'klein'; breitSetzen('zeile');
+  }
+  // Sitzt neben der Leiste kein kleiner Goch (der große ist im Bild), rückt sie an den rechten Rand (html.goch-zeile-frei)
+  const freiStand = () => html.classList.toggle('goch-zeile-frei', breit === 'zeile' && (mini.hidden || mini.classList.contains('goch-mini-weg')));
+  new MutationObserver(freiStand).observe(mini, { attributes: true, attributeFilter: ['hidden', 'class'] });
+  new MutationObserver(() => { umStand(); freiStand(); }).observe(html, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(() => { if (panel.hidden) wunsch = ''; }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  window.addEventListener('site-languagechange', umStand);
   // Fragt „Goch hört“ zum ersten Mal nach der Einwilligung, braucht sie das Fenster
-  const stimmFrage = $('goch-stimme-consent');
   // (nur solange sie offen ist; danach steht wieder die Leiste, die Seite bleibt, wo sie war).
   if (stimmFrage) new MutationObserver(() => {
     if (!stimmFrage.hidden) {
@@ -307,7 +359,7 @@
       return a;
     },
   };
-  window.addEventListener('goch-modus', e => { modus = e.detail; leisteStand(); pruefen(); if (ohneGoch) zweigPruefen(); });
+  window.addEventListener('goch-modus', e => { const vorher = beide(); modus = e.detail; leisteStand(); pruefen(); if (!vorher && beide()) vonSelbstKlein(); if (ohneGoch) zweigPruefen(); });
   // Im Gesprächsmodus führt die Seite von selbst hin, während Goch spricht
   window.addEventListener('goch-antwort', e => { const z = e.detail && e.detail.zeigen; if (lage !== 'aus' && ZIELE.includes(z)) zeigen(z); });
   schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
@@ -616,5 +668,6 @@
   // ist beim Öffnen wieder da), sonst läge das Blatt beim Ankommen über der neuen Seite.
   modus = window.GochStimme.modus();
   if (!platz && window.Goch.wiederOffen && window.Goch.wiederOffen() && (!schmal.matches || modus.mikro || modus.laut)) { wiederda = schmal.matches; window.Goch.oeffnen(); }
-  pruefen(); breitPruefen(); zweigPruefen();
+  pruefen(); breitPruefen(); zweigPruefen(); umStand();
+  if (beide()) vonSelbstKlein(); // nach einem Seitenwechsel mit beiden Schaltern an: gleich als Leiste
 })();
