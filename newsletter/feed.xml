@@ -6,6 +6,26 @@
   <description>Impulse, Werkzeuge und Workshops per E-Mail</description>
   <language>de</language>
   <item>
+    <title>Regeln, die ein Agent einhalten kann</title>
+    <link>https://robin.vision/blog/regeln-die-ein-agent-einhalten-kann/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/regeln-die-ein-agent-einhalten-kann/</guid>
+    <pubDate>Fri, 13 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>„Sei vorsichtig“ ist keine Regel: Wie sich Regeln für Agenten mit SMART prüfbar schreiben lassen und wo es zusätzlich eine Sperre im System braucht.</strong></p>
+<p>Am 06.11.2026 sollte ein KI-Agent bei mir einen Link erst setzen, „wenn beide Seiten live sind“. Er sah mehrmals nach und setzte ihn nicht: Erst fehlten beide Seiten noch, dann stand unter der englischen Adresse für kurze Zeit der deutsche Text. Das war eine Panne beim Veröffentlichen. Der Agent hat sie nicht behoben, aber auch nicht auf eine falsche Seite verlinkt, und im Protokoll stand, warum.</p>
+<p>Das hat eine Bedingung bewirkt, die sich prüfen lässt. „Achte darauf, dass alles stimmt“ wäre Auslegungssache gewesen. Im letzten Impuls ging es um Budget und Ergebnis. Hier geht es darum, wie man so etwas aufschreibt, damit ein Agent sich daran halten und ein Mensch es nachprüfen kann.</p>
+<p><a href="https://robin.vision/blog/regeln-die-ein-agent-einhalten-kann/">Den ganzen Impuls lesen</a></p>
+<h3>Neu im SmartFormular E-Rechnung lite</h3>
+<p><em>Fassung cde559c vom 10. November 2026</em></p>
+<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
+<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Werkzeuge</h3>
+<p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Mehr zum Workshop</a></p>]]></description>
+  </item>
+  <item>
     <title>SmartFormular E-Rechnung lite: Fassung cde559c</title>
     <link>https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-cde559c</link>
     <guid isPermaLink="true">https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-cde559c</guid>
