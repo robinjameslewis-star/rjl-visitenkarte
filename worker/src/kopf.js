@@ -66,13 +66,14 @@ export const gochKopf = (up, tal = true, art = "", lang = "de") => {
   return `<div class="goch-kopf" id="goch-kopf"${tal ? "" : ' data-tal="aus"'}${t ? ` data-gruss="${attr(t[0])}" data-fragen="${attr(t[1].join("|"))}"` : ""}></div>`;
 };
 // Nachtfarben vor dem ersten Bild (Robin, 12.11.2026: Die Unterseiten zeigten nachts in der ersten Sekunde die Tagfarben).
-// Wie auf der Startseite: Die Palette steht im Stil der Seite, landscape.js lädt im Kopf, und das erste Skript im <body> ruft
-// prepare() – Sonnenstand und Farben stehen damit vor dem ersten Bild. NACHT_CSS ist wörtlich die Palette aus index.html
+// Die Palette steht im Stil der Seite, landscape.js lädt im Kopf und ruft dort gleich prepare() – Klasse und Farben stehen
+// am <html>, bevor es ein <body> gibt (13.11.2026: mit dem Aufruf erst im <body> hatte WebKit unter Last das <body> schon in
+// Tagfarben berechnet, ein Bild lang Tagpapier auf werkzeuge/). Das erste Skript im <body> ruft prepare() noch einmal. NACHT_CSS ist wörtlich die Palette aus index.html
 // (tests/site_test.mjs vergleicht beide); die Versionsangabe ist die der Startseite, damit der Browser die Datei nur einmal lädt.
 // Ohne landscape.js (Fehler, blockiert) bleibt die Seite in den Tagfarben. Bilder der Landschaft laden weiter erst nach dem
 // Laden der Seite (goch-seite.js).
-export const LANDSCHAFT_SKRIPT = "landscape.js?v=20261203";
-export const nachtKopf = up => `<script src="${up}${LANDSCHAFT_SKRIPT}"></script>\n`;
+export const LANDSCHAFT_SKRIPT = "landscape.js?v=20261205";
+export const nachtKopf = up => `<script src="${up}${LANDSCHAFT_SKRIPT}"></script>\n<script>window.RJLLandscape?.prepare();</script>\n`;
 export const NACHT_START = `<script>window.RJLLandscape?.prepare();</script>\n`;
 export const NACHT_CSS = `:root {
   --nacht: 0; --nacht-prozent: 0%;

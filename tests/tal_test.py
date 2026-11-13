@@ -217,7 +217,9 @@ async def main():
             oben = await s.js("(()=>{const b=[...document.querySelectorAll('main > section:not(.stage):not([hidden])')].find(x=>{const r=x.getBoundingClientRect();return r.top<innerHeight*.5&&r.bottom>0;});return b?getComputedStyle(b).transform:'kein';})()")
             pruefe(oben in ('none', 'matrix(1, 0, 0, 1, 0, 0)'), f'ein Blatt im Fenster steht an seinem Platz ({oben})')
             await s.scrolle(0); await asyncio.sleep(.6)
-            pruefe((await s.js(LAUB))['tief'] == w['tief'], 'zurückgescrollt: Was einmal herangerückt ist, bleibt')
+            # seit 13.11.2026 (Robin): Was das Fenster nach unten verlassen hat, sinkt zurück und rückt beim nächsten Mal erneut heran
+            z = (await s.js(LAUB))['tief']
+            pruefe(z == v['tief'], f'zurückgescrollt: Die Blätter unter dem Fenster stehen wieder in der Tiefe ({w["tief"]} → {z})')
             await s.oeffne('/?zeit=' + ZEITEN['winter-tag'], 3)
             v = await s.js(LAUB)
             pruefe(v['art'] == 'snow' and v['zahl'] == 12, f'Winter: Schnee statt Laub ({v["art"]}, {v["zahl"]})')

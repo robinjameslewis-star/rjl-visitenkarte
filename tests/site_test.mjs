@@ -82,7 +82,9 @@ const m1 = "figuren/goch/bilder/bestand/vogel.webp".match(pattern), m2 = "assets
 check(m1 && m1[1] === "figuren/goch/bilder/" && m1[2] === "vogel.webp" && m2 && m2[1] === "assets/" && m2[2] === "ast.webp", "Pfadmuster trennt Ordner und Dateinamen ab (Figurenpaket und assets/)");
 
 // Nachtfarben der Unterseiten vor dem ersten Bild (12.11.2026): Der Seitenrahmen trägt wörtlich die Palette der Startseite und
-// dieselbe Fassung von landscape.js; jede gebaute Seite mit Goch lädt sie im Kopf und ruft prepare() als Erstes im <body>.
+// dieselbe Fassung von landscape.js; jede gebaute Seite mit Goch lädt sie im Kopf und ruft prepare() gleich dort (seit 13.11.2026: Stehen die
+// Nachtfarben erst mit dem ersten Skript im <body>, hat WebKit das <body> unter Last schon in Tagfarben berechnet – ein Bild
+// lang Tagpapier auf werkzeuge/) und noch einmal als Erstes im <body>.
 {
   const { NACHT_CSS, LANDSCHAFT_SKRIPT, GOCH_SKRIPT } = await import("../worker/src/kopf.js");
   const glatt = t => t.replace(/\s+/g, " ").trim();
@@ -93,8 +95,8 @@ check(m1 && m1[1] === "figuren/goch/bilder/" && m1[2] === "vogel.webp" && m2 && 
   const seiten = execFileSync("git", ["grep", "-l", "goch-seite.js", "--", "*.html"], { cwd: root, encoding: "utf8" }).trim().split("\n").filter(f => f !== "index.html");
   const schlecht = seiten.filter(f => { const h = readFileSync(root + f, "utf8"), up = "../".repeat(f.split("/").length - 1);
     const kopf = h.slice(0, h.indexOf("</head>")), body = h.slice(h.indexOf("<body"));
-    return !(kopf.includes(`<script src="${up}${LANDSCHAFT_SKRIPT}"></script>`) && kopf.includes("--paper-night") && /^<body[^>]*>\n<script>window\.RJLLandscape\?\.prepare\(\);<\/script>/.test(body) && h.includes(`${up}${GOCH_SKRIPT}`)); });
-  check(seiten.length >= 26 && !schlecht.length, `alle ${seiten.length} Unterseiten mit Goch: Palette im Stil, landscape.js im Kopf, prepare() als Erstes im <body>`, schlecht.join(", "));
+    return !(kopf.includes(`<script src="${up}${LANDSCHAFT_SKRIPT}"></script>\n<script>window.RJLLandscape?.prepare();</script>`) && kopf.includes("--paper-night") && /^<body[^>]*>\n<script>window\.RJLLandscape\?\.prepare\(\);<\/script>/.test(body) && h.includes(`${up}${GOCH_SKRIPT}`)); });
+  check(seiten.length >= 26 && !schlecht.length, `alle ${seiten.length} Unterseiten mit Goch: Palette im Stil, landscape.js und prepare() im Kopf, prepare() auch als Erstes im <body>`, schlecht.join(", "));
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nStartseite und Schalter in Ordnung.");
