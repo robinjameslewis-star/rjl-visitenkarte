@@ -533,9 +533,15 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     }
     stueckFrames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
   }
+  let talBlaetter=[];
+  function talTiefe() {
+    const grenze=window.scrollY+innerHeight*.88, still=motion.matches;
+    talBlaetter.forEach(b=>{ let oben=0; for (let e=b; e; e=e.offsetParent) oben+=e.offsetTop; b.classList.toggle('tal-tief',!still && !b.hidden && oben>grenze); });
+  }
   function talDraw() {
     talWaiting=false;
     if (!tal) return;
+    talTiefe();
     const H=tal.offsetHeight||innerHeight, y=window.scrollY, room=Math.max(1,document.documentElement.scrollHeight-innerHeight);
     const end=stage.offsetTop+stage.offsetHeight, still=motion.matches;
     // Das Tal kommt früh herauf und wird dann ruhiger: Schon im ersten Drittel der Seite stehen Höhenzüge und Hang im Bild.
@@ -562,17 +568,14 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       window.addEventListener('resize',talDraw); motion.addEventListener('change',talDraw);
       if (talState) talLayers(talState);
       // Die Blätter der Seite rücken aus der Tiefe heran (Entwurf vom 11.11.2026): Was unter dem Fenster liegt, steht etwas
-      // tiefer und kleiner und kommt an seinen Platz, sobald es ins Fenster kommt. Seit 13.11.2026 bei jedem Herunterscrollen
-      // (Robin: nach dem ersten Mal zeigte die Seite „nicht mehr die neue tiefere landschaft“): Ein Blatt, das das Fenster nach
-      // unten ganz verlassen hat, sinkt unsichtbar wieder zurück und rückt beim nächsten Mal erneut heran. Was nach oben
-      // hinausgescrollt ist, bleibt an seinem Platz. Nur transform. Nicht bei reduzierter Bewegung.
-      if (!motion.matches && 'IntersectionObserver' in window) {
-        const fern=[...document.querySelectorAll('main > section:not(.stage)')].filter(b=>!b.hidden && b.getBoundingClientRect().top>innerHeight*.86);
-        const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.remove('tal-tief'); }),{rootMargin:'0px 0px -12% 0px'});
-        const unten=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting && !motion.matches && e.boundingClientRect.top>=(e.rootBounds?e.rootBounds.bottom:innerHeight)) e.target.classList.add('tal-tief'); }));
-        fern.forEach(b=>{ b.classList.add('tal-tief'); io.observe(b); unten.observe(b); });
-        motion.addEventListener('change',()=>{ if(motion.matches) fern.forEach(b=>b.classList.remove('tal-tief')); });
-      }
+      // tiefer und kleiner und kommt an seinen Platz, sobald es ins Fenster kommt. Seit 13.11.2026 hängt das allein von der
+      // Scrollposition ab (Robin: „von oben nach unten und von unten nach oben sowie beim erneuten hoch und runter scrollen
+      // immer den gleichen und logisch zusammenhängen eindruck“): Ein Blatt steht in der Tiefe, solange seine Oberkante unter
+      // 88 % der Fensterhöhe liegt – gemessen an seinem Platz im Dokument, nicht an der verschobenen Fläche. Herunter rückt es
+      // heran, hinauf sinkt es an derselben Stelle wieder zurück. Nur transform. Nicht bei reduzierter Bewegung.
+      talBlaetter=[...document.querySelectorAll('main > section:not(.stage)')];
+      motion.addEventListener('change',talTiefe);
+      talTiefe();
     };
     // Die Blätter stehen sofort (Klasse), die Bilder des Tals kommen nach dem ersten Bild der Seite.
     root.classList.add('tal-on');

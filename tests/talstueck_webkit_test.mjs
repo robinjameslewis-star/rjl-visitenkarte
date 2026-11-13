@@ -98,6 +98,30 @@ for (const [name, start] of [['WebKit', async () => stumm(await webkit.launch())
     check(anfang.tief > 0 && runden.every(x => x.unten.tief === 0 && x.oben.tief === anfang.tief), n + `die Blätter rücken bei jedem Durchgang wieder aus der Tiefe heran (${anfang.tief} Blätter)`, [anfang.tief, ...runden.map(x => [x.unten.tief, x.oben.tief])]);
     await ctx.close();
   }
+  // Nur die Scrollposition zählt (Robin 13.11.2026: „von oben nach unten und von unten nach oben sowie beim erneuten hoch und
+  // runter scrollen immer den gleichen und logisch zusammenhängen eindruck“; aufgefallen unter Windows am großen Bildschirm):
+  // An festen Stellen sind Deckkraft und Lage von Tal, Talstück, Ferne, Laub und Blättern gleich, egal ob man von oben kommt,
+  // von unten oder zum zweiten Mal – in Chrome auch mit der Skalierung von Windows (125 % und 150 %).
+  const GROESSEN = [[390, 844, 1], [1470, 956, 1], [1920, 1080, 1], ...(name === 'Chrome' ? [[1920, 1080, 1.25], [1920, 1080, 1.5], [2560, 1440, 1.25], [2560, 1440, 1.5], [1536, 864, 1.25], [1280, 720, 1.5]] : [])];
+  for (const [w, h, dsf] of GROESSEN) {
+    const ctx = await m.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dsf }); const p = await ctx.newPage(); const n = `${name}, ${w} px${dsf > 1 ? ' bei ' + dsf * 100 + ' %' : ''}: `;
+    await p.goto(basis + '?zeit=2026-11-13T11:00', { waitUntil: 'load' }); await p.waitForFunction(() => document.querySelector('.tal .tal-ebene img'), null, { timeout: 15000 }).catch(() => {}); await p.waitForTimeout(1200);
+    const stand = () => p.evaluate(() => { const t = document.querySelector('.tal'), s = document.querySelector('.tal-stueck'), r = x => Math.round(x * 2) / 2;
+      return JSON.stringify({ auf: t.style.getPropertyValue('--auf'), fern: t.querySelector('.tal-fern').style.opacity, laub: t.querySelector('.tal-laubfeld').style.opacity,
+        ebenen: [...t.querySelectorAll('.tal-ebene')].map(x => r(x.getBoundingClientRect().top) + '/' + getComputedStyle(x.querySelector('img')).opacity),
+        stueck: s.hidden ? 'aus' : r(s.getBoundingClientRect().top), blaetter: [...document.querySelectorAll('main > section:not(.stage)')].map(x => getComputedStyle(x).transform === 'none' ? '-' : 'T').join('') }); });
+    const nach = y => p.evaluate(async y => { const s = innerHeight * .45; for (let j = scrollY; j !== y;) { j = y > j ? Math.min(y, j + s) : Math.max(y, j - s); scrollTo(0, j); await new Promise(r => setTimeout(r, 60)); } await new Promise(r => setTimeout(r, 900)); }, y);
+    const ende = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight), stellen = [0, .5, 1, 1.3, 2.5].map(f => Math.round(h * f)), wege = {};
+    for (const weg of ['erstes Mal runter', 'von unten', 'zweites Mal runter', 'zweites Mal von unten']) {
+      if (/unten/.test(weg)) await nach(ende);
+      for (const y of /unten/.test(weg) ? [...stellen].reverse() : stellen) { await nach(y); (wege[y] ||= []).push(await stand()); }
+    }
+    const ungleich = stellen.filter(y => new Set(wege[y]).size > 1);
+    check(!ungleich.length, n + `an ${stellen.length} Stellen nach vier Wegen derselbe Zustand (von oben, von unten, zweimal)`, ungleich.map(y => ({ y, zustaende: [...new Set(wege[y])] })).slice(0, 2));
+    const b0 = JSON.parse(wege[0][0]).blaetter, b25 = JSON.parse(wege[stellen[4]][0]).blaetter;
+    check(b0.includes('T') && b25.split('T').length < b0.split('T').length, n + `die Blätter rücken heran und sinken an derselben Stelle zurück (${b0} → ${b25})`);
+    await ctx.close();
+  }
   await m.close();
 }
 console.log(fehler ? `\n${fehler} Prüfung(en) fehlgeschlagen` : '\nalle Prüfungen bestanden');
