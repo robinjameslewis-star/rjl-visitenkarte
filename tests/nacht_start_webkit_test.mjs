@@ -1,6 +1,7 @@
 // Unterseiten bei Nacht in WebKit: Jedes gemessene Bild der Seite steht in den Nachtfarben, auch nach Neuladen und nach „Zurück“.
 // PLAYWRIGHT=<Ordner mit node_modules/playwright-core> node tests/nacht_start_webkit_test.mjs http://127.0.0.1:8794/
 import { createRequire } from 'module';
+import { stumm } from './stumm.mjs';
 const { webkit } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
 const basis = process.argv[2] || 'http://127.0.0.1:8794/';
 let fehler = 0; const check = (ok, text) => { console.log((ok ? 'ok   ' : 'FEHLER ') + text); if (!ok) fehler++; };
@@ -17,7 +18,7 @@ const PROBE = () => {
 };
 const NACHT = 'rgb(27, 34, 48)', TAGGRUEN = 'rgb(11, 61, 46)';
 const gut = b => b.length > 0 && b.every(x => x[0] === NACHT && x[1] === 'multiply' && x[2] !== TAGGRUEN);
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 for (const [w, h] of [[390, 844], [1470, 956]]) {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, isMobile: w < 500, hasTouch: w < 500 });
   await ctx.addInitScript(PROBE);

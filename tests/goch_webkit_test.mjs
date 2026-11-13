@@ -6,6 +6,7 @@
 //   playwright-core mit WebKit (npx playwright install webkit). Ort von playwright-core über PLAYWRIGHT=/pfad/zum/ordner mit node_modules.
 //   node tests/goch_webkit_test.mjs http://127.0.0.1:8788/ http://127.0.0.1:8787
 import { createRequire } from "node:module";
+import { stumm } from "./stumm.mjs";
 const [seite = "http://127.0.0.1:8788/", attrappe = "http://127.0.0.1:8787"] = process.argv.slice(2);
 let webkit, devices;
 try { ({ webkit, devices } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
@@ -17,7 +18,7 @@ const q = "?goch=" + encodeURIComponent(attrappe + "/chat") + "&stimme=an&zwitsc
 const listen = () => fetch(attrappe + "/_listen").then(r => r.json()).then(a => a.length);
 const modus = m => fetch(attrappe + "/_modus?" + m);
 
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 async function seiteAuf() {
   const ctx = await b.newContext({ ...devices["iPhone 13"], viewport: { width: 390, height: 664 } });
   await ctx.addInitScript(() => {

@@ -2,10 +2,11 @@
 // Nebel aus – kein zweiter Kamm; nimmt keinen Platz, kein Sprung beim Laden, keine zusätzliche Anfrage.
 // PLAYWRIGHT=<Ordner mit node_modules/playwright-core> node tests/talstueck_webkit_test.mjs http://127.0.0.1:8794/
 import { createRequire } from 'module';
+import { stumm } from './stumm.mjs';
 const { webkit } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
 const basis = process.argv[2] || 'http://127.0.0.1:8794/';
 let fehler = 0; const check = (ok, text) => { console.log((ok ? 'ok   ' : 'FEHLER ') + text); if (!ok) fehler++; };
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 for (const [w, h] of [[390, 844], [1470, 956]]) {
   for (const zeit of ['2026-11-12T12:00', '2027-01-15T22:00', '2027-04-20T12:00', '2027-07-15T21:15']) {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, isMobile: w < 500, hasTouch: w < 500 });
