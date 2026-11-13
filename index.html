@@ -806,12 +806,16 @@
   }
   /* Das Tal liegt unter allem (z-index -1), main und Fuß bilden bewusst keine eigene Schicht: Goch, sein Gespräch und das
      Menü behalten so ihre Reihenfolge über den Blättern. */
-  /* Talstück (landscape.js): Höhenzüge im Dunst im freien Streifen vor dem ersten Blatt. Liegt im Dokument und scrollt mit,
-     über dem festen Tal und unter allem anderen; blendet ein, sobald das Bild da ist. Lage und Höhe setzt landscape.js. */
-  .tal-stueck { position: absolute; left: 0; width: 100%; z-index: -1; overflow: hidden; overflow: clip; pointer-events: none; opacity: 0; transition: opacity 1.6s; }
+  /* Talstück (landscape.js, „Bühne läuft aus“): Der Waldhang setzt unter der Bühne an und verliert sich nach unten im Nebel –
+     Maske, halbe Deckkraft und leichte Weichzeichnung; nachts etwas zurückgenommen, damit kein helles Band entsteht. Liegt im
+     Dokument und scrollt mit, über dem festen Tal und unter allem anderen; blendet ein, sobald das Bild da ist. Lage und Höhe
+     setzt landscape.js. */
+  .tal-stueck { position: absolute; left: 0; width: 100%; z-index: -1; overflow: hidden; overflow: clip; pointer-events: none; opacity: 0; transition: opacity 1.6s;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 20%, transparent 60%); mask-image: linear-gradient(to bottom, #000 0%, #000 20%, transparent 60%); }
   .tal-stueck.da { opacity: 1; }
   .tal-stueck[hidden] { display: none; }
-  .tal-stueck .tal-stueck-bild { top: 0; left: calc((100% - max(100%, 1000px)) * .62); width: max(100%, 1000px); transform: scaleX(-1); }
+  .tal-stueck .tal-stueck-bild { top: 0; left: calc((100% - max(100%, 1000px)) * .38); width: max(100%, 1000px); }
+  .tal-stueck .tal-stueck-bild img { opacity: calc(.6 - var(--nacht, 0) * .16); filter: blur(1.5px); }
   @media (prefers-reduced-motion: reduce) { .tal-stueck { transition: none; } }
   .tal-on footer { position: relative; }
   /* Gochs Sprechblase hängt am Ast und reicht unter die Bühne: Die Bühne liegt deshalb über den Blättern, sonst verdeckt das
@@ -868,7 +872,7 @@
   .wzs[hidden] { display: none; }
 </style>
 <!-- Die Anfangspalette muss vor dem ersten Seitenbild bekannt sein. Nur einmal laden. -->
-<script src="landscape.js?v=20261130"></script>
+<script src="landscape.js?v=20261201"></script>
 </head>
 <body data-chat-endpoint="https://goch.robin.vision/chat" data-contact-endpoint="https://goch.robin.vision/contact" data-newsletter-endpoint="https://goch.robin.vision/newsletter" data-landschaft="an" data-landschaft-satz="burgberg-herbst" data-tal="an" data-goch-signalton="figuren/goch/toene/zwitschern" data-goch-stimme="an" data-version="20261010">
 <script>window.RJLLandscape?.prepare();</script>

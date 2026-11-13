@@ -464,8 +464,8 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
         const far=picture(season,'ferne','(max-width:720px) 62vw, 616px','tal-burg') /* dieselbe Angabe wie die Bühne: das Bild liegt schon im Cache */; if (far) talFar.append(far);
         // Am Handy genügt die kleine Fassung (Dunst hinter den Blättern): spart dort rund 250 KB, auch bei dreifacher Pixeldichte.
         TAL.forEach(t=>{ const p=picture(season,t.kind,'(max-width:720px) 300px, max(100vw, 1000px)','tal-ebene'); if (p) { p.dataset.kind=t.kind; p.style.setProperty('--ax',t.ax); tal.append(p); } });
-        // Talstück vor dem ersten Blatt: dieselbe Datei wie die Höhenzüge darunter (schon geladen), gespiegelt.
-        if (talStueck) { const p=picture(season,'mitte','(max-width:720px) 300px, max(100vw, 1000px)','tal-stueck-bild'); if (p) { talStueck.append(p); if (season===state.to) { const da=()=>talStueck.classList.add('da'), img=p.querySelector('img'); if (img.complete) da(); else img.addEventListener('load',da,{once:true}); } } }
+        // Talstück vor dem ersten Blatt: dieselbe Datei wie der Hang des Tals darunter (schon geladen, keine weitere Anfrage).
+        if (talStueck) { const p=picture(season,'hang','(max-width:720px) 300px, max(100vw, 1000px)','tal-stueck-bild'); if (p) { talStueck.append(p); if (season===state.to) { const da=()=>talStueck.classList.add('da'), img=p.querySelector('img'); if (img.complete) da(); else img.addEventListener('load',da,{once:true}); } } }
       });
     }
     talFrames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
@@ -480,9 +480,12 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     }
     talDraw();
   }
-  // Talstück („Hang und Nebel“, Robin 12.11.2026): Im freien Streifen zwischen Bühne und erstem Blatt stehen Höhenzüge im Dunst.
-  // Es liegt im Dokument (scrollt ohne Skript mit), hinter Bühne und Blättern; der Kamm steht mittig im Streifen, der Dunst
-  // läuft hinter das erste Blatt. Nur wo es Bühne und Streifen gibt (Startseite). Platz nimmt es keinen: kein Sprung beim Laden.
+  // Talstück („Bühne läuft aus“, Robin 12.11.2026): Im freien Streifen zwischen Bühne und erstem Blatt läuft die Landschaft der
+  // Bühne nach unten aus – ein Waldhang als ihr Vordergrund, der gleich unter der Bühne beginnt und im Nebel hinter dem ersten
+  // Blatt verschwindet (Maske, Deckkraft und Weichzeichnung in index.html). Kein eigener Kamm: Der einzige Horizont bleibt der
+  // der Bühne. Die erste Fassung (Höhenzüge mittig im Streifen) wirkte wie ein zweites Tal über dem Tal.
+  // Es liegt im Dokument (scrollt ohne Skript mit), hinter Bühne und Blättern. Nur wo es Bühne und Streifen gibt (Startseite).
+  // Platz nimmt es keinen: kein Sprung beim Laden.
   let talStueck=null;
   function talStueckLage() {
     if (!talStueck) return;
@@ -490,8 +493,10 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     const frei=blatt?parseFloat(getComputedStyle(blatt).marginTop)-28:0; // 28 px: Das Blatt ragt über seinen Bereich hinaus
     talStueck.hidden=!(frei>=70);
     if (talStueck.hidden) return;
-    const breit=Math.max(root.clientWidth,1000), hoch=breit*349/900; // Seitenverhältnis der Talebenen; der Kamm liegt bei gut einem Viertel der Höhe
-    talStueck.style.top=(r.bottom+window.scrollY+frei/2-hoch*.235).toFixed(1)+'px';
+    const breit=Math.max(root.clientWidth,1000), hoch=breit*349/900; // Seitenverhältnis der Talebenen; die Baumkronen des Hangs beginnen bei knapp einem Zehntel der Höhe
+    // Die Kronen setzen kurz über dem Ende der Bühne an – aber nie hinter den Knöpfen (am Handy enden sie mit der Bühne).
+    const knopf=Math.max(0,...[...stage.querySelectorAll('.cta a')].map(a=>a.getBoundingClientRect().bottom));
+    talStueck.style.top=(Math.max(r.bottom-hoch*.12,knopf+10-hoch*.09)+window.scrollY).toFixed(1)+'px';
     talStueck.style.height=hoch.toFixed(1)+'px';
   }
   function talDraw() {
