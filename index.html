@@ -786,6 +786,24 @@
   }
   /* karten-nacht:aus */
   /* goch-seite:aus */
+  /* Dieselben kräftigeren Tafeln auf der Startseite (Robin, 13.11.2026: „Die kräftigeren Tafeln auch auf der Startseite
+     verwenden.“): Karten des Werkzeug-Sliders, Kasten zur Terminbuchung und Felder bekamen nachts bisher die Farbe des Blatts
+     und hoben sich nur durch eine dünne Linie ab. Jetzt dieselben Töne wie auf den Unterseiten (--karte-nacht, --marke-nacht,
+     --feld-nacht aus dem Block darüber), wieder vom Tageswert zum Nachtwert gemischt: Am Tag bleibt alles, wie es ist. */
+  @supports (color: color-mix(in srgb, white, black)) {
+    .landscape-on body:not([data-goch-seite]) .wzs-karte { background: color-mix(in srgb, rgba(255,255,255,.6), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) #werkzeuge li:not(.sf-karte):not(.wzs-karte) { background: color-mix(in srgb, rgba(255,255,255,.45), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) main > section:not(.stage) .consent-banner { background: color-mix(in srgb, var(--surface), var(--karte-nacht) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) :is(.wzs-karte, #werkzeuge li:not(.sf-karte), main > section:not(.stage) .consent-banner) {
+      border-top-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); border-right-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); border-bottom-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent));
+      box-shadow: 0 16px 30px -18px rgba(0, 0, 0, calc(var(--nacht, 0) * .7)); }
+    .landscape-on body:not([data-goch-seite]) :is(.wzs-karte, #werkzeuge li:not(.sf-karte)) { border-left-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) .wzs-logo:not(.wzs-logo-sf) { background: color-mix(in srgb, rgba(255,255,255,.7), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #8A96AB var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-muted), var(--ink) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) .wzs-pfeil { background: color-mix(in srgb, rgba(255,255,255,.7), var(--marke-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) .message :is(input, textarea) { background-color: color-mix(in srgb, var(--surface), var(--feld-nacht) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) .message :is(input, textarea):not(:focus-visible) { border-color: color-mix(in srgb, var(--line), #6B778C var(--nacht-prozent)); } /* der Kupferrand beim Fokus bleibt */
+    .landscape-on body:not([data-goch-seite]) .wzs-karte .wzs-kennz { color: var(--ink-muted); } /* wie auf den Unterseiten: folgt Tag, Dämmerung und Nacht lesbar */
+  }
   /* Das Tal liegt unter allem (z-index -1), main und Fuß bilden bewusst keine eigene Schicht: Goch, sein Gespräch und das
      Menü behalten so ihre Reihenfolge über den Blättern. */
   /* Talstück (landscape.js, „Bühne läuft aus“): Der Waldhang setzt unter der Bühne an und verliert sich nach unten im Nebel –

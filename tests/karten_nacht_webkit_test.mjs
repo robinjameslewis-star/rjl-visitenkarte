@@ -6,7 +6,7 @@
 import { createRequire } from 'module';
 const { webkit } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
 const basis = process.argv[2] || 'http://127.0.0.1:8794/', nurListe = process.argv[3] === 'liste';
-const SEITEN = ['', 'werkzeuge/', 'werkzeuge/en/', 'workshops/', 'workshops/ki-kompetenz/', 'workshops/e-rechnung/', 'ueber-mich/', 'about/', 'blog/', 'blog/das-ende-des-erp/'];
+const SEITEN = process.env.NUR ? process.env.NUR.split(',') : ['', 'werkzeuge/', 'werkzeuge/en/', 'workshops/', 'workshops/ki-kompetenz/', 'workshops/e-rechnung/', 'ueber-mich/', 'about/', 'blog/', 'blog/das-ende-des-erp/'];
 const ZEITEN = { Nacht: '2026-11-12T23:30', 'Späte Dämmerung': '2026-11-12T17:35', Dämmerung: '2026-11-12T17:05', Tag: '2026-11-12T12:30' };
 let fehler = 0; const check = (ok, text) => { console.log((ok ? 'ok   ' : 'FEHLER ') + text); if (!ok) fehler++; };
 const MESSEN = () => {
@@ -59,6 +59,24 @@ for (const [w, h] of [[390, 844], [1470, 956]]) for (const [name, zeit] of Objec
     if (nurListe && aus.length) console.log('     ' + kurz.map(a => `${a.wo} ${a.k}`).join(' | '));
     await p.close();
   }
+  await ctx.close();
+}
+// Startseite (Robin, 13.11.2026: „Die kräftigeren Tafeln auch auf der Startseite verwenden.“): Karten, Kasten und Felder tragen
+// nachts dieselben Töne wie auf den Unterseiten und heben sich vom Blatt ab; am Tag sind sie unverändert.
+if (!nurListe) for (const [w, h] of [[390, 844], [1470, 956]]) {
+  const ctx = await b.newContext({ viewport: { width: w, height: h }, isMobile: w < 500, reducedMotion: 'reduce' });
+  const farben = async (seite, zeit, wahl) => { const p = await ctx.newPage(); await p.goto(basis + seite + '?zeit=' + zeit, { waitUntil: 'load' });
+    await p.waitForFunction(() => document.documentElement.classList.contains('tal-on'), null, { timeout: 12000 }).catch(() => {}); await p.waitForTimeout(2600);
+    const r = await p.evaluate(wahl => { const fl = document.createElement('canvas'); fl.width = fl.height = 1; const zf = fl.getContext('2d', { willReadFrequently: true });
+      const rgba = f => { zf.clearRect(0, 0, 1, 1); zf.fillStyle = 'rgba(0,0,0,0)'; zf.fillStyle = f; zf.fillRect(0, 0, 1, 1); return [...zf.getImageData(0, 0, 1, 1).data].join(','); };
+      return Object.fromEntries(Object.entries(wahl).map(([k, sel]) => { const e = document.querySelector(sel); if (!e) return [k, null]; const g = getComputedStyle(e); return [k, { flaeche: rgba(g.backgroundColor), rand: rgba(g.borderTopColor), schatten: g.boxShadow !== 'none' && !/rgba\(0, 0, 0, 0\)/.test(g.boxShadow) }]; })); }, wahl);
+    await p.close(); return r; };
+  const START = { karte: '.wzs-karte', kasten: 'main > section:not(.stage) .consent-banner', feld: '.message input', pfeil: '.wzs-pfeil', blatt: '#werkzeuge' };
+  const nacht = await farben('', ZEITEN.Nacht, START), unter = await farben('werkzeuge/', ZEITEN.Nacht, { karte: '.wz-karte', feld: '.wz-form input' }), tag = await farben('', ZEITEN.Tag, START);
+  check(nacht.karte && unter.karte && nacht.karte.flaeche === unter.karte.flaeche && nacht.karte.rand === unter.karte.rand, `${w} px Startseite Nacht: Karten in denselben Tönen wie auf den Unterseiten (${nacht.karte && nacht.karte.flaeche})`);
+  check(nacht.kasten && nacht.kasten.flaeche === nacht.karte.flaeche && nacht.karte.schatten && nacht.kasten.schatten, `${w} px Startseite Nacht: Kasten zur Terminbuchung wie die Karten, mit Schatten`);
+  check(nacht.feld && unter.feld && nacht.feld.flaeche === unter.feld.flaeche && nacht.feld.flaeche !== nacht.karte.flaeche, `${w} px Startseite Nacht: Felder dunkel wie auf den Unterseiten (${nacht.feld && nacht.feld.flaeche})`);
+  check(tag.karte && tag.karte.flaeche === '255,255,255,153' && !tag.karte.schatten && tag.pfeil.flaeche === '255,255,255,179', `${w} px Startseite Tag: Karten und Pfeile unverändert (${tag.karte && tag.karte.flaeche})`);
   await ctx.close();
 }
 await b.close();
