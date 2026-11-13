@@ -562,12 +562,15 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       window.addEventListener('resize',talDraw); motion.addEventListener('change',talDraw);
       if (talState) talLayers(talState);
       // Die Blätter der Seite rücken aus der Tiefe heran (Entwurf vom 11.11.2026): Was unter dem Fenster liegt, steht etwas
-      // tiefer und kleiner und kommt an seinen Platz, sobald es ins Fenster kommt – einmal, nicht wieder zurück. Nur transform.
-      // Nicht bei reduzierter Bewegung.
+      // tiefer und kleiner und kommt an seinen Platz, sobald es ins Fenster kommt. Seit 13.11.2026 bei jedem Herunterscrollen
+      // (Robin: nach dem ersten Mal zeigte die Seite „nicht mehr die neue tiefere landschaft“): Ein Blatt, das das Fenster nach
+      // unten ganz verlassen hat, sinkt unsichtbar wieder zurück und rückt beim nächsten Mal erneut heran. Was nach oben
+      // hinausgescrollt ist, bleibt an seinem Platz. Nur transform. Nicht bei reduzierter Bewegung.
       if (!motion.matches && 'IntersectionObserver' in window) {
         const fern=[...document.querySelectorAll('main > section:not(.stage)')].filter(b=>!b.hidden && b.getBoundingClientRect().top>innerHeight*.86);
-        const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.remove('tal-tief'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -12% 0px'});
-        fern.forEach(b=>{ b.classList.add('tal-tief'); io.observe(b); });
+        const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.remove('tal-tief'); }),{rootMargin:'0px 0px -12% 0px'});
+        const unten=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting && !motion.matches && e.boundingClientRect.top>=(e.rootBounds?e.rootBounds.bottom:innerHeight)) e.target.classList.add('tal-tief'); }));
+        fern.forEach(b=>{ b.classList.add('tal-tief'); io.observe(b); unten.observe(b); });
         motion.addEventListener('change',()=>{ if(motion.matches) fern.forEach(b=>b.classList.remove('tal-tief')); });
       }
     };

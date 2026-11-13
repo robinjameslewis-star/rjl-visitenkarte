@@ -80,6 +80,22 @@ for (const [name, start] of [['WebKit', async () => stumm(await webkit.launch())
     check(unten.auf === 1 && unten.ebene === 1, n + 'ein knappes Drittel der Fensterhöhe später steht das Tal ganz', unten);
     await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(400); const wieder = await sicht();
     check(wieder.auf === 0 && wieder.ebene === 0, n + 'zurück am Seitenanfang ist das Tal wieder verborgen');
+    // Mehrmals hin und her (Robin 13.11.2026: nach dem ersten Mal zeigte die Seite „nicht mehr die neue tiefere landschaft“):
+    // Bei jedem Herunterscrollen kommt das Tal wieder herauf und die Blätter rücken wieder aus der Tiefe heran; oben ist das
+    // Tal jedes Mal wieder verborgen und die Blätter unter dem Fenster stehen wieder in der Tiefe.
+    const lage = () => p.evaluate(() => { const t = document.querySelector('.tal'); return { auf: +t.style.getPropertyValue('--auf'), ebene: Math.max(...[...t.querySelectorAll('.tal-ebene img')].map(i => +getComputedStyle(i).opacity)), sichtbar: [...t.querySelectorAll('.tal-ebene')].some(e => e.getBoundingClientRect().top < innerHeight - 20), tief: document.querySelectorAll('.tal-tief').length }; });
+    // schrittweise wie mit dem Mausrad (ein Sprung ans Seitenende ließe die mittleren Blätter nie ins Fenster kommen)
+    const fahrt = runter => p.evaluate(async runter => { const ende = document.documentElement.scrollHeight - innerHeight, schritt = innerHeight * .45;
+      for (let y = scrollY; runter ? y < ende : y > 0;) { y = runter ? Math.min(ende, y + schritt) : Math.max(0, y - schritt); scrollTo(0, y); await new Promise(r => setTimeout(r, 70)); } }, runter);
+    const anfang = await lage(), runden = [];
+    for (let r = 1; r <= 4; r++) {
+      await fahrt(true); await p.waitForTimeout(450); const u = await lage();
+      await fahrt(false); await p.waitForTimeout(450); const o = await lage();
+      runden.push({ r, unten: u, oben: o });
+    }
+    check(runden.every(x => x.unten.auf === 1 && x.unten.ebene === 1 && x.unten.sichtbar), n + 'viermal runter: das Tal steht jedes Mal wieder im Bild', runden.map(x => x.unten));
+    check(runden.every(x => x.oben.auf === 0 && x.oben.ebene === 0), n + 'viermal hoch: das Tal ist oben jedes Mal wieder verborgen', runden.map(x => x.oben));
+    check(anfang.tief > 0 && runden.every(x => x.unten.tief === 0 && x.oben.tief === anfang.tief), n + `die Blätter rücken bei jedem Durchgang wieder aus der Tiefe heran (${anfang.tief} Blätter)`, [anfang.tief, ...runden.map(x => [x.unten.tief, x.oben.tief])]);
     await ctx.close();
   }
   await m.close();
