@@ -243,7 +243,14 @@
   }
   function aufklappen(fokus) {
     if (panel.hidden) return;
-    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') { wunsch = 'gross'; breitSetzen(sichtbar > .5 && !fort ? '' : 'blatt'); } // bei der Bühne hängt das Fenster wieder an Gochs Ast
+    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') {
+      wunsch = 'gross';
+      if (sichtbar > .5 && !fort) { // bei der Bühne hängt das Fenster wieder an Gochs Ast; liegt sein Kopf über dem Fensterrand, rückt die Seite nach
+        breitSetzen('');
+        const oben = panel.getBoundingClientRect().top;
+        if (oben < 70) { eigen(); scrollBy({ top: oben - 90, behavior: ruhig.matches ? 'auto' : 'smooth' }); }
+      } else breitSetzen('blatt');
+    }
     scrollStart = scrollY;
     const feld = $('goch-input');
     if (fokus && feld && feld.offsetParent) feld.focus({ preventScroll: true }); // im selben Tipp, sonst öffnet iOS die Tastatur nicht
@@ -296,7 +303,9 @@
   // Beide Sprachschalter an: Am Rechner genügt die Leiste – wer spricht und zuhört, braucht das Textfeld nicht, und die
   // Landschaft bleibt frei. Einmal, im Augenblick des Einschaltens; wer danach „Groß“ wählt, behält das Fenster.
   function vonSelbstKlein() {
-    if (schmal.matches || panel.hidden || wunsch === 'gross' || schreibt() || (stimmFrage && !stimmFrage.hidden)) return;
+    const feld = $('goch-input');
+    // Wer gerade etwas ins Textfeld getippt hat, behält es; ein leeres Feld mit Fokus (nach „Senden“ mit Enter) hält nichts auf
+    if (schmal.matches || panel.hidden || wunsch === 'gross' || (schreibt() && feld && feld.value.trim()) || (stimmFrage && !stimmFrage.hidden)) return;
     wunsch = 'klein'; breitSetzen('zeile');
   }
   // Sitzt neben der Leiste kein kleiner Goch (der große ist im Bild), rückt sie an den rechten Rand (html.goch-zeile-frei)

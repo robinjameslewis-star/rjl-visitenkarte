@@ -462,10 +462,11 @@
     html.goch-unterwegs body #goch-l-mikro:not([hidden]) { margin-left: 0; }
   }
   html.goch-unterwegs .goch-mini:not([hidden]), html.goch-zeile .goch-mini:not([hidden]) { bottom: calc(max(10px, env(safe-area-inset-bottom)) + var(--goch-unten, 0px)); }
-  @media (min-width: 721px) { html.goch-zeile body .goch { inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 4px) calc(20px + var(--goch-unten, 0px)) auto; width: min(420px, calc(100vw - 260px)); max-height: none; transition: right .3s ease; }
-    /* Kleine Form bei der Bühne (13.11.2026): Der große Goch sitzt im Bild, neben der Leiste sitzt kein kleiner – sie rückt an den Rand */
-    html.goch-zeile.goch-zeile-frei body .goch { right: 20px; } }
-  @media (prefers-reduced-motion: reduce) { html.goch-zeile body .goch { transition: none; } }
+  @media (min-width: 721px) { html.goch-zeile body .goch { inset: auto calc(clamp(180px, 22vw, 230px) * .74 + 2vw + 4px) calc(20px + var(--goch-unten, 0px)) auto; width: min(420px, calc(100vw - 260px)); max-height: none; }
+    /* Kleine Form bei der Bühne (13.11.2026): Der große Goch sitzt im Bild, neben der Leiste sitzt kein kleiner – sie rückt an den
+       Rand. Nur dorthin gleitet sie; kommt der kleine Goch, macht sie ihm sofort Platz (sonst läge sie im Gleiten über seinem Ast). */
+    html.goch-zeile.goch-zeile-frei body .goch { right: 20px; transition: right .3s ease; } }
+  @media (prefers-reduced-motion: reduce) { html.goch-zeile.goch-zeile-frei body .goch { transition: none; } }
   /* Großer Goch am Handy sitzt direkt über dem Blatt (wie im Entwurf), nicht mehr fest am oberen Rand: weniger Luft zwischen
      Ast und Blatt. Die Höhe des Blatts kommt als --goch-blatt-h aus goch-gespraech.js. */
   @media (max-width: 720px) {

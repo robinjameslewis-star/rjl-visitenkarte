@@ -47,7 +47,7 @@ async function reihe(name, b, handy) {
     const g = document.getElementById("goch"), r = g.getBoundingClientRect(), d = document.documentElement, um = document.getElementById("goch-gross-klein"), x = document.getElementById("goch-close");
     const u = um.getBoundingClientRect(), c = x.getBoundingClientRect(), m = document.getElementById("goch-mini"), s = document.getElementById("scene").getBoundingClientRect();
     const zu = e => { const q = e.getBoundingClientRect(); return getComputedStyle(e).display !== "none" && q.width > 0; };
-    const drin = q => q.width > 0 && q.left >= r.left - .5 && q.right <= r.right + .5 && q.top >= r.top - .5 && q.bottom <= r.bottom + .5 && q.left >= 0 && q.right <= innerWidth + .5 && q.bottom <= innerHeight + .5;
+    const drin = q => q.width > 0 && q.left >= r.left - .5 && q.right <= r.right + .5 && q.top >= r.top - .5 && q.bottom <= r.bottom + .5 && q.left >= 0 && q.top >= 0 && q.right <= innerWidth + .5 && q.bottom <= innerHeight + .5;
     const oben = (e, q) => { const t = document.elementFromPoint(q.left + q.width / 2, q.top + q.height / 2); return !!t && (t === e || e.contains(t)); };
     const tasten = ["goch-l-laut", "goch-l-mikro", "goch-gross-klein", "goch-close"].map(id => { const e = document.getElementById(id), q = e.getBoundingClientRect(); return { id, w: Math.round(q.width), h: Math.round(q.height), drin: drin(q), oben: zu(e) && oben(e, q) }; });
     return { klasse: (d.className.match(/goch-(unterwegs|zeile-frei|zeile|fokus|angeheftet|oben)\b/g) || []).join(" "), zu: g.hidden, y: Math.round(scrollY),
@@ -109,7 +109,9 @@ async function reihe(name, b, handy) {
 
   console.log(`${name}, Rechner 1470: „Goch hört“ und „Goch spricht“`);
   { const { p, ctx } = await auf(1470);
-    await fragen(p);
+    // Robins Weg: Frage tippen, mit Enter senden (der Fokus bleibt im Textfeld), dann beide Schalter
+    await p.locator("#goch-input").click(); await p.keyboard.type("Was gibt's Neues?"); await p.keyboard.press("Enter"); await p.waitForTimeout(2200);
+    check(await p.evaluate(() => document.activeElement && document.activeElement.id) === "goch-input", "nach Enter steht der Fokus noch im Textfeld");
     await stimme(p, ["#goch-mikro-an"]);
     let s = await stand(p);
     check(!s.klein && s.mikro === "true", "nur „Goch hört“: Das Fenster bleibt groß", s.klasse);
@@ -130,6 +132,26 @@ async function reihe(name, b, handy) {
     check(!s.klein && s.laut === "true", "wer „Groß“ gewählt hat, behält das Fenster auch beim erneuten Einschalten", s.klasse);
     check(s.m.beide === 0, "in keinem Bild zwei Gochs", s.m);
     check(!p.fehler.length, "keine Skriptfehler", p.fehler);
+    await ctx.close(); }
+
+  console.log(`${name}, Rechner 1470: „Groß“ bei halb gescrollter Bühne`);
+  { const { p, ctx } = await auf(1470);
+    await fragen(p);
+    let s = await um(p);
+    await rollen(p, 90); await p.waitForTimeout(500);
+    s = await um(p); await p.waitForTimeout(900); s = await stand(p);
+    check(!s.klein && s.um.drin && s.tasten[3].drin, "90 px gescrollt: Das große Fenster ist mit Umschalter und X ganz im Bild", { y: s.y, r: s.r });
+    // Goch spricht gerade (er fliegt dann nicht hinunter), die Bühne ist halb aus dem Bild
+    await um(p);
+    await p.evaluate(() => { const sz = document.getElementById("scene"); window.__halt = new MutationObserver(() => { if (sz.dataset.state !== "talk") sz.dataset.state = "talk"; }); sz.dataset.state = "talk"; window.__halt.observe(sz, { attributes: true, attributeFilter: ["data-state"] }); });
+    await rollen(p, 300); await p.waitForTimeout(700);
+    s = await stand(p);
+    if (s.klein && s.gross && !s.mini) {
+      s = await um(p); await p.waitForTimeout(1200); s = await stand(p);
+      check(!s.klein && s.um.drin && s.tasten[3].drin && s.feld, "300 px gescrollt, Goch noch oben: „Groß“ zeigt das Fenster mit Umschalter und X im Bild", { y: s.y, r: s.r, klasse: s.klasse });
+    } else console.log("  –    Lage „halb gescrollt, Goch oben“ ließ sich nicht herstellen", s.klasse);
+    await p.evaluate(() => window.__halt.disconnect());
+    check(s.m.beide === 0 && !p.fehler.length, "nie zwei Gochs, keine Skriptfehler", [s.m, p.fehler]);
     await ctx.close(); }
 
   console.log(`${name}, Rechner 1470: Einwilligung für die Stimme aus der kleinen Form`);
