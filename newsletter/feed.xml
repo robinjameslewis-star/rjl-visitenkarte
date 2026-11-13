@@ -14,10 +14,24 @@
 <p>Am 06.11.2026 sollte ein KI-Agent bei mir einen Link erst setzen, „wenn beide Seiten live sind“. Er sah mehrmals nach und setzte ihn nicht: Erst fehlten beide Seiten noch, dann stand unter der englischen Adresse für kurze Zeit der deutsche Text. Das war eine Panne beim Veröffentlichen. Der Agent hat sie nicht behoben, aber auch nicht auf eine falsche Seite verlinkt, und im Protokoll stand, warum.</p>
 <p>Das hat eine Bedingung bewirkt, die sich prüfen lässt. „Achte darauf, dass alles stimmt“ wäre Auslegungssache gewesen. Im letzten Impuls ging es um Budget und Ergebnis. Hier geht es darum, wie man so etwas aufschreibt, damit ein Agent sich daran halten und ein Mensch es nachprüfen kann.</p>
 <p><a href="https://robin.vision/blog/regeln-die-ein-agent-einhalten-kann/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
+<h3>Werkzeuge</h3>
+<p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
+<h3>Workshops</h3>
+<p>KI-Kompetenz für Ihr Team, mit Unterweisung nach EU AI Act: Workshop, Online-Lehrgang, Test mit Zertifikat. Termine für 2027 auf Anfrage.</p>
+<p><a href="https://robin.vision/workshops/">Mehr zum Workshop</a></p>]]></description>
+  </item>
+  <item>
+    <title>SmartFormular FiBu lite: Fassung 4ffc0c9</title>
+    <link>https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-4ffc0c9</link>
+    <guid isPermaLink="true">https://robin.vision/werkzeuge/buchungsstapel-generator/#fassung-4ffc0c9</guid>
+    <pubDate>Fri, 13 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -76,10 +90,10 @@
 <p>Ende Oktober habe ich einem KI-Agenten drei Aufträge für meine eigene Website gegeben. Er verteilte die Arbeit selbständig auf viele Unteragenten, Prüfer und Gegenprüfer. In einer Woche waren zweimal das Kontingent eines Modells und das Wochenlimit meines Abos aufgebraucht. In einem Lauf lieferten von 40 Unteragenten zwei ein Ergebnis. Die Fehler, die am Ende zählten, hätte nach meiner Einschätzung auch eine gezielte Einzelprüfung gefunden. Das lag nicht am Anbieter: Ich hatte weder ein Budget noch ein Ergebnis festgelegt.</p>
 <p>Bei einem Agenten kostet nicht die einzelne Frage, sondern der Ablauf, den er selbst wählt: Schritte, Wiederholungen, parallele Unteragenten, Neustarts. Ohne Grenze wächst der Verbrauch, der Nutzen nicht unbedingt. Das ist eine Controlling-Aufgabe wie bei jedem anderen Dienstleister.</p>
 <p><a href="https://robin.vision/blog/agenten-brauchen-ein-budget/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -179,10 +193,10 @@
     <description><![CDATA[<p><strong>Nicht jede Aufgabe braucht einen KI-Agenten: Wer Software auswählt, sollte zuerst fragen, was sie selbst entscheidet – und wo sie anhält.</strong></p>
 <p>Drei Arten von Software werden gerade gern in einen Topf geworfen. Eine Automatisierung führt feste Regeln aus: gleiche Eingabe, gleiches Ergebnis. Sie ist schnell und prüfbar, kennt aber nur, was jemand vorher festgelegt hat. Ein Assistent beantwortet Fragen und macht Vorschläge; entscheiden und handeln tut der Mensch. Ein Agent dagegen verfolgt ein Ziel, entscheidet selbst über den nächsten Schritt und führt ihn aus – auch dort, wo keine Regel vorgegeben ist.</p>
 <p><a href="https://robin.vision/blog/agent-automatisierung-oder-assistent/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -213,10 +227,10 @@
 <p>Ich habe das Handwerk am Kontieren von Ein- und Ausgangsrechnungen gelernt, am Zahlungsverkehr und an der Kontenabstimmung. Heute baue ich Werkzeuge, die einen Teil genau dieser Arbeit automatisieren.</p>
 <p>Gleichzeitig suchen Kanzleien Personal und finden es nicht. Nach der STAX-Befragung der Bundessteuerberaterkammer (2024, Bezugsjahr 2023) konnten von den Einzelkanzleien, die zuvor Stellen besetzen wollten, 43,4 % keine und weitere 33,4 % nur einen Teil der offenen Stellen besetzen. Gesucht wurden vor allem Steuerfachangestellte.</p>
 <p><a href="https://robin.vision/blog/die-stelle-die-sich-nicht-besetzen-laesst/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -261,10 +275,10 @@
 <p>Ich habe gesehen, wie automatische Regeln für Geldeingänge auf der Bank danebenliegen. Eine Regel bucht die Erstattung der Krankenkasse für die Lohnfortzahlung als Erlös mit Umsatzsteuer. Eine andere erfasst einen Erlös, der in der Debitorenbuchhaltung schon steht, ein zweites Mal, wieder mit Umsatzsteuer. Und ein Kreditorenkonto, fest verknüpft mit Aufwandskonto und Steuerschlüssel, zieht Vorsteuer mit dem falschen Steuersatz. Ein Fehler in einer Regel bleibt kein Einzelfall. Er skaliert.</p>
 <p>Ein ERP ist ein sehr gutes Archiv. Es sagt Ihnen, was war. Seit 2025 taucht ein Begriff auf, der mehr verspricht: ARP, Agentic Resource Planning. Agenten beobachten laufend, rechnen Folgen durch und handeln innerhalb von Leitplanken, die ein Mensch setzt – oder legen die Entscheidung zur Freigabe vor. So beschreibt es das Softwareunternehmen SHAKE, das daraus 2026 eine eigene Kategorie gemacht hat.</p>
 <p><a href="https://robin.vision/blog/fehler-skalieren/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -295,10 +309,10 @@
 <p>In der Kanzlei und beim Mandanten sehe ich dieselbe Landschaft: ein Warenwirtschaftssystem, eine Buchhaltung, ein Banking-Tool, ein Belegeingang, eine Lohnabrechnung, dazu Tabellen. Jedes System ist für sich gut. Zusammen sind sie ein Flickenteppich, den Schnittstellen zusammenhalten müssen.</p>
 <p>Im letzten Impuls ging es um Medienbrüche. Eine Schnittstelle beseitigt den Medienbruch, aber nicht die Übertragung: Dieselben Daten liegen in zwei Systemen, sie müssen abgeglichen und zugeordnet werden, und jede Übergabe kann scheitern. Ausgangsrechnungen gehen über die Fakturierungsschnittstelle aus der Warenwirtschaft in die Buchhaltung, Lohnbuchungen aus der Lohnabrechnung. Diese Schnittstellen gibt es nur, weil innerhalb desselben Unternehmens zwei Systeme getrennt sind. Sie sind Brücken über einen Graben, den ein gemeinsames Datenmodell nicht hätte.</p>
 <p><a href="https://robin.vision/blog/das-ende-des-erp/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -315,10 +329,10 @@
 <p>In der Buchhaltung arbeiten wir zwischen den Medien. Ein Belegbild wird vom Mandanten bearbeitet und kommt über das Mandantenportal in die Kanzlei. Die Änderungen am Belegbild ändern den Datensatz nicht. Das ist ein Medienbruch und eine Ursache für Fehler und Stau im Datenfluss.</p>
 <p>Reicht es also, das Belegbild hinter sich zu lassen? Nein. Redundante Datenübertragung gibt es auch jenseits des Belegbildes. Ein Medienbruch ist auch der manuelle Übertrag beim Systemwechsel, weil keine Schnittstelle eingerichtet ist. Dazu mehr im nächsten Impuls über Schnittstellenintegration.</p>
 <p><a href="https://robin.vision/blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
@@ -335,10 +349,10 @@
 <p>Als Buchhalter habe ich lange genug Belegbilder in Daten übersetzt. Mit der E-Rechnung ist das nicht mehr nötig.</p>
 <p>Das Prinzip kennen Sie bereits aus integrierter Unternehmenssoftware (ERP) und digitaler Personalverwaltung mit Mitarbeiterportal: Stamm- und Bewegungsdaten werden bei ihrer Entstehung in Echtzeit oder in einem definierten Turnus zur Weiterverarbeitung bereitgestellt. Im ERP passiert das auch schon seit Jahrzehnten bei der Fakturierung. Die Daten der Fakturierung stehen zum Beispiel der Debitorenbuchhaltung als Datensatz zur Verfügung. Bei diesem Prozess hat das Belegbild für das Ergebnis nie eine Rolle gespielt. Das Belegbild wurde nur für den Rechnungsempfänger und die Betriebsprüfung benötigt.</p>
 <p><a href="https://robin.vision/blog/e-rechnung-vom-belegbild-zum-datensatz/">Den ganzen Impuls lesen</a></p>
-<h3>Neu im SmartFormular E-Rechnung lite</h3>
-<p><em>Fassung cde559c vom 10. November 2026</em></p>
-<p>Rechnung übernehmen: Im Reiter „Erstellen“ übernehmen Sie eine bestehende Rechnung als Word-Datei, PDF, OpenDocument, Excel oder Text. Das Werkzeug liest sie nur in diesem Browser, trägt Empfänger, Positionen, Nummer und Daten in die Maske ein und vergleicht den Betrag mit dem Dokument. Sie prüfen, ergänzen, was fehlt, und speichern daraus eine XRechnung.</p>
-<p><a href="https://robin.vision/werkzeuge/e-rechnung-pruefen/">Zum Werkzeug: SmartFormular E-Rechnung lite</a></p>
+<h3>Neu im SmartFormular FiBu lite</h3>
+<p><em>Fassung 4ffc0c9 vom 13. November 2026</em></p>
+<p>PDFs mit unlesbarem Text: Manche Kontoauszüge enthalten zwar Text, der sich aber nicht lesen lässt – statt Buchstaben kommen nur Sonderzeichen heraus. Solche Seiten liest der Generator jetzt per Texterkennung, wie einen Scan, offline in Ihrem Browser. Danke an die Person, die uns den Aufbau ihres Auszugs geschickt hat: Haben Sie es mit dieser Fassung noch einmal versucht?</p>
+<p><a href="https://robin.vision/werkzeuge/buchungsstapel-generator/">Herunterladen: SmartFormular FiBu lite</a></p>
 <h3>Werkzeuge</h3>
 <p>Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt und verglichen auf robin.vision.</p>
 <p><a href="https://robin.vision/werkzeuge/">Alle Werkzeuge im Überblick und im Vergleich</a></p>
