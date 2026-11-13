@@ -4,12 +4,12 @@
 //   Voraussetzungen wie goch_webkit_test.mjs (Seite auf einem Prüfserver).  node tests/gross_webkit_test.mjs http://127.0.0.1:8788/
 import { createRequire } from "node:module";
 const [seite = "http://127.0.0.1:8788/"] = process.argv.slice(2);
-let webkit;
-try { ({ webkit } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
+let webkit, chromium;
+try { ({ webkit, chromium } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
 catch (_) { console.log("playwright-core nicht gefunden (PLAYWRIGHT=/pfad setzen) – Test übersprungen."); process.exit(0); }
 let fails = 0;
 const check = (ok, label, info) => { console.log((ok ? "  ok   " : "  FAIL ") + label + (info !== undefined ? " (" + JSON.stringify(info) + ")" : "")); if (!ok) fails++; };
-const b = await webkit.launch();
+let b = await webkit.launch();
 const messen = async (w, h) => {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, reducedMotion: "reduce" }), p = await ctx.newPage();
   await p.goto(seite + "workshops/?zwitschertakt=600000&zeit=2026-11-11T12:00", { waitUntil: "load" });
@@ -17,7 +17,7 @@ const messen = async (w, h) => {
   await p.waitForTimeout(1500);
   const r = await p.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(), main = q(".goch-kopf + main"), kopf = q(".goch-kopf"), krone = q(".goch-kopf .landscape-crown"), berg = q(".goch-kopf .landscape-far"), goch = q(".goch-kopf .scene"), text = document.querySelector(".ws-karte .inhalt p") || document.querySelector(".ws-karte p");
     const zeile = document.querySelector("article p:not(.meta)"), fs = parseFloat(getComputedStyle(zeile || document.body).fontSize);
-    return { blatt: Math.round(main.width), mitte: Math.round(main.left + main.width / 2 - innerWidth / 2), krone: Math.round(krone.width), berg: Math.round(berg.width), bergOben: Math.round(berg.top - kopf.top), goch: Math.round(goch.width), satz: getComputedStyle(text).textAlign, quer: document.documentElement.scrollWidth > innerWidth + 1,
+    return { himmelOben: Math.round(kopf.top * 10) / 10, leiste: Math.round(q(".kopf").bottom * 10) / 10, blatt: Math.round(main.width), mitte: Math.round(main.left + main.width / 2 - innerWidth / 2), krone: Math.round(krone.width), berg: Math.round(berg.width), bergOben: Math.round(berg.top - kopf.top), goch: Math.round(goch.width), satz: getComputedStyle(text).textAlign, quer: document.documentElement.scrollWidth > innerWidth + 1,
       karteZeichen: Math.round(text.getBoundingClientRect().width / (parseFloat(getComputedStyle(text).fontSize) * .5)) }; });
   await ctx.close(); return r;
 };
@@ -31,6 +31,13 @@ check(g.berg <= 760 && x.berg <= 760 && g.bergOben >= -2 && x.bergOben >= -2, "d
 check([a, g, x].every(r => r.satz === "left" || r.satz === "start"), "Flattersatz in den Workshop-Karten auf jeder Breite", [a.satz, g.satz, x.satz]);
 check([a, g, x].every(r => !r.quer), "kein seitliches Scrollen", [a.quer, g.quer, x.quer]);
 check(g.karteZeichen <= 75 && x.karteZeichen <= 75, "Zeilen in den Karten bleiben unter rund 75 Zeichen", [g.karteZeichen, x.karteZeichen]);
+// Robin, 13.11.2026: Über dem Himmel darf kein Streifen Papier stehen. Die Kopfleiste wächst mit zoom; der Himmel dahinter
+// muss am oberen Fensterrand oder darüber beginnen – in WebKit und in Chrome, auf jeder Breite.
+const BREITEN = [[1470, 956], [1600, 900], [1899, 1000], [1920, 1080], [2400, 1200], [2560, 1440]];
+const oben = async name => { const r = []; for (const [w, h] of BREITEN) r.push((await messen(w, h)).himmelOben); check(r.every(t => t <= 0), name + ": Der Himmel beginnt am oberen Fensterrand, kein Papierstreifen darüber (1470 bis 2560 px)", r); };
+await oben("WebKit");
 await b.close();
+try { b = await chromium.launch({ channel: "chrome" }); await oben("Chrome"); await b.close(); }
+catch (e) { if (/executable|channel|install/i.test(String(e))) console.log("  –    Chrome nicht gefunden, Prüfung der Oberkante dort übersprungen."); else { check(false, "Chrome: Prüfung der Oberkante", String(e).slice(0, 200)); } }
 console.log(fails ? `\n${fails} FEHLER` : "\nWebKit, große Bildschirme: alles in Ordnung.");
 process.exit(fails ? 1 : 0);
