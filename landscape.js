@@ -543,9 +543,10 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     // Ferne des Tals erst zeigen, wenn die echte Bühne oben hinaus ist – sonst stünden zwei Burgberge übereinander.
     const gone=Math.min(1,Math.max(0,(y-end*.75)/(H*.35)));
     // Immer nur eine Landschaft (Robin 13.11.2026: „wie zwei Landschaften übereinander“): Solange das Talstück im Fenster
-    // steht, bleibt das feste Tal verborgen. Es kommt herauf, während der Nebel des Talstücks oben hinausläuft.
+    // steht, bleibt das feste Tal verborgen. Erst wenn auch sein Nebel oben hinaus ist (unterhalb von 45 % seiner Höhe zeigt
+    // die Maske praktisch nichts mehr), kommt das Tal über das folgende knappe Drittel der Fensterhöhe weich herauf.
     let auf=1;
-    if (talStueck && !talStueck.hidden) { const ende=talStueck.offsetTop+talStueck.offsetHeight*.6-y; auf=Math.min(1,Math.max(0,1-ende/(H*.3))); auf=auf*auf*(3-2*auf); }
+    if (talStueck && !talStueck.hidden) { const ende=talStueck.offsetTop+talStueck.offsetHeight*.45-y; auf=Math.min(1,Math.max(0,-ende/(H*.3))); auf=auf*auf*(3-2*auf); }
     tal.style.setProperty('--auf',auf.toFixed(3));
     talFar.style.opacity=(gone*(1-depth*.5)*auf).toFixed(3);
     if (talLaub) talLaub.style.opacity=still?'0':(gone*auf).toFixed(3);
