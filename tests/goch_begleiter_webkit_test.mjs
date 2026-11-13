@@ -5,6 +5,7 @@
 //   Voraussetzungen wie goch_webkit_test.mjs: Seite (python3 tests/pruefserver.py 8788), Attrappe (python3 tests/goch_fake_worker.py 8787),
 //   PLAYWRIGHT=/pfad/zum/ordner mit node_modules.  node tests/goch_begleiter_webkit_test.mjs http://127.0.0.1:8788/ http://127.0.0.1:8787
 import { createRequire } from "node:module";
+import { stumm } from "./stumm.mjs";
 const [seite = "http://127.0.0.1:8788/", attrappe = "http://127.0.0.1:8787"] = process.argv.slice(2);
 let webkit, devices;
 try { ({ webkit, devices } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
@@ -18,7 +19,7 @@ const TASTE = p => p.evaluate(() => { const m = document.getElementById("goch-mi
           const vogel = m.querySelector(".goch-mini-tier").getBoundingClientRect(), ueberVogel = r.right > vogel.left + vogel.width * .236;
           return { da, trifft: oben === t, durch: m.classList.contains("platz-durch"), h: Math.round(r.height), imBild: r.left >= 0 && r.bottom <= innerHeight, blase, ueberVogel, sagt: m.classList.contains("sagt") }; });
 const q = "?goch=" + encodeURIComponent(attrappe + "/chat") + "&stimme=an&zwitschertakt=60000&zeit=2026-11-11T12:00";
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 async function auf(pfad, opt = {}) {
   const ctx = await b.newContext(opt.breit ? { viewport: { width: 1280, height: 800 }, reducedMotion: opt.ruhig ? "reduce" : "no-preference" } : { ...devices["iPhone 13"], viewport: { width: 390, height: 664 }, reducedMotion: opt.ruhig ? "reduce" : "no-preference" });
   await ctx.addInitScript(() => { try { const at = Date.now(); localStorage.setItem("rjl-goch-consent", JSON.stringify({ allowed: true, at, expires: at + 180 * 864e5, version: "2026-10-16.1" })); } catch (_) {} });

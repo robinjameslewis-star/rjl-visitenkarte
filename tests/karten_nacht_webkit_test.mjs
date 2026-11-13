@@ -4,6 +4,7 @@
 // PLAYWRIGHT=<Ordner mit node_modules/playwright-core> node tests/karten_nacht_webkit_test.mjs http://127.0.0.1:8794/ [liste]
 // Mit „liste“ als drittem Argument gibt der Test alle Unterschreitungen aus und endet immer mit 0 (zum Vergleichen zweier Stände).
 import { createRequire } from 'module';
+import { stumm } from './stumm.mjs';
 const { webkit } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
 const basis = process.argv[2] || 'http://127.0.0.1:8794/', nurListe = process.argv[3] === 'liste';
 const SEITEN = process.env.NUR ? process.env.NUR.split(',') : ['', 'werkzeuge/', 'werkzeuge/en/', 'workshops/', 'workshops/ki-kompetenz/', 'workshops/e-rechnung/', 'ueber-mich/', 'about/', 'blog/', 'blog/das-ende-des-erp/'];
@@ -40,7 +41,7 @@ const MESSEN = () => {
   }
   return aus;
 };
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 for (const [w, h] of [[390, 844], [1470, 956]]) for (const [name, zeit] of Object.entries(ZEITEN)) {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, isMobile: w < 500, reducedMotion: 'reduce' });
   for (const seite of SEITEN) {

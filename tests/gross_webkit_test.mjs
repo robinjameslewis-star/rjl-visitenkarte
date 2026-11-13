@@ -3,13 +3,14 @@
 // Flattersatz in den Workshop-Karten auf jeder Breite.
 //   Voraussetzungen wie goch_webkit_test.mjs (Seite auf einem Prüfserver).  node tests/gross_webkit_test.mjs http://127.0.0.1:8788/
 import { createRequire } from "node:module";
+import { stumm } from "./stumm.mjs";
 const [seite = "http://127.0.0.1:8788/"] = process.argv.slice(2);
 let webkit, chromium;
 try { ({ webkit, chromium } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
 catch (_) { console.log("playwright-core nicht gefunden (PLAYWRIGHT=/pfad setzen) – Test übersprungen."); process.exit(0); }
 let fails = 0;
 const check = (ok, label, info) => { console.log((ok ? "  ok   " : "  FAIL ") + label + (info !== undefined ? " (" + JSON.stringify(info) + ")" : "")); if (!ok) fails++; };
-let b = await webkit.launch();
+let b = stumm(await webkit.launch());
 const messen = async (w, h) => {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, reducedMotion: "reduce" }), p = await ctx.newPage();
   await p.goto(seite + "workshops/?zwitschertakt=600000&zeit=2026-11-11T12:00", { waitUntil: "load" });
@@ -37,7 +38,7 @@ const BREITEN = [[1470, 956], [1600, 900], [1899, 1000], [1920, 1080], [2400, 12
 const oben = async name => { const r = []; for (const [w, h] of BREITEN) r.push((await messen(w, h)).himmelOben); check(r.every(t => t <= 0), name + ": Der Himmel beginnt am oberen Fensterrand, kein Papierstreifen darüber (1470 bis 2560 px)", r); };
 await oben("WebKit");
 await b.close();
-try { b = await chromium.launch({ channel: "chrome" }); await oben("Chrome"); await b.close(); }
+try { b = stumm(await chromium.launch({ channel: "chrome" })); await oben("Chrome"); await b.close(); }
 catch (e) { if (/executable|channel|install/i.test(String(e))) console.log("  –    Chrome nicht gefunden, Prüfung der Oberkante dort übersprungen."); else { check(false, "Chrome: Prüfung der Oberkante", String(e).slice(0, 200)); } }
 console.log(fails ? `\n${fails} FEHLER` : "\nWebKit, große Bildschirme: alles in Ordnung.");
 process.exit(fails ? 1 : 0);

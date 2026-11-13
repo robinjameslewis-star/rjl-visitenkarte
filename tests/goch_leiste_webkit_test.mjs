@@ -5,6 +5,7 @@
 // nie zwei Gochs. Das Mikrofon ist künstlich, der Worker ist die Attrappe.
 //   Voraussetzungen wie goch_webkit_test.mjs.  node tests/goch_leiste_webkit_test.mjs http://127.0.0.1:8788/ http://127.0.0.1:8787
 import { createRequire } from "node:module";
+import { stumm } from "./stumm.mjs";
 const [seite = "http://127.0.0.1:8788/", attrappe = "http://127.0.0.1:8787"] = process.argv.slice(2);
 let webkit, devices;
 try { ({ webkit, devices } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
@@ -13,7 +14,7 @@ let fails = 0;
 const check = (ok, label, info) => { console.log((ok ? "  ok   " : "  FAIL ") + label + (info !== undefined ? " (" + (typeof info === "string" ? info : JSON.stringify(info)) + ")" : "")); if (!ok) fails++; };
 const q = "?goch=" + encodeURIComponent(attrappe + "/chat") + "&stimme=an&zwitschertakt=60000&zeit=2026-11-11T12:00";
 await fetch(attrappe + "/_modus?hoeren=ok&stimme=ok");
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 async function auf(breit, mehr = "") {
   const ctx = await b.newContext(breit ? { viewport: { width: 1280, height: 800 } } : { ...devices["iPhone 13"], viewport: { width: 390, height: 664 } });
   await ctx.addInitScript(() => {

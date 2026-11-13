@@ -5,10 +5,11 @@
 // feste Tal verborgen – geprüft in WebKit und Chrome bei 390, 1470, 1920 und 2560 px.
 // PLAYWRIGHT=<Ordner mit node_modules/playwright-core> node tests/talstueck_webkit_test.mjs http://127.0.0.1:8794/
 import { createRequire } from 'module';
+import { stumm } from './stumm.mjs';
 const { webkit, chromium } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
 const basis = process.argv[2] || 'http://127.0.0.1:8794/';
 let fehler = 0; const check = (ok, text, info) => { console.log((ok ? 'ok   ' : 'FEHLER ') + text + (!ok && info ? ' ' + JSON.stringify(info) : '')); if (!ok) fehler++; };
-const b = await webkit.launch();
+const b = stumm(await webkit.launch());
 for (const [w, h] of [[390, 844], [1470, 956]]) {
   for (const zeit of ['2026-11-12T12:00', '2027-01-15T22:00', '2027-04-20T12:00', '2027-07-15T21:15']) {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, isMobile: w < 500, hasTouch: w < 500 });
@@ -58,7 +59,7 @@ for (const [w, h] of [[390, 844], [1470, 956]]) {
   await ctx.close();
 }
 await b.close();
-for (const [name, start] of [['WebKit', () => webkit.launch()], ['Chrome', () => chromium.launch({ channel: 'chrome' })]]) {
+for (const [name, start] of [['WebKit', async () => stumm(await webkit.launch())], ['Chrome', async () => stumm(await chromium.launch({ channel: 'chrome' }))]]) {
   let m; try { m = await start(); } catch (e) { console.log('–    ' + name + ' nicht gefunden, übersprungen'); continue; }
   for (const [w, h] of [[390, 844], [1470, 956], [1920, 1080], [2560, 1440]]) {
     const ctx = await m.newContext({ viewport: { width: w, height: h } }); const p = await ctx.newPage(); const n = `${name}, ${w} px: `;
