@@ -430,7 +430,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     frames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
     root.dataset.season=FILE[state.current];
     maskCelestial();
-    talLayers(state);
+    stueckLayers(state); talLayers(state);
   }
 
   // ---------- Tal unterhalb der Bühne („Ein Tal“, 11.11.2026) ----------
@@ -464,8 +464,6 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
         const far=picture(season,'ferne','(max-width:720px) 62vw, 616px','tal-burg') /* dieselbe Angabe wie die Bühne: das Bild liegt schon im Cache */; if (far) talFar.append(far);
         // Am Handy genügt die kleine Fassung (Dunst hinter den Blättern): spart dort rund 250 KB, auch bei dreifacher Pixeldichte.
         TAL.forEach(t=>{ const p=picture(season,t.kind,'(max-width:720px) 300px, max(100vw, 1000px)','tal-ebene'); if (p) { p.dataset.kind=t.kind; p.style.setProperty('--ax',t.ax); tal.append(p); } });
-        // Talstück vor dem ersten Blatt: dieselbe Datei wie der Hang des Tals darunter (schon geladen, keine weitere Anfrage).
-        if (talStueck) { const p=picture(season,'hang','(max-width:720px) 300px, max(100vw, 1000px)','tal-stueck-bild'); if (p) { talStueck.append(p); if (season===state.to) { const da=()=>talStueck.classList.add('da'), img=p.querySelector('img'); if (img.complete) da(); else img.addEventListener('load',da,{once:true}); } } }
       });
     }
     talFrames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
@@ -499,6 +497,41 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     talStueck.style.top=(Math.max(r.bottom-hoch*.12,knopf+10-hoch*.09)+window.scrollY).toFixed(1)+'px';
     talStueck.style.height=hoch.toFixed(1)+'px';
   }
+  // Das Talstück entsteht mit der Bühne, nicht erst mit dem Tal (Robin 13.11.2026: „Läd es später beim reload nach“): Sein
+  // Bild wird wie Krone und Ferne vorab angefordert und steht ohne eigenes Einblenden, sobald es da ist. Es ist dieselbe Datei
+  // wie der Hang des Tals – kein Mehrgewicht, sie lädt nur früher. Wo es keinen Streifen gibt, lädt nichts vorab.
+  let stueckKey='', stueckFrames=[], stueckState=null;
+  function stueckLayers(state) {
+    stueckState=state;
+    if (!talOn || !stage || !stage.nextElementSibling || !stage.nextElementSibling.matches('section')) return;
+    if (!talStueck) {
+      talStueck=document.createElement('div'); talStueck.className='tal-stueck'; talStueck.setAttribute('aria-hidden','true'); document.body.prepend(talStueck);
+      const neu=()=>{ talStueckLage(); if (stueckState) stueckLayers(stueckState); if (tal) talDraw(); };
+      window.addEventListener('resize',neu);
+      if ('ResizeObserver' in window) new ResizeObserver(neu).observe(stage);
+    }
+    talStueckLage();
+    const key=state.from+state.to+slug;
+    if (key!==stueckKey && !talStueck.hidden) {
+      stueckKey=key; stueckFrames.forEach(f=>f.remove()); stueckFrames=[]; talStueck.classList.remove('da');
+      [...new Set([state.to,state.from])].forEach(season => {
+        const own=(set.ebenen[FILE[season]]||{}).hang, url=preview[FILE[season]+'hang'];
+        if (!own && !url) return;
+        const [big,small]=api.LAYERS.hang.sizes, base=SETS+slug+'/hang-'+FILE[season]+'-', sizes='(max-width:720px) 300px, max(100vw, 1000px)';
+        const p=document.createElement('picture'); p.className='landscape-picture tal-stueck-bild'; p.dataset.season=season;
+        if (url) p.innerHTML=`<img src="${url}" alt="" decoding="async">`;
+        else {
+          fill(p,own,base,small,big,sizes);
+          if (season===state.to) { const ext=own.avif?'avif':'webp', preload=document.createElement('link'); preload.rel='preload'; preload.as='image'; preload.type='image/'+ext;
+            preload.href=base+big+'.'+ext; preload.imageSrcset=base+small+'.'+ext+' '+small+'w, '+base+big+'.'+ext+' '+big+'w'; preload.imageSizes=sizes; document.head.append(preload); }
+        }
+        const img=p.querySelector('img'); img.onerror=()=>p.remove();
+        if (season===state.to) { const da=()=>talStueck.classList.add('da'); if (img.complete) da(); else img.addEventListener('load',da,{once:true}); }
+        talStueck.append(p); stueckFrames.push(p);
+      });
+    }
+    stueckFrames.forEach(f=>f.style.opacity=f.dataset.season===state.from&&state.from!==state.to?1-state.blend:1);
+  }
   function talDraw() {
     talWaiting=false;
     if (!tal) return;
@@ -509,8 +542,13 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     tal.querySelectorAll('.tal-ebene').forEach(p=>{ const t=TAL.find(x=>x.kind===p.dataset.kind); p.style.transform=`translate3d(0,${((t.y-depth*t.w)*H).toFixed(1)}px,0)`; });
     // Ferne des Tals erst zeigen, wenn die echte Bühne oben hinaus ist – sonst stünden zwei Burgberge übereinander.
     const gone=Math.min(1,Math.max(0,(y-end*.75)/(H*.35)));
-    talFar.style.opacity=(gone*(1-depth*.5)).toFixed(3);
-    if (talLaub) talLaub.style.opacity=still?'0':gone.toFixed(3);
+    // Immer nur eine Landschaft (Robin 13.11.2026: „wie zwei Landschaften übereinander“): Solange das Talstück im Fenster
+    // steht, bleibt das feste Tal verborgen. Es kommt herauf, während der Nebel des Talstücks oben hinausläuft.
+    let auf=1;
+    if (talStueck && !talStueck.hidden) { const ende=talStueck.offsetTop+talStueck.offsetHeight*.6-y; auf=Math.min(1,Math.max(0,1-ende/(H*.3))); auf=auf*auf*(3-2*auf); }
+    tal.style.setProperty('--auf',auf.toFixed(3));
+    talFar.style.opacity=(gone*(1-depth*.5)*auf).toFixed(3);
+    if (talLaub) talLaub.style.opacity=still?'0':(gone*auf).toFixed(3);
     talFar.querySelectorAll('.tal-burg').forEach(p=>{ p.style.transform=`translate3d(0,${((.25-depth*.2)*H).toFixed(1)}px,0) scale(${(1+depth*.22).toFixed(3)})`; });
   }
   if (talOn) {
@@ -518,11 +556,6 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       tal=document.createElement('div'); tal.className='tal'; tal.setAttribute('aria-hidden','true');
       tal.innerHTML='<div class="tal-fern"><div class="tal-himmel"></div></div><div class="tal-laubfeld"></div>'; talFar=tal.firstChild; talLaub=tal.lastChild;
       document.body.prepend(tal); root.classList.add('tal-on');
-      if (stage && stage.nextElementSibling && stage.nextElementSibling.matches('section')) {
-        talStueck=document.createElement('div'); talStueck.className='tal-stueck'; talStueck.setAttribute('aria-hidden','true'); tal.after(talStueck);
-        talStueckLage(); window.addEventListener('resize',talStueckLage);
-        if ('ResizeObserver' in window) new ResizeObserver(talStueckLage).observe(stage);
-      }
       window.addEventListener('scroll',()=>{ if(!talWaiting){ talWaiting=true; requestAnimationFrame(talDraw); } },{passive:true});
       window.addEventListener('resize',talDraw); motion.addEventListener('change',talDraw);
       if (talState) talLayers(talState);
@@ -564,7 +597,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   }
   update();
   let previewed=false;
-  const applySet=raw=>{set=api.normalizeSet(raw); seasonKey=''; talKey=''; update();};
+  const applySet=raw=>{set=api.normalizeSet(raw); seasonKey=''; talKey=''; stueckKey=''; update();};
   fetch(SETS+slug+'/landschaft.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(raw=>{if(!previewed) applySet(raw);}).catch(()=>{});
   // Vorschau aus der Redaktion (eingebettet oder im eigenen Fenster): ungespeicherte Bilder, Blätterart und
   // Himmelsfarben werden per postMessage hereingereicht – nur vom Worker, dessen Adresse die Seite selbst nennt.
