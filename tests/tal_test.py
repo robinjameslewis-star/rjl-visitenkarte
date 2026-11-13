@@ -29,7 +29,7 @@ def freier_port():
         s.bind(('127.0.0.1', 0))
         return s.getsockname()[1]
 PORT = freier_port()
-GRENZE = 1_200_000  # Erstaufruf am Handy, Entscheidung der Leitung vom 11.11.2026
+GRENZE = 1_300_000  # Erstaufruf am Handy; Leitung 11.11.2026: 1,2 MB, 13.11.2026 auf 1,3 MB (Hang lädt vorab, Gesamtgewicht unverändert, PR 144)
 TALGRENZE = 300_000  # was das Tal nach dem ersten Bild am Handy nachlädt
 TALBILD = ('/mitte-', '/hang-', '/grund-')
 ZEITEN = {'herbst-tag': '2026-11-11T13:00', 'herbst-nacht': '2026-11-11T23:00', 'winter-tag': '2027-01-15T13:00', 'winter-nacht': '2027-01-15T23:00'}
