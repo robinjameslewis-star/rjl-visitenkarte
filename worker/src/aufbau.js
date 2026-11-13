@@ -36,6 +36,18 @@ const EN = {
 };
 const uebersetzen = (sprache, text, n) => ((sprache === "en" && EN[text]) || text).replace("{n}", n);
 
+// Freiwillige Angabe der Bank (Robin, 13.11.2026: absichern). Sie steht im Betreff und im Text der Mail und darf deshalb nichts
+// transportieren außer einem Banknamen: Buchstaben, Ziffern (N26, 1822direkt), Leerzeichen und & . - ' ( ) /, höchstens 40 Zeichen.
+// Kein Link, keine Mailadresse, keine Telefonnummer (mehr als vier Ziffern insgesamt). Passt die Angabe nicht, fällt sie weg („–“); der
+// Aufbau selbst wird trotzdem zugestellt.
+export function bankAngabe(wert) {
+  const s = String(wert == null ? "" : wert).normalize("NFC").replace(/\s+/g, " ").trim();
+  if (!s || s.length > 40) return "";
+  if (!/^[\p{L}\p{N} &.'()\/-]+$/u.test(s)) return "";
+  if ((s.match(/\d/g) || []).length > 4 || /www\.|\.(de|com|net|org|eu|io|info|biz|xyz|ru|cn)\b|https?|\/\//i.test(s)) return "";
+  return s;
+}
+
 // Ist der Text ein Aufbau ohne Inhalt? Liefert null oder eine Fehlermeldung (in der Sprache des Werkzeugs).
 export function pruefeAufbau(text, sprache = "de") {
   const f = (t, n) => uebersetzen(sprache, t, n);
@@ -71,7 +83,7 @@ export async function handleAufbau(request, env, ctx) {
   const aufbau = typeof body.aufbau === "string" ? body.aufbau.replace(/\r\n?/g, "\n") : "";
   const fehler = pruefeAufbau(aufbau, sprache);
   if (fehler) return json({ error: fehler }, 400);
-  const bank = String(body.bank == null ? "" : body.bank).replace(/[\p{C}]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+  const bank = bankAngabe(body.bank);
   const fassung = /^([0-9a-f]{7}\+?|unbekannt)$/.test(String(body.fassung)) ? String(body.fassung) : "unbekannt";
 
   // Grenzen: 3 je Adresse und Stunde (je Instanz), MAX_AUFBAU_PER_DAY am Tag insgesamt (ohne Personenbezug)
