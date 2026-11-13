@@ -48,6 +48,13 @@ export function bankAngabe(wert) {
   return s;
 }
 
+// Anhang nur aus sichtbaren Grundzeichen (Robin, 13.11.2026: keine versteckten Zeichen oder Aufgaben): Alles außer druckbarem
+// ASCII, Zeilenumbruch und den Umlauten der Fachwörter wird zu „?“ – unsichtbare Zeichen (Breite null, Richtungswechsel),
+// Steuerzeichen und Symbole, die wie Buchstaben aussehen (Ⓐ, 🅰, …), kommen so nie in der Mail an. Der Aufbau bleibt lesbar.
+export function aufbauBereinigen(text) {
+  return String(text).replace(/\r\n?/g, "\n").replace(/[^\x20-\x7E\näöüÄÖÜß]/gu, "?");
+}
+
 // Ist der Text ein Aufbau ohne Inhalt? Liefert null oder eine Fehlermeldung (in der Sprache des Werkzeugs).
 export function pruefeAufbau(text, sprache = "de") {
   const f = (t, n) => uebersetzen(sprache, t, n);
@@ -83,6 +90,7 @@ export async function handleAufbau(request, env, ctx) {
   const aufbau = typeof body.aufbau === "string" ? body.aufbau.replace(/\r\n?/g, "\n") : "";
   const fehler = pruefeAufbau(aufbau, sprache);
   if (fehler) return json({ error: fehler }, 400);
+  const anhang = aufbauBereinigen(aufbau);
   const bank = bankAngabe(body.bank);
   const fassung = /^([0-9a-f]{7}\+?|unbekannt)$/.test(String(body.fassung)) ? String(body.fassung) : "unbekannt";
 
@@ -110,7 +118,7 @@ export async function handleAufbau(request, env, ctx) {
     headers: { "content-type": "application/json", "authorization": "Bearer " + env.RESEND_API_KEY },
     body: JSON.stringify({ from: env.MAIL_FROM || "Goch <onboarding@resend.dev>", to: [env.MAIL_TO],
       subject: `Werkzeug: Aufbau eines Kontoauszugs${bank ? " (" + bank + ")" : ""}`, text,
-      attachments: [{ filename: `Aufbau_Kontoauszug_${datum}.txt`, content: Buffer.from(aufbau, "utf8").toString("base64") }] }),
+      attachments: [{ filename: `Aufbau_Kontoauszug_${datum}.txt`, content: Buffer.from(anhang, "utf8").toString("base64") }] }),
   }).catch(() => null);
   if (!r || !r.ok) {
     console.error("Aufbau: Resend", r && r.status); // keine Inhalte ins Protokoll
