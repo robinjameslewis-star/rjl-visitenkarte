@@ -35,7 +35,7 @@ export function kopf(lang, up, { aktiv = null, andere = "" } = {}) {
 // Goch im Kopf der Unterseiten („Ein Tal“, Schritt 4, 11.11.2026): ein Himmelsstreifen mit festem Platz unter dem Seitenkopf,
 // damit nichts springt, wenn goch-seite.js nach dem Laden Goch auf seinen Ast setzt. Ist Goch ausgeschaltet, bleibt der
 // Streifen leer. Schalter, Blatt und Stile holt goch-seite.js aus der Startseite – hier steht nur der Platz.
-export const GOCH_SKRIPT = "goch-seite.js?v=20261130";
+export const GOCH_SKRIPT = "goch-seite.js?v=20261202";
 // Goch kennt die Seite (Schritt 5): Gruß und Einstiegsfragen je Seitenart, in der Sprache der Seite. Der Gruß steht als kleine
 // Blase neben Goch und als erster Satz im Gespräch; er kommt aus der Seite, nicht vom Worker. Die Fragen ersetzen die der
 // Startseite. Alles lässt sich aus den Inhalten der Seite beantworten (Seitenwissen); keine Preise, keine Zusagen.
