@@ -6,7 +6,7 @@
 // PLAYWRIGHT=<Ordner mit node_modules/playwright-core> node tests/talstueck_webkit_test.mjs http://127.0.0.1:8794/
 import { createRequire } from 'module';
 import { stumm } from './stumm.mjs';
-const { webkit, chromium } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
+const { webkit, chromium, devices } = createRequire(process.env.PLAYWRIGHT + '/')('playwright-core');
 const basis = process.argv[2] || 'http://127.0.0.1:8794/';
 let fehler = 0; const check = (ok, text, info) => { console.log((ok ? 'ok   ' : 'FEHLER ') + text + (!ok && info ? ' ' + JSON.stringify(info) : '')); if (!ok) fehler++; };
 const b = stumm(await webkit.launch());
@@ -96,6 +96,32 @@ for (const [name, start] of [['WebKit', async () => stumm(await webkit.launch())
     check(runden.every(x => x.unten.auf === 1 && x.unten.ebene === 1 && x.unten.sichtbar), n + 'viermal runter: das Tal steht jedes Mal wieder im Bild', runden.map(x => x.unten));
     check(runden.every(x => x.oben.auf === 0 && x.oben.ebene === 0), n + 'viermal hoch: das Tal ist oben jedes Mal wieder verborgen', runden.map(x => x.oben));
     check(anfang.tief > 0 && runden.every(x => x.unten.tief === 0 && x.oben.tief === anfang.tief), n + `die Blätter rücken bei jedem Durchgang wieder aus der Tiefe heran (${anfang.tief} Blätter)`, [anfang.tief, ...runden.map(x => [x.unten.tief, x.oben.tief])]);
+    await ctx.close();
+  }
+  // Fenstergröße ändert sich mitten auf der Seite (Robin 13.11.2026: „beim iphone hochscrollen sind die neuen täler uach nicht
+  // da“ – Safari fährt beim Scrollen die Leisten ein und aus und meldet resize; ebenso jedes Verändern des Fensters am
+  // Rechner): Das Talstück bleibt an seinem Platz unter der Bühne, das feste Tal bleibt im Bild.
+  for (const [w, h, mobil] of [[390, 844, true], [1470, 956, false], [1920, 1080, false]]) {
+    if (mobil && name !== 'WebKit') continue;
+    const ctx = await m.newContext(mobil ? { ...devices['iPhone 13'], viewport: { width: w, height: h } } : { viewport: { width: w, height: h } }); const p = await ctx.newPage(); const n = `${name}, ${w} px${mobil ? ' (iPhone, Berührung)' : ''}: `;
+    await p.goto(basis + '?zeit=2026-11-13T11:00', { waitUntil: 'load' }); await p.waitForFunction(() => document.querySelector('.tal .tal-ebene img'), null, { timeout: 15000 }).catch(() => {}); await p.waitForTimeout(1200);
+    const lage = () => p.evaluate(() => { const t = document.querySelector('.tal'), s = document.querySelector('.tal-stueck'), st = document.querySelector('.stage').getBoundingClientRect();
+      return { stueck: Math.round(s.offsetTop), buehne: Math.round(st.bottom + scrollY), auf: +t.style.getPropertyValue('--auf'), ebene: Math.max(...[...t.querySelectorAll('.tal-ebene img')].map(i => +getComputedStyle(i).opacity)),
+        bilder: [...s.querySelectorAll('img'), ...t.querySelectorAll('.tal-ebene img')].every(i => i.complete && i.naturalWidth > 0) }; });
+    const nach = y => p.evaluate(async y => { const s = innerHeight * .45; for (let j = scrollY; j !== y;) { j = y > j ? Math.min(y, j + s) : Math.max(y, j - s); scrollTo(0, j); await new Promise(r => setTimeout(r, 60)); } await new Promise(r => setTimeout(r, 500)); }, y);
+    const oben = await lage(), protokoll = [];
+    for (const y of [Math.round(h * 2), Math.round(h * 4.5)]) {
+      await nach(y); const vorher = await lage();
+      await p.setViewportSize({ width: w, height: h - 100 }); await p.waitForTimeout(400); const klein = await lage();   // Leisten fahren aus
+      await p.setViewportSize({ width: w, height: h }); await p.waitForTimeout(400); const gross = await lage();          // und wieder ein
+      protokoll.push({ y, vorher, klein, gross });
+    }
+    check(protokoll.every(x => Math.abs(x.vorher.stueck - oben.stueck) <= 2 && Math.abs(x.gross.stueck - oben.stueck) <= 2 && Math.abs(x.klein.stueck - oben.stueck) <= 40), n + `das Talstück bleibt bei resize mitten auf der Seite unter der Bühne (${oben.stueck} px; im niedrigeren Fenster folgt es dem Ende der Bühne um wenige px)`, protokoll.map(x => [x.y, x.vorher.stueck, x.klein.stueck, x.gross.stueck]));
+    check(protokoll.every(x => [x.vorher, x.klein, x.gross].every(l => l.auf === 1 && l.ebene === 1 && l.bilder)), n + 'das feste Tal bleibt dabei im Bild, alle Bilder sind noch da', protokoll.map(x => [x.y, x.vorher.auf, x.klein.auf, x.gross.auf]));
+    await nach(0); const zurueck = await lage();
+    check(zurueck.auf === 0 && Math.abs(zurueck.stueck - oben.stueck) <= 2 && zurueck.bilder, n + 'zurück am Seitenanfang: Waldhang unter der Bühne, Tal verborgen', zurueck);
+    await nach(Math.round(h * 2)); const wieder = await lage();
+    check(wieder.auf === 1 && wieder.ebene === 1, n + 'erneut hinunter: das Tal steht wieder im Bild', wieder);
     await ctx.close();
   }
   // Nur die Scrollposition zählt (Robin 13.11.2026: „von oben nach unten und von unten nach oben sowie beim erneuten hoch und

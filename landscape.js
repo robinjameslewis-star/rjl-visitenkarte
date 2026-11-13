@@ -444,7 +444,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
   const talOn=talWish?talWish!=='aus':document.body.dataset.tal==='an';
   const TAL=[{kind:'mitte',ax:.35,y:.86,w:.54},{kind:'hang',ax:.55,y:1.1,w:.64},{kind:'grund',ax:.8,y:1.42,w:.82}];
   let talLaub=null;
-  let tal=null, talFar=null, talFrames=[], talKey='', talState=null, talWaiting=false;
+  let tal=null, talFar=null, talFrames=[], talKey='', talState=null, talBild=0;
   function talLayers(state) {
     talState=state;
     if (!tal) return;
@@ -494,8 +494,12 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     if (talStueck.hidden) return;
     const breit=Math.max(root.clientWidth,1000), hoch=breit*349/900; // Seitenverhältnis der Talebenen; die Baumkronen des Hangs beginnen bei knapp einem Zehntel der Höhe
     // Die Kronen setzen kurz über dem Ende der Bühne an – aber nie hinter den Knöpfen (am Handy enden sie mit der Bühne).
-    const knopf=Math.max(0,...[...stage.querySelectorAll('.cta a')].map(a=>a.getBoundingClientRect().bottom));
-    talStueck.style.top=(Math.max(r.bottom-hoch*.12,knopf+10-hoch*.09)+window.scrollY).toFixed(1)+'px';
+    // Alles in Dokumentkoordinaten: Diese Funktion läuft bei jedem resize, also auch mitten auf der Seite (am iPhone fährt
+    // Safari beim Scrollen die Leisten ein und aus). Bis 13.11.2026 war die Unterkante der Knöpfe bei 0 im Fenster geklemmt –
+    // weiter unten auf der Seite sprang das Talstück damit an die Scrollposition, und das feste Tal blieb dort verborgen
+    // (Robin: „beim iphone hochscrollen sind die neuen täler uach nicht da“; unter Windows am großen Bildschirm ebenso).
+    const sy=window.scrollY, knoepfe=[...stage.querySelectorAll('.cta a')].map(a=>a.getBoundingClientRect().bottom+sy);
+    talStueck.style.top=Math.max(r.bottom+sy-hoch*.12,...knoepfe.map(k=>k+10-hoch*.09)).toFixed(1)+'px';
     talStueck.style.height=hoch.toFixed(1)+'px';
   }
   // Das Talstück entsteht mit der Bühne, nicht erst mit dem Tal (Robin 13.11.2026: „Läd es später beim reload nach“): Sein
@@ -539,7 +543,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     talBlaetter.forEach(b=>{ let oben=0; for (let e=b; e; e=e.offsetParent) oben+=e.offsetTop; b.classList.toggle('tal-tief',!still && !b.hidden && oben>grenze); });
   }
   function talDraw() {
-    talWaiting=false;
+    talBild=0;
     if (!tal) return;
     talTiefe();
     const H=tal.offsetHeight||innerHeight, y=window.scrollY, room=Math.max(1,document.documentElement.scrollHeight-innerHeight);
@@ -564,7 +568,12 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       tal=document.createElement('div'); tal.className='tal'; tal.setAttribute('aria-hidden','true');
       tal.innerHTML='<div class="tal-fern"><div class="tal-himmel"></div></div><div class="tal-laubfeld"></div>'; talFar=tal.firstChild; talLaub=tal.lastChild;
       document.body.prepend(tal); root.classList.add('tal-on');
-      window.addEventListener('scroll',()=>{ if(!talWaiting){ talWaiting=true; requestAnimationFrame(talDraw); } },{passive:true});
+      // Ein Bild je Ereignis, ohne Merker, der hängen bleiben könnte: Fällt ein Bild aus (Tab im Hintergrund, Zurück-Cache),
+      // zeichnet das nächste Ereignis trotzdem. Dazu das Ende des Scrollens und die Leisten des Browsers (visualViewport).
+      const zeichne=()=>{ if (talBild) cancelAnimationFrame(talBild); talBild=requestAnimationFrame(talDraw); };
+      window.addEventListener('scroll',zeichne,{passive:true}); window.addEventListener('scrollend',zeichne,{passive:true});
+      window.addEventListener('pageshow',zeichne); document.addEventListener('visibilitychange',zeichne);
+      if (window.visualViewport) window.visualViewport.addEventListener('resize',zeichne);
       window.addEventListener('resize',talDraw); motion.addEventListener('change',talDraw);
       if (talState) talLayers(talState);
       // Die Blätter der Seite rücken aus der Tiefe heran (Entwurf vom 11.11.2026): Was unter dem Fenster liegt, steht etwas
