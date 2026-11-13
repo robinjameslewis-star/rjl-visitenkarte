@@ -8,7 +8,7 @@
 import { renderMarkdown } from "./blog.js";
 import { PRODUKTE } from "./produkte.js";
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
-import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS } from "./kopf.js";
+import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS, NACHT_CSS, NACHT_START, nachtKopf } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
 import { kostenlos, KENNZ_CSS } from "./partner.js";
 
@@ -203,7 +203,7 @@ ${bild ? `<meta property="og:image" content="${SITE}${bild}">\n<meta property="o
   --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("${up}assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
-${KOPF_CSS}
+${goch ? NACHT_CSS + "\n" : ""}${KOPF_CSS}
 main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
 h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
 .untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
@@ -245,9 +245,9 @@ ${goch ? GOCH_KOPF_CSS + "\n" : ""}.nutzung { font-size: 15px; color: var(--ink-
 .foot a { color: inherit; text-decoration: none; }
 .foot a:hover { color: var(--ink-soft); }
 ${css}</style>
-${head}</head>
+${head}${goch ? nachtKopf(up) : ""}</head>
 <body data-newsletter-endpoint="${NEWSLETTER_ENDPUNKT}">
-${kopf(lang, up, { aktiv, andere })}
+${goch ? NACHT_START : ""}${kopf(lang, up, { aktiv, andere })}
 ${goch ? gochKopf(up, true, typeof goch === "string" ? goch : "", lang) + "\n" : ""}<main>
 ${main}
 </main>

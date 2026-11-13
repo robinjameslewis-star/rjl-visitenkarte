@@ -170,7 +170,9 @@ async def main():
                         blatt:getComputedStyle(m).backgroundColor!=='rgba(0, 0, 0, 0)',talHinten:getComputedStyle(document.querySelector('.tal')||document.body).zIndex};})()""", lambda l: l['an'] and l['ebenen'] == 3 and l['geladen'] == 3 and l['blatt'])
                     check(land['an'] and land['himmel'] and land['gestirne'] and land['krone'] and land['ferne'], "Kopf mit Landschaft: Himmel, Sonne, Mond, Sterne, Krone, Ferne", land)
                     check(land['ebenen'] == 3 and land['geladen'] == 3 and land['talHinten'] == '-1' and land['blatt'] and (land['klein'] or not mobil), "Tal hinter der Seite (drei Ebenen" + (", am Handy die 900-px-Fassung" if mobil else "") + "), der Inhalt steht als Blatt darüber", land)
-                    check(not [u for u in anfragen[:gewicht[2]] if 'landschaften/' in u or 'landscape.js' in u], "Landschaft und Tal laden erst nach dem Laden der Seite")
+                    check(not [u for u in anfragen[:gewicht[2]] if 'landschaften/' in u], "Bilder von Landschaft und Tal laden erst nach dem Laden der Seite")
+                    # Seit 12.11.2026 lädt landscape.js bewusst im Kopf (Nachtfarben vor dem ersten Bild, worker/src/kopf.js), genau einmal
+                    check(len([u for u in anfragen if 'landscape.js' in u]) == 1 and len([u for u in anfragen[:gewicht[2]] if 'landscape.js' in u]) == 1, "landscape.js lädt im Kopf und nur einmal", [u for u in anfragen if 'landscape.js' in u])
                     check(v['imStreifen'] and v['frei'] and not v['quer'], "er sitzt im Kopf der Seite, nichts liegt über ihm, kein seitliches Scrollen", v)
                     oben = await ev("[window.__mainOben, Math.round(document.querySelector('main').getBoundingClientRect().top + scrollY)]")
                     check(oben[0] is not None and oben[0] == oben[1], "der Inhalt steht, wo er vor Goch stand (kein Sprung)", oben)

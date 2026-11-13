@@ -81,5 +81,21 @@ const pattern = new RegExp((js.match(/SCENE_PATH = \/(.+)\/;/) || [])[1] || "^$"
 const m1 = "figuren/goch/bilder/bestand/vogel.webp".match(pattern), m2 = "assets/ast.webp".match(pattern);
 check(m1 && m1[1] === "figuren/goch/bilder/" && m1[2] === "vogel.webp" && m2 && m2[1] === "assets/" && m2[2] === "ast.webp", "Pfadmuster trennt Ordner und Dateinamen ab (Figurenpaket und assets/)");
 
+// Nachtfarben der Unterseiten vor dem ersten Bild (12.11.2026): Der Seitenrahmen trägt wörtlich die Palette der Startseite und
+// dieselbe Fassung von landscape.js; jede gebaute Seite mit Goch lädt sie im Kopf und ruft prepare() als Erstes im <body>.
+{
+  const { NACHT_CSS, LANDSCHAFT_SKRIPT, GOCH_SKRIPT } = await import("../worker/src/kopf.js");
+  const glatt = t => t.replace(/\s+/g, " ").trim();
+  const a = html.indexOf(":root {\n    --nacht: 0;"), b = html.indexOf(".landscape-on body, .landscape-on .consent-banner");
+  check(a > 0 && b > a && glatt(NACHT_CSS).startsWith(glatt(html.slice(a, b))), "Seitenrahmen: Palette gleich der der Startseite (worker/src/kopf.js, NACHT_CSS)");
+  check(html.includes(`<script src="${LANDSCHAFT_SKRIPT}"></script>`), "Seitenrahmen: dieselbe Fassung von landscape.js wie die Startseite", LANDSCHAFT_SKRIPT);
+  const { execFileSync } = await import("node:child_process");
+  const seiten = execFileSync("git", ["grep", "-l", "goch-seite.js", "--", "*.html"], { cwd: root, encoding: "utf8" }).trim().split("\n").filter(f => f !== "index.html");
+  const schlecht = seiten.filter(f => { const h = readFileSync(root + f, "utf8"), up = "../".repeat(f.split("/").length - 1);
+    const kopf = h.slice(0, h.indexOf("</head>")), body = h.slice(h.indexOf("<body"));
+    return !(kopf.includes(`<script src="${up}${LANDSCHAFT_SKRIPT}"></script>`) && kopf.includes("--paper-night") && /^<body[^>]*>\n<script>window\.RJLLandscape\?\.prepare\(\);<\/script>/.test(body) && h.includes(`${up}${GOCH_SKRIPT}`)); });
+  check(seiten.length >= 26 && !schlecht.length, `alle ${seiten.length} Unterseiten mit Goch: Palette im Stil, landscape.js im Kopf, prepare() als Erstes im <body>`, schlecht.join(", "));
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nStartseite und Schalter in Ordnung.");
 process.exit(fails ? 1 : 0);
