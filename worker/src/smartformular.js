@@ -1,7 +1,7 @@
 // Produktseite „SmartFormular“ (werkzeuge/smartformular/index.html, englisch werkzeuge/smartformular/en/index.html; bis 18.10.2026
 // unter werkzeuge/, seitdem ist dort die Übersicht aller Werkzeuge, uebersicht.js; Robin, 17./18.10.2026): eigene Unterseite im
 // SmartFormular-Erscheinungsbild „Nacht und Violett“, so ausführlich wie die Seite „Workshops“ – was ein SmartFormular ist, die drei
-// Produkte (FiBu lite kostenlos zum Herunterladen; FiBu und Abschluss angekündigt (bis 04.11.2026 „Deklaration“), mit den geplanten Funktionen), Mensch und
+// Produkte (FiBu lite kostenlos zum Herunterladen; Abschluss angekündigt, SmartFormular FiBu seit 16.11.2026 archiviert (bis 04.11.2026 „Deklaration“), mit den geplanten Funktionen), Mensch und
 // Maschine, offen für jedes Buchhaltungsprogramm (Robin, 17.10.2026: Alleinstellungsmerkmal), Sprachmodell optional, Fahrplan, Daten und Recht, Fragen und Antworten (FAQPage), Beta-Anfrage an Gochs Kontakt-Endpunkt.
 // Keine Preise (auf Anfrage), keine Termine oder internen Planungen (Robin, 17.10.2026: Texte aus Kundensicht, knapp und professionell).
 // Produktdaten in produkte.js; tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen.
@@ -22,15 +22,15 @@ const TEXT = {
     titel: "SmartFormular",
     abzeichen: "Formulare, die mitarbeiten",
     seitentitel: "SmartFormular: Buchhaltung und Jahresabschluss mit Werkzeugen, die mitarbeiten – E-Rechnungen kostenlos prüfen, FiBu lite kostenlos testen bis 31.12.2026 | robin.vision",
-    beschr: "SmartFormular von robin.vision: FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, E-Rechnung lite liest und prüft E-Rechnungen kostenlos; FiBu lite und das Erstellen von E-Rechnungen lassen sich bis 31.12.2026 kostenlos testen, im Browser. SmartFormular FiBu und Abschluss bringen Belege, offene Posten und den Jahresabschluss zusammen. Beta-Zugang auf Anfrage.",
+    beschr: "SmartFormular von robin.vision: FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, E-Rechnung lite liest und prüft E-Rechnungen kostenlos; FiBu lite und das Erstellen von E-Rechnungen lassen sich bis 31.12.2026 kostenlos testen, im Browser. SmartFormular Abschluss bereitet den Jahresabschluss vor. Beta-Zugang auf Anfrage.",
     untertitel: "Werkzeuge für Buchhaltung und Jahresabschluss, die schon beim Ausfüllen mit der Sachbearbeitung beginnen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
-    meta: "E-Rechnung lite: kostenlos prüfen · FiBu lite kostenlos testen bis 31.12.2026 · FiBu und Abschluss als Beta · für Kanzleien und Rechnungswesen",
+    meta: "E-Rechnung lite: kostenlos prüfen · FiBu lite kostenlos testen bis 31.12.2026 · Abschluss als Beta · für Kanzleien und Rechnungswesen",
     intro: [
       "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Jeder Vorschlag trägt seine Herkunft: Beleg, Regel, Vormonat oder Modell. Geprüft und festgeschrieben wird von Ihnen, in Ihrem Buchhaltungsprogramm.",
-      "Heute stehen SmartFormular FiBu lite, der Buchungsstapel-Generator, und SmartFormular E-Rechnung lite bereit. E-Rechnung lite macht E-Rechnungen lesbar, prüft sie und lässt sie per GiroCode bezahlen – auf der Seite kostenlos; das Erstellen eigener E-Rechnungen und die Datei zum Herunterladen sind bis 31.12.2026 kostenlos, danach mit vier Wochen kostenlosem Test und Lizenz. FiBu lite lässt sich bis 31.12.2026 kostenlos testen. SmartFormular FiBu und SmartFormular Abschluss folgen – für den laufenden Monat und für den Jahresabschluss. Beide entstehen als Beta im Memberbereich; Kanzleien, die mitprüfen wollen, erhalten Zugang auf Anfrage.",
+      "Heute stehen SmartFormular FiBu lite, der Buchungsstapel-Generator, und SmartFormular E-Rechnung lite bereit. E-Rechnung lite macht E-Rechnungen lesbar, prüft sie und lässt sie per GiroCode bezahlen – auf der Seite kostenlos; das Erstellen eigener E-Rechnungen und die Datei zum Herunterladen sind bis 31.12.2026 kostenlos, danach mit vier Wochen kostenlosem Test und Lizenz. FiBu lite lässt sich bis 31.12.2026 kostenlos testen. SmartFormular Abschluss folgt für den Jahresabschluss. Es entsteht als Beta im Memberbereich; Kanzleien, die mitprüfen wollen, erhalten Zugang auf Anfrage.",
     ],
     liteKnopf: "FiBu lite herunterladen – kostenlos testen bis 31.12.2026", betaKnopf: "Beta-Zugang anfragen",
-    produkteTitel: "Vier Produkte", fertig: "Kostenlos testen bis 31.12.2026 · verfügbar", fertigEr: "Prüfen kostenlos · verfügbar", inEntwicklung: "Beta · auf Anfrage",
+    produkteTitel: "Drei Produkte", fertig: "Kostenlos testen bis 31.12.2026 · verfügbar", fertigEr: "Prüfen kostenlos · verfügbar", inEntwicklung: "Beta · auf Anfrage",
     liteTitel: "SmartFormular FiBu lite",
     lite: [
       "Der Bankabruf fällt aus, der Auszug liegt nur als PDF vor, die Buchhaltung muss raus: FiBu lite liest Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV, nimmt den Buchungsstapel des Vormonats als Vorlage und erstellt je Auszug und Monat einen Buchungsstapel im DATEV-Format – mit Summenprüfung.",
@@ -45,19 +45,9 @@ const TEXT = {
     ],
     erFakten: ["XRechnung (UBL, CII), ZUGFeRD", "Regeln von CEN und KoSIT", "GiroCode", "Prüfen kostenlos, ohne Upload", "Erstellen bis 31.12.2026 kostenlos, danach Test und Lizenz"],
     erKnopf: "E-Rechnung prüfen",
-    fibuTitel: "SmartFormular FiBu",
-    fibuLead: "Für den laufenden Monat: FiBu macht aus Kontoauszügen und Belegen den geprüften Buchungsstapel – für Bank, Kreditoren und Debitoren – und stellt die Zusammenhänge zu Ihren offenen Posten her. FiBu nimmt Ihnen das Suchen und Abtippen ab; Sie prüfen und entscheiden.",
-    fibuPunkte: [
-      ["Bank buchen", "Kontoauszüge als PDF, Scan, CAMT, MT940 oder CSV werden zum Buchungsstapel für das Bankkonto – nach Ihrer Buchungsweise. FiBu stellt den Bezug zu Ihren OPOS-Listen her: welche Zahlung welchen Posten ausgleicht, was offen bleibt, wo ein Beleg fehlt."],
-      ["Belege lesen und zuordnen", "Rechnungen und Gutschriften als PDF oder E-Rechnung: FiBu liest Betrag, Datum, Steuersatz und Rechnungsnummer und ordnet die Zahlung zu – auch bei Skonto und Teilzahlungen."],
-      ["Kreditoren und Debitoren buchen", "Aus Eingangs- und Ausgangsrechnungen entsteht der Buchungsstapel auf den Personenkonten. Über Ihre Stammdaten- und Kontenliste ordnet FiBu jeden Beleg dem richtigen Kreditor oder Debitor zu; für neue Geschäftspartner schlägt es ein neues Konto vor, über das Sie entscheiden."],
-      ["Ihre Buchungsweise je Mandant", "Gegenkonto, Steuerschlüssel, Kostenstelle und Buchungstext folgen den letzten zwölf Monaten je Geschäftspartner – als Datei bei Ihnen, ohne Modelltraining."],
-      ["Klärliste statt Rätselraten", "Was nicht eindeutig ist, wird zur Frage, die Sie mit einem Klick beantworten. Jede Zeile zeigt ihre Herkunft – nachvollziehbar und prüfbar nach GoBD."],
-      ["Umsatzsteuer überschlagen", "Für die Umsatzsteuer-Voranmeldung: Sie wählen Soll- oder Ist-Versteuerung oder Ihre Rechtsform, FiBu errechnet aus Kontoauszügen und Belegen die voraussichtliche Zahllast oder den Vorsteuerüberhang – je Steuersatz, mit Herkunft jedes Betrags. Ein Überschlag zur Vorbereitung; die Voranmeldung erstellen und übermitteln Sie oder Ihre Kanzlei."],
-    ],
     deklTitel: "SmartFormular Abschluss",
     deklClaim: "Das Arbeitspapier, das mitdenkt und vorarbeitet.",
-    deklLead: "Für den Jahresabschluss in der Kanzlei, mit den Daten aus SmartFormular FiBu oder Ihrem Buchhaltungsprogramm. SmartFormular Abschluss erledigt die Vorarbeit, die jeder Jahresabschluss braucht – vom Vorjahresvergleich bis zur Unterlage für das Abschlussgespräch. Jeder Vorschlag kommt mit Herleitung, jede Entscheidung bleibt bei Ihnen. Am Ende stehen ein Vorschlagsstapel für die Abschlussbuchungen und die Vorbereitung der E-Bilanz.",
+    deklLead: "Für den Jahresabschluss in der Kanzlei, mit den Daten aus Ihrem Buchhaltungsprogramm. SmartFormular Abschluss erledigt die Vorarbeit, die jeder Jahresabschluss braucht – vom Vorjahresvergleich bis zur Unterlage für das Abschlussgespräch. Jeder Vorschlag kommt mit Herleitung, jede Entscheidung bleibt bei Ihnen. Am Ende stehen ein Vorschlagsstapel für die Abschlussbuchungen und die Vorbereitung der E-Bilanz.",
     deklPunkte: [
       ["Vorjahreswerte und Entwicklungen", "Jede Position im Vorjahresvergleich, dazu die Entwicklungsübersichten – Anlagen, Rückstellungen, Darlehen, Eigenkapital – aus Saldenliste und Buchungen."],
       ["Darlehen abstimmen", "Zinsen und Tilgung gegen den Tilgungsplan, Anfangs- und Endbestand gegen Vertrag und Saldenbestätigung. Abweichungen stehen als Klärpunkt bereit."],
@@ -90,10 +80,9 @@ const TEXT = {
     fahrplanTitel: "So geht es weiter",
     fahrplan: [
       "FiBu lite und E-Rechnung lite stehen bereit – E-Rechnungen prüfen kostenlos, FiBu lite und das Erstellen kostenlos testen bis 31.12.2026, mit neuen Fassungen über den Newsletter.",
-      "SmartFormular FiBu entsteht als Beta im Memberbereich – mit Testdaten und der Rückmeldung von Kanzleien, die mitprüfen wollen.",
-      "SmartFormular Abschluss folgt als Beta für Kanzleien, die den Jahresabschluss strukturierter vorbereiten wollen.",
+      "SmartFormular Abschluss entsteht als Beta im Memberbereich für Kanzleien, die den Jahresabschluss strukturierter vorbereiten wollen.",
     ],
-    fahrplanHinweis: "Beta-Zugänge sind kostenfrei. Preise für FiBu und Abschluss erhalten Sie mit dem Angebot.",
+    fahrplanHinweis: "Beta-Zugänge sind kostenfrei. Preise für Abschluss erhalten Sie mit dem Angebot.",
     rechtTitel: "Daten und Recht",
     recht: [
       "FiBu lite und E-Rechnung lite verarbeiten alles auf Ihrem Rechner und übertragen keine Daten. Beta-Fassungen laufen im Memberbereich von robin.vision mit Testdaten; echte Mandanten- oder Personendaten setzen eine ausdrückliche Vereinbarung voraus. Die Daten liegen in Rechenzentren in der EU.",
@@ -101,16 +90,14 @@ const TEXT = {
     ],
     fragenTitel: "Fragen und Antworten",
     fragen: [
-      ["Was unterscheidet FiBu lite von SmartFormular FiBu?", "FiBu lite kontiert Kontoauszüge nach dem Muster des Vormonats – kostenlos testen bis 31.12.2026, offline. FiBu liest zusätzlich Belege, bucht Kreditoren und Debitoren, stellt die Zusammenhänge zu Ihren offenen Posten her, führt die Klärliste und zeigt die Herkunft jeder Zeile."],
       ["Brauche ich ein KI-Modell?", "Nein. SmartFormular arbeitet mit Regeln. Ein Modell lässt sich ergänzen, um Vorschläge dort zu verbessern, wo Regeln nicht reichen – in der EU, ohne Training mit Ihren Daten."],
-      ["Mit welchen Programmen arbeitet SmartFormular?", "Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm – importieren und exportieren, zuerst in Deutschland, langfristig weltweit. Jedes Programm kommt über eine eigene Anbindung hinzu. Heute exportiert FiBu lite Buchungsstapel im DATEV-Format, das viele Programme einlesen; FiBu liest zum Start OPOS-Listen aus DATEV und ADDISON, weitere Programme folgen mit der Beta. Abschluss arbeitet neben Ihrem Kanzleiprogramm."],
-      ["Berechnet FiBu die Umsatzsteuer-Voranmeldung?", "FiBu überschlägt sie: nach Soll- oder Ist-Versteuerung aus Kontoauszügen und Belegen, mit Zahllast oder Vorsteuerüberhang und der Herkunft jedes Betrags. Was unklar ist, etwa ein fehlender Beleg, steht in der Klärliste. Das ist eine Vorbereitung, keine Steuerberatung; übermittelt wird mit Ihrem Programm oder über Ihre Kanzlei."],
+      ["Mit welchen Programmen arbeitet SmartFormular?", "Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm – importieren und exportieren, zuerst in Deutschland, langfristig weltweit. Jedes Programm kommt über eine eigene Anbindung hinzu. Heute exportiert FiBu lite Buchungsstapel im DATEV-Format, das viele Programme einlesen; weitere Programme folgen mit der Beta. Abschluss arbeitet neben Ihrem Kanzleiprogramm."],
       ["Ersetzt SmartFormular Sachbearbeitende?", "Nein. Es nimmt Suchen und Abtippen ab und stellt Zusammenhänge her. Prüfen, entscheiden und festschreiben bleibt bei Ihrem Team."],
-      ["Was kostet SmartFormular?", "Mit E-Rechnung lite lesen und prüfen Sie E-Rechnungen auf der Seite kostenlos. FiBu lite, das Erstellen von E-Rechnungen und die Datei von E-Rechnung lite lassen sich bis 31.12.2026 kostenlos testen; wer sie danach weiter verwenden möchte, braucht eine Lizenz – bei E-Rechnung lite nach vier Wochen kostenlosem Test, die Bedingungen stehen rechtzeitig vorher hier. Beta-Zugänge zu FiBu und Abschluss sind kostenfrei; Preise für die fertigen Produkte erhalten Sie mit dem Angebot."],
+      ["Was kostet SmartFormular?", "Mit E-Rechnung lite lesen und prüfen Sie E-Rechnungen auf der Seite kostenlos. FiBu lite, das Erstellen von E-Rechnungen und die Datei von E-Rechnung lite lassen sich bis 31.12.2026 kostenlos testen; wer sie danach weiter verwenden möchte, braucht eine Lizenz – bei E-Rechnung lite nach vier Wochen kostenlosem Test, die Bedingungen stehen rechtzeitig vorher hier. Der Beta-Zugang zu Abschluss ist kostenfrei; Preise für die fertigen Produkte erhalten Sie mit dem Angebot."],
       ["Wie bekomme ich Beta-Zugang?", "Über das Formular unten. Sie erhalten einen Zugang zum Memberbereich, die Beta-Fassung mit Testdaten und einen kurzen Weg für Rückmeldungen."],
     ],
     betaTitel: "Beta-Zugang anfragen",
-    betaLead: "FiBu und Abschluss sollen gemeinsam mit Kanzleien entstehen, die sie im Alltag erproben. Ich melde mich persönlich per E-Mail.",
+    betaLead: "Abschluss soll gemeinsam mit Kanzleien entstehen, die sie im Alltag erproben. Ich melde mich persönlich per E-Mail.",
     felder: { firma: "Kanzlei oder Unternehmen", name: "Ihr Name", email: "E-Mail-Adresse", produkt: "Interesse an", nachricht: "Ihre Lage oder Frage", optional: "(freiwillig)", beide: "Beiden" },
     senden: "Beta-Zugang anfragen", sendet: "Wird gesendet …",
     gesendet: "Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.",
@@ -125,15 +112,15 @@ const TEXT = {
     titel: "SmartFormular",
     abzeichen: "Forms that work with you",
     seitentitel: "SmartFormular: bookkeeping and year-end accounts with tools that work with you – check e-invoices free of charge, FiBu lite free to try until 31 December 2026 | robin.vision",
-    beschr: "SmartFormular by robin.vision: FiBu lite turns bank statements into booking batches in the DATEV format, E-Rechnung lite reads and checks e-invoices free of charge; FiBu lite and creating e-invoices are free to try until 31 December 2026, in your browser. SmartFormular FiBu and Abschluss bring documents, open items and year-end accounts together. Beta access on request.",
+    beschr: "SmartFormular by robin.vision: FiBu lite turns bank statements into booking batches in the DATEV format, E-Rechnung lite reads and checks e-invoices free of charge; FiBu lite and creating e-invoices are free to try until 31 December 2026, in your browser. SmartFormular Abschluss prepares year-end accounts. Beta access on request.",
     untertitel: "Tools for bookkeeping and year-end accounts that start the casework while you fill them in. Checking, deciding and finalising stay with you.",
-    meta: "E-Rechnung lite: check free of charge · FiBu lite free to try until 31 December 2026 · FiBu and Abschluss as a beta · for accounting firms and finance teams",
+    meta: "E-Rechnung lite: check free of charge · FiBu lite free to try until 31 December 2026 · Abschluss as a beta · for accounting firms and finance teams",
     intro: [
       "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, checks for completeness and takes the first steps of the casework while you are still typing. Every suggestion carries its origin: document, rule, previous month or model. You check and finalise it in your accounting software.",
-      "SmartFormular FiBu lite, the Booking Batch Generator, and SmartFormular E-Rechnung lite are available. E-Rechnung lite makes e-invoices readable, checks them and lets you pay them by GiroCode – free of charge on the page; creating your own e-invoices and the downloadable file are free until 31 December 2026, then with a free four-week trial and a licence. FiBu lite is free to try until 31 December 2026. SmartFormular FiBu and SmartFormular Abschluss follow – for the current month and for year-end accounts. Both are being developed as a beta in the member area; accounting firms that want to help test them get access on request.",
+      "SmartFormular FiBu lite, the Booking Batch Generator, and SmartFormular E-Rechnung lite are available. E-Rechnung lite makes e-invoices readable, checks them and lets you pay them by GiroCode – free of charge on the page; creating your own e-invoices and the downloadable file are free until 31 December 2026, then with a free four-week trial and a licence. FiBu lite is free to try until 31 December 2026. SmartFormular Abschluss follows for year-end accounts. It is being developed as a beta in the member area; firms that want to help test it get access on request.",
     ],
     liteKnopf: "Download FiBu lite – free to try until 31 December 2026", betaKnopf: "Request beta access",
-    produkteTitel: "Four products", fertig: "Free to try until 31 December 2026 · available", fertigEr: "Free to check · available", inEntwicklung: "Beta · on request",
+    produkteTitel: "Three products", fertig: "Free to try until 31 December 2026 · available", fertigEr: "Free to check · available", inEntwicklung: "Beta · on request",
     liteTitel: "SmartFormular FiBu lite",
     lite: [
       "The bank feed is down, the statement is only a PDF, the books have to go out: FiBu lite reads bank statements as PDF, scan, CAMT, MT940 or CSV, takes the previous month's booking batch as its template and produces one booking batch in the DATEV format per statement and month – with a totals check.",
@@ -148,19 +135,9 @@ const TEXT = {
     ],
     erFakten: ["XRechnung (UBL, CII), ZUGFeRD", "CEN and KoSIT rules", "GiroCode", "Checking free of charge, no upload", "Creating free until 31 December 2026, then trial and licence"],
     erKnopf: "Check an e-invoice",
-    fibuTitel: "SmartFormular FiBu",
-    fibuLead: "For the current month: FiBu turns bank statements and documents into the checked booking batch – for bank, payables and receivables – and links it to your open items. FiBu takes the searching and retyping off your hands; you check and decide.",
-    fibuPunkte: [
-      ["Post the bank account", "Bank statements as PDF, scan, CAMT, MT940 or CSV become the booking batch for the bank account – following your posting style. FiBu links them to your open-item lists: which payment settles which item, what remains open, where an invoice is missing."],
-      ["Read and match documents", "Invoices and credit notes as PDF or e-invoice: FiBu reads amount, date, tax rate and invoice number and matches the payment – including early-payment discounts and part payments."],
-      ["Post payables and receivables", "Purchase and sales invoices become the booking batch on the supplier and customer accounts. Using your master data and account list, FiBu assigns each document to the right supplier or customer; for new business partners it proposes a new account for you to decide on."],
-      ["Your posting style per client", "Contra account, tax key, cost centre and posting text follow the last twelve months per business partner – as a file kept with you, no model training."],
-      ["A clarification list instead of guesswork", "Anything ambiguous becomes a question you answer with one click. Every line shows its origin – traceable and auditable under the German GoBD."],
-      ["Estimate VAT", "For the German advance VAT return: you choose accrual or cash accounting, or your legal form, and FiBu works out from bank statements and documents the expected VAT payable or the excess input VAT to be refunded – by rate, with the origin of every amount. An estimate to prepare the return; you or your firm still prepare and file it."],
-    ],
     deklTitel: "SmartFormular Abschluss",
     deklClaim: "The working paper that thinks ahead and does the groundwork.",
-    deklLead: "For year-end accounts in the firm, with the data from SmartFormular FiBu or your accounting software. SmartFormular Abschluss does the groundwork every set of accounts needs – from the prior-year comparison to the briefing for the year-end meeting. Every suggestion comes with its derivation, every decision stays with you. The result is a set of proposed closing entries and the preparation of the German e-balance sheet.",
+    deklLead: "For year-end accounts in the firm, with the data from your accounting software. SmartFormular Abschluss does the groundwork every set of accounts needs – from the prior-year comparison to the briefing for the year-end meeting. Every suggestion comes with its derivation, every decision stays with you. The result is a set of proposed closing entries and the preparation of the German e-balance sheet.",
     deklPunkte: [
       ["Prior-year figures and movements", "Every item compared with the prior year, plus movement schedules – fixed assets, provisions, loans, equity – from the trial balance and postings."],
       ["Reconcile loans", "Interest and repayments against the repayment schedule, opening and closing balances against the agreement and the bank confirmation. Differences are ready as clarification points."],
@@ -193,10 +170,9 @@ const TEXT = {
     fahrplanTitel: "What comes next",
     fahrplan: [
       "FiBu lite and E-Rechnung lite are available – checking e-invoices is free, FiBu lite and creating are free to try until 31 December 2026, with new versions announced in the newsletter.",
-      "SmartFormular FiBu is being developed as a beta in the member area – with test data and feedback from firms that want to help test it.",
-      "SmartFormular Abschluss follows as a beta for firms that want to prepare year-end accounts in a more structured way.",
+      "SmartFormular Abschluss is being developed as a beta in the member area for firms that want to prepare year-end accounts in a more structured way.",
     ],
-    fahrplanHinweis: "Beta access is free of charge. Prices for FiBu and Abschluss come with the quote.",
+    fahrplanHinweis: "Beta access is free of charge. Prices for Abschluss come with the quote.",
     rechtTitel: "Data and legal",
     recht: [
       "FiBu lite and E-Rechnung lite process everything on your computer and transmit no data. Beta versions run in the robin.vision member area with test data; real client or personal data requires an explicit agreement. Data is stored in data centres in the EU.",
@@ -204,16 +180,14 @@ const TEXT = {
     ],
     fragenTitel: "Questions and answers",
     fragen: [
-      ["What is the difference between FiBu lite and SmartFormular FiBu?", "FiBu lite posts bank statements by the previous month's pattern – free to try until 31 December 2026, offline. FiBu additionally reads documents, posts payables and receivables, links them to your open items, keeps the clarification list and shows the origin of every line."],
       ["Do I need an AI model?", "No. SmartFormular works with rules. A model can be added to improve suggestions where rules fall short – in the EU, without training on your data."],
-      ["Which software does SmartFormular work with?", "The aim is to exchange data with every accounting package – importing and exporting, starting in Germany and in the long run worldwide. Each package is added through its own connector. Today FiBu lite exports booking batches in the DATEV format, which many programs import; at launch FiBu reads open-item lists from DATEV and ADDISON, with further packages following during the beta. SmartFormular Abschluss works alongside your firm's software."],
-      ["Does FiBu calculate the advance VAT return?", "FiBu estimates it: on an accrual or cash basis from bank statements and documents, with the VAT payable or the excess input VAT and the origin of every amount. Anything unclear, such as a missing invoice, goes on the clarification list. It is preparation, not tax advice; the return is filed with your own software or by your firm."],
+      ["Which software does SmartFormular work with?", "The aim is to exchange data with every accounting package – importing and exporting, starting in Germany and in the long run worldwide. Each package is added through its own connector. Today FiBu lite exports booking batches in the DATEV format, which many programs import; further packages follow during the beta. SmartFormular Abschluss works alongside your firm's software."],
       ["Does SmartFormular replace accounting staff?", "No. It takes over searching and retyping and works out connections. Checking, deciding and finalising stay with your team."],
-      ["What does SmartFormular cost?", "With E-Rechnung lite you read and check e-invoices on the page free of charge. FiBu lite, creating e-invoices and the E-Rechnung lite file are free to try until 31 December 2026; continued use after that requires a licence – for E-Rechnung lite after a free four-week trial; the terms will be posted here in good time. Beta access to FiBu and Abschluss is free of charge; prices for the finished products come with the quote."],
+      ["What does SmartFormular cost?", "With E-Rechnung lite you read and check e-invoices on the page free of charge. FiBu lite, creating e-invoices and the E-Rechnung lite file are free to try until 31 December 2026; continued use after that requires a licence – for E-Rechnung lite after a free four-week trial; the terms will be posted here in good time. Beta access to Abschluss is free of charge; prices for the finished products come with the quote."],
       ["How do I get beta access?", "Through the form below. You receive access to the member area, the beta version with test data and a short route for feedback."],
     ],
     betaTitel: "Request beta access",
-    betaLead: "FiBu and Abschluss are to be developed together with firms that test them in daily work. I will get back to you personally by email.",
+    betaLead: "Abschluss is to be developed together with firms that test it in daily work. I will get back to you personally by email.",
     felder: { firma: "Firm or company", name: "Your name", email: "Email address", produkt: "Interested in", nachricht: "Your situation or question", optional: "(optional)", beide: "Both" },
     senden: "Request beta access", sendet: "Sending …",
     gesendet: "Thank you – your request has arrived. I will get back to you by email.",
@@ -343,10 +317,7 @@ ${t.lite.map(p => `<p>${esc(p)}</p>`).join("\n")}
 ${er ? `<h2 id="e-rechnung">${esc(t.erTitel)}</h2>
 ${t.er.map(p => `<p>${esc(p)}</p>`).join("\n")}
 <ul class="fakten">${t.erFakten.map(f => `<li>${esc(f)}</li>`).join("")}</ul>
-<p class="download-zeile"><a class="sf-knopf" href="${up}werkzeuge/${er.id}/">${esc(t.erKnopf)}</a>${erStand ? `<span class="stand">${erStand}</span>` : ""}</p>\n` : ""}<h2 id="fibu">${esc(t.fibuTitel)}</h2>
-<p>${esc(t.fibuLead)}</p>
-${liste(t.fibuPunkte)}
-<h2 id="abschluss">${esc(t.deklTitel)}</h2>
+<p class="download-zeile"><a class="sf-knopf" href="${up}werkzeuge/${er.id}/">${esc(t.erKnopf)}</a>${erStand ? `<span class="stand">${erStand}</span>` : ""}</p>\n` : ""}<h2 id="abschluss">${esc(t.deklTitel)}</h2>
 <p class="untertitel">${esc(t.deklClaim)}</p>
 <p>${esc(t.deklLead)}</p>
 ${liste(t.deklPunkte)}
@@ -381,7 +352,7 @@ ${t.fragen.map(([f, a]) => `<h3>${esc(f)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 <div><label for="b-firma">${esc(t.felder.firma)}</label><input type="text" id="b-firma" name="firma" maxlength="120" autocomplete="organization"></div>
 <div><label for="b-name">${esc(t.felder.name)}</label><input type="text" id="b-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="b-email">${esc(t.felder.email)}</label><input type="email" id="b-email" name="email" maxlength="120" required autocomplete="email"></div>
-<div><label for="b-produkt">${esc(t.felder.produkt)}</label><select id="b-produkt" name="produkt"><option value="fibu">SmartFormular FiBu</option><option value="deklaration">SmartFormular Abschluss</option><option value="beide">${esc(t.felder.beide)}</option></select></div>
+<input type="hidden" name="produkt" value="deklaration">
 </div>
 <label for="b-nachricht">${esc(t.felder.nachricht)} <span>${esc(t.felder.optional)}</span></label><textarea id="b-nachricht" name="nachricht" maxlength="2000"></textarea>
 <div class="falle" aria-hidden="true"><label for="b-website">Website</label><input type="text" id="b-website" name="website" tabindex="-1" autocomplete="off"></div>

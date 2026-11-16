@@ -624,7 +624,7 @@ Alter Stand der Übersicht: drei
 Kacheln – SmartFormular FiBu lite (bisher Buchungsstapel-Generator, kostenlos, fertig), SmartFormular FiBu und SmartFormular
 Abschluss (in Entwicklung, Beta 2027) –, ein Beta-Anfrageformular an Gochs `/contact`, der Hinweis zur optionalen KI (EU-Hosting,
 kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von FiBu lite trägt den Abschnitt „Was kommt“ mit dem Ausblick.
-Gochs Linkliste kennt `smartformular-fibu` und `smartformular-deklaration` (Anker auf der Übersicht). Prüfung:
+Gochs Linkliste kennt `smartformular-deklaration` (Anker auf der Übersicht; `smartformular-fibu` seit 16.11.2026 archiviert). Prüfung:
 `node tests/werkzeug_seite_test.mjs`, `node tests/goch_werkzeuge_test.mjs`.
 
 ## Kennzeichen „Anzeige“ an allen Werkzeugen (18.10.2026)

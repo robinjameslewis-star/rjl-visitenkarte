@@ -13,9 +13,8 @@
    im Browser, kostenlos zu testen bis 31.12.2026. SmartFormular E-Rechnung lite prüft und liest E-Rechnungen
    (XRechnung, ZUGFeRD) mit GiroCode zum Bezahlen – auf der Website dauerhaft kostenlos – und schreibt neu auch eigene
    XRechnungen, mit Katalog und Kunden, auch als CSV; Erstellen und Datei sind bis 31.12.2026 kostenlos, danach vier
-   Wochen Test und Lizenz. Als Beta in Vorbereitung: SmartFormular FiBu
-   (Buchungsstapel für Bank, Kreditoren und Debitoren mit Bezug zu den offenen Posten, Überschlag der Umsatzsteuer-Voranmeldung) und SmartFormular
-   Abschluss für den Jahresabschluss, mit den Daten aus FiBu. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
+   Wochen Test und Lizenz. Als Beta in Vorbereitung: SmartFormular
+   Abschluss für den Jahresabschluss, mit den Daten aus dem Buchhaltungsprogramm. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
 4. **Werkzeuge und Partner.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
    Verwaltung und andere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
@@ -43,8 +42,7 @@
    XRechnung invoices, with catalogue and customers, also from CSV; creating and the download file are free until
    31 December 2026, then a four-week trial and a licence.
    In preparation as a beta:
-   SmartFormular FiBu (booking batches for bank, payables and receivables linked to open items, an estimate of the advance VAT return) and
-   SmartFormular Abschluss for year-end accounts, using the data from FiBu. The aim is to exchange data with every accounting
+   SmartFormular Abschluss for year-end accounts, using the data from the accounting software. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
 4. **Tools and partners.** Under "Tools" Robin presents and compares software and AI solutions for
    accounting, administration and other business processes – including SmartFormular; more solutions
