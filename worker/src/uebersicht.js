@@ -29,7 +29,7 @@ const TEXT = {
     seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen | robin.vision",
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und Partnerprogramm.",
     untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
-    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular-Produkte", zuSf: "Mehr zu SmartFormular", partnerTitel: "Vorgeschlagene Software",
+    ueberblickTitel: "Im Überblick", reiheLabel: "Werkzeuge", zuSf: "Mehr zu SmartFormular", partnerTitel: "Partner",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; FiBu und Abschluss kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
@@ -89,7 +89,7 @@ const TEXT = {
     seitentitel: "Tools: accounting software and AI | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and a partner programme.",
     untertitel: "Software and AI solutions for accounting, administration and other business processes – presented. I show a selection of them in the workshops, using cases from everyday work.",
-    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular products", zuSf: "More about SmartFormular", partnerTitel: "Suggested software",
+    ueberblickTitel: "At a glance", reiheLabel: "Tools", zuSf: "More about SmartFormular", partnerTitel: "Partners",
     sf: { text: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; FiBu and Abschluss are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
     platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
@@ -167,7 +167,6 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .wz-th-kennz span { white-space: nowrap; }
 .wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 15px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
-.wz-platzhalter { border: 1.5px dashed var(--copper); }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
 .wz-chips li { margin: 0; padding: 4px 10px; border: 1px solid var(--line); border-radius: 3px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.6); text-align: left; }
 .wz-knopf { display: inline-block; padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper) !important; text-decoration: none !important; font-size: 15px; }
@@ -288,28 +287,24 @@ ${vorschlagKennzeichen(lang, p.anbieter, "wz-kennz")}
 ${chips([p.bereich[lang] || p.bereich.de])}
 <p class="frei"><a class="wz-knopf" href="${esc(p.url)}" rel="noopener" target="_blank">${esc(t.zumAnbieter)}</a></p>
 </article>`);
-  const platz = `<article class="wz-karte wz-platzhalter">
-<span class="wz-logo" aria-hidden="true">${esc(t.platzhalter.logo)}</span>
-<h3>${esc(t.platzhalter.titel)}</h3>
-<p class="frei">${esc(t.platzhalter.text)}</p>
-${chips(t.platzhalter.chips)}
-<p class="frei"><a class="wz-knopf zweit" href="#partner">${esc(t.platzhalter.knopf)}</a></p>
-</article>`;
-  return { sf, partner: [...partner, ...vorgeschlagen, platz].join("\n") };
+  // Ohne Platzhalter neben vorgestellten Lösungen (Robin, 16.11.2026: „mach mal das partner werden neben kanzleikern auf der werkzeuge
+  // seite weg“); vorgeschlagene Software steht vorn in der Reihe (reihe unten), der Abschnitt „Partner“ nur mit bezahlten Partnern.
+  // Das Formular „Partner werden“ weiter unten bleibt.
+  return { sf, partner: partner.join("\n"), vorgeschlagen };
 }
 
 // SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)
 function reihe(lang, t, up) {
   const kennz = p => p.frei ? kostenlos(lang, "wz-kennz", p.frei) : kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "wz-kennz");
   return `<div class="wz-reihe" tabindex="0" role="region" aria-label="${esc(t.reiheLabel)}">
-${PRODUKTE[lang].map(p => `<article class="wz-karte">
+${[...karten(lang, t, up).vorgeschlagen, ...PRODUKTE[lang].map(p => `<article class="wz-karte">
 ${kennz(p)}
 ${SF_LOGO}
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc(p.text)}</p>
 <ul class="wz-chips"><li>${esc(p.bereich)}</li></ul>
 <p class="frei"><a class="wz-knopf" href="${up}${p.href}">${esc(t.zumProdukt)}</a></p>
-</article>`).join("\n")}
+</article>`)].join("\n")}
 </div>`;
 }
 
@@ -357,11 +352,11 @@ export function werkzeugeUebersicht(lang, { vergleich: mitVergleich = VERGLEICH_
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 ${reihe(lang, t, up)}
 <p class="frei wz-mehr"><a href="${sfZiel}">${esc(t.zuSf)} →</a></p>
-<h2 id="partner-anzeigen">${esc(t.partnerTitel)}</h2>
+${PARTNER.length ? `<h2 id="partner-anzeigen">${esc(t.partnerTitel)}</h2>
 <div class="wz-raster">
 ${karten(lang, t, up).partner}
 </div>
-${grundsaetze(lang)}
+` : ""}${grundsaetze(lang)}
 ${mitVergleich ? `<h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
 <p class="wz-hinweis frei">${esc(t.vergleichLead)}</p>
 ${vergleich(lang, t, up)}

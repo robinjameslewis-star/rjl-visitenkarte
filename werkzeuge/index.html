@@ -169,7 +169,6 @@ article li { margin-bottom: 6px; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .wz-th-kennz span { white-space: nowrap; }
 .wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 15px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
-.wz-platzhalter { border: 1.5px dashed var(--copper); }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
 .wz-chips li { margin: 0; padding: 4px 10px; border: 1px solid var(--line); border-radius: 3px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.6); text-align: left; }
 .wz-knopf { display: inline-block; padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper) !important; text-decoration: none !important; font-size: 15px; }
@@ -251,8 +250,16 @@ article li { margin-bottom: 6px; }
 <article class="wz">
 <h1>Werkzeuge</h1>
 <p class="untertitel">Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.</p>
-<h2 id="ueberblick">SmartFormular</h2>
-<div class="wz-reihe" tabindex="0" role="region" aria-label="SmartFormular-Produkte">
+<h2 id="ueberblick">Im Überblick</h2>
+<div class="wz-reihe" tabindex="0" role="region" aria-label="Werkzeuge">
+<article class="wz-karte">
+<p class="wz-kennz">Vorgeschlagen · <span>Dashtax GbR</span></p>
+<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="../assets/partner/kanzleikern.svg" alt=""></span>
+<h3>Kanzleikern</h3>
+<p class="frei">Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.</p>
+<ul class="wz-chips"><li>Kanzleiwissen</li></ul>
+<p class="frei"><a class="wz-knopf" href="https://kanzleikern.com/" rel="noopener" target="_blank">Zum Anbieter</a></p>
+</article>
 <article class="wz-karte">
 <p class="wz-kennz">Kostenlos testen bis 31.12.2026</p>
 <span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
@@ -287,24 +294,6 @@ article li { margin-bottom: 6px; }
 </article>
 </div>
 <p class="frei wz-mehr"><a href="smartformular/">Mehr zu SmartFormular →</a></p>
-<h2 id="partner-anzeigen">Vorgeschlagene Software</h2>
-<div class="wz-raster">
-<article class="wz-karte">
-<p class="wz-kennz">Vorgeschlagen · <span>Dashtax GbR</span></p>
-<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="../assets/partner/kanzleikern.svg" alt=""></span>
-<h3>Kanzleikern</h3>
-<p class="frei">Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.</p>
-<ul class="wz-chips"><li>Kanzleiwissen</li></ul>
-<p class="frei"><a class="wz-knopf" href="https://kanzleikern.com/" rel="noopener" target="_blank">Zum Anbieter</a></p>
-</article>
-<article class="wz-karte wz-platzhalter">
-<span class="wz-logo" aria-hidden="true">Ihr Logo</span>
-<h3>Ihre Lösung auf robin.vision</h3>
-<p class="frei">Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, auch in Workshops und auf Fachmessen.</p>
-<ul class="wz-chips"><li>Website</li><li>Workshops</li><li>Fachmessen</li></ul>
-<p class="frei"><a class="wz-knopf zweit" href="#partner">Partner werden</a></p>
-</article>
-</div>
 <section class="grundsaetze" aria-label="Zwei Grundsätze">
 <div><span class="gs-kicker">Klardaten</span><span class="gs-titel">Klardaten nur in Werkzeuge, die dafür gemacht sind</span><p class="gs-text frei">Mandanten-, Personal- und Finanzdaten sind selten anonymisiert. Datenschutz, Verschwiegenheit und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></div>
 <div><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So bleibt die Wahl bei Ihnen.</p></div>
