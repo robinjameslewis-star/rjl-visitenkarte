@@ -295,7 +295,10 @@ ${chips([p.bereich[lang] || p.bereich.de])}
 ${chips(t.platzhalter.chips)}
 <p class="frei"><a class="wz-knopf zweit" href="#partner">${esc(t.platzhalter.knopf)}</a></p>
 </article>`;
-  return { sf, partner: [...partner, ...vorgeschlagen, platz].join("\n") };
+  // Platzhalter „Ihre Lösung auf robin.vision“ nur, solange keine Lösung vorgestellt wird (Robin, 16.11.2026: „mach mal das partner werden
+  // neben kanzleikern auf der werkzeuge seite weg“); das Formular „Partner werden“ weiter unten bleibt
+  const vorgestellt = [...partner, ...vorgeschlagen];
+  return { sf, partner: (vorgestellt.length ? vorgestellt : [platz]).join("\n") };
 }
 
 // SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)

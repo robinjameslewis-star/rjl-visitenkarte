@@ -54,10 +54,11 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check((reihe.match(/<article class="wz-karte">/g) || []).length === 4 && reihe.includes(`${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf"`) && (reihe.match(/wz-logo-sf/g) || []).length === 4, "SmartFormular als wischbare Reihe: vier Produkte, Kennzeichen wie im Slider (Robin, 03.11.2026)");
   check(html.indexOf('id="ueberblick"') < html.indexOf('class="wz-reihe"') && html.indexOf('class="wz-reihe"') < html.indexOf('id="partner-anzeigen"') && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="wz-raster"'), "erst SmartFormular, dann die Partner (Robin, 03.11.2026)");
   check(!/Partnerangebot|Partner offer|Advertisement|Eigene Produkte|Own products|eigene Produkte|own products|Partnerlösungen|partner solutions/.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "keine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026)");
-  check(!(raster.match(/<article class="wz-karte wz-platzhalter">[\s\S]*?<\/article>/)?.[0] || "wz-kennz").includes("wz-kennz"), "Platzhalter ohne Kennzeichen");
+  check(!(raster.match(/<article class="wz-karte wz-platzhalter">[\s\S]*?<\/article>/)?.[0] || "").includes("wz-kennz"), "Platzhalter (falls da) ohne Kennzeichen");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
-  check(raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Partnerkarte „Ihre Lösung auf robin.vision“ mit Weg zum Formular");
-  check((raster.match(/<article class="wz-karte/g) || []).length === 1 + V, "ohne Partner nur die vorgeschlagene Software und der Platzhalter");
+  check(V ? !raster.includes("wz-platzhalter") && !raster.includes(t.platz) : raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Platzhalter „Ihre Lösung auf robin.vision“ nur, solange keine Lösung vorgestellt wird (Robin, 16.11.2026)");
+  check((raster.match(/<article class="wz-karte/g) || []).length === (V || 1), "ohne Partner nur die vorgeschlagene Software");
+  check(html.includes('<h2 id="partner">') && html.includes('id="partner-anfrage"'), "Formular „Partner werden“ bleibt");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Verweis mit rel=sponsored");
   // Vergleich vorübergehend aus (Robin, 12.11.2026); Aufbau und Daten werden weiter an der eingeschalteten Fassung geprüft
   check(VERGLEICH_SICHTBAR || (!html.includes('id="vergleich"') && !html.includes('<table class="wz-tabelle">') && !html.includes('class="meta wz-quelle"')), "Vergleichstabelle vorübergehend nicht auf der Seite (Robin, 12.11.2026)");
