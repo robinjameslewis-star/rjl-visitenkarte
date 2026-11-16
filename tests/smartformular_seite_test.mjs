@@ -32,16 +32,16 @@ for (const lang of ["de", "en"]) {
   check(t.nav.test(html) && html.includes(`<a class="termin" href="${t.home}#kontakt">`), "Kopf: Werkzeuge aktiv, Termin bleibt, Pfade zur Wurzel stimmen");
   check(html.includes(t.brotkrume) && html.indexOf(t.brotkrume) < html.indexOf("<h1"), "Brotkrume „Werkzeuge › SmartFormular“ über der Wortmarke");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "ohne „Produkt von robin.vision“ (Robin, 18.10.2026)");
-  check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 4 && (html.match(/class="sf-stand">/g) || []).length >= 4, "vier Produktkacheln mit Stand und Anker");
+  check(P.every(p => html.includes(`id="${p.id}"`) && html.includes(`<h3>${p.name}</h3>`)) && (html.match(/<section class="sf-kachel/g) || []).length === 3 && (html.match(/class="sf-stand">/g) || []).length >= 3 && !html.includes('<h2 id="fibu">'), "drei Produktkacheln mit Stand und Anker, SmartFormular FiBu archiviert (Robin, 16.11.2026)");
   const lite = WERKZEUGE.find(w => w.lang === lang && !w.app), d = felder[lite.id].datei;
   const er = WERKZEUGE.find(w => w.lang === lang && w.app === "erechnung"), de = felder[er.id].datei;
-  check(/<h2 id="e-rechnung">SmartFormular E-Rechnung lite<\/h2>/.test(html) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${er.id}/">`) && html.includes(`${de.fassung}`) && html.indexOf('id="e-rechnung"') < html.indexOf('<h2 id="fibu"'), "E-Rechnung lite: eigener Abschnitt mit Knopf zum Werkzeug und Fassung, vor FiBu");
+  check(/<h2 id="e-rechnung">SmartFormular E-Rechnung lite<\/h2>/.test(html) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${er.id}/">`) && html.includes(`${de.fassung}`) && html.indexOf('id="e-rechnung"') < html.indexOf('<h2 id="abschluss"'), "E-Rechnung lite: eigener Abschnitt mit Knopf zum Werkzeug und Fassung, vor Abschluss");
   check(html.includes(`<a class="knopf" href="${t.up}werkzeuge/${lite.id}/">${t.knopf}</a>`) && html.includes(`<a class="sf-knopf" href="${t.up}werkzeuge/${lite.id}/">`) && html.includes(`${d.fassung}`), "FiBu lite: Knopf zum Werkzeug oben und im Abschnitt, Fassung aus der Werkzeugseite");
-  check((html.match(/<ol class="sf-liste">/g) || []).length === 4 && (html.match(/<span class="nr">0\d<\/span>/g) || []).length === 6 + 7 + 3 + 3, "Listen: sechs Punkte FiBu (Bank mit OPOS-Bezug, Kreditoren und Debitoren, Umsatzsteuer-Überschlag), sieben Punkte Deklaration, drei zu den Programmen, drei zum Sprachmodell");
+  check((html.match(/<ol class="sf-liste">/g) || []).length === 3 && (html.match(/<span class="nr">0\d<\/span>/g) || []).length === 7 + 3 + 3, "Listen: sieben Punkte Abschluss, drei zu den Programmen, drei zum Sprachmodell");
   check(/<h2 id="abschluss">[^<]*<\/h2>\n<p class="untertitel">(Das Arbeitspapier, das mitdenkt und vorarbeitet\.|The working paper that thinks ahead and does the groundwork\.)<\/p>/.test(html), "Deklaration mit dem Claim „Das Arbeitspapier, das mitdenkt und vorarbeitet“");
   check(/<h2 id="programme">/.test(html) && /DATEV/.test(html.match(/<h2 id="programme">[\s\S]*?<h2 id="sprachmodell">/)[0]), "Abschnitt „Offen für jedes Buchhaltungsprogramm“ vor dem Sprachmodell");
   check(html.includes(`<h2 id="mensch">${t.kasten}</h2>`) && (html.match(/<ul class="fakten">/g) || []).length === 3, "Kasten „Mensch und Maschine“ und drei Faktenleisten");
-  check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 3 && !/2027|Q1|Stufe|stage/.test((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0]), "„So geht es weiter“ in drei Schritten, ohne Termine");
+  check((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 2 && !/2027|Q1|Stufe|stage/.test((html.match(/<ol class="ablauf">[\s\S]*?<\/ol>/) || [""])[0]), "„So geht es weiter“ in zwei Schritten, ohne Termine");
   check(/DATEV eG/.test(html) && /Mandanten- oder Personendaten|client or personal data/.test(html) && !/UG \(haftungsbeschränkt\)|Bedrock|Azure|Ollama/.test(html), "Daten und Recht: Marke, Testdaten-Regel, ohne interne Planung und Anbieterlisten");
   const sichtbar = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ");
   check(!/\d+(?:\.\d{3})? ?€|€ ?\d|\bEUR\b/.test(sichtbar), "keine Preise auf der Seite (auf Anfrage)", (sichtbar.match(/.{0,30}(?:\d ?€|€ ?\d|EUR).{0,30}/) || [""])[0]);
@@ -53,8 +53,8 @@ for (const lang of ["de", "en"]) {
   check(form.includes('name="firma"') && form.includes('name="name" maxlength="80" required') && form.includes('name="email" maxlength="120" required') && form.includes('name="produkt"') && form.includes('name="website"') && form.includes('id="beta-status"'), "Beta-Anfrage mit Feldern, Falle und Statuszeile");
   check(html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes(`lang: ${JSON.stringify(lang)}`) && /t: geladen/.test(html), "Skript sendet an Gochs Kontakt-Endpunkt mit Sprache und Ladezeitpunkt");
   const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => { try { return JSON.parse(m[1]); } catch { return null; } });
-  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "SoftwareApplication" && ld[0].isAccessibleForFree === true && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 7, "JSON-LD: SoftwareApplication für FiBu lite und FAQPage mit sieben Fragen");
-  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 7, "sieben Fragen sichtbar");
+  check(ld.length === 2 && ld.every(Boolean) && ld[0]["@type"] === "SoftwareApplication" && ld[0].isAccessibleForFree === true && ld[1]["@type"] === "FAQPage" && ld[1].mainEntity.length === 5, "JSON-LD: SoftwareApplication für FiBu lite und FAQPage mit fünf Fragen");
+  check((html.match(/<div class="fragen">[\s\S]*?<\/div>/) || [""])[0].split("<h3>").length - 1 === 5, "fünf Fragen sichtbar");
   check(html.includes('id="downloads"') && html.includes('id="newsletter"') && /data-newsletter-endpoint="https:\/\/goch\.robin\.vision\/newsletter"/.test(html), "Downloads und Newsletter-Kasten");
   const andere = lang === "en" ? "de" : "en";
   check(html.includes(`<a href="${t.up}${SMARTFORMULAR_PFAD[andere].replace(/index\.html$/, "")}" lang="${andere}" hreflang="${andere}">`), "Verweis auf die andere Sprachfassung");
@@ -63,8 +63,8 @@ for (const lang of ["de", "en"]) {
 console.log("\nProduktdaten");
 for (const lang of ["de", "en"]) {
   const P = PRODUKTE[lang];
-  check(P.length === 4 && P.map(p => p.id).join() === "fibu-lite,e-rechnung-lite,fibu,deklaration" && P.every(p => p.name && p.text && p.kurz && ["fertig", "beta"].includes(p.stand)), `${lang}: vier Produkte mit Name, Text, Kurztext und Stand`);
-  check(P.slice(0, 2).every(p => p.stand === "fertig" && p.href) && P.slice(2).every(p => p.stand === "beta" && Array.isArray(p.punkte)) && P[2].punkte.length === 5 && P[3].punkte.length === 4, `${lang}: FiBu lite und E-Rechnung lite fertig mit Verweis, FiBu (fünf Punkte) und Deklaration (vier Punkte) als Beta`);
+  check(P.length === 3 && P.map(p => p.id).join() === "fibu-lite,e-rechnung-lite,deklaration" && P.every(p => p.name && p.text && p.kurz && ["fertig", "beta"].includes(p.stand)), `${lang}: drei Produkte mit Name, Text, Kurztext und Stand`);
+  check(P.slice(0, 2).every(p => p.stand === "fertig" && p.href) && P.slice(2).every(p => p.stand === "beta" && Array.isArray(p.punkte)) && P[2].punkte.length === 4, `${lang}: FiBu lite und E-Rechnung lite fertig mit Verweis, Deklaration (vier Punkte) als Beta`);
 }
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nSeite „SmartFormular“ in Ordnung.");
