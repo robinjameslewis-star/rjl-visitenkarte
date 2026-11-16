@@ -266,7 +266,7 @@ const EIGEN = [
   ["workshops/en/ki-kompetenz/", "Workshop KI-Kompetenz (englisch)", [["teile", "90 minutes"], ["nachweis", "not an official"], ["fuer-wen", "No prior knowledge"]]],
   ["ueber-mich/", "Über mich", [["kenntnisse", "Software"], ["ehrenamt", "Verwaltungsgericht"]]],
   // „ueberblick“ (erster Abschnitt) fehlt hier bewusst: Am Handy ist schon „Partner“ an der Reihe, wenn der kleine Goch erscheint; oben begrüßt der große
-  ["werkzeuge/", "Werkzeuge", [["partner-anzeigen", "anderer Anbieter"], ["workshops-hinweis", "Fällen aus Ihrem Alltag"], ["partner", "persönlich per E-Mail"]]],
+  ["werkzeuge/", "Werkzeuge", [["workshops-hinweis", "Fällen aus Ihrem Alltag"], ["partner", "persönlich per E-Mail"]]],
   ["workshops/e-rechnung/", "Workshop E-Rechnung", [["newsletter-title", "Newsletter"]]],
 ];
 for (const [pfad, name, liste] of EIGEN) {
