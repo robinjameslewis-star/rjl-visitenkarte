@@ -11,7 +11,8 @@ import { readFileSync } from "node:fs";
 import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
 import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT, VERGLEICH_SICHTBAR } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
-import { PARTNER } from "../worker/src/partner.js";
+import { PARTNER, VORGESCHLAGEN } from "../worker/src/partner.js";
+const V = VORGESCHLAGEN.length;
 import { grundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
 
 let fails = 0;
@@ -56,7 +57,7 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(!(raster.match(/<article class="wz-karte wz-platzhalter">[\s\S]*?<\/article>/)?.[0] || "wz-kennz").includes("wz-kennz"), "Platzhalter ohne Kennzeichen");
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
   check(raster.includes('class="wz-karte wz-platzhalter"') && raster.includes(`<h3>${t.platz}</h3>`) && raster.includes('href="#partner"'), "Partnerkarte „Ihre Lösung auf robin.vision“ mit Weg zum Formular");
-  check((raster.match(/<article class="wz-karte/g) || []).length === 1, "ohne Partner nur der Platzhalter");
+  check((raster.match(/<article class="wz-karte/g) || []).length === 1 + V, "ohne Partner nur die vorgeschlagene Software und der Platzhalter");
   check(!/rel="sponsored/.test(raster), "ohne Partner kein Verweis mit rel=sponsored");
   // Vergleich vorübergehend aus (Robin, 12.11.2026); Aufbau und Daten werden weiter an der eingeschalteten Fassung geprüft
   check(VERGLEICH_SICHTBAR || (!html.includes('id="vergleich"') && !html.includes('<table class="wz-tabelle">') && !html.includes('class="meta wz-quelle"')), "Vergleichstabelle vorübergehend nicht auf der Seite (Robin, 12.11.2026)");
@@ -77,6 +78,22 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(html.includes(JSON.stringify(ALTE_MARKEN)) && html.includes(`location.replace(${t.ziel}`) && ["fibu", "deklaration", "beta"].every(m => ALTE_MARKEN.includes(m)), "alte Sprungmarken (#fibu, #deklaration, #beta …) leiten zur Produktseite");
   check(html.includes('id="newsletter"') && !/etwa von FiBu lite|such as FiBu lite|Beta-Start von FiBu|beta start of FiBu/.test(html), "Newsletter-Kasten ohne FiBu lite und Beta-Start (Robin, 18.10.2026)");
   check(!/kleines Werkzeug|Schmerzpunkt|small tool|pain point/i.test(html) && /Hemmschwellen beim Umgang mit KI und neuer Software|hesitation about AI and new software/.test(html), "Workshop-Kasten: Hemmschwellen statt selbst gebautem Werkzeug (Robin, 18.10.2026)");
+}
+
+console.log("\nVorgeschlagene Software (Robin, 16.11.2026)");
+{
+  const ws = ["workshops/index.html", "workshops/en/index.html"].map(lesen).join("");
+  for (const lang of ["de", "en"]) {
+    const html = werkzeugeUebersicht(lang), s = slider(lang);
+    for (const v of VORGESCHLAGEN) {
+      const karte = (html.match(/<article class="wz-karte">[\s\S]*?<\/article>/g) || []).find(k => k.includes(`<h3>${v.name}</h3>`)) || "";
+      const zeichen = `${lang === "en" ? "Suggested" : "Vorgeschlagen"} · <span>${v.anbieter}</span>`;
+      check(karte.includes(`<p class="wz-kennz">${zeichen}</p>`) && !karte.includes("#anzeigen") && !karte.includes("sponsored") && karte.includes(`href="${v.url}" rel="noopener" target="_blank"`) && karte.includes(v.logo), `${lang}: ${v.name} als Karte mit „${zeichen.replace(/<\/?span>/g, "")}“, ohne „Anzeige“ und ohne rel=sponsored, mit Logo`);
+      check(s.includes(`<h3>${v.name}</h3>`) && s.includes(`<p class="wzs-kennz">${zeichen}</p>`) && !/Partner/.test(karte), `${lang}: ${v.name} im Slider, nirgends „Partner“ an der Karte`);
+      check((s.match(/<h3>([^<]+)<\/h3>/) || [])[1] === VORGESCHLAGEN[0].name, `${lang}: ${VORGESCHLAGEN[0].name} im Slider der Startseite vor SmartFormular (Robin, 16.11.2026)`);
+      check(!ws.includes(v.name), `${v.name} nicht auf den Workshop-Seiten (erst nach Robins Test)`);
+    }
+  }
 }
 
 console.log("\nProbe-Partner");
@@ -103,8 +120,8 @@ check(liste === startSlider(), "Slider auf der Startseite entspricht dem Modul")
 for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
-  check(anzahl(s, /<article class="wzs-karte/g) === 4 && anzahl(s, /<i( class="an")?><\/i>/g) === 4 && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: vier Karten, vier Punkte, zwei Pfeile – die Anbieterkarte steht seit Option B weiter unten`);
-  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 2 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1 && anzahl(s, /wzs-kennz/g) === 4 && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: vier SmartFormular-Produkte – zwei mit „Kostenlos“, zwei mit „Anzeige · robin.vision“ –, keine Anbieterkarte im Slider`);
+  check(anzahl(s, /<article class="wzs-karte/g) === 4 + V && anzahl(s, /<i( class="an")?><\/i>/g) === 4 + V && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: vier Karten, vier Punkte, zwei Pfeile – die Anbieterkarte steht seit Option B weiter unten`);
+  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 2 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1 && anzahl(s, /wzs-kennz/g) === 4 + V && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: vier SmartFormular-Produkte – zwei mit „Kostenlos“, zwei mit „Anzeige · robin.vision“ –, keine Anbieterkarte im Slider`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
   check(s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#abschluss"`), `${lang}: FiBu und Abschluss führen zur Produktseite`);
 }

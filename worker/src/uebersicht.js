@@ -12,7 +12,7 @@
 // Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, ROBIN_VISION, kennzeichen, anzeigeHref, kostenlosText, kostenlos } from "./partner.js";
+import { PARTNER, VORGESCHLAGEN, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, kostenlos } from "./partner.js";
 import { PRODUKTE } from "./slider.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
@@ -29,7 +29,7 @@ const TEXT = {
     seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen | robin.vision",
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und Partnerprogramm.",
     untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
-    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular-Produkte", zuSf: "Mehr zu SmartFormular", partnerTitel: "Partner",
+    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular-Produkte", zuSf: "Mehr zu SmartFormular", partnerTitel: "Vorgeschlagene Software",
     sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; FiBu und Abschluss kommen als Beta.",
       chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
@@ -89,7 +89,7 @@ const TEXT = {
     seitentitel: "Tools: accounting software and AI | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and a partner programme.",
     untertitel: "Software and AI solutions for accounting, administration and other business processes – presented. I show a selection of them in the workshops, using cases from everyday work.",
-    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular products", zuSf: "More about SmartFormular", partnerTitel: "Partners",
+    ueberblickTitel: "SmartFormular", reiheLabel: "SmartFormular products", zuSf: "More about SmartFormular", partnerTitel: "Suggested software",
     sf: { text: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; FiBu and Abschluss are coming as a beta.",
       chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
     platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
@@ -160,6 +160,8 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-karte > p:last-child { margin-top: auto; margin-bottom: 0; }
 .wz-logo { width: max-content; height: 44px; padding: 0 16px; display: flex; align-items: center; margin: 0 0 14px; border: 1px dashed var(--line); border-radius: 4px; font: 500 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,.6); }
 .wz-logo img { max-height: 32px; width: auto; }
+.wz-logo-bild { border: 1px solid #E4E1D8; background: #fff; padding: 0 14px; }
+.wz-logo-bild img { display: block; height: 24px; max-height: 24px; }
 .wz-karte .wz-kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--sans); color: #767676; }
 .wz-th-kennz { display: block; margin: 0 0 6px; font: 400 11px/1.45 var(--sans); color: #767676; hyphens: manual; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
@@ -277,6 +279,15 @@ ${kennz(p.anbieter)}
 <p class="frei">${seite ? `<a class="wz-knopf" href="${seite}">${esc(t.zumProdukt)}</a>` : `<a class="wz-knopf" href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(t.zumAnbieter)}</a>`}</p>
 </article>`;
   });
+  // Vorgeschlagene Software (unbezahlt): eigenes Kennzeichen, Bereich als Chip, Verweis ohne rel="sponsored"
+  const vorgeschlagen = VORGESCHLAGEN.map(p => `<article class="wz-karte">
+${vorschlagKennzeichen(lang, p.anbieter, "wz-kennz")}
+<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt=""></span>
+<h3>${esc(p.name)}</h3>
+<p class="frei">${esc(p.text[lang] || p.text.de)}</p>
+${chips([p.bereich[lang] || p.bereich.de])}
+<p class="frei"><a class="wz-knopf" href="${esc(p.url)}" rel="noopener" target="_blank">${esc(t.zumAnbieter)}</a></p>
+</article>`);
   const platz = `<article class="wz-karte wz-platzhalter">
 <span class="wz-logo" aria-hidden="true">${esc(t.platzhalter.logo)}</span>
 <h3>${esc(t.platzhalter.titel)}</h3>
@@ -284,7 +295,7 @@ ${kennz(p.anbieter)}
 ${chips(t.platzhalter.chips)}
 <p class="frei"><a class="wz-knopf zweit" href="#partner">${esc(t.platzhalter.knopf)}</a></p>
 </article>`;
-  return { sf, partner: [...partner, platz].join("\n") };
+  return { sf, partner: [...partner, ...vorgeschlagen, platz].join("\n") };
 }
 
 // SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)

@@ -4,7 +4,7 @@
 // Die Karte für Anbieter steht seit Welle 2 der Textprüfung (Robin, 23.10.2026, Option B) als Hinweis weiter unten (index.html, #anbieter). Je Sprache ein Slider; language.js blendet den der anderen Sprache über data-langs aus.
 // Ohne Skript lässt er sich wischen und scrollen, das kleine Skript in index.html ergänzt Pfeile und Punkte. Stile in index.html (.wzs).
 // tools/werkzeug-uebernehmen.mjs setzt das Ergebnis zwischen die Marken <!-- werkzeuge:liste --> ein.
-import { PARTNER, ROBIN_VISION, kennzeichen, kostenlos } from "./partner.js";
+import { PARTNER, VORGESCHLAGEN, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, kostenlos } from "./partner.js";
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -30,11 +30,11 @@ const TEXT = {
 // Produkte je Sprache, auch für die Kartenreihe auf der Seite Werkzeuge (uebersicht.js; Robin, 03.11.2026)
 export const PRODUKTE = { de: TEXT.de.produkte, en: TEXT.en.produkte };
 
-const karte = ({ kennz = "", logo, name, text, bereich, href, link, sponsored = false }) => `        <article class="wzs-karte">
+const karte = ({ kennz = "", logo, name, text, bereich, href, link, sponsored = false, extern = false }) => `        <article class="wzs-karte">
           ${kennz ? kennz + "\n          " : ""}${logo}
           <h3>${esc(name)}</h3>
           <p>${esc(text)}</p>
-          <p class="wzs-fuss"><span class="wzs-bereich">${esc(bereich)}</span><a href="${esc(href)}"${sponsored ? ' rel="sponsored noopener" target="_blank"' : ""}>${esc(link)}</a></p>
+          <p class="wzs-fuss"><span class="wzs-bereich">${esc(bereich)}</span><a href="${esc(href)}"${sponsored ? ' rel="sponsored noopener" target="_blank"' : extern ? ' rel="noopener" target="_blank"' : ""}>${esc(link)}</a></p>
         </article>`;
 
 // Slider einer Sprache
@@ -47,7 +47,11 @@ export function slider(lang) {
   const partner = PARTNER.map(p => karte({ kennz: kennz(p.anbieter), logo: `<div class="wzs-logo" aria-hidden="true">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : esc(p.name)}</div>`,
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: p.bereich || "",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));
-  const alle = [...eigene, ...partner];
+  const vorgeschlagen = VORGESCHLAGEN.map(p => karte({ kennz: vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz"),
+    logo: `<div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="${esc(p.logo)}" alt=""></div>`,
+    name: p.name, text: p.text[lang] || p.text.de, bereich: p.bereich[lang] || p.bereich.de, href: p.url, link: t.zumAnbieter, extern: true }));
+  // Vorgeschlagene Software zuerst (Robin, 16.11.2026: „kanzleikern dann vor smartformular auf der startseite“)
+  const alle = [...vorgeschlagen, ...eigene, ...partner];
   return `    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"} aria-roledescription="${t.rolle}" aria-label="${t.label}">
       <div class="wzs-spur" tabindex="0">
 ${alle.join("\n")}

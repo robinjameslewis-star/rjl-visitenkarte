@@ -17,6 +17,22 @@ export const PARTNER = [
   //   text: { de: "Ein Satz, was das Werkzeug tut und wo es im Workshop vorkommt.", en: "One sentence on what the tool does and where it appears in the workshop." } },
 ];
 
+// Vorgeschlagene Software (Robin, 16.11.2026, nach Kanzleikern): unbezahlt vorgestellte Lösungen in der kostenlosen Testphase
+// (Vereinbarung „Vorgeschlagene Software“, Unterlagen 2026-11-16). Kein „Partner“ und keine „Anzeige“, weil robin.vision dafür nicht
+// vergütet wird; Kennzeichen „Vorgeschlagen · Anbieter“, Verweis ohne rel="sponsored". Nur auf robin.vision (Werkzeuge, Startseite),
+// nicht auf den Workshop-Seiten: dort erst nach Robins eigenem Test. Texte nur nach den Angaben auf der Website des Anbieters.
+// Logo unverändert von der Website des Anbieters (Arbeitsregeln Abschnitt 8). Sobald Geld oder ein geldwerter Vorteil fließt, wechselt
+// der Eintrag nach PARTNER.
+export const VORGESCHLAGEN = [
+  { id: "kanzleikern", name: "Kanzleikern", anbieter: "Dashtax GbR", url: "https://kanzleikern.com/", logo: "assets/partner/kanzleikern.svg", seit: "2026-11-16",
+    quelle: "kanzleikern.com, abgerufen 16.11.2026; Freigabe Aurel Bäcker per Mail 16.11.2026",
+    bereich: { de: "Kanzleiwissen", en: "Practice knowledge" },
+    text: { de: "Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.",
+      en: "Software for your firm's practice manual: processes and review sequences in one place, AI search with sources, available to your own AI via MCP." } },
+];
+export const VORSCHLAG = { de: "Vorgeschlagen", en: "Suggested" };
+export const vorschlagKennzeichen = (lang, anbieter, klasse) => `<p class="${klasse}">${VORSCHLAG[lang]} · <span>${esc(anbieter)}</span></p>`;
+
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // Kennzeichen an jedem Werkzeug: „Anzeige“ (Verweis auf die Erläuterung) und der Anbieter

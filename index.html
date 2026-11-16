@@ -772,7 +772,7 @@
     /* Schlagworte und Logo-Platz */
     .landscape-on body[data-goch-seite] :is(.fakten li, .wz-chips li) { background: color-mix(in srgb, rgba(255,255,255,.6), var(--marke-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-soft), var(--ink) var(--nacht-prozent)); }
     .landscape-on body[data-goch-seite] .marken li { background: color-mix(in srgb, rgba(255,255,255,.45), var(--marke-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
-    .landscape-on body[data-goch-seite] .wz-logo:not(.wz-logo-sf) { background: color-mix(in srgb, rgba(255,255,255,.6), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #8A96AB var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-muted), var(--ink) var(--nacht-prozent)); }
+    .landscape-on body[data-goch-seite] .wz-logo:not(.wz-logo-sf):not(.wz-logo-bild) { background: color-mix(in srgb, rgba(255,255,255,.6), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #8A96AB var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-muted), var(--ink) var(--nacht-prozent)); }
     /* Felder: dunkel mit heller Schrift, wie im Formular der Startseite */
     .landscape-on body[data-goch-seite] :is(.anfrage, .wz-form) :is(input, select, textarea) { background-color: color-mix(in srgb, rgba(255,255,255,.7), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #6B778C var(--nacht-prozent)); color: var(--ink); }
     .landscape-on body[data-goch-seite] .newsletter input[type=email] { background-color: color-mix(in srgb, #fff, var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #6B778C var(--nacht-prozent)); color: var(--ink); }
@@ -798,7 +798,7 @@
       border-top-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); border-right-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); border-bottom-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent));
       box-shadow: 0 16px 30px -18px rgba(0, 0, 0, calc(var(--nacht, 0) * .7)); }
     .landscape-on body:not([data-goch-seite]) :is(.wzs-karte, #werkzeuge li:not(.sf-karte)) { border-left-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
-    .landscape-on body:not([data-goch-seite]) .wzs-logo:not(.wzs-logo-sf) { background: color-mix(in srgb, rgba(255,255,255,.7), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #8A96AB var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-muted), var(--ink) var(--nacht-prozent)); }
+    .landscape-on body:not([data-goch-seite]) .wzs-logo:not(.wzs-logo-sf):not(.wzs-logo-bild) { background: color-mix(in srgb, rgba(255,255,255,.7), var(--feld-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), #8A96AB var(--nacht-prozent)); color: color-mix(in srgb, var(--ink-muted), var(--ink) var(--nacht-prozent)); }
     .landscape-on body:not([data-goch-seite]) .wzs-pfeil { background: color-mix(in srgb, rgba(255,255,255,.7), var(--marke-nacht) var(--nacht-prozent)); border-color: color-mix(in srgb, var(--line), var(--karte-rand-nacht) var(--nacht-prozent)); }
     .landscape-on body:not([data-goch-seite]) .message :is(input, textarea) { background-color: color-mix(in srgb, var(--surface), var(--feld-nacht) var(--nacht-prozent)); }
     .landscape-on body:not([data-goch-seite]) .message :is(input, textarea):not(:focus-visible) { border-color: color-mix(in srgb, var(--line), #6B778C var(--nacht-prozent)); } /* der Kupferrand beim Fokus bleibt */
@@ -861,6 +861,7 @@
   .wzs-karte .wzs-kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--sans); color: #767676; color: color-mix(in srgb, #767676, #B5AFA4 var(--nacht-prozent, 0%)); }
   .wzs-kennz a { color: inherit; text-decoration: none; } .wzs-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
   .wzs-logo { width: max-content; height: 38px; padding: 0 14px; display: flex; align-items: center; margin: 0 0 14px; border: 1px dashed var(--line); border-radius: 4px; font: 500 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,.7); background: color-mix(in srgb, rgba(255,255,255,.7), #1B2230 var(--nacht-prozent, 0%)); }
+  .wzs-logo-bild { border: 1px solid #E4E1D8; background: #fff; padding: 0 12px; } .wzs-logo-bild img { display: block; height: 22px; width: auto; }
   .wzs-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 14px; letter-spacing: .01em; text-transform: none; } .wzs-logo-sf span { color: #A78BFA; }
   .wzs-karte .wzs-fuss { margin: auto 0 0; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 10px; }
   .wzs-bereich { font: 500 11px/1.6 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--copper); }
@@ -990,6 +991,13 @@
     <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeuge">
       <div class="wzs-spur" tabindex="0">
         <article class="wzs-karte">
+          <p class="wzs-kennz">Vorgeschlagen · <span>Dashtax GbR</span></p>
+          <div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="assets/partner/kanzleikern.svg" alt=""></div>
+          <h3>Kanzleikern</h3>
+          <p>Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Kanzleiwissen</span><a href="https://kanzleikern.com/" rel="noopener" target="_blank">Zum Anbieter</a></p>
+        </article>
+        <article class="wzs-karte">
           <p class="wzs-kennz">Kostenlos testen bis 31.12.2026</p>
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>FiBu lite</h3>
@@ -1018,10 +1026,17 @@
           <p class="wzs-fuss"><span class="wzs-bereich">Jahresabschluss</span><a href="werkzeuge/smartformular/#abschluss">Zum Produkt</a></p>
         </article>
       </div>
-      <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
+      <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
     </div>
     <div class="wzs" data-langs="en" hidden aria-roledescription="Carousel" aria-label="Tools">
       <div class="wzs-spur" tabindex="0">
+        <article class="wzs-karte">
+          <p class="wzs-kennz">Suggested · <span>Dashtax GbR</span></p>
+          <div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="assets/partner/kanzleikern.svg" alt=""></div>
+          <h3>Kanzleikern</h3>
+          <p>Software for your firm&#39;s practice manual: processes and review sequences in one place, AI search with sources, available to your own AI via MCP.</p>
+          <p class="wzs-fuss"><span class="wzs-bereich">Practice knowledge</span><a href="https://kanzleikern.com/" rel="noopener" target="_blank">To the provider</a></p>
+        </article>
         <article class="wzs-karte">
           <p class="wzs-kennz">Free trial until 31 Dec 2026</p>
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
@@ -1051,7 +1066,7 @@
           <p class="wzs-fuss"><span class="wzs-bereich">Year-end accounts</span><a href="werkzeuge/smartformular/en/#abschluss">To the product</a></p>
         </article>
       </div>
-      <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Previous">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Next">→</button></div>
+      <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Previous">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Next">→</button></div>
     </div>
 <!-- /werkzeuge:liste -->
     </div>
