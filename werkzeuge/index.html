@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Werkzeuge: Software und KI fürs Rechnungswesen | robin.vision</title>
-<meta name="description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und Partnerprogramm.">
+<meta name="description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und vorgeschlagener Software anderer Anbieter.">
 <link rel="icon" href="../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/werkzeuge/">
@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Werkzeuge">
-<meta property="og:description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und Partnerprogramm.">
+<meta property="og:description" content="Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und vorgeschlagener Software anderer Anbieter.">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://robin.vision/werkzeuge/">
 <meta name="twitter:card" content="summary">
@@ -296,8 +296,8 @@ article li { margin-bottom: 6px; }
 <p class="frei">Im Workshop zeige ich ausgewählte Werkzeuge an Fällen aus Ihrem Alltag und überwinde mit Ihrem Team Hemmschwellen beim Umgang mit KI und neuer Software.</p>
 <p class="frei"><a class="wz-knopf zweit" href="../workshops/">Zu den Workshops</a></p>
 </section>
-<h2 id="partner">Partner werden</h2>
-<p class="frei">Stellen Sie Ihre Lösung hier vor – auch in meinen Workshops und bei Auftritten auf Fachmessen und Netzwerkveranstaltungen. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.</p>
+<h2 id="partner">Software vorschlagen</h2>
+<p class="frei">Stellen Sie Ihre Lösung hier als vorgeschlagene Software vor, kostenlos und unverbindlich. Nach einem eigenen Test zeige ich sie auch in meinen Workshops und bei Auftritten auf Fachmessen und Netzwerkveranstaltungen. Erzählen Sie mir kurz von Ihrem Produkt; ich melde mich persönlich per E-Mail.</p>
 <form class="wz-form wz-kasten" id="partner-anfrage" novalidate>
 <div class="reihe">
 <div><label for="p-firma">Unternehmen</label><input type="text" id="p-firma" name="firma" maxlength="120" required autocomplete="organization"></div>
@@ -332,7 +332,7 @@ article li { margin-bottom: 6px; }
   if (alt.includes(marke)) { location.replace("smartformular/" + '#' + marke); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
-  const T = {"betreff":"Partneranfrage: Werkzeuge auf robin.vision","firma":"Unternehmen","produkt":"Produkt oder Website","fuer":"Für wen","standort":"Wo liegen die Daten?","sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson und eine gültige E-Mail-Adresse angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision."};
+  const T = {"betreff":"Software vorschlagen: Werkzeuge auf robin.vision","firma":"Unternehmen","produkt":"Produkt oder Website","fuer":"Für wen","standort":"Wo liegen die Daten?","sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson und eine gültige E-Mail-Adresse angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision."};
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();

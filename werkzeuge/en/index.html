@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tools: accounting software and AI | robin.vision</title>
-<meta name="description" content="Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and a partner programme.">
+<meta name="description" content="Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and suggested software from other providers.">
 <link rel="icon" href="../../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/werkzeuge/en/">
@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Tools">
-<meta property="og:description" content="Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and a partner programme.">
+<meta property="og:description" content="Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and suggested software from other providers.">
 <meta property="og:locale" content="en_GB">
 <meta property="og:url" content="https://robin.vision/werkzeuge/en/">
 <meta name="twitter:card" content="summary">
@@ -296,8 +296,8 @@ article li { margin-bottom: 6px; }
 <p class="frei">In the workshop I show selected tools using cases from your daily work and help your team overcome any hesitation about AI and new software.</p>
 <p class="frei"><a class="wz-knopf zweit" href="../../workshops/en/">To the workshops</a></p>
 </section>
-<h2 id="partner">Become a partner</h2>
-<p class="frei">Present your solution here – also in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.</p>
+<h2 id="partner">Suggest your software</h2>
+<p class="frei">Present your solution here as suggested software, free of charge and without obligation. Once I have tested it, I also show it in my workshops and when I appear at trade fairs and networking events. Tell me briefly about your product; I will get back to you personally by email.</p>
 <form class="wz-form wz-kasten" id="partner-anfrage" novalidate>
 <div class="reihe">
 <div><label for="p-firma">Company</label><input type="text" id="p-firma" name="firma" maxlength="120" required autocomplete="organization"></div>
@@ -332,7 +332,7 @@ article li { margin-bottom: 6px; }
   if (alt.includes(marke)) { location.replace("../smartformular/en/" + '#' + marke); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
-  const T = {"betreff":"Partner enquiry: tools on robin.vision","firma":"Company","produkt":"Product or website","fuer":"For whom","standort":"Where is the data kept?","sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your company, a contact person and a valid email address.","fehler":"Sending did not work. Please email me directly at robin@robin.vision."};
+  const T = {"betreff":"Software suggestion: tools on robin.vision","firma":"Company","produkt":"Product or website","fuer":"For whom","standort":"Where is the data kept?","sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your company, a contact person and a valid email address.","fehler":"Sending did not work. Please email me directly at robin@robin.vision."};
   const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
   form.addEventListener('submit', async event => {
     event.preventDefault();

@@ -16,9 +16,9 @@
    Wochen Test und Lizenz. Als Beta in Vorbereitung: SmartFormular
    Abschluss für den Jahresabschluss, mit den Daten aus dem Buchhaltungsprogramm. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
-4. **Werkzeuge und Partner.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
+4. **Werkzeuge und vorgeschlagene Software.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
    Verwaltung und andere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
-   Lösungen kommen nach und nach dazu. Anbieter können sich über „Partner werden“ melden.
+   Lösungen kommen nach und nach dazu. Anbieter können ihre Software über „Software vorschlagen“ melden.
 5. **Impulse.** Jeden Freitag erscheint ein neuer Impuls zu Automatisierung und KI im Rechnungswesen,
    auf der Seite und im Newsletter.
 6. **Prozesse im Rechnungswesen mit KI und Automation.** In der Kanzlei optimiert Robin wiederkehrende
@@ -44,9 +44,9 @@
    In preparation as a beta:
    SmartFormular Abschluss for year-end accounts, using the data from the accounting software. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
-4. **Tools and partners.** Under "Tools" Robin presents and compares software and AI solutions for
+4. **Tools and suggested software.** Under "Tools" Robin presents and compares software and AI solutions for
    accounting, administration and other business processes – including SmartFormular; more solutions
-   will follow step by step. Providers can get in touch via "Become a partner".
+   will follow step by step. Providers can suggest their software via "Suggest your software".
 5. **Food for Thought.** Every Friday a new post on automation and AI in accounting, on the site and in
    the newsletter.
 6. **Accounting processes with AI and automation.** At the practice, Robin streamlines recurring
