@@ -23,13 +23,13 @@ const anzahl = (s, re) => (s.match(re) || []).length;
 
 const T = {
   de: { titel: "Werkzeuge",
-    platz: "Ihre Lösung auf robin.vision", knopf: "Partner werden",
+    platz: "Ihre Lösung auf robin.vision", knopf: "Software vorschlagen",
     sf: '<a class="wz-knopf" href="../werkzeuge/smartformular/">', ziel: '"smartformular/"', nav: '<a href="../werkzeuge/" aria-current="page">Werkzeuge</a>',
     zeilen: ["Aufgabe", "Für wen", "Betrieb und Daten", "Sitz des Anbieters", "KI", "Schnittstellen", "Preis und Test", "Nachweise"], stand: "Stand",
     quelle: "Angaben der Anbieter, Stand je Spalte; Reihenfolge nach Aufnahme.", partnerSatz: "Partner zahlen für die Vorstellung.",
     anzeige: "Anzeige", erkl: "../#anzeigen" },
   en: { titel: "Tools",
-    platz: "Your solution on robin.vision", knopf: "Become a partner",
+    platz: "Your solution on robin.vision", knopf: "Suggest your software",
     sf: '<a class="wz-knopf" href="../../werkzeuge/smartformular/en/">', ziel: '"../smartformular/en/"', nav: '<a href="../../werkzeuge/en/" aria-current="page">Tools</a>',
     zeilen: ["Task", "For whom", "Operation and data", "Provider based in", "AI", "Interfaces", "Price and trial", "Assurance"], stand: "As of",
     quelle: "Details supplied by the providers, dated per column; listed in the order they joined.", partnerSatz: "Partners pay to be presented.",
@@ -135,7 +135,7 @@ check([start, lesen("language.js"), lesen("werkzeuge/index.html")].every(h => h.
 console.log("\nGrundsätze (Robin, 19.10.2026)");
 const startHtml = lesen("index.html");
 check(!startHtml.includes("grundsaetze") && !startHtml.includes("gs-karte"), "Startseite ohne Grundsätze (Robin, 03.11.2026)");
-check(/<section class="blog-teaser anbieter" id="anbieter"/.test(startHtml) && /data-i18n="anbieterText">[^<]*robin.vision vor\.</.test(startHtml) && /href="werkzeuge\/#partner" data-href-de="werkzeuge\/#partner" data-href-en="werkzeuge\/en\/#partner" data-i18n="anbieterKnopf">Partner werden</.test(startHtml), "Startseite: Hinweis für Anbieter mit „Partner werden“ (Option B)");
+check(/<section class="blog-teaser anbieter" id="anbieter"/.test(startHtml) && /data-i18n="anbieterText">[^<]*robin.vision vor\.</.test(startHtml) && /href="werkzeuge\/#partner" data-href-de="werkzeuge\/#partner" data-href-en="werkzeuge\/en\/#partner" data-i18n="anbieterKnopf">Software vorschlagen</.test(startHtml), "Startseite: Hinweis für Anbieter mit „Software vorschlagen“ (Option B, Wortlaut 17.11.2026)");
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
   check(html.includes(grundsaetze(lang)) && html.includes(GRUNDSAETZE_CSS) && (html.indexOf('id="vergleich"') < 0 || html.indexOf('class="grundsaetze"') < html.indexOf('id="vergleich"')) && html.indexOf('id="partner-anzeigen"') < html.indexOf('class="grundsaetze"') && (lang === "en" || html.includes("Klardaten nur in Werkzeuge")) && !html.includes("gs-karte"), `${lang}: zwei Grundsätze als ruhiger Block vor dem Vergleich, mit „Klardaten“ (Robin, 04.11.2026)`);
