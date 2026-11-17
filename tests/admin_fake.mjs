@@ -18,6 +18,11 @@ const posts = [{ slug: "erster-beitrag", title: "Erster Beitrag", date: "2026-09
 const images = [{ name: "beispiel.jpg", size: 1234 }];
 const saved = []; // was PUT blog/post erhielt
 // Goch: Betrieb und Sprache (Stimme, Spracheingabe) – Speichern merkt sich die Sprache; Kundenfiguren nur im Speicher, geprüft mit der echten Regel
+const agentKeys = [{ id: "ak_000000000001", bezeichnung: "Agentenbetrieb auf Robins Mac", praefix: "gochag_Q2x9", erstellt: "2026-11-17T09:00:00Z", ablauf: "2027-02-15T09:00:00Z", gesperrt: null, zuletzt: "2026-11-17T10:12:00Z", gueltig: true }];
+const agentLog = [{ at: "2026-11-17T10:12:00Z", akteur: "agent", aktion: "veroeffentlichen", art: "aktuell", stufe: 1, status: 200, schluessel: "ak_000000000001" },
+  { at: "2026-11-17T10:10:00Z", akteur: "agent", aktion: "fragen_erledigt", stufe: 1, anzahl: 3, status: 200, schluessel: "ak_000000000001" },
+  { at: "2026-11-17T09:00:00Z", akteur: "robin", aktion: "schluessel_erzeugt", status: 200, schluessel: "ak_000000000001" }];
+const agentState = () => ({ an: false, mitPasskey: true, schluessel: agentKeys, protokoll: agentLog, zaehler: { tag: 4, stunde: 2, aendernStunde: 1 }, grenzen: { stunde: 60, tag: 300, hinweisAb: 10, tage: 90, maxAktiv: 3 } });
 let sprache = { stimme: false, hoeren: false, modell: "claude-haiku-5-5", voiceId: "", ttsModell: "eleven_v4", zeichenMonat: 30000, minutenTag: 20 };
 const figuren = [];
 const gochState = () => ({ settings: { enabled: true, provider: "anthropic", model: "claude-opus-5", cache: true, sprache,
@@ -83,6 +88,15 @@ http.createServer(async (req, res) => {
   if (api === "landschaften/ebene" && req.method === "DELETE") { const f = await readBody(req); const s = sets.find(x => x.slug === f.slug); if (!s || !s.ebenen[f.saison] || !s.ebenen[f.saison][f.ebene]) return json(res, { error: "Diese Ebene gibt es nicht." }, 400);
     delete s.ebenen[f.saison][f.ebene]; if (!Object.keys(s.ebenen[f.saison]).length) delete s.ebenen[f.saison]; return json(res, { slug: s.slug, commit: null }); }
   if (api === "passkeys") return json(res, { passkeys: [{ id: "k1", name: "MacBook", at: "2026-09-19T08:00:00Z" }] });
+  // Agentenschlüssel (src/agent.js): feste Liste und Protokoll; der „Schlüssel“ der Attrappe ist ein Platzhalter, kein echter
+  if (api === "agent" && req.method === "GET") return json(res, agentState());
+  if (api === "agent/schluessel" && req.method === "POST") { const f = await readBody(req); const id = "ak_" + String(agentKeys.length + 1).padStart(12, "0");
+    agentKeys.unshift({ id, bezeichnung: f.bezeichnung || "Agentenbetrieb auf Robins Mac", praefix: "gochag_Atr" + agentKeys.length, erstellt: new Date().toISOString(), ablauf: "2027-02-15T10:00:00Z", gesperrt: null, zuletzt: null, gueltig: true });
+    return json(res, { ...agentState(), neu: { id, schluessel: "gochag_" + "A".repeat(43) } }); }
+  if ((api === "agent/sperren" || api === "agent/verlaengern") && req.method === "POST") { const f = await readBody(req); const k = agentKeys.find(x => x.id === f.id && !x.gesperrt);
+    if (!k) return json(res, { error: "Diesen Schlüssel gibt es nicht oder er ist gesperrt." }, 404);
+    if (api === "agent/sperren") { k.gesperrt = new Date().toISOString(); k.gueltig = false; } else k.ablauf = "2027-03-01T10:00:00Z";
+    return json(res, { ...agentState(), note: api === "agent/sperren" ? "Gesperrt (Attrappe)." : "Verlängert (Attrappe)." }); }
   if (api === "goch" && req.method === "PUT") { const f = await readBody(req);
     if (f.sprache) { if (f.sprache.stimme && !f.sprache.voiceId) return json(res, { error: "Für die Stimme bitte die Voice ID von ElevenLabs eintragen." }, 400); sprache = { ...sprache, ...f.sprache }; }
     return json(res, { ...gochState(), note: "Gespeichert (Attrappe)." }); }

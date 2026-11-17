@@ -223,5 +223,63 @@ Achtung bei Änderungen am Seitenskript: Es steht in einem Template-Literal – 
 müssen dort doppelt (`\\n`) geschrieben werden; die Syntaxprüfung der eingebetteten Skripte
 (`new Function`) vor dem Deploy fängt das ab.
 
+### Agentenschlüssel (17.11.2026, Entwurf – erst nach dem Umzug auf die robin.vision UG einschalten)
+
+Robin, 17.11.2026: Im Regelbetrieb erledigt ein Agent auf Robins Mac die Redaktion über einen Schlüssel; Robin arbeitet nur im
+Ausnahmefall selbst hier. Stufen nach der Stufenliste im Vault (`Unterlagen/2026-11-17_Agentenschluessel_Stufenliste.md`,
+Abschnitt Goch-Redaktion); Vorbild ist der Memberbereich (robin-vision-member, `src/agent.js`, `tools/agent.mjs`).
+
+**Aktionen** (`src/agent.js`, feste Tabelle, alle Stufe 1 – der Agent handelt selbst, jede Aktion steht im Protokoll):
+
+| Aktion | Was | Parameter |
+|---|---|---|
+| `hilfe` | alle Aktionen mit Stufe | – |
+| `stand` | Aufrufe je Tag, Grenzen, Guthaben-Alarm, Inhalte mit letzter Änderung (ohne Texte) | – |
+| `inhalt` | Felder eines Inhalts (Vorlage für `veroeffentlichen`) | `art` |
+| `fragen` | unbeantwortete Fragen (30 Tage, ohne Personenbezug) | – |
+| `fragen_erledigt` | Fragen erledigt setzen, nur Einträge `unanswered:…` | `key` oder `keys` (höchstens 50) |
+| `veroeffentlichen` | Profil, Aktuell, Links, Werkzeugseiten veröffentlichen | `art`, `felder` |
+| `wiederherstellen` | vorige Fassung als neuer Commit | `art` |
+
+`art` ist ein Eintrag aus `CONTENT` (`profile`, `aktuell`, `links`, `werkzeug`, `werkzeugEn`, `werkzeugEr`, `werkzeugErEn`).
+Veröffentlichen und Wiederherstellen laufen durch dieselben Funktionen wie die Redaktion (`veroeffentlichen`, `wiederherstellen` in
+`src/admin.js`): gleiche Prüfungen, Commit ins GitHub-Repository (Nachricht „Agent: …“ statt „Dashboard: …“), KV-Kopie mit
+`by: "agent"`, bei Werkzeugseiten die Newsletter-Feeds im selben Zug. Stufe 2 gibt es hier nicht; **Stufe 3 ist über den Schlüssel nicht
+erreichbar**: Passkeys, Agentenschlüssel, Betrieb, Stimme, Blog, Landschaften, Figuren, Messegeräte – jede andere Aktion ergibt 404, der
+Bearer-Schlüssel gilt nirgends sonst unter `/admin`.
+
+**Sicherheit.** `POST /admin/agent/<aktion>` nur mit `Authorization: Bearer gochag_…`; keine Cookies, keine Sitzung, jede Anfrage mit
+`Origin`-Kopf (jeder Browser) → 403. Falsch, abgelaufen, gesperrt → 401, ohne einen Schreibvorgang im KV. Im KV (`agent:schluessel`)
+steht nur der SHA-256-Prüfwert mit Präfix (`gochag_` und vier Zeichen zum Wiedererkennen); Ablauf nach 90 Tagen, verlängern und sperren
+in der Redaktion, höchstens drei gültige zugleich. Gesperrt wirkt sofort am selben Standort und in der Regel binnen einer Minute an allen anderen (KV-Abgleich, laut
+Cloudflare ohne feste Obergrenze). Die API schreibt die Schlüsselliste nie (letzte Nutzung steht in `agent:zuletzt:<id>`), damit ein
+Aufruf mit altem Stand keine Sperre überschreiben kann.
+Grenzen: 10 Anfragen je Minute und Adresse über die vorhandene Bindung `LOGIN_LIMIT` (eigener Zählerschlüssel `agent:<IP>`, nicht der
+der Anmeldung; kein neues Binding), 60 Aufrufe je Uhrstunde und 300 je Tag (`agent:zaehler:<Tag>`); bei mehr als 10 Änderungen in
+einer Uhrstunde eine Mail an `MAIL_TO` ohne Inhalte (höchstens eine je Stunde). Protokoll: ein KV-Eintrag je Aufruf (`agent:log:…`,
+90 Tage) mit Zeit, Akteur, Aktion, Inhaltsart, Status und Schlüsselkennung – nie Parameter, Texte oder Fehlermeldungen. Erzeugen,
+Verlängern, Sperren stehen mit Akteur „robin“ darin.
+
+**In der Redaktion:** Abschnitt „Agent – Schlüssel und Protokoll“ unter „Sicherheit“: Schlüssel erzeugen (nur einmal angezeigt),
+verlängern, sperren – nur mit Passkey-Anmeldung (Stufe 3), auch solange `AGENT_API` aus ist; dazu die Liste „Was der Agent getan hat“.
+
+**Funktionsschalter:** `AGENT_API = "aus"` in `wrangler.toml` (`[vars]`). Nur `"an"` schaltet ein; sonst antwortet alles unter
+`/admin/agent` mit 404. Mergen schaltet also nichts ein.
+
+**Einschalten (nur Robin, nach dem UG-Umzug):**
+
+1. In der Redaktion (mit Passkey angemeldet) unter „Agent – Schlüssel und Protokoll“ einen Schlüssel erzeugen und kopieren.
+2. Im Terminal des Macs in den Schlüsselbund legen – der Befehl fragt nach dem Wert, so steht er in keiner Datei und keiner
+   Befehlszeile: `security add-generic-password -s vision.robin.goch-agent -a robin -w` (Wert einfügen, Eingabetaste, zweimal).
+3. In `worker/wrangler.toml` `AGENT_API = "an"` setzen, per PR zusammenführen und den Worker ausrollen – Ausrollen nur durch Robin.
+4. Prüfen: `node tools/goch-agent.mjs hilfe`, dann `node tools/goch-agent.mjs stand`. Die Aufrufe stehen danach in der Redaktion.
+
+**Hilfsskript:** `node tools/goch-agent.mjs <aktion> [json | @datei.json]`, z. B. `node tools/goch-agent.mjs inhalt '{"art":"aktuell"}'`
+oder `node tools/goch-agent.mjs veroeffentlichen @aktuell.json`. Liest den Schlüssel mit `security find-generic-password -s
+vision.robin.goch-agent -w`, gibt ihn nie aus (auch nicht in Fehlermeldungen), schickt ihn nur über https (`AGENT_URL` ändert das Ziel;
+unverschlüsselt nur an 127.0.0.1/localhost für Tests) und folgt keiner Weiterleitung.
+
+**Notfall:** Schlüssel in der Redaktion sperren; ohne Redaktion `AGENT_API = "aus"` und ausrollen. Prüfen: `node tests/goch_agent_test.mjs`.
+
 **Lokal arbeiten:** Vor Änderungen an `worker/aktuell.md` oder `worker/links.md` erst `git pull`,
 weil das Dashboard direkt auf `main` schreibt.

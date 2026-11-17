@@ -48,6 +48,10 @@ MAX_HOEREN_ANFRAGEN_TAG = "400"     # zweiter Deckel der Spracheingabe: Aufnahme
 # Messegerät (23.10.2026): Kiosk-Route /kiosk/* mit Gerätenachweis aus der Redaktion („Messegeräte“). „an“ verlangt
 # zusätzlich ein Cloudflare-Client-Zertifikat (API Shield → mTLS für goch.robin.vision, im Dashboard einzurichten).
 KIOSK_MTLS = "aus"
+# Agentenschlüssel der Redaktion (src/agent.js, 17.11.2026): POST /admin/agent/<aktion> mit Bearer-Schlüssel aus der Redaktion.
+# Nur "an" schaltet ein; sonst antwortet jeder Pfad dort mit 404. Einschalten erst nach dem Umzug auf die robin.vision UG,
+# nur durch Robin (README im Ordner worker/, Abschnitt Redaktion → Agentenschlüssel). Schlüssel verwalten geht auch, wenn aus.
+AGENT_API = "aus"
 # Eingang „Workshop“ für den Memberbereich (src/workshop.js): ohne Kopf X-Workshop-Budget ein Tagesbudget („memberbereich“),
 # mit Kopf ein Budget je Termin über die ganze Laufzeit. Vorgaben stehen im Code; zum Ändern hier eintragen (ganze Zahlen):
 # WORKSHOP_ANTWORTEN_TAG = "600"            # Tagesbudget ohne Kopf: Antworten
