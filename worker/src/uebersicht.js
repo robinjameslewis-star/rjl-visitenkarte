@@ -157,6 +157,8 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .wz-th-kennz span { white-space: nowrap; }
 .wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 20px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
+/* Anbieter ohne Logo-Datei (logoText): Name in der weißen Box, Schrift wie im Kopf der Anbieter-Website (Andreas Schoba: Systemschrift, 700) */
+.wz-logo-text { border: 1px solid #E4E1D8; background: #fff; color: #1F1F1F; font: 700 20px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; letter-spacing: 0; text-transform: none; white-space: nowrap; }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
 .wz-chips li { margin: 0; padding: 4px 10px; border: 1px solid var(--line); border-radius: 3px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.6); text-align: left; }
 .wz-knopf { display: inline-block; padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper) !important; text-decoration: none !important; font-size: 15px; }
@@ -262,9 +264,11 @@ ${chips(t.sf.chips)}
     const seite = p.seite ? up + `werkzeuge/${p.seite}/` : null;
     return `<article class="wz-karte">
 ${kennz(p.anbieter)}
-<span class="wz-logo" aria-hidden="true">${p.logo ? `<img src="${esc(up + p.logo)}" alt="">` : esc(p.name)}</span>
+${p.logo ? `<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>`
+    : `<span class="wz-logo${p.logoText ? " wz-logo-text" : ""}" aria-hidden="true">${esc(p.logoText || p.name)}</span>`}
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc((p.text && (p.text[lang] || p.text.de)) || "")}</p>
+${p.bereich ? chips([p.bereich[lang] || p.bereich.de]) : ""}
 <p class="frei">${seite ? `<a class="wz-knopf" href="${seite}">${esc(t.zumProdukt)}</a>` : `<a class="wz-knopf" href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(t.zumAnbieter)}</a>`}</p>
 </article>`;
   });
