@@ -13,7 +13,7 @@ export const GRUNDSAETZE = {
       ["Klardaten", "Klardaten nur in Werkzeuge, die dafür gemacht sind",
         "Mandanten-, Personal- und Finanzdaten sind selten anonymisiert. Datenschutz, Verschwiegenheit und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag."],
       ["Ohne Lock-in", "Modellunabhängig, ohne Vendor-Lock-in",
-        "Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten, haben Vorrang. So bleibt die Wahl bei Ihnen."],
+        "Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten können, haben Vorrang. So bleibt die Wahl bei Ihnen."],
     ],
   },
   en: {
@@ -22,7 +22,7 @@ export const GRUNDSAETZE = {
       ["Real data", "Real data only in tools built for it",
         "Client, staff and financial data is rarely anonymised. Data protection, confidentiality and the EU AI Act are the starting point, not an afterthought."],
       ["No lock-in", "Model-agnostic, no vendor lock-in",
-        "Solutions that work with different language models and providers take priority. The choice stays with you."],
+        "Solutions that can work with different language models and providers take priority. The choice stays with you."],
     ],
   },
 };
