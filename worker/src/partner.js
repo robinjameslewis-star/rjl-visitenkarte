@@ -29,12 +29,12 @@ export const VORGESCHLAGEN = [
     bereich: { de: "Kanzleiwissen", en: "Practice knowledge" },
     text: { de: "Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.",
       en: "Software for your firm's practice manual: processes and review sequences in one place, AI search with sources, available to your own AI via MCP." } },
-  // PrimeBalance (Vereinbarung 19.11.2026, Fassung des Anbieters): Stand nennen; zu DATEV nur der Wortlaut der Website; Logo unverändert
+  // PrimeBalance (Vereinbarung 19.11.2026, Fassung des Anbieters): Stand nennen; DATEV nicht nennen (Robin, 19.11.2026); Logo unverändert
   { id: "primebalance", name: "PrimeBalance", anbieter: "PrimeBalance UG", url: "https://www.prime-balance.de/", logo: "assets/partner/primebalance.svg", seit: "2026-11-19",
     quelle: "prime-balance.de, abgerufen 19.11.2026; Zustimmung Konrad Erwerle per Mail 19.11.2026",
     bereich: { de: "KI-Agenten", en: "Agentic AI" },
-    text: { de: "Virtuelle KI-Kanzlei für Steuerberater: Das Team bucht Belege vor und bereitet den Monatsabschluss vor, Sie prüfen und geben frei. Läuft neben DATEV, Mandantendaten in Frankfurt am Main. Angaben des Anbieters, Stand 19.11.2026.",
-      en: "Virtual AI firm for tax advisers: the team pre-posts receipts and prepares the month-end close, you review and approve. Runs alongside DATEV, client data in Frankfurt am Main. Provider's information as of 19 Nov 2026." } },
+    text: { de: "Virtuelle KI-Kanzlei für Steuerberater: Das Team bucht Belege vor und bereitet den Monatsabschluss vor, Sie prüfen und geben frei. Mandantendaten in Frankfurt am Main. Angaben des Anbieters, Stand 19.11.2026.",
+      en: "Virtual AI firm for tax advisers: the team pre-posts receipts and prepares the month-end close, you review and approve. Client data in Frankfurt am Main. Provider's information as of 19 Nov 2026." } },
 ];
 export const VORSCHLAG = { de: "Vorgeschlagen", en: "Suggested" };
 export const vorschlagKennzeichen = (lang, anbieter, klasse) => `<p class="${klasse}">${VORSCHLAG[lang]} · <span>${esc(anbieter)}</span></p>`;
