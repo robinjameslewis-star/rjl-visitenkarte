@@ -44,7 +44,7 @@ export function slider(lang) {
   const eigene = t.produkte.map(p => karte({ kennz: p.frei ? kostenlos(lang, "wzs-kennz", p.frei) : kennz(ROBIN_VISION), logo: sfLogo, name: p.name, text: p.text, bereich: p.bereich, href: p.href, link: t.zumProdukt }));
   const partner = PARTNER.map(p => karte({ kennz: kennz(p.anbieter),
     logo: p.logo ? `<div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="${esc(p.logo)}" alt="" width="${Math.round((p.logoBreite || LOGO_BREITE) * SLIDER_FAKTOR)}"></div>`
-      : `<div class="wzs-logo${p.logoText ? " wzs-logo-text" : ""}" aria-hidden="true">${esc(p.logoText || p.name)}</div>`,
+      : `<div class="wzs-logo" aria-hidden="true">${esc(p.name)}</div>`,
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: p.bereich ? (p.bereich[lang] || p.bereich.de) : "",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));
   const vorgeschlagen = VORGESCHLAGEN.map(p => karte({ kennz: vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz"),
