@@ -1,0 +1,40 @@
+<svg width="256" height="240" viewBox="-1.9 2.1 63.8 59.8" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- PrimeBalance "Orchester" (2026-07-05, v14 — Daniels Feinschliff).
+       Bilanz-Kachel unveraendert. Notification-Bubble-Ecke (75% der
+       vorherigen Groesse, Knockout r=10.9 auf der Kachelecke): acht
+       Agenten-Sterne im perfekten Kreis (Orbit r=7.9), verbunden durch
+       subtile Tinte-Speichen (0.6 Hairlines) aus einem kleinen Hub;
+       Speichen enden vor den Sternkoerpern.
+       viewBox 2026-09-22 (Daniel): Bilanz-Kachel (Mitte 30/32) sitzt
+       exakt in der Bildmitte, die Bubble (Rand rechts 61.9, oben 2.1)
+       beruehrt genau die obere rechte Bildecke. Box 63.8 x 59.8 ergibt
+       sich zwingend aus dieser Vorgabe (Bubble haengt rechts 10.9 und
+       oben 8.9 ueber die Kachel hinaus). Vorher 9 1.1 52.9 52.9 (Kachel
+       links unten). Alle Pfade unveraendert. -->
+  <title>PrimeBalance</title>
+  <rect x="9" y="11" width="42" height="42" rx="7" fill="#1C1A16"/>
+  <circle cx="51.0" cy="13.0" r="10.9" fill="#F6F4EF"/>
+  <rect x="17" y="22" width="20" height="2.8" rx="1.4" fill="#FDFCFA"/>
+  <rect x="17" y="29" width="14" height="2.8" rx="1.4" fill="#FDFCFA"/>
+  <rect x="17" y="40" width="20" height="1.8" fill="#9C7A34"/>
+  <rect x="17" y="43.6" width="20" height="1.8" fill="#9C7A34"/>
+  <line x1="51.00" y1="11.00" x2="51.00" y2="8.15" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="52.41" y1="11.59" x2="54.43" y2="9.57" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="53.00" y1="13.00" x2="55.85" y2="13.00" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="52.41" y1="14.41" x2="54.43" y2="16.43" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="51.00" y1="15.00" x2="51.00" y2="17.85" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="49.59" y1="14.41" x2="47.57" y2="16.43" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="49.00" y1="13.00" x2="46.15" y2="13.00" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <line x1="49.59" y1="11.59" x2="47.57" y2="9.57" stroke="#1C1A16" stroke-width="0.6" stroke-linecap="round"/>
+  <circle cx="51.0" cy="13.0" r="1.1" fill="#1C1A16"/>
+  <g fill="#9C7A34">
+    <path d="M51.00 2.85 C51.24 4.11, 51.99 4.86, 53.25 5.10 C51.99 5.34, 51.24 6.09, 51.00 7.35 C50.76 6.09, 50.01 5.34, 48.75 5.10 C50.01 4.86, 50.76 4.11, 51.00 2.85 Z"/>
+    <path d="M56.59 5.16 C56.82 6.42, 57.58 7.18, 58.84 7.41 C57.58 7.65, 56.82 8.40, 56.59 9.66 C56.35 8.40, 55.60 7.65, 54.34 7.41 C55.60 7.18, 56.35 6.42, 56.59 5.16 Z"/>
+    <path d="M58.90 10.75 C59.14 12.01, 59.89 12.76, 61.15 13.00 C59.89 13.24, 59.14 13.99, 58.90 15.25 C58.66 13.99, 57.91 13.24, 56.65 13.00 C57.91 12.76, 58.66 12.01, 58.90 10.75 Z"/>
+    <path d="M56.59 16.34 C56.82 17.60, 57.58 18.35, 58.84 18.59 C57.58 18.82, 56.82 19.58, 56.59 20.84 C56.35 19.58, 55.60 18.82, 54.34 18.59 C55.60 18.35, 56.35 17.60, 56.59 16.34 Z"/>
+    <path d="M51.00 18.65 C51.24 19.91, 51.99 20.66, 53.25 20.90 C51.99 21.14, 51.24 21.89, 51.00 23.15 C50.76 21.89, 50.01 21.14, 48.75 20.90 C50.01 20.66, 50.76 19.91, 51.00 18.65 Z"/>
+    <path d="M45.41 16.34 C45.65 17.60, 46.40 18.35, 47.66 18.59 C46.40 18.82, 45.65 19.58, 45.41 20.84 C45.18 19.58, 44.42 18.82, 43.16 18.59 C44.42 18.35, 45.18 17.60, 45.41 16.34 Z"/>
+    <path d="M43.10 10.75 C43.34 12.01, 44.09 12.76, 45.35 13.00 C44.09 13.24, 43.34 13.99, 43.10 15.25 C42.86 13.99, 42.11 13.24, 40.85 13.00 C42.11 12.76, 42.86 12.01, 43.10 10.75 Z"/>
+    <path d="M45.41 5.16 C45.65 6.42, 46.40 7.18, 47.66 7.41 C46.40 7.65, 45.65 8.40, 45.41 9.66 C45.18 8.40, 44.42 7.65, 43.16 7.41 C44.42 7.18, 45.18 6.42, 45.41 5.16 Z"/>
+  </g>
+</svg>
