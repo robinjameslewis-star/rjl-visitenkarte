@@ -1238,6 +1238,10 @@
   // Werkzeug-Slider: Pfeile blättern um eine Karte, die Punkte zeigen die Stelle; ohne Skript lässt sich wischen und scrollen
   document.querySelectorAll('.wzs').forEach(function (box) {
     var spur = box.querySelector('.wzs-spur'), punkte = box.querySelectorAll('.wzs-punkte i');
+    // Karten bei jedem Laden zufällig mischen (Robin, 19.11.2026: „bei jedem reload wechseln. Also ganz zufällig.“)
+    var karten = Array.prototype.slice.call(spur.children);
+    for (var i = karten.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = karten[i]; karten[i] = karten[j]; karten[j] = x; }
+    karten.forEach(function (k) { spur.appendChild(k); });
     var schritt = function () { var k = spur.querySelector('.wzs-karte'); return k ? k.getBoundingClientRect().width + 16 : 300; };
     box.querySelectorAll('.wzs-pfeil').forEach(function (b) { b.addEventListener('click', function () { spur.scrollBy({ left: schritt() * Number(b.dataset.richtung), behavior: 'smooth' }); }); });
     spur.addEventListener('scroll', function () { var n = Math.round(spur.scrollLeft / schritt()); punkte.forEach(function (p, i) { p.classList.toggle('an', i === Math.min(n, punkte.length - 1)); }); }, { passive: true });

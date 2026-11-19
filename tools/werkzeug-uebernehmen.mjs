@@ -172,11 +172,12 @@ for (const [lang, pfad] of Object.entries(SMARTFORMULAR_PFAD)) {
   mkdirSync(dirname(pfad), { recursive: true });
   writeFileSync(pfad, smartformularSeite(lang, alle));
 }
-// Unterseiten der Anbieter (anbieter.js): je Anbieter und Sprache
+// Unterseiten der Anbieter (anbieter.js): je Anbieter und Sprache, mit allen veröffentlichten Impulsen, die die Lösung nennen
+const beitraegeAlle = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)));
 anbieterPruefen();
 for (const p of ANBIETER) for (const lang of ["de", "en"]) {
   mkdirSync(dirname(anbieterPfad(p.id, lang)), { recursive: true });
-  writeFileSync(anbieterPfad(p.id, lang), anbieterSeite(p, lang));
+  writeFileSync(anbieterPfad(p.id, lang), anbieterSeite(p, lang, beitraegeAlle));
 }
 // Slider und Grundsätze auf der Startseite (zwischen den Marken; language.js blendet die andere Sprache über data-langs aus)
 const einsetzen = (html, name, inhalt) => {

@@ -282,8 +282,14 @@ ${chips([p.bereich[lang] || p.bereich.de])}
   // Ohne Platzhalter neben vorgestellten Lösungen (Robin, 16.11.2026: „mach mal das partner werden neben kanzleikern auf der werkzeuge
   // seite weg“); vorgeschlagene Software steht vorn in der Reihe (reihe unten), der Abschnitt „Partner“ nur mit bezahlten Partnern.
   // Das Formular „Partner werden“ weiter unten bleibt.
-  return { sf, partner: partner.join("\n"), vorgeschlagen };
+  return { sf, partner: partner.join("\n"), partnerKarten: partner, vorgeschlagen };
 }
+
+// Zufällige Reihenfolge bei jedem Laden (Robin, 19.11.2026: „die Reihenfolge der Anzeige der Karten soll bei jedem reload wechseln. Also ganz
+// zufällig.“); ohne Skript bleibt die Reihenfolge der Seite. Alle Karten in einer Reihe, auch Anzeigen (Robin, 19.11.2026: „Andreas Schoba soll
+// auch im Überblick stehen ohne eigene Kategorie Anzeige“).
+export const MISCHEN = `<script>(function () { var r = document.currentScript.previousElementSibling, k = Array.prototype.slice.call(r.children);
+  for (var i = k.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = k[i]; k[i] = k[j]; k[j] = x; } k.forEach(function (e) { r.appendChild(e); }); })();</script>`;
 
 // SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)
 function reihe(lang, t, up) {
@@ -296,8 +302,9 @@ ${SF_LOGO}
 <p class="frei">${esc(p.text)}</p>
 <ul class="wz-chips"><li>${esc(p.bereich)}</li></ul>
 <p class="frei"><a class="wz-knopf" href="${up}${p.href}">${esc(t.zumProdukt)}</a></p>
-</article>`)].join("\n")}
-</div>`;
+</article>`), ...karten(lang, t, up).partnerKarten].join("\n")}
+</div>
+${MISCHEN}`;
 }
 
 // Vergleichstabelle: Spalten je Werkzeug (SmartFormular-Produkte, Partner mit Vergleichsangaben), zuletzt „Ihr Produkt“.
@@ -344,11 +351,7 @@ export function werkzeugeUebersicht(lang, { vergleich: mitVergleich = VERGLEICH_
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 ${reihe(lang, t, up)}
 <p class="frei wz-mehr"><a href="${sfZiel}">${esc(t.zuSf)} →</a></p>
-${PARTNER.length ? `<h2 id="partner-anzeigen">${esc(t.partnerTitel)}</h2>
-<div class="wz-raster">
-${karten(lang, t, up).partner}
-</div>
-` : ""}${grundsaetze(lang)}
+${grundsaetze(lang)}
 ${mitVergleich ? `<h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
 <p class="wz-hinweis frei">${esc(t.vergleichLead)}</p>
 ${vergleich(lang, t, up)}

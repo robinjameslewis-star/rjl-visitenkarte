@@ -8,6 +8,9 @@
 // Eintrag in aufnahmen des Anbieters (partner.js): { datei: "kanzleikern-anmeldung" (assets/videos/anbieter/<datei>.mp4 und .jpg als
 // Vorschaubild), datum: "2026-12-01", titel: { de, en } }. Es sind dieselben Clips wie auf LinkedIn und den anderen Kanälen; gezeigt erst
 // nach Robins eigenem Test und nur mit Test- oder erfundenen Daten (Vereinbarung „Vorgeschlagene Software“ Nr. 3 und 5).
+// Beiträge (Robin, 19.11.2026: „auf der Unterseite einer Lösung findet man den gesamten content zu dieser Lösung der veröffentlicht wurde“):
+// alle veröffentlichten Impulse der Sprache, die den Namen der Lösung nennen, automatisch (auch beim Veröffentlichen über die Redaktion,
+// blog.js buildBlog), dazu Beiträge auf anderen Kanälen aus links des Anbieters: [{ url, datum, kanal: "LinkedIn", titel: { de, en } }].
 import { rahmen, WERKZEUGE } from "./werkzeug.js";
 import { PARTNER, VORGESCHLAGEN, LOGO_BREITE, kennzeichen, vorschlagKennzeichen, anzeigeHref, KENNZ_CSS } from "./partner.js";
 
@@ -26,12 +29,12 @@ export function anbieterPruefen() {
 }
 
 const T = {
-  de: { werkzeuge: "Werkzeuge", zurueck: "← Werkzeuge", zumAnbieter: "Zur Website des Anbieters", aufnahmen: "Aufnahmen",
+  de: { beitraege: "Beiträge", impuls: "Impuls", werkzeuge: "Werkzeuge", zurueck: "← Werkzeuge", zumAnbieter: "Zur Website des Anbieters", aufnahmen: "Aufnahmen",
     aufnahmeHinweis: "Eigene Aufnahme von robin.vision mit Testdaten", vom: "vom",
     art: { vorgeschlagen: "Vorgeschlagen: robin.vision stellt diese Lösung unbezahlt vor. Verträge schließen Sie direkt mit dem Anbieter.",
       anzeige: "Anzeige: robin.vision erhält für vermittelte Kunden eine Vergütung. Verträge schließen Sie direkt mit dem Anbieter." },
     beschr: (p, b) => `${p.name} auf robin.vision: ${b}. ${p.text.de}` },
-  en: { werkzeuge: "Tools", zurueck: "← Tools", zumAnbieter: "To the provider's website", aufnahmen: "Recordings",
+  en: { beitraege: "Posts", impuls: "Insight", werkzeuge: "Tools", zurueck: "← Tools", zumAnbieter: "To the provider's website", aufnahmen: "Recordings",
     aufnahmeHinweis: "Recording by robin.vision with test data", vom: "of",
     art: { vorgeschlagen: "Suggested: robin.vision presents this solution unpaid. Contracts are made directly with the provider.",
       anzeige: "Ad: robin.vision receives a fee for customers it refers. Contracts are made directly with the provider." },
@@ -55,7 +58,11 @@ const CSS = `${KENNZ_CSS}
 .an-video figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
 .an-video figcaption strong { color: var(--ink); font-weight: 500; }`;
 
-export function anbieterSeite(p, lang) {
+// Veröffentlichte Impulse, die die Lösung nennen (Titel, Zusammenfassung oder Text), neueste zuerst
+export const anbieterBeitraege = (p, lang, posts = []) => posts.filter(b => b.status === "published" && b.date && b.lang === lang
+  && [b.title, b.summary, b.body].join("\n").includes(p.name)).sort((a, b) => b.date.localeCompare(a.date));
+
+export function anbieterSeite(p, lang, posts = []) {
   const t = T[lang];
   if (!t) throw new Error("Unbekannte Sprache: " + lang);
   const up = lang === "en" ? "../../../" : "../../";
@@ -69,6 +76,14 @@ export function anbieterSeite(p, lang) {
 ${aufnahmen.map(a => { const v = `${up}assets/videos/anbieter/${a.datei}`, titel = a.titel[lang] || a.titel.de;
     return `<figure class="an-video"><video controls playsinline preload="none" poster="${esc(v)}.jpg" aria-label="${esc(titel)}"><source src="${esc(v)}.mp4" type="video/mp4"></video><figcaption><strong>${esc(titel)}</strong> · ${t.aufnahmeHinweis}, ${t.vom} ${datum(a.datum, lang)}</figcaption></figure>`; }).join("\n")}
 ` : "";
+  const eigene = anbieterBeitraege(p, lang, posts).map(b => ({ datum: b.date, href: `${up}blog/${b.slug}/`, titel: b.title, art: t.impuls, text: b.summary }));
+  const fremde = (p.links || []).filter(l => !l.lang || l.lang === lang).map(l => ({ datum: l.datum, href: l.url, titel: l.titel[lang] || l.titel.de, art: l.kanal, extern: true }));
+  const liste = [...eigene, ...fremde].sort((a, b) => b.datum.localeCompare(a.datum));
+  const beitraege = liste.length ? `<h2 id="beitraege">${t.beitraege}</h2>
+<ul class="list">
+${liste.map(b => `<li><span class="when">${datum(b.datum, lang)} · ${esc(b.art)}</span><a href="${esc(b.href)}"${b.extern ? ' rel="noopener" target="_blank"' : ""}>${esc(b.titel)}</a>${b.text ? `<p>${esc(b.text)}</p>` : ""}</li>`).join("\n")}
+</ul>
+` : "";
   const main = `<article class="anbieter">
 <p class="an-zurueck"><a href="${up}${lang === "en" ? "werkzeuge/en/" : "werkzeuge/"}">${t.zurueck}</a></p>
 ${kennz}
@@ -76,7 +91,7 @@ ${logo}
 <h1>${esc(p.name)}</h1>
 ${bereich ? `<ul class="an-chips wz-chips"><li>${esc(bereich)}</li></ul>` : ""}
 <p class="intro">${esc(text)}</p>
-${videos}<p><a class="an-knopf" href="${esc(p.url)}" rel="${rel}" target="_blank">${t.zumAnbieter}</a></p>
+${videos}${beitraege}<p><a class="an-knopf" href="${esc(p.url)}" rel="${rel}" target="_blank">${t.zumAnbieter}</a></p>
 <p class="an-art">${t.art[p.art]}</p>
 </article>`;
   return rahmen({ lang, up, titel: p.name, seitentitel: `${p.name}${bereich ? " – " + bereich : ""} | robin.vision`, beschr: t.beschr(p, bereich).slice(0, 300),
