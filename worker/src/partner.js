@@ -30,8 +30,10 @@ export const VORGESCHLAGEN = [
     text: { de: "Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.",
       en: "Software for your firm's practice manual: processes and review sequences in one place, AI search with sources, available to your own AI via MCP." } },
   // PrimeBalance (Vereinbarung 19.11.2026, Fassung des Anbieters): Stand nennen; DATEV nicht nennen (Robin, 19.11.2026); Logo unverändert.
-  // logoQuadrat: Der Anbieter hat nur ein quadratisches Symbol, das bei 24 px Höhe kaum zu sehen war (Robin, 19.11.2026) – es wird größer gezeigt.
-  { id: "primebalance", name: "PrimeBalance", anbieter: "PrimeBalance UG", url: "https://www.prime-balance.de/", logo: "assets/partner/primebalance.svg", logoQuadrat: true, seit: "2026-11-19",
+  // Logo: Symbol und Schriftzug wie im Kopf von prime-balance.de (Robin, 19.11.2026: „prime balance hat einen schriftzug“). Der Schriftzug ist dort
+  // Text in Fraunces 600 (OFL) mit den Farben der Website; als Bild nachgesetzt, Symbol unverändert.
+  // logoQuadrat: größer gezeigt, weil das Symbol den Schriftzug sonst klein hält (38 px Werkzeuge, 32 px Slider).
+  { id: "primebalance", name: "PrimeBalance", anbieter: "PrimeBalance UG", url: "https://www.prime-balance.de/", logo: "assets/partner/primebalance-schriftzug.png", logoQuadrat: true, seit: "2026-11-19",
     quelle: "prime-balance.de, abgerufen 19.11.2026; Zustimmung Konrad Erwerle per Mail 19.11.2026",
     bereich: { de: "KI-Agenten", en: "Agentic AI" },
     text: { de: "Virtuelle KI-Kanzlei für Steuerberater: Das Team bucht Belege vor und bereitet den Monatsabschluss vor, Sie prüfen und geben frei. Mandantendaten in Frankfurt am Main. Angaben des Anbieters, Stand 19.11.2026.",
