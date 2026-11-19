@@ -156,7 +156,7 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-th-kennz { display: block; margin: 0 0 6px; font: 400 11px/1.45 var(--sans); color: #767676; hyphens: manual; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .wz-th-kennz span { white-space: nowrap; }
-.wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 22px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
+.wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 23.6px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
 .wz-chips li { margin: 0; padding: 4px 10px; border: 1px solid var(--line); border-radius: 3px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.6); text-align: left; }
 .wz-knopf { display: inline-block; padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper) !important; text-decoration: none !important; font-size: 15px; }
