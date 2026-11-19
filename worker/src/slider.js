@@ -4,7 +4,7 @@
 // Die Karte für Anbieter steht seit Welle 2 der Textprüfung (Robin, 23.10.2026, Option B) als Hinweis weiter unten (index.html, #anbieter). Je Sprache ein Slider; language.js blendet den der anderen Sprache über data-langs aus.
 // Ohne Skript lässt er sich wischen und scrollen, das kleine Skript in index.html ergänzt Pfeile und Punkte. Stile in index.html (.wzs).
 // tools/werkzeug-uebernehmen.mjs setzt das Ergebnis zwischen die Marken <!-- werkzeuge:liste --> ein.
-import { PARTNER, VORGESCHLAGEN, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, kostenlos } from "./partner.js";
+import { PARTNER, VORGESCHLAGEN, LOGO_BREITE, SLIDER_FAKTOR, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, kostenlos } from "./partner.js";
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -46,7 +46,7 @@ export function slider(lang) {
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: p.bereich || "",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));
   const vorgeschlagen = VORGESCHLAGEN.map(p => karte({ kennz: vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz"),
-    logo: `<div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="${esc(p.logo)}" alt=""></div>`,
+    logo: `<div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="${esc(p.logo)}" alt="" width="${Math.round((p.logoBreite || LOGO_BREITE) * SLIDER_FAKTOR)}"></div>`,
     name: p.name, text: p.text[lang] || p.text.de, bereich: p.bereich[lang] || p.bereich.de, href: p.url, link: t.zumAnbieter, extern: true }));
   // Vorgeschlagene Software zuerst (Robin, 16.11.2026: „kanzleikern dann vor smartformular auf der startseite“)
   const alle = [...vorgeschlagen, ...eigene, ...partner];

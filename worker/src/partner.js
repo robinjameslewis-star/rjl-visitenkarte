@@ -24,7 +24,7 @@ export const PARTNER = [
 // Logo unverändert von der Website des Anbieters (Arbeitsregeln Abschnitt 8). Sobald Geld oder ein geldwerter Vorteil fließt, wechselt
 // der Eintrag nach PARTNER.
 export const VORGESCHLAGEN = [
-  { id: "kanzleikern", name: "Kanzleikern", anbieter: "Dashtax GbR", url: "https://kanzleikern.com/", logo: "assets/partner/kanzleikern.svg", seit: "2026-11-16",
+  { id: "kanzleikern", name: "Kanzleikern", anbieter: "Dashtax GbR", url: "https://kanzleikern.com/", logo: "assets/partner/kanzleikern.svg", logoBreite: 140, seit: "2026-11-16",
     quelle: "kanzleikern.com, abgerufen 16.11.2026; Freigabe Aurel Bäcker per Mail 16.11.2026",
     bereich: { de: "Kanzleiwissen", en: "Practice knowledge" },
     text: { de: "Software für Ihr Kanzleihandbuch: Abläufe und Prüfreihenfolgen an einem Ort, KI-Suche mit Quellen, per MCP in Ihrer KI.",
@@ -32,12 +32,15 @@ export const VORGESCHLAGEN = [
   // PrimeBalance (Vereinbarung 19.11.2026, Fassung des Anbieters): Stand nennen; DATEV nicht nennen (Robin, 19.11.2026); Logo unverändert.
   // Logo: Symbol und Schriftzug wie im Kopf von prime-balance.de (Robin, 19.11.2026: „prime balance hat einen schriftzug“). Der Schriftzug ist dort
   // Text in Fraunces 600 (OFL) mit den Farben der Website; als Bild nachgesetzt, Symbol unverändert.
-  { id: "primebalance", name: "PrimeBalance", anbieter: "PrimeBalance UG", url: "https://www.prime-balance.de/", logo: "assets/partner/primebalance-schriftzug.png", seit: "2026-11-19",
+  { id: "primebalance", name: "PrimeBalance", anbieter: "PrimeBalance UG", url: "https://www.prime-balance.de/", logo: "assets/partner/primebalance-schriftzug.png", logoBreite: 158, seit: "2026-11-19",
     quelle: "prime-balance.de, abgerufen 19.11.2026; Zustimmung Konrad Erwerle per Mail 19.11.2026",
     bereich: { de: "KI-Agenten", en: "Agentic AI" },
     text: { de: "Virtuelle KI-Kanzlei für Steuerberater: Das Team bucht Belege vor und bereitet den Monatsabschluss vor, Sie prüfen und geben frei. Mandantendaten in Frankfurt am Main. Angaben des Anbieters, Stand 19.11.2026.",
       en: "Virtual AI firm for tax advisers: the team pre-posts receipts and prepares the month-end close, you review and approve. Client data in Frankfurt am Main. Provider's information as of 19 Nov 2026." } },
 ];
+// logoBreite: Breite des Logos in px auf der Seite Werkzeuge (Box 196 × 50), im Slider 88 %. Optisch abgeglichen, damit die Schrift aller
+// Logos gleich hoch wirkt (Robin, 19.11.2026: „bestmögliche darstellung bei möglichst gleicher größe“); ohne Angabe 150 px.
+export const LOGO_BREITE = 150, SLIDER_FAKTOR = 0.88;
 export const VORSCHLAG = { de: "Vorgeschlagen", en: "Suggested" };
 export const vorschlagKennzeichen = (lang, anbieter, klasse) => `<p class="${klasse}">${VORSCHLAG[lang]} · <span>${esc(anbieter)}</span></p>`;
 
