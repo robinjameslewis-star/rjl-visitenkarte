@@ -12,7 +12,7 @@ import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
 import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT, VERGLEICH_SICHTBAR } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
 import { PARTNER, VORGESCHLAGEN } from "../worker/src/partner.js";
-const V = VORGESCHLAGEN.length;
+const V = VORGESCHLAGEN.length, P = PARTNER.length;
 import { grundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
 
 let fails = 0;
@@ -58,7 +58,10 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(!/Produkt von robin\.vision|product by robin\.vision/i.test(html), "nirgends „Produkt von robin.vision“ (Robin, 18.10.2026)");
   check(!html.includes("wz-platzhalter") && !html.includes(`<h3>${t.platz}</h3>`), "keine Karte „Ihre Lösung auf robin.vision“ mehr (Robin, 16.11.2026)");
   check(html.includes('<h2 id="partner">') && html.includes('id="partner-anfrage"'), "Formular „Partner werden“ bleibt");
-  check(!/rel="sponsored/.test(raster), "ohne Partner kein Verweis mit rel=sponsored");
+  check(anzahl(raster, /rel="sponsored noopener"/g) === PARTNER.filter(p => !p.seite).length && !/rel="sponsored/.test(reihe), "rel=sponsored nur an bezahlten Partnern im Abschnitt „Anzeigen“, nicht in der Reihe");
+  // Andreas Schoba (Robin, 19.11.2026): Anzeige mit Provision, Kategorie „KI-Skills“, Wortmarke von seiner Website, nicht in der Reihe
+  const schoba = (raster.match(/<article class="wz-karte">[\s\S]*?<\/article>/g) || []).find(k => k.includes("<h3>Andreas Schoba</h3>")) || "";
+  check(schoba.startsWith(`<article class="wz-karte">\n${kennz(t, "wz-kennz", "Andreas Schoba")}\n<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${lang === "en" ? "../../" : "../"}assets/partner/andreas-schoba.png" alt="" width="161"></span>`) && schoba.includes(`<ul class="wz-chips"><li>${lang === "en" ? "AI skills" : "KI-Skills"}</li></ul>`) && schoba.includes('href="https://www.optimierung-der-webseite.de/seo-newsletter/" rel="sponsored noopener" target="_blank"') && !/€|Gulde|DATEV/.test(schoba) && !reihe.includes("Andreas Schoba"), `${lang}: Karte Andreas Schoba unter „Anzeigen“ – Kennzeichen, Wortmarke 161 px, Chip „KI-Skills“, rel=sponsored, ohne Preise und ohne Gulde`);
   // Vergleich vorübergehend aus (Robin, 12.11.2026); Aufbau und Daten werden weiter an der eingeschalteten Fassung geprüft
   check(VERGLEICH_SICHTBAR || (!html.includes('id="vergleich"') && !html.includes('<table class="wz-tabelle">') && !html.includes('class="meta wz-quelle"')), "Vergleichstabelle vorübergehend nicht auf der Seite (Robin, 12.11.2026)");
   const htmlV = werkzeugeUebersicht(lang, { vergleich: true });
@@ -120,8 +123,8 @@ check(liste === startSlider(), "Slider auf der Startseite entspricht dem Modul")
 for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
-  check(anzahl(s, /<article class="wzs-karte/g) === 3 + V && anzahl(s, /<i( class="an")?><\/i>/g) === 3 + V && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: drei SmartFormular-Karten plus vorgeschlagene Software, je ein Punkt, zwei Pfeile – die Anbieterkarte steht seit Option B weiter unten`);
-  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1 && anzahl(s, /wzs-kennz/g) === 3 + V && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: drei SmartFormular-Produkte – zwei mit „Kostenlos“, Abschluss mit „Anzeige · robin.vision“ –, keine Anbieterkarte im Slider`);
+  check(anzahl(s, /<article class="wzs-karte/g) === 3 + V + P && anzahl(s, /<i( class="an")?><\/i>/g) === 3 + V + P && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: drei SmartFormular-Karten plus vorgeschlagene Software und bezahlte Partner, je ein Punkt, zwei Pfeile – die Anbieterkarte steht seit Option B weiter unten`);
+  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1 && anzahl(s, /wzs-kennz/g) === 3 + V + P && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: drei SmartFormular-Produkte – zwei mit „Kostenlos“, Abschluss mit „Anzeige · robin.vision“ –, keine Anbieterkarte im Slider`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
   check(!s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#abschluss"`), `${lang}: Abschluss führt zur Produktseite, FiBu archiviert`);
 }

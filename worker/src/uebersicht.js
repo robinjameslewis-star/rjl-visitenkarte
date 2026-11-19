@@ -262,9 +262,11 @@ ${chips(t.sf.chips)}
     const seite = p.seite ? up + `werkzeuge/${p.seite}/` : null;
     return `<article class="wz-karte">
 ${kennz(p.anbieter)}
-<span class="wz-logo" aria-hidden="true">${p.logo ? `<img src="${esc(up + p.logo)}" alt="">` : esc(p.name)}</span>
+${p.logo ? `<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>`
+    : `<span class="wz-logo" aria-hidden="true">${esc(p.name)}</span>`}
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc((p.text && (p.text[lang] || p.text.de)) || "")}</p>
+${p.bereich ? chips([p.bereich[lang] || p.bereich.de]) : ""}
 <p class="frei">${seite ? `<a class="wz-knopf" href="${seite}">${esc(t.zumProdukt)}</a>` : `<a class="wz-knopf" href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(t.zumAnbieter)}</a>`}</p>
 </article>`;
   });

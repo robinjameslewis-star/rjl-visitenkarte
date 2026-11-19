@@ -15,6 +15,19 @@ export const PARTNER = [
   //   je Sprache die Felder aus dem Vergleichsbogen: stand "MM/JJJJ", aufgabe, fuer, daten (Betrieb und Datenstandort), sitz, ki (wofür, Modell
   //   und Ort, Training mit Kundendaten), schnittstellen, preis (Preismodell, „ab“, Test), nachweise – kurze Tatsachen, keine Werbesätze),
   //   text: { de: "Ein Satz, was das Werkzeug tut und wo es im Workshop vorkommt.", en: "One sentence on what the tool does and where it appears in the workshop." } },
+  //   Weitere Felder: bereich: { de, en } (Chip auf der Karte), logoBreite (wie bei VORGESCHLAGEN), workshop: true (erst dann auf den
+  //   Workshop-Seiten, nach Partnervereinbarung und Robins Test).
+  // Andreas Schoba (Robin, 19.11.2026: „das gehört jetzt zur kategorie Ki Skills“): Zustimmung per WhatsApp 19.11.2026, 16:28 („Klar“) auf Robins
+  // Frage, ob er das Angebot wie auf andreas-schoba.de und im Newsletter zeigen darf. Provision für vermittelte Kunden (Robin, 19.11.2026), deshalb
+  // „Anzeige“. Logo: seine Wortmarke (WordPress-Seitenlogo logo-andreas-schoba.webp, 1000 × 170), nur der durchsichtige Rand abgeschnitten
+  // (720 × 71, Pixel unverändert, als PNG). Ohne Preise und ohne die Gulde Kommunikation GmbH (dort läuft die Betreuung; keine eigene
+  // Zustimmung). Nicht auf den Workshop-Seiten.
+  { id: "andreas-schoba", name: "Andreas Schoba", anbieter: "Andreas Schoba", url: "https://www.optimierung-der-webseite.de/seo-newsletter/", verguetung: "provision", seit: "2026-11-19",
+    quelle: "optimierung-der-webseite.de/seo-newsletter (Weiterleitung von andreas-schoba.de), abgerufen 19.11.2026; Zustimmung Andreas Schoba per WhatsApp 19.11.2026",
+    logo: "assets/partner/andreas-schoba.png", logoBreite: 161,
+    bereich: { de: "KI-Skills", en: "AI skills" },
+    text: { de: "SEO und GEO mit Claude: Andreas Schoba arbeitet mit selbst gebauten SEO-Skills und Grounding Pages, damit Unternehmen bei Google und in den Antworten von ChatGPT, Gemini und Perplexity auftauchen. Newsletter, Beratung und monatliche Betreuung. Angaben des Anbieters, Stand 19.11.2026.",
+      en: "SEO and GEO with Claude: Andreas Schoba works with self-built SEO skills and grounding pages so that businesses show up on Google and in answers from ChatGPT, Gemini and Perplexity. Newsletter, consulting and monthly support. Provider's information as of 19 Nov 2026." } },
 ];
 
 // Vorgeschlagene Software (Robin, 16.11.2026, nach Kanzleikern): unbezahlt vorgestellte Lösungen in der kostenlosen Testphase
@@ -63,7 +76,9 @@ export const kostenlosText = (lang, art) => (KOSTENLOS_ART[art] || KOSTENLOS)[la
 export const kostenlos = (lang, klasse, art) => `<p class="${klasse}">${kostenlosText(lang, art)}</p>`;
 
 // Liste der Partnerangebote für eine Seite – leer: der Hinweis, dass Partnerangebote folgen
+// Nur Einträge mit workshop: true (Partnervereinbarung und Robins eigener Test); Website-Anzeigen allein bleiben außen vor.
 export function partnerListe(lang, t, up) {
-  if (!PARTNER.length) return `<p class="hinweis">${esc(t.partnerHinweis)}</p>`;
-  return `<ul class="partner">${PARTNER.map(p => `<li>${kennzeichen(lang, anzeigeHref(lang, up), p.anbieter, "kennzeichnung")}<a href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(p.name)}</a><p>${esc(p.text[lang] || p.text.de)}</p></li>`).join("\n")}</ul>`;
+  const liste = PARTNER.filter(p => p.workshop);
+  if (!liste.length) return `<p class="hinweis">${esc(t.partnerHinweis)}</p>`;
+  return `<ul class="partner">${liste.map(p => `<li>${kennzeichen(lang, anzeigeHref(lang, up), p.anbieter, "kennzeichnung")}<a href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(p.name)}</a><p>${esc(p.text[lang] || p.text.de)}</p></li>`).join("\n")}</ul>`;
 }
