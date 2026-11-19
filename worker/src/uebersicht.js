@@ -12,7 +12,7 @@
 // Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, VORGESCHLAGEN, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, kostenlos } from "./partner.js";
+import { PARTNER, VORGESCHLAGEN, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, kostenlos } from "./partner.js";
 import { PRODUKTE } from "./slider.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
@@ -150,13 +150,13 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-karte > p:last-child { margin-top: auto; margin-bottom: 0; }
 /* Einheitliche Logobox (Robin, 19.11.2026: „das müssen wir vereinheitlichen egal wieviele buchstaben die wortmarke hat“): gleiche Breite und Höhe für alle, Logo füllt sie aus */
 .wz-logo { box-sizing: border-box; width: 196px; max-width: 100%; height: 50px; padding: 0 14px; display: flex; align-items: center; justify-content: center; margin: 0 0 14px; border: 1px dashed var(--line); border-radius: 4px; font: 500 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); background: rgba(255,255,255,.6); }
-.wz-logo img { display: block; width: 100%; height: 38px; object-fit: contain; }
+.wz-logo img { display: block; height: auto; max-width: 100%; }
 .wz-logo-bild { border: 1px solid #E4E1D8; background: #fff; padding: 0 14px; }
 .wz-karte .wz-kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--sans); color: #767676; }
 .wz-th-kennz { display: block; margin: 0 0 6px; font: 400 11px/1.45 var(--sans); color: #767676; hyphens: manual; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
 .wz-th-kennz span { white-space: nowrap; }
-.wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 23.6px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
+.wz-logo-sf { border: 0; background: #0E0B14; color: #fff; font-size: 20px; letter-spacing: .01em; text-transform: none; } .wz-logo-sf span { color: #A78BFA; }
 .wz-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; padding: 0; }
 .wz-chips li { margin: 0; padding: 4px 10px; border: 1px solid var(--line); border-radius: 3px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.6); text-align: left; }
 .wz-knopf { display: inline-block; padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper) !important; text-decoration: none !important; font-size: 15px; }
@@ -271,7 +271,7 @@ ${kennz(p.anbieter)}
   // Vorgeschlagene Software (unbezahlt): eigenes Kennzeichen, Bereich als Chip, Verweis ohne rel="sponsored"
   const vorgeschlagen = VORGESCHLAGEN.map(p => `<article class="wz-karte">
 ${vorschlagKennzeichen(lang, p.anbieter, "wz-kennz")}
-<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt=""></span>
+<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc(p.text[lang] || p.text.de)}</p>
 ${chips([p.bereich[lang] || p.bereich.de])}
