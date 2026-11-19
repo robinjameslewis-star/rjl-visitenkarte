@@ -19,6 +19,7 @@ import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
 import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
 import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 import { startSlider } from "../worker/src/slider.js";
+import { ANBIETER, anbieterSeite, anbieterPfad, anbieterPruefen } from "../worker/src/anbieter.js";
 import { START_ERECHNUNG } from "./erechnung/starttexte.mjs";
 
 // Starttexte (nur für die erste Fassung einer Seite; danach gilt, was in der Redaktion steht)
@@ -170,6 +171,13 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
 for (const [lang, pfad] of Object.entries(SMARTFORMULAR_PFAD)) {
   mkdirSync(dirname(pfad), { recursive: true });
   writeFileSync(pfad, smartformularSeite(lang, alle));
+}
+// Unterseiten der Anbieter (anbieter.js): je Anbieter und Sprache, mit allen veröffentlichten Impulsen, die die Lösung nennen
+const beitraegeAlle = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)));
+anbieterPruefen();
+for (const p of ANBIETER) for (const lang of ["de", "en"]) {
+  mkdirSync(dirname(anbieterPfad(p.id, lang)), { recursive: true });
+  writeFileSync(anbieterPfad(p.id, lang), anbieterSeite(p, lang, beitraegeAlle));
 }
 // Slider und Grundsätze auf der Startseite (zwischen den Marken; language.js blendet die andere Sprache über data-langs aus)
 const einsetzen = (html, name, inhalt) => {

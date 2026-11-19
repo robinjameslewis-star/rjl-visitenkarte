@@ -7,6 +7,7 @@
 
 import { newsletterKasten, NEWSLETTER_ENDPUNKT, NEWSLETTER_SKRIPT, NEWSLETTER_CSS } from "./kasten.js";
 import { renderSitemap } from "./sitemap.js";
+import { ANBIETER, anbieterSeite, anbieterPfad } from "./anbieter.js";
 import { kopf, KOPF_CSS, gochKopf, gochSkript, GOCH_KOPF_CSS, NACHT_CSS, NACHT_START, nachtKopf } from "./kopf.js";
 import { neuigkeiten } from "./neuigkeiten.js";
 
@@ -450,6 +451,8 @@ export function buildBlog({ settings, posts, homepage, existingDirs = [], existi
   if (werkzeuge && siteUrl) {
     const mitFeldern = werkzeuge.map(w => { const f = werkzeugFelder && werkzeugFelder[w.id]; return f ? { ...w, datum: w.datum || (f.datei || {}).datum, datei: f.datei, neuigkeiten: f.neuigkeiten || "" } : { ...w, neuigkeiten: "" }; });
     changes.push({ path: "sitemap.xml", content: renderSitemap({ siteUrl, posts: shown, werkzeuge: mitFeldern }) });
+    // Unterseiten der Anbieter mit den Impulsen, die sie nennen (anbieter.js; Robin, 19.11.2026: gesamter Content zur Lösung dort)
+    for (const a of ANBIETER) for (const lang of ["de", "en"]) changes.push({ path: anbieterPfad(a.id, lang), content: anbieterSeite(a, lang, shown) });
     for (const lang of ["de", "en"]) changes.push({ path: `${NEWSLETTER_DIR}/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`, content: renderNewsletterFeed({ posts: shown, siteUrl, lang, werkzeuge: mitFeldern }) });
   }
   const keep = new Set(shown.map(p => p.slug));
