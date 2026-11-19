@@ -104,6 +104,42 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
   </url>
   <url>
+    <loc>https://robin.vision/werkzeuge/kanzleikern/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/kanzleikern/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/kanzleikern/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/kanzleikern/en/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/kanzleikern/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/kanzleikern/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/primebalance/</loc>
+    <lastmod>2026-11-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/primebalance/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/primebalance/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/primebalance/en/</loc>
+    <lastmod>2026-11-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/primebalance/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/primebalance/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/andreas-schoba/</loc>
+    <lastmod>2026-11-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/andreas-schoba/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/andreas-schoba/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/andreas-schoba/en/</loc>
+    <lastmod>2026-11-19</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/andreas-schoba/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/andreas-schoba/en/"/>
+  </url>
+  <url>
     <loc>https://robin.vision/blog/</loc>
     <lastmod>2026-11-13</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/blog/"/>

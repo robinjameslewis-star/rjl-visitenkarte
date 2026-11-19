@@ -1,7 +1,9 @@
 // sitemap.xml der Website (Robin, 16.10.2026, Auffindbarkeit): Startseite in beiden Sprachen, Werkzeuge mit Übersichten,
 // Impulse mit Listen, feste Seiten wie „Über mich“. Geschrieben von der Redaktion beim Veröffentlichen (blog.js, buildBlog), lokal von
-// tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten, damit kein Importkreis entsteht.
+// tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten außer partner.js (importiert selbst nichts), damit kein Importkreis entsteht.
 // Feste Seiten je Sprache (ueber_mich.js, workshops.js, smartformular.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
+import { ANBIETER_SEITEN } from "./partner.js";
+
 export const SEITEN = [
   { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-24" },
   { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-24" },
@@ -17,6 +19,8 @@ export const SEITEN = [
   // Produktseite SmartFormular unter den Werkzeugen (smartformular.js, seit 18.10.2026)
   { id: "smartformular", lang: "de", adresse: "werkzeuge/smartformular/", stand: "2026-10-24" },
   { id: "smartformular", lang: "en", adresse: "werkzeuge/smartformular/en/", stand: "2026-10-24" },
+  // Unterseiten der Anbieter (anbieter.js, seit 19.11.2026)
+  ...ANBIETER_SEITEN,
 ];
 
 const x = s => String(s).replace(/[<>&"]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));

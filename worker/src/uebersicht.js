@@ -12,7 +12,7 @@
 // Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, VORGESCHLAGEN, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, kostenlos } from "./partner.js";
+import { PARTNER, VORGESCHLAGEN, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, kostenlos, anbieterAdresse } from "./partner.js";
 import { PRODUKTE } from "./slider.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
@@ -267,7 +267,7 @@ ${p.logo ? `<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${es
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc((p.text && (p.text[lang] || p.text.de)) || "")}</p>
 ${p.bereich ? chips([p.bereich[lang] || p.bereich.de]) : ""}
-<p class="frei">${seite ? `<a class="wz-knopf" href="${seite}">${esc(t.zumProdukt)}</a>` : `<a class="wz-knopf" href="${esc(p.url)}" rel="sponsored noopener" target="_blank">${esc(t.zumAnbieter)}</a>`}</p>
+<p class="frei"><a class="wz-knopf" href="${seite || up + anbieterAdresse(p.id, lang)}">${esc(t.zumProdukt)}</a></p>
 </article>`;
   });
   // Vorgeschlagene Software (unbezahlt): eigenes Kennzeichen, Bereich als Chip, Verweis ohne rel="sponsored"
@@ -277,7 +277,7 @@ ${vorschlagKennzeichen(lang, p.anbieter, "wz-kennz")}
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc(p.text[lang] || p.text.de)}</p>
 ${chips([p.bereich[lang] || p.bereich.de])}
-<p class="frei"><a class="wz-knopf" href="${esc(p.url)}" rel="noopener" target="_blank">${esc(t.zumAnbieter)}</a></p>
+<p class="frei"><a class="wz-knopf" href="${up}${anbieterAdresse(p.id, lang)}">${esc(t.zumProdukt)}</a></p>
 </article>`);
   // Ohne Platzhalter neben vorgestellten Lösungen (Robin, 16.11.2026: „mach mal das partner werden neben kanzleikern auf der werkzeuge
   // seite weg“); vorgeschlagene Software steht vorn in der Reihe (reihe unten), der Abschnitt „Partner“ nur mit bezahlten Partnern.

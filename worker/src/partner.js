@@ -57,6 +57,11 @@ export const LOGO_BREITE = 150, SLIDER_FAKTOR = 0.88;
 export const VORSCHLAG = { de: "Vorgeschlagen", en: "Suggested" };
 export const vorschlagKennzeichen = (lang, anbieter, klasse) => `<p class="${klasse}">${VORSCHLAG[lang]} · <span>${esc(anbieter)}</span></p>`;
 
+// Unterseite je Anbieter unter den Werkzeugen (anbieter.js); hier, damit sitemap.js sie ohne Kreisimport kennt
+export const anbieterAdresse = (id, lang) => lang === "en" ? `werkzeuge/${id}/en/` : `werkzeuge/${id}/`;
+export const ANBIETER_SEITEN = [...VORGESCHLAGEN, ...PARTNER.filter(p => !p.seite)].flatMap(a => ["de", "en"].map(lang => ({ id: "anbieter-" + a.id, lang,
+  adresse: anbieterAdresse(a.id, lang), stand: [a.seit, ...(a.aufnahmen || []).map(x => x.datum)].filter(Boolean).sort().at(-1) })));
+
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // Kennzeichen an jedem Werkzeug: „Anzeige“ (Verweis auf die Erläuterung) und der Anbieter
