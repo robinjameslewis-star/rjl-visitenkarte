@@ -152,6 +152,7 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-logo img { max-height: 32px; width: auto; }
 .wz-logo-bild { border: 1px solid #E4E1D8; background: #fff; padding: 0 14px; }
 .wz-logo-bild img { display: block; height: 24px; max-height: 24px; }
+.wz-logo-quadrat { padding: 0 6px; } .wz-logo-quadrat img { height: 38px; max-height: 38px; }
 .wz-karte .wz-kennz { margin: 0 0 8px; font: 400 11.5px/1.5 var(--sans); color: #767676; }
 .wz-th-kennz { display: block; margin: 0 0 6px; font: 400 11px/1.45 var(--sans); color: #767676; hyphens: manual; }
 .wz-kennz a, .wz-th-kennz a { color: inherit; text-decoration: none; } .wz-kennz a:hover, .wz-th-kennz a:hover { text-decoration: underline; text-underline-offset: .2em; }
@@ -271,7 +272,7 @@ ${kennz(p.anbieter)}
   // Vorgeschlagene Software (unbezahlt): eigenes Kennzeichen, Bereich als Chip, Verweis ohne rel="sponsored"
   const vorgeschlagen = VORGESCHLAGEN.map(p => `<article class="wz-karte">
 ${vorschlagKennzeichen(lang, p.anbieter, "wz-kennz")}
-<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt=""></span>
+<span class="wz-logo wz-logo-bild${p.logoQuadrat ? " wz-logo-quadrat" : ""}" aria-hidden="true"><img src="${esc(up + p.logo)}" alt=""></span>
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc(p.text[lang] || p.text.de)}</p>
 ${chips([p.bereich[lang] || p.bereich.de])}

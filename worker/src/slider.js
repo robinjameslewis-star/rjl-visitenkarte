@@ -46,7 +46,7 @@ export function slider(lang) {
     name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", bereich: p.bereich || "",
     href: p.seite ? `werkzeuge/${p.seite}/` : p.url, link: p.seite ? t.zumProdukt : t.zumAnbieter, sponsored: !p.seite }));
   const vorgeschlagen = VORGESCHLAGEN.map(p => karte({ kennz: vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz"),
-    logo: `<div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="${esc(p.logo)}" alt=""></div>`,
+    logo: `<div class="wzs-logo wzs-logo-bild${p.logoQuadrat ? " wzs-logo-quadrat" : ""}" aria-hidden="true"><img src="${esc(p.logo)}" alt=""></div>`,
     name: p.name, text: p.text[lang] || p.text.de, bereich: p.bereich[lang] || p.bereich.de, href: p.url, link: t.zumAnbieter, extern: true }));
   // Vorgeschlagene Software zuerst (Robin, 16.11.2026: „kanzleikern dann vor smartformular auf der startseite“)
   const alle = [...vorgeschlagen, ...eigene, ...partner];
