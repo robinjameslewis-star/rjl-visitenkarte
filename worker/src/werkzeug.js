@@ -422,6 +422,15 @@ body { background: #0E0B14; color: #EDE9FE; }
 .foot a:hover { color: #EDE9FE; }
 @media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }`;
 
+// Prüfseite für die Tests des E-Rechnung-Werkzeugs (seit 20.11.2026 gibt es auf robin.vision keine Werkzeugseite mehr): derselbe Rahmen,
+// dieselben Stile und dieselbe Einbettung wie die frühere Seite, ohne Texte, mit Raum darunter wie dort (Scrollen zum Ergebnis). Nur für tests/erechnung/hilfen.mjs, nicht im Repository abgelegt.
+export function appPruefseite(lang = "de") {
+  const titel = lang === "en" ? "SmartFormular E-Invoice Start – test page" : "SmartFormular E-Rechnung Start – Prüfseite";
+  return rahmen({ lang, up: "/", titel, beschr: titel, canonical: SMARTFORMULAR + (lang === "en" ? "en/e-invoice-start/" : "e-rechnung-start/"),
+    head: appKopf("/", "test"), css: SF_CSS + "\n" + KENNZ_CSS + "\n" + APP_CSS,
+    main: `<h1>${titel}</h1>\n<section class="werkzeug" id="werkzeug"><div id="erechnung" data-lang="${lang}" data-basis="/assets/erechnung/" data-fassung="test"></div></section>\n<div class="pruefseite-raum" style="min-height: 150vh"></div>` });
+}
+
 // Weiterleitung für eine alte Adresse (GitHub Pages kennt keine Weiterleitungen auf dem Server)
 export function weiterleitung(zielId) {
   const ziel = `../${zielId}/`, w = werkzeug(zielId);

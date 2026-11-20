@@ -67,9 +67,41 @@ for (const [name, start] of [["Chrome", () => pw.chromium.launch({ channel: "chr
     check(p.url() === "https://smartformular.ai/e-rechnung-start/regeln/br-01/", `${name}: Regel-Seite ohne Daten → smartformular.ai`);
     await p.goto("https://robin.vision/werkzeuge/daten-uebergabe/"); await p.evaluate(() => localStorage.setItem("rvlizenz:fibu", "{}"));
     await p.goto("https://robin.vision/werkzeuge/buchungsstapel-generator/"); await p.waitForURL(/daten-uebergabe/, { timeout: 8000 }).catch(() => {});
-    check(p.url() === "https://robin.vision/werkzeuge/daten-uebergabe/", `${name}: alte Adresse mit Daten zeigt einmal die Übergabe`);
+    check(p.url() === "https://robin.vision/werkzeuge/daten-uebergabe/", `${name}: alte Adresse mit Daten zeigt die Übergabe`);
+    await p.goto("https://robin.vision/werkzeuge/e-rechnung-pruefen/"); await p.waitForURL(/daten-uebergabe/, { timeout: 8000 }).catch(() => {});
+    check(p.url() === "https://robin.vision/werkzeuge/daten-uebergabe/", `${name}: ohne Entscheidung auch beim nächsten Besuch wieder die Übergabe`);
+    await Promise.all([p.waitForURL(/smartformular\.ai/, { timeout: 8000 }).catch(() => {}), p.click("[data-ue-weiter]")]);
     await p.goto("https://robin.vision/werkzeuge/booking-batch-generator/Booking-Batch-Generator.html"); await p.waitForURL(/smartformular\.ai/, { timeout: 8000 }).catch(() => {});
-    check(p.url() === "https://smartformular.ai/en/bookkeeping-start/Bookkeeping-Start.html", `${name}: beim zweiten Mal Weiterleitung, auch für die Werkzeug-Datei`);
+    check(p.url() === "https://smartformular.ai/en/bookkeeping-start/Bookkeeping-Start.html", `${name}: nach „weiter ohne Mitnehmen“ Weiterleitung, auch für die Werkzeug-Datei`);
+    await ctx.close(); }
+  // 3. Parameter und Sprungmarke gehen mit (Stripe-Rückkehr, Reiter, Fassung im Newsletter)
+  { const ctx = await b.newContext(); await umleiten(ctx); const p = await ctx.newPage();
+    await p.goto("https://robin.vision/werkzeuge/e-rechnung-pruefen/?lizenz=gekauft#erstellen"); await p.waitForURL(/smartformular\.ai/, { timeout: 8000 }).catch(() => {});
+    check(p.url() === "https://smartformular.ai/e-rechnung-start/?lizenz=gekauft#erstellen", `${name}: ?lizenz=gekauft und #erstellen kommen am Ziel an`);
+    await p.goto("https://robin.vision/werkzeuge/e-rechnung-pruefen/#fassung-cde559c"); await p.waitForURL(/smartformular\.ai/, { timeout: 8000 }).catch(() => {});
+    check(p.url() === "https://smartformular.ai/e-rechnung-start/#fassung-cde559c" && await p.locator("#fassung-cde559c").count() === 1, `${name}: #fassung-… aus dem Newsletter hat ein Ziel auf smartformular.ai`);
+    await ctx.close(); }
+  // 4. Teilweise übernommen: nur die gemeldeten und gesendeten Einträge werden gelöscht (Gegenstelle als Attrappe)
+  { const ctx = await b.newContext(); await umleiten(ctx);
+    await ctx.route("https://smartformular.ai/daten-mitnehmen/", r => r.fulfill({ status: 200, contentType: "text/html", body: `<!doctype html><button id="los">los</button><script>
+      addEventListener("message", e => { if (e.origin !== "https://robin.vision") return; const k = Object.keys(e.data.eintraege);
+        e.source.postMessage({ typ: "sf-uebergabe-ergebnis", v: 1, uebernommen: [k[0], k[1], "rv-erfunden"], abgelehnt: k.length - 2 }, "https://robin.vision"); });
+      document.getElementById("los").onclick = () => opener.postMessage({ typ: "sf-uebergabe-bereit", v: 1 }, "https://robin.vision");</script>` }));
+    const rv = await ctx.newPage(); await rv.goto("https://robin.vision/werkzeuge/daten-uebergabe/");
+    await rv.evaluate(d => { for (const [k, v] of Object.entries(d)) localStorage.setItem(k, v); localStorage.setItem("rv-erfunden", "x"); }, DATEN); await rv.reload();
+    const [sf] = await Promise.all([ctx.waitForEvent("page"), rv.click("[data-ue-mitnehmen]")]); await sf.waitForLoadState("load"); await sf.click("#los");
+    await rv.waitForFunction(() => /angekommen/.test(document.querySelector("[data-ue-status]").textContent), null, { timeout: 8000 }).catch(() => {});
+    const st = await rv.textContent("[data-ue-status]");
+    check(/2 Einträge sind auf smartformular.ai angekommen. 2 Einträge wurden nicht übernommen und bleiben hier/.test(st), `${name}: teilweise übernommen wird klar gesagt`);
+    rv.once("dialog", d => d.accept()); await rv.click("[data-ue-loeschen]");
+    const rest = await rv.evaluate(() => Object.keys(localStorage).sort().join());
+    check(rest === "buchungsstapel-browser-1,fremd:schluessel,rv-erfunden,rv-uebergabe-angeboten,rvlizenz:erechnung", `${name}: nur die zwei übernommenen gelöscht, abgelehnte und nie gesendete bleiben (${rest})`);
+    await ctx.close(); }
+  // 5. Handy-Breite: lesbar, Knopf sichtbar, kein seitliches Scrollen
+  { const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 }); await umleiten(ctx); const p = await ctx.newPage();
+    await p.goto("https://robin.vision/werkzeuge/daten-uebergabe/"); await p.evaluate(() => localStorage.setItem("rvlizenz:fibu", "{}")); await p.reload();
+    const m = await p.evaluate(() => ({ breit: document.documentElement.scrollWidth, knopf: document.querySelector("[data-ue-mitnehmen]").getBoundingClientRect() }));
+    check(m.breit <= 390 && m.knopf.width > 0 && m.knopf.right <= 390 && m.knopf.height >= 44, `${name}: 390 px ohne seitliches Scrollen, Knopf mindestens 44 px hoch`);
     await ctx.close(); }
   await b.close();
 }

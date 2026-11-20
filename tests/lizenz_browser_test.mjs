@@ -11,7 +11,7 @@ import { homedir } from "node:os";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { WURZEL, WZ, chrome, check, ergebnis, server } from "./erechnung/hilfen.mjs";
+import { WURZEL, WZ, chrome, check, ergebnis, server, werkzeugSeiten, WERKZEUG_SEITE } from "./erechnung/hilfen.mjs";
 import { handleLizenz } from "../worker/src/lizenz.js";
 
 const tmp = mkdtempSync(join(tmpdir(), "rv-lizenz-"));
@@ -134,8 +134,9 @@ await page.goto(en); await page.waitForTimeout(400);
 check(/Sign in to keep working/.test(await text(".rvl-maske")), "englische Datei: englische Maske");
 
 // j) Seite: „Prüfen“ dauerhaft frei, „Erstellen“ ab 2027 mit Lizenztor (eigener Ursprung, eigener Speicher)
-const srv = await server();
-const SEITE_URL = `${srv.url}/werkzeuge/e-rechnung-pruefen/`;
+// Seit 20.11.2026 ohne Werkzeugseite auf robin.vision: dieselbe Einbettung auf der lokalen Prüfseite (hilfen.mjs, appPruefseite)
+const srv = await server(werkzeugSeiten());
+const SEITE_URL = srv.url + WERKZEUG_SEITE.de;
 await page.route(`${srv.url}/assets/erechnung/**`, async route => {
   const pfad = decodeURIComponent(new URL(route.request().url()).pathname).replace(/^\/assets\/erechnung\//, "");
   const datei = join(tmp, pfad);
@@ -197,7 +198,7 @@ await page.waitForSelector("#ewz-panel-erstellen .rvl-maske");
 check(/Test ist beendet/.test(await text("#ewz-panel-erstellen .rvl-maske")) && !(await page.locator("#ewz-panel-erstellen .ewe").count()), "Seite 10.4.2027: Erstellen nach dem Test nur mit Lizenz");
 
 // Englische Seite
-await page.goto("about:blank"); await page.goto(`${srv.url}/werkzeuge/e-invoice-viewer/#erstellen`);
+await page.goto("about:blank"); await page.goto(srv.url + WERKZEUG_SEITE.en + "#erstellen");
 await page.waitForSelector("#ewz-panel-erstellen .rvl-maske");
 check(/The trial has ended/.test(await text("#ewz-panel-erstellen .rvl-maske")) && /“Check” tab/.test(await text(".ewz-tor-hinweis")) && await page.locator(".ewz-start").count() === 1,
   "englische Seite: Tor nur im Reiter Create, englischer Hinweis");

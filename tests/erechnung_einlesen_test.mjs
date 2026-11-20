@@ -9,7 +9,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { WURZEL, WZ, server, chrome, check, ergebnis, axePfad } from "./erechnung/hilfen.mjs";
+import { WURZEL, WZ, server, chrome, check, ergebnis, axePfad, werkzeugSeiten, WERKZEUG_SEITE, werkzeugDateien } from "./erechnung/hilfen.mjs";
 import { dokumentLesen, zipLesen, textZeilen } from "../tools/erechnung/src/einlesen.js";
 import { rechnungErkennen, firmaErgaenzen, datenIn } from "../tools/erechnung/src/erkennen.js";
 import { firmaLeer } from "../tools/erechnung/src/firma.js";
@@ -173,8 +173,9 @@ if (args.includes("--nur-node")) { const { fails, oks } = ergebnis(); console.lo
 
 // ---------- Teil Chrome ----------
 console.log("\nIm echten Chrome: übernehmen, prüfen, speichern");
-const srv = await server();
-const SEITE = { de: `${srv.url}/werkzeuge/e-rechnung-pruefen/`, en: `${srv.url}/werkzeuge/e-invoice-viewer/` };
+// Seit 20.11.2026 ohne Werkzeugseite auf robin.vision: lokale Prüfseite mit derselben Einbettung (hilfen.mjs, werkzeugSeiten)
+const srv = await server(werkzeugSeiten());
+const SEITE = { de: srv.url + WERKZEUG_SEITE.de, en: srv.url + WERKZEUG_SEITE.en };
 const browser = await chrome();
 const anfragen = [];
 const GEHEIM = ["Sonnenschein", "Holzwerk", "Brandt", "2026-0142", "DE89370400440532013000", "Kulturbühne", "Vogt", "LV-26-031", "Morgentau", "Musterhausen", "08111-12345-67", "a-chrome", "b-textutil", "c-chrome"];
@@ -218,7 +219,8 @@ const pruefOk = async pg => /Geprüft: keine Fehler|Checked: no errors/.test(awa
   check(/übernommen: Rechnungsnummer, Datum, Leistung, Empfänger, 3 Positionen, Zahlungsziel/.test(st) && /Betrag stimmt mit dem Dokument überein \(3\.417,68 €\)/.test(st) && /Firmendaten wurden aus dem Dokument ergänzt/.test(st), `a: Meldung nennt das Gefundene und die bestätigte Summe (${st.slice(0, 160)}…)`);
   check(z.rechnung.nummer === "2026-0142" && z.rechnung.datum === "2026-11-03" && z.firma.name === "Tischlerei Holzwerk Brandt GmbH" && z.rechnung.positionen.length === 3 && await pg.inputValue("#ewe-pos-1-menge") === "6,5", "a: Maske gefüllt – Nummer, Datum, Firma, Positionen (Menge 6,5)");
   const box = await pg.locator("#ewe-einlesen-box").boundingBox();
-  check(await pg.evaluate(() => document.activeElement.id) === "ewe-einlesen-box" && box && box.y >= 0 && box.y < 900 && /Noch zu ergänzen: E-Mail/.test(st), `a: Ergebnis im Blick (Fokus, ${box && Math.round(box.y)} px), nennt das einzige fehlende Feld`);
+  // box.y ≥ −1: Bruchteile eines Pixels nach scrollIntoView (Prüfseite seit 20.11.2026, Rundung je nach Rahmen)
+  check(await pg.evaluate(() => document.activeElement.id) === "ewe-einlesen-box" && box && box.y >= -1 && box.y < 900 && /Noch zu ergänzen: E-Mail/.test(st), `a: Ergebnis im Blick (Fokus, ${box && Math.round(box.y)} px), nennt das einzige fehlende Feld`);
   await pg.click('#ewe-einlesen-box [data-zumfeld="empfaenger.email"]');
   check(z.meldungen.map(m => m.feld).join() === "empfaenger.email" && await pg.evaluate(() => document.activeElement.id) === "ewe-empfaenger-email" && await pg.locator("#ewe-empfaenger-email[aria-invalid=true]").count() === 1, "a: Link springt zum Feld, Fehlermeldung am Feld (E-Mail des Empfängers)");
   await pg.fill("#ewe-empfaenger-email", "buchhaltung@sonnenschein.example");
@@ -329,7 +331,7 @@ const pruefOk = async pg => /Geprüft: keine Fehler|Checked: no errors/.test(awa
   await c.route(/^https?:|^wss?:/, r => r.abort());
   const pg = await c.newPage();
   pg.fehler = []; pg.on("pageerror", e => pg.fehler.push(String(e)));
-  await pg.goto(pathToFileURL(join(WURZEL, "werkzeuge", "e-rechnung-pruefen", "E-Rechnung-lite.html")).href + "#erstellen");
+  await pg.goto(pathToFileURL(werkzeugDateien().de).href + "#erstellen");
   await pg.waitForSelector("#ewz-panel-erstellen:not([hidden]) .ewe");
   const st = await uebernehmen(pg, join(DATEN, "a-textutil.docx"));
   await pg.fill("#ewe-empfaenger-email", "buchhaltung@sonnenschein.example");
