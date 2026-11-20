@@ -42,7 +42,7 @@ check(r.status === 400, "unbekanntes Werkzeug abgelehnt");
 r = await post("code", { werkzeug: "erechnung", lang: "de", email: "Kanzlei@Beispiel.de" });
 check(r.ok && mails.length === 1 && mails[0].to[0] === "kanzlei@beispiel.de", "Code geht an die Adresse (klein geschrieben)");
 check(r.cors === "*", "offen für jede Herkunft (lokale Datei)");
-check(/SmartFormular E-Rechnung lite/.test(mails[0].text) && mails[0].from.includes("robin.vision"), "Mailtext nennt das Werkzeug, Absender robin.vision");
+check(/SmartFormular E-Rechnung Start/.test(mails[0].text) && !/lite/.test(mails[0].text) && mails[0].from.includes("robin.vision"), "Mailtext nennt das Werkzeug mit neuem Namen, Absender robin.vision");
 check(![...env.USAGE.map.keys()].some(k => k.includes("kanzlei@")), "Adresse nicht im Schlüssel des KV");
 
 // Anmelden
@@ -100,6 +100,13 @@ check(r.url === "https://checkout.stripe.com/c/pay/cs_1", "Stripe-Checkout-Adres
 const f = stripe.at(-1);
 check(f.mode === "payment" && f["line_items[0][price]"] === "price_123" && f.customer_email === "kanzlei@beispiel.de" && f["metadata[werkzeug]"] === "erechnung", "Checkout: Einmalzahlung, Preis, Adresse, Werkzeug");
 check(f.success_url.startsWith("https://robin.vision/werkzeuge/e-rechnung-pruefen/"), "zurück auf die Werkzeugseite");
+// Umzug 20.11.2026: Herkunft smartformular.ai → Rückkehr dorthin; andere Herkunft (auch „null“ der heruntergeladenen Datei) wie bisher
+for (const [herkunft, lang, soll] of [["https://smartformular.ai", "de", "https://smartformular.ai/e-rechnung-start/"], ["https://smartformular.ai", "en", "https://smartformular.ai/en/e-invoice-start/"],
+  ["null", "de", "https://robin.vision/werkzeuge/e-rechnung-pruefen/"], ["https://robin.vision", "en", "https://robin.vision/werkzeuge/e-invoice-viewer/"], ["https://smartformular.ai.example", "de", "https://robin.vision/werkzeuge/e-rechnung-pruefen/"]]) {
+  const rh = await post("kaufen", { werkzeug: "erechnung", lang, sitzung: sitzung1 }, { origin: herkunft });
+  const g = stripe.at(-1);
+  check(rh.url && g.success_url === soll + "?lizenz=gekauft" && g.cancel_url === soll && rh.cors === "*", `Rückkehr nach Stripe für Herkunft ${herkunft} (${lang})`);
+}
 const eh = f["metadata[eh]"];
 const ereignis = JSON.stringify({ type: "checkout.session.completed", data: { object: { id: "cs_1", payment_status: "paid", metadata: { werkzeug: "erechnung", eh }, client_reference_id: eh } } });
 const sign = (roh, t = Math.floor(uhr / 1000), geheim = "whsec_test") => `t=${t},v1=${createHmac("sha256", geheim).update(t + "." + roh).digest("hex")}`;
