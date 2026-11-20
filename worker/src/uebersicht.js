@@ -6,14 +6,15 @@
 // die Erläuterung im Impressum; Partnerverweise tragen rel="sponsored"), ohne Aufteilung nach
 // Bereichen (Robin, 18.10.2026: viele Partner bieten alles aus einer Hand; die Bereiche beschreiben nur das Angebot), ein
 // Vergleich und das Formular „Partner werden“ an Gochs Kontakt-Endpunkt. Erscheinungsbild robin.vision (Papier, Grün, Kupfer); die
-// Produkte haben eigene Seiten unter werkzeuge/<produkt>/ (SmartFormular: smartformular.js). Weitere Lösungen kommen aus partner.js. Alte Sprungmarken der früheren SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Produktseite weiter.
+// Lösungen kommen aus partner.js und haben je eine Unterseite werkzeuge/<id>/ (anbieter.js). Seit 20.11.2026 (Robin, nach dem Live-Gang von
+// smartformular.ai: „samrtformular taucht dort wie jede andere ki lösung auf“) ist SmartFormular eine Karte wie jede andere (partner.js,
+// EIGENE); die eigene Kartenreihe seiner Produkte und der Verweis „Mehr zu SmartFormular“ sind entfallen. Alte Sprungmarken der früheren
+// SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Unterseite werkzeuge/smartformular/ weiter.
 // tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen; Vorlage war der Entwurf auf dem Zweig claude/werkzeuge-entwurf
 // (tools/entwuerfe/werkzeuge-2026-10-18/). Welle 2 der Textprüfung (Robin, 23.10.2026): „Werkzeuge“ im Seitentitel,
 // Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
-import { SMARTFORMULAR_PFAD } from "./smartformular.js";
-import { PARTNER, VORGESCHLAGEN, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, kostenlos, anbieterAdresse } from "./partner.js";
-import { PRODUKTE } from "./slider.js";
+import { PARTNER, VORGESCHLAGEN, EIGENE, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, anbieterAdresse, wortmarke } from "./partner.js";
 import { newsletterKasten } from "./kasten.js";
 import { grundsaetze, GRUNDSAETZE_CSS } from "./grundsaetze.js";
 
@@ -22,6 +23,8 @@ export const KONTAKT_ENDPUNKT = "https://goch.robin.vision/contact";
 export const uebersichtUrl = lang => `${SITE}${UEBERSICHT_PFAD[lang].replace(/index\.html$/, "")}`;
 // Sprungmarken der früheren SmartFormular-Seite unter werkzeuge/ (bis 18.10.2026)
 export const ALTE_MARKEN = ["produkte", "fibu-lite", "fibu", "deklaration", "mensch", "programme", "sprachmodell", "fahrplan", "recht", "fragen", "beta", "downloads"];
+// Ziele auf der Unterseite (anbieter.js), wo es die Marke dort nicht mehr gibt; alle übrigen behalten ihren Namen oder landen am Seitenanfang
+export const MARKEN_ZIEL = { fibu: "produkte", downloads: "produkte", deklaration: "abschluss" };
 
 const TEXT = {
   de: {
@@ -29,9 +32,7 @@ const TEXT = {
     seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen | robin.vision",
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und vorgeschlagener Software anderer Anbieter.",
     untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
-    ueberblickTitel: "Im Überblick", reiheLabel: "Werkzeuge", zuSf: "Mehr zu SmartFormular", partnerTitel: "Anzeigen",
-    sf: { text: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; Abschluss kommt als Beta.",
-      chips: ["Rechnungswesen", "Im Workshop gezeigt", "Schulung"], knopf: "Zu SmartFormular" },
+    ueberblickTitel: "Im Überblick", reiheLabel: "Werkzeuge", partnerTitel: "Anzeigen",
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
       text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, nach eigenem Test auch in Workshops und auf Fachmessen.",
       chips: ["Website", "Workshops", "Fachmessen"],
@@ -84,9 +85,7 @@ const TEXT = {
     seitentitel: "Tools: accounting software and AI | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and suggested software from other providers.",
     untertitel: "Software and AI solutions for accounting, administration and other business processes – presented. I show a selection of them in the workshops, using cases from everyday work.",
-    ueberblickTitel: "At a glance", reiheLabel: "Tools", zuSf: "More about SmartFormular", partnerTitel: "Ads",
-    sf: { text: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; Abschluss is coming as a beta.",
-      chips: ["Accounting", "Shown in the workshop", "Training"], knopf: "To SmartFormular" },
+    ueberblickTitel: "At a glance", reiheLabel: "Tools", partnerTitel: "Ads",
     platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
       text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here and, once I have tested them, also in workshops and at trade fairs.",
       chips: ["Website", "Workshops", "Trade fairs"],
@@ -135,14 +134,12 @@ const TEXT = {
 };
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const SF_LOGO = `<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>`;
 
 const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
-.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 4px; padding: 4px 4px 14px; scrollbar-width: thin; }
+.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 26px; padding: 4px 4px 14px; scrollbar-width: thin; }
 .wz-reihe > .wz-karte { flex: 0 0 min(290px, 82%); scroll-snap-align: start; }
 .wz-reihe:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
-.wz-mehr { margin: 0 0 30px; font-size: 15px; } .wz-mehr a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .wz-raster { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 10px 0 18px; }
 .wz-karte { margin: 0; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.55); display: flex; flex-direction: column; }
 .wz-karte h3 { margin: 0 0 8px; font: 500 22px/1.25 var(--serif); color: var(--green); }
@@ -216,12 +213,12 @@ const CSS = `.wz .frei { text-align: left; hyphens: manual; }
 .wz .wz-quelle { margin: -8px 0 26px; }`;
 
 // Browser-Teil: „Partner werden“ an Gochs Kontakt-Endpunkt (wie die Beta-Anfrage auf der SmartFormular-Seite:
-// Felder zu einer Nachricht, Falle „website“, Ladezeitpunkt t) und Weiterleitung alter Sprungmarken zur SmartFormular-Produktseite
+// Felder zu einer Nachricht, Falle „website“, Ladezeitpunkt t) und Weiterleitung alter Sprungmarken zur Unterseite SmartFormular
 const SKRIPT = (lang, t, sfZiel) => `<script>
 (() => {
   'use strict';
   const alt = ${JSON.stringify(ALTE_MARKEN)}, marke = location.hash.slice(1);
-  if (alt.includes(marke)) { location.replace(${JSON.stringify(sfZiel)} + '#' + marke); return; }
+  if (alt.includes(marke)) { location.replace(${JSON.stringify(sfZiel)} + '#' + (${JSON.stringify(MARKEN_ZIEL)}[marke] || marke)); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
   const T = ${JSON.stringify({ betreff: t.betreff, firma: t.felder.firma, produkt: t.felder.produkt, fuer: t.felder.fuer, standort: t.felder.standort, sendet: t.sendet, gesendet: t.gesendet, ungueltig: t.ungueltig, fehler: t.fehler })};
@@ -245,44 +242,26 @@ const SKRIPT = (lang, t, sfZiel) => `<script>
 })();
 </script>`;
 
-// Karten aller Werkzeuge: SmartFormular, dann die Lösungen aus partner.js, zuletzt der Platzhalter
+// Karten aller Lösungen aus partner.js – vorgeschlagene Software, eigene Lösungen (SmartFormular), Anzeigen: dieselbe Karte, nur das
+// Kennzeichen unterscheidet sich („Vorgeschlagen · Anbieter“ oder „Anzeige · Anbieter“). Jede führt auf ihre Unterseite (anbieter.js).
 function karten(lang, t, up) {
-  const sfHref = up + SMARTFORMULAR_PFAD[lang].replace(/index\.html$/, "");
   const kennz = anbieter => kennzeichen(lang, anzeigeHref(lang, up), anbieter, "wz-kennz");
   const chips = liste => `<ul class="wz-chips">${liste.map(c => `<li>${esc(c)}</li>`).join("")}</ul>`;
-  const sf = `<article class="wz-karte">
-${kennz(ROBIN_VISION)}
-${SF_LOGO}
-<h3>SmartFormular</h3>
-<p class="frei">${esc(t.sf.text)}</p>
-${chips(t.sf.chips)}
-<p class="frei"><a class="wz-knopf" href="${sfHref}">${esc(t.sf.knopf)}</a></p>
-</article>`;
-  const partner = PARTNER.map(p => {
-    const seite = p.seite ? up + `werkzeuge/${p.seite}/` : null;
-    return `<article class="wz-karte">
-${kennz(p.anbieter)}
-${p.logo ? `<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>`
-    : `<span class="wz-logo" aria-hidden="true">${esc(p.name)}</span>`}
+  const logo = p => p.wortmarke ? `<span class="wz-logo wz-logo-sf" aria-hidden="true">${wortmarke(p)}</span>`
+    : p.logo ? `<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>`
+    : `<span class="wz-logo" aria-hidden="true">${esc(p.name)}</span>`;
+  const karte = (p, kennzeichnung) => `<article class="wz-karte">
+${kennzeichnung}
+${logo(p)}
 <h3>${esc(p.name)}</h3>
 <p class="frei">${esc((p.text && (p.text[lang] || p.text.de)) || "")}</p>
 ${p.bereich ? chips([p.bereich[lang] || p.bereich.de]) : ""}
-<p class="frei"><a class="wz-knopf" href="${seite || up + anbieterAdresse(p.id, lang)}">${esc(t.zumProdukt)}</a></p>
+<p class="frei"><a class="wz-knopf" href="${p.seite ? up + `werkzeuge/${p.seite}/` : up + anbieterAdresse(p.id, lang)}">${esc(t.zumProdukt)}</a></p>
 </article>`;
-  });
-  // Vorgeschlagene Software (unbezahlt): eigenes Kennzeichen, Bereich als Chip, Verweis ohne rel="sponsored"
-  const vorgeschlagen = VORGESCHLAGEN.map(p => `<article class="wz-karte">
-${vorschlagKennzeichen(lang, p.anbieter, "wz-kennz")}
-<span class="wz-logo wz-logo-bild" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>
-<h3>${esc(p.name)}</h3>
-<p class="frei">${esc(p.text[lang] || p.text.de)}</p>
-${chips([p.bereich[lang] || p.bereich.de])}
-<p class="frei"><a class="wz-knopf" href="${up}${anbieterAdresse(p.id, lang)}">${esc(t.zumProdukt)}</a></p>
-</article>`);
   // Ohne Platzhalter neben vorgestellten Lösungen (Robin, 16.11.2026: „mach mal das partner werden neben kanzleikern auf der werkzeuge
-  // seite weg“); vorgeschlagene Software steht vorn in der Reihe (reihe unten), der Abschnitt „Partner“ nur mit bezahlten Partnern.
-  // Das Formular „Partner werden“ weiter unten bleibt.
-  return { sf, partner: partner.join("\n"), partnerKarten: partner, vorgeschlagen };
+  // seite weg“). Das Formular „Software vorschlagen“ weiter unten bleibt.
+  return { vorgeschlagen: VORGESCHLAGEN.map(p => karte(p, vorschlagKennzeichen(lang, p.anbieter, "wz-kennz"))),
+    eigene: EIGENE.map(p => karte(p, kennz(p.anbieter))), partner: PARTNER.map(p => karte(p, kennz(p.anbieter))) };
 }
 
 // Zufällige Reihenfolge bei jedem Laden (Robin, 19.11.2026: „die Reihenfolge der Anzeige der Karten soll bei jedem reload wechseln. Also ganz
@@ -291,18 +270,12 @@ ${chips([p.bereich[lang] || p.bereich.de])}
 export const MISCHEN = `<script>(function () { var r = document.currentScript.previousElementSibling, k = Array.prototype.slice.call(r.children);
   for (var i = k.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = k[i]; k[i] = k[j]; k[j] = x; } k.forEach(function (e) { r.appendChild(e); }); })();</script>`;
 
-// SmartFormular-Produkte als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026: „Slider für SmartFormular, dann die Partner“)
+// Alle Lösungen als wischbare Reihe (ohne Skript, scroll-snap; Robin, 03.11.2026). Reihenfolge ohne Skript: vorgeschlagene Software,
+// SmartFormular, Anzeigen (Robin, 16.11.2026: „kanzleikern dann vor smartformular“).
 function reihe(lang, t, up) {
-  const kennz = p => p.frei ? kostenlos(lang, "wz-kennz", p.frei) : kennzeichen(lang, anzeigeHref(lang, up), ROBIN_VISION, "wz-kennz");
+  const k = karten(lang, t, up);
   return `<div class="wz-reihe" tabindex="0" role="region" aria-label="${esc(t.reiheLabel)}">
-${[...karten(lang, t, up).vorgeschlagen, ...PRODUKTE[lang].map(p => `<article class="wz-karte">
-${kennz(p)}
-${SF_LOGO}
-<h3>${esc(p.name)}</h3>
-<p class="frei">${esc(p.text)}</p>
-<ul class="wz-chips"><li>${esc(p.bereich)}</li></ul>
-<p class="frei"><a class="wz-knopf" href="${up}${p.href}">${esc(t.zumProdukt)}</a></p>
-</article>`), ...karten(lang, t, up).partnerKarten].join("\n")}
+${[...k.vorgeschlagen, ...k.eigene, ...k.partner].join("\n")}
 </div>
 ${MISCHEN}`;
 }
@@ -344,13 +317,12 @@ export function werkzeugeUebersicht(lang, { vergleich: mitVergleich = VERGLEICH_
   if (!t) throw new Error("Unbekannte Sprache: " + lang);
   const andere = lang === "en" ? "de" : "en", up = lang === "en" ? "../../" : "../";
   const canonical = uebersichtUrl(lang);
-  const sfZiel = lang === "en" ? "../smartformular/en/" : "smartformular/";
+  const sfZiel = lang === "en" ? "../smartformular/en/" : "smartformular/"; // Unterseite aus anbieter.js (partner.js, EIGENE)
   const main = `<article class="wz">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 ${reihe(lang, t, up)}
-<p class="frei wz-mehr"><a href="${sfZiel}">${esc(t.zuSf)} →</a></p>
 ${grundsaetze(lang)}
 ${mitVergleich ? `<h2 id="vergleich">${esc(t.vergleichTitel)}</h2>
 <p class="wz-hinweis frei">${esc(t.vergleichLead)}</p>

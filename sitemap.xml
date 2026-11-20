@@ -92,18 +92,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/workshops/en/e-rechnung/"/>
   </url>
   <url>
-    <loc>https://robin.vision/werkzeuge/smartformular/</loc>
-    <lastmod>2026-10-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
-  </url>
-  <url>
-    <loc>https://robin.vision/werkzeuge/smartformular/en/</loc>
-    <lastmod>2026-10-24</lastmod>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
-  </url>
-  <url>
     <loc>https://robin.vision/werkzeuge/kanzleikern/</loc>
     <lastmod>2026-11-16</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/kanzleikern/"/>
@@ -126,6 +114,18 @@
     <lastmod>2026-11-19</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/primebalance/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/primebalance/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/smartformular/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/smartformular/en/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/werkzeuge/andreas-schoba/</loc>

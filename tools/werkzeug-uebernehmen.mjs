@@ -4,7 +4,7 @@
 // Je Datei: Werkzeug am Dateinamen erkennen, nach werkzeuge/<id>/ kopieren, Fassung aus dem Fuß lesen, Datum des Git-Stands der
 // Quelle nehmen, Größe und SHA-256 berechnen und die Downloadseite mit den vorhandenen Texten neu bauen. Die Texte pflegt Robin
 // in der Redaktion; gibt es eine Seite noch nicht, kommen die Starttexte unten zum Einsatz. Danach immer: Übersicht der Werkzeuge
-// (werkzeuge/, werkzeuge/en/; uebersicht.js), Produktseite SmartFormular (werkzeuge/smartformular/, …/en/), alle Werkzeugseiten,
+// (werkzeuge/, werkzeuge/en/; uebersicht.js), Unterseiten der Lösungen (werkzeuge/<id>/, …/en/; anbieter.js, auch SmartFormular), alle Werkzeugseiten,
 // Slider auf der Startseite und Weiterleitungen alter Adressen neu bauen.
 // Ohne Datei („node tools/werkzeug-uebernehmen.mjs“) wird nur dieser zweite Teil neu gebaut.
 // Danach: node tests/werkzeug_seite_test.mjs, committen, PR.
@@ -16,7 +16,6 @@ import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD
 import { parsePost, parseSettings, POSTS_DIR, SETTINGS_PATH, renderNewsletterFeed, NEWSLETTER_DIR, EN_DIR } from "../worker/src/blog.js";
 import { renderSitemap } from "../worker/src/sitemap.js";
 import { neuigkeiten, neuigkeitKopf } from "../worker/src/neuigkeiten.js";
-import { smartformularSeite, SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
 import { werkzeugeUebersicht } from "../worker/src/uebersicht.js";
 import { startSlider } from "../worker/src/slider.js";
 import { ANBIETER, anbieterSeite, anbieterPfad, anbieterPruefen } from "../worker/src/anbieter.js";
@@ -162,17 +161,13 @@ for (const quelle of process.argv.slice(2)) {
 
 // Alle vorhandenen Werkzeugseiten aus ihren Feldern (Rahmen und Kurzbeschreibung kommen aus worker/src/werkzeug.js)
 for (const w of WERKZEUGE) { const f = lesen(w.id); if (f && f.datei.fassung) writeFileSync(werkzeugPfad(w.id), werkzeugSeite(f, w.id)); }
-// Übersicht der Werkzeuge und Produktseite SmartFormular je Sprache
+// Übersicht der Werkzeuge je Sprache
 const alle = Object.fromEntries(WERKZEUGE.map(w => [w.id, lesen(w.id) || {}]));
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   mkdirSync(dirname(pfad), { recursive: true });
   writeFileSync(pfad, werkzeugeUebersicht(lang));
 }
-for (const [lang, pfad] of Object.entries(SMARTFORMULAR_PFAD)) {
-  mkdirSync(dirname(pfad), { recursive: true });
-  writeFileSync(pfad, smartformularSeite(lang, alle));
-}
-// Unterseiten der Anbieter (anbieter.js): je Anbieter und Sprache, mit allen veröffentlichten Impulsen, die die Lösung nennen
+// Unterseiten der Lösungen (anbieter.js; seit 20.11.2026 auch werkzeuge/smartformular/): je Anbieter und Sprache, mit allen veröffentlichten Impulsen, die die Lösung nennen
 const beitraegeAlle = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)));
 anbieterPruefen();
 for (const p of ANBIETER) for (const lang of ["de", "en"]) {

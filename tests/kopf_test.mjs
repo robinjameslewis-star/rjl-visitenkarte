@@ -4,7 +4,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { kopf, KOPF_CSS, MARKE } from "../worker/src/kopf.js";
 import { WERKZEUGE, werkzeugPfad, UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
-import { SMARTFORMULAR_PFAD } from "../worker/src/smartformular.js";
+import { ANBIETER, anbieterPfad } from "../worker/src/anbieter.js";
 import { UEBER_MICH } from "../worker/src/ueber_mich.js";
 import { WORKSHOPS } from "../worker/src/workshops.js";
 import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
@@ -24,7 +24,7 @@ check(de.includes('<details class="menue"><summary aria-label="Menü">') && de.i
 check(!/href="#/.test(de.replace(/#kontakt|#nachricht/g, "")), "keine weiteren Sprungmarken");
 
 console.log("\nUnterseiten");
-const seiten = [...WERKZEUGE.map(w => [werkzeugPfad(w.id), w.lang, "tools"]), ...Object.entries(UEBERSICHT_PFAD).map(([l, p]) => [p, l, "tools"]), ...Object.entries(SMARTFORMULAR_PFAD).map(([l, p]) => [p, l, "tools"]),
+const seiten = [...WERKZEUGE.map(w => [werkzeugPfad(w.id), w.lang, "tools"]), ...Object.entries(UEBERSICHT_PFAD).map(([l, p]) => [p, l, "tools"]), ...ANBIETER.flatMap(a => ["de", "en"].map(l => [anbieterPfad(a.id, l), l, "tools"])),
   ...UEBER_MICH.map(s => [s.pfad, s.lang, "about"]), ...WORKSHOPS.map(s => [s.pfad, s.lang, "workshops"]), ["blog/index.html", "de", "posts"], ["blog/en/index.html", "en", "posts"],
   ...readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(lesen(`${POSTS_DIR}/${n}`), n.slice(0, -3))).filter(p => p.status === "published").map(p => [`blog/${p.slug}/index.html`, p.lang, "posts"])];
 const ziel = { de: { tools: "werkzeuge/", posts: "blog/", workshops: "workshops/", about: "ueber-mich/" }, en: { tools: "werkzeuge/en/", posts: "blog/en/", workshops: "workshops/en/", about: "about/" } };

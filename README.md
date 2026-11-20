@@ -627,6 +627,27 @@ kein Training, kein Vendor-Lock) und der Download. Die Werkzeugseite von FiBu li
 Gochs Linkliste kennt `smartformular-deklaration` (Anker auf der Übersicht; `smartformular-fibu` seit 16.11.2026 archiviert). Prüfung:
 `node tests/werkzeug_seite_test.mjs`, `node tests/goch_werkzeuge_test.mjs`.
 
+**SmartFormular wie jede andere Lösung (20.11.2026).** Robin, 20.11.2026, nach dem Live-Gang von https://smartformular.ai:
+„smartformular ist lvie jetzt robin.vision so umbauen wie besprochen, samrtformular taucht dort wie jede andere ki lösung auf,“.
+Seitdem ist SmartFormular ein Eintrag wie Kanzleikern oder PrimeBalance: `EIGENE` in `worker/src/partner.js` (Kennzeichen weiter
+„Anzeige · robin.vision“, Wortmarke als Text statt Bilddatei, kein `rel="sponsored"`, kein Satz zur Vergütung).
+- **Übersicht „Werkzeuge“:** eine Karte „SmartFormular“ in der Reihe aller Lösungen, gebaut wie jede andere (`karten()` in
+  `uebersicht.js`). Die eigene Kartenreihe der SmartFormular-Produkte und der Verweis „Mehr zu SmartFormular“ sind entfallen.
+- **Unterseite:** `werkzeuge/smartformular/` und `…/en/` kommen aus `anbieter.js` im Rahmen von robin.vision (Papier, Grün, Kupfer)
+  und führen zu smartformular.ai. Dort stehen auch die Verweise auf FiBu lite und E-Rechnung lite (beide liegen noch auf robin.vision
+  und ziehen später um) und auf „Abschluss“ mit der Beta-Anfrage bei smartformular.ai. Sprungmarken `#produkte`, `#fibu-lite`,
+  `#e-rechnung`, `#abschluss`, `#beta` bleiben Ziele: für „Beta-Zugang anfragen“ auf den Werkzeugseiten, Gochs Linkliste
+  (`smartformular`, `smartformular-deklaration`) und die alten Marken der Übersicht (`ALTE_MARKEN`, `MARKEN_ZIEL`).
+- **Entfallen:** `worker/src/smartformular.js` mit der langen Produktseite im SmartFormular-Erscheinungsbild (Abschnitte, FAQPage,
+  Beta-Formular, Downloads). Der Inhalt steht auf smartformular.ai; die alte Fassung liegt im Git-Verlauf. `SF_CSS` in `werkzeug.js`
+  und `produkte.js` bleiben für die Werkzeugseiten.
+- **ID-Schutz:** `anbieterPruefen()` sperrt nicht mehr fest „smartformular“, sondern Werkzeugseiten, `en`, alte Adressen
+  (`ALTE_ADRESSEN`), doppelte und ungültige IDs.
+- **Bauen:** `node tools/werkzeug-uebernehmen.mjs`, danach `node tools/blog-seiten-bauen.mjs` (schreibt `sitemap.xml` so, wie die
+  Redaktion sie schreibt). `blog.js` (Worker) baut die Unterseiten beim Veröffentlichen mit: nach dem Merge den Worker ausrollen.
+- **Prüfung:** `node tests/anbieter_seiten_test.mjs`, `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/kopf_test.mjs`
+  (`tests/smartformular_seite_test.mjs` ist in `anbieter_seiten_test.mjs` aufgegangen).
+
 ## Kennzeichen „Anzeige“ an allen Werkzeugen (18.10.2026)
 
 Robin, 18.10.2026 (Option C aus der Vault-Notiz „Partnerangebote und Produktplatzierung“, Abschnitt 6): Jedes Werkzeug trägt dasselbe

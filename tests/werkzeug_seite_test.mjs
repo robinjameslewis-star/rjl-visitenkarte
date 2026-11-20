@@ -99,7 +99,9 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
   check(html === werkzeugeUebersicht(lang), `${pfad} ist aktuell`);
   const eigene = WERKZEUGE.filter(w => w.lang === lang), fremde = WERKZEUGE.filter(w => w.lang !== lang);
-  check(eigene.every(w => html.includes(`werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`)), `${pfad}: nur Werkzeuge dieser Sprache`);
+  // Seit 20.11.2026 (SmartFormular wie jede andere Lösung) führt die Übersicht zur Unterseite SmartFormular, erst die nennt die Werkzeuge
+  const unter = lesen(lang === "en" ? "werkzeuge/smartformular/en/index.html" : "werkzeuge/smartformular/index.html");
+  check(html.includes(`werkzeuge/smartformular/${lang === "en" ? "en/" : ""}"`) && eigene.every(w => unter.includes(`werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`) && !unter.includes(`werkzeuge/${w.id}/"`)), `${pfad}: über die Unterseite SmartFormular zu den Werkzeugen, nur denen dieser Sprache`);
   check(html.includes('id="newsletter"') && html.includes(`<html lang="${lang}">`), `${pfad}: Newsletter und Sprache`);
 }
 for (const a of ALTE_ADRESSEN) {
