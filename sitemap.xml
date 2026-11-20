@@ -116,18 +116,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/primebalance/en/"/>
   </url>
   <url>
-    <loc>https://robin.vision/werkzeuge/smartformular/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
-  </url>
-  <url>
-    <loc>https://robin.vision/werkzeuge/smartformular/en/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
-  </url>
-  <url>
     <loc>https://robin.vision/werkzeuge/andreas-schoba/</loc>
     <lastmod>2026-11-19</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/andreas-schoba/"/>
@@ -138,6 +126,18 @@
     <lastmod>2026-11-19</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/andreas-schoba/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/andreas-schoba/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/smartformular/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
+  </url>
+  <url>
+    <loc>https://robin.vision/werkzeuge/smartformular/en/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/smartformular/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/smartformular/en/"/>
   </url>
   <url>
     <loc>https://robin.vision/blog/</loc>

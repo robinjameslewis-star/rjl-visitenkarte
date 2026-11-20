@@ -20,7 +20,8 @@ anbieterPruefen();
     "ID-Schutz: Werkzeugseiten, englische Übersicht, alte Adressen, doppelte und ungültige IDs werden abgelehnt");
   check(new Set(ANBIETER.map(a => a.id)).size === ANBIETER.length && ANBIETER.filter(a => a.id === "smartformular").length === 1 && !existsSync(root + "worker/src/smartformular.js"), "SmartFormular ist ein Eintrag der Liste; die frühere Produktseite (smartformular.js) gibt es nicht mehr");
 }
-check(ANBIETER.length >= 4 && ["anzeige", "vorgeschlagen", "eigen"].every(art => ANBIETER.some(a => a.art === art)), "vorgeschlagene Software, eigene Lösungen und Anzeigen haben Unterseiten");
+// Seit 20.11.2026 gibt es keine bezahlte Anzeige mehr (Andreas Schoba ist bis zur Eintragung der UG „vorgeschlagen“, Robin, F66)
+check(ANBIETER.length >= 4 && ["vorgeschlagen", "eigen"].every(art => ANBIETER.some(a => a.art === art)) && ANBIETER.find(a => a.id === "andreas-schoba").art === "vorgeschlagen", "vorgeschlagene Software und eigene Lösungen haben Unterseiten; Andreas Schoba ist „vorgeschlagen“");
 check(ANBIETER.every(a => sitemap.split(`<loc>https://robin.vision/werkzeuge/${a.id}/</loc>`).length === 2), "jede Unterseite steht genau einmal in der Sitemap");
 for (const a of ANBIETER) for (const lang of ["de", "en"]) {
   const pfad = anbieterPfad(a.id, lang), html = anbieterSeite(a, lang);

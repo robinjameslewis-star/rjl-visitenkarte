@@ -17,17 +17,6 @@ export const PARTNER = [
   //   text: { de: "Ein Satz, was das Werkzeug tut und wo es im Workshop vorkommt.", en: "One sentence on what the tool does and where it appears in the workshop." } },
   //   Weitere Felder: bereich: { de, en } (Chip auf der Karte), logoBreite (wie bei VORGESCHLAGEN), workshop: true (erst dann auf den
   //   Workshop-Seiten, nach Partnervereinbarung und Robins Test).
-  // Andreas Schoba (Robin, 19.11.2026: „das gehört jetzt zur kategorie Ki Skills“): Zustimmung per WhatsApp 19.11.2026, 16:28 („Klar“) auf Robins
-  // Frage, ob er das Angebot wie auf andreas-schoba.de und im Newsletter zeigen darf. Provision für vermittelte Kunden (Robin, 19.11.2026), deshalb
-  // „Anzeige“. Logo: seine Wortmarke (WordPress-Seitenlogo logo-andreas-schoba.webp, 1000 × 170), nur der durchsichtige Rand abgeschnitten
-  // (720 × 71, Pixel unverändert, als PNG). Ohne Preise und ohne die Gulde Kommunikation GmbH (dort läuft die Betreuung; keine eigene
-  // Zustimmung). Nicht auf den Workshop-Seiten.
-  { id: "andreas-schoba", name: "Andreas Schoba", anbieter: "Andreas Schoba", url: "https://www.optimierung-der-webseite.de/seo-newsletter/", verguetung: "provision", seit: "2026-11-19",
-    quelle: "optimierung-der-webseite.de/seo-newsletter (Weiterleitung von andreas-schoba.de), abgerufen 19.11.2026; Zustimmung Andreas Schoba per WhatsApp 19.11.2026",
-    logo: "assets/partner/andreas-schoba.png", logoBreite: 161,
-    bereich: { de: "KI-Skills", en: "AI skills" },
-    text: { de: "SEO und GEO mit Claude: Andreas Schoba arbeitet mit selbst gebauten SEO-Skills und Grounding Pages, damit Unternehmen bei Google und in den Antworten von ChatGPT, Gemini und Perplexity auftauchen. Newsletter, Beratung und monatliche Betreuung. Angaben des Anbieters, Stand 19.11.2026.",
-      en: "SEO and GEO with Claude: Andreas Schoba works with self-built SEO skills and grounding pages so that businesses show up on Google and in answers from ChatGPT, Gemini and Perplexity. Newsletter, consulting and monthly support. Provider's information as of 19 Nov 2026." } },
 ];
 
 // Vorgeschlagene Software (Robin, 16.11.2026, nach Kanzleikern): unbezahlt vorgestellte Lösungen in der kostenlosen Testphase
@@ -50,6 +39,18 @@ export const VORGESCHLAGEN = [
     bereich: { de: "KI-Agenten", en: "Agentic AI" },
     text: { de: "Virtuelle KI-Kanzlei für Steuerberater: Das Team bucht Belege vor und bereitet den Monatsabschluss vor, Sie prüfen und geben frei. Mandantendaten in Frankfurt am Main. Angaben des Anbieters, Stand 19.11.2026.",
       en: "Virtual AI firm for tax advisers: the team pre-posts receipts and prepares the month-end close, you review and approve. Client data in Frankfurt am Main. Provider's information as of 19 Nov 2026." } },
+  // Andreas Schoba (Robin, 19.11.2026: „das gehört jetzt zur kategorie Ki Skills“): Zustimmung per WhatsApp 19.11.2026, 16:28 („Klar“) auf Robins
+  // Frage, ob er das Angebot wie auf andreas-schoba.de und im Newsletter zeigen darf. Bis zur Eintragung der UG ohne Vergütung, deshalb
+  // „Vorgeschlagen“ (Robin, 20.11.2026: „das muss andreas schoba weg gilt erst ab ug eintragung“; Kennzeichen von Robin gewählt, Freigabeliste F66).
+  // Mit dem ersten Partnervertrag mit Vergütung nach der Eintragung wechselt der Eintrag nach PARTNER (verguetung: "provision") und trägt wieder „Anzeige“. Logo: seine Wortmarke (WordPress-Seitenlogo logo-andreas-schoba.webp, 1000 × 170), nur der durchsichtige Rand abgeschnitten
+  // (720 × 71, Pixel unverändert, als PNG). Ohne Preise und ohne die Gulde Kommunikation GmbH (dort läuft die Betreuung; keine eigene
+  // Zustimmung). Nicht auf den Workshop-Seiten.
+  { id: "andreas-schoba", name: "Andreas Schoba", anbieter: "Andreas Schoba", url: "https://www.optimierung-der-webseite.de/seo-newsletter/", seit: "2026-11-19",
+    quelle: "optimierung-der-webseite.de/seo-newsletter (Weiterleitung von andreas-schoba.de), abgerufen 19.11.2026; Zustimmung Andreas Schoba per WhatsApp 19.11.2026",
+    logo: "assets/partner/andreas-schoba.png", logoBreite: 161,
+    bereich: { de: "KI-Skills", en: "AI skills" },
+    text: { de: "SEO und GEO mit Claude: Andreas Schoba arbeitet mit selbst gebauten SEO-Skills und Grounding Pages, damit Unternehmen bei Google und in den Antworten von ChatGPT, Gemini und Perplexity auftauchen. Newsletter, Beratung und monatliche Betreuung. Angaben des Anbieters, Stand 19.11.2026.",
+      en: "SEO and GEO with Claude: Andreas Schoba works with self-built SEO skills and grounding pages so that businesses show up on Google and in answers from ChatGPT, Gemini and Perplexity. Newsletter, consulting and monthly support. Provider's information as of 19 Nov 2026." } },
 ];
 // Eigene Lösungen von robin.vision (Robin, 20.11.2026, nach dem Live-Gang von smartformular.ai: „smartformular ist lvie jetzt robin.vision so
 // umbauen wie besprochen, samrtformular taucht dort wie jede andere ki lösung auf,“): ein Eintrag wie jede andere Lösung – eine Karte, eine
