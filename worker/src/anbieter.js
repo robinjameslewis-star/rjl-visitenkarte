@@ -60,7 +60,7 @@ const CSS = `${KENNZ_CSS}
 .an-logo img { display: block; height: auto; max-width: 100%; }
 .an-wortmarke { border: 0; background: #0E0B14; color: #fff; font: 500 20px/1 var(--sans); letter-spacing: .01em; } .an-wortmarke span { color: #A78BFA; }
 .an-mehr { max-width: 60ch; color: var(--ink-soft); }
-.an-werkzeuge { margin-bottom: 30px; } .an-werkzeuge li { scroll-margin-top: 90px; } .an-werkzeuge .an-weiter { margin-top: 10px; }
+.an-werkzeuge { margin-bottom: 30px; } .an-werkzeuge li, .an-werkzeuge .an-weiter, .anbieter h2 { scroll-margin-top: 90px; } .an-werkzeuge .an-weiter { margin-top: 10px; }
 .an-werkzeuge .an-weiter a { font: inherit; color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .an-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 22px; padding: 0 !important; }
 .an-chips li { margin: 0; padding: 4px 10px; border: 1px solid var(--line); border-radius: 3px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.6); }
