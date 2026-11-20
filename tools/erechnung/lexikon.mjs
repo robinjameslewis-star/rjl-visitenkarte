@@ -186,6 +186,11 @@ export function lexikonDateien() {
 }
 
 if (process.argv[1] && process.argv[1].endsWith("lexikon.mjs")) {
+  // Seit 20.11.2026 liegt das Lexikon auf smartformular.ai; an den alten Adressen stehen Weiterleitungen (tools/umzug-weiterleitungen.mjs).
+  console.error("Das Regel-Lexikon liegt seit 20.11.2026 auf smartformular.ai (e-rechnung-start/regeln/). Hier nichts mehr schreiben; Weiterleitungen: node tools/umzug-weiterleitungen.mjs");
+  process.exit(1);
+}
+if (false) {
   const pruefen = process.argv.includes("--pruefen");
   const { dateien, liste } = lexikonDateien();
   let abweichend = 0;

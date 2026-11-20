@@ -7,6 +7,8 @@
 // (werkzeuge/, werkzeuge/en/; uebersicht.js), Unterseiten der Lösungen (werkzeuge/<id>/, …/en/; anbieter.js, auch SmartFormular), alle Werkzeugseiten,
 // Slider auf der Startseite und Weiterleitungen alter Adressen neu bauen.
 // Ohne Datei („node tools/werkzeug-uebernehmen.mjs“) wird nur dieser zweite Teil neu gebaut.
+// Seit 20.11.2026 liegen FiBu lite und E-Rechnung lite als Buchhaltung Start und E-Rechnung Start auf smartformular.ai; für sie
+// schreibt das Skript nur noch die Weiterleitungen (werkzeugSeite) und nimmt keine neue Fassung mehr an.
 // Danach: node tests/werkzeug_seite_test.mjs, committen, PR.
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -133,6 +135,7 @@ for (const quelle of process.argv.slice(2)) {
   if (!existsSync(quelle)) { console.error(`Datei fehlt: ${quelle}`); process.exit(1); }
   const name = basename(quelle), w = WERKZEUGE.find(x => x.datei === name);
   if (!w) { console.error(`${name}: kein Werkzeug mit diesem Dateinamen (worker/src/werkzeug.js, WERKZEUGE).`); process.exit(1); }
+  if (w.umgezogen) { console.error(`${name}: ${w.titel} ist seit 20.11.2026 auf smartformular.ai (${w.umgezogen}). Neue Fassungen dort einspielen (~/Developer/smartformular-ai), nicht hier.`); process.exit(1); }
   const daten = readFileSync(quelle);
   const fassung = (daten.toString("utf8").match(/(?:Fassung|Version) <span class="mono">([^<]+)<\/span>/) || [])[1] || "";
   if (!/^[0-9a-f]{7}$/.test(fassung)) {
@@ -162,7 +165,9 @@ for (const quelle of process.argv.slice(2)) {
 // Alle vorhandenen Werkzeugseiten aus ihren Feldern (Rahmen und Kurzbeschreibung kommen aus worker/src/werkzeug.js)
 for (const w of WERKZEUGE) { const f = lesen(w.id); if (f && f.datei.fassung) writeFileSync(werkzeugPfad(w.id), werkzeugSeite(f, w.id)); }
 // Übersicht der Werkzeuge je Sprache
-const alle = Object.fromEntries(WERKZEUGE.map(w => [w.id, lesen(w.id) || {}]));
+// Umgezogene Werkzeuge (smartformular.ai, 20.11.2026): Felder für das Newsletter-Archiv aus dem eingefrorenen Stand (tools/umzug-felder.json)
+const UMZUG_FELDER = JSON.parse(readFileSync(new URL("./umzug-felder.json", import.meta.url), "utf8")).felder;
+const alle = Object.fromEntries(WERKZEUGE.map(w => [w.id, w.umgezogen ? UMZUG_FELDER[w.id] || {} : lesen(w.id) || {}]));
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   mkdirSync(dirname(pfad), { recursive: true });
   writeFileSync(pfad, werkzeugeUebersicht(lang));

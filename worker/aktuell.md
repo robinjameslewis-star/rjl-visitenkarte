@@ -9,12 +9,12 @@
    Unternehmen an, online oder vor Ort, auf Deutsch oder Englisch – mit der Unterweisung nach Art. 4
    der KI-Verordnung (EU AI Act): danach ein Online-Lehrgang mit Praxisaufgaben für den eigenen
    Arbeitsplatz, ein Test und ein Zertifikat je Person. Anfragen für 2027 sind schon möglich.
-3. **SmartFormular.** SmartFormular FiBu lite macht aus Kontoauszügen Buchungsstapel im DATEV-Format, offline
-   im Browser, kostenlos zu testen bis 31.12.2026. SmartFormular E-Rechnung lite prüft und liest E-Rechnungen
+3. **SmartFormular.** SmartFormular Buchhaltung Start (bis 20.11.2026 „FiBu lite“) macht aus Kontoauszügen Buchungsstapel im DATEV-Format, offline
+   im Browser, kostenlos zu testen bis 31.12.2026. SmartFormular E-Rechnung Start (bis 20.11.2026 „E-Rechnung lite“) prüft und liest E-Rechnungen
    (XRechnung, ZUGFeRD) mit GiroCode zum Bezahlen – auf der Website dauerhaft kostenlos – und schreibt neu auch eigene
    XRechnungen, mit Katalog und Kunden, auch als CSV; Erstellen und Datei sind bis 31.12.2026 kostenlos, danach vier
    Wochen Test und Lizenz. Als Beta in Vorbereitung: SmartFormular
-   Abschluss für den Jahresabschluss, mit den Daten aus dem Buchhaltungsprogramm. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
+   Deklaration für den Jahresabschluss, mit den Daten aus dem Buchhaltungsprogramm. Ziel ist der Datenaustausch mit jedem Buchhaltungsprogramm –
    zuerst in Deutschland, langfristig weltweit.
 4. **Werkzeuge und vorgeschlagene Software.** Unter „Werkzeuge“ stellt Robin Software und KI-Lösungen für Rechnungswesen,
    Verwaltung und andere Geschäftsprozesse vor und vergleicht sie – darunter SmartFormular; weitere
@@ -36,13 +36,13 @@
    companies, online or on site, in German or English – including training that documents your measures under
    Article 4 of the EU AI Act: afterwards an online course with practical tasks for each participant's own desk,
    a test and a certificate per person. Enquiries for 2027 are already welcome.
-3. **SmartFormular.** SmartFormular FiBu lite turns bank statements into booking batches in the DATEV format,
-   offline in the browser, free to try until 31 December 2026. SmartFormular E-Rechnung lite checks and reads e-invoices
+3. **SmartFormular.** SmartFormular Bookkeeping Start (until 20 Nov 2026 “FiBu lite”) turns bank statements into booking batches in the DATEV format,
+   offline in the browser, free to try until 31 December 2026. SmartFormular E-Invoice Start (until 20 Nov 2026 “E-Rechnung lite”) checks and reads e-invoices
    (XRechnung, ZUGFeRD) with a GiroCode for payment – free on the website for good – and now also writes your own
    XRechnung invoices, with catalogue and customers, also from CSV; creating and the download file are free until
    31 December 2026, then a four-week trial and a licence.
    In preparation as a beta:
-   SmartFormular Abschluss for year-end accounts, using the data from the accounting software. The aim is to exchange data with every accounting
+   SmartFormular Declaration for year-end accounts, using the data from the accounting software. The aim is to exchange data with every accounting
    package – starting in Germany, in the long run worldwide.
 4. **Tools and suggested software.** Under "Tools" Robin presents and compares software and AI solutions for
    accounting, administration and other business processes – including SmartFormular; more solutions

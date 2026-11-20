@@ -56,8 +56,8 @@ const published = posts.filter(p => p.status === "published" && p.date), drafts 
 check(published.every(p => sitemap.includes(`<loc>https://robin.vision/blog/${p.slug}/</loc>`)), `sitemap.xml nennt alle ${published.length} veröffentlichten Impulse`);
 check(drafts.every(p => !sitemap.includes(`/blog/${p.slug}/`)), `sitemap.xml ohne Entwürfe (${drafts.length})`);
 const llms = lesen("llms.txt");
-check(/^# robin\.vision\n\n> /.test(llms) && WERKZEUGE.every(w => llms.includes(`(https://robin.vision/werkzeuge/${w.id}/)`)) && llms.includes("(https://robin.vision/sitemap.xml)") && !/googlemail|0151|Höchststr/.test(llms), "llms.txt für KI-Assistenten: Überblick, jedes Werkzeug verlinkt, keine privaten Daten");
-check(WERKZEUGE.every(w => sitemap.includes(`<loc>https://robin.vision/werkzeuge/${w.id}/</loc>`)) && sitemap.includes("<loc>https://robin.vision/werkzeuge/en/</loc>"), "sitemap.xml nennt Werkzeuge und Übersichten");
+check(/^# robin\.vision\n\n> /.test(llms) && WERKZEUGE.every(w => llms.includes(w.umgezogen ? `(${w.umgezogen})` : `(https://robin.vision/werkzeuge/${w.id}/)`)) && !/FiBu lite|E-Rechnung lite/.test(llms) && llms.includes("(https://robin.vision/sitemap.xml)") && !/googlemail|0151|Höchststr/.test(llms), "llms.txt für KI-Assistenten: Überblick, jedes Werkzeug verlinkt, keine privaten Daten");
+check(WERKZEUGE.every(w => sitemap.includes(`<loc>https://robin.vision/werkzeuge/${w.id}/</loc>`) === !w.umgezogen) && sitemap.includes("<loc>https://robin.vision/werkzeuge/en/</loc>"), "sitemap.xml nennt Werkzeuge auf robin.vision und Übersichten, keine umgezogenen");
 check(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap) && (sitemap.match(/<url>/g) || []).length === (sitemap.match(/<\/url>/g) || []).length, "sitemap.xml wohlgeformt mit lastmod");
 check(/Sitemap: https:\/\/robin\.vision\/sitemap\.xml/.test(lesen("robots.txt")), "robots.txt verweist auf die Sitemap");
 const sec = lesen(".well-known/security.txt"), expires = (sec.match(/Expires: (\S+)/) || [])[1];
@@ -68,7 +68,7 @@ check(/<title>Seite nicht gefunden/.test(nf) && /href="\/werkzeuge\/"/.test(nf) 
 check(existsSync(root + ".nojekyll"), ".nojekyll vorhanden, damit .well-known ausgeliefert wird");
 
 console.log("Werkzeugseiten und Impulse: strukturierte Daten");
-for (const w of WERKZEUGE) {
+for (const w of WERKZEUGE.filter(w => !w.umgezogen)) {
   const seite = lesen(`werkzeuge/${w.id}/index.html`);
   const m = seite.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   let d = null; try { d = m && JSON.parse(m[1]); } catch {}

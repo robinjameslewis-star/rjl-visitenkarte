@@ -59,8 +59,8 @@ for (const n of ["xrechnung.xml", "zugferd.pdf"]) copyFileSync(join(HIER, "beisp
 // Lizenztexte aller ausgelieferten Bestandteile
 const lizenz = (titel, pfad) => `${"=".repeat(78)}\n${titel}\n${"=".repeat(78)}\n${readFileSync(pfad, "utf8").trim()}\n`;
 const nm = p => join(HIER, "node_modules", p);
-const LIZENZEN = `SmartFormular E-Rechnung lite – Lizenzen und Quellen (Fassung ${FASSUNG})
-Anbieter: Robin James Lewis, robin.vision. Das Werkzeug selbst: Nutzungsbedingungen auf https://robin.vision/werkzeuge/e-rechnung-pruefen/
+const LIZENZEN = `SmartFormular E-Rechnung Start (bis 20.11.2026 „E-Rechnung lite“) – Lizenzen und Quellen (Fassung ${FASSUNG})
+Anbieter: Robin James Lewis, robin.vision. Das Werkzeug selbst: Nutzungsbedingungen auf https://smartformular.ai/e-rechnung-start/
 
 Enthaltene Bestandteile:
 - Prüfregeln EN 16931 (CEN/TC 434, eInvoicing-EN16931 1.3.16), aus der KoSIT-Validator-Konfiguration XRechnung 3.0.2 vom 31.08.2026:
@@ -84,8 +84,8 @@ writeFileSync(join(ZIEL, "LIZENZEN.txt"), LIZENZEN);
 
 // Einzelne Datei je Sprache
 const SEITE = {
-  de: { datei: "E-Rechnung-lite.html", id: "e-rechnung-pruefen", fassung: "Fassung", offline: "Läuft offline in diesem Browserfenster. Ab 1. Januar 2027 verbindet sich die Datei nur zur Anmeldung und Lizenzprüfung mit robin.vision; Rechnungen werden nie übertragen.", lizenzen: "Lizenzen und Quellen", seite: "Nutzungsbedingungen, neue Fassungen und Fragen" },
-  en: { datei: "E-Invoice-Viewer.html", id: "e-invoice-viewer", fassung: "Version", offline: "Runs offline in this browser window. From 1 January 2027 the file connects to robin.vision only to sign in and check the licence; invoices are never transmitted.", lizenzen: "Licences and sources", seite: "Terms of use, new versions and questions" },
+  de: { datei: "E-Rechnung-lite.html", id: "e-rechnung-pruefen", neu: "e-rechnung-start/", fassung: "Fassung", offline: "Läuft offline in diesem Browserfenster. Ab 1. Januar 2027 verbindet sich die Datei nur zur Anmeldung und Lizenzprüfung mit robin.vision; Rechnungen werden nie übertragen.", lizenzen: "Lizenzen und Quellen", seite: "Nutzungsbedingungen, neue Fassungen und Fragen" },
+  en: { datei: "E-Invoice-Viewer.html", id: "e-invoice-viewer", neu: "en/e-invoice-start/", fassung: "Version", offline: "Runs offline in this browser window. From 1 January 2027 the file connects to robin.vision only to sign in and check the licence; invoices are never transmitted.", lizenzen: "Licences and sources", seite: "Terms of use, new versions and questions" },
 };
 const T = (await import("./src/texte.js")).T;
 const ohneSchluss = s => s.replace(/<\/(script)/gi, "<\\/$1");
@@ -125,7 +125,7 @@ ${CSS}
 <header class="kopf"><div class="wortmarke">Smart<span>Formular</span></div><h1>E-Rechnung lite</h1><p class="lead">${escHtml(t.lead)}</p></header>
 <main><div id="erechnung" data-lang="${lang}"></div></main>
 <footer class="fuss">
-<p>${escHtml(s.offline)} ${s.fassung} <span class="mono">${FASSUNG}</span> · <a href="https://robin.vision/werkzeuge/${s.id}/" rel="noopener">robin.vision</a> – ${escHtml(s.seite)}</p>
+<p>${escHtml(s.offline)} ${s.fassung} <span class="mono">${FASSUNG}</span> · <a href="https://smartformular.ai/${s.neu}" rel="noopener">smartformular.ai</a> – ${escHtml(s.seite)}</p>
 <details><summary>${escHtml(s.lizenzen)}</summary><pre>${escHtml(LIZENZEN)}</pre></details>
 </footer>
 </div>

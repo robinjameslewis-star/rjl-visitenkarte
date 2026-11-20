@@ -4,7 +4,7 @@
 //   node tests/werkzeug_seite_test.mjs
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung, TEILEN_BILD } from "../worker/src/werkzeug.js";
+import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite, UEBERSICHT_PFAD, ALTE_ADRESSEN, weiterleitung, TEILEN_BILD, UMZUG, umzugSeite } from "../worker/src/werkzeug.js";
 import { parsePost, POSTS_DIR } from "../worker/src/blog.js";
 import { neuigkeiten } from "../worker/src/neuigkeiten.js";
 import { CONTENT } from "../worker/src/admin.js";
@@ -33,6 +33,16 @@ const felder = {};
 for (const w of WERKZEUGE) {
   const s = SPRACHE[w.lang], a = ART[w.id], pfad = werkzeugPfad(w.id), html = lesen(pfad), f = felder[w.id] = werkzeugFelder(html);
   console.log(`\n${w.titel} (${pfad})`);
+  if (w.umgezogen) {
+    // Umzug auf smartformular.ai (20.11.2026): an der alten Adresse nur noch die Weiterleitung, auch für die Werkzeug-Datei daneben
+    check(html === umzugSeite(w.umgezogen, w.lang) && werkzeugSeite(f, w.id) === html, "alte Adresse: Weiterleitungsseite auf smartformular.ai");
+    check(html.includes(`<link rel="canonical" href="${w.umgezogen}">`) && /noindex/.test(html) && /<noscript><meta http-equiv="refresh"/.test(html), "canonical, noindex, meta refresh ohne Skript");
+    const daneben = lesen(pfad.replace(/index\.html$/, "") + w.datei);
+    check(daneben === umzugSeite(w.umgezogen + UMZUG[w.id].datei, w.lang), "Werkzeug-Datei daneben leitet auf die neue Datei weiter");
+    const c = Object.values(CONTENT).find(x => x.path === pfad);
+    check(c && c.join(c.split(html)) === html, "Redaktion schreibt beim Speichern nur die Weiterleitung zurück");
+    continue;
+  }
   check(werkzeugSeite(f, w.id) === html, "Seite im Repository entsteht genau aus ihren Feldern");
   const datei = root + pfad.replace(/index\.html$/, "") + f.datei.name;
   check(f.datei.name === w.datei && existsSync(datei), "Werkzeug-Datei liegt neben der Seite");
@@ -79,6 +89,8 @@ for (const w of WERKZEUGE) {
 }
 
 console.log("\nPrüfungen der Felder");
+// Prüfungen der Felder nur, solange ein Werkzeug noch auf robin.vision liegt (seit 20.11.2026 keins mehr)
+if (WERKZEUGE.some(w => !w.umgezogen)) {
 const id = "buchungsstapel-generator", f = felder[id];
 const boese = { ...f, beschreibung: f.beschreibung + "\n\n</script><script>alert(1)</script> <img src=x onerror=alert(1)>" };
 const seite = werkzeugSeite(boese, id);
@@ -93,6 +105,7 @@ check(/Unbekanntes Werkzeug/.test(wurf(() => werkzeugSeite(f, "gibt-es-nicht")))
 check(werkzeugFelder("").datei.fassung === "", "leere Seite liefert leere Felder");
 const alt = seite.replace(/"hinweis":/, '"en":');
 check(werkzeugFelder(alt).hinweis === f.hinweis && !("en" in werkzeugFelder(alt)), "alter Feldname „en“ wird als Hinweis gelesen");
+}
 
 console.log("\nÜbersichten, Weiterleitung, Startseite");
 for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
@@ -101,19 +114,19 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const eigene = WERKZEUGE.filter(w => w.lang === lang), fremde = WERKZEUGE.filter(w => w.lang !== lang);
   // Seit 20.11.2026 (SmartFormular wie jede andere Lösung) führt die Übersicht zur Unterseite SmartFormular, erst die nennt die Werkzeuge
   const unter = lesen(lang === "en" ? "werkzeuge/smartformular/en/index.html" : "werkzeuge/smartformular/index.html");
-  check(html.includes(`werkzeuge/smartformular/${lang === "en" ? "en/" : ""}"`) && eigene.every(w => unter.includes(`werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`) && !unter.includes(`werkzeuge/${w.id}/"`)), `${pfad}: über die Unterseite SmartFormular zu den Werkzeugen, nur denen dieser Sprache`);
+  check(html.includes(`werkzeuge/smartformular/${lang === "en" ? "en/" : ""}"`) && eigene.every(w => unter.includes(w.umgezogen ? `href="${w.umgezogen}"` : `werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`) && !unter.includes(`werkzeuge/${w.id}/"`)), `${pfad}: über die Unterseite SmartFormular zu den Werkzeugen, nur denen dieser Sprache`);
   check(html.includes('id="newsletter"') && html.includes(`<html lang="${lang}">`), `${pfad}: Newsletter und Sprache`);
 }
 for (const a of ALTE_ADRESSEN) {
   const html = lesen(a.pfad);
-  check(html === weiterleitung(a.ziel) && html.includes(`url=../${a.ziel}/`), `${a.pfad} leitet auf ${a.ziel} weiter`);
+  check(html === weiterleitung(a.ziel) && (UMZUG[a.ziel] ? html.includes(`url=${UMZUG[a.ziel].url}`) : html.includes(`url=../${a.ziel}/`)), `${a.pfad} leitet auf ${a.ziel} bzw. smartformular.ai weiter`);
   check(readdirSync(root + a.pfad.replace(/index\.html$/, "")).length === 1, `${a.pfad}: keine alte Datei mehr daneben`);
 }
 const start = lesen("index.html");
 check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
 // Seit 20.11.2026 (F62, Variante a) steht im Slider eine Karte „SmartFormular“; die Werkzeuge erreicht man über ihre Unterseite (zwei Klicks)
 check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}">`)
-  && lesen(`werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}index.html`).includes(`werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte SmartFormular, von deren Unterseite zum Werkzeug");
+  && lesen(`werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}index.html`).includes(w.umgezogen ? `href="${w.umgezogen}"` : `werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte SmartFormular, von deren Unterseite zum Werkzeug");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
 

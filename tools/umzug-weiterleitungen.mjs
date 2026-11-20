@@ -15,28 +15,8 @@ export const ORDNER = [
 ];
 export const DATEIEN = { "E-Rechnung-lite.html": "E-Rechnung-Start.html", "E-Invoice-Viewer.html": "E-Invoice-Start.html",
   "Buchungsstapel-Generator.html": "Buchhaltung-Start.html", "Booking-Batch-Generator.html": "Bookkeeping-Start.html" };
-export const UEBERGABE = { de: "/werkzeuge/daten-uebergabe/", en: "/werkzeuge/en/data-handover/" };
-const esc = s => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-export function seite(neu, lang) {
-  const en = lang === "en", t = en ? "This page has moved to smartformular.ai" : "Diese Seite ist auf smartformular.ai umgezogen";
-  return `<!doctype html>
-<html lang="${lang}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${t}</title>
-<link rel="canonical" href="${esc(neu)}">
-<meta name="robots" content="noindex, follow">
-<noscript><meta http-equiv="refresh" content="0; url=${esc(neu)}"></noscript>
-<script src="/assets/umzug-weiter.js" data-ziel="${esc(neu)}" data-uebergabe="${UEBERGABE[lang]}"></script>
-</head>
-<body>
-<p>${t}: <a href="${esc(neu)}">${esc(neu)}</a></p>
-<p>${en ? "Used the tool here before? " : "Früher hier gearbeitet? "}<a href="${UEBERGABE[lang]}">${en ? "Take your data with you" : "Daten mitnehmen"}</a></p>
-</body>
-</html>
-`;
-}
+import { umzugSeite as seite } from "../worker/src/werkzeug.js";
+export { seite };
 const alle = (d) => readdirSync(d).flatMap(n => { const p = join(d, n); return statSync(p).isDirectory() ? alle(p) : [p]; });
 export function zuordnung(wurzel = ".") {
   const liste = [];

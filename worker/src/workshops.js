@@ -46,7 +46,7 @@ const TEXT = {
     planBKicker: "Plan-B-Tool", planBTitel: "Ein doppelter Boden für Ihre Prozesse",
     planB: [
       "Jeder Ablauf hat Stellen, an denen er hakt – der Bankabruf fällt aus, ein Import scheitert, eine Liste wird doch wieder abgetippt. Im Workshop finden wir diese Stellen gemeinsam und bauen für eine davon sofort eine Lösung: ein Plan-B-Tool, das einspringt, wenn der automatische Prozess dort nicht läuft.",
-      "So wird zugleich sichtbar, welche Schritte kritisch und welche unverzichtbar sind. Genau dort gestalten wir die übergeordneten Abläufe besonders stabil und mit doppeltem Boden – damit die Arbeit auch an schwierigen Tagen weitergeht. Ein Beispiel ist SmartFormular FiBu lite: der Plan B für den Monat, in dem der Bankabruf fehlt.",
+      "So wird zugleich sichtbar, welche Schritte kritisch und welche unverzichtbar sind. Genau dort gestalten wir die übergeordneten Abläufe besonders stabil und mit doppeltem Boden – damit die Arbeit auch an schwierigen Tagen weitergeht. Ein Beispiel ist SmartFormular Buchhaltung Start: der Plan B für den Monat, in dem der Bankabruf fehlt.",
     ],
     teileTitel: "Drei Teile, ein Ergebnis",
     teile: [
@@ -80,14 +80,14 @@ const TEXT = {
     min: "Min.",
     werkzeugeTitel: "Werkzeuge im Workshop",
     werkzeuge: [
-      "Der Workshop lebt von Vorführungen an Fällen aus dem Alltag, mit Beispieldaten statt echter Mandantendaten. Dafür zeige ich ausgewählte Werkzeuge, etwa SmartFormular FiBu lite und E-Rechnung lite. Was Sie einsetzen, entscheiden Sie.",
+      "Der Workshop lebt von Vorführungen an Fällen aus dem Alltag, mit Beispieldaten statt echter Mandantendaten. Dafür zeige ich ausgewählte Werkzeuge, etwa SmartFormular Buchhaltung Start und E-Rechnung Start. Was Sie einsetzen, entscheiden Sie.",
     ],
     partnerHinweis: "Weitere Werkzeuge stelle ich hier vor, sobald sie Teil des Workshops sind.",
     // Wer den Workshop leitet (Textprüfung 23.10.2026): Käufer entscheiden über die Person; nur Tatsachen von „Über mich“
     leitungTitel: "Wer den Workshop leitet",
     leitung: [
       "Ich bin Robin James Lewis aus Balingen. In einer Steuerkanzlei betreue ich einen eigenen Mandantenkreis in Finanzbuchhaltung, Lohn und Jahresabschluss und automatisiere Abläufe mit Importen, Schnittstellen und Python.",
-      "Die Werkzeuge FiBu lite und E-Rechnung lite habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
+      "Die Werkzeuge Buchhaltung Start und E-Rechnung Start habe ich entwickelt; die Ausbildereignungsprüfung der IHK habe ich 2017 bestanden. Sprachmodelle nutze ich nach einer festen Regel: Sie bereiten vor, ich entscheide.",
     ],
     leitungMehr: "Mehr über mich",
     leitungAlt: "Robin James Lewis, Porträt",
@@ -161,7 +161,7 @@ const TEXT = {
     planBKicker: "Plan B tool", planBTitel: "A safety net for your processes",
     planB: [
       "Every process has points where it stalls – the bank feed fails, an import breaks, a list gets typed in by hand after all. In the workshop we find these points together and build an immediate solution for one of them: a plan B tool that steps in when the automated process does not run there.",
-      "This also shows which steps are critical and which are essential. That is exactly where we make the overall processes especially robust, with a safety net – so work carries on even on difficult days. One example is SmartFormular FiBu lite: the plan B for the month the bank feed is missing.",
+      "This also shows which steps are critical and which are essential. That is exactly where we make the overall processes especially robust, with a safety net – so work carries on even on difficult days. One example is SmartFormular Bookkeeping Start: the plan B for the month the bank feed is missing.",
     ],
     teileTitel: "Three parts, one result",
     teile: [
@@ -195,13 +195,13 @@ const TEXT = {
     min: "min",
     werkzeugeTitel: "Tools in the workshop",
     werkzeuge: [
-      "The workshop thrives on demonstrations with cases from daily work, using sample data rather than real client data. For that I show selected tools, such as SmartFormular FiBu lite and E-Rechnung lite. What you use is your decision.",
+      "The workshop thrives on demonstrations with cases from daily work, using sample data rather than real client data. For that I show selected tools, such as SmartFormular Bookkeeping Start and E-Invoice Start. What you use is your decision.",
     ],
     partnerHinweis: "I will present further tools here as soon as they are part of the workshop.",
     leitungTitel: "Who runs the workshop",
     leitung: [
       "I am Robin James Lewis from Balingen, Germany. At a tax firm I look after my own set of clients in bookkeeping, payroll and year-end accounts, and I automate processes with imports, interfaces and Python.",
-      "I developed the tools FiBu lite and E-Rechnung lite, and I passed the IHK trainer aptitude examination in 2017. I use language models under one fixed rule: they prepare, I decide.",
+      "I developed the tools Bookkeeping Start and E-Invoice Start, and I passed the IHK trainer aptitude examination in 2017. I use language models under one fixed rule: they prepare, I decide.",
     ],
     leitungMehr: "More about me",
     leitungAlt: "Robin James Lewis, portrait",

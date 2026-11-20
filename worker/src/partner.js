@@ -58,29 +58,29 @@ export const VORGESCHLAGEN = [
 // (Erläuterung im Impressum, #anzeigen: „Anbieter ist robin.vision selbst …“); kein rel="sponsored" und kein Vergütungssatz, weil niemand
 // robin.vision dafür bezahlt. wortmarke: Schriftzug als Text wie im Kopf von smartformular.ai (dort kein Bild; Arbeitsregeln Abschnitt 8,
 // Bezugswert 20 px Schrift) statt logo. werkzeuge: Verweise der Unterseite je Sprache (anker = Sprungmarke; frei = Kennzeichen wie
-// kostenlos unten; extern = Verweis nach url + href; mehr = zweiter Verweis). FiBu lite und E-Rechnung lite liegen noch auf robin.vision
-// und ziehen später um; die Texte sind die der früheren Karten im Slider der Startseite.
+// kostenlos unten; extern = Verweis nach url + href; mehr = zweiter Verweis). Seit 20.11.2026 (Umzug, Weg B; neue Namen „Ja, so bestätigt“)
+// liegen beide Werkzeuge auf smartformular.ai: E-Rechnung Start (bisher E-Rechnung lite), Buchhaltung Start (bisher FiBu lite), dazu Deklaration.
 export const EIGENE = [
   { id: "smartformular", name: "SmartFormular", anbieter: "robin.vision", url: "https://smartformular.ai/", urlEn: "https://smartformular.ai/en/", seit: "2026-11-20",
     wortmarke: ["Smart", "Formular"],
     bereich: { de: "Rechnungswesen", en: "Accounting" },
-    text: { de: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; Abschluss kommt als Beta.",
-      en: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; Abschluss is coming as a beta." },
+    text: { de: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung Start prüft E-Rechnungen kostenlos, Buchhaltung Start lässt sich bis 31.12.2026 kostenlos testen; Deklaration kommt als Beta.",
+      en: "Forms that work with you – for the days when the process stalls. E-Invoice Start checks e-invoices free of charge, Bookkeeping Start is free to try until 31 December 2026; Declaration is coming as a beta." },
     mehr: { de: "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
       en: "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, checks for completeness and takes the first steps of the casework while you are still typing. Checking, deciding and finalising stay with you." },
     seitentitel: { de: "SmartFormular: Werkzeuge für Buchhaltung und Jahresabschluss | robin.vision", en: "SmartFormular: tools for bookkeeping and year-end accounts | robin.vision" },
     knopf: { de: "Zu smartformular.ai", en: "To smartformular.ai" },
     werkzeuge: {
       de: [
-        { anker: "fibu-lite", frei: true, name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
-        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
-        { anker: "abschluss", stand: "Beta · auf Anfrage", name: "Abschluss", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", extern: true, href: "#abschluss",
+        { anker: "fibu-lite", frei: true, name: "Buchhaltung Start", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", extern: true, href: "buchhaltung-start/" },
+        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung Start", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", extern: true, href: "e-rechnung-start/" },
+        { anker: "abschluss", stand: "Beta · auf Anfrage", name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", extern: true, href: "#deklaration",
           mehr: { anker: "beta", text: "Beta-Zugang anfragen", href: "#beta" } },
       ],
       en: [
-        { anker: "fibu-lite", frei: true, name: "FiBu lite", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
-        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
-        { anker: "abschluss", stand: "Beta · on request", name: "Abschluss", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", extern: true, href: "#abschluss",
+        { anker: "fibu-lite", frei: true, name: "Bookkeeping Start", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", extern: true, href: "bookkeeping-start/" },
+        { anker: "e-rechnung", frei: "erechnung", name: "E-Invoice Start", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", extern: true, href: "e-invoice-start/" },
+        { anker: "abschluss", stand: "Beta · on request", name: "Declaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", extern: true, href: "#deklaration",
           mehr: { anker: "beta", text: "Request beta access", href: "#beta" } },
       ],
     } },
