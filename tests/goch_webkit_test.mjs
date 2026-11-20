@@ -42,7 +42,7 @@ async function seiteAuf() {
   return { p, ctx };
 }
 const stand = p => p.evaluate(() => ({ lage: (document.documentElement.className.match(/goch-\w+/g) || []).filter(k => k !== "goch-fort").join(" "), zustand: document.getElementById("goch-mikro").dataset.zustand, an: document.getElementById("goch-mikro-an").getAttribute("aria-pressed"), blasen: document.querySelectorAll(".goch-bubble").length, letzte: [...document.querySelectorAll(".goch-bubble")].pop().textContent.slice(0, 60) }));
-async function frage(p) { const n = await listen(); await p.evaluate(() => { __sprich = true; }); await p.waitForTimeout(1500); await p.evaluate(() => { __sprich = false; }); await p.waitForTimeout(4200); return (await listen()) - n; }
+async function frage(p) { const n = await listen(); await p.evaluate(() => { __sprich = true; }); await p.waitForTimeout(1500); await p.evaluate(() => { __sprich = false; }); await p.waitForTimeout(5200); return (await listen()) - n; } // 5,2 s: im Strom drei Abschnitte (KI-Hinweis, erster Satz, Rest) statt zwei (20.11.2026)
 async function hoertAn(p) { await p.locator("#goch-mikro-an").click(); await p.waitForTimeout(400); await p.locator("#goch-stimme-allow").click(); await p.waitForTimeout(1500); }
 
 await modus("hoeren=ok&stimme=ok");

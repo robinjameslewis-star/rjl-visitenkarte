@@ -11,6 +11,8 @@
 // antwortet der Worker als NDJSON: Zeile 1 die Antwort wie oben, Zeile 2 { stimme: {mime, daten, zeichen, ms} } oder
 // { stimme: null, grund }; mit { stimme: { teile: true } } je Abschnitt eine Zeile (mitStimme). Vertont wird nur diese eigene
 // Antwort; eine freie Vorlese-Route gibt es nicht.
+// Strom (20.11.2026): { strom: true } – NDJSON, sobald das Modell anfängt: Zeilen { vorab } mit dem Text bisher und { stimme }
+// je fertigem Abschnitt, auch schon vor der Antwortzeile; die Antwortzeile gilt. Siehe neuerStrom und src/strom.js.
 // POST /listen?lang=de|en  WAV (16 Bit, mono, höchstens 20 s) → { text, sekunden } – Spracheingabe, src/hoeren.js
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";
@@ -27,7 +29,8 @@ import { handleLizenz } from "./lizenz.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
-import { stimmeFuerAntwort, stimmeInTeilen, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
+import { stimmeFuerAntwort, stimmeInTeilen, sprechTeile, KI_HINWEIS, GESPROCHEN } from "./stimme.js";
+import { teilAntwort, sprecher } from "./strom.js";
 import { kostenBuchen, adresseFrei } from "./kosten.js";
 import { handleListen } from "./hoeren.js";
 import { handleKiosk, kundenSystem, kundenVortrag, stillAntwort, GOCH_AM_GERAET } from "./kiosk.js";
@@ -117,7 +120,22 @@ const worker = {
     if (request.method === "POST" && new URL(request.url).pathname === "/chat") {
       let body = null;
       try { body = await request.clone().json(); } catch {}
-      const response = await worker.handle(request, env, ctx);
+      // Strom (20.11.2026): nur, wenn die Seite ihn verlangt – ältere Seiten bekommen die Antwort wie bisher
+      const strom = body && body.strom === true ? neuerStrom(env, ctx, body) : null;
+      const laeuft = worker.handle(request, env, ctx, null, strom);
+      if (strom) {
+        await Promise.race([laeuft.catch(() => {}), strom.offen]);
+        // Antwort ohne Modell (Begrüßung, Draht, Grenzen, Fehler der Anfrage): wie bisher als Ganzes
+        if (strom.begonnen) {
+          ctx.waitUntil((async () => {
+            let response;
+            try { response = await laeuft; } catch (e) { console.error("Strom", String(e && e.message || e).slice(0, 300)); response = json({ reply: TEXT[body.lang === "en" ? "en" : "de"].quiet, action: null }, 200, {}); }
+            await mitStimme(response, body, env, ctx, { strom });
+          })());
+          return new Response(strom.readable, { status: 200, headers: { ...strom.cors, "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store" } });
+        }
+      }
+      const response = await laeuft;
       return body && body.stimme && response.status === 200 ? mitStimme(response, body, env, ctx) : response;
     }
     return worker.handle(request, env, ctx);
@@ -126,7 +144,7 @@ const worker = {
   // intern: Aufruf der Kiosk-Route (src/kiosk.js) mit angemeldetem Gerät – { geraet, figur, kunde, lang }. Dann gelten statt
   // Herkunft, IP- und Tagesgrenze der Website das Gerätebudget; Kundenfiguren antworten mit eigenem Systemprompt, ohne
   // Draht, Links und Newsletter.
-  async handle(request, env, ctx, intern = null) {
+  async handle(request, env, ctx, intern = null, strom = null) {
     // Messegerät: eigene Route mit Geräteanmeldung, ruft für das Gespräch wieder handle() auf (intern)
     if (!intern && new URL(request.url).pathname.startsWith("/kiosk/")) return handleKiosk(request, env, ctx, { handle: worker.handle, mitStimme });
     // Aufbau aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Booking Batch Generator“): offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
@@ -139,6 +157,8 @@ const worker = {
       "Access-Control-Allow-Origin": allowed.includes(origin) ? origin : allowed[0] || "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      // Der Browser merkt sich die Vorabfrage (OPTIONS), statt sie vor jeder Frage neu zu stellen (spart einen Umlauf)
+      "Access-Control-Max-Age": "86400",
       "Vary": "Origin",
     };
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -239,19 +259,29 @@ const worker = {
     }
 
     const content = kunde ? { links: [], linkIds: [] } : await loadContent(env, ctx);
+    // Zwei Teile (20.11.2026): vorn alles, was für jede Frage gleich ist – nur das liest der Prompt-Cache wieder –, dahinter, was
+    // je Anfrage wechselt (Seite des Besuchers, gesprochen, Stellen zeigen). Vorher stand die Seite mitten im ersten Teil, und
+    // jede Unterseite, jeder Wechsel zwischen Text und Stimme schrieb die rund 63.000 Token des Profils neu (Messung 19.11.).
     const system = kunde ? kundenSystem(intern.figur, lang)
-      : ohneKommentarkopf(content.profile) + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + (intern ? "" : seiteJetzt(content.seiten, body.seite)) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
+      : ohneKommentarkopf(content.profile) + "\n\n# Woran Robin gerade arbeitet\n\n" + content.aktuell + seitenPrompt(content.seiten) + linksPrompt(content.links) + "\n\n" + FORMAT + (intern ? "\n\n" + GOCH_AM_GERAET : "");
     const zeigen = body.kannZeigen === true && !intern && !kunde;
     // vorgelesen: so formulieren, wie man spricht; im Sprachmodus der Startseite: Stellen der Seite zeigen
-    const systemText = system + (body.stimme ? "\n\n" + GESPROCHEN[lang] : "") + (zeigen ? "\n\n" + ZEIGEN : "");
+    // Messegerät und Workshop (intern) sprechen immer: dort bleibt der Sprechstil im ersten Teil wie bisher
+    const gesprochen = body.stimme ? GESPROCHEN[lang] : "";
+    const festerTeil = intern && gesprochen ? system + "\n\n" + gesprochen : system;
+    const wechselnd = [intern ? "" : seiteJetzt(content.seiten, body.seite).trim(), intern ? "" : gesprochen, zeigen ? ZEIGEN : ""].filter(Boolean).join("\n\n");
     // Workshop-Bühne (src/kiosk.js): Stand des Vortrags als zweiter Systemblock nach dem gecachten; die Fragen der Teilnehmenden
     // nur als Zitat vor ihrer letzten Nachricht. Bei der Überleitung entscheidet das Modell zusätzlich über das Überspringen.
     const vortrag = kunde ? kundenVortrag(intern.figur, body.vortrag) : null;
     const anModell = vortrag && vortrag.fragen
       ? messages.map((m, i) => i === messages.length - 1 ? { ...m, content: vortrag.fragen + "\n\n" + m.content } : m) : messages;
+    // Strom: ab hier antwortet das Modell; die Seite bekommt den Text, während es schreibt (neuerStrom)
+    const imStrom = !!(strom && !intern && !kunde && settings.provider === "anthropic");
+    if (imStrom) strom.beginnen(cors, settings, lang);
     let text;
     try {
-      text = await complete(env, vortrag ? [systemText, vortrag.system] : systemText, anModell, content.linkIds, modelSettings, vortrag ? { buehne: true, weiter: vortrag.weiter } : {});
+      text = await complete(env, [festerTeil, [wechselnd, vortrag && vortrag.system].filter(Boolean).join("\n\n")], anModell, content.linkIds, modelSettings,
+        vortrag ? { buehne: true, weiter: vortrag.weiter } : {}, imStrom ? roh => strom.beimText(roh) : null);
     } catch (e) {
       const detail = String(e && e.message || e).slice(0, 300);
       console.error("Modellfehler", detail);
@@ -320,8 +350,112 @@ export const Workshop = { fetch: (request, env, ctx) => workshopAnfrage(request,
 // im Text und in der Stimme gleich. Kein Fehler erreicht den Besucher: ohne Stimme nur { stimme: null, grund }, nie ein
 // Fehlertext des Anbieters; die Seite zeigt den Text und den allgemeinen Hinweis, dass es gerade nur im Chat geht.
 const TEXT_SPAETESTENS_MS = 2000;
+// Stimme, Stimmcharakter und Seed der Figur: Goch aus figur.json (warm, weich), Kundenfiguren mit ihrer eigenen Stimme aus der
+// Redaktion und den Ausgangswerten
+function stimmAngaben(settings, body, optionen = {}) {
+  const figur = oeffentlicheFigur(body.figur) || oeffentlicheFigur();
+  const eigen = optionen.voiceId !== undefined;
+  return {
+    voiceId: eigen ? optionen.voiceId : (settings.sprache && settings.sprache.voiceId) || (figur.stimme && figur.stimme.voiceId) || "",
+    einstellungen: eigen ? undefined : figur.stimme && figur.stimme.einstellungen,
+    seed: eigen ? undefined : figur.stimme && figur.stimme.seed, // gleichbleibender Klang
+  };
+}
+// Gesprochen wird bei Draht und Feedback nur ein neutraler Satz (siehe mitStimme)
+const istDrahtText = (reply, t, lang) => reply.startsWith(t.sentPrefix + ":") || reply.includes(t.marker) || reply.includes("@")
+  || reply.startsWith(lang === "en" ? "I'll pass this feedback on to Robin" : "Ich gebe Robin dieses Feedback weiter");
+
+// Strom der Website (20.11.2026, Robin: „so schnell wie möglich“): Antwort von /chat als NDJSON, sobald das Modell anfängt.
+// Zeilen: { vorab: "bisheriger Text" } während das Modell schreibt (nur ganze Wörter), { stimme: … } je fertigem Abschnitt –
+// auch schon vor der Antwortzeile, der KI-Hinweis sogar vor dem ersten Wort –, dann die Antwort wie bisher (reply, action,
+// link, …; sie gilt, die Seite ersetzt damit den Vorabtext) und danach die übrigen Abschnitte der Stimme. Vorab gezeigt und
+// vertont wird nur, wenn action schon feststeht und der Worker den Text nicht ersetzt (Draht, Feedback); ein Abschnitt mit
+// einer Adresse oder der Rückfrage des Drahts beendet das Vorab-Vertonen. Ohne Modellaufruf bleibt alles wie bisher.
+function neuerStrom(env, ctx, body) {
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter(), enc = new TextEncoder(), beginn = Date.now();
+  const lang = body.lang === "en" ? "en" : "de", wunsch = body.stimme, t = TEXT[lang];
+  let offenSetzen, zuletzt = "", gestoppt = false, msText = null;
+  const s = {
+    readable, offen: new Promise(r => { offenSetzen = r; }), begonnen: false, cors: {}, sp: null, vertont: [],
+    abgebrochen: false,
+    zeile(obj) { return writer.write(enc.encode(JSON.stringify(obj) + "\n")).catch(e => { s.abgebrochen = true; throw e || new Error("abgebrochen"); }); },
+    schliessen() { return writer.close().catch(() => {}); },
+    get msText() { return msText; },
+    kiVorne: !!(wunsch && wunsch.erste === true),
+    beginnen(cors, settings) {
+      s.begonnen = true; s.cors = cors;
+      if (wunsch) {
+        const angaben = stimmAngaben(settings, body);
+        s.sp = sprecher(env, ctx, { sprache: settings.sprache, lang, ...angaben, beginn }, async zeile => {
+          if (zeile.grund === "grenze") ctx.waitUntil(grenzMail(env));
+          await s.zeile(zeile);
+        });
+        // KI-Hinweis (Art. 50 KI-VO) vorn, gemerkt: klingt schon, während das Modell noch denkt
+        if (s.kiVorne) s.sp.teil(KI_HINWEIS[lang], { fest: true });
+      }
+      offenSetzen();
+    },
+    beimText(roh) {
+      const a = teilAntwort(roh);
+      if (a.falsch || a.action === undefined || a.reply === null || a.action === "message" || a.action === "feedback" || s.abgebrochen) return;
+      const text = tidy(a.fertig ? a.reply : a.reply.replace(/\S*$/, ""));
+      if (!text || text === zuletzt) return;
+      zuletzt = text;
+      if (msText === null) msText = Date.now() - beginn;
+      s.zeile({ vorab: (s.kiVorne ? KI_HINWEIS[lang] + " " : "") + text }).catch(() => {});
+      if (!s.sp || gestoppt) return;
+      const teile = sprechTeile(text), fertig = a.fertig ? teile.length : teile.length - 1;
+      for (let i = s.vertont.length; i < fertig; i++) {
+        if (teile[i].includes("@") || teile[i].includes(t.marker)) { gestoppt = true; return; }
+        s.vertont.push(teile[i]); s.sp.teil(teile[i]);
+      }
+    },
+  };
+  return s;
+}
+const grenzMail = env => notifyOnce(env, "stimme-grenze-" + new Date().toISOString().slice(0, 7),
+  "Goch: Monatsgrenze für die Stimme erreicht",
+  "Die Grenze für vertonte Zeichen in diesem Monat ist erreicht. Goch antwortet bis zum Monatsende nur noch als Text; Besucher sehen nur den allgemeinen Hinweis, dass ein Gespräch gerade nur im Chat möglich ist. Grenze ändern: Redaktion → Goch – Stimme und Spracheingabe.");
+
+// Antwortzeile und restliche Stimme in einen offenen Strom schreiben (mitStimme mit optionen.strom)
+async function stromZuEnde(strom, out, body) {
+  const lang = body.lang === "en" ? "en" : "de", t = TEXT[lang];
+  msLetzterModellaufruf = null; // im Strom misst der Sprecher selbst
+  try {
+    const sprechen = !!(strom.sp && out && typeof out.reply === "string" && out.reply.trim() && out.fehler !== true);
+    if (out && typeof out.reply === "string" && out.reply.trim() && body.stimme) {
+      if (strom.kiVorne) out.reply = KI_HINWEIS[lang] + " " + out.reply;
+      out.ki = true;
+    }
+    await strom.zeile(out);
+    if (sprechen) {
+      const reply = strom.kiVorne ? out.reply.slice(KI_HINWEIS[lang].length + 1) : out.reply;
+      if (istDrahtText(reply, t, lang)) {
+        // neutraler Satz statt der Angaben – nur, wenn nicht schon Sätze der Antwort klingen
+        if (!strom.vertont.length) strom.sp.teil(reply.startsWith(t.sentPrefix + ":") ? t.sentSpoken
+          : lang === "en" ? "I've noted your message and your details – shall I send it like this?" : "Ich habe Ihre Nachricht und Ihre Angaben notiert – soll ich das so senden?");
+      } else {
+        // was vorab vertont wurde, zählt; ab der ersten Abweichung (selten, z. B. gekürzt) die Abschnitte der fertigen Antwort
+        const teile = sprechTeile(reply);
+        let i = 0;
+        while (i < strom.vertont.length && i < teile.length && strom.vertont[i] === teile[i]) i++;
+        for (; i < teile.length; i++) strom.sp.teil(teile[i]);
+      }
+    }
+    if (strom.sp) await strom.sp.ende({ msText: strom.msText });
+  } catch (e) {
+    if (e && !strom.abgebrochen) console.error("Strom (Antwort)", String(e.message || e).slice(0, 300));
+    if (strom.sp) await strom.sp.ende({ msText: strom.msText }).catch(() => {});
+  } finally { await strom.schliessen(); }
+}
+
 async function mitStimme(response, body, env, ctx, optionen = {}) {
   let out;
+  if (optionen.strom) {
+    try { out = await response.json(); } catch { out = { reply: TEXT[body.lang === "en" ? "en" : "de"].quiet, action: null }; }
+    return stromZuEnde(optionen.strom, out, body);
+  }
   try { out = await response.json(); } catch { return response; }
   // ohne Stimme: leere Antwort, oder fehler: true (Kundenfigur im Workshop ohne Modellantwort – die Bühne zeigt ihre eigene Zeile)
   if (!out || typeof out.reply !== "string" || !out.reply.trim() || out.fehler === true) return new Response(JSON.stringify(out), response);
@@ -705,10 +839,12 @@ function resolveLink(id, lang, messages, links) {
 // Antwortschema: das Modell kann nur dieses Format liefern – kein kaputtes JSON, keine Platzhalter im Aufbau.
 // Workshop-Bühne: „weiter“ steht in jedem Aufruf der Bühne im Schema (sonst bräche der Wechsel des Schemas zwischen
 // Zwischenfrage und Überleitung den Prompt-Cache); verlangt wird es nur bei der Überleitung, sonst bleibt es null.
+// Reihenfolge (20.11.2026): action und message vor reply – im Strom steht so fest, ob der Worker den Text ersetzt (Draht,
+// Feedback), bevor die ersten Wörter gezeigt oder vertont werden (src/strom.js, teilAntwort).
 const gochOutput = (linkIds, { buehne = false } = {}) => z.object({
-  reply: z.string(),
   action: z.enum(["calendar", "contact", "message", "newsletter", "feedback"]).nullable(),
   message: z.object({ name: z.string(), email: z.string(), text: z.string() }).nullable(),
+  reply: z.string(),
   link: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
   link2: linkIds.length ? z.enum(linkIds).nullable() : z.null(),
   zeigen: z.enum(ZIELE).nullable(),
@@ -717,7 +853,8 @@ const gochOutput = (linkIds, { buehne = false } = {}) => z.object({
 
 // system: Text oder Liste von Textblöcken – gecacht wird nur der erste (gleichbleibende), z. B. die Kundenfigur ohne den Stand
 // des Vortrags. Andere Anbieter bekommen die Blöcke als einen Text.
-export async function complete(env, system, messages, linkIds = [], settings = null, ausgabe = {}) {
+// beiText(roh): nur Anthropic – das Modell antwortet im Strom, beiText bekommt nach jedem Stück das bisherige JSON (src/strom.js).
+export async function complete(env, system, messages, linkIds = [], settings = null, ausgabe = {}, beiText = null) {
   settings = settings || { provider: env.PROVIDER || "anthropic", model: env.MODEL || "claude-opus-5-5", cache: true, custom: {} };
   const provider = settings.provider;
   const started = Date.now();
@@ -726,7 +863,7 @@ export async function complete(env, system, messages, linkIds = [], settings = n
   if (provider === "anthropic") {
     if (!env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY fehlt");
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-    const response = await client.beta.messages.create({
+    const anfrage = {
       model: settings.model || "claude-opus-5-5",
       max_tokens: 1024,
       // Das Profil ist bei jeder Frage identisch → Prompt-Caching: ab der zweiten Frage ein Zehntel des Preises.
@@ -739,7 +876,22 @@ export async function complete(env, system, messages, linkIds = [], settings = n
       // beantwortet ein Schwestermodell die Anfrage im selben Aufruf.
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-    });
+    };
+    let response;
+    if (beiText) {
+      // Ohne den Zod-Parser des SDK: finalMessage() wirft so nie am Format; parse() unten liest wie bisher
+      const { parse: _ohneParser, ...format } = anfrage.output_config.format;
+      const stream = client.beta.messages.stream({ ...anfrage, output_config: { ...anfrage.output_config, format } });
+      let roh = "";
+      stream.on("text", delta => { roh += delta; try { beiText(roh); } catch (e) { console.error("Strom", String(e && e.message || e).slice(0, 200)); } });
+      try { response = await stream.finalMessage(); }
+      catch (e) {
+        // Scheitert der Strom, bevor ein Wort kam, einmal ohne Strom fragen (die Seite wartet dann nur wie bisher)
+        if (roh) throw e;
+        console.error("Strom, Rückfall ohne Strom", String(e && e.message || e).slice(0, 200));
+        response = await client.beta.messages.create(anfrage);
+      }
+    } else response = await client.beta.messages.create(anfrage);
     if (response.stop_reason === "refusal") return JSON.stringify({ reply: "", action: "contact", message: null });
     lastUsage = { model: response.model, input: response.usage.input_tokens, cache_write: response.usage.cache_creation_input_tokens,
       cache_read: response.usage.cache_read_input_tokens, output: response.usage.output_tokens, ms: Date.now() - started };

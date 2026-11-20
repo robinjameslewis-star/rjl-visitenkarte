@@ -94,7 +94,7 @@
   const entsperren = A.entsperren;
   // Die Stimme einer Antwort kommt in Abschnitten (Robin, 06.11.2026) und spielt nacheinander (goch-audio.js, folge); was noch
   // unterwegs ist, wird beim Verstummen abgebrochen (runde), dann vertont der Worker auch nichts mehr.
-  let folge = null, runde = 0;
+  let folge = null, runde = 0, kette = Promise.resolve();
   function schweigen() { runde++; restLaeuft = false; A.schweigen(); mund('zu'); koerper.ende(); }
   async function abspielen(stimme) {
     if (!lautAn || panel.hidden) return true;
@@ -147,9 +147,18 @@
       if (kannZeigen) z.kannZeigen = true; // die Seite kann zu Stellen führen (goch-gespraech.js)
       return z;
     },
+    // Strom (20.11.2026): Abschnitte, die vor der Antwortzeile kommen (KI-Hinweis, erster Satz), gleich abspielen – in
+    // Reihenfolge; rest() wartet auf sie, bevor es weiterliest.
+    abbrechen() { if (restLaeuft || spielt) { schweigen(); spielt = false; folge = null; } },
+    vorab(z) {
+      const meine = runde;
+      restLaeuft = true;
+      kette = kette.then(() => (meine === runde ? stimmeZurAntwort(z, null) : null)).catch(() => {});
+    },
     async rest(reader, buf, dec, antwort) {
       const meine = runde;
       restLaeuft = true;
+      await kette;
       diktat = fragtNachAngaben(antwort && antwort.reply);
       try {
         for (;;) {
