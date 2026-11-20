@@ -26,6 +26,7 @@ aktiv, wenn `data-chat-endpoint` am `<body>` gesetzt ist – siehe unten und `wo
 - `goch.js` – Goch: Sprechblase am Ast (Einwilligung, Gespräch, Nachricht an Robin)
 - `worker/profile.md`, `worker/aktuell.md` – was Goch weiß (von Robin freigegeben, öffentlich, in der Redaktion pflegbar); `worker/src/index.js` der Cloudflare Worker
 - `worker/src/admin.js` – Redaktion – Backend der Website unter `/admin` (Aktuell, Links, Zähler; Anmeldung per E-Mail-Code)
+- `worker/src/agent.js` – Agentenschlüssel der Redaktion (17.11.2026, Entwurf, aus bis nach dem UG-Umzug): `POST /admin/agent/<aktion>` mit Bearer-Schlüssel, nur Stufe 1, Protokoll; `tools/goch-agent.mjs` ruft die API mit dem Schlüssel aus dem macOS-Schlüsselbund auf; `tests/goch_agent_test.mjs` prüft beides (Einschalten: README im Ordner `worker/`, Abschnitt „Agentenschlüssel“)
 - `tests/goch_fake_worker.py` – Attrappe des Workers für Tests ohne Cloudflare; `tests/goch_test.py` – Prüfung der Sprechblase in Headless-Chrome
 - `tests/admin_fake.mjs` – Attrappe der Redaktion (echte Dashboard-Seite, feste API-Antworten, echte Blog-Vorschau) zum Prüfen des Editors im Browser
 - `tests/blog_test.mjs` – Blog-Renderer ohne Worker: Open-Graph-Angaben, Vorschaubild-Regeln

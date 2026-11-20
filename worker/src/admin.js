@@ -17,6 +17,7 @@ import { hoerenTag } from "./hoeren.js";
 import * as kiosk from "./kiosk.js";
 import * as seiten from "./seitenwissen.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
+import * as agent from "./agent.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -26,6 +27,9 @@ const MAX_TRIES = 5;
 export async function handleAdmin(request, env, ctx, deps) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/admin";
+  // Agentenschlüssel (src/agent.js): eigener Eingang mit Bearer-Schlüssel, ohne Sitzung und ohne Cookie – vor allem anderen,
+  // damit der Funktionsschalter AGENT_API zuerst greift (aus: 404)
+  if (path === "/admin/agent" || path.startsWith("/admin/agent/")) return agent.agentApi(request, env, ctx, deps, AGENT_OPS);
   if (!env.USAGE || !env.MAIL_TO) return text("Dashboard nicht eingerichtet (KV oder MAIL_TO fehlt).", 503);
   const session = await currentSession(request, env);
 
@@ -66,6 +70,8 @@ export async function handleAdmin(request, env, ctx, deps) {
     await indexPasskey(env, id, false);
     return json({ passkeys: await listPasskeys(env, url.hostname) });
   }
+  // Agentenschlüssel und Protokoll (Stufe 3: nur hier, nur mit Passkey-Sitzung; nie über den Schlüssel selbst)
+  if (api === "agent" || api.startsWith("agent/")) return agent.verwaltungApi(api, request, env, session, readJson);
   if (api.startsWith("blog")) return blogApi(api, request, env, deps, session, url);
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
   if (api === "figuren") return figurenApi(request, env);
@@ -73,15 +79,14 @@ export async function handleAdmin(request, env, ctx, deps) {
   if (api === "site") return siteApi(request, env);
   if (api.startsWith("landschaften")) return landscapesApi(api, request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
-  if (m && CONTENT[m[1]]) {
+  if (m && Object.hasOwn(CONTENT, m[1])) {
     if (request.method === "PUT") return save(m[1], request, env, deps, session);
     if (request.method === "POST") return restore(m[1], env, deps, session);
   }
   if (api === "unanswered" && request.method === "DELETE") {
-    const body = await readJson(request);
-    const key = typeof body.key === "string" && body.key.startsWith("unanswered:") ? body.key : null;
+    const key = frageSchluessel((await readJson(request)).key);
     if (!key) return json({ error: "Ungültig." }, 400);
-    await env.USAGE.delete(key);
+    await frageErledigt(env, key);
     return json({ ok: true });
   }
   return json({ error: "Nicht gefunden." }, 404);
@@ -360,39 +365,64 @@ async function state(env, deps) {
 }
 
 // Veröffentlichen: Felder prüfen und zusammenbauen, ins Repository schreiben (Commit), Kopie in den KV.
-async function save(key, request, env, deps, session) {
-  if (!gh.configured(env)) return json({ error: "GitHub-Schlüssel fehlt – Veröffentlichen ist noch nicht eingerichtet." }, 503);
+// Ein Weg für Redaktion und Agent (src/agent.js): veroeffentlichen() prüft und schreibt, save() ist nur die Hülle der Redaktion.
+// Fehler tragen ihren HTTP-Status (503 ohne GitHub-Schlüssel, 400 Prüfung, 502 GitHub). by: Akteur für die KV-Kopie und die Commit-Nachricht.
+const httpFehler = (message, status) => Object.assign(new Error(message), { status });
+const quelle = by => by === agent.AKTEUR_AGENT ? "Agent" : "Dashboard";
+async function veroeffentlichen(key, fields, env, deps, by) {
+  if (!gh.configured(env)) throw httpFehler("GitHub-Schlüssel fehlt – Veröffentlichen ist noch nicht eingerichtet.", 503);
   const c = CONTENT[key];
-  const body = await readJson(request);
   let md;
-  try { md = c.join(body, deps); } catch (e) { return json({ error: e.message }, 400); }
+  try { md = c.join(fields || {}, deps); } catch (e) { throw httpFehler(e.message, 400); }
   try {
     const current = await gh.getFile(env, c.path);
-    if (current && current.content === md) return json({ ...(await state(env, deps)), note: "Keine Änderung – nichts veröffentlicht." });
+    if (current && current.content === md) return { note: "Keine Änderung – nichts veröffentlicht." };
     const summary = c.summary(c.split(md, deps));
-    await gh.putFile(env, c.path, md, `Dashboard: ${c.title} – ${summary}`, current && current.sha);
-    await cache(env, key, md, session.email);
+    await gh.putFile(env, c.path, md, `${quelle(by)}: ${c.title} – ${summary}`, current && current.sha);
+    await cache(env, key, md, by);
     // Werkzeugseiten: „Was ist neu“ steht auch im Newsletter-Feed – Feeds (und Sitemap) gleich mit neu schreiben
-    if (/^werkzeug/.test(key)) await rebuild(env, await loadBlog(env), [], `Redaktion: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
-  } catch (e) { return json({ error: e.message }, 502); }
-  return json(await state(env, deps));
+    if (/^werkzeug/.test(key)) await rebuild(env, await loadBlog(env), [], `${quelle(by) === "Agent" ? "Agent" : "Redaktion"}: Newsletter-Feeds nach Änderung der Werkzeugseite (${c.title})`);
+  } catch (e) { throw httpFehler(e.message, 502); }
+  return {};
+}
+async function save(key, request, env, deps, session) {
+  try {
+    const r = await veroeffentlichen(key, await readJson(request), env, deps, session.email);
+    return json(r.note ? { ...(await state(env, deps)), note: r.note } : await state(env, deps));
+  } catch (e) { return json({ error: e.message }, e.status || 502); }
 }
 
 // Vorige Fassung: Inhalt des vorletzten Commits dieser Datei als neuen Commit schreiben (nichts wird gelöscht).
-async function restore(key, env, deps, session) {
-  if (!gh.configured(env)) return json({ error: "GitHub-Schlüssel fehlt." }, 503);
+async function wiederherstellen(key, env, deps, by) {
+  if (!gh.configured(env)) throw httpFehler("GitHub-Schlüssel fehlt.", 503);
   const c = CONTENT[key];
+  let h, prev, current;
   try {
-    const h = await gh.history(env, c.path, 2);
-    if (h.length < 2) return json({ error: "Keine vorige Fassung vorhanden." }, 400);
-    const prev = await gh.getFile(env, c.path, h[1].sha);
-    const current = await gh.getFile(env, c.path);
-    if (!prev) return json({ error: "Vorige Fassung nicht lesbar." }, 400);
-    await gh.putFile(env, c.path, prev.content, `Dashboard: ${c.title} – vorige Fassung wiederhergestellt`, current && current.sha);
-    await cache(env, key, prev.content, session.email);
-  } catch (e) { return json({ error: e.message }, 502); }
+    h = await gh.history(env, c.path, 2);
+    if (h.length >= 2) { prev = await gh.getFile(env, c.path, h[1].sha); current = await gh.getFile(env, c.path); }
+  } catch (e) { throw httpFehler(e.message, 502); }
+  if (h.length < 2) throw httpFehler("Keine vorige Fassung vorhanden.", 400);
+  if (!prev) throw httpFehler("Vorige Fassung nicht lesbar.", 400);
+  try {
+    await gh.putFile(env, c.path, prev.content, `${quelle(by)}: ${c.title} – vorige Fassung wiederhergestellt`, current && current.sha);
+    await cache(env, key, prev.content, by);
+  } catch (e) { throw httpFehler(e.message, 502); }
+}
+async function restore(key, env, deps, session) {
+  try { await wiederherstellen(key, env, deps, session.email); }
+  catch (e) { return json({ error: e.message }, e.status || 502); }
   return json(await state(env, deps));
 }
+
+// Unbeantwortete Fragen: nur Einträge mit diesem Präfix – nie ein beliebiger KV-Schlüssel (admin:passkeys zu löschen öffnete den E-Mail-Code)
+export function frageSchluessel(k) { return typeof k === "string" && /^unanswered:[^\n]{0,200}$/.test(k) ? k : null; }
+async function frageErledigt(env, key) {
+  if (!frageSchluessel(key)) throw httpFehler("Ungültig.", 400);
+  await env.USAGE.delete(key);
+}
+
+// Was der Agent über seinen Schlüssel aufrufen darf – dieselben Funktionen wie oben, nichts darüber hinaus
+const AGENT_OPS = { CONTENT, state, veroeffentlichen, wiederherstellen, frageSchluessel, frageErledigt };
 
 async function cache(env, key, md, by) {
   await env.USAGE.put("content:" + key, md);
@@ -800,6 +830,19 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><input id="keyname" placeholder="Name, z. B. MacBook oder iPhone" style="max-width:260px"><button id="addKey">Passkey einrichten</button><span class="msg" id="mK"></span></div>
 <p class="note">Ein Passkey liegt in deinem iCloud-Schlüsselbund und gilt damit auf Mac und iPhone. Sobald einer eingerichtet ist, meldet nur noch der Passkey an – der E-Mail-Code ist dann abgeschaltet, wer nur dein Postfach hat, kommt nicht herein. Richte einen zweiten als Ersatz ein (anderes Gerät oder Sicherheitsschlüssel). Sind alle Geräte weg, hilft der Notausgang im Terminal (README).</p></section>
 
+<section id="agsec"><h2>Agent – Schlüssel und Protokoll</h2><p class="src" id="agstat"></p>
+<p class="note">Mit dem Schlüssel arbeitet der Agent auf Robins Mac in dieser Redaktion (Stufe 1, im Protokoll als „agent“): Stand und Aufrufe ansehen, unbeantwortete Fragen ansehen und erledigt setzen, Profil, Aktuell, Links und Werkzeugseiten veröffentlichen und wiederherstellen – über dieselben Prüfungen und Commits wie hier. Passkeys, Schlüssel und alles andere nie. Ein Schlüssel läuft nach 90 Tagen ab; höchstens drei gelten zugleich.</p>
+<ul class="q" id="aglist"></ul>
+<div class="bar"><input id="agname" placeholder="Bezeichnung, z. B. Agentenbetrieb auf Robins Mac" maxlength="60" style="max-width:320px"><button id="agneu">Schlüssel erzeugen</button><span class="msg" id="mAG"></span></div>
+<div class="box" id="agtoken" hidden><h3>Schlüssel erzeugt – er wird nur jetzt angezeigt</h3>
+<p class="note">Im Terminal deines Macs in den Schlüsselbund legen. Der Befehl fragt nach dem Wert; so steht der Schlüssel in keiner Datei und keiner Befehlszeile:</p>
+<pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px">security add-generic-password -s vision.robin.goch-agent -a robin -w</pre>
+<p class="note">Wert kopieren, im Terminal einfügen, Eingabetaste (zweimal, zur Bestätigung). Danach ausblenden.</p>
+<input id="agwert" readonly aria-label="Agentenschlüssel"><div class="bar"><button class="quiet" id="agzu">Ausblenden</button></div></div>
+<h3 style="font:600 14px/1.3 Georgia,serif;margin:16px 0 6px">Was der Agent getan hat</h3>
+<div style="overflow-x:auto"><table><thead><tr><th>Zeit</th><th>Akteur</th><th>Aktion</th><th>Inhalt</th><th>Status</th><th>Schlüssel</th></tr></thead><tbody id="aglog"></tbody></table></div>
+<p class="note" id="aglognote"></p></section>
+
 <section><h2>Blog</h2><p class="src" id="bsrc"></p>
 <label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0 4px"><input type="checkbox" id="benabled" style="width:auto;margin:0"> Blog auf der Website anzeigen</label>
 <p class="note" style="margin:0 0 6px">Der Blog erscheint nur, wenn dieser Schalter an ist <b>und</b> mindestens ein Beitrag veröffentlicht ist. Dann bekommt die Startseite oben links einen Verweis.</p>
@@ -994,6 +1037,18 @@ $('addKey').onclick=async()=>{$('mK').textContent='';try{if(!window.PublicKeyCre
  renderKeys(d.passkeys);$('keyname').value='';say('mK','Passkey eingerichtet.',true);}catch(e){say('mK',e.name==='NotAllowedError'?'Abgebrochen oder abgelehnt.':e.name==='InvalidStateError'?'Dieses Gerät ist schon eingerichtet.':e.message);}};
 $('keys').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(!confirm('Diesen Passkey entfernen? Ist es der letzte, gilt danach wieder der E-Mail-Code als Erstzugang.'))return;try{const d=await api('passkeys','DELETE',{id:b.dataset.id});renderKeys(d.passkeys);}catch(err){say('mK',err.message);}};
 api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
+// ---- Agent: Schlüssel (nur mit Passkey-Sitzung) und Protokoll ----
+function renderAgent(d){const z=d.zaehler||{},g=d.grenzen||{};
+ $('agstat').textContent=(d.an?'Agent-API ist an.':'Agent-API ist aus (AGENT_API in wrangler.toml) – Schlüssel lassen sich schon vorbereiten, gelten aber erst, wenn Robin einschaltet.')+' Heute '+(z.tag||0)+' von '+g.tag+' Aufrufen, diese Stunde '+(z.stunde||0)+' von '+g.stunde+'.'+(d.mitPasskey?'':' Schlüssel verwalten geht nur mit Passkey-Anmeldung.');
+ const st=k=>k.gesperrt?'gesperrt '+fmt(k.gesperrt):k.gueltig?'gültig bis '+fmt(k.ablauf):'abgelaufen '+fmt(k.ablauf);
+ $('aglist').innerHTML=(d.schluessel||[]).map(k=>'<li><span style="flex:1"><b>'+esc(k.bezeichnung)+'</b> <code>'+esc(k.praefix)+'…</code></span><span class="note">'+esc(st(k))+' · zuletzt genutzt '+(k.zuletzt?fmt(k.zuletzt):'nie')+'</span>'+(k.gesperrt||!d.mitPasskey?'':'<button class="quiet" data-ag="verlaengern" data-id="'+esc(k.id)+'">Verlängern</button><button class="quiet" data-ag="sperren" data-id="'+esc(k.id)+'">Sperren</button>')+'</li>').join('')||'<li><span class="note">Noch kein Schlüssel.</span></li>';
+ $('agneu').disabled=!d.mitPasskey;
+ const P=d.protokoll||[];$('aglog').innerHTML=P.map(e=>'<tr><td>'+fmt(e.at)+'</td><td>'+esc(e.akteur||'')+'</td><td><code>'+esc(e.aktion||'')+'</code>'+(e.anzahl?' ('+e.anzahl+')':'')+'</td><td>'+esc(e.art||'')+'</td><td>'+esc(String(e.status||''))+'</td><td>'+esc(e.schluessel||'')+'</td></tr>').join('');
+ $('aglognote').textContent=P.length?'Die letzten '+P.length+' Einträge (90 Tage), ohne Inhalte: Aktion, Inhaltsart, Status, Kennung des Schlüssels.':'Noch nichts.';}
+$('agneu').onclick=async()=>{if(!confirm('Neuen Agentenschlüssel erzeugen? Er wird nur einmal angezeigt.'))return;try{const d=await api('agent/schluessel','POST',{bezeichnung:$('agname').value});if(!d)return;renderAgent(d);$('agwert').value=d.neu.schluessel;$('agtoken').hidden=false;$('agwert').focus();$('agwert').select();$('agname').value='';say('mAG','Schlüssel erzeugt.',true);}catch(e){say('mAG',e.message);}};
+$('agzu').onclick=()=>{$('agwert').value='';$('agtoken').hidden=true;};
+$('aglist').onclick=async e=>{const b=e.target.closest('button[data-ag]');if(!b)return;const was=b.dataset.ag;if(was==='sperren'&&!confirm('Diesen Schlüssel sperren? Der Agent kann damit danach nichts mehr tun.'))return;try{const d=await api('agent/'+was,'POST',{id:b.dataset.id});if(!d)return;renderAgent(d);say('mAG',d.note||'Erledigt.',true);}catch(err){say('mAG',err.message);}};
+api('agent').then(d=>d&&renderAgent(d)).catch(()=>{$('agstat').textContent='Stand des Agenten nicht lesbar.';});
 // ---- Startseite: Landschaft ----
 // ---- Landschaften: Schalter, Bestand, Editor mit Aufbereitung im Browser und Vorschau auf der echten Startseite ----
 let L=null,LE=null,LTimer=null;

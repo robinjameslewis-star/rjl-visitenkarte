@@ -254,6 +254,22 @@ async def main():
             await ev("window.confirm=()=>true; document.getElementById('fgdelete').click()"); await wait(500)
             check(await ev("document.getElementById('fglist').textContent.includes('Noch keine Kundenfigur')"), "Figur gelöscht")
 
+            print("10c. Agent – Schlüssel und Protokoll (17.11.2026)")
+            check("Agent-API ist aus" in await ev("document.getElementById('agstat').textContent"), "Stand: Agent-API aus, Schlüssel vorbereitbar")
+            check(await ev("document.querySelectorAll('#aglist li').length") == 1 and "gochag_Q2x9" in await ev("document.getElementById('aglist').textContent"), "Schlüsselliste mit Präfix")
+            check(await ev("document.querySelectorAll('#aglog tr').length") == 3 and "veroeffentlichen" in await ev("document.getElementById('aglog').textContent"), "Protokoll „Was der Agent getan hat“ als Tabelle")
+            check(await ev("document.getElementById('agtoken').hidden"), "Schlüsselfeld vor dem Erzeugen verborgen")
+            await ev("window.confirm=()=>true; document.getElementById('agname').value='Test-Mac'; document.getElementById('agneu').click()"); await wait(500)
+            check(not await ev("document.getElementById('agtoken').hidden") and (await ev("document.getElementById('agwert').value")).startswith("gochag_"), "neuer Schlüssel einmal angezeigt")
+            check("security add-generic-password -s vision.robin.goch-agent -a robin -w" in await ev("document.getElementById('agtoken').textContent"), "Befehl für den Schlüsselbund steht dabei")
+            check(await ev("document.querySelectorAll('#aglist li').length") == 2 and "Test-Mac" in await ev("document.getElementById('aglist').textContent"), "Liste mit neuem Schlüssel")
+            await ev("document.getElementById('agzu').click()"); await wait(100)
+            check(await ev("document.getElementById('agtoken').hidden && document.getElementById('agwert').value===''"), "Ausblenden leert das Feld")
+            await ev("document.querySelector('#aglist button[data-ag=\"sperren\"]').click()"); await wait(400)
+            check("gesperrt" in await ev("document.getElementById('aglist').textContent") and "Gesperrt" in await ev("document.getElementById('mAG').textContent"), "Sperren: Liste und Meldung")
+            await ev("document.querySelector('#aglist button[data-ag=\"verlaengern\"]').click()"); await wait(400)
+            check("Verlängert" in await ev("document.getElementById('mAG').textContent"), "Verlängern: Meldung")
+
             print("11. Konsole")
             check(not console, "keine Fehler", "; ".join(console)[:200])
     finally:
