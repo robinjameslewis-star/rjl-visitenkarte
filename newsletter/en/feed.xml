@@ -6,6 +6,26 @@
   <description>Food for Thought, tools and workshops by email</description>
   <language>en</language>
   <item>
+    <title>A plan B for the days the process won't run</title>
+    <link>https://robin.vision/blog/a-plan-b-for-the-days-the-process-won-t-run/</link>
+    <guid isPermaLink="true">https://robin.vision/blog/a-plan-b-for-the-days-the-process-won-t-run/</guid>
+    <pubDate>Fri, 20 Nov 2026 09:00:00 GMT</pubDate>
+    <description><![CDATA[<p><strong>Build a quick fix where a process keeps sticking and you also learn which steps matter most, and where the automated route needs a safety net.</strong></p>
+<p>I don&#39;t only build the ideal process. I also build the plan B for the days when it doesn&#39;t yet run reliably. The reason comes from everyday work in the middle of a changeover: the bank feed is down, an import fails, a list ends up being keyed in by hand after all.</p>
+<p>The deadline doesn&#39;t wait. In Germany the advance VAT return is due by the tenth day after the end of the period (section 18(1) of the VAT Act, UStG, leaving aside any extension). If all you have by then is the PDF bank statement, you key it in, or you have a plan B.</p>
+<p><a href="https://robin.vision/blog/a-plan-b-for-the-days-the-process-won-t-run/">Read the whole post</a></p>
+<h3>New in SmartFormular FiBu lite</h3>
+<p><em>Version 4ffc0c9 of 13 November 2026</em></p>
+<p>PDFs with unreadable text: some bank statements contain text that cannot be read – instead of letters, only special characters come out. The generator now reads such pages with text recognition, like a scan, offline in your browser. Thank you to the person who sent us the layout of their statement: please give this version another try.</p>
+<p><a href="https://robin.vision/werkzeuge/booking-batch-generator/">Download: SmartFormular FiBu lite</a></p>
+<h3>Tools</h3>
+<p>Software and AI solutions for accounting, administration and other business processes – presented and compared on robin.vision.</p>
+<p><a href="https://robin.vision/werkzeuge/en/">All tools at a glance and compared</a></p>
+<h3>Workshops</h3>
+<p>AI literacy for your team, with EU AI Act training: workshop, online course, test with a certificate. Dates for 2027 on request.</p>
+<p><a href="https://robin.vision/workshops/en/">More about the workshop</a></p>]]></description>
+  </item>
+  <item>
     <title>Rules an agent can keep</title>
     <link>https://robin.vision/blog/rules-an-agent-can-keep/</link>
     <guid isPermaLink="true">https://robin.vision/blog/rules-an-agent-can-keep/</guid>
