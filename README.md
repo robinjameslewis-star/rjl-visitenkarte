@@ -643,6 +643,8 @@ Seitdem ist SmartFormular ein Eintrag wie Kanzleikern oder PrimeBalance: `EIGENE
   und `produkte.js` bleiben für die Werkzeugseiten.
 - **ID-Schutz:** `anbieterPruefen()` sperrt nicht mehr fest „smartformular“, sondern Werkzeugseiten, `en`, alte Adressen
   (`ALTE_ADRESSEN`), doppelte und ungültige IDs.
+- **Slider der Startseite:** eine Karte „SmartFormular“ neben den anderen Lösungen (`slider.js`). Sollen FiBu lite und E-Rechnung lite
+  dort eigene Karten behalten, bis sie umziehen: `EIGENE_WERKZEUGE_IM_SLIDER = true` in `slider.js`, dann neu bauen.
 - **Bauen:** `node tools/werkzeug-uebernehmen.mjs`, danach `node tools/blog-seiten-bauen.mjs` (schreibt `sitemap.xml` so, wie die
   Redaktion sie schreibt). `blog.js` (Worker) baut die Unterseiten beim Veröffentlichen mit: nach dem Merge den Worker ausrollen.
 - **Prüfung:** `node tests/anbieter_seiten_test.mjs`, `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/kopf_test.mjs`

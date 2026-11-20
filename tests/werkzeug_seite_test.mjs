@@ -111,7 +111,9 @@ for (const a of ALTE_ADRESSEN) {
 }
 const start = lesen("index.html");
 check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
-check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte zum Werkzeug");
+// Seit 20.11.2026 (F62, Variante a) steht im Slider eine Karte „SmartFormular“; die Werkzeuge erreicht man über ihre Unterseite (zwei Klicks)
+check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}">`)
+  && lesen(`werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}index.html`).includes(`werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte SmartFormular, von deren Unterseite zum Werkzeug");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
 

@@ -12,6 +12,7 @@ import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
 import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, MARKEN_ZIEL, KONTAKT_ENDPUNKT, VERGLEICH_SICHTBAR } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
 import { PARTNER, VORGESCHLAGEN, EIGENE } from "../worker/src/partner.js";
+import { EIGENE_WERKZEUGE_IM_SLIDER } from "../worker/src/slider.js";
 const V = VORGESCHLAGEN.length, P = PARTNER.length, E = EIGENE.length;
 import { grundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
 
@@ -133,10 +134,16 @@ check(liste === startSlider(), "Slider auf der Startseite entspricht dem Modul")
 for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
-  check(anzahl(s, /<article class="wzs-karte/g) === 3 + V + P && anzahl(s, /<i( class="an")?><\/i>/g) === 3 + V + P && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: drei SmartFormular-Karten plus vorgeschlagene Software und bezahlte Partner, je ein Punkt, zwei Pfeile – die Anbieterkarte steht seit Option B weiter unten`);
-  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1 && anzahl(s, /wzs-kennz/g) === 3 + V + P && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: drei SmartFormular-Produkte – zwei mit „Kostenlos“, Abschluss mit „Anzeige · robin.vision“ –, keine Anbieterkarte im Slider`);
+  check(anzahl(s, /<article class="wzs-karte/g) === E + V + P && anzahl(s, /<i( class="an")?><\/i>/g) === E + V + P && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: je Lösung genau eine Karte – vorgeschlagene Software, SmartFormular, Anzeigen –, je ein Punkt, zwei Pfeile`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
-  check(!s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#abschluss"`), `${lang}: Abschluss führt zur Produktseite, FiBu archiviert`);
+  const sfKarte = (s.match(/<article class="wzs-karte">[\s\S]*?<\/article>/g) || []).filter(k => /SmartFormular|Smart<span>Formular|FiBu lite|E-Rechnung lite/.test(k));
+  check(sfKarte.length === 1 && sfKarte[0].includes(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen")) && sfKarte[0].includes('<div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>') && sfKarte[0].includes("<h3>SmartFormular</h3>")
+    && sfKarte[0].includes(`<a href="${sf}">${lang === "en" ? "To the product" : "Zum Produkt"}</a>`) && !s.includes("smartformular.ai") && !/Kostenlos testen|Free trial|Prüfen kostenlos|Free to check/.test(s), `${lang}: SmartFormular mit genau einer Karte „Anzeige · robin.vision“, die auf die Unterseite führt (Robin, 20.11.2026; F62 Variante a)`);
+  check(anzahl(s, /wzs-kennz/g) === E + V + P && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: jede Karte mit Kennzeichen, keine Anbieterkarte im Slider`);
+  // Variante b (F62): FiBu lite und E-Rechnung lite behalten eigene Karten mit „Kostenlos“ – ein Schalter in slider.js
+  const b = slider(lang, { werkzeuge: true });
+  check(anzahl(b, /<article class="wzs-karte/g) === E + V + P + 2 && anzahl(b, /<i( class="an")?><\/i>/g) === E + V + P + 2 && anzahl(b, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(b, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1
+    && b.includes(`href="werkzeuge/${lang === "en" ? "booking-batch-generator" : "buchungsstapel-generator"}/"`) && b.includes(`href="werkzeuge/${lang === "en" ? "e-invoice-viewer" : "e-rechnung-pruefen"}/"`) && !b.includes("#abschluss") && EIGENE_WERKZEUGE_IM_SLIDER === false, `${lang}: Variante b vorbereitet (zwei kostenlose Werkzeuge mit eigener Karte), ausgeschaltet`);
 }
 check(start.includes('<p id="anzeigen" data-i18n="legalAds">Anzeigen: Werkzeuge mit dem Kennzeichen „Anzeige“') && /legalAds: 'Advertising: tools marked “Ad”/.test(lesen("language.js")) && /Gebühr oder Provision/.test(start) && /beteiligt ist/.test(start) && start.includes("location.hash === '#anzeigen'") && start.includes("impressum.open = true"), "Impressum: Erläuterung „Anzeigen“ (DE/EN) mit Sprungmarke #anzeigen, die das Impressum aufklappt");
 check(start.includes("document.querySelectorAll('.wzs')") && /\.wzs\[hidden\] \{ display: none; \}/.test(start) && /\.wzs-spur \{[^}]*scroll-snap-type: x mandatory/.test(start), "Slider: Stile mit scroll-snap, kleines Skript für Pfeile und Punkte");
