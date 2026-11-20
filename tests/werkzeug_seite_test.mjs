@@ -99,7 +99,9 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   const html = lesen(pfad);
   check(html === werkzeugeUebersicht(lang), `${pfad} ist aktuell`);
   const eigene = WERKZEUGE.filter(w => w.lang === lang), fremde = WERKZEUGE.filter(w => w.lang !== lang);
-  check(eigene.every(w => html.includes(`werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`)), `${pfad}: nur Werkzeuge dieser Sprache`);
+  // Seit 20.11.2026 (SmartFormular wie jede andere Lösung) führt die Übersicht zur Unterseite SmartFormular, erst die nennt die Werkzeuge
+  const unter = lesen(lang === "en" ? "werkzeuge/smartformular/en/index.html" : "werkzeuge/smartformular/index.html");
+  check(html.includes(`werkzeuge/smartformular/${lang === "en" ? "en/" : ""}"`) && eigene.every(w => unter.includes(`werkzeuge/${w.id}/"`)) && fremde.every(w => !html.includes(`werkzeuge/${w.id}/"`) && !unter.includes(`werkzeuge/${w.id}/"`)), `${pfad}: über die Unterseite SmartFormular zu den Werkzeugen, nur denen dieser Sprache`);
   check(html.includes('id="newsletter"') && html.includes(`<html lang="${lang}">`), `${pfad}: Newsletter und Sprache`);
 }
 for (const a of ALTE_ADRESSEN) {
@@ -109,7 +111,9 @@ for (const a of ALTE_ADRESSEN) {
 }
 const start = lesen("index.html");
 check(/<a href="werkzeuge\/" data-href-de="werkzeuge\/" data-href-en="werkzeuge\/en\/" data-i18n="navTools">Werkzeuge<\/a>/.test(start), "Startseite: Menüpunkt „Werkzeuge“ führt auf die Übersicht");
-check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte zum Werkzeug");
+// Seit 20.11.2026 (F62, Variante a) steht im Slider eine Karte „SmartFormular“; die Werkzeuge erreicht man über ihre Unterseite (zwei Klicks)
+check(WERKZEUGE.every(w => start.includes(`<div class="wzs" data-langs="${w.lang}"`) && start.includes(`href="werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}">`)
+  && lesen(`werkzeuge/smartformular/${w.lang === "en" ? "en/" : ""}index.html`).includes(`werkzeuge/${w.id}/">`)), "Startseite: Slider je Sprache mit Karte SmartFormular, von deren Unterseite zum Werkzeug");
 check(start.indexOf('id="werkzeuge"') < start.indexOf('id="newsletter"'), "Startseite: Werkzeuge vor dem Newsletter");
 check(!/kontoauszug-konverter|Kontoauszug-Konverter/.test(start + lesen("language.js")), "Startseite und Sprachdatei ohne alten Namen");
 

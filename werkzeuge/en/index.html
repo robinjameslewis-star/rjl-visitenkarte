@@ -151,10 +151,9 @@ article li { margin-bottom: 6px; }
 .foot a:hover { color: var(--ink-soft); }
 .wz .frei { text-align: left; hyphens: manual; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
-.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 4px; padding: 4px 4px 14px; scrollbar-width: thin; }
+.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 26px; padding: 4px 4px 14px; scrollbar-width: thin; }
 .wz-reihe > .wz-karte { flex: 0 0 min(290px, 82%); scroll-snap-align: start; }
 .wz-reihe:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
-.wz-mehr { margin: 0 0 30px; font-size: 15px; } .wz-mehr a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .wz-raster { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 10px 0 18px; }
 .wz-karte { margin: 0; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.55); display: flex; flex-direction: column; }
 .wz-karte h3 { margin: 0 0 8px; font: 500 22px/1.25 var(--serif); color: var(--green); }
@@ -269,28 +268,12 @@ article li { margin-bottom: 6px; }
 <p class="frei"><a class="wz-knopf" href="../../werkzeuge/primebalance/en/">To the product</a></p>
 </article>
 <article class="wz-karte">
-<p class="wz-kennz">Free trial until 31 Dec 2026</p>
-<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>FiBu lite</h3>
-<p class="frei">Bank statements into booking batches – offline in your browser.</p>
-<ul class="wz-chips"><li>Accounting</li></ul>
-<p class="frei"><a class="wz-knopf" href="../../werkzeuge/booking-batch-generator/">To the product</a></p>
-</article>
-<article class="wz-karte">
-<p class="wz-kennz">Free to check</p>
-<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>E-Rechnung lite</h3>
-<p class="frei">Read, check and pay e-invoices by GiroCode – in your browser.</p>
-<ul class="wz-chips"><li>Accounting</li></ul>
-<p class="frei"><a class="wz-knopf" href="../../werkzeuge/e-invoice-viewer/">To the product</a></p>
-</article>
-<article class="wz-karte">
 <p class="wz-kennz"><a href="../../?lang=en#anzeigen">Ad</a> · <span>robin.vision</span></p>
 <span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>Abschluss</h3>
-<p class="frei">The working paper for year-end accounts that thinks ahead and does the groundwork.</p>
-<ul class="wz-chips"><li>Year-end accounts</li></ul>
-<p class="frei"><a class="wz-knopf" href="../../werkzeuge/smartformular/en/#abschluss">To the product</a></p>
+<h3>SmartFormular</h3>
+<p class="frei">Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; Abschluss is coming as a beta.</p>
+<ul class="wz-chips"><li>Accounting</li></ul>
+<p class="frei"><a class="wz-knopf" href="../../werkzeuge/smartformular/en/">To the product</a></p>
 </article>
 <article class="wz-karte">
 <p class="wz-kennz"><a href="../../?lang=en#anzeigen">Ad</a> · <span>Andreas Schoba</span></p>
@@ -303,7 +286,6 @@ article li { margin-bottom: 6px; }
 </div>
 <script>(function () { var r = document.currentScript.previousElementSibling, k = Array.prototype.slice.call(r.children);
   for (var i = k.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = k[i]; k[i] = k[j]; k[j] = x; } k.forEach(function (e) { r.appendChild(e); }); })();</script>
-<p class="frei wz-mehr"><a href="../smartformular/en/">More about SmartFormular →</a></p>
 <section class="grundsaetze" aria-label="Two principles">
 <div><span class="gs-kicker">Real data</span><span class="gs-titel">Real data only in tools built for it</span><p class="gs-text frei">Client, staff and financial data is rarely anonymised. Data protection, confidentiality and the EU AI Act are the starting point, not an afterthought.</p></div>
 <div><span class="gs-kicker">No lock-in</span><span class="gs-titel">Model-agnostic, no <span class="gs-nb">vendor lock-in</span></span><p class="gs-text frei">Solutions that can work with different language models and providers take priority. The choice stays with you.</p></div>
@@ -347,7 +329,7 @@ article li { margin-bottom: 6px; }
 (() => {
   'use strict';
   const alt = ["produkte","fibu-lite","fibu","deklaration","mensch","programme","sprachmodell","fahrplan","recht","fragen","beta","downloads"], marke = location.hash.slice(1);
-  if (alt.includes(marke)) { location.replace("../smartformular/en/" + '#' + marke); return; }
+  if (alt.includes(marke)) { location.replace("../smartformular/en/" + '#' + ({"fibu":"produkte","downloads":"produkte","deklaration":"abschluss"}[marke] || marke)); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
   const T = {"betreff":"Software suggestion: tools on robin.vision","firma":"Company","produkt":"Product or website","fuer":"For whom","standort":"Where is the data kept?","sendet":"Sending …","gesendet":"Thank you – your enquiry has arrived. I will get back to you by email.","ungueltig":"Please give your company, a contact person and a valid email address.","fehler":"Sending did not work. Please email me directly at robin@robin.vision."};

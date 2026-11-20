@@ -151,10 +151,9 @@ article li { margin-bottom: 6px; }
 .foot a:hover { color: var(--ink-soft); }
 .wz .frei { text-align: left; hyphens: manual; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
-.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 4px; padding: 4px 4px 14px; scrollbar-width: thin; }
+.wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 26px; padding: 4px 4px 14px; scrollbar-width: thin; }
 .wz-reihe > .wz-karte { flex: 0 0 min(290px, 82%); scroll-snap-align: start; }
 .wz-reihe:focus-visible { outline: 1px solid var(--copper); outline-offset: 2px; }
-.wz-mehr { margin: 0 0 30px; font-size: 15px; } .wz-mehr a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
 .wz-raster { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 10px 0 18px; }
 .wz-karte { margin: 0; padding: 22px 22px 18px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.55); display: flex; flex-direction: column; }
 .wz-karte h3 { margin: 0 0 8px; font: 500 22px/1.25 var(--serif); color: var(--green); }
@@ -269,28 +268,12 @@ article li { margin-bottom: 6px; }
 <p class="frei"><a class="wz-knopf" href="../werkzeuge/primebalance/">Zum Produkt</a></p>
 </article>
 <article class="wz-karte">
-<p class="wz-kennz">Kostenlos testen bis 31.12.2026</p>
-<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>FiBu lite</h3>
-<p class="frei">Kontoauszüge zu Buchungsstapeln – offline im Browser.</p>
-<ul class="wz-chips"><li>Rechnungswesen</li></ul>
-<p class="frei"><a class="wz-knopf" href="../werkzeuge/buchungsstapel-generator/">Zum Produkt</a></p>
-</article>
-<article class="wz-karte">
-<p class="wz-kennz">Prüfen kostenlos</p>
-<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>E-Rechnung lite</h3>
-<p class="frei">E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.</p>
-<ul class="wz-chips"><li>Rechnungswesen</li></ul>
-<p class="frei"><a class="wz-knopf" href="../werkzeuge/e-rechnung-pruefen/">Zum Produkt</a></p>
-</article>
-<article class="wz-karte">
 <p class="wz-kennz"><a href="../#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
 <span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>
-<h3>Abschluss</h3>
-<p class="frei">Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.</p>
-<ul class="wz-chips"><li>Jahresabschluss</li></ul>
-<p class="frei"><a class="wz-knopf" href="../werkzeuge/smartformular/#abschluss">Zum Produkt</a></p>
+<h3>SmartFormular</h3>
+<p class="frei">Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; Abschluss kommt als Beta.</p>
+<ul class="wz-chips"><li>Rechnungswesen</li></ul>
+<p class="frei"><a class="wz-knopf" href="../werkzeuge/smartformular/">Zum Produkt</a></p>
 </article>
 <article class="wz-karte">
 <p class="wz-kennz"><a href="../#anzeigen">Anzeige</a> · <span>Andreas Schoba</span></p>
@@ -303,7 +286,6 @@ article li { margin-bottom: 6px; }
 </div>
 <script>(function () { var r = document.currentScript.previousElementSibling, k = Array.prototype.slice.call(r.children);
   for (var i = k.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = k[i]; k[i] = k[j]; k[j] = x; } k.forEach(function (e) { r.appendChild(e); }); })();</script>
-<p class="frei wz-mehr"><a href="smartformular/">Mehr zu SmartFormular →</a></p>
 <section class="grundsaetze" aria-label="Zwei Grundsätze">
 <div><span class="gs-kicker">Klardaten</span><span class="gs-titel">Klardaten nur in Werkzeuge, die dafür gemacht sind</span><p class="gs-text frei">Mandanten-, Personal- und Finanzdaten sind selten anonymisiert. Datenschutz, Verschwiegenheit und KI-Verordnung sind der Ausgangspunkt, nicht der Nachtrag.</p></div>
 <div><span class="gs-kicker">Ohne Lock-in</span><span class="gs-titel">Modellunabhängig, ohne <span class="gs-nb">Vendor-Lock-in</span></span><p class="gs-text frei">Lösungen, die mit verschiedenen Sprachmodellen und Anbietern arbeiten können, haben Vorrang. So bleibt die Wahl bei Ihnen.</p></div>
@@ -347,7 +329,7 @@ article li { margin-bottom: 6px; }
 (() => {
   'use strict';
   const alt = ["produkte","fibu-lite","fibu","deklaration","mensch","programme","sprachmodell","fahrplan","recht","fragen","beta","downloads"], marke = location.hash.slice(1);
-  if (alt.includes(marke)) { location.replace("smartformular/" + '#' + marke); return; }
+  if (alt.includes(marke)) { location.replace("smartformular/" + '#' + ({"fibu":"produkte","downloads":"produkte","deklaration":"abschluss"}[marke] || marke)); return; }
   const form = document.getElementById('partner-anfrage'); if (!form) return;
   const status = document.getElementById('partner-status'), knopf = document.getElementById('partner-senden'), geladen = Date.now();
   const T = {"betreff":"Software vorschlagen: Werkzeuge auf robin.vision","firma":"Unternehmen","produkt":"Produkt oder Website","fuer":"Für wen","standort":"Wo liegen die Daten?","sendet":"Wird gesendet …","gesendet":"Danke – Ihre Anfrage ist angekommen. Ich melde mich per E-Mail.","ungueltig":"Bitte Unternehmen, Ansprechperson und eine gültige E-Mail-Adresse angeben.","fehler":"Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision."};

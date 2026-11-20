@@ -1,5 +1,6 @@
-// Die SmartFormular-Produkte (Robin, 17.10.2026; E-Rechnung lite seit 23.10.2026) als gemeinsame Daten für die Seite „SmartFormular“ (smartformular.js), die
-// Werkzeugseite (werkzeug.js, Abschnitt „Was kommt“) und die Karte auf der Startseite (tools/werkzeug-uebernehmen.mjs). Keine Importe.
+// Die SmartFormular-Produkte (Robin, 17.10.2026; E-Rechnung lite seit 23.10.2026) als Daten für die
+// Werkzeugseite (werkzeug.js, Abschnitt „Was kommt“). Bis 20.11.2026 auch für die Produktseite „SmartFormular“ (smartformular.js, entfallen:
+// SmartFormular ist seitdem eine Lösung wie jede andere, partner.js EIGENE und anbieter.js). Keine Importe.
 // stand: "fertig" (kostenlos, verfügbar) | "beta" (auf Anfrage). href führt zur Werkzeugseite, sonst zur Beta-Anfrage. Texte aus
 // Kundensicht, ohne interne Planung (Robin, 17.10.2026). SmartFormular FiBu archiviert (Robin, 16.11.2026: „mach mal smartformular fibu raus,
 // das macht für mich gerade keinen sinn mehr aktuell, archivieren“); Texte im Git-Verlauf und im Vault.

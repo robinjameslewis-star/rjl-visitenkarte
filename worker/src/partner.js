@@ -51,6 +51,43 @@ export const VORGESCHLAGEN = [
     text: { de: "Virtuelle KI-Kanzlei für Steuerberater: Das Team bucht Belege vor und bereitet den Monatsabschluss vor, Sie prüfen und geben frei. Mandantendaten in Frankfurt am Main. Angaben des Anbieters, Stand 19.11.2026.",
       en: "Virtual AI firm for tax advisers: the team pre-posts receipts and prepares the month-end close, you review and approve. Client data in Frankfurt am Main. Provider's information as of 19 Nov 2026." } },
 ];
+// Eigene Lösungen von robin.vision (Robin, 20.11.2026, nach dem Live-Gang von smartformular.ai: „smartformular ist lvie jetzt robin.vision so
+// umbauen wie besprochen, samrtformular taucht dort wie jede andere ki lösung auf,“): ein Eintrag wie jede andere Lösung – eine Karte, eine
+// Unterseite werkzeuge/<id>/ im Rahmen von robin.vision, von dort zur eigenen Website. Kennzeichen weiter „Anzeige · robin.vision“
+// (Erläuterung im Impressum, #anzeigen: „Anbieter ist robin.vision selbst …“); kein rel="sponsored" und kein Vergütungssatz, weil niemand
+// robin.vision dafür bezahlt. wortmarke: Schriftzug als Text wie im Kopf von smartformular.ai (dort kein Bild; Arbeitsregeln Abschnitt 8,
+// Bezugswert 20 px Schrift) statt logo. werkzeuge: Verweise der Unterseite je Sprache (anker = Sprungmarke; frei = Kennzeichen wie
+// kostenlos unten; extern = Verweis nach url + href; mehr = zweiter Verweis). FiBu lite und E-Rechnung lite liegen noch auf robin.vision
+// und ziehen später um; die Texte sind die der früheren Karten im Slider der Startseite.
+export const EIGENE = [
+  { id: "smartformular", name: "SmartFormular", anbieter: "robin.vision", url: "https://smartformular.ai/", urlEn: "https://smartformular.ai/en/", seit: "2026-11-20",
+    wortmarke: ["Smart", "Formular"],
+    bereich: { de: "Rechnungswesen", en: "Accounting" },
+    text: { de: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung lite prüft E-Rechnungen kostenlos, FiBu lite lässt sich bis 31.12.2026 kostenlos testen; Abschluss kommt als Beta.",
+      en: "Forms that work with you – for the days when the process stalls. E-Rechnung lite checks e-invoices free of charge, FiBu lite is free to try until 31 December 2026; Abschluss is coming as a beta." },
+    mehr: { de: "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
+      en: "A SmartFormular looks like a familiar form – and works with you. It helps you fill it in, checks for completeness and takes the first steps of the casework while you are still typing. Checking, deciding and finalising stay with you." },
+    seitentitel: { de: "SmartFormular: Werkzeuge für Buchhaltung und Jahresabschluss | robin.vision", en: "SmartFormular: tools for bookkeeping and year-end accounts | robin.vision" },
+    knopf: { de: "Zu smartformular.ai", en: "To smartformular.ai" },
+    werkzeuge: {
+      de: [
+        { anker: "fibu-lite", frei: true, name: "FiBu lite", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/buchungsstapel-generator/" },
+        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung lite", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", href: "werkzeuge/e-rechnung-pruefen/" },
+        { anker: "abschluss", stand: "Beta · auf Anfrage", name: "Abschluss", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", extern: true, href: "#abschluss",
+          mehr: { anker: "beta", text: "Beta-Zugang anfragen", href: "#beta" } },
+      ],
+      en: [
+        { anker: "fibu-lite", frei: true, name: "FiBu lite", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", href: "werkzeuge/booking-batch-generator/" },
+        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung lite", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", href: "werkzeuge/e-invoice-viewer/" },
+        { anker: "abschluss", stand: "Beta · on request", name: "Abschluss", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", extern: true, href: "#abschluss",
+          mehr: { anker: "beta", text: "Request beta access", href: "#beta" } },
+      ],
+    } },
+];
+// Wortmarke als Text in der Logobox (Karte, Slider, Unterseite)
+export const wortmarke = p => `${esc(p.wortmarke[0])}<span>${esc(p.wortmarke[1])}</span>`;
+// Website der Lösung in der Sprache der Seite
+export const loesungUrl = (p, lang) => (lang === "en" && p.urlEn) || p.url;
 // logoBreite: Breite des Logos in px auf der Seite Werkzeuge (Box 196 × 50), im Slider 88 %. Optisch abgeglichen, damit die Schrift aller
 // Logos gleich hoch wirkt (Robin, 19.11.2026: „bestmögliche darstellung bei möglichst gleicher größe“); ohne Angabe 150 px.
 export const LOGO_BREITE = 150, SLIDER_FAKTOR = 0.88;
@@ -59,7 +96,7 @@ export const vorschlagKennzeichen = (lang, anbieter, klasse) => `<p class="${kla
 
 // Unterseite je Anbieter unter den Werkzeugen (anbieter.js); hier, damit sitemap.js sie ohne Kreisimport kennt
 export const anbieterAdresse = (id, lang) => lang === "en" ? `werkzeuge/${id}/en/` : `werkzeuge/${id}/`;
-export const ANBIETER_SEITEN = [...VORGESCHLAGEN, ...PARTNER.filter(p => !p.seite)].flatMap(a => ["de", "en"].map(lang => ({ id: "anbieter-" + a.id, lang,
+export const ANBIETER_SEITEN = [...VORGESCHLAGEN, ...EIGENE, ...PARTNER.filter(p => !p.seite)].flatMap(a => ["de", "en"].map(lang => ({ id: "anbieter-" + a.id, lang,
   adresse: anbieterAdresse(a.id, lang), stand: [a.seit, ...(a.aufnahmen || []).map(x => x.datum)].filter(Boolean).sort().at(-1) })));
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

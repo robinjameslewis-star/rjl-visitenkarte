@@ -1,7 +1,7 @@
 // sitemap.xml der Website (Robin, 16.10.2026, Auffindbarkeit): Startseite in beiden Sprachen, Werkzeuge mit Übersichten,
 // Impulse mit Listen, feste Seiten wie „Über mich“. Geschrieben von der Redaktion beim Veröffentlichen (blog.js, buildBlog), lokal von
 // tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten außer partner.js (importiert selbst nichts), damit kein Importkreis entsteht.
-// Feste Seiten je Sprache (ueber_mich.js, workshops.js, smartformular.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
+// Feste Seiten je Sprache (ueber_mich.js, workshops.js, anbieter.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
 import { ANBIETER_SEITEN } from "./partner.js";
 
 export const SEITEN = [
@@ -16,10 +16,7 @@ export const SEITEN = [
   // Eigene Seite Workshop E-Rechnung (workshop_erechnung.js, seit 10.11.2026; Robin: nicht mit dem KI-Workshop vermischen)
   { id: "workshop-e-rechnung", lang: "de", adresse: "workshops/e-rechnung/", stand: "2026-11-10" },
   { id: "workshop-e-rechnung", lang: "en", adresse: "workshops/en/e-rechnung/", stand: "2026-11-10" },
-  // Produktseite SmartFormular unter den Werkzeugen (smartformular.js, seit 18.10.2026)
-  { id: "smartformular", lang: "de", adresse: "werkzeuge/smartformular/", stand: "2026-10-24" },
-  { id: "smartformular", lang: "en", adresse: "werkzeuge/smartformular/en/", stand: "2026-10-24" },
-  // Unterseiten der Anbieter (anbieter.js, seit 19.11.2026)
+  // Unterseiten der Anbieter (anbieter.js, seit 19.11.2026; seit 20.11.2026 auch SmartFormular unter werkzeuge/smartformular/)
   ...ANBIETER_SEITEN,
 ];
 

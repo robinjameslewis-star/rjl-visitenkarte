@@ -9,10 +9,11 @@
 //   node tests/werkzeuge_uebersicht_test.mjs
 import { readFileSync } from "node:fs";
 import { UEBERSICHT_PFAD } from "../worker/src/werkzeug.js";
-import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, KONTAKT_ENDPUNKT, VERGLEICH_SICHTBAR } from "../worker/src/uebersicht.js";
+import { werkzeugeUebersicht, uebersichtUrl, ALTE_MARKEN, MARKEN_ZIEL, KONTAKT_ENDPUNKT, VERGLEICH_SICHTBAR } from "../worker/src/uebersicht.js";
 import { slider, startSlider } from "../worker/src/slider.js";
-import { PARTNER, VORGESCHLAGEN } from "../worker/src/partner.js";
-const V = VORGESCHLAGEN.length, P = PARTNER.length;
+import { PARTNER, VORGESCHLAGEN, EIGENE } from "../worker/src/partner.js";
+import { EIGENE_WERKZEUGE_IM_SLIDER } from "../worker/src/slider.js";
+const V = VORGESCHLAGEN.length, P = PARTNER.length, E = EIGENE.length;
 import { grundsaetze, GRUNDSAETZE_CSS } from "../worker/src/grundsaetze.js";
 
 let fails = 0;
@@ -50,8 +51,16 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(!html.includes('class="wz-filter"') && !html.includes("data-bereich") && !html.includes('wz-frei"'), "keine Aufteilung nach Bereichen: kein Filter, keine freien Plätze je Bereich (Robin, 18.10.2026)");
   check(!/Unternehmensführung|management/i.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "kein Bereich „Unternehmensführung“ mehr");
   const raster = html.match(/<div class="wz-raster">[\s\S]*?<\/div>\n<(?:h2|section)/)?.[0] || "";
-  const reihe = html.match(/<div class="wz-reihe" tabindex="0" role="region"[\s\S]*?<\/div>\n<script>[\s\S]*?<\/script>\n<p class="frei wz-mehr">/)?.[0] || "";
-  check((reihe.match(/<article class="wz-karte">/g) || []).length === 3 + V + P && reihe.includes("Math.random()") && (reihe.match(/<h3>([^<]+)<\/h3>/) || [])[1] === (V ? VORGESCHLAGEN[0].name : "FiBu lite") && reihe.includes(`${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf"`) && (reihe.match(/wz-logo-sf/g) || []).length === 3, "Wischbare Reihe mit allen Karten – vorgeschlagene Software, die drei SmartFormular-Produkte, Anzeigen –, beim Laden zufällig gemischt (Robin, 19.11.2026), Kennzeichen wie im Slider");
+  const reihe = html.match(/<div class="wz-reihe" tabindex="0" role="region"[\s\S]*?<\/div>\n<script>[\s\S]*?<\/script>\n/)?.[0] || "";
+  check((reihe.match(/<article class="wz-karte">/g) || []).length === V + E + P && reihe.includes("Math.random()") && (reihe.match(/<h3>([^<]+)<\/h3>/) || [])[1] === (V ? VORGESCHLAGEN[0].name : "SmartFormular"), "Wischbare Reihe mit allen Karten – vorgeschlagene Software, eigene Lösungen, Anzeigen –, je Lösung genau eine, bei jedem Laden gemischt");
+  // SmartFormular wie jede andere Lösung (Robin, 20.11.2026): eine Karte, gleicher Aufbau, Kennzeichen „Anzeige · robin.vision“
+  const karten = reihe.match(/<article class="wz-karte">[\s\S]*?<\/article>/g) || [];
+  const sfKarte = karten.find(k => k.includes("<h3>SmartFormular</h3>")) || "";
+  const gestalt = k => k.replace(/<span class="wz-logo[^"]*" aria-hidden="true">.*<\/span>\n/, "LOGO\n").replace(/>[^<\n]+</g, "><").replace(/href="[^"]*"/g, 'href=""');
+  check(karten.filter(k => /Smart<span>Formular|SmartFormular|FiBu lite|E-Rechnung lite/.test(k)).length === 1 && sfKarte.startsWith(`<article class="wz-karte">\n${kennz(t, "wz-kennz", "robin.vision")}\n<span class="wz-logo wz-logo-sf" aria-hidden="true">Smart<span>Formular</span></span>`)
+    && sfKarte.includes(`<ul class="wz-chips"><li>${lang === "en" ? "Accounting" : "Rechnungswesen"}</li></ul>`) && sfKarte.includes(`<a class="wz-knopf" href="${lang === "en" ? "../../werkzeuge/smartformular/en/" : "../werkzeuge/smartformular/"}">${lang === "en" ? "To the product" : "Zum Produkt"}</a>`)
+    && !sfKarte.includes("smartformular.ai") && !sfKarte.includes("sponsored"), "SmartFormular: genau eine Karte, Kennzeichen „Anzeige · robin.vision“, ein Bereich, „Zum Produkt“ führt auf die Unterseite (Robin, 20.11.2026)");
+  check(karten.filter(k => k.includes("#anzeigen")).every(k => gestalt(k) === gestalt(sfKarte)) && !html.includes("wz-mehr") && !/Mehr zu SmartFormular|More about SmartFormular|Zu SmartFormular|To SmartFormular/.test(html), "SmartFormular-Karte ist gebaut wie jede andere Anzeige; kein eigener Verweis „Mehr zu SmartFormular“ mehr");
   check(html.indexOf('id="ueberblick"') < html.indexOf('class="wz-reihe"') && !html.includes('id="partner-anzeigen"') && !html.includes('<div class="wz-raster">'), "kein eigener Abschnitt „Anzeigen“: Anzeigen stehen im Überblick (Robin, 19.11.2026)");
   check(!/Partnerangebot|Partner offer|Advertisement|Eigene Produkte|Own products|eigene Produkte|own products|Partnerlösungen|partner solutions/.test(html.replace(/<footer[\s\S]*<\/footer>/, "")), "keine Unterscheidung zwischen eigenen Produkten und Partnern (Robin, 18.10.2026)");
   check(!(raster.match(/<article class="wz-karte wz-platzhalter">[\s\S]*?<\/article>/)?.[0] || "").includes("wz-kennz"), "Platzhalter (falls da) ohne Kennzeichen");
@@ -78,7 +87,9 @@ for (const [lang, pfad] of Object.entries(UEBERSICHT_PFAD)) {
   check(["firma", "name", "email", "produkt", "nachricht", "website"].every(n => form.includes(`name="${n}"`)) && !form.includes('name="bereich"') && form.includes('tabindex="-1"') && form.includes('role="status"'), "Formular „Partner werden“: Felder, Falle, Statuszeile");
   check(['<select id="p-fuer" name="fuer"><option value="">', '<select id="p-standort" name="standort"><option value="">'].every(x => form.includes(x)) && !/<select[^>]*required/.test(form) && anzahl(form, /<option>/g) === 9 && html.includes("d.fuer ? T.fuer") && html.includes("d.standort ? T.standort"), "Formular: zwei freiwillige Auswahlfelder (Für wen, Datenstandort), in der Nachricht an Robin");
   check(html.includes(`<h2 id="partner">${t.knopf}</h2>`) && html.includes(JSON.stringify(KONTAKT_ENDPUNKT)) && html.includes("'content-type': 'application/json'"), "Formular sendet an Gochs Kontakt-Endpunkt");
-  check(html.includes(JSON.stringify(ALTE_MARKEN)) && html.includes(`location.replace(${t.ziel}`) && ["fibu", "deklaration", "beta"].every(m => ALTE_MARKEN.includes(m)), "alte Sprungmarken (#fibu, #deklaration, #beta …) leiten zur Produktseite");
+  check(html.includes(JSON.stringify(ALTE_MARKEN)) && html.includes(`location.replace(${t.ziel}`) && ["fibu", "deklaration", "beta"].every(m => ALTE_MARKEN.includes(m)), "alte Sprungmarken (#fibu, #deklaration, #beta …) leiten zur Unterseite SmartFormular");
+  { const unterseite = lesen(lang === "en" ? "werkzeuge/smartformular/en/index.html" : "werkzeuge/smartformular/index.html");
+    check(html.includes(JSON.stringify(MARKEN_ZIEL)) && Object.values(MARKEN_ZIEL).every(m => unterseite.includes(`id="${m}"`)) && ["produkte", "fibu-lite", "beta"].every(m => unterseite.includes(`id="${m}"`)), "umbenannte Marken (#fibu, #downloads, #deklaration) haben ein Ziel auf der Unterseite"); }
   check(html.includes('id="newsletter"') && !/etwa von FiBu lite|such as FiBu lite|Beta-Start von FiBu|beta start of FiBu/.test(html), "Newsletter-Kasten ohne FiBu lite und Beta-Start (Robin, 18.10.2026)");
   check(!/kleines Werkzeug|Schmerzpunkt|small tool|pain point/i.test(html) && /Hemmschwellen beim Umgang mit KI und neuer Software|hesitation about AI and new software/.test(html), "Workshop-Kasten: Hemmschwellen statt selbst gebautem Werkzeug (Robin, 18.10.2026)");
 }
@@ -123,10 +134,16 @@ check(liste === startSlider(), "Slider auf der Startseite entspricht dem Modul")
 for (const lang of ["de", "en"]) {
   const s = slider(lang), t = T[lang];
   check(s.startsWith(`    <div class="wzs" data-langs="${lang}"${lang === "de" ? "" : " hidden"}`), `${lang}: eigener Slider, über data-langs geschaltet`);
-  check(anzahl(s, /<article class="wzs-karte/g) === 3 + V + P && anzahl(s, /<i( class="an")?><\/i>/g) === 3 + V + P && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: drei SmartFormular-Karten plus vorgeschlagene Software und bezahlte Partner, je ein Punkt, zwei Pfeile – die Anbieterkarte steht seit Option B weiter unten`);
-  check(anzahl(s, new RegExp(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen").replace(/[.?*+^$[\]\\(){}|]/g, "\\$&"), "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(s, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1 && anzahl(s, /wzs-kennz/g) === 3 + V + P && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: drei SmartFormular-Produkte – zwei mit „Kostenlos“, Abschluss mit „Anzeige · robin.vision“ –, keine Anbieterkarte im Slider`);
+  check(anzahl(s, /<article class="wzs-karte/g) === E + V + P && anzahl(s, /<i( class="an")?><\/i>/g) === E + V + P && anzahl(s, /class="wzs-pfeil"/g) === 2, `${lang}: je Lösung genau eine Karte – vorgeschlagene Software, SmartFormular, Anzeigen –, je ein Punkt, zwei Pfeile`);
   const sf = lang === "en" ? "werkzeuge/smartformular/en/" : "werkzeuge/smartformular/";
-  check(!s.includes(`href="${sf}#fibu"`) && s.includes(`href="${sf}#abschluss"`), `${lang}: Abschluss führt zur Produktseite, FiBu archiviert`);
+  const sfKarte = (s.match(/<article class="wzs-karte">[\s\S]*?<\/article>/g) || []).filter(k => /SmartFormular|Smart<span>Formular|FiBu lite|E-Rechnung lite/.test(k));
+  check(sfKarte.length === 1 && sfKarte[0].includes(kennz(t, "wzs-kennz", "robin.vision", "#anzeigen")) && sfKarte[0].includes('<div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>') && sfKarte[0].includes("<h3>SmartFormular</h3>")
+    && sfKarte[0].includes(`<a href="${sf}">${lang === "en" ? "To the product" : "Zum Produkt"}</a>`) && !s.includes("smartformular.ai") && !/Kostenlos testen|Free trial|Prüfen kostenlos|Free to check/.test(s), `${lang}: SmartFormular mit genau einer Karte „Anzeige · robin.vision“, die auf die Unterseite führt (Robin, 20.11.2026; F62 Variante a)`);
+  check(anzahl(s, /wzs-kennz/g) === E + V + P && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: jede Karte mit Kennzeichen, keine Anbieterkarte im Slider`);
+  // Variante b (F62): FiBu lite und E-Rechnung lite behalten eigene Karten mit „Kostenlos“ – ein Schalter in slider.js
+  const b = slider(lang, { werkzeuge: true });
+  check(anzahl(b, /<article class="wzs-karte/g) === E + V + P + 2 && anzahl(b, /<i( class="an")?><\/i>/g) === E + V + P + 2 && anzahl(b, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(b, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1
+    && b.includes(`href="werkzeuge/${lang === "en" ? "booking-batch-generator" : "buchungsstapel-generator"}/"`) && b.includes(`href="werkzeuge/${lang === "en" ? "e-invoice-viewer" : "e-rechnung-pruefen"}/"`) && !b.includes("#abschluss") && EIGENE_WERKZEUGE_IM_SLIDER === false, `${lang}: Variante b vorbereitet (zwei kostenlose Werkzeuge mit eigener Karte), ausgeschaltet`);
 }
 check(start.includes('<p id="anzeigen" data-i18n="legalAds">Anzeigen: Werkzeuge mit dem Kennzeichen „Anzeige“') && /legalAds: 'Advertising: tools marked “Ad”/.test(lesen("language.js")) && /Gebühr oder Provision/.test(start) && /beteiligt ist/.test(start) && start.includes("location.hash === '#anzeigen'") && start.includes("impressum.open = true"), "Impressum: Erläuterung „Anzeigen“ (DE/EN) mit Sprungmarke #anzeigen, die das Impressum aufklappt");
 check(start.includes("document.querySelectorAll('.wzs')") && /\.wzs\[hidden\] \{ display: none; \}/.test(start) && /\.wzs-spur \{[^}]*scroll-snap-type: x mandatory/.test(start), "Slider: Stile mit scroll-snap, kleines Skript für Pfeile und Punkte");
