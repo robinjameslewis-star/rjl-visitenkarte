@@ -11,6 +11,8 @@
 // antwortet der Worker als NDJSON: Zeile 1 die Antwort wie oben, Zeile 2 { stimme: {mime, daten, zeichen, ms} } oder
 // { stimme: null, grund }; mit { stimme: { teile: true } } je Abschnitt eine Zeile (mitStimme). Vertont wird nur diese eigene
 // Antwort; eine freie Vorlese-Route gibt es nicht.
+// Strom (20.11.2026): { strom: true } – NDJSON, sobald das Modell anfängt: Zeilen { vorab } mit dem Text bisher und { stimme }
+// je fertigem Abschnitt, auch schon vor der Antwortzeile; die Antwortzeile gilt. Siehe neuerStrom und src/strom.js.
 // POST /listen?lang=de|en  WAV (16 Bit, mono, höchstens 20 s) → { text, sekunden } – Spracheingabe, src/hoeren.js
 // Der Schlüssel zum Sprachmodell und zu Resend liegt nur hier, nie im Seitencode.
 import Anthropic from "@anthropic-ai/sdk";

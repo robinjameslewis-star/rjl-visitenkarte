@@ -29,7 +29,7 @@ bleibt im Prozess; die Attrappe hört nur auf 127.0.0.1. POST /_vertonen {text, 
 eingestellten Stimme und nennt sie (voice; Clips, tools/goch-clip.py; höchstens 600 Zeichen je Aufruf).
 Ohne --stimme: kurzer Sinuston (Tests)."""
 import base64, io, json, math, os, re, struct, subprocess, sys, tempfile, threading, time, urllib.parse, urllib.request, wave
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ARGS = [a for a in sys.argv[1:]]
 WHISPER = ARGS[ARGS.index('--whisper') + 1] if '--whisper' in ARGS else os.environ.get('GOCH_WHISPER', '')
@@ -380,4 +380,7 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     stimme = {'mac': lambda: f'macOS-Stimme {mac_stimme("de")} / {mac_stimme("en")}', 'elevenlabs': lambda: 'ElevenLabs' + ('' if os.environ.get('ELEVENLABS_API_KEY') and STIMM_ID['id'] else ' (ELEVENLABS_API_KEY oder GOCH_VOICE_ID fehlt – nur Text)')}.get(STIMME, lambda: 'Sinuston')()
     print(f'Goch-Attrappe auf http://localhost:{PORT}/chat' + (f' – Spracherkennung lokal mit {WHISPER}' if WHISPER else '') + f' – Stimme: {stimme}', flush=True)
-    HTTPServer(('127.0.0.1', PORT), Handler).serve_forever()
+    # mehrere Verbindungen zugleich: die Seite wärmt die Verbindung vor (preconnect), eine offene, stille Verbindung darf
+    # die Attrappe nicht blockieren (20.11.2026)
+    ThreadingHTTPServer.daemon_threads = True
+    ThreadingHTTPServer(('127.0.0.1', PORT), Handler).serve_forever()
