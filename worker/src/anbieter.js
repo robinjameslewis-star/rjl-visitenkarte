@@ -38,16 +38,20 @@ export function anbieterPruefen(liste = ANBIETER) {
   }
 }
 
+// Hinweis zur Art ohne Vergütungssatz (Robin, 20.11.2026: „Anzeige: robin.vision erhält für vermittelte Kunden eine Vergütung. Verträge
+// schließen Sie direkt mit dem Anbieter. das muss andreas schoba weg gilt erst ab ug eintragung“). Bis zur Eintragung der UG gibt es keine
+// Vergütung; der Satz „robin.vision erhält für vermittelte Kunden eine Vergütung.“ (EN: „robin.vision receives a fee for customers it
+// refers.“) kommt mit dem ersten Partnervertrag nach der Eintragung zurück (Freigabeliste F66).
 const T = {
   de: { beitraege: "Beiträge", impuls: "Impuls", werkzeuge: "Werkzeuge", zurueck: "← Werkzeuge", zumAnbieter: "Zur Website des Anbieters", aufnahmen: "Aufnahmen", werkzeugeTitel: "Werkzeuge",
     aufnahmeHinweis: "Eigene Aufnahme von robin.vision mit Testdaten", vom: "vom",
     art: { vorgeschlagen: "Vorgeschlagen: robin.vision stellt diese Lösung unbezahlt vor. Verträge schließen Sie direkt mit dem Anbieter.",
-      anzeige: "Anzeige: robin.vision erhält für vermittelte Kunden eine Vergütung. Verträge schließen Sie direkt mit dem Anbieter." },
+      anzeige: "Anzeige: Verträge schließen Sie direkt mit dem Anbieter." },
     beschr: (p, b) => `${p.name} auf robin.vision: ${b}. ${p.text.de}` },
   en: { beitraege: "Posts", impuls: "Insight", werkzeuge: "Tools", zurueck: "← Tools", zumAnbieter: "To the provider's website", aufnahmen: "Recordings", werkzeugeTitel: "Tools",
     aufnahmeHinweis: "Recording by robin.vision with test data", vom: "of",
     art: { vorgeschlagen: "Suggested: robin.vision presents this solution unpaid. Contracts are made directly with the provider.",
-      anzeige: "Ad: robin.vision receives a fee for customers it refers. Contracts are made directly with the provider." },
+      anzeige: "Ad: Contracts are made directly with the provider." },
     beschr: (p, b) => `${p.name} on robin.vision: ${b}. ${p.text.en || p.text.de}` },
 };
 
