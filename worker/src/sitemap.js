@@ -31,6 +31,7 @@ export function renderSitemap({ siteUrl, posts = [], werkzeuge = [], seiten = SE
   const uebersicht = { de: siteUrl + "werkzeuge/", en: siteUrl + "werkzeuge/en/" };
   const neuestesWerkzeug = werkzeuge.map(w => w.datum || "").filter(Boolean).sort().at(-1) || heute;
   for (const lang of ["de", "en"]) eintrag(uebersicht[lang], neuestesWerkzeug, [alt("de", uebersicht.de), alt("en", uebersicht.en)]);
+  werkzeuge = werkzeuge.filter(w => !w.umgezogen);   // seit 20.11.2026 auf smartformular.ai (werkzeug.js, UMZUG)
   for (const w of werkzeuge) {
     const anderes = werkzeuge.find(v => v.id === w.gegenstueck);
     eintrag(`${siteUrl}werkzeuge/${w.id}/`, w.datum || neuestesWerkzeug,

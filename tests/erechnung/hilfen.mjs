@@ -6,6 +6,9 @@ import { readFile, stat } from "node:fs/promises";
 import { join, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { mkdtempSync, cpSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 
 export const WURZEL = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const WZ = join(WURZEL, "tools", "erechnung");
@@ -47,3 +50,24 @@ export async function chrome() {
 let fails = 0, oks = 0;
 export const check = (ok, label) => { console.log((ok ? "  ok   " : "  FEHLT ") + label); if (ok) oks++; else fails++; };
 export const ergebnis = () => ({ fails, oks });
+
+// Seit 20.11.2026 (Umzug auf smartformular.ai) gibt es auf robin.vision keine Werkzeugseite mehr. Die Tests des Werkzeugs öffnen es
+// deshalb lokal auf einer Prüfseite mit Rahmen, Stilen und Einbettung der früheren Seite (appPruefseite in worker/src/werkzeug.js)
+// – als Zusatzseiten für server(): /__werkzeug__/de/ und /__werkzeug__/en/.
+export const WERKZEUG_SEITE = { de: "/__werkzeug__/de/", en: "/__werkzeug__/en/" };
+export async function werkzeugSeitenLaden() {
+  const { appPruefseite } = await import("../../worker/src/werkzeug.js");
+  return { [WERKZEUG_SEITE.de]: { inhalt: appPruefseite("de") }, [WERKZEUG_SEITE.en]: { inhalt: appPruefseite("en") } };
+}
+export const werkzeugSeiten = () => SEITEN_CACHE;
+const SEITEN_CACHE = await werkzeugSeitenLaden();
+// Gebaute Werkzeug-Dateien (offline) statt der früheren Dateien unter werkzeuge/: einmal mit bauen.mjs --entwurf in einen Temp-Ordner
+let gebaut = null;
+export function werkzeugDateien() {
+  if (gebaut) return gebaut;
+  const tmp = mkdtempSync(join(tmpdir(), "rv-erechnung-datei-"));
+  cpSync(join(WURZEL, "assets", "erechnung", "regeln"), join(tmp, "regeln"), { recursive: true });
+  execFileSync("node", ["bauen.mjs", "--entwurf"], { cwd: WZ, env: { ...process.env, ERECHNUNG_ZIEL: tmp }, stdio: "pipe" });
+  gebaut = { de: join(tmp, "dist", "E-Rechnung-lite.html"), en: join(tmp, "dist", "E-Invoice-Viewer.html"), ordner: tmp };
+  return gebaut;
+}

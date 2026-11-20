@@ -12,8 +12,8 @@ const perIp = new Map(); // weiche Grenze je Instanz: ip -> [Zeitpunkte]
 
 // Begriffe, die Whisper sonst gern verhört; als Kontext, nicht als Vorgabe.
 const KONTEXT = {
-  de: "Gespräch mit Goch, dem Rotkehlchen von Robin. robin.vision, SmartFormular, FiBu lite, Workshops, Buchungsstapel, DATEV.",
-  en: "A conversation with Goch, Robin's robin. robin.vision, SmartFormular, FiBu lite, workshops, booking batch, DATEV.",
+  de: "Gespräch mit Goch, dem Rotkehlchen von Robin. robin.vision, SmartFormular, Buchhaltung Start, Workshops, Buchungsstapel, DATEV.",
+  en: "A conversation with Goch, Robin's robin. robin.vision, SmartFormular, Bookkeeping Start, workshops, booking batch, DATEV.",
 };
 // Was Whisper bei Stille oder Rauschen gern erfindet: dann gilt die Aufnahme als leer.
 const ERFUNDEN = /^(?:untertitel(?:ung)?\b.*|vielen dank(?:,)? fürs zuschauen.*|danke fürs zuschauen.*|thanks? (?:you )?for watching.*|subtitles? by.*|copyright\b.*|\W*(?:musik|music|applaus|applause)\W*|amara\.org.*|\.+)$/i;

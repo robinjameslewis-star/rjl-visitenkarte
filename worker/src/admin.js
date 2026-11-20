@@ -304,26 +304,26 @@ export const CONTENT = {
   },
   // Downloadseiten des Werkzeugs (deutsch und englisch): Texte hier, Datei und ihre Angaben über tools/werkzeug-uebernehmen.mjs
   werkzeug: {
-    path: werkzeugPfad("buchungsstapel-generator"), title: "Werkzeug „Buchungsstapel-Generator“",
+    path: werkzeugPfad("buchungsstapel-generator"), title: "Werkzeug „Buchungsstapel-Generator“ (umgezogen nach smartformular.ai, nur Weiterleitung)",
     split: html => werkzeugFelder(html),
     join: f => werkzeugSeite(f, "buchungsstapel-generator"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
   werkzeugEn: {
-    path: werkzeugPfad("booking-batch-generator"), title: "Werkzeug „Booking Batch Generator“ (englisch)",
+    path: werkzeugPfad("booking-batch-generator"), title: "Werkzeug „Booking Batch Generator“ (englisch; umgezogen, nur Weiterleitung)",
     split: html => werkzeugFelder(html),
     join: f => werkzeugSeite(f, "booking-batch-generator"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
   // SmartFormular E-Rechnung lite (23.10.2026): Seite mit dem Werkzeug selbst, Texte wie bei FiBu lite
   werkzeugEr: {
-    path: werkzeugPfad("e-rechnung-pruefen"), title: "Werkzeug „E-Rechnung lite“",
+    path: werkzeugPfad("e-rechnung-pruefen"), title: "Werkzeug „E-Rechnung lite“ (umgezogen nach smartformular.ai, nur Weiterleitung)",
     split: html => werkzeugFelder(html),
     join: f => werkzeugSeite(f, "e-rechnung-pruefen"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),
   },
   werkzeugErEn: {
-    path: werkzeugPfad("e-invoice-viewer"), title: "Werkzeug „E-Rechnung lite“ (englisch)",
+    path: werkzeugPfad("e-invoice-viewer"), title: "Werkzeug „E-Rechnung lite“ (englisch; umgezogen, nur Weiterleitung)",
     split: html => werkzeugFelder(html),
     join: f => werkzeugSeite(f, "e-invoice-viewer"),
     summary: f => "Fassung " + ((f.datei && f.datei.fassung) || "–"),

@@ -46,11 +46,12 @@ for (const a of ANBIETER) for (const lang of ["de", "en"]) {
     const haupt = html.match(/<article class="anbieter">[\s\S]*<\/article>/)?.[0] || "";
     check(sf.art === "eigen" && sf.anbieter === "robin.vision" && haupt.includes('<span class="an-logo an-wortmarke" aria-hidden="true">Smart<span>Formular</span></span>') && haupt.includes(`<a class="an-knopf" href="${ai}" rel="noopener" target="_blank">`), `smartformular ${lang}: Wortmarke, Verweis auf smartformular.ai ohne rel=sponsored`);
     const eigene = WERKZEUGE.filter(w => w.lang === lang);
-    check(eigene.length === 2 && eigene.every(w => haupt.includes(`<a href="${up}werkzeuge/${w.id}/">`) && existsSync(root + werkzeugPfad(w.id))), `smartformular ${lang}: FiBu lite und E-Rechnung lite verlinkt, Seiten vorhanden`);
-    check(["produkte", "fibu-lite", "e-rechnung", "abschluss", "beta"].every(m => anzahlId(haupt, m) === 1) && haupt.includes(`href="${ai}#abschluss"`) && haupt.includes(`href="${ai}#beta"`), `smartformular ${lang}: Sprungmarken #produkte, #fibu-lite, #e-rechnung, #abschluss, #beta; Abschluss und Beta führen zu smartformular.ai`);
+    // Seit 20.11.2026 auf smartformular.ai (Umzug): Buchhaltung Start und E-Rechnung Start führen dorthin, an der alten Adresse steht die Weiterleitung
+    check(eigene.length === 2 && eigene.every(w => w.umgezogen && haupt.includes(`<a href="${w.umgezogen}" rel="noopener" target="_blank">`) && existsSync(root + werkzeugPfad(w.id))) && !/FiBu lite|E-Rechnung lite/.test(haupt), `smartformular ${lang}: Buchhaltung Start und E-Rechnung Start auf smartformular.ai verlinkt, keine alten Namen`);
+    check(["produkte", "fibu-lite", "e-rechnung", "abschluss", "beta"].every(m => anzahlId(haupt, m) === 1) && haupt.includes(`href="${ai}#deklaration"`) && haupt.includes(`href="${ai}#beta"`), `smartformular ${lang}: Sprungmarken #produkte, #fibu-lite, #e-rechnung, #abschluss, #beta; Abschluss und Beta führen zu smartformular.ai`);
     check(/<title>[^<]*(Buchhaltung|bookkeeping)[^<]*\| robin\.vision<\/title>/.test(html) && !/<form|FAQPage|sf-kachel|Memberbereich|member area/.test(html) && haupt.length < 3500, `smartformular ${lang}: kurze Seite ohne Formular und ohne die Abschnitte der früheren Produktseite`);
     // Verweise der Werkzeugseiten („Beta-Zugang anfragen“) zeigen weiter auf …/smartformular/#beta
-    check(eigene.every(w => readFileSync(root + werkzeugPfad(w.id), "utf8").includes(`href="../../werkzeuge/smartformular/${lang === "en" ? "en/" : ""}#beta"`)), `smartformular ${lang}: Werkzeugseiten verweisen auf #beta der Unterseite`);
+    check(eigene.every(w => readFileSync(root + werkzeugPfad(w.id), "utf8").includes(`<link rel="canonical" href="${w.umgezogen}">`)), `smartformular ${lang}: alte Werkzeugseiten leiten auf smartformular.ai weiter`);
   }
   const ai = readFileSync(root + "worker/links.md", "utf8");
   check(ai.includes("https://robin.vision/werkzeuge/smartformular/#abschluss") && ai.includes("https://robin.vision/werkzeuge/smartformular/ https://robin.vision/werkzeuge/smartformular/en/"), "Gochs Linkliste: smartformular und smartformular-deklaration zeigen auf die Unterseite und ihre Marke #abschluss");

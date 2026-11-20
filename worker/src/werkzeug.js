@@ -42,6 +42,44 @@ export const WERKZEUGE = [
     meta: "E-invoice viewer and validator: open and read XRechnung, check ZUGFeRD, errors explained in plain words, GiroCode to pay – free of charge, using the official CEN and KoSIT rules. Creating your own XRechnung and the downloadable file: free until 31 December 2026, from 2027 a free four-week trial, then with a licence. In your browser, no upload.",
     untertitel: "Read and check e-invoices free of charge: XRechnung and ZUGFeRD against the official rules, pay by GiroCode – plus create your own XRechnung, in your browser, no upload" },
 ];
+// Umzug auf smartformular.ai (Robin 20.11.2026: Weg B, „Z1: alles jetzt“, „W2: über Cloudflare“; neue Namen „Ja, so bestätigt“):
+// Die vier Werkzeug-Seiten gibt es auf robin.vision nicht mehr. An ihren Adressen stehen Weiterleitungsseiten (W1, Rückfall zu den
+// 301-Regeln bei Cloudflare). werkzeugSeite() liefert für sie nur noch die Weiterleitung, damit ein Speichern in der Redaktion oder
+// tools/werkzeug-uebernehmen.mjs keine alte Seite zurückholt; die Sitemap nennt sie nicht mehr. Kennungen und Einträge bleiben
+// (Newsletter-Archiv, Lizenzdienst, Anbieter-Prüfung).
+export const SMARTFORMULAR = "https://smartformular.ai/";
+export const UMZUG = {
+  "buchungsstapel-generator": { url: SMARTFORMULAR + "buchhaltung-start/", name: "SmartFormular Buchhaltung Start", datei: "Buchhaltung-Start.html" },
+  "booking-batch-generator": { url: SMARTFORMULAR + "en/bookkeeping-start/", name: "SmartFormular Bookkeeping Start", datei: "Bookkeeping-Start.html" },
+  "e-rechnung-pruefen": { url: SMARTFORMULAR + "e-rechnung-start/", name: "SmartFormular E-Rechnung Start", datei: "E-Rechnung-Start.html" },
+  "e-invoice-viewer": { url: SMARTFORMULAR + "en/e-invoice-start/", name: "SmartFormular E-Invoice Start", datei: "E-Invoice-Start.html" },
+};
+for (const w of WERKZEUGE) if (UMZUG[w.id]) w.umgezogen = UMZUG[w.id].url;
+export const UEBERGABE_SEITE = { de: "/werkzeuge/daten-uebergabe/", en: "/werkzeuge/en/data-handover/" };
+const escA = s => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+// Weiterleitungsseite an einer alten Werkzeug-Adresse: canonical und Ziel auf smartformular.ai, noindex; ohne Skript meta refresh,
+// mit Skript (assets/umzug-weiter.js) einmal die Übergabe der Browser-Daten, wenn welche da sind. Nie Daten in der Adresse.
+export function umzugSeite(neu, lang) {
+  if (!String(neu).startsWith(SMARTFORMULAR)) throw new Error("Ziel der Weiterleitung muss auf smartformular.ai liegen.");
+  const en = lang === "en", t = en ? "This page has moved to smartformular.ai" : "Diese Seite ist auf smartformular.ai umgezogen";
+  return `<!doctype html>
+<html lang="${lang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${t}</title>
+<link rel="canonical" href="${escA(neu)}">
+<meta name="robots" content="noindex, follow">
+<noscript><meta http-equiv="refresh" content="0; url=${escA(neu)}"></noscript>
+<script src="/assets/umzug-weiter.js" data-ziel="${escA(neu)}" data-uebergabe="${UEBERGABE_SEITE[en ? "en" : "de"]}"></script>
+</head>
+<body>
+<p>${t}: <a href="${escA(neu)}">${escA(neu)}</a></p>
+<p>${en ? "Used the tool here before? " : "Früher hier gearbeitet? "}<a href="${UEBERGABE_SEITE[en ? "en" : "de"]}">${en ? "Take your data with you" : "Daten mitnehmen"}</a></p>
+</body>
+</html>
+`;
+}
 // Bild zum Teilen (og:image, 1200 × 630) je Werkzeug und Sprache; erzeugt mit tools/erechnung/teilen-bilder.mjs
 export const TEILEN_BILD = { "buchungsstapel-generator": "assets/teilen-fibu-lite.jpg", "booking-batch-generator": "assets/teilen-fibu-lite-en.jpg",
   "e-rechnung-pruefen": "assets/teilen-e-rechnung-lite.jpg", "e-invoice-viewer": "assets/teilen-e-rechnung-lite-en.jpg" };
@@ -263,6 +301,7 @@ ${goch ? gochSkript(up) : ""}</body>
 export function werkzeugSeite(f, id = "buchungsstapel-generator") {
   const w = werkzeug(id);
   if (!w) throw new Error("Unbekanntes Werkzeug: " + id);
+  if (UMZUG[id]) return umzugSeite(UMZUG[id].url, w.lang);
   const lang = w.lang, t = T[lang], up = "../../";
   const text = k => String(f[k] || "").replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").trim();
   const beschreibung = text("beschreibung"), nutzung = text("nutzung"), hinweis = text("hinweis") || text("en"), neu = text("neuigkeiten");
@@ -383,9 +422,19 @@ body { background: #0E0B14; color: #EDE9FE; }
 .foot a:hover { color: #EDE9FE; }
 @media (max-width: 720px) { .beta .reihe { grid-template-columns: 1fr; } }`;
 
+// Prüfseite für die Tests des E-Rechnung-Werkzeugs (seit 20.11.2026 gibt es auf robin.vision keine Werkzeugseite mehr): derselbe Rahmen,
+// dieselben Stile und dieselbe Einbettung wie die frühere Seite, ohne Texte, mit Raum darunter wie dort (Scrollen zum Ergebnis). Nur für tests/erechnung/hilfen.mjs, nicht im Repository abgelegt.
+export function appPruefseite(lang = "de") {
+  const titel = lang === "en" ? "SmartFormular E-Invoice Start – test page" : "SmartFormular E-Rechnung Start – Prüfseite";
+  return rahmen({ lang, up: "/", titel, beschr: titel, canonical: SMARTFORMULAR + (lang === "en" ? "en/e-invoice-start/" : "e-rechnung-start/"),
+    head: appKopf("/", "test"), css: SF_CSS + "\n" + KENNZ_CSS + "\n" + APP_CSS,
+    main: `<h1>${titel}</h1>\n<section class="werkzeug" id="werkzeug"><div id="erechnung" data-lang="${lang}" data-basis="/assets/erechnung/" data-fassung="test"></div></section>\n<div class="pruefseite-raum" style="min-height: 150vh"></div>` });
+}
+
 // Weiterleitung für eine alte Adresse (GitHub Pages kennt keine Weiterleitungen auf dem Server)
 export function weiterleitung(zielId) {
   const ziel = `../${zielId}/`, w = werkzeug(zielId);
+  if (UMZUG[zielId]) return umzugSeite(UMZUG[zielId].url, w.lang);
   return `<!doctype html>
 <html lang="${w.lang}">
 <head>

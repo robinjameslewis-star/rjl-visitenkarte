@@ -23,7 +23,9 @@ check(auszug("# Titel\n\nErster Absatz.\n\n![Bild](x.jpg)\n\n> Zitat\n\nZweiter 
 console.log("\nFeeds im Repository");
 const posts = readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(lesen(`${POSTS_DIR}/${n}`), n.slice(0, -3)))
   .filter(p => p.status === "published" && p.date).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
-const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
+// Umgezogene Werkzeuge (smartformular.ai, 20.11.2026): Felder des Archivs aus tools/umzug-felder.json
+const UMZUG_FELDER = JSON.parse(lesen("tools/umzug-felder.json")).felder;
+const felder = Object.fromEntries(WERKZEUGE.map(w => [w.id, w.umgezogen ? UMZUG_FELDER[w.id] : werkzeugFelder(lesen(werkzeugPfad(w.id)))]));
 const werkzeuge = WERKZEUGE.map(w => ({ ...w, datum: felder[w.id].datei.datum, datei: felder[w.id].datei, neuigkeiten: felder[w.id].neuigkeiten }));
 for (const lang of ["de", "en"]) {
   const pfad = `${NEWSLETTER_DIR}/${lang === "en" ? EN_DIR + "/" : ""}feed.xml`, xml = lesen(pfad);

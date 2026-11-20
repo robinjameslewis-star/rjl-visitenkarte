@@ -46,15 +46,15 @@ const TEXT = {
     kriterien: { aufgabe: "Aufgabe", fuer: "Für wen", daten: "Betrieb und Daten", sitz: "Sitz des Anbieters", ki: "KI",
       schnittstellen: "Schnitt­stellen", preis: "Preis und Test", nachweise: "Nachweise" },
     vergleich: [
-      { frei: true, name: "FiBu lite", href: "werkzeuge/buchungsstapel-generator/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
+      { frei: true, name: "Buchhaltung Start", href: "https://smartformular.ai/buchhaltung-start/", stand: "10/2026", aufgabe: "Kontoauszüge zu Buchungsstapeln", fuer: "Kanzleien und Unternehmen",
         daten: "Eine Datei im Browser, offline; die Daten bleiben auf Ihrem Rechner", sitz: "Deutschland", ki: "Nein, arbeitet mit Regeln",
         schnittstellen: "Liest PDF, Scan, CAMT, MT940, CSV; Buchungsstapel im DATEV-Format", preis: "Kostenlos testen bis 31.12.2026, ohne Anmeldung",
         nachweise: "Prüfsumme je Fassung; nichts wird hochgeladen" },
-      { frei: "erechnung", name: "E-Rechnung lite", href: "werkzeuge/e-rechnung-pruefen/", stand: "11/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
+      { frei: "erechnung", name: "E-Rechnung Start", href: "https://smartformular.ai/e-rechnung-start/", stand: "11/2026", aufgabe: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen", fuer: "Kanzleien, Unternehmen, Selbstständige",
         daten: "Im Browser auf der Seite oder als Datei offline; nichts wird hochgeladen", sitz: "Deutschland", ki: "Nein, offizielle Prüfregeln von CEN und KoSIT",
         schnittstellen: "Liest XRechnung (UBL, CII) und ZUGFeRD/Factur-X; Prüfbericht, GiroCode", preis: "Prüfen auf der Seite kostenlos, ohne Anmeldung; Erstellen und Datei bis 31.12.2026 kostenlos, danach vier Wochen Test und Lizenz",
         nachweise: "Abgleich mit der offiziellen Prüfung an Tausenden Testrechnungen" },
-      { name: "Abschluss", href: "werkzeuge/smartformular/#abschluss", stand: "10/2026", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
+      { name: "Deklaration", href: "werkzeuge/smartformular/#abschluss", stand: "10/2026", aufgabe: "Arbeitspapier, das mitdenkt und vorarbeitet", fuer: "Kanzleien",
         daten: "Im Browser über den Memberbereich; Rechenzentren in der EU", sitz: "Deutschland",
         ki: "Optional: Sprachmodell in der EU oder lokal, ohne Training mit Ihren Daten",
         schnittstellen: "Neben Ihrem Kanzleiprogramm, per Datei oder Schnittstelle", preis: "Beta kostenfrei; Preis mit dem Angebot",
@@ -99,15 +99,15 @@ const TEXT = {
     kriterien: { aufgabe: "Task", fuer: "For whom", daten: "Operation and data", sitz: "Provider based in", ki: "AI",
       schnittstellen: "Interfaces", preis: "Price and trial", nachweise: "Assurance" },
     vergleich: [
-      { frei: true, name: "FiBu lite", href: "werkzeuge/booking-batch-generator/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
+      { frei: true, name: "Bookkeeping Start", href: "https://smartformular.ai/en/bookkeeping-start/", stand: "10/2026", aufgabe: "Bank statements into booking batches", fuer: "Firms and companies",
         daten: "A single file in your browser, offline; the data stays on your computer", sitz: "Germany", ki: "No, works with rules",
         schnittstellen: "Reads PDF, scan, CAMT, MT940, CSV; booking batches in the DATEV format", preis: "Free to try until 31 December 2026, no sign-up",
         nachweise: "Checksum for every version; nothing is uploaded" },
-      { frei: "erechnung", name: "E-Rechnung lite", href: "werkzeuge/e-invoice-viewer/", stand: "11/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Accounting firms, companies and the self-employed",
+      { frei: "erechnung", name: "E-Invoice Start", href: "https://smartformular.ai/en/e-invoice-start/", stand: "11/2026", aufgabe: "Read, check and pay e-invoices by GiroCode", fuer: "Accounting firms, companies and the self-employed",
         daten: "In the browser on the page or as an offline file; nothing is uploaded", sitz: "Germany", ki: "No, official CEN and KoSIT validation rules",
         schnittstellen: "Reads XRechnung (UBL, CII) and ZUGFeRD/Factur-X; check report, GiroCode", preis: "Checking on the page free of charge, no sign-up; creating and the file free until 31 December 2026, then a four-week trial and a licence",
         nachweise: "Compared with the official validation on thousands of test invoices" },
-      { name: "Abschluss", href: "werkzeuge/smartformular/en/#abschluss", stand: "10/2026", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
+      { name: "Declaration", href: "werkzeuge/smartformular/en/#abschluss", stand: "10/2026", aufgabe: "Working paper that thinks ahead and does the groundwork", fuer: "Accounting firms",
         daten: "In the browser via the member area; data centres in the EU", sitz: "Germany",
         ki: "Optional: language model in the EU or on your own systems, no training on your data",
         schnittstellen: "Alongside your firm's software, by file or interface", preis: "Beta free of charge; prices come with the quote",
@@ -293,7 +293,7 @@ export const VERGLEICH_SICHTBAR = false;
 
 function vergleich(lang, t, up) {
   const partner = PARTNER.filter(p => p.vergleich && p.vergleich[lang]);
-  const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: up + v.href })),
+  const spalten = [...t.vergleich.map(v => ({ ...v, anbieter: ROBIN_VISION, logo: `<span class="wz-th-logo">Smart<span>Formular</span></span>`, href: /^https:/.test(v.href) ? v.href : up + v.href })),
     ...partner.map(p => ({ ...p.vergleich[lang], name: p.name, anbieter: p.anbieter, logo: "", href: p.seite ? up + `werkzeuge/${p.seite}/` : p.url, sponsored: !p.seite }))];
   const kennz = s => s.frei ? `<span class="wz-th-kennz">${kostenlosText(lang, s.frei)}</span>`
     : kennzeichen(lang, anzeigeHref(lang, up), s.anbieter, "wz-th-kennz").replace(/^<p /, "<span ").replace(/<\/p>$/, "</span>");

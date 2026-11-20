@@ -10,13 +10,13 @@
 //   f) Empfänger und Katalog merken (Vorschläge mit Tastatur und Finger, CSV, ändern, löschen, alle Daten sichern und übernehmen),
 //      Dauer-, Abschlags- und Stornorechnung, Folgerechnung aus der XML-Datei; ohne dauerhaften Speicher
 // Testdaten: erfunden (tests/erechnung/daten, tools/erechnung/beispiele). Lokal gegen einen statischen Server für das Repository;
-// nach dem Pages-Deploy mit --basis https://robin.vision gegen die Website (die Datei ohne Netz wird dann lokal geprüft).
-//   node tests/erechnung_reisen_test.mjs [--basis https://robin.vision] [--nur-erstellen] [ordner]
+// nach dem Pages-Deploy mit --basis https://smartformular.ai gegen die Website (seit 20.11.2026 dort) (die Datei ohne Netz wird dann lokal geprüft).
+//   node tests/erechnung_reisen_test.mjs [--basis https://smartformular.ai] [--nur-erstellen] [ordner]
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
-import { WURZEL, WZ, server, chrome, check, ergebnis, axePfad } from "./erechnung/hilfen.mjs";
+import { WURZEL, WZ, server, chrome, check, ergebnis, axePfad, werkzeugSeiten, WERKZEUG_SEITE, werkzeugDateien } from "./erechnung/hilfen.mjs";
 
 const args = process.argv.slice(2);
 const basisArg = args.includes("--basis") ? args[args.indexOf("--basis") + 1] : null;
@@ -24,11 +24,12 @@ const ORDNER = args.find(a => !a.startsWith("--") && a !== basisArg) || join(WZ,
 mkdirSync(ORDNER, { recursive: true });
 const DATEN = join(WURZEL, "tests", "erechnung", "daten"), BSP = join(WZ, "beispiele");
 const d = n => join(DATEN, n), b = n => join(BSP, n);
-const srv = basisArg ? null : await server();
+const srv = basisArg ? null : await server(werkzeugSeiten());
 const BASIS = (basisArg || srv.url).replace(/\/$/, "");
 const HOST = new URL(BASIS).origin;
-const SEITE = { de: `${BASIS}/werkzeuge/e-rechnung-pruefen/`, en: `${BASIS}/werkzeuge/e-invoice-viewer/` };
-const OFFLINE = { de: join(WURZEL, "werkzeuge", "e-rechnung-pruefen", "E-Rechnung-lite.html"), en: join(WURZEL, "werkzeuge", "e-invoice-viewer", "E-Invoice-Viewer.html") };
+// Seit 20.11.2026: lokal die Prüfseite (hilfen.mjs), mit --basis die Seiten auf smartformular.ai; offline die frisch gebauten Dateien
+const SEITE = basisArg ? { de: `${BASIS}/e-rechnung-start/`, en: `${BASIS}/en/e-invoice-start/` } : { de: BASIS + WERKZEUG_SEITE.de, en: BASIS + WERKZEUG_SEITE.en };
+const OFFLINE = werkzeugDateien();
 const GERAETE = {
   desktop: { viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 },
   handy: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
@@ -773,7 +774,7 @@ const pfade = [...new Set(netz.map(a => new URL(a.url).pathname))].sort();
 check(netz.length > 0 && !fremd.length, `nur Anfragen an ${HOST} (${netz.length} Anfragen, fremd: ${fremd.slice(0, 3).map(a => a.url).join(", ")})`);
 check(!nichtGet.length && !netz.some(a => ["ping", "beacon", "eventsource", "websocket"].includes(a.art)), `nur GET – kein POST, kein Beacon, kein WebSocket (${nichtGet.slice(0, 3).map(a => a.methode + " " + a.url).join(", ")})`);
 check(!verrat.length, `keine Rechnungsdaten oder Dateinamen in Anfragen (${verrat.slice(0, 3).map(a => a.url).join(", ")})`);
-check(pfade.every(x => /^\/(werkzeuge\/(e-rechnung-pruefen|e-invoice-viewer)\/|assets\/|favicon|[a-z-]+\.(js|css|svg|ico|png|webmanifest)$)/.test(x)), `nur Seite und statische Dateien von robin.vision (${pfade.length} Pfade)`);
+check(pfade.every(x => /^\/(werkzeuge\/(e-rechnung-pruefen|e-invoice-viewer)\/|__werkzeug__\/|e-rechnung-start\/|en\/e-invoice-start\/|assets\/|favicon|[a-z-]+\.(js|css|svg|ico|png|webmanifest)$)/.test(x)), `nur Seite und statische Dateien von robin.vision (${pfade.length} Pfade)`);
 writeFileSync(join(ORDNER, "anfragen.json"), JSON.stringify({ host: HOST, anzahl: netz.length, pfade, methoden: [...new Set(netz.map(a => a.methode))] }, null, 1));
 
 if (srv) await srv.schliessen();

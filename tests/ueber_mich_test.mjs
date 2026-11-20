@@ -64,7 +64,7 @@ const person = ld["@graph"].find(e => e["@type"] === "Person");
 check(person.image.endsWith(PORTRAIT.datei) && person.sameAs.includes(LINKEDIN), "Startseite: Person mit Foto und LinkedIn");
 const lang = lesen("language.js");
 check(/navAbout: 'Über mich'/.test(lang) && /navAbout: 'About'/.test(lang) && /aboutMore: 'Mehr über mich'/.test(lang) && /aboutMore: 'More about me'/.test(lang), "language.js: Menüpunkt und Verweis in beiden Sprachen");
-for (const w of WERKZEUGE) check(T[w.lang].nav.source && new RegExp(`<a href="\\.\\./\\.\\./${w.lang === "en" ? "about" : "ueber-mich"}/">${w.lang === "en" ? "About" : "Über mich"}</a></nav>`).test(lesen(werkzeugPfad(w.id))), `${werkzeugPfad(w.id)}: Menüpunkt`);
+for (const w of WERKZEUGE.filter(w => !w.umgezogen)) check(T[w.lang].nav.source && new RegExp(`<a href="\\.\\./\\.\\./${w.lang === "en" ? "about" : "ueber-mich"}/">${w.lang === "en" ? "About" : "Über mich"}</a></nav>`).test(lesen(werkzeugPfad(w.id))), `${werkzeugPfad(w.id)}: Menüpunkt`);
 for (const [l, p] of Object.entries(UEBERSICHT_PFAD)) check(lesen(p).includes(`${l === "en" ? "about/\">About" : "ueber-mich/\">Über mich"}</a></nav>`), `${p}: Menüpunkt`);
 const posts = readdirSync(root + POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(lesen(`${POSTS_DIR}/${n}`), n.slice(0, -3))).filter(p => p.status === "published");
 for (const p of posts) check(lesen(`blog/${p.slug}/index.html`).includes(`${p.lang === "en" ? "about/\">About" : "ueber-mich/\">Über mich"}</a></nav>`), `blog/${p.slug}/: Menüpunkt`);
