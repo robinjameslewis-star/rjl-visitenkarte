@@ -272,8 +272,11 @@ console.log("Sprachmodus: schnelleres Modell");
   check(prompts.at(-1).model === "claude-haiku-5-5", "Frage per Spracheingabe: Modell des Sprachmodus");
   await zeilen(await chat(w, e, { messages: frage, stimme: {} }));
   check(prompts.at(-1).model === "claude-haiku-5-5", "mit Stimme: Modell des Sprachmodus");
-  check(/# Gesprochen/.test(prompts.at(-1).system[0].text), "mit Stimme: Hinweis, so zu formulieren, wie man spricht");
-  check(/höchstens 40 Wörter/.test(prompts.at(-1).system[0].text) && /at most 40 words/.test(GESPROCHEN.en), "mit Stimme: kurze Antworten, auf Deutsch und Englisch (Robin, 06.11.2026)");
+  const sys = prompts.at(-1).system;
+  check(/# Gesprochen/.test(sys.map(x => x.text).join("\n")), "mit Stimme: Hinweis, so zu formulieren, wie man spricht");
+  check(/höchstens 40 Wörter/.test(sys.map(x => x.text).join("\n")) && /at most 40 words/.test(GESPROCHEN.en), "mit Stimme: kurze Antworten, auf Deutsch und Englisch (Robin, 06.11.2026)");
+  // Prompt-Cache (20.11.2026): der gecachte erste Teil bleibt gleich, ob gesprochen oder nicht – Gesprochen steht dahinter, ohne Cache
+  check(!/# Gesprochen/.test(sys[0].text) && sys[0].cache_control && sys.length === 2 && !sys[1].cache_control, "Gesprochen im zweiten, nicht gecachten Teil");
   await chat(w, e, { messages: frage, gesprochen: true });
   check(!/# Gesprochen/.test(prompts.at(-1).system[0].text), "nur Spracheingabe, ohne Stimme: kein Sprechstil-Hinweis");
 }

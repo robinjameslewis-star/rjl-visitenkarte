@@ -93,7 +93,7 @@ export function sprechTeile(text, { ersterMin = 25, weitereMax = 240 } = {}) {
 
 // Ein Abschnitt, der immer gleich lautet (KI-Hinweis): einmal vertonen und merken, das spart bei jeder ersten Antwort Zeit und
 // Zeichen. Der Schlüssel enthält Stimme und Modell, eine Änderung in der Redaktion vertont neu.
-async function festerSatz(env, ctx, text, opts) {
+export async function festerSatz(env, ctx, text, opts) {
   const roh = new TextEncoder().encode(JSON.stringify([opts.voiceId, opts.modell, opts.einstellungen, opts.seed, opts.lang, text]));
   const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", roh))].slice(0, 16).map(b => b.toString(16).padStart(2, "0")).join("");
   const key = "stimme:fest:" + hash;
@@ -107,8 +107,9 @@ async function festerSatz(env, ctx, text, opts) {
 
 // Zwei Aufrufe gleichzeitig reichen, ein Abschnitt entsteht schneller, als Goch ihn spricht; mehr lässt nicht jeder Tarif von
 // ElevenLabs zu. Ist der Anbieter gerade ausgelastet (429), einmal kurz warten und neu versuchen.
-const PARALLEL = 2, WARTEN_MS = 500;
-async function vertonenMitGeduld(env, text, opts) {
+export const PARALLEL = 2;
+const WARTEN_MS = 500;
+export async function vertonenMitGeduld(env, text, opts) {
   try { return await vertonen(env, text, opts); }
   catch (e) {
     if (!/ElevenLabs 429/.test(String(e && e.message))) throw e;

@@ -187,6 +187,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def reply(self, obj, status=200):
         stimme = getattr(self, 'stimme', None)
+        if getattr(self, 'strom', False) and status == 200 and isinstance(obj.get('reply'), str) and obj['reply'] and not obj.get('fehler') \
+                and obj.get('action') not in ('message', 'feedback') and not obj['reply'].startswith(('Ausgerichtet', 'Passed on', 'Ich richte', "I'll pass")):
+            return self.strom_antwort(obj, stimme)
         if stimme and status == 200 and isinstance(obj.get('reply'), str):  # Antwort mit Stimme: NDJSON wie der Worker
             if isinstance(stimme, dict) and stimme.get('erste'): obj = {**obj, 'reply': KI[self.lang] + obj['reply']}
             if MODUS['stimme'] == 'ok' and isinstance(stimme, dict) and stimme.get('teile'):  # in Abschnitten wie stimmeInTeilen
@@ -216,6 +219,30 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status); self.cors()
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(body))); self.end_headers(); self.wfile.write(body)
+
+    def strom_antwort(self, obj, stimme):
+        """Strom wie der Worker: { vorab } Wort für Wort, mit Stimme der KI-Hinweis und der erste Satz schon vor der Antwortzeile."""
+        ki = KI[self.lang] if isinstance(stimme, dict) and stimme.get('erste') else ''
+        laut = bool(stimme) and MODUS['stimme'] == 'ok'
+        self.send_response(200); self.cors()
+        self.send_header('Content-Type', 'application/x-ndjson; charset=utf-8'); self.end_headers()
+        def zeile(o): self.wfile.write((json.dumps(o, ensure_ascii=False) + '\n').encode()); self.wfile.flush()
+        def ton(satz, i):
+            v = vertonen(satz, self.lang)
+            zeile({'stimme': {'mime': v[0], 'daten': v[1], 'zeichen': len(satz), 'ms': 1, 'teil': i}} if v else {'stimme': None, 'grund': 'fehler'})
+        try:
+            teil = 0
+            if laut and ki: teil += 1; ton(ki.strip(), teil)
+            saetze = re.split(r'(?<=[.!?…])\s+', obj['reply'], maxsplit=1)
+            woerter, bisher = obj['reply'].split(' '), []
+            for w in woerter:
+                bisher.append(w); zeile({'vorab': ki + ' '.join(bisher)}); time.sleep(.01)
+                if laut and teil == (1 if ki else 0) and len(saetze) > 1 and ' '.join(bisher).startswith(saetze[0]): teil += 1; ton(saetze[0], teil)
+            zeile({**obj, 'reply': ki + obj['reply'], **({'ki': True} if stimme else {})})
+            if laut:
+                for satz in saetze[(teil - (1 if ki else 0)):]: teil += 1; ton(satz, teil)
+            elif stimme: zeile({'stimme': None, 'grund': MODUS['stimme'] if MODUS['stimme'] != 'ok' else 'aus'})
+        except (BrokenPipeError, ConnectionResetError): pass
 
     def do_OPTIONS(self):
         self.send_response(204); self.cors(); self.end_headers()
@@ -298,6 +325,7 @@ class Handler(BaseHTTPRequestHandler):
         CHATS.append(body)
         lang = 'en' if body.get('lang') == 'en' else 'de'
         self.stimme, self.lang = body.get('stimme'), lang
+        self.strom = body.get('strom') is True and MODUS.get('strom', 'an') == 'an'  # Strom wie der Worker (20.11.2026)
         if body.get('anlass') in ('angekommen', 'zurueck', 'nachfrage'):  # Blickkontakt: Goch spricht an, fester Satz wie beim Worker
             return self.reply({'reply': GRUSS[lang][body['anlass']], 'action': None, 'anlass': body['anlass']})
         T = REPLIES[lang]

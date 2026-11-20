@@ -55,9 +55,22 @@
     return null;
   }
   let choice = readChoice();
+  // Verbindung zum Worker vorwärmen (DNS, TLS), sobald der Besucher Goch öffnet und eingewilligt hat – nie vorher, denn schon
+  // der Verbindungsaufbau nennt Cloudflare die Adresse des Besuchers. Die erste Frage spart so den Handschlag (20.11.2026).
+  let vorgewaermt = false;
+  function vorwaermen() {
+    if (vorgewaermt || !choice || !choice.allowed) return;
+    vorgewaermt = true;
+    try {
+      const vor = document.createElement('link');
+      vor.rel = 'preconnect'; vor.href = new URL(endpoint, location.href).origin; vor.crossOrigin = 'anonymous';
+      document.head.append(vor);
+    } catch (_) {}
+  }
   function store(allowed) {
     const now = Date.now();
     choice = { allowed, at: now, expires: now + maxAge, version };
+    vorwaermen();
     try { localStorage.setItem(storeKey, JSON.stringify(choice)); } catch (_) {}
   }
   function forget() {
@@ -182,6 +195,7 @@
     if (!panel.hidden) { input.focus(); return; }
     returnFocus = document.activeElement;
     panel.hidden = false;
+    vorwaermen();
     place();
     if (still !== true) panel.scrollIntoView({ block: 'nearest' });
     scene.setAttribute('aria-expanded', 'true');
@@ -210,20 +224,29 @@
   // eingeschaltet hat (gesprochen, stimme, figur); sonst bleibt sie wie vorher. Mit Stimme antwortet der Worker als NDJSON:
   // die erste Zeile ist die gewohnte Antwort, den Rest (die Stimme) liest goch-stimme.js.
   const zusatz = opts => (window.GochStimme && window.GochStimme.anfrage(opts)) || {};
-  async function ersteZeile(r) {
+  // Strom (20.11.2026): Vor der Antwortzeile können Zeilen { vorab } (Text, während Goch schreibt) und { stimme } (erste
+  // Abschnitte der Stimme) kommen; die Antwortzeile (mit reply) gilt danach wie bisher.
+  async function ersteZeile(r, beiVorab) {
     const reader = r.body.getReader(), dec = new TextDecoder();
     let buf = '';
     for (;;) {
       const { value, done } = await reader.read();
       if (value) buf += dec.decode(value, { stream: true });
-      const i = buf.indexOf('\n');
-      if (i >= 0 || done) {
-        const first = JSON.parse(i >= 0 ? buf.slice(0, i) : buf);
-        if (window.GochStimme && !done) window.GochStimme.rest(reader, buf.slice(i + 1), dec, first); else if (!done) reader.cancel();
-        return first;
+      let i;
+      while ((i = buf.indexOf('\n')) >= 0 || (done && buf.trim())) {
+        const zeile = (i >= 0 ? buf.slice(0, i) : buf).trim();
+        buf = i >= 0 ? buf.slice(i + 1) : '';
+        if (!zeile) continue;
+        const z = JSON.parse(zeile);
+        if (typeof z.vorab === 'string') { if (beiVorab) beiVorab(z.vorab); continue; }
+        if ('stimme' in z && !('reply' in z)) { if (window.GochStimme && window.GochStimme.vorab) window.GochStimme.vorab(z); continue; }
+        if (window.GochStimme && !done) window.GochStimme.rest(reader, buf, dec, z); else if (!done) reader.cancel();
+        return z;
       }
+      if (done) throw new Error('format');
     }
   }
+
   async function ask(text, opts = {}) {
     text = text.trim().slice(0, 600);
     if (!text || busy) return;
@@ -238,11 +261,13 @@
       const r = await fetch(endpoint, {
         method: 'POST', headers: { 'content-type': 'application/json' },
         // Unterseiten nennen ihren Pfad, damit Goch weiß, wo der Besucher ist (der Worker nimmt nur Seiten, die er selbst kennt)
-        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), ...(unterseite ? { seite: location.pathname } : {}), ...zusatz(opts) })
+        body: JSON.stringify({ lang: language.current, messages: history.slice(-24), ...(unterseite ? { seite: location.pathname } : {}), ...zusatz(opts), strom: true })
       });
       if (r.status === 503) { switchOff(); return; } // in der Redaktion ausgeschaltet: Vogel fliegt wieder statt zu sprechen
       if (!r.ok) throw new Error(String(r.status));
-      data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r) : await r.json();
+      // Text zeigen, während Goch schreibt; die Antwortzeile ersetzt ihn danach
+      const vorab = text => { thinking.classList.remove('goch-thinking'); thinking.textContent = text; log.scrollTop = log.scrollHeight; };
+      data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r, vorab) : await r.json();
       if (!data || typeof data.reply !== 'string') throw new Error('format');
     } catch (_) {
       thinking.remove();
