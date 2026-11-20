@@ -98,6 +98,10 @@ async def main():
                     await pump(0.25)
                 await pump(wait)
             async def klick(selector):  # echte Maus (Nutzergeste); meldet, wenn etwas anderes getroffen wird
+                # Groß ↔ Klein (13.11.2026): Sind „Goch hört“ und „Goch spricht“ beide an, wird das Fenster am Rechner von selbst zur
+                # Leiste. Braucht der Test ein Bedienelement, das nur das Fenster zeigt, wählt er wie ein Besucher zuerst „Groß“.
+                if await ev(f"(()=>{{const e=document.querySelector({json.dumps(selector)}),u=document.getElementById('goch-gross-klein'),g=document.getElementById('goch');return !!e&&!!u&&!!g&&g.contains(e)&&e!==u&&!e.getBoundingClientRect().width&&u.dataset.zu==='gross'&&document.documentElement.classList.contains('goch-zeile');}})()"):
+                    await ev("document.getElementById('goch-gross-klein').click()"); await pump(0.5)
                 box = await ev(f"(()=>{{const e=document.querySelector({json.dumps(selector)});e.scrollIntoView({{block:'nearest'}});const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2];}})()")
                 ziel = await ev(f"(()=>{{const e=document.elementFromPoint({box[0]},{box[1]});const t=document.querySelector({json.dumps(selector)});return t.contains(e)?'':(e&&(e.id||e.className||e.tagName));}})()")
                 check(not ziel, f"Klick auf {selector} trifft das Ziel", ziel)
