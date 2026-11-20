@@ -884,7 +884,13 @@ export async function complete(env, system, messages, linkIds = [], settings = n
       const stream = client.beta.messages.stream({ ...anfrage, output_config: { ...anfrage.output_config, format } });
       let roh = "";
       stream.on("text", delta => { roh += delta; try { beiText(roh); } catch (e) { console.error("Strom", String(e && e.message || e).slice(0, 200)); } });
-      response = await stream.finalMessage();
+      try { response = await stream.finalMessage(); }
+      catch (e) {
+        // Scheitert der Strom, bevor ein Wort kam, einmal ohne Strom fragen (die Seite wartet dann nur wie bisher)
+        if (roh) throw e;
+        console.error("Strom, Rückfall ohne Strom", String(e && e.message || e).slice(0, 200));
+        response = await client.beta.messages.create(anfrage);
+      }
     } else response = await client.beta.messages.create(anfrage);
     if (response.stop_reason === "refusal") return JSON.stringify({ reply: "", action: "contact", message: null });
     lastUsage = { model: response.model, input: response.usage.input_tokens, cache_write: response.usage.cache_creation_input_tokens,

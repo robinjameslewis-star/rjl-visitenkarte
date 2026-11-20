@@ -149,6 +149,7 @@
     },
     // Strom (20.11.2026): Abschnitte, die vor der Antwortzeile kommen (KI-Hinweis, erster Satz), gleich abspielen – in
     // Reihenfolge; rest() wartet auf sie, bevor es weiterliest.
+    abbrechen() { if (restLaeuft || spielt) { schweigen(); spielt = false; folge = null; } },
     vorab(z) {
       const meine = runde;
       restLaeuft = true;

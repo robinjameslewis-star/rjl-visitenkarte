@@ -228,7 +228,7 @@
   // Abschnitte der Stimme) kommen; die Antwortzeile (mit reply) gilt danach wie bisher.
   async function ersteZeile(r, beiVorab) {
     const reader = r.body.getReader(), dec = new TextDecoder();
-    let buf = '';
+    let buf = '', frueh = '';
     for (;;) {
       const { value, done } = await reader.read();
       if (value) buf += dec.decode(value, { stream: true });
@@ -239,8 +239,9 @@
         if (!zeile) continue;
         const z = JSON.parse(zeile);
         if (typeof z.vorab === 'string') { if (beiVorab) beiVorab(z.vorab); continue; }
-        if ('stimme' in z && !('reply' in z)) { if (window.GochStimme && window.GochStimme.vorab) window.GochStimme.vorab(z); continue; }
-        if (window.GochStimme && !done) window.GochStimme.rest(reader, buf, dec, z); else if (!done) reader.cancel();
+        // eine ältere goch-stimme.js aus dem Zwischenspeicher kennt vorab() nicht: dann spielt rest() diese Zeilen nach der Antwort
+        if ('stimme' in z && !('reply' in z)) { if (window.GochStimme && window.GochStimme.vorab) window.GochStimme.vorab(z); else frueh += zeile + '\n'; continue; }
+        if (window.GochStimme && !done) window.GochStimme.rest(reader, frueh + buf, dec, z); else if (!done) reader.cancel();
         return z;
       }
       if (done) throw new Error('format');
@@ -270,6 +271,7 @@
       data = /ndjson/.test(r.headers.get('content-type') || '') ? await ersteZeile(r, vorab) : await r.json();
       if (!data || typeof data.reply !== 'string') throw new Error('format');
     } catch (_) {
+      if (window.GochStimme && window.GochStimme.abbrechen) window.GochStimme.abbrechen(); // Strom abgerissen: frühe Stimme beenden
       thinking.remove();
       const p = bubble('goch', t('gochError') + ' ');
       p.append(link('mailto:robin@robin.vision', 'robin@robin.vision'));
