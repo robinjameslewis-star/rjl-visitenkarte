@@ -20,30 +20,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/en/"/>
   </url>
   <url>
-    <loc>https://robin.vision/werkzeuge/buchungsstapel-generator/</loc>
-    <lastmod>2026-11-13</lastmod>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/booking-batch-generator/"/>
-  </url>
-  <url>
-    <loc>https://robin.vision/werkzeuge/booking-batch-generator/</loc>
-    <lastmod>2026-11-13</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/booking-batch-generator/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/buchungsstapel-generator/"/>
-  </url>
-  <url>
-    <loc>https://robin.vision/werkzeuge/e-rechnung-pruefen/</loc>
-    <lastmod>2026-11-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/e-invoice-viewer/"/>
-  </url>
-  <url>
-    <loc>https://robin.vision/werkzeuge/e-invoice-viewer/</loc>
-    <lastmod>2026-11-10</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://robin.vision/werkzeuge/e-invoice-viewer/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/werkzeuge/e-rechnung-pruefen/"/>
-  </url>
-  <url>
     <loc>https://robin.vision/ueber-mich/</loc>
     <lastmod>2026-10-24</lastmod>
     <xhtml:link rel="alternate" hreflang="de" href="https://robin.vision/ueber-mich/"/>
