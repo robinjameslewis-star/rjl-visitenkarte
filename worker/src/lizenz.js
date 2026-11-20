@@ -1,4 +1,4 @@
-// Lizenzen für SmartFormular E-Rechnung lite und FiBu lite (Robin, 01.11.2026): bis 31.12.2026 ohne Anmeldung kostenlos testen,
+// Lizenzen für SmartFormular E-Rechnung Start und Buchhaltung Start (bis 20.11.2026: E-Rechnung lite, FiBu lite; Robin, 01.11.2026): bis 31.12.2026 ohne Anmeldung kostenlos testen,
 // ab 1. Januar 2027 Anmeldung nur mit Code per E-Mail (kein Passwort, kein Passkey), vier Wochen Test je Werkzeug ab der ersten
 // Anmeldung, danach Lizenz für ein Jahr (je Person, nicht je Gerät; höchstens LIZENZ_GERAETE angemeldete Geräte, das älteste
 // fällt heraus). Kauf über Stripe Checkout (Einmalzahlung, keine automatische Verlängerung) oder – solange Stripe fehlt – als
@@ -21,10 +21,23 @@
 //   lizenz:codes:<eh>:<Stunde>, lizenz:codes:<Tag>                    – Zähler gegen Missbrauch
 // <eh> = SHA-256 von "lizenz:" + E-Mail-Adresse (klein geschrieben).
 
+// Namen seit 20.11.2026 (Robin: „Lite gefällt mir nicht mehr …“, „Weg 3“, „Ja, so bestätigt“): nur der angezeigte Name ändert sich,
+// die Kennungen erechnung/fibu bleiben (gekaufte Lizenzen und Signaturen gelten weiter). Seiten: Rückkehr nach Stripe je Herkunft –
+// wer auf smartformular.ai kauft, kehrt dorthin zurück; alle anderen (robin.vision, heruntergeladene Datei mit Origin „null“) wie bisher.
+export const SMARTFORMULAR = "https://smartformular.ai";
 export const WERKZEUGE = {
-  erechnung: { name: "SmartFormular E-Rechnung lite", seite: "https://robin.vision/werkzeuge/e-rechnung-pruefen/", seiteEn: "https://robin.vision/werkzeuge/e-invoice-viewer/" },
-  fibu: { name: "SmartFormular FiBu lite", seite: "https://robin.vision/werkzeuge/buchungsstapel-generator/", seiteEn: "https://robin.vision/werkzeuge/booking-batch-generator/" },
+  erechnung: { name: "SmartFormular E-Rechnung Start", nameEn: "SmartFormular E-Invoice Start",
+    seite: "https://robin.vision/werkzeuge/e-rechnung-pruefen/", seiteEn: "https://robin.vision/werkzeuge/e-invoice-viewer/",
+    neu: SMARTFORMULAR + "/e-rechnung-start/", neuEn: SMARTFORMULAR + "/en/e-invoice-start/" },
+  fibu: { name: "SmartFormular Buchhaltung Start", nameEn: "SmartFormular Bookkeeping Start",
+    seite: "https://robin.vision/werkzeuge/buchungsstapel-generator/", seiteEn: "https://robin.vision/werkzeuge/booking-batch-generator/",
+    neu: SMARTFORMULAR + "/buchhaltung-start/", neuEn: SMARTFORMULAR + "/en/bookkeeping-start/" },
 };
+// Seite für die Rückkehr: nur die feste Herkunft https://smartformular.ai führt auf die neuen Seiten, sonst die bisherigen Adressen.
+export function rueckkehrSeite(werkzeug, lang, herkunft) {
+  const w = WERKZEUGE[werkzeug], en = lang === "en";
+  return herkunft === SMARTFORMULAR ? (en ? w.neuEn : w.neu) : (en ? w.seiteEn : w.seite);
+}
 import { kostenBuchen, buchenIn, adresseFrei } from "./kosten.js";
 // Beginn der Lizenzpflicht: 1. Januar 2027, 0 Uhr in Deutschland (MEZ = UTC+1)
 export const LIZENZPFLICHT_AB = Date.UTC(2026, 11, 31, 23);
@@ -150,8 +163,8 @@ export async function gewaehren(env, eh, werkzeug, quelle, id = "") {
 const stripePreis = (env, werkzeug) => env["STRIPE_PREIS_" + werkzeug.toUpperCase()];
 const stripeBereit = (env, werkzeug) => !!(env.STRIPE_SECRET_KEY && stripePreis(env, werkzeug));
 
-async function stripeCheckout(env, konto, eh, werkzeug, lang) {
-  const w = WERKZEUGE[werkzeug], seite = lang === "en" ? w.seiteEn : w.seite;
+async function stripeCheckout(env, konto, eh, werkzeug, lang, herkunft = "") {
+  const seite = rueckkehrSeite(werkzeug, lang, herkunft);
   const f = new URLSearchParams({
     mode: "payment", "line_items[0][price]": stripePreis(env, werkzeug), "line_items[0][quantity]": "1",
     customer_email: konto.email, client_reference_id: eh, "metadata[werkzeug]": werkzeug, "metadata[eh]": eh,
@@ -225,7 +238,7 @@ export async function handleLizenz(request, env, ctx) {
     await env.USAGE.put("lizenz:code:" + eh, JSON.stringify({ hash: await sha256(code), exp: Date.now() + CODE_TTL * 1000, tries: 0 }), { expirationTtl: CODE_TTL });
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + env.RESEND_API_KEY },
-      body: JSON.stringify({ from: env.LIZENZ_MAIL_FROM || "SmartFormular <lizenz@robin.vision>", to: [email], subject: t.betreff(code), text: t.mail(code, WERKZEUGE[werkzeug].name) }),
+      body: JSON.stringify({ from: env.LIZENZ_MAIL_FROM || "SmartFormular <lizenz@robin.vision>", to: [email], subject: t.betreff(code), text: t.mail(code, t === TEXT.en ? WERKZEUGE[werkzeug].nameEn : WERKZEUGE[werkzeug].name) }),
     }).catch(e => ({ ok: false, status: 0, text: async () => String(e) }));
     if (!r.ok) { console.error("Lizenz: Resend", r.status, (await r.text()).slice(0, 200)); return json({ error: t.sendFehler }, 502); }
     return json({ ok: true, hinweis: t.unterwegs });
@@ -268,7 +281,7 @@ export async function handleLizenz(request, env, ctx) {
   if (pfad === "status") return json(await statusAntwort(env, s.eh, s.konto, werkzeug));
   if (pfad === "kaufen") {
     if (stripeBereit(env, werkzeug)) {
-      const ziel = await stripeCheckout(env, s.konto, s.eh, werkzeug, lang);
+      const ziel = await stripeCheckout(env, s.konto, s.eh, werkzeug, lang, request.headers.get("origin") || "");
       return ziel ? json({ url: ziel }) : json({ error: t.kaufFehler }, 502);
     }
     if (env.LIZENZ_TESTKAUF === "1") {
