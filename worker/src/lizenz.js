@@ -233,11 +233,14 @@ export async function gewaehren(env, eh, werkzeug, quelle, id = "", { pi = "", s
     if (!konto) return false;
     konto.kaeufe ||= [];
     if (id && konto.kaeufe.some(k => k.id === id)) return false;
-    const jetzt = Date.now(), ab = Math.max(jetzt, bisMs(konto.lizenz?.[werkzeug]));
+    // Sperre aus derselben Zahlung (Erstattung kam vor oder während der Verbuchung) bleibt; jede andere hebt ein neuer Kauf auf.
+    // Dann beginnt das neue Jahr heute – die gesperrte Restzeit zählt nicht mit (sonst zwei Jahre für eine Zahlung nach Erstattung).
+    const alt = konto.sperre?.[werkzeug], heben = alt && !(pi && alt.pi === pi);
+    const jetzt = Date.now(), ab = alt ? jetzt : Math.max(jetzt, bisMs(konto.lizenz?.[werkzeug]));
     const bis = new Date(ab + LIZENZ_TAGE * TAG).toISOString();
     konto.lizenz = { ...(konto.lizenz || {}), [werkzeug]: bis };
     konto.kaeufe.push({ werkzeug, am: new Date(jetzt).toISOString(), bis, quelle, id, ...(pi ? { pi } : {}) });
-    if (konto.sperre?.[werkzeug]) {
+    if (heben) {
       const { [werkzeug]: alt, ...rest } = konto.sperre;
       konto.sperre = rest;
       verlauf(konto, { aktion: "entsperrt", werkzeug, grund: "neuer Kauf", quelle, id, vorher: alt.grund });
@@ -247,13 +250,13 @@ export async function gewaehren(env, eh, werkzeug, quelle, id = "", { pi = "", s
 }
 
 // Sperren ab einem Zeitpunkt (Vorgabe: sofort). Gleiche Kennung zweimal ändert nichts. Ergebnis: Konto oder null.
-export async function sperren(env, eh, werkzeug, { grund, quelle, id = "", ab = null, streng = false }) {
+export async function sperren(env, eh, werkzeug, { grund, quelle, id = "", pi = "", ab = null, streng = false }) {
   if (!WERKZEUGE[werkzeug]) return null;
   return mitKonto(env, eh, konto => {
     if (!konto) return false;
     const alt = konto.sperre?.[werkzeug];
     if (alt && id && alt.id === id) return false;
-    const sperre = { ab: ab || new Date(Date.now()).toISOString(), grund, quelle, id, am: new Date(Date.now()).toISOString() };
+    const sperre = { ab: ab || new Date(Date.now()).toISOString(), grund, quelle, id, ...(pi ? { pi } : {}), am: new Date(Date.now()).toISOString() };
     konto.sperre = { ...(konto.sperre || {}), [werkzeug]: alt && bisMs(alt.ab) <= bisMs(sperre.ab) ? { ...sperre, ab: alt.ab } : sperre };
     verlauf(konto, { aktion: "gesperrt", werkzeug, grund, quelle, id });
     return true;
@@ -372,7 +375,7 @@ async function bezahltVerbuchen(env, s, { streng = true } = {}) {
   }
   // Erstattung kam schon vor der Zahlung an: gleich sperren
   const erstattet = pi ? await kvJson(env, "lizenz:erstattet:" + pi) : null;
-  if (erstattet) await sperren(env, eh, werkzeug, { grund: "erstattung", quelle: "stripe", id: erstattet.charge || pi, streng });
+  if (erstattet) await sperren(env, eh, werkzeug, { grund: "erstattung", quelle: "stripe", id: erstattet.charge || pi, pi, streng });
   await env.USAGE.delete(ok);
   const offen = await kvJson(env, checkoutSchluessel(eh, werkzeug));
   if (offen && offen.id === s.id) await env.USAGE.delete(checkoutSchluessel(eh, werkzeug));
@@ -419,7 +422,7 @@ async function ereignisVerarbeiten(env, ev, deps) {
       await deps.melden?.("lizenz-teilerstattung-" + o.id, "Lizenz: Teilerstattung – Lizenz bleibt frei", `Zur Zahlung ${z.pi || "?"} (${z.werkzeug}) wurde ein Teil erstattet (${o.amount_refunded} von ${o.amount} Cent). Die Lizenz bleibt frei. Sperren bei Bedarf in der Redaktion unter „Lizenzen“.`);
       return { bezug: z.pi };
     }
-    const konto = await sperren(env, z.eh, z.werkzeug, { grund: rueck ? "rueckbuchung" : "erstattung", quelle: "stripe", id: o.id, streng: true });
+    const konto = await sperren(env, z.eh, z.werkzeug, { grund: rueck ? "rueckbuchung" : "erstattung", quelle: "stripe", id: o.id, pi: z.pi, streng: true });
     if (!konto) return { fehler: "Konto fehlt", bezug: z.pi };
     if (rueck) await deps.melden?.("lizenz-rueckbuchung-" + o.id, "Lizenz: Rückbuchung – Lizenz gesperrt", `Zur Zahlung ${z.pi || "?"} (${z.werkzeug}) hat die Bank eine Rückbuchung eröffnet (${o.id}). Die Lizenz ist ab jetzt gesperrt. Antwort an Stripe im Dashboard; entsperren in der Redaktion unter „Lizenzen“.`);
     return { bezug: z.pi };

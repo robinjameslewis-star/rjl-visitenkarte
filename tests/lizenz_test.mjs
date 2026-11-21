@@ -256,7 +256,19 @@ check(r.kauf === true, "gesperrte Lizenz: Kaufweg bleibt offen");
 const evNeu2 = kaufEreignis("evt_neu2", "cs_test_neu2", "pi_neu2", ehNeu);
 await post("stripe", evNeu2, { "stripe-signature": sign(evNeu2) });
 const kNeu2 = await konto("neu@beispiel.de");
-check((await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).status.typ === "lizenz" && !kNeu2.sperre.erechnung && kNeu2.verlauf.at(-1).grund === "neuer Kauf", "neuer Kauf hebt die Sperre auf (im Verlauf vermerkt)");
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu });
+check(r.status.typ === "lizenz" && !kNeu2.sperre.erechnung && kNeu2.verlauf.at(-1).grund === "neuer Kauf", "neuer Kauf hebt die Sperre auf (im Verlauf vermerkt)");
+check(r.status.bis === uhr + 365 * TAG, "nach einer Sperre beginnt das neue Jahr heute (kein zweites Jahr für eine Zahlung)", new Date(r.status.bis).toISOString());
+// Verbuchung scheitert (500), dann Erstattung, dann Wiederholung: die eigene Zahlung hebt ihre Sperre nicht auf
+const putEcht2 = env.USAGE.put; env.USAGE.put = async (k, v, o) => { if (k.startsWith("lizenz:konto:")) throw new Error("KV kaputt"); return putEcht2(k, v, o); };
+const evNeu4 = kaufEreignis("evt_neu4", "cs_test_neu4", "pi_neu4", ehNeu);
+check((await post("stripe", evNeu4, { "stripe-signature": sign(evNeu4) })).status === 500, "Verbuchung scheitert: 500");
+env.USAGE.put = putEcht2;
+const evErst4 = charge("evt_erst4", "charge.refunded", { id: "ch_neu4", payment_intent: "pi_neu4", amount: 100, amount_refunded: 100, refunded: true });
+await post("stripe", evErst4, { "stripe-signature": sign(evErst4) });
+await post("stripe", evNeu4, { "stripe-signature": sign(evNeu4) });
+check((await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).status.typ === "gesperrt" && (await konto("neu@beispiel.de")).kaeufe.some(k => k.id === "cs_test_neu4"), "erstattete Zahlung, später verbucht: bleibt gesperrt");
+await lizenzVerwalten(env, { email: "neu@beispiel.de", werkzeug: "erechnung", aktion: "entsperren" }, deps);
 // Erstattung vor der Zahlung (Reihenfolge bei Stripe nicht fest)
 const evErstVorher = charge("evt_erst3", "charge.refunded", { id: "ch_neu3", payment_intent: "pi_neu3", amount: 100, amount_refunded: 100, refunded: true });
 await post("stripe", evErstVorher, { "stripe-signature": sign(evErstVorher) });
