@@ -172,15 +172,20 @@ console.log("Steuerangaben des Modells nie in Text und Stimme (ohneSteuerangaben
     ["Hallo antml:reasoning_effort5.", "Hallo", "antml:-Rest am Ende"],
     ["Gut. reasoning_effort=5 Weiter.", "Gut. Weiter.", "reasoning_effort-Rest"],
     ["Hallo <reasoning_effort level=5>.", "Hallo.", "loses Tag mit Wert ohne Anführungszeichen"],
-    ["Gern <foo a=1>kurz</foo> so.", "Gern so.", "Tag-Paar mit Wert ohne Anführungszeichen"],
+    ["Gern <invoke a=1>kurz</invoke> so.", "Gern so.", "Tag-Paar mit Wert ohne Anführungszeichen"],
+    ["Hallo <invoke name=\"x\">.", "Hallo.", "antml:-Tag mit Attribut"],
+    ["Hallo <function_calls> Welt </function_calls>.", "Hallo.", "function_calls-Paar"],
   ];
   for (const [ein, aus, name] of faelle) check(weg(ein) === aus, name, JSON.stringify(weg(ein)));
   const bleiben = ["In <5 Minuten fertig.", "Schreiben Sie an Robin (robin@robin.vision).", "Adresse: <robin@robin.vision>", "Hochladen -> Prüfen -> fertig.",
-    "Wenn a < b und c > d gilt.", "Wenn x<y und y>z gilt.", "Thinking hilft beim Reasoning.", "Der thinking mode ist aus.", "Preis <= 200 € netto, >3 Nutzer.", "Mit <3 gemacht."];
+    "Wenn a < b und c > d gilt.", "Wenn x<y und y>z gilt.", "Thinking hilft beim Reasoning.", "Der thinking mode ist aus.", "Preis <= 200 € netto, >3 Nutzer.", "Mit <3 gemacht.",
+    "Die Rechnung kommt im Format <Invoice>.", "In HTML wie <b>fett</b> gesetzt.", "Das Wurzelelement heißt <CrossIndustryInvoice>.", "Gern <foo a=1>kurz</foo> so.",
+    "Im XML steht <ram:IncludedNote>Hinweis</ram:IncludedNote>.", "Rechnung <Invoice xmlns=\"urn:x\">", "Das <Invoice"];
   const geaendert = bleiben.filter(t => weg(t) !== t || weg(t, { offen: true }) !== t);
-  check(!geaendert.length, "normale Wörter und Zeichen bleiben (auch im Strom)", geaendert.join(" | "));
+  check(!geaendert.length, "normale Wörter, Zeichen und Tags wie <Invoice> bleiben (auch im Strom)", geaendert.join(" | "));
   check(weg("Hallo <reasoning_effort>5", { offen: true }) === "Hallo" && weg("Hallo <reasoning_effort>5</reasoning_eff", { offen: true }) === "Hallo"
-    && weg('Hallo <invoke name="x', { offen: true }) === "Hallo" && weg("Hallo </thinking", { offen: true }) === "Hallo",
+    && weg('Hallo <invoke name="x', { offen: true }) === "Hallo" && weg("Hallo </thinking", { offen: true }) === "Hallo"
+    && weg("Hallo <reas", { offen: true }) === "Hallo" && weg("Hallo <", { offen: true }) === "Hallo",
     "halb geschriebenes Tag am Ende des Vorabtexts fällt weg");
 
   // im Strom: Stücke von 6 Zeichen, das Tag kommt also verteilt über mehrere Stücke
@@ -195,7 +200,16 @@ console.log("Steuerangaben des Modells nie in Text und Stimme (ohneSteuerangaben
   check(antwort && antwort.reply === SAUBER, "Strom: Antwortzeile ohne Steuerangaben", antwort && antwort.reply);
   check(tts.length >= 1 && !tts.some(x => schmutz(x.text)) && tts.map(x => x.text).join(" ") === SAUBER, "Strom: Stimme ohne Steuerangaben", tts.map(x => x.text).join(" | "));
 
+  // normales Tag im Strom: erscheint im Vorabtext, sobald es vollständig ist
+  const NORMAL = "Robin prüft das Format <Invoice> und das Element <CrossIndustryInvoice> für Sie. Möchten Sie mehr hören?";
+  modell = { action: null, message: null, reply: NORMAL, link: null, link2: null, zeigen: null };
+  const zn = await zeilen(await chat(await frisch(), env(), { strom: true })); await Promise.all(ctx.pending);
+  const vn = zn.filter(x => typeof x.vorab === "string");
+  check(vn.some(x => x.vorab.includes("<Invoice>") && x.vorab.length < NORMAL.length) && vn.every(x => NORMAL.startsWith(x.vorab)) && zn.find(x => "reply" in x).reply === NORMAL,
+    "Strom: <Invoice> erscheint vorab, sobald vollständig, und bleibt in der Antwort");
+
   // ohne Strom (derselbe Weg wie Messegerät und Workshop: handle → complete → tidy, dann mitStimme)
+  modell = { action: null, message: null, reply: ROH, link: null, link2: null, zeigen: null };
   tts.length = 0;
   const d = (await zeilen(await chat(await frisch(), env(), { stimme: { teile: true } }))).find(x => "reply" in x) || {}; await Promise.all(ctx.pending);
   check(d.reply === SAUBER && !tts.some(x => schmutz(x.text)), "ohne Strom: Text und Stimme ohne Steuerangaben", d.reply + " / " + tts.map(x => x.text).join(" | "));

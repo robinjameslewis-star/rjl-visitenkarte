@@ -1008,19 +1008,32 @@ function parse(text, linkIds = []) {
 
 // Steuerangaben des Modells nie in Text und Stimme (Robin, 21.11.2026: „ok, mach den filter gleich mit“). Tinka auf
 // smartformular.ai sprach einmal „antml:reasoningeffort5“ – vermutlich ein Tag wie <reasoning_effort>5</reasoning_effort> im
-// Antworttext; Goch nutzt dieselbe API. Entfernt werden Tag-Paare <name …>kurzer Inhalt</name> (bis 60 Zeichen), lose Tags
-// <name>, </name>, <name a="b">, <name a=1> und Reste ohne Klammer (antml:…, reasoning_effort…, thinking_mode…). Normale Zeichen bleiben:
-// „<5 Minuten“, „a < b“, „->“, <robin@example.de>, „x<y und y>z“ (Attribute zählen nur mit =). offen: Text ist noch im
-// Strom – ein halb geschriebenes Tag (oder Tag-Paar ohne Schluss) am Ende fällt weg, bis es fertig ist.
+// Antworttext; Goch nutzt dieselbe API. Entfernt werden nur Tags aus einer festen Liste von Steuerangaben (STEUER_NAMEN):
+// Paare <name …>kurzer Inhalt</name> (bis 60 Zeichen), lose Tags <name>, </name>, <name a="b">, <name a=1>, und Reste ohne
+// Klammer (antml:…, reasoning_effort…, thinking_mode…). Alle anderen Tags und Zeichen bleiben: <Invoice>, <b>fett</b>,
+// <CrossIndustryInvoice>, „<5 Minuten“, „a < b“, „->“, <robin@example.de>. offen: Text ist noch im Strom – ein angefangenes
+// Tag am Ende, dessen Name noch eine Steuerangabe werden kann (oder nur „<“), und ein Paar ohne Schluss warten, bis sie fertig sind.
+const STEUER_LISTE = ["reasoning_effort", "reasoningeffort", "thinking_mode", "thinkingmode", "thinking", "max_thinking", "maxthinking",
+  "function_calls", "invoke", "parameter", "result", "output", "system", "antml:"];
+const STEUER_NAMEN = String.raw`(?:antml:[\w:.-]*|reasoning_?effort|thinking_?mode|thinking|max_?thinking\w*|function_calls|invoke|parameter|result|output|system)(?![\w:.-])`;
 const TAG_ATTR = String.raw`(?:\s+[\w:.-]+=(?:"[^"<>]*"|'[^'<>]*'|[^\s"'<>]+))*\s*`;
-const STEUER_PAAR = new RegExp(String.raw`<([a-z][\w:.-]*)${TAG_ATTR}>[^<]{0,60}<\/\1\s*>`, "gi");
-const STEUER_TAG = new RegExp(String.raw`<\/?[a-z][\w:.-]*${TAG_ATTR}\/?>`, "gi");
+const STEUER_PAAR = new RegExp(String.raw`<(${STEUER_NAMEN})${TAG_ATTR}>[^<]{0,60}<\/\1\s*>`, "gi");
+const STEUER_TAG = new RegExp(String.raw`<\/?${STEUER_NAMEN}${TAG_ATTR}\/?>`, "gi");
 const STEUER_REST = /\bantml:\S*|<?\/?\b(?:reasoning_?effort|thinking_?mode|max_?thinking\w*)\S*/gi;
-const OFFENES_PAAR = new RegExp(String.raw`<([a-z][\w:.-]*)${TAG_ATTR}>[^<]{0,60}(?:<\/?[\w:.-]*\s*)?$`, "i");
-const OFFENES_TAG = /<\/?[a-z][^<>]{0,60}$/i;
+const OFFENES_PAAR = new RegExp(String.raw`<(${STEUER_NAMEN})${TAG_ATTR}>[^<]{0,60}(?:<\/?[\w:.-]*\s*)?$`, "i");
+const OFFENES_TAG = /<\/?([a-z][\w:.-]*)?([^<>]{0,60})$/i;
+const kannSteuerangabeWerden = (name, rest) => {
+  if (!name) return !rest; // nur „<“ oder „</“
+  const n = name.toLowerCase();
+  if (rest) return new RegExp("^" + STEUER_NAMEN + "$", "i").test(n); // Name fertig, Attribute kommen noch
+  return n.startsWith("antml:") || STEUER_LISTE.some(l => l.startsWith(n)); // Name wird noch geschrieben
+};
 export function ohneSteuerangaben(text, { offen = false } = {}) {
   let s = String(text ?? "");
-  if (offen) s = s.replace(OFFENES_PAAR, "\u0000").replace(OFFENES_TAG, "\u0000");
+  if (offen) {
+    s = s.replace(OFFENES_PAAR, "\u0000");
+    s = s.replace(OFFENES_TAG, (m, name, rest) => kannSteuerangabeWerden(name, rest) ? "\u0000" : m);
+  }
   s = s.replace(STEUER_PAAR, "\u0000").replace(STEUER_TAG, "\u0000").replace(STEUER_REST, "\u0000");
   if (!s.includes("\u0000")) return s;
   // nur an den Schnittstellen Leerraum glätten: vorn und vor Satzzeichen weg, sonst ein Leerzeichen
