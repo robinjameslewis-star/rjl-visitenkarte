@@ -158,6 +158,49 @@ console.log("Draht und Adressen: nichts vorab");
   check(!tts.some(x => x.text.includes("@")), "Abschnitt mit Adresse wird nicht vertont", tts.map(x => x.text).join(" | "));
 }
 
+console.log("Steuerangaben des Modells nie in Text und Stimme (ohneSteuerangaben)");
+{
+  const { ohneSteuerangaben: weg } = await import(pathToFileURL(join(out, "test.mjs")).href + "?i=" + (++instanz));
+  const faelle = [
+    ["Gern. <reasoning_effort>5</reasoning_effort> Robin baut Werkzeuge.", "Gern. Robin baut Werkzeuge.", "Tag-Paar mitten im Satz"],
+    ["Robin baut <thinking_mode>auto</thinking_mode> Werkzeuge.", "Robin baut Werkzeuge.", "Tag-Paar im Satz, Leerraum geglättet"],
+    ["<reasoning_effort>5</reasoning_effort> Hallo.", "Hallo.", "Tag-Paar vorn"],
+    ["Hallo. <thinking_mode>auto</thinking_mode>", "Hallo.", "Tag-Paar hinten"],
+    ['Hallo <invoke name="x">.', "Hallo.", "loses Tag mit Attribut"],
+    ["Hallo</reasoning_effort> Welt.", "Hallo Welt.", "loses Schluss-Tag"],
+    ["antml:reasoningeffort5 Hallo.", "Hallo.", "antml:-Rest (wie gehört)"],
+    ["Hallo antml:reasoning_effort5.", "Hallo", "antml:-Rest am Ende"],
+    ["Gut. reasoning_effort=5 Weiter.", "Gut. Weiter.", "reasoning_effort-Rest"],
+    ["Hallo <reasoning_effort level=5>.", "Hallo.", "loses Tag mit Wert ohne Anführungszeichen"],
+    ["Gern <foo a=1>kurz</foo> so.", "Gern so.", "Tag-Paar mit Wert ohne Anführungszeichen"],
+  ];
+  for (const [ein, aus, name] of faelle) check(weg(ein) === aus, name, JSON.stringify(weg(ein)));
+  const bleiben = ["In <5 Minuten fertig.", "Schreiben Sie an Robin (robin@robin.vision).", "Adresse: <robin@robin.vision>", "Hochladen -> Prüfen -> fertig.",
+    "Wenn a < b und c > d gilt.", "Wenn x<y und y>z gilt.", "Thinking hilft beim Reasoning.", "Der thinking mode ist aus.", "Preis <= 200 € netto, >3 Nutzer.", "Mit <3 gemacht."];
+  const geaendert = bleiben.filter(t => weg(t) !== t || weg(t, { offen: true }) !== t);
+  check(!geaendert.length, "normale Wörter und Zeichen bleiben (auch im Strom)", geaendert.join(" | "));
+  check(weg("Hallo <reasoning_effort>5", { offen: true }) === "Hallo" && weg("Hallo <reasoning_effort>5</reasoning_eff", { offen: true }) === "Hallo"
+    && weg('Hallo <invoke name="x', { offen: true }) === "Hallo" && weg("Hallo </thinking", { offen: true }) === "Hallo",
+    "halb geschriebenes Tag am Ende des Vorabtexts fällt weg");
+
+  // im Strom: Stücke von 6 Zeichen, das Tag kommt also verteilt über mehrere Stücke
+  const ROH = "Gern erkläre ich das. <reasoning_effort>5</reasoning_effort> <thinking_mode>knapp und klar</thinking_mode> Robin baut Werkzeuge für Kanzleien. antml:reasoningeffort5 Möchten Sie mehr hören?";
+  const SAUBER = "Gern erkläre ich das. Robin baut Werkzeuge für Kanzleien. Möchten Sie mehr hören?";
+  const schmutz = t => /[<>]|reasoning|thinking|antml|effort|knapp|klar|\b5\b/.test(t);
+  modell = { action: null, message: null, reply: ROH, link: null, link2: null, zeigen: null };
+  tts.length = 0;
+  const z = await zeilen(await chat(await frisch(), env(), { strom: true, stimme: { teile: true } })); await Promise.all(ctx.pending);
+  const vorab = z.filter(x => typeof x.vorab === "string"), antwort = z.find(x => "reply" in x);
+  check(vorab.length >= 3 && !vorab.some(x => schmutz(x.vorab)) && vorab.every(x => SAUBER.startsWith(x.vorab)), "Strom: Tag über mehrere Stücke nie im Vorabtext", vorab.map(x => x.vorab).filter(schmutz).join(" | "));
+  check(antwort && antwort.reply === SAUBER, "Strom: Antwortzeile ohne Steuerangaben", antwort && antwort.reply);
+  check(tts.length >= 1 && !tts.some(x => schmutz(x.text)) && tts.map(x => x.text).join(" ") === SAUBER, "Strom: Stimme ohne Steuerangaben", tts.map(x => x.text).join(" | "));
+
+  // ohne Strom (derselbe Weg wie Messegerät und Workshop: handle → complete → tidy, dann mitStimme)
+  tts.length = 0;
+  const d = (await zeilen(await chat(await frisch(), env(), { stimme: { teile: true } }))).find(x => "reply" in x) || {}; await Promise.all(ctx.pending);
+  check(d.reply === SAUBER && !tts.some(x => schmutz(x.text)), "ohne Strom: Text und Stimme ohne Steuerangaben", d.reply + " / " + tts.map(x => x.text).join(" | "));
+}
+
 console.log("Ohne strom wie bisher");
 {
   modell = { action: null, message: null, reply: ANTWORT, link: null, link2: null, zeigen: null };
