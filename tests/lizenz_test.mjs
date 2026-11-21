@@ -273,13 +273,63 @@ await lizenzVerwalten(env, { email: "neu@beispiel.de", werkzeug: "erechnung", ak
 const evErstVorher = charge("evt_erst3", "charge.refunded", { id: "ch_neu3", payment_intent: "pi_neu3", amount: 100, amount_refunded: 100, refunded: true });
 await post("stripe", evErstVorher, { "stripe-signature": sign(evErstVorher) });
 const evNeu3 = kaufEreignis("evt_neu3", "cs_test_neu3", "pi_neu3", ehNeu);
+const endeVor3 = (await konto("neu@beispiel.de")).lizenz.erechnung;
 await post("stripe", evNeu3, { "stripe-signature": sign(evNeu3) });
-check((await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).status.typ === "gesperrt", "Erstattung vor der Zahlung: Zahlung wird verbucht und gleich gesperrt");
+const k3 = await konto("neu@beispiel.de");
+check((await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).status.typ === "lizenz" && k3.lizenz.erechnung === endeVor3 && k3.kaeufe.find(k => k.id === "cs_test_neu3").erstattet,
+  "Erstattung vor der Zahlung: Zahlung verbucht und als erstattet markiert, ohne Lizenzzeit; der laufende Kauf bleibt");
 await lizenzVerwalten(env, { email: "neu@beispiel.de", werkzeug: "erechnung", aktion: "entsperren" }, deps);
 // Zahlung fehlgeschlagen (Lastschrift): nichts gewährt
 const evFail = JSON.stringify({ id: "evt_fail1", type: "checkout.session.async_payment_failed", data: { object: { id: "cs_test_fail1", payment_status: "unpaid", metadata: { werkzeug: "fibu", eh: ehNeu } } } });
 r = await post("stripe", evFail, { "stripe-signature": sign(evFail) });
 check(r.status === 200 && (await post("status", { werkzeug: "fibu", sitzung: sitzungNeu })).status.typ === "test", "Zahlung fehlgeschlagen: angenommen, keine Lizenz");
+
+// ---------- Erstattung trifft nur die Zeit aus genau dieser Zahlung (zweite Prüfung, 21.11.2026) ----------
+{
+  const zwei = async (email, n) => { // Kauf und Verlängerung nach vier Monaten
+    await post("code", { werkzeug: "erechnung", email }, { "CF-Connecting-IP": "ip-" + email }); const sz = (await post("anmelden", { werkzeug: "erechnung", email, code: codeAusMail() })).sitzung;
+    const e = await sha256("lizenz:" + email);
+    for (const i of [1, 2]) { const ev = kaufEreignis(`evt_${n}k${i}`, `cs_test_${n}k${i}`, `pi_${n}k${i}`, e); await post("stripe", ev, { "stripe-signature": sign(ev) }); if (i === 1) uhr += 120 * TAG; }
+    const k = await konto(email); return { sz, e, b1: k.kaeufe[0].bis, b2: k.kaeufe[1].bis };
+  };
+  const erst = async (n, i, typ = "charge.refunded") => { const ev = charge(`evt_${n}e${i}${typ.length}`, typ, { id: `ch_${n}${i}${typ.length}`, payment_intent: `pi_${n}k${i}`, amount: 100, amount_refunded: 100, refunded: true }); return (await post("stripe", ev, { "stripe-signature": sign(ev) })).status; };
+  const st = async sz => (await post("status", { werkzeug: "erechnung", sitzung: sz })).status;
+  const start = uhr;
+  // a) ältere Zahlung erstattet → gültig bis Ende der neueren
+  let a = await zwei("zwei-a@beispiel.de", "za");
+  check(await erst("za", 1) === 200, "zwei Käufe, ältere erstattet: angenommen");
+  let s1 = await st(a.sz), ka = await konto("zwei-a@beispiel.de");
+  check(s1.typ === "lizenz" && s1.bis === Date.parse(a.b2) && !ka.sperre?.erechnung && ka.kaeufe[0].erstattet && !ka.kaeufe[1].erstattet, "ältere erstattet: Lizenz gilt bis Ende des neueren Kaufs", new Date(s1.bis).toISOString());
+  // b) neuere Zahlung erstattet, ältere läuft noch → bis Ende der älteren
+  uhr = start; let b = await zwei("zwei-b@beispiel.de", "zb");
+  await erst("zb", 2); s1 = await st(b.sz);
+  check(s1.typ === "lizenz" && s1.bis === Date.parse(b.b1), "neuere erstattet: Lizenz gilt bis Ende des älteren Kaufs", new Date(s1.bis).toISOString());
+  // c) neuere erstattet, ältere schon abgelaufen → gesperrt
+  uhr = start; let c = await zwei("zwei-c@beispiel.de", "zc");
+  uhr = Date.parse(c.b1) + TAG; await erst("zc", 2); s1 = await st(c.sz);
+  check(s1.typ === "gesperrt" && (await konto("zwei-c@beispiel.de")).sperre.erechnung.grund === "erstattung", "neuere erstattet, ältere abgelaufen: gesperrt");
+  // d) beide erstattet → gesperrt
+  uhr = start; await erst("za", 2); s1 = await st(a.sz);
+  check(s1.typ === "gesperrt", "beide Zahlungen erstattet: gesperrt");
+  // e) Rückbuchung ebenso: ältere → bis Ende der neueren; neuere bei abgelaufener älterer → gesperrt
+  uhr = start; let d = await zwei("zwei-d@beispiel.de", "zd");
+  await erst("zd", 1, "charge.dispute.created"); s1 = await st(d.sz);
+  check(s1.typ === "lizenz" && s1.bis === Date.parse(d.b2), "Rückbuchung der älteren Zahlung: Lizenz bis Ende der neueren");
+  uhr = start; let f = await zwei("zwei-f@beispiel.de", "zf");
+  await erst("zf", 2, "charge.dispute.created"); s1 = await st(f.sz);
+  check(s1.typ === "lizenz" && s1.bis === Date.parse(f.b1), "Rückbuchung der neueren Zahlung: Lizenz bis Ende der älteren");
+  uhr = Date.parse(f.b1) + TAG; await erst("zf", 1, "charge.dispute.created"); s1 = await st(f.sz);
+  check(s1.typ === "gesperrt" && (await konto("zwei-f@beispiel.de")).sperre.erechnung.grund === "rueckbuchung", "Rückbuchung, keine gültige Zahlung mehr: gesperrt");
+  // f) altes Konto ohne Zahlungsliste: Erstattung sperrt wie bisher
+  uhr = start;
+  const ehAlt2 = await sha256("lizenz:alt2@beispiel.de");
+  await env.USAGE.put("lizenz:konto:" + ehAlt2, JSON.stringify({ email: "alt2@beispiel.de", erstellt: "2027-01-02T00:00:00.000Z", test: {}, lizenz: { erechnung: new Date(uhr + 100 * TAG).toISOString() }, sitzungen: [] }));
+  await env.USAGE.put("lizenz:zahlung:pi_alt2", JSON.stringify({ eh: ehAlt2, werkzeug: "erechnung", cs: "cs_test_alt2" }));
+  const evAlt2 = charge("evt_alt2", "charge.refunded", { id: "ch_alt2", payment_intent: "pi_alt2", amount: 100, amount_refunded: 100, refunded: true });
+  await post("stripe", evAlt2, { "stripe-signature": sign(evAlt2) });
+  check((await konto("alt2@beispiel.de")).sperre?.erechnung?.grund === "erstattung", "altes Konto ohne Kaufliste: Erstattung sperrt wie bisher");
+  uhr = start;
+}
 
 // ---------- Erklärungen (Widerruf, Kündigung) ----------
 meldungen.length = 0;
