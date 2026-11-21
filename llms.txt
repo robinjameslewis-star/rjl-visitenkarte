@@ -1,6 +1,6 @@
 # robin.vision
 
-> Website von Robin James Lewis (Balingen, Deutschland): Werkzeuge für Rechnungswesen und Jahresabschluss unter dem Namen SmartFormular (Buchhaltung Start und E-Rechnung Start kostenlos testen bis 31.12.2026), Werkzeuge mit Vergleich von Software und KI-Lösungen, wöchentliche Impulse und Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Sprache: Deutsch, mit englischen Fassungen.
+> Website von Robin James Lewis (Balingen, Deutschland). Leitsatz: „Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.“ Vier Teile: eigene Lösungen mit eigener Marke (SmartFormular im Bereich TaxTech, Buchhaltung Start und E-Rechnung Start kostenlos testen bis 31.12.2026), empfohlene Lösungen anderer Anbieter, Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act und zur E-Rechnung, individuelle Lösungen für ein bestimmtes Problem. Dazu Impulse. Sprache: Deutsch, mit englischen Fassungen.
 
 Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochgeladen. Sie ersetzen keine Steuer- oder Rechtsberatung.
 
@@ -11,12 +11,13 @@ Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochg
 - [SmartFormular E-Invoice Start (English)](https://smartformular.ai/en/e-invoice-start/): Englische Fassung von SmartFormular E-Rechnung Start – read, check and pay German e-invoices (XRechnung, ZUGFeRD) in the browser, free to try until 31 December 2026, no upload.
 - [SmartFormular Buchhaltung Start – Buchungsstapel-Generator](https://smartformular.ai/buchhaltung-start/): Kostenlos testen bis 31.12.2026, offline im Browser. Macht aus Kontoauszügen (PDF, Scan, CAMT, MT940, CSV) Buchungsstapel im DATEV-Format, nach dem Muster des Vormonats, mit Summenprüfung.
 - [SmartFormular Bookkeeping Start (English)](https://smartformular.ai/en/bookkeeping-start/): Englische Fassung von Buchhaltung Start.
-- [SmartFormular](https://robin.vision/werkzeuge/smartformular/): Kurze Seite zu SmartFormular mit Verweisen auf Buchhaltung Start, E-Rechnung Start und die eigene Website https://smartformular.ai (dort auch Abschluss als Beta).
-- [Werkzeuge](https://robin.vision/werkzeuge/): Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt.
+- [SmartFormular](https://robin.vision/werkzeuge/smartformular/): TaxTech. Kurze Seite zu SmartFormular mit Verweisen auf Buchhaltung Start, E-Rechnung Start und die eigene Website https://smartformular.ai (dort auch Abschluss als Beta).
+- [Werkzeuge](https://robin.vision/werkzeuge/): Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – eigene und empfohlene. Eigene Lösungen sind als solche gekennzeichnet.
 
 ## Weitere Seiten
 
 - [Impulse](https://robin.vision/blog/): Wöchentliche Beiträge zu Rechnungswesen, Verwaltung und KI im Alltag.
+- [Individuelle Lösung](https://robin.vision/individuelle-loesung/): Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, Robin baut eine passende Lösung, mit KI erstellt und von ihm geprüft, mit einer Änderungsrunde; vorab ein Angebot. Keine Steuer- oder Rechtsberatung. Englisch: [Custom solution](https://robin.vision/individuelle-loesung/en/).
 - [Workshops](https://robin.vision/workshops/): KI-Kompetenz für Teams mit Unterweisung nach EU AI Act.
 - [Über mich](https://robin.vision/ueber-mich/): Werdegang von Robin James Lewis.
 - [Sitemap](https://robin.vision/sitemap.xml)

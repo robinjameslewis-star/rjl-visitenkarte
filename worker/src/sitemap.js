@@ -1,12 +1,15 @@
 // sitemap.xml der Website (Robin, 16.10.2026, Auffindbarkeit): Startseite in beiden Sprachen, Werkzeuge mit Übersichten,
 // Impulse mit Listen, feste Seiten wie „Über mich“. Geschrieben von der Redaktion beim Veröffentlichen (blog.js, buildBlog), lokal von
 // tools/blog-seiten-bauen.mjs und tools/werkzeug-uebernehmen.mjs. Keine Abhängigkeiten außer partner.js (importiert selbst nichts), damit kein Importkreis entsteht.
-// Feste Seiten je Sprache (ueber_mich.js, workshops.js, anbieter.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
+// Feste Seiten je Sprache (ueber_mich.js, individuelle_loesung.js, workshops.js, anbieter.js bauen sie): Adresse unter der Wurzel, Stand des Textes für lastmod
 import { ANBIETER_SEITEN } from "./partner.js";
 
 export const SEITEN = [
-  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-10-24" },
-  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-10-24" },
+  { id: "ueber-mich", lang: "de", adresse: "ueber-mich/", stand: "2026-11-21" },
+  { id: "ueber-mich", lang: "en", adresse: "about/", stand: "2026-11-21" },
+  // Individuelle Lösung (individuelle_loesung.js, seit 21.11.2026; Menüpunkt zwischen Werkzeuge und Workshops)
+  { id: "individuelle-loesung", lang: "de", adresse: "individuelle-loesung/", stand: "2026-11-21" },
+  { id: "individuelle-loesung", lang: "en", adresse: "individuelle-loesung/en/", stand: "2026-11-21" },
   // Übersicht „Workshops“ (seit 10.11.2026: zwei gleichrangige Workshops, Menüpunkt führt hierher; workshops_uebersicht.js)
   { id: "workshops-uebersicht", lang: "de", adresse: "workshops/", stand: "2026-11-10" },
   { id: "workshops-uebersicht", lang: "en", adresse: "workshops/en/", stand: "2026-11-10" },

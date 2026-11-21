@@ -26,6 +26,9 @@ const TEXT = {
       "In der operativen Arbeit und bei der Einarbeitung neuer Mitarbeitender in Verwaltung und Rechnungswesen verschiedener Branchen habe ich gelernt, Abläufe schnell zu durchschauen. Ich sehe, wo dieselben Daten mehrfach erfasst werden – darum ging es in einem meiner ersten <a href=\"{medienbruch}\">Impulse</a> – und wo sich Arbeitsschritte durch verknüpfte Datengrundlagen vereinfachen oder ganz automatisieren lassen. Mit Werkzeugen wie Claude Code mache ich daraus Programme, die sich in den Arbeitsalltag der Mitarbeitenden einfügen und dort funktionieren. In der Kanzlei kommen so Belege und Bankumsätze über Importe statt von Hand in die Buchhaltung, und wiederkehrende Auswertungen erstellt ein kleines Programm statt Handarbeit in Excel. Die Arbeit wird leichter und bindet deutlich weniger Zeit.",
       "Unter robin.vision stelle ich <a href=\"{werkzeuge}\">Werkzeuge</a> für Rechnungswesen, Verwaltung und andere Geschäftsprozesse vor – etwa SmartFormular, dessen Buchhaltung Start und E-Rechnung Start bis 31.12.2026 kostenlos zu testen sind. Ab 2027 analysiere ich mit Kanzleien und Unternehmen ihre Abläufe, schule die Teams – auch in <a href=\"{workshops}\">Workshops</a> zur KI-Kompetenz mit Unterweisung nach EU AI Act – und entwickle mit ihnen weiter, was sich bewährt – mit Werkzeugen, die ich empfehle oder selbst entwickle. Jeden Freitag schreibe ich einen <a href=\"{impulse}\">Impuls</a> zu Automatisierung und KI im Rechnungswesen.",
     ],
+    // Absatz „Was robin.vision ist“ mit den vier Säulen (Robin, 21.11.2026, neues Konzept)
+    robinVisionTitel: "Was robin.vision ist",
+    robinVision: "robin.vision ist mein Studio für KI-Lösungen, mit vier Teilen: eigene Lösungen mit eigener Marke wie SmartFormular, <a href=\"{werkzeuge}\">empfohlene Lösungen</a> anderer Anbieter, <a href=\"{workshops}\">Workshops</a>, in denen ich zeige, wie man damit arbeitet, und <a href=\"{loesung}\">individuelle Lösungen</a>, die ich für ein bestimmtes Problem baue.",
     stationenTitel: "Stationen",
     stationen: [
       ["2007–2016", "Einzelhandel: Verkäufer, später stellvertretender Marktleiter in einem Getränkefachmarkt."],
@@ -63,6 +66,8 @@ const TEXT = {
       "Working hands-on and training new staff in administration and accounting across different industries has taught me to see through processes quickly. I notice where the same data is entered more than once – the subject of one of my first <a href=\"{medienbruch}\">Food for Thought</a> posts – and where steps can be simplified or fully automated by connecting the underlying data. With tools such as Claude Code I turn this into programs that fit into people's working day and work there. At the tax firm, receipts and bank transactions now reach the books through imports rather than by hand, and recurring reports are produced by a small program instead of by hand in Excel. The work becomes easier and takes considerably less time.",
       "Under robin.vision I present <a href=\"{werkzeuge}\">tools</a> for accounting, administration and other business processes – such as SmartFormular, whose Bookkeeping Start and E-Invoice Start are free to try until 31 December 2026. From 2027 I will analyse processes with firms and companies, train their teams – including in <a href=\"{workshops}\">workshops</a> on AI literacy with EU AI Act training – and build with them on what works – using tools I recommend or develop myself. Every Friday I write a <a href=\"{impulse}\">Food for Thought</a> post on automation and AI in accounting.",
     ],
+    robinVisionTitel: "What robin.vision is",
+    robinVision: "robin.vision is my studio for AI solutions, in four parts: my own solutions under their own brand, such as SmartFormular; <a href=\"{werkzeuge}\">recommended solutions</a> from other providers; <a href=\"{workshops}\">workshops</a> in which I show how to work with them; and <a href=\"{loesung}\">custom solutions</a> that I build for a specific problem.",
     stationenTitel: "Career",
     stationen: [
       ["2007–2016", "Retail: sales assistant, later deputy store manager at a beverage store."],
@@ -143,6 +148,8 @@ export function ueberMichSeite(lang) {
 ${t.einleitung.map(p => `<p>${p.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{impulse}", up + (lang === "en" ? "blog/en/" : "blog/")).replace("{workshops}", up + (lang === "en" ? "workshops/en/" : "workshops/")).replace("{medienbruch}", up + (lang === "en" ? "blog/seamless-data-flow-where-data-still-changes-media/" : "blog/medienbruchfreiheit-wo-daten-heute-noch-das-medium-wechseln/"))}</p>`).join("\n")}
 </div>
 </div>
+<h2 id="robin-vision">${t.robinVisionTitel}</h2>
+<p>${t.robinVision.replace("{werkzeuge}", up + (lang === "en" ? "werkzeuge/en/" : "werkzeuge/")).replace("{workshops}", up + (lang === "en" ? "workshops/en/" : "workshops/")).replace("{loesung}", up + (lang === "en" ? "individuelle-loesung/en/" : "individuelle-loesung/"))}</p>
 <h2 id="stationen">${t.stationenTitel}</h2>
 <dl class="stationen">
 ${t.stationen.map(([wann, was]) => `<div><dt>${wann}</dt><dd>${was}</dd></div>`).join("\n")}

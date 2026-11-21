@@ -4,24 +4,28 @@
 // und blog.js (shell); die Startseite trägt denselben Aufbau von Hand (index.html: Sprachwahl statt Wortmarke, Texte je Sprache
 // über language.js), tests/kopf_test.mjs hält beides zusammen. Seit Welle 2 der Textprüfung heißt der Werkzeugkasten
 // „Robins Werkzeugkasten“ (Robin, 23.10.2026), seit 03.11.2026 „Werkzeuge“, englisch „Tools“ (Robin).
+// Seit 21.11.2026 (neues Konzept, Robin: Menü „Werkzeuge · Individuelle Lösung (neu) · Workshops · Über mich“): „Impulse“ steht nicht mehr
+// im Menü; die Impulse bleiben über den Abschnitt der Startseite, die Fußzeile und ihre eigenen Seiten erreichbar.
 const T = {
-  de: { tools: "Werkzeuge", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
-  en: { tools: "Tools", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
+  de: { tools: "Werkzeuge", loesung: "Individuelle Lösung", posts: "Impulse", workshops: "Workshops", about: "Über mich", termin: "Termin", nachricht: "Nachricht", menue: "Menü", andere: "English", seiten: "Seiten" },
+  en: { tools: "Tools", loesung: "Custom solution", posts: "Food for Thought", workshops: "Workshops", about: "About", termin: "Appointment", nachricht: "Message", menue: "Menu", andere: "Deutsch", seiten: "Pages" },
 };
+// Reihenfolge der Seiten im Menü (Kopf und Menü auf schmalen Bildschirmen)
+export const MENUE = ["tools", "loesung", "workshops", "about"];
 // Ziele je Sprache, relativ zur Wurzel der Website
 export const ZIELE = {
-  de: { home: "", tools: "werkzeuge/", posts: "blog/", workshops: "workshops/", about: "ueber-mich/" },
-  en: { home: "?lang=en", tools: "werkzeuge/en/", posts: "blog/en/", workshops: "workshops/en/", about: "about/" },
+  de: { home: "", tools: "werkzeuge/", loesung: "individuelle-loesung/", posts: "blog/", workshops: "workshops/", about: "ueber-mich/" },
+  en: { home: "?lang=en", tools: "werkzeuge/en/", loesung: "individuelle-loesung/en/", posts: "blog/en/", workshops: "workshops/en/", about: "about/" },
 };
 export const MARKE = `robin<span class="punkt">.</span>vision`;
 
-// lang; up: Weg zur Wurzel („../“); aktiv: "tools" | "posts" | "workshops" | "about" | null; andere: Adresse der anderen Sprachfassung dieser
+// lang; up: Weg zur Wurzel („../“); aktiv: "tools" | "loesung" | "posts" | "workshops" | "about" | null; andere: Adresse der anderen Sprachfassung dieser
 // Seite (sonst die Startseite in der anderen Sprache)
 export function kopf(lang, up, { aktiv = null, andere = "" } = {}) {
   const l = lang === "en" ? "en" : "de", t = T[l], z = ZIELE[l], andereLang = l === "en" ? "de" : "en";
   const home = up + z.home;
   const link = k => `<a href="${up}${z[k]}"${aktiv === k ? ' aria-current="page"' : ""}>${t[k]}</a>`;
-  const seiten = ["tools", "posts", "workshops", "about"].map(link).join("");
+  const seiten = MENUE.map(link).join("");
   return `<header class="kopf">
 <a class="marke" href="${home}">${MARKE}</a>
 <nav class="hauptnav" aria-label="${t.seiten}">${seiten}</nav>
@@ -45,6 +49,7 @@ export const GOCH_SEITEN = {
     ki: ["Hier geht es um den Workshop KI-Kompetenz. Fragen Sie mich, was Sie wissen möchten.", ["Für wen ist der Workshop?", "Wie läuft der Workshop ab?", "Was bekommen wir am Ende?"]],
     erechnung: ["Hier geht es um den Workshop E-Rechnung. Fragen Sie mich, was Sie wissen möchten.", ["Was lerne ich im Workshop?", "Wie lange dauert er?", "Wie buche ich den Workshop?"]],
     werkzeuge: ["Hier finden Sie die Werkzeuge. Fragen Sie mich, welches zu Ihnen passt.", ["Welches Werkzeug passt zu mir?", "Was ist SmartFormular?", "Wie probiere ich ein Werkzeug aus?"]],
+    loesung: ["Hier geht es um Ihre eigene Lösung. Fragen Sie mich, wie das abläuft.", ["Was ist eine individuelle Lösung?", "Wie läuft das ab?", "Wie beschreibe ich mein Problem?"]],
     robin: ["Hier stellt sich Robin vor. Fragen Sie mich etwas über ihn.", ["Wer ist Robin?", "Woran arbeitet Robin gerade?", "Ich möchte Robin etwas ausrichten."]],
     impulse: ["Hier stehen Robins Impulse. Fragen Sie mich, worum es geht.", ["Worum geht es in den Impulsen?", "Was gibt's Neues?", "Wie bekomme ich die Impulse per E-Mail?"]],
     impuls: ["Fragen Sie mich etwas zu diesem Impuls.", ["Worum geht es in diesem Impuls?", "Was gibt's Neues?", "Ich möchte Robin etwas ausrichten."]],
@@ -54,6 +59,7 @@ export const GOCH_SEITEN = {
     ki: ["This page is about the AI literacy workshop. Ask me anything you'd like to know.", ["Who is the workshop for?", "How does the workshop work?", "What do we get at the end?"]],
     erechnung: ["This page is about the e-invoicing workshop. Ask me anything you'd like to know.", ["What will I learn?", "How long does it take?", "How do I book the workshop?"]],
     werkzeuge: ["Here you'll find the tools. Ask me which one suits you.", ["Which tool suits me?", "What is SmartFormular?", "How do I try a tool?"]],
+    loesung: ["This page is about a solution built for you. Ask me how it works.", ["What is a custom solution?", "How does it work?", "How do I describe my problem?"]],
     robin: ["This is where Robin introduces himself. Ask me something about him.", ["Who is Robin?", "What is Robin working on?", "I'd like to leave Robin a message."]],
     impulse: ["Here are Robin's articles. Ask me what they're about.", ["What are the articles about?", "What's new?", "How do I get the articles by email?"]],
     impuls: ["Ask me something about this article.", ["What is this article about?", "What's new?", "I'd like to leave Robin a message."]],

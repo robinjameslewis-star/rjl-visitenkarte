@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien</title>
+<title>robin.vision – Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</title>
 <meta name="description" content="Werkzeuge fürs Rechnungswesen: E-Rechnungen kostenlos prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln – kostenlos testen bis 31.12.2026. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.">
 <link rel="canonical" href="https://robin.vision/">
 <link rel="alternate" hreflang="de" href="https://robin.vision/">
@@ -13,7 +13,7 @@
 <link rel="alternate" type="application/rss+xml" title="robin.vision – Food for Thought" href="https://robin.vision/blog/en/feed.xml">
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
-<meta property="og:title" content="robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien">
+<meta property="og:title" content="robin.vision – Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.">
 <meta property="og:description" content="Werkzeuge fürs Rechnungswesen: E-Rechnungen kostenlos prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln – kostenlos testen bis 31.12.2026. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.">
 <meta property="og:url" content="https://robin.vision/">
 <meta property="og:image" content="https://robin.vision/assets/teilen.jpg">
@@ -100,6 +100,9 @@
   .name .punkt { color: var(--copper); }
   /* Leitsatz direkt unter der Wortmarke (Robin, 04.11.2026) */
   .name .slogan { display: block; margin-top: .3em; font-size: max(14px, .46em); line-height: 1.25; letter-spacing: .01em; color: var(--ink-soft); }
+  /* Seit 21.11.2026 steht hier die Kernzeile (Robin: „Vorschlag 2“) statt „Prozesse effizient gestalten“; ein Satz, darum etwas Luft und eine Zeilenbreite */
+  .name .slogan { max-width: 30ch; line-height: 1.35; }
+  @media (max-width: 720px) { .name .slogan { margin-left: auto; margin-right: auto; } }
   .intro { padding-bottom: 7%; /* Name, Zeile und Knöpfe enden auf Höhe des Vogelkörpers */ }
   .cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
   .cta a { display: inline-block; min-height: 44px; padding: 10px 16px; border-radius: 3px; font-size: 15px; line-height: 1.4; text-decoration: none; }
@@ -496,6 +499,16 @@
   .message .msg-status.ok { color: var(--green); }
   .message .msg-status.warn { color: var(--warning); }
   .message .hint { color: var(--ink-soft); font-size: 14px; margin: 0; max-width: 60ch; }
+  /* Vier Säulen unter der Kernzeile (Robin, 21.11.2026): ruhige Kacheln, jede ein Verweis auf ihre Seite */
+  .saeulen { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
+  .saeulen ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 760px; }
+  @media (max-width: 520px) { .saeulen ul { grid-template-columns: 1fr; gap: 10px; } }
+  .saeulen a { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 16px 18px 18px; border: 1px solid var(--line); border-top: 2px solid var(--copper); border-radius: 4px; background: rgba(255,255,255,.45); background: color-mix(in srgb, rgba(255,255,255,.45), #242D3B var(--nacht-prozent, 0%)); color: var(--ink); text-decoration: none; }
+  .saeulen a:hover { background: var(--hover); }
+  .saeulen a:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+  .saeulen strong { font: 400 clamp(20px, 1.9vw, 23px)/1.2 var(--serif); color: var(--green); }
+  .saeulen span { font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
+  footer .fuss-links { margin: 0 0 10px; } footer .fuss-links a { text-decoration: none; } footer .fuss-links a:hover { color: var(--ink-soft); text-decoration: underline; }
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
   .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
   .blog-teaser p.lead { margin: 0 0 22px; color: var(--ink-soft); max-width: 44ch; }
@@ -885,10 +898,10 @@
   <a href="?lang=de" data-language="de" lang="de" hreflang="de" aria-current="page" title="Deutsch"><svg class="flag" viewBox="0 0 5 3" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="5" height="1" fill="#1F1F1F"/><rect y="1" width="5" height="1" fill="#C8102E"/><rect y="2" width="5" height="1" fill="#E8B923"/></svg><span class="visually-hidden">Deutsch</span></a>
   <a href="?lang=en" data-language="en" lang="en" hreflang="en" title="English"><svg class="flag" viewBox="0 0 60 30" width="22" height="15" preserveAspectRatio="none" aria-hidden="true" focusable="false"><clipPath id="flag-uk-quarters"><path d="M30 15h30v15zv15H30zH0V15zV0h30z"/></clipPath><rect width="60" height="30" fill="#1B3A73"/><path d="M0 0l60 30m0-30L0 30" stroke="#F6F1E8" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-quarters)" stroke="#C8102E" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#F6F1E8" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg><span class="visually-hidden">English</span></a>
 </nav>
-<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
+<nav class="hauptnav" aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><a href="individuelle-loesung/" data-href-de="individuelle-loesung/" data-href-en="individuelle-loesung/en/" data-i18n="navLoesung">Individuelle Lösung</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a></nav>
 <a class="termin" href="#kontakt" data-i18n="navContact">Termin</a>
 <details class="menue"><summary aria-label="Menü" data-i18n-aria="menuLabel"><span></span></summary>
-<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
+<nav aria-label="Seiten" data-i18n-aria="navPages"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="navTools">Werkzeuge</a><a href="individuelle-loesung/" data-href-de="individuelle-loesung/" data-href-en="individuelle-loesung/en/" data-i18n="navLoesung">Individuelle Lösung</a><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/" data-i18n="navWorkshops">Workshops</a><a href="ueber-mich/" data-href-de="ueber-mich/" data-href-en="about/" data-i18n="navAbout">Über mich</a><a href="#nachricht" data-i18n="navMessage">Nachricht</a></nav>
 </details>
 </header>
 
@@ -900,7 +913,7 @@
 <main>
   <section class="stage" aria-label="Robin James Lewis">
     <div class="intro">
-      <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a><span class="slogan" data-i18n="slogan">Prozesse effizient gestalten</span></h1>
+      <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a><span class="slogan" data-i18n="slogan">Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</span></h1>
       <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/"><span data-i18n="ctaWorkshops">Workshops für Ihr Team</span><small data-i18n="ctaWorkshopsZusatz">KI-Kompetenz · E-Rechnung</small></a></p>
     </div>
     <div class="perch">
@@ -983,10 +996,21 @@
   </section>
 
 
+  <!-- Vier Säulen unter der Kernzeile (Robin, 21.11.2026): eigene Lösungen, empfohlene Lösungen, Workshops, Ihre eigene Lösung -->
+  <section class="saeulen" id="angebot" aria-labelledby="saeulen-title">
+    <h2 class="visually-hidden" id="saeulen-title" data-i18n="saeulenTitel">Was robin.vision bietet</h2>
+    <ul>
+      <li><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/"><strong data-i18n="saeuleEigeneTitel">Eigene Lösungen</strong><span data-i18n="saeuleEigeneText">SmartFormular, dazu Kanzlei-Agenten in Entwicklung.</span></a></li>
+      <li><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/"><strong data-i18n="saeuleEmpfohlenTitel">Empfohlene Lösungen</strong><span data-i18n="saeuleEmpfohlenText">Lösungen anderer Anbieter, vorgestellt auf robin.vision.</span></a></li>
+      <li><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/"><strong data-i18n="saeuleWorkshopsTitel">Workshops</strong><span data-i18n="saeuleWorkshopsText">KI-Kompetenz und E-Rechnung für Ihr Team.</span></a></li>
+      <li><a href="individuelle-loesung/" data-href-de="individuelle-loesung/" data-href-en="individuelle-loesung/en/"><strong data-i18n="saeuleLoesungTitel">Ihre eigene Lösung</strong><span data-i18n="saeuleLoesungText">Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, ich baue eine passende Lösung.</span></a></li>
+    </ul>
+  </section>
+
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
     <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeuge</a></h2>
-    <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision.</p>
+    <p class="lead" data-i18n="toolsLead">Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – eigene und empfohlene, vorgestellt auf robin.vision.</p>
     <div class="wzs-rahmen">
 <!-- werkzeuge:liste -->
     <div class="wzs" data-langs="de" aria-roledescription="Karussell" aria-label="Werkzeuge">
@@ -1017,7 +1041,7 @@
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>SmartFormular</h3>
           <p>Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung Start prüft E-Rechnungen kostenlos, Buchhaltung Start lässt sich bis 31.12.2026 kostenlos testen; Deklaration kommt als Beta.</p>
-          <p class="wzs-fuss"><span class="wzs-bereich">Rechnungswesen</span><a href="werkzeuge/smartformular/">Zum Produkt</a></p>
+          <p class="wzs-fuss"><span class="wzs-bereich">TaxTech</span><a href="werkzeuge/smartformular/">Zum Produkt</a></p>
         </article>
       </div>
       <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Zurück">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Weiter">→</button></div>
@@ -1050,7 +1074,7 @@
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>SmartFormular</h3>
           <p>Forms that work with you – for the days when the process stalls. E-Invoice Start checks e-invoices free of charge, Bookkeeping Start is free to try until 31 December 2026; Declaration is coming as a beta.</p>
-          <p class="wzs-fuss"><span class="wzs-bereich">Accounting</span><a href="werkzeuge/smartformular/en/">To the product</a></p>
+          <p class="wzs-fuss"><span class="wzs-bereich">TaxTech</span><a href="werkzeuge/smartformular/en/">To the product</a></p>
         </article>
       </div>
       <div class="wzs-steuerung"><button type="button" class="wzs-pfeil" data-richtung="-1" aria-label="Previous">←</button><span class="wzs-punkte" aria-hidden="true"><i class="an"></i><i></i><i></i><i></i></span><button type="button" class="wzs-pfeil" data-richtung="1" aria-label="Next">→</button></div>
@@ -1126,7 +1150,7 @@
 
   <section class="contact" aria-labelledby="kontakt">
     <h2 id="kontakt" data-i18n="contactTitle">Termin vereinbaren</h2>
-    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team oder die Vorstellung Ihrer Software bei den Werkzeugen. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
+    <p class="lead" data-i18n="contactLead">Ein unverbindliches Gespräch über einen Workshop für Ihr Team, eine individuelle Lösung oder die Vorstellung Ihrer Software bei den Werkzeugen. Per Video, am Telefon, in Balingen oder an einem Ort nach Wunsch. Jede Buchung ist zunächst ein Vorschlag; ich bestätige den Termin persönlich.</p>
 
     <!-- Terminbuchung über Cal.com, inline eingebettet. Links in data-booking-link (Deutsch) und data-booking-link-en (Englisch).
          Bewusst NICHT "data-cal-link": dieses Attribut bindet Cal.coms Skript automatisch an ein dunkles Popup. -->
@@ -1174,6 +1198,8 @@
 <div class="goch-mini" id="goch-mini" hidden><span class="goch-mini-bild"><span class="goch-mini-tier"><img class="goch-mini-vogel" data-src="figuren/goch/bilder/vogel.webp" alt="" width="1153" height="637" decoding="async"></span><img class="goch-mini-ast" data-src="assets/ast.webp" alt="" width="2800" height="167" decoding="async"></span><button class="goch-mini-knopf" id="goch-mini-knopf" type="button" aria-label="Zurück zu Goch" data-i18n-aria="gochMini"></button></div>
 
 <footer>
+  <!-- Impulse in der Fußzeile (seit 21.11.2026 nicht mehr im Menü); den Verweis schreibt die Redaktion zwischen die Marken (blog.js, updateHomepage) -->
+  <p class="fuss-links"><!-- redaktion:blog-link --><a href="blog/" data-href-de="blog/" data-href-en="blog/en/" data-langs="de en" data-title-de="Impulse" data-title-en="Food for Thought">Impulse</a><!-- /redaktion:blog-link --></p>
   <details id="privacy">
     <summary data-i18n="legalTitle">Impressum · Datenschutz</summary>
     <p>Robin James Lewis · Höchststr. 32 · 72336 Balingen · <a href="mailto:robin@robin.vision">robin@robin.vision</a></p>
@@ -1226,14 +1252,14 @@
     zeigen();
   })();
 </script>
-<script src="language.js?v=20261130" defer></script>
+<script src="language.js?v=20261201" defer></script>
 <script src="site.js?v=20261016b" defer></script>
-<script src="goch.js?v=20261120" defer></script>
+<script src="goch.js?v=20261201" defer></script>
 <script src="goch-audio.js?v=20261106" defer></script>
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261120" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261129" defer></script>
+<script src="goch-gespraech.js?v=20261201" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>

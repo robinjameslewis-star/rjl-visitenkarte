@@ -182,10 +182,12 @@
     panel.style.left = left + 'px';
     panel.style.width = Math.max(260, Math.min(400, right - left)) + 'px';
     if (document.documentElement.classList.contains('landscape-on')) {
-      // Mit Landschaft steht der Name oben im Himmel: Die Blase hängt unter ihm, vor der fernen Landschaft.
+      // Mit Landschaft steht der Name oben im Himmel: Die Blase hängt unter ihm, vor der fernen Landschaft. Seit 21.11.2026 steht
+      // unter der Wortmarke die Kernzeile (mehrere Zeilen): Die Blase hängt unter der ganzen Überschrift, damit sie die Zeile nicht verdeckt.
+      const kopfBox = (nameLink.closest('h1') || nameLink).getBoundingClientRect();
       panel.style.bottom = 'auto';
-      panel.style.top = (nameBox.bottom - base.top + 16) + 'px';
-      panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(520, base.bottom - nameBox.bottom + 120)) + 'px';
+      panel.style.top = (kopfBox.bottom - base.top + 16) + 'px';
+      panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(520, base.bottom - kopfBox.bottom + 120)) + 'px';
     } else {
       panel.style.bottom = (base.bottom - nameBox.top + 14) + 'px';
       panel.style.maxHeight = Math.max(mindesthoehe(), 240, Math.min(560, nameBox.top + scrollY - 24)) + 'px';
