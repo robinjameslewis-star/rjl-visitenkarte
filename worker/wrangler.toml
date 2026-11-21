@@ -36,6 +36,9 @@ MAX_AUFBAU_PER_DAY = "20"   # Werkzeug „Kontoauszug-Konverter“: Aufbau-Meldu
 # Einstellungen für den Umzug (Vorgaben im Code, src/lizenz.js einstellungen): LIZENZ_MARKE, LIZENZ_MAIL_FROM, LIZENZ_KONTAKT,
 # LIZENZ_MAIL_FUSS, LIZENZ_PREIS_<WERKZEUG>. Secret LIZENZ_DIENST_SCHLUESSEL (wahlweise, mind. 32 Zeichen) öffnet POST /lizenz/erklaerung
 # für den Memberbereich (Widerruf und Kündigung nur vermerken); ohne das Secret ist der Weg zu.
+# Signaturschlüssel (Lücke 4, worker/LIZENZ_SCHLUESSEL.md): ohne Einstellung signiert der KV-Schlüssel lizenz:schluessel wie bisher.
+# Weitere Schlüssel als Secret LIZENZ_SIGNATUR_PRIVAT_<NAME> (privater JWK), nur bekannte als LIZENZ_SIGNATUR_BEKANNT (JSON-Liste
+# öffentlicher JWKs), Umstellen mit LIZENZ_SIGNATUR_AKTIV = "<NAME oder kid>" – erst, wenn die Werkzeuge mehrere Schlüssel annehmen.
 # Ohne Stripe und mit LIZENZ_TESTKAUF = "1" schaltet „Lizenz kaufen“ sofort frei (nur zum Durchspielen, nie öffentlich an).
 LIZENZ_PREIS = ""                  # Text im Werkzeug neben „Lizenz kaufen“, z. B. "199 € je Benutzer und Jahr" – erst, wenn der Preis auf der Website steht
 LIZENZ_TESTKAUF = "0"

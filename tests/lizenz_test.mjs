@@ -2,13 +2,14 @@
 // Testende, Testkauf, Stripe-Checkout und -Webhook, Geräte je Person, signierter Status und seine Prüfung im Werkzeug.
 // Seit 21.11.2026 (Lücke 2 und 1): Ereignisprotokoll, fehlendes Konto → 500 und späterer Erfolg, Erstattung und Rückbuchung sperren,
 // Entsperren, neuer Kauf hebt die Sperre auf, Erklärungen, Rückkehr mit Sitzungs-ID, täglicher Abgleich, Schloss je Konto.
+// Seit 21.11.2026 (Lücke 4): Schlüsselkennung kid im Status, mehrere Schlüssel (aktiv und bekannt), GET /lizenz/schluessel mit Liste.
 // KV im Speicher, Resend und Stripe abgefangen (Stripe nur als Attrappe), Uhr verstellbar. Kein Netz. Das Durable Object ist die
 // echte Klasse Geraetebudget mit Speicher im Arbeitsspeicher; Anfragen laufen nacheinander wie hinter dem Eingangstor.
 //   node tests/lizenz_test.mjs
-import { handleLizenz, LIZENZPFLICHT_AB, stripeSignaturOk, _schluesselVergessen, lizenzAbgleich, lizenzVerwalten, erklaerungVermerken, gewaehren, sha256 } from "../worker/src/lizenz.js";
+import { handleLizenz, LIZENZPFLICHT_AB, stripeSignaturOk, _schluesselVergessen, lizenzAbgleich, lizenzVerwalten, erklaerungVermerken, gewaehren, sha256, schluesselKennung } from "../worker/src/lizenz.js";
 import { Geraetebudget } from "../worker/src/kiosk.js";
 import { tokenPruefen } from "../tools/lizenz/lizenz-client.js";
-import { createHmac } from "node:crypto";
+import { createHmac, createHash } from "node:crypto";
 
 let fails = 0;
 const check = (ok, label, detail = "") => { console.log((ok ? "  ok   " : "  FEHLT ") + label + (detail ? ` (${detail})` : "")); if (!ok) fails++; };
@@ -419,6 +420,93 @@ env.LIZENZ_TESTKAUF = "0"; delete env.STRIPE_SECRET_KEY;
 r = await post("kaufen", { werkzeug: "fibu", sitzung: sitzungNeu });
 check(r.status === 503 && r.error.includes("hilfe@x.example"), "Kontakt aus den Einstellungen");
 check((await post("status", { werkzeug: "fibu", sitzung: sitzungNeu })).preis === "220 € im Jahr" && (await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).preis.startsWith("199"), "Preis je Werkzeug, sonst der gemeinsame");
+
+// ---------- Lücke 4: Schlüsselkennung und mehrere Schlüssel ----------
+// Schlüssel für die Tests werden hier erzeugt (nie ein echter); der private Teil steht nur im Arbeitsspeicher.
+const schluesselHolen = async (e = env) => { const r = await handleLizenz(new Request("https://goch.robin.vision/lizenz/schluessel"), e, {}); return { status: r.status, cors: r.headers.get("access-control-allow-origin"), ...(await r.json()) }; };
+const kidKv = await schluesselKennung(oeffentlich);
+const teile = t => JSON.parse(Buffer.from(t.split(".")[0], "base64url").toString());
+// ohne zweiten Schlüssel: alles wie bisher, nur mit Kennung
+_schluesselVergessen();
+let sl = await schluesselHolen();
+check(sl.status === 200 && sl.cors === "*", "GET /lizenz/schluessel offen für jede Herkunft");
+check(JSON.stringify(sl.oeffentlich) === JSON.stringify(oeffentlich), "ohne zweiten Schlüssel: „oeffentlich“ unverändert (kty, crv, x, y)");
+check(/^[A-Za-z0-9_-]{43}$/.test(kidKv) && sl.aktiv === kidKv && sl.schluessel.length === 1 && sl.schluessel[0].kid === kidKv && sl.schluessel[0].stand === "aktiv" && !sl.schluessel.some(x => x.d), "Liste: ein Schlüssel, Kennung = Fingerabdruck, ohne privaten Teil");
+// Fingerabdruck nach RFC 7638 (Beispiel aus RFC 7638 Abschnitt 3.1 ist RSA; hier gegen die Rechnung von Hand)
+check(kidKv === Buffer.from(createHash("sha256").update(`{"crv":"P-256","kty":"EC","x":"${oeffentlich.x}","y":"${oeffentlich.y}"}`).digest()).toString("base64url"), "Kennung nach RFC 7638 (SHA-256 über crv, kty, x, y)");
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu });
+check(r.status.kid === kidKv && r.kid === kidKv && teile(r.token).kid === kidKv, "Status trägt die Kennung (im signierten Teil und daneben)");
+const stAltWerkzeug = await tokenPruefen(r.token, oeffentlich);
+check(stAltWerkzeug && stAltWerkzeug.w === "erechnung" && stAltWerkzeug.kid === kidKv, "unverändertes Werkzeug prüft den Status mit kid weiter (Signatur über den ganzen Text)");
+check(await tokenPruefen(r.token, sl.schluessel[0]) !== null, "Eintrag der Liste lässt sich direkt als Schlüssel verwenden (alg, use, kid stören importKey nicht)");
+
+// zweiter Schlüssel als Secret, noch nicht aktiv: signiert wird weiter mit dem KV-Schlüssel
+const paar2 = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+const priv2 = await crypto.subtle.exportKey("jwk", paar2.privateKey), oeff2 = { kty: "EC", crv: "P-256", x: priv2.x, y: priv2.y }, kid2 = await schluesselKennung(oeff2);
+env.LIZENZ_SIGNATUR_PRIVAT_2027 = JSON.stringify(priv2);
+sl = await schluesselHolen();
+check(sl.aktiv === kidKv && sl.schluessel.length === 2 && sl.schluessel.find(x => x.kid === kid2)?.stand === "bekannt" && JSON.stringify(sl.oeffentlich) === JSON.stringify(oeffentlich), "zweiter Schlüssel ohne Umstellung: bekannt, KV-Schlüssel bleibt aktiv");
+check(!JSON.stringify(sl).includes(priv2.d), "privater Teil des zweiten Schlüssels nie in der Antwort");
+const tokVorher = (await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).token;
+check(teile(tokVorher).kid === kidKv && await tokenPruefen(tokVorher, oeffentlich), "vor dem Umstellen: signiert mit dem KV-Schlüssel");
+
+// Umstellen per Einstellung (Name oder Kennung)
+env.LIZENZ_SIGNATUR_AKTIV = "2027";
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu });
+check(r.kid === kid2 && teile(r.token).kid === kid2 && await tokenPruefen(r.token, oeff2) && await tokenPruefen(r.token, oeffentlich) === null, "nach dem Umstellen: signiert mit dem aktiven Schlüssel (Name „2027“)");
+sl = await schluesselHolen();
+check(sl.aktiv === kid2 && sl.schluessel.find(x => x.kid === kidKv)?.stand === "bekannt" && sl.oeffentlich.x === oeff2.x, "Liste: neuer Schlüssel aktiv, alter bleibt bekannt");
+const altAusListe = sl.schluessel.find(x => x.kid === teile(tokVorher).kid);
+check(altAusListe && await tokenPruefen(tokVorher, altAusListe) && await tokenPruefen(tokVorher, oeffentlich), "Status vom alten, nur noch bekannten Schlüssel: prüfbar über die Liste und mit dem eingebauten Schlüssel");
+env.LIZENZ_SIGNATUR_AKTIV = kid2;
+check((await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu })).kid === kid2, "Umstellen auch über die Kennung");
+
+// Fehleinstellung: unbekannter Name → KV-Schlüssel signiert weiter, kein neuer Schlüssel im KV
+const kvVorher = await env.USAGE.get("lizenz:schluessel");
+const fehlerAus = console.error; let fehlerText = ""; console.error = (...a) => { fehlerText += a.join(" ") + "\n"; };
+env.LIZENZ_SIGNATUR_AKTIV = "gibt-es-nicht";
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu });
+check(r.kid === kidKv && await tokenPruefen(r.token, oeffentlich) && await env.USAGE.get("lizenz:schluessel") === kvVorher, "unbekannter aktiver Schlüssel: KV-Schlüssel signiert weiter, nichts neu erzeugt");
+// kaputter privater Teil (passt nicht zum öffentlichen): Probe scheitert, Ersatz signiert
+const fremd = await crypto.subtle.exportKey("jwk", (await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"])).publicKey);
+env.LIZENZ_SIGNATUR_PRIVAT_KAPUTT = JSON.stringify({ ...priv2, x: fremd.x, y: fremd.y, kid: "kaputt" });
+fehlerText = "";
+env.LIZENZ_SIGNATUR_PRIVAT_UNLESBAR = "kein json";
+env.LIZENZ_SIGNATUR_AKTIV = "kaputt";
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu });
+check(r.status.typ && r.kid === kidKv && await tokenPruefen(r.token, oeffentlich) && /kaputt/.test(fehlerText) && /nicht ladbar/.test(fehlerText), "Schlüssel, der die Probe nicht besteht, signiert nie; KV-Schlüssel springt ein");
+console.error = fehlerAus;
+check(!fehlerText.includes(priv2.d) && !fehlerText.includes("kein json") && /unlesbar/.test(fehlerText), "Fehler im Protokoll ohne Schlüsselteile");
+delete env.LIZENZ_SIGNATUR_PRIVAT_KAPUTT; delete env.LIZENZ_SIGNATUR_PRIVAT_UNLESBAR;
+
+// nur bekannte öffentliche Schlüssel aus [vars] (etwa ein ausgemusterter oder der der anderen Instanz) – signieren nie
+const paar3 = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+const oeff3 = await crypto.subtle.exportKey("jwk", paar3.publicKey);
+env.LIZENZ_SIGNATUR_BEKANNT = JSON.stringify([{ kty: "EC", crv: "P-256", x: oeff3.x, y: oeff3.y, kid: "alt-1" }, { kty: "RSA" }]);
+env.LIZENZ_SIGNATUR_AKTIV = "alt-1";
+console.error = () => {};
+sl = await schluesselHolen();
+r = await post("status", { werkzeug: "erechnung", sitzung: sitzungNeu });
+console.error = fehlerAus;
+check(sl.schluessel.some(x => x.kid === "alt-1" && x.stand === "bekannt") && sl.schluessel.length === 3 && sl.aktiv === kidKv && r.kid === kidKv, "bekannter Schlüssel mit eigener Kennung: gelistet, signiert nie (Ersatz KV)");
+delete env.LIZENZ_SIGNATUR_BEKANNT; delete env.LIZENZ_SIGNATUR_AKTIV;
+
+// Instanz ohne KV-Schlüssel, nur mit Secret (etwa der eigene Dienst auf smartformular.ai): kein KV-Schlüssel wird erzeugt
+const envNeu = { ...env, USAGE: kv(), LIZENZ_SIGNATUR_AKTIV: "2027" };
+_schluesselVergessen();
+sl = await schluesselHolen(envNeu);
+check(sl.aktiv === kid2 && sl.schluessel.length === 1 && await envNeu.USAGE.get("lizenz:schluessel") === null, "andere Instanz nur mit Secret: signiert damit, erzeugt keinen KV-Schlüssel");
+// ganz ohne Schlüssel und mit Einstellung: 503 statt eines neuen Schlüssels
+const envLeer = { USAGE: kv(), LIZENZ_SIGNATUR_AKTIV: "x" };
+_schluesselVergessen(); console.error = () => {};
+sl = await schluesselHolen(envLeer);
+console.error = fehlerAus;
+check(sl.status === 503 && await envLeer.USAGE.get("lizenz:schluessel") === null, "kein Schlüssel ladbar: 503, nichts erzeugt");
+// zurück: ohne Einstellungen wieder genau wie vorher
+delete env.LIZENZ_SIGNATUR_PRIVAT_2027;
+_schluesselVergessen();
+sl = await schluesselHolen();
+check(sl.aktiv === kidKv && sl.schluessel.length === 1 && JSON.stringify(sl.oeffentlich) === JSON.stringify(oeffentlich), "ohne Einstellungen wieder ein Schlüssel wie vorher");
 
 Date.now = echtesNow;
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nAlle Lizenzprüfungen bestanden.");
