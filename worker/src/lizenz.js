@@ -11,7 +11,9 @@
 // Der Status geht signiert zurück (ECDSA P-256). Das Werkzeug prüft die Signatur mit dem eingebauten öffentlichen Schlüssel und
 // arbeitet damit bis zu OFFLINE_TAGE ohne Netz weiter. Den Schlüssel erzeugt der Worker beim ersten Abruf von GET /lizenz/schluessel
 // selbst und legt ihn im KV ab (lizenz:schluessel) – niemand muss ein Geheimnis eintippen. Der öffentliche Teil wird beim Bauen der
-// Werkzeuge eingebettet (tools/lizenz/oeffentlich.json).
+// Werkzeuge eingebettet (tools/lizenz/oeffentlich.json). Seit 21.11.2026 (Lücke 4) trägt jeder Status die Kennung „kid“ des
+// signierenden Schlüssels, und der Worker kennt weitere Schlüssel für einen Wechsel ohne Ausfall (Abschnitt „Schlüssel“, Plan in
+// worker/LIZENZ_SCHLUESSEL.md).
 //
 // KV (Bindung USAGE):
 //   lizenz:schluessel                privater und öffentlicher Schlüssel (JWK)
@@ -112,20 +114,97 @@ async function lesen(request) {
 async function kvJson(env, k) { try { return JSON.parse(await env.USAGE.get(k)); } catch { return null; } }
 
 // ---------- Schlüssel ----------
+// Mehrere Signaturschlüssel (Lücke 4, 21.11.2026). Jeder Schlüssel hat eine Kennung (kid): aus dem öffentlichen Schlüssel abgeleitet
+// (SHA-256-Fingerabdruck nach RFC 7638, base64url) oder aus dem Feld „kid“ der Einstellung. Quellen, alle über Einstellungen und ohne
+// festen Bezug auf eine Seite (zwei Instanzen desselben Kerns):
+//   KV lizenz:schluessel                 der bisherige Schlüssel (Name „kv“). Ohne LIZENZ_SIGNATUR_AKTIV signiert er wie bisher und
+//                                        wird beim ersten Abruf erzeugt, wenn er fehlt. Mit LIZENZ_SIGNATUR_AKTIV wird nie einer erzeugt.
+//   Secret LIZENZ_SIGNATUR_PRIVAT_<NAME> weiterer Schlüssel als privater JWK (JSON mit kty, crv, x, y, d; wahlweise kid). Name = <NAME> klein.
+//   [vars] LIZENZ_SIGNATUR_BEKANNT       JSON-Liste öffentlicher JWKs (kty, crv, x, y; wahlweise kid): nur bekannt, signieren nie.
+//   [vars] LIZENZ_SIGNATUR_AKTIV         Kennung oder Name des Schlüssels, der signiert. Leer = „kv“. Fehlt der genannte Schlüssel oder
+//                                        lässt er sich nicht laden, signiert der KV-Schlüssel weiter (Fehler im Protokoll, ohne Schlüsselteile).
+// Alle anderen gelten als „bekannt“: GET /lizenz/schluessel nennt sie, damit Werkzeuge einen Status mit ihnen weiter annehmen können.
+const P256 = { name: "ECDSA", namedCurve: "P-256" };
+const PROBE = enc.encode("lizenz-schluessel-probe");
+const nurOeffentlich = j => ({ kty: j.kty, crv: j.crv, x: j.x, y: j.y });
+const jwkOk = j => !!j && typeof j === "object" && j.kty === "EC" && j.crv === "P-256" && typeof j.x === "string" && typeof j.y === "string";
+const KID = /^[A-Za-z0-9_.-]{1,64}$/;
+// Fingerabdruck nach RFC 7638: SHA-256 über {"crv","kty","x","y"} in dieser Reihenfolge, ohne Leerzeichen
+export async function schluesselKennung(jwk) {
+  const { crv, kty, x, y } = jwk;
+  return b64url(await crypto.subtle.digest("SHA-256", enc.encode(JSON.stringify({ crv, kty, x, y }))));
+}
+const PRIVAT_ENV = /^LIZENZ_SIGNATUR_PRIVAT_([A-Z0-9_]{1,40})$/;
+// Merkmal der Einstellungen für den Zwischenspeicher: ändert sich eine, wird neu geladen (nur im Arbeitsspeicher)
+const merkmal = env => JSON.stringify([env.LIZENZ_SIGNATUR_AKTIV || "", env.LIZENZ_SIGNATUR_BEKANNT || "", ...Object.keys(env).filter(k => PRIVAT_ENV.test(k)).sort().map(k => [k, String(env[k])])]);
+
 let schluesselCache = null;
-export async function schluessel(env) {
-  if (schluesselCache) return schluesselCache;
-  let s = await kvJson(env, "lizenz:schluessel");
-  if (!s) {
-    const paar = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+export async function schluesselSatz(env) {
+  const m = merkmal(env);
+  if (schluesselCache && schluesselCache.m === m) return schluesselCache.satz;
+  const wunsch = String(env.LIZENZ_SIGNATUR_AKTIV || "").trim(), roh = [];
+  // Neu erzeugt wird nur, wenn der Eintrag sicher fehlt (get liefert null) – nie nach einem Lesefehler oder bei unlesbarem Inhalt,
+  // sonst überschriebe ein kurzer KV-Fehler den Schlüssel, den die verteilten Werkzeuge eingebaut haben.
+  let kvRoh, s = null;
+  try { kvRoh = await env.USAGE.get("lizenz:schluessel"); } catch (f) { kvRoh = undefined; console.error("Lizenz: Schlüssel nicht lesbar (KV)", String(f && f.message || f).slice(0, 80)); }
+  if (kvRoh) { try { s = JSON.parse(kvRoh); } catch { console.error("Lizenz: Schlüssel im KV unlesbar"); } }
+  if (kvRoh === null && !wunsch) {
+    const paar = await crypto.subtle.generateKey(P256, true, ["sign", "verify"]);
     s = { privat: await crypto.subtle.exportKey("jwk", paar.privateKey), oeffentlich: await crypto.subtle.exportKey("jwk", paar.publicKey), erstellt: new Date(Date.now()).toISOString() };
     await env.USAGE.put("lizenz:schluessel", JSON.stringify(s));
   }
-  const privat = await crypto.subtle.importKey("jwk", s.privat, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
-  const { kty, crv, x, y } = s.oeffentlich;
-  return (schluesselCache = { privat, oeffentlich: { kty, crv, x, y } });
+  if (s && jwkOk(s.oeffentlich) && s.privat) roh.push({ name: "kv", oeffentlich: nurOeffentlich(s.oeffentlich), privatJwk: s.privat });
+  for (const k of Object.keys(env).filter(k => PRIVAT_ENV.test(k)).sort()) {
+    let j = null; try { j = JSON.parse(env[k]); } catch {}
+    if (!jwkOk(j) || typeof j.d !== "string") { console.error("Lizenz: Schlüssel unlesbar", k); continue; }
+    roh.push({ name: k.match(PRIVAT_ENV)[1].toLowerCase(), oeffentlich: nurOeffentlich(j), privatJwk: j, kid: j.kid });
+  }
+  let bekannt = []; try { bekannt = JSON.parse(env.LIZENZ_SIGNATUR_BEKANNT || "[]"); } catch { console.error("Lizenz: LIZENZ_SIGNATUR_BEKANNT ist kein JSON"); }
+  (Array.isArray(bekannt) ? bekannt : []).forEach((j, i) => { if (jwkOk(j)) roh.push({ name: "bekannt-" + (i + 1), oeffentlich: nurOeffentlich(j), kid: j.kid }); else console.error("Lizenz: bekannter Schlüssel unlesbar", i + 1); });
+  // Kennungen, doppelte Schlüssel (gleiches x, y oder gleiche Kennung) nur einmal – der erste mit privatem Teil gewinnt
+  const liste = [];
+  for (const e of roh) {
+    e.kid = typeof e.kid === "string" && KID.test(e.kid) ? e.kid : await schluesselKennung(e.oeffentlich);
+    if (liste.some(x => x.kid === e.kid || (x.oeffentlich.x === e.oeffentlich.x && x.oeffentlich.y === e.oeffentlich.y))) continue;
+    liste.push(e);
+  }
+  // aktiver Schlüssel: der gewünschte, sonst „kv“, sonst der erste weitere mit privatem Teil. Jeder Kandidat muss eine Probe bestehen.
+  const privat = liste.filter(e => e.privatJwk), gewuenscht = wunsch ? privat.filter(e => e.kid === wunsch || e.name === wunsch.toLowerCase()) : [];
+  if (wunsch && !gewuenscht.length) console.error("Lizenz: aktiver Signaturschlüssel nicht gefunden", wunsch.slice(0, 64));
+  const kandidaten = [...new Set([...gewuenscht, ...privat.filter(e => e.name === "kv"), ...privat])];
+  let aktiv = null;
+  for (const e of kandidaten) {
+    try {
+      const { kty, crv, x, y, d } = e.privatJwk;
+      const key = await crypto.subtle.importKey("jwk", { kty, crv, x, y, d }, P256, false, ["sign"]);
+      const pruef = await crypto.subtle.importKey("jwk", e.oeffentlich, P256, false, ["verify"]);
+      const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, PROBE);
+      if (!await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, pruef, sig, PROBE)) throw new Error("Probe passt nicht");
+      aktiv = { kid: e.kid, name: e.name, privat: key, oeffentlich: e.oeffentlich };
+      break;
+    } catch (f) { console.error("Lizenz: Signaturschlüssel nicht ladbar", e.kid, String(f && f.message || f).slice(0, 80)); }
+  }
+  if (wunsch && aktiv && gewuenscht.length && aktiv.kid !== gewuenscht[0].kid) console.error("Lizenz: signiere ersatzweise mit", aktiv.kid);
+  const satz = { aktiv, liste: liste.map(e => ({ kid: e.kid, name: e.name, oeffentlich: e.oeffentlich, aktiv: !!aktiv && e.kid === aktiv.kid })) };
+  // ohne aktiven Schlüssel nicht zwischenspeichern: der nächste Abruf versucht es neu
+  if (aktiv) schluesselCache = { m, satz };
+  return satz;
+}
+// bisherige Schnittstelle: der aktive Schlüssel { privat, oeffentlich, kid }
+export async function schluessel(env) {
+  const { aktiv } = await schluesselSatz(env);
+  if (!aktiv) throw new Error("Lizenz: kein Signaturschlüssel");
+  return aktiv;
 }
 export function _schluesselVergessen() { schluesselCache = null; } // nur für Tests
+// Öffentliche Liste für GET /lizenz/schluessel. „oeffentlich“ bleibt wie bisher (nur kty, crv, x, y des aktiven Schlüssels, liest
+// tools/erechnung/bauen.mjs); dazu „aktiv“ (Kennung) und „schluessel“ – jeder Eintrag ist ein JWK, den crypto.subtle.importKey so annimmt.
+export async function schluesselListe(env) {
+  const { aktiv, liste } = await schluesselSatz(env);
+  if (!aktiv) return null;
+  return { oeffentlich: aktiv.oeffentlich, aktiv: aktiv.kid,
+    schluessel: liste.map(e => ({ kid: e.kid, ...e.oeffentlich, alg: "ES256", use: "sig", stand: e.aktiv ? "aktiv" : "bekannt" })) };
+}
 
 async function signieren(env, inhalt) {
   const { privat } = await schluessel(env);
@@ -209,9 +288,12 @@ async function statusAntwort(env, eh, konto, werkzeug) {
   const frei = s.typ === "lizenz" || s.typ === "test";
   // offline gültig bis: höchstens OFFLINE_TAGE, nie über das Ende von Test oder Lizenz hinaus. Grenze: ein vor der Sperre ausgestellter
   // Status gilt im Werkzeug ohne Netz weiter bis zu seinem gueltigBis (höchstens OFFLINE_TAGE); online sieht das Werkzeug die Sperre sofort.
-  const inhalt = { w: werkzeug, typ: s.typ, bis: s.bis, gueltigBis: frei ? Math.min(s.bis, jetzt + OFFLINE_TAGE * TAG) : jetzt, ausgestellt: jetzt, email: konto.email };
+  // kid (Lücke 4) steht im signierten Teil: alte Werkzeuge prüfen die Signatur über den ganzen Text „daten“ und lesen danach nur
+  // w, typ, bis, gueltigBis, ausgestellt, email – ein weiteres Feld stört sie nicht. Neue Werkzeuge wählen damit den Schlüssel.
+  const { kid } = await schluessel(env);
+  const inhalt = { w: werkzeug, typ: s.typ, bis: s.bis, gueltigBis: frei ? Math.min(s.bis, jetzt + OFFLINE_TAGE * TAG) : jetzt, ausgestellt: jetzt, email: konto.email, kid };
   // Eine gesperrte Lizenz darf neu gekauft werden: der neue Kauf hebt die Sperre auf (gewaehren), sonst endete er bezahlt, aber gesperrt.
-  return { status: inhalt, token: await signieren(env, inhalt), preis: einstellungen(env).preis(werkzeug), kauf: !!(stripeBereit(env, werkzeug) || env.LIZENZ_TESTKAUF === "1") };
+  return { status: inhalt, token: await signieren(env, inhalt), kid, preis: einstellungen(env).preis(werkzeug), kauf: !!(stripeBereit(env, werkzeug) || env.LIZENZ_TESTKAUF === "1") };
 }
 
 async function sitzungLesen(env, token) {
@@ -577,7 +659,7 @@ export async function handleLizenz(request, env, ctx, deps = {}) {
   const url = new URL(request.url), pfad = url.pathname.slice("/lizenz/".length);
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (!env.USAGE) return json({ error: TEXT.de.nichtEingerichtet }, 503);
-  if (pfad === "schluessel" && request.method === "GET") return json({ oeffentlich: (await schluessel(env)).oeffentlich });
+  if (pfad === "schluessel" && request.method === "GET") { const l = await schluesselListe(env); return l ? json(l) : json({ error: TEXT.de.nichtEingerichtet }, 503); }
   if (request.method !== "POST") return json({ error: "Nicht gefunden." }, 404);
   if (pfad === "stripe") return stripeWebhook(request, env, deps);
   if (pfad === "erklaerung") return erklaerungEingang(request, env, deps);
