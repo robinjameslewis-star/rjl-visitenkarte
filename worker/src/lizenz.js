@@ -143,8 +143,12 @@ export async function schluesselSatz(env) {
   const m = merkmal(env);
   if (schluesselCache && schluesselCache.m === m) return schluesselCache.satz;
   const wunsch = String(env.LIZENZ_SIGNATUR_AKTIV || "").trim(), roh = [];
-  let s = await kvJson(env, "lizenz:schluessel");
-  if (!s && !wunsch) {
+  // Neu erzeugt wird nur, wenn der Eintrag sicher fehlt (get liefert null) – nie nach einem Lesefehler oder bei unlesbarem Inhalt,
+  // sonst überschriebe ein kurzer KV-Fehler den Schlüssel, den die verteilten Werkzeuge eingebaut haben.
+  let kvRoh, s = null;
+  try { kvRoh = await env.USAGE.get("lizenz:schluessel"); } catch (f) { kvRoh = undefined; console.error("Lizenz: Schlüssel nicht lesbar (KV)", String(f && f.message || f).slice(0, 80)); }
+  if (kvRoh) { try { s = JSON.parse(kvRoh); } catch { console.error("Lizenz: Schlüssel im KV unlesbar"); } }
+  if (kvRoh === null && !wunsch) {
     const paar = await crypto.subtle.generateKey(P256, true, ["sign", "verify"]);
     s = { privat: await crypto.subtle.exportKey("jwk", paar.privateKey), oeffentlich: await crypto.subtle.exportKey("jwk", paar.publicKey), erstellt: new Date(Date.now()).toISOString() };
     await env.USAGE.put("lizenz:schluessel", JSON.stringify(s));

@@ -502,6 +502,36 @@ _schluesselVergessen(); console.error = () => {};
 sl = await schluesselHolen(envLeer);
 console.error = fehlerAus;
 check(sl.status === 503 && await envLeer.USAGE.get("lizenz:schluessel") === null, "kein Schlüssel ladbar: 503, nichts erzeugt");
+// Lesefehler im KV: nie einen neuen Schlüssel erzeugen (sonst wäre der eingebaute Schlüssel der Werkzeuge wertlos)
+const envStoer = { USAGE: { ...kv(), get: async () => { throw new Error("KV weg"); }, put: async () => { throw new Error("darf nicht schreiben"); } } };
+_schluesselVergessen(); console.error = () => {};
+sl = await schluesselHolen(envStoer);
+const envUnlesbar = { USAGE: kv() }; await envUnlesbar.USAGE.put("lizenz:schluessel", "{kaputt");
+_schluesselVergessen();
+const slUnlesbar = await schluesselHolen(envUnlesbar);
+console.error = fehlerAus;
+check(sl.status === 503 && slUnlesbar.status === 503 && await envUnlesbar.USAGE.get("lizenz:schluessel") === "{kaputt", "KV-Lesefehler oder unlesbarer Eintrag: 503, der Schlüssel wird nie überschrieben");
+
+// Hilfe für Robin (worker/lizenz-schluessel.mjs): neu, pruefen – nur Kennung und „ok“, nie der private Teil
+{
+  const { mkdtempSync, rmSync, writeFileSync: schreiben, readFileSync: lesenDatei, statSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os"), { join: pfad } = await import("node:path"), { execFileSync: aufruf } = await import("node:child_process");
+  const ordner = mkdtempSync(pfad(tmpdir(), "lizenz-schluessel-")), hilfe = new URL("../worker/lizenz-schluessel.mjs", import.meta.url).pathname;
+  const lauf = (...a) => { try { return { code: 0, aus: aufruf(process.execPath, [hilfe, ...a], { encoding: "utf8" }) }; } catch (f) { return { code: f.status, aus: String(f.stdout) }; } };
+  try {
+    const neu = lauf("neu", pfad(ordner, "k.json")), k = JSON.parse(lesenDatei(pfad(ordner, "k.json"), "utf8"));
+    const kidNeu = await schluesselKennung(k);
+    check(neu.code === 0 && neu.aus.includes(kidNeu) && !neu.aus.includes(k.d) && (statSync(pfad(ordner, "k.json")).mode & 0o077) === 0, "Hilfe „neu“: Datei nur für den Besitzer, Ausgabe nur die Kennung");
+    check(lauf("neu", pfad(ordner, "k.json")).code === 1, "Hilfe „neu“ überschreibt keine Datei");
+    const { d: _d, ...kOeff } = k;
+    schreiben(pfad(ordner, "kv.json"), JSON.stringify({ privat: k, oeffentlich: kOeff, erstellt: "2026-11-01T00:00:00.000Z" }));
+    const p1 = lauf("pruefen", pfad(ordner, "k.json")), p2 = lauf("pruefen", pfad(ordner, "kv.json"));
+    check(p1.code === 0 && p2.code === 0 && p1.aus.includes("ok") && p2.aus.includes(kidNeu) && !p2.aus.includes(k.d), "Hilfe „pruefen“: Schlüsseldatei und KV-Sicherung bestehen die Probe, Ausgabe ohne privaten Teil");
+    schreiben(pfad(ordner, "falsch.json"), JSON.stringify({ ...k, d: priv2.d }));
+    check(lauf("pruefen", pfad(ordner, "falsch.json")).code === 1, "Hilfe „pruefen“: falscher privater Teil fällt durch");
+  } finally { rmSync(ordner, { recursive: true, force: true }); }
+}
+
 // zurück: ohne Einstellungen wieder genau wie vorher
 delete env.LIZENZ_SIGNATUR_PRIVAT_2027;
 _schluesselVergessen();

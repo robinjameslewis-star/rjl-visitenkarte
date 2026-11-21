@@ -28,34 +28,55 @@ Datei an seinem sicheren Ort. Nie in eine Claude-Sitzung, nie in den Chat, nie i
 Fehlt der Schlüssel aus `LIZENZ_SIGNATUR_AKTIV` oder ist er kaputt, signiert der KV-Schlüssel weiter. Das steht dann im
 Worker-Protokoll („aktiver Signaturschlüssel nicht gefunden“), ohne Schlüsselteile. Prüfen: `GET /lizenz/schluessel`, Feld `aktiv`.
 
+## Sicherer Zwischenordner
+
+Die Dateien entstehen kurz auf dem Mac, bevor sie an den sicheren Ort kommen. Nicht auf den Schreibtisch und nicht nach
+„Dokumente“ legen: Beide gleicht iCloud ab. Stattdessen einmal im eigenen Terminal:
+```sh
+umask 077; mkdir -p ~/.lizenz-sicherung
+```
+Am Ende den Ordner leeren: `rm -f ~/.lizenz-sicherung/*`.
+
 ## Schritt 1: Heutigen Schlüssel sichern (Robin, einmal, bald)
 
 1. Einen sicheren Ort wählen: Passwort-Manager (sicherer Notizeintrag mit Anhang) oder verschlüsselter Datenträger, dazu eine
    zweite Kopie an einem anderen Ort.
 2. Im eigenen Terminal, im Ordner `worker/` dieses Repositorys:
    ```sh
-   npx wrangler kv key get --binding=USAGE --remote "lizenz:schluessel" > ~/Desktop/lizenz-schluessel-sicherung.json
+   umask 077; npx wrangler kv key get --binding=USAGE --remote "lizenz:schluessel" > ~/.lizenz-sicherung/kv-schluessel.json
    ```
    Die Datei nicht öffnen und nicht anzeigen lassen.
-3. Die Datei in den sicheren Ort legen, dann vom Schreibtisch löschen und den Papierkorb leeren.
-4. Probe ohne Geheimnis: `GET https://goch.robin.vision/lizenz/schluessel` zeigt die Kennung (`aktiv`). Im Passwort-Manager zur
-   Sicherung diese Kennung und das Datum notieren. So weiß man später, welche Sicherung zu welchem Schlüssel gehört.
+3. Die Sicherung prüfen, ohne sie zu öffnen (läuft nur lokal, gibt nur die Kennung aus):
+   ```sh
+   node lizenz-schluessel.mjs pruefen ~/.lizenz-sicherung/kv-schluessel.json
+   ```
+   Erwartet: `ok – Kennung (kid): j4WwgcH45lawAfR0jR3D5dZ_uPJ642ClLjkpO7QPOWI`. Das ist die Kennung des öffentlichen Schlüssels in
+   `tools/lizenz/oeffentlich.json`, also des Schlüssels in den verteilten Werkzeugen. Steht dort eine andere Kennung oder
+   „Probe gescheitert“, ist die Sicherung nicht brauchbar oder der Schlüssel im KV ist ein anderer als in den Werkzeugen. Dann nicht
+   weitermachen und die Leitung fragen (ohne die Datei zu zeigen).
+4. Die Datei an den sicheren Ort legen (beide Kopien), dazu Kennung und Datum notieren. Danach den Zwischenordner leeren.
+5. Nach dem Ausrollen dieses PRs zeigt `GET https://goch.robin.vision/lizenz/schluessel` im Feld `aktiv` dieselbe Kennung.
 
 Wiederherstellen (nur wenn der KV-Eintrag verloren ist): `npx wrangler kv key put --binding=USAGE --remote "lizenz:schluessel" --path <Sicherungsdatei>`.
-Danach muss `GET /lizenz/schluessel` dieselbe Kennung zeigen wie notiert.
+Danach muss `GET /lizenz/schluessel` die notierte Kennung zeigen. Der Worker erzeugt seit diesem PR nach einem Lesefehler oder bei
+unlesbarem Inhalt keinen neuen Schlüssel mehr. Fehlt der Eintrag aber ganz und ist `LIZENZ_SIGNATUR_AKTIV` leer, erzeugt er wie
+bisher einen neuen. Darum sofort wiederherstellen.
 
 ## Schritt 2: Zweiten Schlüssel anlegen (Robin, wenn ein Wechsel ansteht)
 
-1. Im eigenen Terminal einen neuen Schlüssel erzeugen, direkt in eine Datei:
+1. Im eigenen Terminal, im Ordner `worker/`, einen neuen Schlüssel erzeugen. Er geht direkt in eine Datei, die nur Robin lesen darf.
+   Angezeigt wird nur die Kennung:
    ```sh
-   node -e 'crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign"]).then(p=>crypto.subtle.exportKey("jwk",p.privateKey)).then(j=>{const{kty,crv,x,y,d}=j;process.stdout.write(JSON.stringify({kty,crv,x,y,d}))})' > ~/Desktop/lizenz-signatur-2027.json
+   node lizenz-schluessel.mjs neu ~/.lizenz-sicherung/signatur-2027.json
+   node lizenz-schluessel.mjs pruefen ~/.lizenz-sicherung/signatur-2027.json
    ```
-2. Als Secret hinterlegen (der Inhalt kommt aus der Datei, nichts wird angezeigt):
+2. Als Secret hinterlegen. Der Inhalt kommt aus der Datei, nichts wird angezeigt:
    ```sh
-   npx wrangler secret put LIZENZ_SIGNATUR_PRIVAT_2027 < ~/Desktop/lizenz-signatur-2027.json
+   npx wrangler secret put LIZENZ_SIGNATUR_PRIVAT_2027 < ~/.lizenz-sicherung/signatur-2027.json
    ```
-3. Die Datei wie in Schritt 1 sichern und dann löschen.
-4. Prüfen: `GET /lizenz/schluessel` zeigt zwei Schlüssel. Der alte ist `aktiv`, der neue `bekannt`. Es ändert sich für niemanden etwas.
+3. Die Datei wie in Schritt 1 sichern (Kennung notieren), dann den Zwischenordner leeren.
+4. Prüfen: `GET /lizenz/schluessel` zeigt zwei Schlüssel. Der alte ist `aktiv`, der neue `bekannt` mit der notierten Kennung. Es
+   ändert sich für niemanden etwas.
 
 ## Schritt 3: Werkzeuge vorbereiten (Leitung SmartFormular)
 
@@ -72,8 +93,9 @@ und neuem Schlüssel. Erst wenn diese Fassungen verteilt sind und alte Dateien k
    `LIZENZ_SIGNATUR_AKTIV` wieder leert.
 
 **Grenze (ehrlich):** Werkzeug-Dateien, die nur den alten Schlüssel eingebaut haben, nehmen nach dem Umstellen keinen frischen
-Status mehr an. Sie arbeiten mit dem zuletzt gespeicherten Status weiter, höchstens 30 Tage (`OFFLINE_TAGE`), danach zeigen sie die
-Anmeldung. Darum: erst Schritt 3, dann umstellen, und nur ohne Not, wenn alte Dateien ersetzt sind.
+Status mehr an. Weiter arbeiten nur Geräte, die schon einen gültigen Status gespeichert haben, und das höchstens bis zu dessen
+Ablauf (bis 30 Tage, `OFFLINE_TAGE`). Jede neue Anmeldung mit einer alten Datei scheitert sofort, auch ein zweiter Versuch hilft
+nicht. Darum: erst Schritt 3, dann umstellen, und nur ohne Not, wenn alte Dateien ersetzt sind.
 
 ## Notfall: Schlüssel verraten
 
