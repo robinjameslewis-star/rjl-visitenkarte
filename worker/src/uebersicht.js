@@ -12,7 +12,9 @@
 // SmartFormular-Seite (werkzeuge/#fibu …) leiten zur Unterseite werkzeuge/smartformular/ weiter.
 // tools/werkzeug-uebernehmen.mjs schreibt beide Fassungen; Vorlage war der Entwurf auf dem Zweig claude/werkzeuge-entwurf
 // (tools/entwuerfe/werkzeuge-2026-10-18/). Welle 2 der Textprüfung (Robin, 23.10.2026): „Werkzeuge“ im Seitentitel,
-// Partnerkarte „Ihre Lösung auf robin.vision“ mit dem Neutralitätsversprechen (seit 03.11.2026 ohne „ab 2027“, Robin).
+// Partnerkarte „Ihre Lösung auf robin.vision“ (nur im abgeschalteten Vergleich). Seit 21.11.2026 (neues Konzept, Robin: „offen gemischt“)
+// steht unter der Einleitung der Satz zur Offenheit (offen): eigene und empfohlene Lösungen, eigene als solche gekennzeichnet
+// („Anzeige · robin.vision“).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { PARTNER, VORGESCHLAGEN, EIGENE, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, anbieterAdresse, wortmarke } from "./partner.js";
 import { newsletterKasten } from "./kasten.js";
@@ -31,7 +33,8 @@ const TEXT = {
     titel: "Werkzeuge",
     seitentitel: "Werkzeuge: Software und KI fürs Rechnungswesen | robin.vision",
     beschr: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt auf robin.vision. Mit SmartFormular und vorgeschlagener Software anderer Anbieter.",
-    untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – vorgestellt. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
+    untertitel: "Software und KI-Lösungen für Rechnungswesen, Verwaltung und andere Geschäftsprozesse – eigene und empfohlene. Ausgewählte davon zeige ich in den Workshops an Fällen aus dem Alltag.",
+    offen: "Manche Lösungen entwickle ich selbst, andere empfehle ich. Eigene Lösungen sind als solche gekennzeichnet.",
     ueberblickTitel: "Im Überblick", reiheLabel: "Werkzeuge", partnerTitel: "Anzeigen",
     platzhalter: { logo: "Ihr Logo", titel: "Ihre Lösung auf robin.vision",
       text: "Sie entwickeln Software oder KI-Lösungen für Rechnungswesen, Verwaltung oder andere Geschäftsprozesse? Ich stelle ausgewählte Lösungen hier vor, nach eigenem Test auch in Workshops und auf Fachmessen.",
@@ -84,7 +87,8 @@ const TEXT = {
     titel: "Tools",
     seitentitel: "Tools: accounting software and AI | robin.vision",
     beschr: "Software and AI solutions for accounting, administration and other business processes – presented on robin.vision. With SmartFormular and suggested software from other providers.",
-    untertitel: "Software and AI solutions for accounting, administration and other business processes – presented. I show a selection of them in the workshops, using cases from everyday work.",
+    untertitel: "Software and AI solutions for accounting, administration and other business processes – my own and recommended ones. I show a selection of them in the workshops, using cases from everyday work.",
+    offen: "Some solutions I develop myself, others I recommend. My own solutions are labelled as such.",
     ueberblickTitel: "At a glance", reiheLabel: "Tools", partnerTitel: "Ads",
     platzhalter: { logo: "Your logo", titel: "Your solution on robin.vision",
       text: "Do you develop software or AI solutions for accounting, administration or other business processes? I present selected solutions here and, once I have tested them, also in workshops and at trade fairs.",
@@ -136,6 +140,7 @@ const TEXT = {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const CSS = `.wz .frei { text-align: left; hyphens: manual; }
+.wz .wz-offen { margin: 10px 0 0; color: var(--ink-soft); font-size: 15px; text-align: left; hyphens: manual; }
 .wz-hinweis { color: var(--ink-soft); font-size: 15px; }
 .wz-reihe { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 10px -4px 26px; padding: 4px 4px 14px; scrollbar-width: thin; }
 .wz-reihe > .wz-karte { flex: 0 0 min(290px, 82%); scroll-snap-align: start; }
@@ -321,6 +326,7 @@ export function werkzeugeUebersicht(lang, { vergleich: mitVergleich = VERGLEICH_
   const main = `<article class="wz">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
+<p class="wz-offen">${esc(t.offen)}</p>
 <h2 id="ueberblick">${esc(t.ueberblickTitel)}</h2>
 ${reihe(lang, t, up)}
 ${grundsaetze(lang)}

@@ -290,7 +290,7 @@ ${goch ? NACHT_START : ""}${kopf(lang, up, { aktiv, andere })}
 ${goch ? gochKopf(up, true, typeof goch === "string" ? goch : "", lang) + "\n" : ""}<main>
 ${main}
 </main>
-<footer class="foot"><a href="${up}${t.home}#privacy">${t.legal}</a><a href="#newsletter">Newsletter</a><a href="${up}${lang === "en" ? "blog/en/" : "blog/"}feed.xml">RSS</a></footer>
+<footer class="foot"><a href="${up}${t.home}#privacy">${t.legal}</a><a href="${up}${t.blogHref}">${t.blog}</a><a href="#newsletter">Newsletter</a><a href="${up}${lang === "en" ? "blog/en/" : "blog/"}feed.xml">RSS</a></footer>
 <script src="${up}${NEWSLETTER_SKRIPT}" defer></script>
 ${goch ? gochSkript(up) : ""}</body>
 </html>

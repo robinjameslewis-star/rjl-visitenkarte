@@ -650,6 +650,23 @@ Seitdem ist SmartFormular ein Eintrag wie Kanzleikern oder PrimeBalance: `EIGENE
 - **Prüfung:** `node tests/anbieter_seiten_test.mjs`, `node tests/werkzeuge_uebersicht_test.mjs`, `node tests/kopf_test.mjs`
   (`tests/smartformular_seite_test.mjs` ist in `anbieter_seiten_test.mjs` aufgegangen).
 
+## Neues Konzept: Kernzeile, vier Säulen, Individuelle Lösung, SmartFormular als TaxTech (21.11.2026)
+
+Robin, 21.11.2026: „passe die robin.vision website jetzt live an das aktuelle konzept an, nenne smatformular unter dem begriff Taxtech
+nicht mehr rechnungswesen“ (Konzept vom 21.11.2026).
+- **Kernzeile** unter der Wortmarke (`slogan` in `language.js`, statt „Prozesse effizient gestalten“), in `<title>`/`og:title` und `llms.txt`.
+- **Vier Säulen** als Kacheln direkt nach der Bühne (`section.saeulen`, Texte `saeule…` in `language.js`): Eigene Lösungen, Empfohlene
+  Lösungen, Workshops, Ihre eigene Lösung.
+- **Menü** (`MENUE` in `worker/src/kopf.js`, Startseite von Hand): Werkzeuge · Individuelle Lösung · Workshops · Über mich. „Impulse“ steht
+  nicht mehr im Menü, sondern in den Fußzeilen (Startseite: Marken `redaktion:blog-link`, die `updateHomepage` weiter beschreibt;
+  Rahmen `werkzeug.js` und `blog.js`).
+- **Seite „Individuelle Lösung“** `individuelle-loesung/` und `…/en/` aus `worker/src/individuelle_loesung.js`, bauen mit
+  `node tools/individuelle-loesung-bauen.mjs`. Ohne Preise und Fristen; Anfrage über Nachricht, Termin oder E-Mail (kein eigenes
+  Formular). In `SEITEN` (Sitemap), `llms.txt`, Gochs Linkliste (`individuelle-loesung`) und `GOCH_SEITEN` (`loesung`).
+- **SmartFormular** trägt den Bereich „TaxTech“ (DE und EN, `EIGENE` in `partner.js`). Werkzeuge: Satz zur Offenheit unter der Einleitung
+  (`offen` in `uebersicht.js`). Über mich: Absatz „Was robin.vision ist“. Goch: Abschnitt „Was robin.vision ist“ in `worker/profile.md`.
+- Prüfung: `node tests/individuelle_loesung_test.mjs`, dazu `kopf_test`, `auffindbarkeit_test`, `blog_test`, `werkzeuge_uebersicht_test`.
+
 ## Kennzeichen „Anzeige“ an allen Werkzeugen (18.10.2026)
 
 Robin, 18.10.2026 (Option C aus der Vault-Notiz „Partnerangebote und Produktplatzierung“, Abschnitt 6): Jedes Werkzeug trägt dasselbe

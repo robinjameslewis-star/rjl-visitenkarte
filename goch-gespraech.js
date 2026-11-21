@@ -387,7 +387,7 @@
   const ORTE = unter
     ? { 'k-workshops': 'workshops', 'k-workshop-e-rechnung': 'ws_erechnung', ablauf: 'ablauf', anfrage: 'anfrage', fragen: 'fragen', vergleich: 'vergleich',
         stationen: 'stationen', rotkehlchen: 'rotkehlchen', kontakt: 'kontakt', neu: 'neu', 'newsletter-title': 'newsletter_seite' }
-    : { werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', newsletter: 'newsletter', 'ueber-mich': 'ueber_mich',
+    : { angebot: 'angebot', werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', newsletter: 'newsletter', 'ueber-mich': 'ueber_mich',
         termin: 'termin', nachricht: 'nachricht', anbieter: 'anbieter' };
   // Eigene Sätze je Unterseite (12.11.2026): Die Kennungen der Überschriften sind allgemein (inhalt, werkzeuge, partner …),
   // deshalb gelten sie nur auf der Seite, zu deren Text der Satz gehört. Deutsch und Englisch tragen dieselben Kennungen.
@@ -395,6 +395,8 @@
     [/\/workshops\/(en\/)?ki-kompetenz\/$/, { zusammenarbeit: 'ki_zusammenarbeit', 'plan-b': 'ki_plan_b', teile: 'ki_teile', unterweisung: 'ki_unterweisung', 'fuer-wen': 'ki_fuer_wen',
       inhalt: 'ki_inhalt', werkzeuge: 'ki_werkzeuge', leitung: 'ki_leitung', formate: 'ki_formate', nachweis: 'ki_nachweis' }],
     [/\/(ueber-mich|about)\/$/, { kenntnisse: 'um_kenntnisse', ehrenamt: 'um_ehrenamt' }],
+    // Individuelle Lösung (21.11.2026): eigene Sätze statt der allgemeinen (sonst hieße „anfrage“ dort „den Workshop anfragen“)
+    [/\/individuelle-loesung\/(en\/)?$/, { was: 'il_was', 'fuer-wen': 'il_fuer_wen', grenzen: 'il_grenzen', anfrage: 'il_anfrage' }],
     [/\/werkzeuge\/(en\/)?$/, { ueberblick: 'wz_ueberblick', 'partner-anzeigen': 'wz_partner_anzeigen', 'workshops-hinweis': 'wz_workshops', partner: 'wz_partner' }],
   ];
   const EIGEN = unter ? (SEITEN.find(([muster]) => muster.test(location.pathname.replace(/index\.html$/, ''))) || [0, {}])[1] : {};
@@ -426,7 +428,7 @@
       if (s.el.hidden) continue;
       const r = s.el.getBoundingClientRect();
       if (!r.height) continue;
-      const ab = s.key === 'werkzeuge' && !unter ? .78 : .6; // die erste Station gleich nach der Landung (Übergabe bei 70 %)
+      const ab = (s.key === 'werkzeuge' || s.key === 'angebot') && !unter ? .78 : .6; // die erste Station gleich nach der Landung (Übergabe bei 70 %)
       if (s.kopf ? r.top < vh * .6 && r.top > -vh * .4 : r.top < vh * ab && r.bottom > vh * .3) treffer = s;
     }
     return treffer;
@@ -488,7 +490,9 @@
   // aus (.goch-fort), solange er unten sitzt – der Bühnen-Ast bleibt leer, nie sind zwei Gochs zu sehen. Zurück: Ist die Bühne
   // wieder zu mehr als der Hälfte im Bild (und die Überschrift unter 78 %), fliegt er hinauf und wird groß. Bei reduzierter
   // Bewegung ohne Flug. Ein offenes Gespräch wird dabei zur Leiste; im Vollbild mit Stimme bleibt er oben.
-  const werkzeugKopf = unter ? null : document.querySelector('#werkzeuge h2');
+  // Seit 21.11.2026 stehen die vier Säulen (section.saeulen, Überschrift unsichtbar) vor den Werkzeugen: Die Übergabe richtet sich nach dem
+  // ersten Abschnitt nach der Bühne, damit der große Goch fort ist, bevor der kleine dort spricht (nie zwei Gochs).
+  const werkzeugKopf = unter ? null : (document.querySelector('.stage + section.saeulen') || document.querySelector('#werkzeuge h2'));
   const fortSetzen = an => { fort = an; scene.classList.toggle('goch-fort', an); html.classList.toggle('goch-fort', an); if (an) mini.classList.remove('goch-mini-weg'); };
   function gabePruefen() {
     if (!werkzeugKopf || gabeZurueck || mini.dataset.flug) return;
@@ -499,7 +503,9 @@
       // Hängt am Rechner gerade das Gesprächsfenster an Goch, bleibt er, bis die Bühne aus dem Bild ist – sonst würde schon
       // ein kleines Scrollen zum unteren Rand des Fensters das Gespräch zur Leiste machen
       const amAst = !panel.hidden && !schmal.matches && !breit && sicht >= .1;
-      if (!amAst && oben < vh * .7 && scrollY > vh * .12 && scene.dataset.chat === 'on' && scene.dataset.state === 'rest' && lage !== 'fokus' && !platz && !ohneGoch) {
+      // oder die Bühne ist fast aus dem Bild (21.11.2026: mit der längeren Kernzeile kam die Überschrift am Handy zu spät, der kleine Goch
+      // der Leiste flog schon an, während unten noch ein Streifen des großen zu sehen war)
+      if (!amAst && (oben < vh * .7 || sicht < .15) && scrollY > vh * .12 && scene.dataset.chat === 'on' && scene.dataset.state === 'rest' && lage !== 'fokus' && !platz && !ohneGoch) {
         miniLaden(); gabeHin = true; fortSetzen(true);
         if (!panel.hidden && !schmal.matches) breitPruefen(); // offenes Gespräch am Rechner: Leiste
         miniPruefen();

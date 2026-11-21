@@ -158,10 +158,10 @@ export const plainText = md => String(md).replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1
 // ---------- Seiten ----------
 
 const T = {
-  de: { back: "Robin James Lewis", all: "Alle Beiträge", tools: "Werkzeuge", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge.",
+  de: { back: "Robin James Lewis", posts: "Impulse", all: "Alle Beiträge", tools: "Werkzeuge", about: "Über mich", legal: "Impressum · Datenschutz", feed: "RSS", english: "English", german: "Deutsch", empty: "Noch keine Beiträge.",
     liste: "Jeden Freitag ein kurzer Beitrag zu Automatisierung, KI und E-Rechnung im Rechnungswesen – mit Quellen. Von Robin James Lewis.",
     zeile: "Was Automatisierung und KI im Rechnungswesen ändern – jeden Freitag, mit Quellen." },
-  en: { back: "Robin James Lewis", all: "All posts", tools: "Tools", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet.",
+  en: { back: "Robin James Lewis", posts: "Food for Thought", all: "All posts", tools: "Tools", about: "About", legal: "Legal notice · Privacy", feed: "RSS", english: "English", german: "German", empty: "No posts yet.",
     liste: "Food for Thought: a short post every Friday on automation, AI and e-invoicing in accounting – with sources. By Robin James Lewis.",
     zeile: "What automation and AI change in accounting – every Friday, with sources." },
 };
@@ -252,7 +252,7 @@ ${gochKopf(up, true, gochArt, lang)}
 <main>
 ${main}${newsletter ? "\n" + newsletterKasten(lang, up, "impuls") : ""}
 </main>
-<footer class="foot"><a href="${homeHref}#privacy">${t.legal}</a>${newsletter ? '<a href="#newsletter">Newsletter</a>' : ""}<a href="${feedHref}">${t.feed}</a></footer>
+<footer class="foot"><a href="${homeHref}#privacy">${t.legal}</a><a href="${up}blog/${lang === "en" ? EN_DIR + "/" : ""}">${t.posts}</a>${newsletter ? '<a href="#newsletter">Newsletter</a>' : ""}<a href="${feedHref}">${t.feed}</a></footer>
 ${newsletter ? `<script src="${up}${NEWSLETTER_SKRIPT}" defer></script>\n` : ""}${gochSkript(up)}</body>
 </html>
 `;

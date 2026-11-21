@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom solution: an AI solution for your problem – robin.vision</title>
+<meta name="description" content="You describe a problem from your working day, and I build a solution that fits: created with AI, checked by me, with one round of changes. You receive a quote first.">
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<link rel="canonical" href="https://robin.vision/individuelle-loesung/en/">
+<link rel="alternate" hreflang="en" href="https://robin.vision/individuelle-loesung/en/">
+<link rel="alternate" hreflang="de" href="https://robin.vision/individuelle-loesung/">
+<meta property="og:site_name" content="robin.vision">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Custom solution">
+<meta property="og:description" content="You describe a problem from your working day, and I build a solution that fits: created with AI, checked by me, with one round of changes. You receive a quote first.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://robin.vision/individuelle-loesung/en/">
+<meta name="twitter:card" content="summary">
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 500; font-display: swap; src: url("../../assets/fonts/eb-garamond-latin.woff2") format("woff2"); }
+:root { --green: #0B3D2E; --copper: #B8724F; --ink: #1F1F1F; --ink-soft: #5C5C5C; --ink-muted: #9A9A9A; --line: #D6D9D6; --paper: #F3EFE5;
+  --serif: "EB Garamond", "Cormorant Garamond", Baskerville, Georgia, serif; --sans: "Helvetica Neue", Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper) url("../../assets/papier.jpg") repeat; background-size: 512px 512px; font: 400 17px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+:root {
+  --nacht: 0; --nacht-prozent: 0%;
+  --paper-day: #F3EFE5; --paper-night: #1B2230;
+  --ink-day: #1F1F1F; --ink-night: #E8E2D6;
+  --ink-soft-day: #5C5C5C; --ink-soft-night: #B5AFA4;
+  --ink-muted-day: #68665F; --ink-muted-night: #B5AFA4;
+  --green-day: #0B3D2E; --green-night: #9FC4B3;
+  --copper-day: #B8724F; --copper-night: #D39A78;
+  --line-day: #D6D9D6; --line-night: #3A4351;
+  --hover-day: #EDE5D8; --hover-night: #293241;
+  --surface-day: #F8F5EE; --surface-night: #242D3B;
+  --reply-day: #E3E3D8; --reply-night: #2B3842;
+  --warning-day: #A63D2F; --warning-night: #F0AC91;
+  --sky-top: #EDF2F1; --sky-bottom: #FAF4E8; --sky-glow: #E1A777;
+  --star: #EEE8D9; --sun: #FAE5A7; --sun-halo: #F9DA9A;
+  --moon-light: #EEE8D9;
+  --leaf-copper: #B8724F; --leaf-ochre: #AE8951; --leaf-rust: #90513E;
+  --snow: #E8E8DF; --petal: #F4E9DF;
+}
+html.landscape-on {
+  --paper: var(--fallback-paper); --ink: var(--fallback-ink); --ink-soft: var(--fallback-ink-soft);
+  --ink-muted: var(--fallback-ink-muted); --green: var(--fallback-green); --copper: var(--fallback-copper);
+  --line: var(--fallback-line); --hover: var(--fallback-hover); --surface: var(--fallback-surface);
+  --reply: var(--fallback-reply); --warning: var(--fallback-warning);
+}
+@supports (color: color-mix(in srgb, white, black)) {
+  html.landscape-on {
+    --paper: color-mix(in srgb, var(--paper-day), var(--paper-night) var(--nacht-prozent));
+    --ink: var(--readable-ink, color-mix(in srgb, var(--ink-day), var(--ink-night) var(--nacht-prozent)));
+    --ink-soft: var(--readable-ink-soft, color-mix(in srgb, var(--ink-soft-day), var(--ink-soft-night) var(--nacht-prozent)));
+    --ink-muted: var(--readable-ink-muted, color-mix(in srgb, var(--ink-muted-day), var(--ink-muted-night) var(--nacht-prozent)));
+    --green: var(--readable-green, color-mix(in srgb, var(--green-day), var(--green-night) var(--nacht-prozent)));
+    --copper: color-mix(in srgb, var(--copper-day), var(--copper-night) var(--nacht-prozent));
+    --line: color-mix(in srgb, var(--line-day), var(--line-night) var(--nacht-prozent));
+    --hover: color-mix(in srgb, var(--hover-day), var(--hover-night) var(--nacht-prozent));
+    --surface: color-mix(in srgb, var(--surface-day), var(--surface-night) var(--nacht-prozent));
+    --reply: color-mix(in srgb, var(--reply-day), var(--reply-night) var(--nacht-prozent));
+    --warning: var(--readable-warning, color-mix(in srgb, var(--warning-day), var(--warning-night) var(--nacht-prozent)));
+  }
+}
+.landscape-on body { background-blend-mode: multiply; }
+.kopf { position: relative; z-index: 5; max-width: 780px; margin: 0 auto; padding: 18px min(6vw, 48px) 0; display: flex; align-items: center; gap: 18px; }
+.kopf .marke { margin-right: auto; font: 400 20px/1 var(--serif); letter-spacing: .01em; color: var(--green); text-decoration: none; }
+.kopf .marke .punkt { color: var(--copper); }
+.kopf .hauptnav { display: flex; gap: 18px; }
+.kopf .hauptnav a { padding: 10px 0; color: var(--ink-soft); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .hauptnav a:hover { color: var(--green); }
+.kopf .hauptnav a[aria-current="page"] { color: var(--green); box-shadow: inset 0 -1px 0 var(--copper); }
+.kopf .termin { padding: 8px 14px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); text-decoration: none; font-size: 13px; letter-spacing: .03em; white-space: nowrap; }
+.kopf .termin:hover { background: var(--green); color: var(--paper); }
+.kopf a:focus-visible { outline: 1px solid var(--copper); outline-offset: 3px; }
+.kopf .menue { position: relative; display: none; }
+.kopf .menue summary { list-style: none; cursor: pointer; width: 44px; height: 44px; margin-right: -10px; display: grid; place-items: center; }
+.kopf .menue summary::-webkit-details-marker { display: none; }
+.kopf .menue summary span { position: relative; display: block; width: 20px; height: 1.5px; background: var(--green); box-shadow: 0 -6px 0 var(--green), 0 6px 0 var(--green); }
+.kopf .menue[open] summary span { background: transparent; box-shadow: none; }
+.kopf .menue[open] summary span::before, .kopf .menue[open] summary span::after { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 1.5px; background: var(--green); transform: rotate(45deg); }
+.kopf .menue[open] summary span::after { transform: rotate(-45deg); }
+.kopf .menue nav { position: absolute; right: -6px; top: 50px; min-width: 220px; padding: 8px 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 10px 30px rgba(0,0,0,.14); }
+.kopf .menue nav a { padding: 11px 20px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.kopf .menue nav a:hover { background: rgba(0,0,0,.04); color: var(--green); }
+.kopf .menue nav a[aria-current="page"] { color: var(--green); }
+@media (max-width: 720px) { .kopf { gap: 10px; } .kopf .hauptnav { display: none; } .kopf .menue { display: block; } }
+main { max-width: 780px; margin: 0 auto; padding: clamp(40px, 9vh, 96px) min(6vw, 48px) clamp(56px, 10vh, 120px); }
+h1 { font: 400 clamp(34px, 5vw, 52px)/1.1 var(--serif); color: var(--green); margin: 0 0 10px; letter-spacing: 0; }
+.untertitel { font: 400 clamp(18px, 2vw, 21px)/1.4 var(--serif); color: var(--ink-soft); margin: 0 0 6px; max-width: 60ch; }
+.meta { color: var(--ink-muted); font-size: 13px; letter-spacing: .02em; margin: 0 0 36px; }
+.meta a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.intro { color: var(--ink-soft); max-width: 52ch; margin: 0 0 36px; }
+article > h2 { font: 400 clamp(26px, 3vw, 32px)/1.2 var(--serif); color: var(--green); margin: 64px 0 16px; }
+article h2 { font: 400 clamp(22px, 2.6vw, 27px)/1.25 var(--serif); color: var(--green); margin: 40px 0 10px; }
+article h3 { font: 500 19px/1.3 var(--serif); margin: 30px 0 8px; }
+article p, article li { max-width: 68ch; }
+article p { margin: 0 0 18px; }
+@media (min-width: 720px) { article p:not(.meta):not(.untertitel):not(.hinweis):not(.frei), article li { text-align: justify; hyphens: auto; } }
+article a { color: var(--green); text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+article ul, article ol { padding-left: 22px; margin: 0 0 18px; }
+article li { margin-bottom: 6px; }
+.download { margin: 32px 0 8px; padding: 20px 22px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.4); display: grid; gap: 10px; }
+.download a.knopf { justify-self: start; display: inline-block; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; color: var(--paper); background: var(--green); text-decoration: none; font-size: 15px; }
+.download a.knopf:hover { background: #082d22; }
+.download a.knopf:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.download dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; margin: 0; font-size: 13px; color: var(--ink-soft); }
+.download dt { color: var(--ink-muted); }
+.download dd { margin: 0; min-width: 0; }
+.download code { font: 12px/1.4 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+.download .hinweis { margin: 0; }
+.download + .newsletter { margin-top: 18px; }
+.newsletter { margin: 40px 0 8px; padding: 18px 22px; border: 1px solid var(--line); border-left: 2px solid var(--green); border-radius: 3px; background: rgba(255,255,255,.4); }
+.newsletter h2 { font: 400 22px/1.25 var(--serif); color: var(--green); margin: 0 0 6px; }
+.newsletter p { margin: 0 0 12px; max-width: 68ch; }
+.newsletter form { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.newsletter label { position: absolute; left: -9999px; }
+.newsletter .field:not(.hp) { flex: 1 1 260px; min-width: 0; }
+.newsletter input[type=email] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 3px; font: inherit; font-size: 15px; background: #fff; }
+.newsletter button { padding: 10px 18px; border: 1px solid var(--green); border-radius: 3px; color: var(--green); background: transparent; font: inherit; font-size: 15px; cursor: pointer; }
+.newsletter button:hover { background: var(--green); color: var(--paper); }
+.newsletter .hp { position: absolute; left: -9999px; }
+.newsletter .msg-status { flex-basis: 100%; font-size: 14px; color: var(--ink-soft); }
+.newsletter .msg-status:empty { display: none; }
+.newsletter .msg-status.ok { color: var(--green); }
+.newsletter .msg-status.warn { color: #8a3b12; }
+.newsletter .hint { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-muted); }
+.newsletter .hint a { color: inherit; }
+.goch-kopf { --gw: clamp(170px, 40vw, 330px); position: relative; height: calc(66px + var(--gw) * .616 + clamp(30px, 6vh, 64px)); margin-top: -66px; overflow: hidden; overflow: clip visible; background: linear-gradient(rgba(176, 204, 218, .5), rgba(176, 204, 218, 0) 88%); background: linear-gradient(rgba(176, 204, 218, calc(.5 - var(--nacht, 0) * .5)), rgba(176, 204, 218, 0) 88%); } /* nachts kein heller Streifen, bevor der Himmel der Landschaft da ist */
+/* Der Inhalt steht als ein Blatt über dem Tal (Schritt 8). Maße gelten immer, damit nichts springt; Fläche, Rand und Schatten
+   kommen erst mit dem Tal (html.tal-on setzt landscape.js). */
+.goch-kopf + main { position: relative; z-index: 1; padding-top: clamp(22px, 4vh, 44px); margin-bottom: clamp(40px, 9vh, 90px); border: 1px solid transparent; border-radius: 6px; transition: background-color 1.2s, border-color 1.2s, box-shadow 1.2s; }
+.tal-on .goch-kopf + main { background: color-mix(in srgb, var(--surface, #F8F5EE) 92%, transparent); border-color: var(--line); box-shadow: 0 26px 50px -24px rgba(40, 32, 20, .28); }
+.tal-on .goch-kopf ~ .foot { position: relative; z-index: 1; width: fit-content; padding: 10px 16px; margin-bottom: 40px; border: 1px solid var(--line); border-radius: 6px; background: color-mix(in srgb, var(--surface, #F8F5EE) 92%, transparent); }
+@media (max-width: 720px) { .goch-kopf + main { margin-left: 14px; margin-right: 14px; padding-left: calc(7vw - 14px); padding-right: calc(7vw - 14px); } .tal-on .goch-kopf ~ .foot { margin-left: 14px; margin-right: 14px; } }
+@media (prefers-reduced-motion: reduce) { .goch-kopf + main { transition: none; } }
+.nutzung { font-size: 15px; color: var(--ink-soft); }
+.nutzung strong { color: var(--ink); font-weight: 500; }
+.fragen h3, .neuigkeiten h3 { font: 500 19px/1.3 var(--serif); margin: 22px 0 6px; }
+.fragen p { color: var(--ink-soft); }
+.list { list-style: none; margin: 0 0 8px; padding: 0; }
+.list li { padding: 22px 0; border-top: 1px solid var(--line); }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.list a { color: var(--green); text-decoration: none; font: 400 clamp(21px, 2.4vw, 25px)/1.25 var(--serif); }
+.list a:hover { text-decoration: underline; text-decoration-color: var(--copper); text-underline-offset: .2em; }
+.list .when { display: block; color: var(--ink-muted); font-size: 13px; margin-bottom: 4px; }
+.list p { margin: 6px 0 0; color: var(--ink-soft); max-width: 60ch; }
+.foot { max-width: 780px; margin: 0 auto; padding: 0 min(6vw, 48px) 48px; font-size: 12px; color: var(--ink-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.foot a { color: inherit; text-decoration: none; }
+.foot a:hover { color: var(--ink-soft); }
+.loesung .beispiele { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.loesung .beispiele li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
+.loesung .beispiele-label { margin: 0 0 8px; color: var(--ink-soft); font-size: 15px; }
+.schritte { list-style: none; counter-reset: schritt; margin: 0 0 10px; padding: 0; }
+.schritte li { counter-increment: schritt; display: grid; grid-template-columns: 44px 1fr; gap: 4px 14px; padding: 18px 0; border-top: 1px solid var(--line); max-width: none; text-align: left; }
+.schritte li:last-child { border-bottom: 1px solid var(--line); }
+.schritte li::before { content: counter(schritt); grid-row: span 2; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--copper); border-radius: 50%; font: 400 18px/1 var(--serif); color: var(--copper); }
+.schritte strong { font: 500 19px/1.3 var(--serif); color: var(--ink); }
+.schritte span { color: var(--ink-soft); }
+.grenzen { margin: 0 0 18px; padding-left: 1.2em; }
+.grenzen li { margin: 0 0 6px; text-align: left; }
+.vermerk { color: var(--ink-soft); font-size: 15px; }
+.wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 14px; padding: 0; list-style: none; }
+.wege li { margin: 0; max-width: none; }
+.wege .knopf { display: inline-block; padding: 11px 18px; border-radius: 3px; text-decoration: none; font-size: 15px; background: var(--green); color: var(--paper); border: 1px solid var(--green); }
+.wege .knopf:hover { background: #082d22; color: var(--paper); }
+.wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
+.wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
+.wege .mail { font-size: 15px; }
+.loesung .hinweis { color: var(--ink-muted); font-size: 13px; }</style>
+<script src="../../landscape.js?v=20261205"></script>
+<script>window.RJLLandscape?.prepare();</script>
+</head>
+<body data-newsletter-endpoint="https://goch.robin.vision/newsletter">
+<script>window.RJLLandscape?.prepare();</script>
+<header class="kopf">
+<a class="marke" href="../../?lang=en">robin<span class="punkt">.</span>vision</a>
+<nav class="hauptnav" aria-label="Pages"><a href="../../werkzeuge/en/">Tools</a><a href="../../individuelle-loesung/en/" aria-current="page">Custom solution</a><a href="../../workshops/en/">Workshops</a><a href="../../about/">About</a></nav>
+<a class="termin" href="../../?lang=en#kontakt">Appointment</a>
+<details class="menue"><summary aria-label="Menu"><span></span></summary>
+<nav aria-label="Pages"><a href="../../werkzeuge/en/">Tools</a><a href="../../individuelle-loesung/en/" aria-current="page">Custom solution</a><a href="../../workshops/en/">Workshops</a><a href="../../about/">About</a><a href="../../?lang=en#nachricht">Message</a><a href="https://robin.vision/individuelle-loesung/" lang="de" hreflang="de">Deutsch</a></nav>
+</details>
+</header>
+<div class="goch-kopf" id="goch-kopf" data-gruss="This page is about a solution built for you. Ask me how it works." data-fragen="What is a custom solution?|How does it work?|How do I describe my problem?"></div>
+<main>
+<article class="loesung">
+<h1>Custom solution</h1>
+<p class="untertitel">For a problem from your working day that no off-the-shelf software solves.</p>
+<h2 id="was">What it is</h2>
+<p>You describe a problem from your working day. I build a solution that fits, created with AI and checked by me before you receive it. One round of changes is included.</p>
+<p class="beispiele-label">For example:</p>
+<ul class="beispiele"><li>Clean drawings from sketches</li><li>Merging and checking spreadsheets</li><li>Building templates and forms</li><li>Organising and designing documents</li></ul>
+<h2 id="ablauf">How it works</h2>
+<ol class="schritte">
+<li><strong>You describe the problem</strong><span>What you need, what it is for and in what form. To begin with, send only the description, no documents yet.</span></li>
+<li><strong>You receive a quote first</strong><span>I check whether and how I can solve the task and ask if anything is unclear. Then you receive a quote.</span></li>
+<li><strong>You get the checked solution</strong><span>Once you accept, I create the solution with AI and check it myself. You receive the result and one round of changes.</span></li>
+</ol>
+<h2 id="fuer-wen">Who it is for</h2>
+<p>For small businesses, the self-employed and private individuals with a one-off problem involving documents, data or design. Accounting firms are welcome to ask too, as long as no client data is involved.</p>
+<h2 id="grenzen">What I don&#39;t do</h2>
+<ul class="grenzen">
+<li>no tax or legal advice, and nothing that requires a special licence</li>
+<li>no client data from accounting firms and no health data</li>
+<li>no official documents, planning applications, structural calculations, expert reports or valuations</li>
+<li>nothing intended to deceive, such as receipts, references or reviews</li>
+</ul>
+<p class="vermerk frei">Every solution is created with AI and checked by me. It is not an official document and does not replace professional advice. Please check it before you use it.</p>
+<h2 id="anfrage">Enquiry</h2>
+<p>Describe your problem in a message or a short call. I reply personally by email.</p>
+<ul class="wege">
+<li><a class="knopf" href="../../?lang=en#nachricht">Write a message</a></li>
+<li><a class="knopf zweit" href="../../?lang=en#kontakt">Book an appointment</a></li>
+<li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
+</ul>
+<p class="hinweis">Please do not send any documents or other people&#39;s data with your first message.</p>
+<p class="meta"><a href="../../individuelle-loesung/" lang="de" hreflang="de">Diese Seite auf Deutsch</a></p>
+<section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
+<h2 id="newsletter-title">Food for Thought, tools and workshops by email</h2>
+<p>The new post every Friday, plus news of the tools and workshops. Unsubscribe at any time.</p>
+<form id="newsletter-form" novalidate>
+<div class="field"><label for="nl-email">Email address</label><input id="nl-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="Email address"></div>
+<div class="field hp" aria-hidden="true"><label for="nl-website">Website</label><input id="nl-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="nl-send">Subscribe</button><span class="msg-status" id="nl-status" role="status" aria-live="polite"></span>
+<p class="hint">After sending you will receive an email with a confirmation link; you are subscribed only once you have confirmed. Sent via Brevo; unsubscribe at any time via the link in every issue. Details under <a href="../../?lang=en#privacy">Privacy</a>.</p>
+</form>
+</section>
+</article>
+</main>
+<footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="../../blog/en/">Food for Thought</a><a href="#newsletter">Newsletter</a><a href="../../blog/en/feed.xml">RSS</a></footer>
+<script src="../../newsletter.js?v=20261016" defer></script>
+<script src="../../goch-seite.js?v=20261202" defer></script>
+</body>
+</html>

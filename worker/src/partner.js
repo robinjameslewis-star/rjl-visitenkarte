@@ -63,7 +63,8 @@ export const VORGESCHLAGEN = [
 export const EIGENE = [
   { id: "smartformular", name: "SmartFormular", anbieter: "robin.vision", url: "https://smartformular.ai/", urlEn: "https://smartformular.ai/en/", seit: "2026-11-20",
     wortmarke: ["Smart", "Formular"],
-    bereich: { de: "Rechnungswesen", en: "Accounting" },
+    // Bereich „TaxTech“, in beiden Sprachen gleich (Robin, 21.11.2026: „nenne smatformular unter dem begriff Taxtech nicht mehr rechnungswesen“)
+    bereich: { de: "TaxTech", en: "TaxTech" },
     text: { de: "Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung Start prüft E-Rechnungen kostenlos, Buchhaltung Start lässt sich bis 31.12.2026 kostenlos testen; Deklaration kommt als Beta.",
       en: "Forms that work with you – for the days when the process stalls. E-Invoice Start checks e-invoices free of charge, Bookkeeping Start is free to try until 31 December 2026; Declaration is coming as a beta." },
     mehr: { de: "Ein SmartFormular sieht aus wie ein gewohntes Formular – und arbeitet mit. Es hilft beim Ausfüllen, sichert die Vollständigkeit und erledigt die ersten Schritte der Sachbearbeitung, während Sie noch tippen. Prüfen, entscheiden und festschreiben bleibt bei Ihnen.",
@@ -72,15 +73,15 @@ export const EIGENE = [
     knopf: { de: "Zu smartformular.ai", en: "To smartformular.ai" },
     werkzeuge: {
       de: [
-        { anker: "fibu-lite", frei: true, name: "Buchhaltung Start", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "Rechnungswesen", extern: true, href: "buchhaltung-start/" },
-        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung Start", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "Rechnungswesen", extern: true, href: "e-rechnung-start/" },
-        { anker: "abschluss", stand: "Beta · auf Anfrage", name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "Jahresabschluss", extern: true, href: "#deklaration",
+        { anker: "fibu-lite", frei: true, name: "Buchhaltung Start", text: "Kontoauszüge zu Buchungsstapeln – offline im Browser.", bereich: "TaxTech", extern: true, href: "buchhaltung-start/" },
+        { anker: "e-rechnung", frei: "erechnung", name: "E-Rechnung Start", text: "E-Rechnungen lesen, prüfen und per GiroCode bezahlen – im Browser.", bereich: "TaxTech", extern: true, href: "e-rechnung-start/" },
+        { anker: "abschluss", stand: "Beta · auf Anfrage", name: "Deklaration", text: "Das Arbeitspapier für den Jahresabschluss, das mitdenkt und vorarbeitet.", bereich: "TaxTech", extern: true, href: "#deklaration",
           mehr: { anker: "beta", text: "Beta-Zugang anfragen", href: "#beta" } },
       ],
       en: [
-        { anker: "fibu-lite", frei: true, name: "Bookkeeping Start", text: "Bank statements into booking batches – offline in your browser.", bereich: "Accounting", extern: true, href: "bookkeeping-start/" },
-        { anker: "e-rechnung", frei: "erechnung", name: "E-Invoice Start", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "Accounting", extern: true, href: "e-invoice-start/" },
-        { anker: "abschluss", stand: "Beta · on request", name: "Declaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "Year-end accounts", extern: true, href: "#deklaration",
+        { anker: "fibu-lite", frei: true, name: "Bookkeeping Start", text: "Bank statements into booking batches – offline in your browser.", bereich: "TaxTech", extern: true, href: "bookkeeping-start/" },
+        { anker: "e-rechnung", frei: "erechnung", name: "E-Invoice Start", text: "Read, check and pay e-invoices by GiroCode – in your browser.", bereich: "TaxTech", extern: true, href: "e-invoice-start/" },
+        { anker: "abschluss", stand: "Beta · on request", name: "Declaration", text: "The working paper for year-end accounts that thinks ahead and does the groundwork.", bereich: "TaxTech", extern: true, href: "#deklaration",
           mehr: { anker: "beta", text: "Request beta access", href: "#beta" } },
       ],
     } },
