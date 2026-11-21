@@ -40,7 +40,7 @@ const TEXT = {
     vermerk: "Jede Lösung ist mit KI erstellt und von mir geprüft. Sie ist nicht amtlich und ersetzt keine Beratung. Bitte prüfen Sie sie vor der Verwendung.",
     anfrageTitel: "Erzählen Sie mir von Ihrer Aufgabe",
     anfrage: "Was hält Sie im Büro immer wieder auf? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:",
-    ideen: ["Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht", "Ein Formular, das Angaben prüft, bevor sie ins System gehen", "Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht"],
+    ideen: ["Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht", "Ein Formular, das Angaben prüft, bevor sie ins System gehen", "Eine Auftragsannahme, die prüft, ob alles da ist, den Auftrag an die richtige Stelle gibt und dort die Bearbeitung vorbereitet", "Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht"],
     felder: { name: "Name", email: "E-Mail-Adresse", firma: "Unternehmen oder Kanzlei", art: "Worum geht es?", budget: "Ihr Budget", text: "Was soll die Lösung tun?", optional: "(freiwillig)", waehlen: "Bitte wählen" },
     artWerte: ["Dokumente und Formulare", "Daten und Tabellen", "Abläufe im Büro", "Gestaltung", "Etwas anderes"],
     // Budget (Robin, 21.11.2026: „budget noch abfragen“): nur der Rahmen des Kunden, keine Angabe, was eine Lösung kostet
@@ -82,7 +82,7 @@ const TEXT = {
     vermerk: "Every solution is created with AI and checked by me. It is not an official document and does not replace professional advice. Please check it before you use it.",
     anfrageTitel: "Tell me about your task",
     anfrage: "What keeps holding you up at work? Describe it in a few sentences. This is the kind of thing it can become:",
-    ideen: ["A searchable overview from a stack of as-built plans", "A form that checks entries before they go into your system", "A template that turns your data into a finished report"],
+    ideen: ["A searchable overview from a stack of as-built plans", "A form that checks entries before they go into your system", "An order intake that checks everything is there, passes the job to the right person and prepares the work for them", "A template that turns your data into a finished report"],
     felder: { name: "Name", email: "Email address", firma: "Company or firm", art: "What is it about?", budget: "Your budget", text: "What should the solution do?", optional: "(optional)", waehlen: "Please choose" },
     artWerte: ["Documents and forms", "Data and spreadsheets", "Office processes", "Design", "Something else"],
     budgetWerte: ["up to €250", "€250 to €1,000", "€1,000 to €5,000", "more than €5,000", "Not sure yet"],
