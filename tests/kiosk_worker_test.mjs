@@ -100,6 +100,9 @@ console.log("Goch am Gerät: Budget statt IP-Grenzen, ohne Links und Newsletter"
   const e2 = await umgebung(); const t2 = (await speichereGeraet(e2, { id: "messe-3", name: "T", figuren: ["goch"] })).token;
   const a = await (await kiosk(e2, "/kiosk/chat", t2, { lang: "de", messages: frage })).json();
   check(a.link === null && a.link2 === null && a.action === null, "keine Links und keine Newsletter-Anmeldung am Gerät", JSON.stringify(a));
+  modell = { reply: "Robin baut <reasoning_effort>5</reasoning_effort> Werkzeuge. antml:reasoningeffort5", action: null, message: null, link: null, link2: null };
+  const st = await (await kiosk(e2, "/kiosk/chat", t2, { lang: "de", messages: frage })).json();
+  check(st.reply === "Robin baut Werkzeuge.", "Steuerangaben des Modells nicht im Text am Gerät", st.reply);
   // Draht: viele Besucher hinter einem Gerät – die Grenze je Adresse gilt nicht, die Tagesgrenze insgesamt schon
   const zusammenfassung = "Ich richte Robin aus: „Bitte melden“ – Von: Max Muster, max@example.com. Soll ich das so senden?";
   const vorher = mails.length;

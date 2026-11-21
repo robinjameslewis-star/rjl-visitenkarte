@@ -406,7 +406,8 @@ function neuerStrom(env, ctx, body) {
     beimText(roh) {
       const a = teilAntwort(roh);
       if (a.falsch || a.action === undefined || a.reply === null || a.action === "message" || a.action === "feedback" || s.abgebrochen) return;
-      const text = tidy(a.fertig ? a.reply : a.reply.replace(/\S*$/, ""));
+      // halbe Wörter und ein halb geschriebenes Tag am Ende warten, bis sie fertig sind (ohneSteuerangaben mit offen)
+      const text = tidy(a.fertig ? a.reply : ohneSteuerangaben(a.reply.replace(/\S*$/, ""), { offen: true }));
       if (!text || text === zuletzt) return;
       zuletzt = text;
       if (msText === null) msText = Date.now() - beginn;
@@ -980,7 +981,7 @@ function parse(text, linkIds = []) {
       const action = ["calendar", "contact", "message", "newsletter", "feedback"].includes(o.action) ? o.action : null;
       const reply = typeof o.reply === "string" ? o.reply : (o.reply == null ? "" : JSON.stringify(o.reply));
       const out = { reply: tidy(reply), action, link: linkIds.includes(o.link) ? o.link : null, link2: linkIds.includes(o.link2) ? o.link2 : null, zeigen: ZIELE.includes(o.zeigen) ? o.zeigen : null };
-      if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = o.message;
+      if ((action === "message" || action === "feedback") && o.message && typeof o.message === "object") out.message = ohneSteuerangabenIn(o.message);
       if (o.weiter === "naechster" || o.weiter === "ueberspringen") out.weiter = o.weiter;
       return out;
     } catch {}
@@ -998,16 +999,55 @@ function parse(text, linkIds = []) {
       const name = (text.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const email = (text.match(/"email"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
       const body = (text.match(/"text"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || "";
-      out.message = { name, email, text: body };
+      out.message = ohneSteuerangabenIn({ name, email, text: body });
     }
     return out;
   }
   return { reply: tidy(text), action: null, link: null };
 }
 
+// Steuerangaben des Modells nie in Text und Stimme (Robin, 21.11.2026: „ok, mach den filter gleich mit“). Tinka auf
+// smartformular.ai sprach einmal „antml:reasoningeffort5“ – vermutlich ein Tag wie <reasoning_effort>5</reasoning_effort> im
+// Antworttext; Goch nutzt dieselbe API. Entfernt werden nur Tags aus einer festen Liste von Steuerangaben (STEUER_NAMEN):
+// Paare <name …>kurzer Inhalt</name> (bis 60 Zeichen), lose Tags <name>, </name>, <name a="b">, <name a=1>, und Reste ohne
+// Klammer (antml:…, reasoning_effort…, thinking_mode…). Alle anderen Tags und Zeichen bleiben: <Invoice>, <b>fett</b>,
+// <CrossIndustryInvoice>, „<5 Minuten“, „a < b“, „->“, <robin@example.de>. offen: Text ist noch im Strom – ein angefangenes
+// Tag am Ende, dessen Name noch eine Steuerangabe werden kann (oder nur „<“), und ein Paar ohne Schluss warten, bis sie fertig sind.
+const STEUER_LISTE = ["reasoning_effort", "reasoningeffort", "thinking_mode", "thinkingmode", "thinking", "max_thinking", "maxthinking",
+  "function_calls", "invoke", "parameter", "result", "output", "system", "antml:"];
+const STEUER_NAMEN = String.raw`(?:antml:[\w:.-]*|reasoning_?effort|thinking_?mode|thinking|max_?thinking\w*|function_calls|invoke|parameter|result|output|system)(?![\w:.-])`;
+const TAG_ATTR = String.raw`(?:\s+[\w:.-]+=(?:"[^"<>]*"|'[^'<>]*'|[^\s"'<>]+))*\s*`;
+const STEUER_PAAR = new RegExp(String.raw`<(${STEUER_NAMEN})${TAG_ATTR}>[^<]{0,60}<\/\1\s*>`, "gi");
+const STEUER_TAG = new RegExp(String.raw`<\/?${STEUER_NAMEN}${TAG_ATTR}\/?>`, "gi");
+const STEUER_REST = /\bantml:\S*|<?\/?\b(?:reasoning_?effort|thinking_?mode|max_?thinking\w*)\S*/gi;
+const OFFENES_PAAR = new RegExp(String.raw`<(${STEUER_NAMEN})${TAG_ATTR}>[^<]{0,60}(?:<\/?[\w:.-]*\s*)?$`, "i");
+const OFFENES_TAG = /<\/?([a-z][\w:.-]*)?([^<>]{0,60})$/i;
+const kannSteuerangabeWerden = (name, rest) => {
+  if (!name) return !rest; // nur „<“ oder „</“
+  const n = name.toLowerCase();
+  if (rest) return new RegExp("^" + STEUER_NAMEN + "$", "i").test(n); // Name fertig, Attribute kommen noch
+  return n.startsWith("antml:") || STEUER_LISTE.some(l => l.startsWith(n)); // Name wird noch geschrieben
+};
+export function ohneSteuerangaben(text, { offen = false } = {}) {
+  let s = String(text ?? "");
+  if (offen) {
+    s = s.replace(OFFENES_PAAR, "\u0000");
+    s = s.replace(OFFENES_TAG, (m, name, rest) => kannSteuerangabeWerden(name, rest) ? "\u0000" : m);
+  }
+  s = s.replace(STEUER_PAAR, "\u0000").replace(STEUER_TAG, "\u0000").replace(STEUER_REST, "\u0000");
+  if (!s.includes("\u0000")) return s;
+  // nur an den Schnittstellen Leerraum glätten: vorn und vor Satzzeichen weg, sonst ein Leerzeichen
+  return s.replace(/^[\s\u0000]+/, "").replace(/\s*\u0000[\s\u0000]*(?=[.,;:!?…]|$)/g, "").replace(/\s*\u0000[\s\u0000]*/g, " ");
+}
+
+// Draht und Feedback: Name und Text der Nachricht stehen in der Zusammenfassung und in der Mail an Robin
+const ohneSteuerangabenIn = m => ({ ...m, ...(typeof m.name === "string" ? { name: ohneSteuerangaben(m.name).trim() } : {}),
+  ...(typeof m.text === "string" ? { text: ohneSteuerangaben(m.text).trim() } : {}) });
+
 // Doppelte Sätze streichen (Endlosschleifen), Länge kappen, am Satzende abschneiden.
 function tidy(reply) {
   const seen = new Set(), keep = [];
+  reply = ohneSteuerangaben(reply);
   // Die Sprechblase zeigt Text roh: Markdown-Zeichen (Sternchen, Backticks, Unterstriche) entfernen.
   reply = String(reply).replace(/\s*\(Link: [^)]*\)/g, "").replace(/\*\*?([^*]+)\*\*?/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/(^|\s)_([^_]+)_(?=\s|[.,;:!?]|$)/g, "$1$2");
   for (const part of reply.trim().split(/(?<=[.!?])\s+/)) {
