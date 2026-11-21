@@ -1,11 +1,12 @@
-// Neues Konzept (Robin, 21.11.2026): Seite „Individuelle Lösung“, Kernzeile, vier Säulen, SmartFormular als TaxTech, Satz zur Offenheit
+// Neues Konzept (Robin, 21.11.2026): Seite „Individuelle Lösung“, Kernzeile, SmartFormular als TaxTech und „Vorgeschlagen · robin.vision“, Satz zur Offenheit
 // auf „Werkzeuge“, Absatz „Was robin.vision ist“ auf „Über mich“, Goch kennt alles. Kein Netz.   node tests/individuelle_loesung_test.mjs
 import { readFileSync } from "node:fs";
 import { LOESUNG, loesungSeite } from "../worker/src/individuelle_loesung.js";
 import { EIGENE } from "../worker/src/partner.js";
+import { handleContact } from "../worker/src/contact.js";
 
 let fails = 0;
-const check = (ok, label) => { console.log((ok ? "  ok   " : "  FEHLT ") + label); if (!ok) fails++; };
+const check = (ok, label, info) => { console.log((ok ? "  ok   " : "  FEHLT ") + label + (info !== undefined ? " " + JSON.stringify(info) : "")); if (!ok) fails++; };
 const root = new URL("..", import.meta.url).pathname;
 const lesen = p => readFileSync(root + p, "utf8");
 const KERN = { de: "Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.",
@@ -19,9 +20,12 @@ for (const s of LOESUNG) {
   check(html === gebaut, `${s.pfad}: gebaut (tools/individuelle-loesung-bauen.mjs)`);
   check(html.includes(`<a href="${up}${s.adresse}" aria-current="page">`), `${s.pfad}: Menüpunkt aktiv`);
   check((main.match(/<ol class="schritte">[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1 === 3, `${s.pfad}: drei Schritte`);
-  check(!/€|EUR|Euro|\d\s*(Werktag|working day|Tag|day)/i.test(main), `${s.pfad}: keine Preise, keine Fristen`);
+  check(!/€|EUR|Euro|\d\s*(Werktag|working day|Tag|day)/i.test(main.replace(/<select id="l-budget"[\s\S]*?<\/select>/, "")), `${s.pfad}: keine Preise, keine Fristen`);
   check(/Angebot|quote/.test(main) && /Steuer- oder Rechtsberatung|tax or legal advice/.test(main) && /Mandantendaten|client data/.test(main), `${s.pfad}: vorab ein Angebot, Grenzen genannt`);
-  check(main.includes(`href="${up}${s.lang === "en" ? "?lang=en" : ""}#nachricht"`) && main.includes('href="mailto:robin@robin.vision"') && !/<form\b/.test(main.replace(/<section class="newsletter"[\s\S]*?<\/section>/, "")), `${s.pfad}: Anfrage über die vorhandenen Wege, kein eigenes Formular`);
+  const formular = (main.match(/<form class="lo-form" id="loesung-anfrage"[\s\S]*?<\/form>/) || [""])[0];
+  check(formular && ["name", "email", "firma", "art", "budget", "text", "website"].every(n => formular.includes(`name="${n}"`)) && formular.includes('class="falle"') && /placeholder="[^"]{40,}"/.test(formular)
+    && /Mandanten|client data/.test(formular) && main.includes('href="mailto:robin@robin.vision"') && main.includes(`href="${up}${s.lang === "en" ? "?lang=en" : ""}#kontakt"`), `${s.pfad}: Anfrageformular (Name, E-Mail, Firma, Art, Budget, Aufgabe, Falle), Hinweis zu Daten, Termin und E-Mail darunter`);
+  check(html.includes('"https://goch.robin.vision/contact"') && html.includes("art: 'loesung'") && html.includes("t: geladen"), `${s.pfad}: sendet an Gochs /contact mit Art „loesung“ und Ladezeitpunkt`);
   check(html.includes('data-gruss="') && /<div class="goch-kopf"/.test(html), `${s.pfad}: Goch mit Gruß für die Seite`);
 }
 const sitemap = lesen("sitemap.xml");
@@ -31,13 +35,11 @@ check(llms.includes("https://robin.vision/individuelle-loesung/") && llms.includ
 
 console.log("\nStartseite");
 const start = lesen("index.html"), sprache = lesen("language.js");
-check(start.includes(`<title>robin.vision – ${KERN.de}</title>`) && sprache.includes(`slogan: '${KERN.de}'`) && sprache.includes(`slogan: '${KERN.en}'`), "Kernzeile in Titel und unter der Wortmarke, DE und EN");
-const saeulen = (start.match(/<section class="saeulen"[\s\S]*?<\/section>/) || [""])[0];
-check((saeulen.match(/<li><a /g) || []).length === 4 && ["Eigene Lösungen", "Empfohlene Lösungen", "Workshops", "Ihre eigene Lösung"].every(x => saeulen.includes(x)), "vier Kacheln unter der Kernzeile");
-check(["werkzeuge/", "werkzeuge/", "workshops/", "individuelle-loesung/"].every((z, i) => (saeulen.match(/data-href-de="([^"]+)"/g) || [])[i] === `data-href-de="${z}"`)
-  && (saeulen.match(/data-href-en="[^"]+"/g) || []).length === 4, "Kacheln führen auf Werkzeuge, Werkzeuge, Workshops, Individuelle Lösung (Ziel je Sprache)");
-check(["saeuleEigeneTitel", "saeuleEmpfohlenTitel", "saeuleWorkshopsTitel", "saeuleLoesungTitel", "saeuleEigeneText", "saeuleLoesungText"].every(k => (sprache.match(new RegExp(k + ": '", "g")) || []).length === 2), "Kacheln in language.js DE und EN");
-check(/in Entwicklung/.test(saeulen) && !/20(26|27)/.test(saeulen), "Kanzlei-Agenten nur „in Entwicklung“, kein Termin");
+check(start.includes(`<title>robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien</title>`) && start.includes(`<span class="slogan" data-i18n="slogan">Prozesse effizient gestalten</span>`) && start.includes(`<p class="kernzeile" data-i18n="kernzeile">${KERN.de}</p>`)
+  && sprache.includes(`kernzeile: '${KERN.de}'`) && sprache.includes(`kernzeile: '${KERN.en}'`) && sprache.includes("slogan: 'Streamlining processes'"), "Titel und Leitsatz wie vorher, Kernzeile kleiner darunter (Robin, 21.11.2026), DE und EN");
+check(!/saeule/.test(start + sprache) && !/Kanzlei-Agent|agents for accounting firms/.test(start + sprache + lesen("worker/profile.md") + lesen("llms.txt")), "keine Kacheln, keine Kanzlei-Agenten (Robin, 21.11.2026)");
+const abschnitte = [...start.matchAll(/\n  <section class="([^"]+)"(?: id="([^"]*)")?/g)].map(m => m[2] || m[1]);
+check(abschnitte[0] === "stage" && abschnitte[1] === "werkzeuge", "nach der Bühne direkt die Leiste der Werkzeuge", abschnitte.slice(0, 3));
 
 console.log("\nSmartFormular als TaxTech");
 const sf = EIGENE.find(p => p.id === "smartformular");
@@ -46,6 +48,11 @@ for (const p of ["werkzeuge/smartformular/index.html", "werkzeuge/smartformular/
 const sfSlider = (start.match(/<article class="wzs-karte">(?:(?!<\/article>)[\s\S])*?<h3>SmartFormular<\/h3>[\s\S]*?<\/article>/g) || []);
 check(sfSlider.length === 2 && sfSlider.every(k => k.includes('<span class="wzs-bereich">TaxTech</span>')), "Slider der Startseite: SmartFormular mit TaxTech (DE und EN)");
 check(!/smartformular[^\n]*Rechnungswesen<\/li>/i.test(lesen("werkzeuge/index.html")), "Werkzeuge: SmartFormular nicht mehr unter „Rechnungswesen“");
+
+const vk = { de: '<p class="wz-kennz">Vorgeschlagen · <span>robin.vision</span></p>', en: '<p class="wz-kennz">Suggested · <span>robin.vision</span></p>' };
+check(["de", "en"].every(l => lesen(l === "en" ? "werkzeuge/en/index.html" : "werkzeuge/index.html").includes(vk[l])) && start.includes('<p class="wzs-kennz">Vorgeschlagen · <span>robin.vision</span></p>') && start.includes('<p class="wzs-kennz">Suggested · <span>robin.vision</span></p>'), "SmartFormular „Vorgeschlagen · robin.vision“ auf Werkzeuge und im Slider");
+check(lesen("werkzeuge/smartformular/index.html").includes('<p class="kennz">Vorgeschlagen · <span>robin.vision</span></p>') && lesen("werkzeuge/smartformular/index.html").includes("Vorgeschlagen: robin.vision entwickelt diese Lösung selbst.")
+  && lesen("werkzeuge/smartformular/en/index.html").includes("Suggested: robin.vision develops this solution itself.") && !/unbezahlt|unpaid|sponsored/.test(lesen("werkzeuge/smartformular/index.html") + lesen("werkzeuge/smartformular/en/index.html")), "Unterseite SmartFormular: Kennzeichen und eigener Hinweis, nicht „unbezahlt“, ohne sponsored");
 
 console.log("\nWerkzeuge, Über mich, Goch");
 check(lesen("werkzeuge/index.html").includes("Manche Lösungen entwickle ich selbst, andere empfehle ich. Eigene Lösungen sind als solche gekennzeichnet.")
@@ -56,6 +63,18 @@ check(!/UG|Gesellschaft|GmbH/.test((lesen("ueber-mich/index.html").match(/<h2 id
 const profil = lesen("worker/profile.md").replace(/\s+/g, " "), links = lesen("worker/links.md");
 check(profil.includes(KERN.de) && /Individuelle Lösung/.test(profil) && /TaxTech/.test(profil) && !/nicht als „eigenes Produkt“/.test(profil), "Gochs Profil: Kernzeile, Individuelle Lösung, TaxTech, offen gemischt");
 check(/^\| individuelle-loesung \|[^\n]*https:\/\/robin\.vision\/individuelle-loesung\/ https:\/\/robin\.vision\/individuelle-loesung\/en\/ \|$/m.test(links), "Gochs Linkliste: individuelle-loesung mit beiden Adressen");
+
+console.log("\nWorker: Betreff der Anfrage");
+{
+  const mails = [], echt = globalThis.fetch;
+  globalThis.fetch = async (url, opt) => { mails.push(JSON.parse(opt.body)); return new Response("{}", { status: 200 }); };
+  const env = { RESEND_API_KEY: "test", MAIL_TO: "robin@example.org" }, ctx = { waitUntil() {} };
+  const senden = (art, ip) => handleContact(new Request("https://goch.example/contact", { method: "POST", headers: { "CF-Connecting-IP": ip },
+    body: JSON.stringify({ lang: "de", art, name: "Erika Muster", email: "erika@example.org", message: "Individuelle Lösung: Anfrage über robin.vision", t: Date.now() - 6000 }) }), env, ctx, {});
+  await senden("loesung", "10.0.0.1"); await senden("constructor", "10.0.0.2"); await senden(undefined, "10.0.0.3");
+  globalThis.fetch = echt;
+  check(mails.map(m => m.subject).join(" | ") === "Website · Individuelle Lösung: Nachricht von Erika Muster | Website: Nachricht von Erika Muster | Website: Nachricht von Erika Muster", "Betreff mit „Individuelle Lösung“ nur bei art=loesung");
+}
 
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nNeues Konzept in Ordnung.");
 process.exit(fails ? 1 : 0);

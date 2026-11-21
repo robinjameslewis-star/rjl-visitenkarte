@@ -161,14 +161,27 @@ article li { margin-bottom: 6px; }
 .grenzen { margin: 0 0 18px; padding-left: 1.2em; }
 .grenzen li { margin: 0 0 6px; text-align: left; }
 .vermerk { color: var(--ink-soft); font-size: 15px; }
-.wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 14px; padding: 0; list-style: none; }
-.wege li { margin: 0; max-width: none; }
-.wege .knopf { display: inline-block; padding: 11px 18px; border-radius: 3px; text-decoration: none; font-size: 15px; background: var(--green); color: var(--paper); border: 1px solid var(--green); }
-.wege .knopf:hover { background: #082d22; color: var(--paper); }
-.wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
-.wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
-.wege .mail { font-size: 15px; }
-.loesung .hinweis { color: var(--ink-muted); font-size: 13px; }</style>
+.loesung .hinweis { color: var(--ink-muted); font-size: 13px; }
+.ideen { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 8px; }
+.ideen li { margin: 0; max-width: none; text-align: left; padding: 10px 14px; border-left: 2px solid var(--copper); background: rgba(255,255,255,.45); font: 400 18px/1.35 var(--serif); color: var(--green); }
+.lo-form { margin: 22px 0 10px; padding: 22px 24px 18px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.45); }
+.lo-form .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.lo-form label { display: block; font-size: 14px; color: var(--ink-soft); margin: 12px 0 4px; }
+.lo-form label span { color: var(--ink-muted); }
+.lo-form input, .lo-form select, .lo-form textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.7); color: var(--ink); }
+.lo-form textarea { min-height: 170px; resize: vertical; }
+.lo-form select { min-height: 44px; }
+.lo-form input:focus-visible, .lo-form select:focus-visible, .lo-form textarea:focus-visible { outline: 1px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
+.lo-form .feldhinweis { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+.lo-form button { margin-top: 18px; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper); font: inherit; font-size: 15px; cursor: pointer; }
+.lo-form button:hover { background: #082d22; }
+.lo-form button:disabled { opacity: .6; cursor: default; }
+.lo-form .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; }
+.lo-form .status.ok { color: var(--green); } .lo-form .status.warn { color: #A63D2F; }
+.lo-form .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.lo-form .hinweis { margin: 8px 0 0; }
+.lo-weitere { font-size: 15px; color: var(--ink-soft); }
+@media (max-width: 600px) { .lo-form { padding: 18px 16px 14px; } .lo-form .reihe { grid-template-columns: 1fr; } .lo-form textarea { min-height: 210px; } }</style>
 <script src="../../landscape.js?v=20261205"></script>
 <script>window.RJLLandscape?.prepare();</script>
 </head>
@@ -207,14 +220,25 @@ article li { margin-bottom: 6px; }
 <li>nothing intended to deceive, such as receipts, references or reviews</li>
 </ul>
 <p class="vermerk frei">Every solution is created with AI and checked by me. It is not an official document and does not replace professional advice. Please check it before you use it.</p>
-<h2 id="anfrage">Enquiry</h2>
-<p>Describe your problem in a message or a short call. I reply personally by email.</p>
-<ul class="wege">
-<li><a class="knopf" href="../../?lang=en#nachricht">Write a message</a></li>
-<li><a class="knopf zweit" href="../../?lang=en#kontakt">Book an appointment</a></li>
-<li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
-</ul>
-<p class="hinweis">Please do not send any documents or other people&#39;s data with your first message.</p>
+<h2 id="anfrage">Tell me about your task</h2>
+<p class="frei">What keeps holding you up at work? Describe it in a few sentences. This is the kind of thing it can become:</p>
+<ul class="ideen"><li>A searchable overview from a stack of as-built plans</li><li>A form that checks entries before they go into your system</li><li>A template that turns your data into a finished report</li></ul>
+<form class="lo-form" id="loesung-anfrage" novalidate>
+<div class="reihe">
+<div><label for="l-name">Name</label><input type="text" id="l-name" name="name" maxlength="80" required autocomplete="name"></div>
+<div><label for="l-email">Email address</label><input type="email" id="l-email" name="email" maxlength="120" required autocomplete="email"></div>
+<div><label for="l-firma">Company or firm <span>(optional)</span></label><input type="text" id="l-firma" name="firma" maxlength="120" autocomplete="organization"></div>
+<div><label for="l-art">What is it about? <span>(optional)</span></label><select id="l-art" name="art"><option value="">Please choose</option><option>Documents and forms</option><option>Data and spreadsheets</option><option>Office processes</option><option>Design</option><option>Something else</option></select></div>
+<div><label for="l-budget">Your budget <span>(optional)</span></label><select id="l-budget" name="budget"><option value="">Please choose</option><option>up to €250</option><option>€250 to €1,000</option><option>€1,000 to €5,000</option><option>more than €5,000</option><option>Not sure yet</option></select></div>
+</div>
+<label for="l-text">What should the solution do?</label><textarea id="l-text" name="text" maxlength="2500" required aria-describedby="l-text-hinweis" placeholder="For example: every month we receive delivery notes as PDFs and type the items into Excel by hand. I&#39;d like a solution that brings them together and checks the totals."></textarea>
+<p class="feldhinweis" id="l-text-hinweis">Please describe the task, not the contents: don&#39;t send client data, health data or any real personal data.</p>
+<div class="falle" aria-hidden="true"><label for="l-website">Website</label><input type="text" id="l-website" name="website" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="loesung-senden">Send enquiry</button>
+<p class="status" id="loesung-status" role="status" aria-live="polite"></p>
+<p class="meta hinweis">Your details are emailed to me and used only to reply. Details are under Legal notice · Privacy.</p>
+</form>
+<p class="lo-weitere">Prefer to talk? <a href="../../?lang=en#kontakt">Book an appointment</a> · <a href="mailto:robin@robin.vision">robin@robin.vision</a></p>
 <p class="meta"><a href="../../individuelle-loesung/" lang="de" hreflang="de">Diese Seite auf Deutsch</a></p>
 <section class="newsletter" id="newsletter" aria-labelledby="newsletter-title" hidden>
 <h2 id="newsletter-title">Food for Thought, tools and workshops by email</h2>
@@ -227,6 +251,30 @@ article li { margin-bottom: 6px; }
 </form>
 </section>
 </article>
+<script>
+(() => {
+  'use strict';
+  const form = document.getElementById('loesung-anfrage'); if (!form) return;
+  const status = document.getElementById('loesung-status'), knopf = document.getElementById('loesung-senden'), geladen = Date.now();
+  const T = {"betreff":"Individuelle Lösung: Anfrage über robin.vision (English)","firma":"Company or firm","art":"What is it about?","budget":"Your budget","sendet":"Sending …","gesendet":"Thank you, your enquiry has arrived. I'll get back to you personally with my assessment.","ungueltig":"Please give your name, a valid email address and a few sentences about the task.","fehler":"Sending did not work. Please email me directly at robin@robin.vision."};
+  const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const name = (d.name || '').trim(), email = (d.email || '').trim(), text = (d.text || '').trim();
+    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || text.length < 20) { say(T.ungueltig, 'warn'); return; }
+    const message = [T.betreff, '', d.firma && d.firma.trim() ? T.firma + ': ' + d.firma.trim() : null, d.art ? T.art.replace(/\?$/, '') + ': ' + d.art : null, d.budget ? T.budget + ': ' + d.budget : null, '', text].filter(x => x !== null).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    knopf.disabled = true; say(T.sendet);
+    try {
+      const r = await fetch("https://goch.robin.vision/contact", { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang: "en", art: 'loesung', name, email, phone: '', message, website: d.website || '', t: geladen }) });
+      const out = await r.json().catch(() => ({}));
+      if (r.ok && out.ok) { say(T.gesendet, 'ok'); form.reset(); } else say(out.error || T.fehler, 'warn');
+    } catch (_) { say(T.fehler, 'warn'); }
+    knopf.disabled = false;
+  });
+})();
+</script>
 </main>
 <footer class="foot"><a href="../../?lang=en#privacy">Legal notice · Privacy</a><a href="../../blog/en/">Food for Thought</a><a href="#newsletter">Newsletter</a><a href="../../blog/en/feed.xml">RSS</a></footer>
 <script src="../../newsletter.js?v=20261016" defer></script>

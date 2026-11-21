@@ -37,8 +37,8 @@ export function slider(lang, { werkzeuge = EIGENE_WERKZEUGE_IM_SLIDER } = {}) {
   // Eine Karte je Lösung, alle gleich gebaut; nur das Kennzeichen unterscheidet sich
   const loesung = (p, kennzeichnung) => karte({ kennz: kennzeichnung, logo: logo(p), name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "",
     bereich: p.bereich ? (p.bereich[lang] || p.bereich.de) : "", href: p.seite ? `werkzeuge/${p.seite}/` : anbieterAdresse(p.id, lang), link: t.zumProdukt });
-  // Eigene Lösungen (SmartFormular): „Anzeige · robin.vision“; auf Wunsch dazu die kostenlosen Werkzeuge mit „Kostenlos“ (Robin, 23.10.2026)
-  const eigene = EIGENE.flatMap(p => [loesung(p, kennz(p.anbieter)), ...(werkzeuge ? ((p.werkzeuge && p.werkzeuge[lang]) || []).filter(w => w.frei)
+  // Eigene Lösungen (SmartFormular): seit 21.11.2026 „Vorgeschlagen · robin.vision“ (Robin); auf Wunsch dazu die kostenlosen Werkzeuge mit „Kostenlos“ (Robin, 23.10.2026)
+  const eigene = EIGENE.flatMap(p => [loesung(p, vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz")), ...(werkzeuge ? ((p.werkzeuge && p.werkzeuge[lang]) || []).filter(w => w.frei)
     .map(w => karte({ kennz: kostenlos(lang, "wzs-kennz", w.frei), logo: logo(p), name: w.name, text: w.text, bereich: w.bereich, href: w.extern ? (lang === "en" ? p.urlEn : p.url) + w.href : w.href, extern: !!w.extern, link: t.zumProdukt })) : [])]);
   const partner = PARTNER.map(p => loesung(p, kennz(p.anbieter)));
   const vorgeschlagen = VORGESCHLAGEN.map(p => loesung(p, vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz")));

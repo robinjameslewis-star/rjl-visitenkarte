@@ -387,7 +387,7 @@
   const ORTE = unter
     ? { 'k-workshops': 'workshops', 'k-workshop-e-rechnung': 'ws_erechnung', ablauf: 'ablauf', anfrage: 'anfrage', fragen: 'fragen', vergleich: 'vergleich',
         stationen: 'stationen', rotkehlchen: 'rotkehlchen', kontakt: 'kontakt', neu: 'neu', 'newsletter-title': 'newsletter_seite' }
-    : { angebot: 'angebot', werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', newsletter: 'newsletter', 'ueber-mich': 'ueber_mich',
+    : { werkzeuge: 'werkzeuge', workshops: 'workshops', 'workshop-e-rechnung': 'ws_erechnung', blog: 'blog', newsletter: 'newsletter', 'ueber-mich': 'ueber_mich',
         termin: 'termin', nachricht: 'nachricht', anbieter: 'anbieter' };
   // Eigene Sätze je Unterseite (12.11.2026): Die Kennungen der Überschriften sind allgemein (inhalt, werkzeuge, partner …),
   // deshalb gelten sie nur auf der Seite, zu deren Text der Satz gehört. Deutsch und Englisch tragen dieselben Kennungen.
@@ -428,7 +428,7 @@
       if (s.el.hidden) continue;
       const r = s.el.getBoundingClientRect();
       if (!r.height) continue;
-      const ab = (s.key === 'werkzeuge' || s.key === 'angebot') && !unter ? .78 : .6; // die erste Station gleich nach der Landung (Übergabe bei 70 %)
+      const ab = s.key === 'werkzeuge' && !unter ? .78 : .6; // die erste Station gleich nach der Landung (Übergabe bei 70 %)
       if (s.kopf ? r.top < vh * .6 && r.top > -vh * .4 : r.top < vh * ab && r.bottom > vh * .3) treffer = s;
     }
     return treffer;
@@ -490,9 +490,7 @@
   // aus (.goch-fort), solange er unten sitzt – der Bühnen-Ast bleibt leer, nie sind zwei Gochs zu sehen. Zurück: Ist die Bühne
   // wieder zu mehr als der Hälfte im Bild (und die Überschrift unter 78 %), fliegt er hinauf und wird groß. Bei reduzierter
   // Bewegung ohne Flug. Ein offenes Gespräch wird dabei zur Leiste; im Vollbild mit Stimme bleibt er oben.
-  // Seit 21.11.2026 stehen die vier Säulen (section.saeulen, Überschrift unsichtbar) vor den Werkzeugen: Die Übergabe richtet sich nach dem
-  // ersten Abschnitt nach der Bühne, damit der große Goch fort ist, bevor der kleine dort spricht (nie zwei Gochs).
-  const werkzeugKopf = unter ? null : (document.querySelector('.stage + section.saeulen') || document.querySelector('#werkzeuge h2'));
+  const werkzeugKopf = unter ? null : document.querySelector('#werkzeuge h2');
   const fortSetzen = an => { fort = an; scene.classList.toggle('goch-fort', an); html.classList.toggle('goch-fort', an); if (an) mini.classList.remove('goch-mini-weg'); };
   function gabePruefen() {
     if (!werkzeugKopf || gabeZurueck || mini.dataset.flug) return;

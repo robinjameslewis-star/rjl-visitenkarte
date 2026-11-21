@@ -54,7 +54,7 @@ export const VORGESCHLAGEN = [
 ];
 // Eigene Lösungen von robin.vision (Robin, 20.11.2026, nach dem Live-Gang von smartformular.ai: „smartformular ist lvie jetzt robin.vision so
 // umbauen wie besprochen, samrtformular taucht dort wie jede andere ki lösung auf,“): ein Eintrag wie jede andere Lösung – eine Karte, eine
-// Unterseite werkzeuge/<id>/ im Rahmen von robin.vision, von dort zur eigenen Website. Kennzeichen weiter „Anzeige · robin.vision“
+// Unterseite werkzeuge/<id>/ im Rahmen von robin.vision, von dort zur eigenen Website. Kennzeichen seit 21.11.2026 „Vorgeschlagen · robin.vision“ (Robin; vorher „Anzeige · robin.vision“)
 // (Erläuterung im Impressum, #anzeigen: „Anbieter ist robin.vision selbst …“); kein rel="sponsored" und kein Vergütungssatz, weil niemand
 // robin.vision dafür bezahlt. wortmarke: Schriftzug als Text wie im Kopf von smartformular.ai (dort kein Bild; Arbeitsregeln Abschnitt 8,
 // Bezugswert 20 px Schrift) statt logo. werkzeuge: Verweise der Unterseite je Sprache (anker = Sprungmarke; frei = Kennzeichen wie

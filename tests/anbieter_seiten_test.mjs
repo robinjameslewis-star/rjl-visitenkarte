@@ -29,10 +29,11 @@ for (const a of ANBIETER) for (const lang of ["de", "en"]) {
   check(existsSync(root + pfad) && readFileSync(root + pfad, "utf8") === html, `${a.id} ${lang}: Datei gebaut und aktuell`);
   const zumAnbieter = html.match(new RegExp(`<a class="an-knopf" href="${((lang === "en" && a.urlEn) || a.url).replace(/[.?*+^$[\]\\(){}|/]/g, "\\$&")}" rel="([^"]+)" target="_blank">`));
   check(zumAnbieter && zumAnbieter[1] === (a.art === "anzeige" ? "sponsored noopener" : "noopener"), `${a.id} ${lang}: Verweis zum Anbieter ${a.art === "anzeige" ? "mit" : "ohne"} rel=sponsored`);
-  const kennz = a.art !== "vorgeschlagen" ? `<p class="kennz"><a href="${lang === "en" ? "../../../?lang=en" : "../../"}#anzeigen">${lang === "en" ? "Ad" : "Anzeige"}</a> · <span>${a.anbieter}</span></p>`
+  // SmartFormular (eigen) seit 21.11.2026 „Vorgeschlagen · robin.vision“ (Robin)
+  const kennz = a.art === "anzeige" ? `<p class="kennz"><a href="${lang === "en" ? "../../../?lang=en" : "../../"}#anzeigen">${lang === "en" ? "Ad" : "Anzeige"}</a> · <span>${a.anbieter}</span></p>`
     : `<p class="kennz">${lang === "en" ? "Suggested" : "Vorgeschlagen"} · <span>${a.anbieter}</span></p>`;
   check(html.includes(kennz) && html.includes(`<h1>${a.name}</h1>`) && (!a.logo || html.includes(a.logo)) && (a.logo || a.wortmarke), `${a.id} ${lang}: Kennzeichen wie auf der Karte, Name und Logo`);
-  check(html.includes('class="an-art"') === (a.art !== "eigen") && html.includes("<title>") && !html.includes("--paper: #0E0B14"), `${a.id} ${lang}: Hinweis zur Art nur bei fremden Lösungen, Rahmen von robin.vision`);
+  check(html.includes('class="an-art"') && (a.art !== "eigen" || html.includes(lang === "en" ? "Suggested: robin.vision develops this solution itself." : "Vorgeschlagen: robin.vision entwickelt diese Lösung selbst.")) && html.includes("<title>") && !html.includes("--paper: #0E0B14"), `${a.id} ${lang}: Hinweis zur Art (bei der eigenen Lösung „entwickelt diese Lösung selbst“), Rahmen von robin.vision`);
   check(html.includes(`<link rel="canonical" href="${adresse}">`) && sitemap.includes(`<loc>${adresse}</loc>`) && SEITEN.some(s => s.adresse === pfad.replace(/index\.html$/, "")), `${a.id} ${lang}: kanonische Adresse, in der Sitemap`);
   check(!/Aufnahme folgt|Recording to follow|coming soon|folgt in Kürze/i.test(html) && ((a.aufnahmen || []).length ? html.includes('id="aufnahmen"') : !html.includes('id="aufnahmen"') && !html.includes("<video")), `${a.id} ${lang}: Aufnahmen nur, wenn es welche gibt, kein Platzhalter (Robin, 19.11.2026)`);
   check(!/DATEV|€/.test(html.replace(/<head>[\s\S]*<\/head>/, "")), `${a.id} ${lang}: ohne DATEV und ohne Preise`);

@@ -28,6 +28,8 @@ export async function handleContact(request, env, ctx, cors) {
   const clean = (v, n) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, n);
   const name = clean(body.name, 80), email = clean(body.email, 120).toLowerCase(), phone = clean(body.phone, 40);
   const message = String(body.message == null ? "" : body.message).replace(/\r\n?/g, "\n").trim().slice(0, 3000);
+  // Art der Anfrage für den Betreff, nur aus einer festen Liste (21.11.2026: Formular der Seite „Individuelle Lösung“)
+  const art = body.art === "loesung" ? "Individuelle Lösung" : "";
 
   // Falle für Bots: das unsichtbare Feld muss leer bleiben; Menschen brauchen ein paar Sekunden.
   if (clean(body.website, 10)) return json({ ok: true }); // still schlucken
@@ -62,7 +64,7 @@ export async function handleContact(request, env, ctx, cors) {
     method: "POST",
     headers: { "content-type": "application/json", "authorization": "Bearer " + env.RESEND_API_KEY },
     body: JSON.stringify({ from: env.MAIL_FROM || "Goch <onboarding@resend.dev>", to: [env.MAIL_TO], reply_to: email,
-      subject: `Website: Nachricht von ${name}`, text }),
+      subject: `Website${art ? " · " + art : ""}: Nachricht von ${name}`, text }),
   }).catch(() => null);
   if (!r || !r.ok) {
     console.error("Kontaktformular: Resend", r && r.status, r ? (await r.text()).slice(0, 200) : "keine Antwort");
