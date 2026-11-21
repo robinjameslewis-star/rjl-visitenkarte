@@ -58,6 +58,15 @@ export class Geraetebudget {
       if (gesamt && !(await s.get("gesamt:seit"))) await s.put("gesamt:seit", new Date().toISOString());
       return Response.json({ ok: true, stand: stand + menge });
     }
+    // Schloss für Lesen-Ändern-Schreiben (Lizenzkonten, src/lizenz.js): nehmen nur, wenn frei oder abgelaufen; geben nur mit
+    // derselben Kennung. Das Eingangstor des Durable Objects macht Prüfen und Setzen zu einem Schritt. Eine eigene Instanz je Konto.
+    if (url.pathname === "/schloss") {
+      const jetzt = Date.now(), wer = String(body.wer || ""), da = await s.get("schloss");
+      if (body.aktion === "geben") { if (da && da.wer === wer) await s.delete("schloss"); return Response.json({ ok: true }); }
+      if (da && da.bis > jetzt && da.wer !== wer) return Response.json({ ok: false });
+      await s.put("schloss", { wer, bis: jetzt + Math.min(Math.max(+body.ms || 0, 1000), 60000) });
+      return Response.json({ ok: true });
+    }
     if (url.pathname === "/lebenszeichen") { await s.put("lebenszeichen", { ...body, at: new Date().toISOString() }); return Response.json({ ok: true }); }
     if (url.pathname === "/stand") {
       const heute = {}, gesamt = {};

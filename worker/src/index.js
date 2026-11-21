@@ -25,7 +25,7 @@ import { handleAdmin } from "./admin.js";
 import { raw as githubRaw } from "./github.js";
 import { handleContact } from "./contact.js";
 import { handleAufbau } from "./aufbau.js";
-import { handleLizenz } from "./lizenz.js";
+import { handleLizenz, lizenzAbgleich } from "./lizenz.js";
 import { handleNewsletter } from "./newsletter.js";
 import { loadSettings, rememberStatus } from "./settings.js";
 import { oeffentlicheFigur } from "./figuren.js";
@@ -110,7 +110,14 @@ const TEXT = {
   },
 };
 
+// Hinweise des Lizenzdienstes an Robin über den vorhandenen Weg (notifyOnce: Resend an MAIL_TO, je Art einmal in 30 Tagen)
+const lizenzDeps = env => ({ melden: (art, betreff, text) => notifyOnce(env, art, betreff, text) });
+
 const worker = {
+  // Täglicher Lauf ([triggers] crons in wrangler.toml): Abgleich des Lizenzdienstes – bezahlte Bestellungen ohne Lizenz (src/lizenz.js)
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(lizenzAbgleich(env, lizenzDeps(env)).catch(e => console.error("Lizenz-Abgleich", String(e && e.message || e).slice(0, 300))));
+  },
   // Vorne: Stimme zur Antwort von /chat (NDJSON), nur wenn die Seite sie verlangt; sonst unverändert durchgereicht.
   // Jede Antwort bekommt HSTS und nosniff (Sicherheitsprüfung 11.11.2026, N1), auch /admin.
   async fetch(request, env, ctx) {
@@ -150,7 +157,7 @@ const worker = {
     // Aufbau aus dem Werkzeug „Buchungsstapel-Generator“ (englisch „Booking Batch Generator“): offen für jede Herkunft (lokale Datei), eigene Prüfung (src/aufbau.js)
     if (new URL(request.url).pathname === "/aufbau") return handleAufbau(request, env, ctx);
     // Lizenzen der SmartFormular-Werkzeuge ab 2027: Anmeldung per Code, Status, Kauf, Stripe-Webhook – offen für jede Herkunft (src/lizenz.js)
-    if (new URL(request.url).pathname.startsWith("/lizenz/")) return handleLizenz(request, env, ctx);
+    if (new URL(request.url).pathname.startsWith("/lizenz/")) return handleLizenz(request, env, ctx, lizenzDeps(env));
     const origin = request.headers.get("Origin") || "";
     const allowed = (env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
     const cors = {
@@ -167,7 +174,7 @@ const worker = {
     // Dashboard für Robin (Anmeldung per E-Mail-Code, Inhalte im KV) – eigene Seite, kein CORS.
     if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
       return handleAdmin(request, env, ctx, { parseLinks, files: { aktuell: AKTUELL, links: LINKS_MD, profile: PROFILE },
-        profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch });
+        profileWords: PROFILE.split(/\s+/).filter(Boolean).length, testGoch, ...lizenzDeps(env) });
     }
     if (request.method !== "POST" || !["/chat", "/contact", "/newsletter", "/listen"].includes(url.pathname)) return json({ error: "Nicht gefunden." }, 404, cors);
     if (!intern && allowed.length && !allowed.includes(origin)) return json({ error: "Herkunft nicht erlaubt." }, 403, cors);

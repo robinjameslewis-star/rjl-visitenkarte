@@ -17,6 +17,7 @@ import { hoerenTag } from "./hoeren.js";
 import * as kiosk from "./kiosk.js";
 import * as seiten from "./seitenwissen.js";
 import { WERKZEUGE, werkzeugPfad, werkzeugFelder, werkzeugSeite } from "./werkzeug.js";
+import { lizenzVerwalten } from "./lizenz.js";
 
 const SESSION_TTL = 12 * 3600;      // Sekunden
 const CODE_TTL = 10 * 60;
@@ -70,6 +71,11 @@ export async function handleAdmin(request, env, ctx, deps) {
   if (api.startsWith("goch")) return gochApi(api, request, env, deps, session);
   if (api === "figuren") return figurenApi(request, env);
   if (api === "geraete" || api === "geraete/geheimnis") return geraeteApi(api, request, env);
+  // Lizenzen (src/lizenz.js): Konto ansehen, sperren, entsperren, Erklärung vermerken – nur angemeldet und mit eigenem Kopf (oben)
+  if (api === "lizenz" && request.method === "POST") {
+    const r = await lizenzVerwalten(env, await readJson(request), { melden: deps.melden });
+    return r.fehler ? json({ error: r.fehler }, 400) : json(r);
+  }
   if (api === "site") return siteApi(request, env);
   if (api.startsWith("landschaften")) return landscapesApi(api, request, env);
   const m = api.match(/^content\/([a-z0-9-]+)$/);
@@ -931,6 +937,14 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="bar"><button id="fgsave">Speichern</button><button class="quiet" id="fgclose">Schließen</button><button class="quiet" id="fgdelete" style="margin-left:auto;color:var(--warn)">Figur löschen</button><span class="msg" id="mF" style="margin-left:0;flex-basis:100%"></span></div>
 </div></section>
 
+<section id="lzsec"><h2>Lizenzen <span class="note">(SmartFormular: Konto ansehen, sperren, entsperren)</span></h2>
+<p class="note" style="margin:0 0 6px">Erstattung und Rückbuchung in Stripe sperren die Lizenz von selbst; ein neuer Kauf hebt die Sperre auf. Hier geht es von Hand, etwa nach einem Widerruf. Die Adresse wird nicht gespeichert, nur für die Suche benutzt.</p>
+<div class="row"><div><label for="lzemail">E-Mail-Adresse des Kontos</label><input id="lzemail" type="email" autocomplete="off"></div><div><label for="lzwerkzeug">Werkzeug</label><select id="lzwerkzeug"><option value="erechnung">E-Rechnung Start</option><option value="fibu">Buchhaltung Start</option></select></div></div>
+<label for="lzgrund">Grund <span class="note">(Pflicht beim Sperren; bei Erklärung: welcher Vertrag)</span></label><input id="lzgrund" autocomplete="off">
+<div class="bar"><button class="quiet" data-lz="anzeigen">Anzeigen</button><button data-lz="sperren" style="color:var(--warn)">Sperren</button><button class="quiet" data-lz="entsperren">Entsperren</button><button class="quiet" data-lz="widerruf">Widerruf vermerken</button><button class="quiet" data-lz="kuendigung">Kündigung vermerken</button><span class="msg" id="mLZ" style="margin-left:0;flex-basis:100%"></span></div>
+<pre id="lzkonto" class="note" hidden style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;background:#fff;border:1px solid var(--line);padding:10px;border-radius:6px"></pre>
+</section>
+
 <section id="mgsec"><h2>Messegeräte <span class="note">(Kiosk: Gerätenachweis, Tagesbudget, Lebenszeichen)</span></h2>
 <p class="note" style="margin:0 0 6px">Jedes Messegerät meldet sich mit einem eigenen Nachweis an. Er steht nur einmal hier und gehört auf dem Gerät in /etc/goch-kiosk/geraet.json (kiosk/README.md) – nie in den Browser, nie in eine E-Mail. Statt der Grenzen der Website gilt das Tagesbudget des Geräts; Stimme und Spracheingabe schalten die Schalter oben für Website und Geräte gemeinsam.</p>
 <ul class="q" id="mglist"></ul>
@@ -1151,6 +1165,11 @@ $('fgsave').onclick=async()=>{const per=k=>Object.fromEntries(['de','en'].map(l=
  try{const r=await api('figuren','PUT',body);renderFiguren(r);fgOpen(r.figuren.find(f=>f.id===body.id));say('mF','Gespeichert – das Messegerät holt die Figur beim nächsten Gespräch.',true);}catch(e){say('mF',e.message);}};
 $('fgdelete').onclick=async()=>{if(!fEdit||!confirm('Figur „'+fEdit.id+'“ löschen? Das Messegerät kann sie danach nicht mehr laden.'))return;try{const r=await api('figuren','DELETE',{id:fEdit.id});renderFiguren(r);$('fgedit').hidden=true;}catch(e){say('mF',e.message);}};
 api('figuren').then(d=>d&&renderFiguren(d)).catch(e=>{$('fglist').innerHTML='<li class="note">Nicht ladbar: '+esc(e.message)+'</li>';});
+// ---- Lizenzen (21.11.2026) ----
+document.querySelectorAll('button[data-lz]').forEach(b=>b.onclick=async()=>{const a=b.dataset.lz,erkl=a==='widerruf'||a==='kuendigung';
+ if(a==='sperren'&&!confirm('Lizenz für dieses Werkzeug ab sofort sperren?'))return;
+ try{const r=await api('lizenz','POST',{email:$('lzemail').value.trim(),werkzeug:$('lzwerkzeug').value,grund:$('lzgrund').value,aktion:erkl?'erklaerung':a,art:erkl?a:undefined});if(!r)return;
+ const k=r.konto;$('lzkonto').hidden=false;$('lzkonto').textContent=k&&k.gefunden?JSON.stringify(k,null,1):'Kein Lizenzkonto zu dieser Adresse.';say('mLZ',a==='anzeigen'?'Geladen.':'Erledigt.',true);}catch(e){say('mLZ',e.message);}});
 // ---- Messegeräte (Kiosk, 23.10.2026) ----
 let MG=[],mgEdit=null;
 function renderGeraete(d){MG=d.geraete||[];$('mglist').innerHTML=MG.length?MG.map(g=>{const s=g.stand||{},l=s.lebenszeichen,h=s.heute||{};return '<li><b>'+esc(g.name)+'</b> <span class="note">'+esc(g.id)+' · '+(g.an?'an':'aus')+' · Figuren: '+esc(g.figuren.join(', '))+' · heute '+(h.antworten||0)+' von '+g.antwortenTag+' Antworten, '+Math.round((h.sekunden||0)/60)+' von '+g.minutenTag+' Min. · '+(l?'Lebenszeichen '+fmt(l.at)+(l.online===false?' (offline)':'')+(l.commit?', Stand '+esc(String(l.commit).slice(0,7)):'')+(l.puffer?', '+esc(String(l.puffer))+' Nachricht(en) gepuffert':''):'noch kein Lebenszeichen')+'</span> <button class="quiet" data-mg="'+esc(g.id)+'">Bearbeiten</button></li>';}).join(''):'<li class="note">Noch kein Messegerät.</li>';}

@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { WURZEL, WZ, chrome, check, ergebnis, server, werkzeugSeiten, WERKZEUG_SEITE } from "./erechnung/hilfen.mjs";
-import { handleLizenz } from "../worker/src/lizenz.js";
+import { handleLizenz, sperren, entsperren, sha256 } from "../worker/src/lizenz.js";
 
 const tmp = mkdtempSync(join(tmpdir(), "rv-lizenz-"));
 function kv() { const m = new Map(); return { get: async k => m.get(k) ?? null, put: async (k, v) => { m.set(k, String(v)); }, delete: async k => { m.delete(k); }, map: m }; }
@@ -122,6 +122,18 @@ netz = true;
 await page.click("#rvl-nochmal");
 await page.waitForSelector(".ewz-start:not([hidden])");
 check(true, "mit Netz wieder frei");
+
+// f2) Sperre (Erstattung, Rückbuchung, von Hand; Lücke 1, 21.11.2026): das unveränderte Werkzeug arbeitet beim nächsten Laden nicht
+// mehr. Grenze: ein noch gültiger Status im Gerät trägt genau einen Start; der frische Status im Hintergrund ersetzt ihn.
+const ehKanzlei = await sha256("lizenz:kanzlei@beispiel.de");
+await sperren(env, ehKanzlei, "erechnung", { grund: "erstattung", quelle: "test", id: "ch_test" });
+await laden(); await page.waitForTimeout(400);
+await laden();
+check(await sichtbar(".rvl-maske") && !(await sichtbar(".ewz-start")), "gesperrte Lizenz: Werkzeug gesperrt, Maske statt Ablage");
+await entsperren(env, ehKanzlei, "erechnung", { grund: "test", quelle: "test" });
+await page.click("#rvl-neu-laden");
+await page.waitForSelector(".ewz-start:not([hidden])");
+check(/Lizenz bis/.test(await text(".rvl-leiste")), "entsperrt: „Status aktualisieren“ gibt das Werkzeug wieder frei");
 
 // g) Abmelden
 await page.click('[data-rvl="abmelden"]');
