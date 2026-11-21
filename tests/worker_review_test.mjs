@@ -160,5 +160,33 @@ const chat = (e, body, ip = "1.1.1.1") => worker.fetch(new Request("https://goch
   check(/genug erzählt/.test(r.reply) && /Soll ich ihm etwas ausrichten/.test(r.reply), `Deckel nach zehn Modellantworten ohne Nachricht: Angebot (${r.reply.slice(0, 60)})`);
 }
 
+// 12. Lizenzdienst im gebündelten Worker (21.11.2026, Lücke 2 und 1): Sperren nur über die angemeldete Redaktion, täglicher Lauf
+// meldet eine bezahlte Bestellung ohne Lizenz genau einmal per Resend an MAIL_TO; Seite der Redaktion mit lauffähigem Skript.
+{
+  const e = env(), sha = async t => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].map(x => x.toString(16).padStart(2, "0")).join("");
+  const adminPost = (kopf, body) => worker.fetch(new Request("https://goch.robin.vision/admin/api/lizenz", { method: "POST", headers: { "content-type": "application/json", ...kopf }, body: JSON.stringify(body) }), e, ctx);
+  check((await adminPost({}, { email: "a@b.de", werkzeug: "erechnung", aktion: "sperren", grund: "x" })).status === 403, "Lizenz sperren: ohne eigenen Kopf verweigert");
+  check((await adminPost({ "x-goch-admin": "1" }, { email: "a@b.de", werkzeug: "erechnung", aktion: "sperren", grund: "x" })).status === 401, "Lizenz sperren: ohne Anmeldung verweigert");
+  const tok = "c".repeat(64), eh = await sha("lizenz:a@b.de");
+  await e.USAGE.put("admin:session:" + tok, JSON.stringify({ email: "robin@example.test", at: new Date().toISOString() }));
+  await e.USAGE.put("lizenz:konto:" + eh, JSON.stringify({ email: "a@b.de", erstellt: "2027-01-02T00:00:00Z", test: {}, lizenz: {}, kaeufe: [], sitzungen: [] }));
+  const r = await adminPost({ "x-goch-admin": "1", cookie: "goch_admin=" + tok }, { email: "a@b.de", werkzeug: "erechnung", aktion: "sperren", grund: "Widerruf" });
+  const d = await r.json();
+  check(r.status === 200 && d.konto?.werkzeuge?.erechnung?.typ === "gesperrt" && JSON.parse(e.USAGE.map.get("lizenz:konto:" + eh)).sperre.erechnung.grund === "Widerruf", "Lizenz sperren: angemeldet in der Redaktion");
+  const page = await (await worker.fetch(new Request("https://goch.robin.vision/admin", { headers: { cookie: "goch_admin=" + tok } }), e, ctx)).text();
+  const skripte = [...page.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  let syntax = ""; for (const sk of skripte) { try { new Function(sk); } catch (err) { syntax = err.message; } }
+  check(/id="lzsec"/.test(page) && skripte.length > 0 && !syntax, "Redaktion: Abschnitt „Lizenzen“ da, Skript der Seite fehlerfrei" + (syntax ? " – " + syntax : ""));
+  const vorher = mails.length;
+  e.USAGE.list = async ({ prefix }) => ({ keys: [...e.USAGE.map.keys()].filter(k => k.startsWith(prefix)).map(name => ({ name })), list_complete: true });
+  await e.USAGE.put("lizenz:offen:cs_test_verloren", JSON.stringify({ eh: "f".repeat(64), werkzeug: "erechnung", cs: "cs_test_verloren", pi: "", grund: "Konto fehlt" }));
+  const warten = []; const c2 = { waitUntil: p => warten.push(p) };
+  await worker.scheduled({ cron: "30 6 * * *" }, e, c2); await Promise.all(warten);
+  const neu = mails.slice(vorher);
+  check(neu.length === 1 && neu[0].to[0] === "robin@example.test" && neu[0].text.includes("cs_test_verloren"), "täglicher Lauf: eine Mail an MAIL_TO mit der fehlenden Lizenz");
+  await worker.scheduled({ cron: "30 6 * * *" }, e, c2); await Promise.all(warten);
+  check(mails.length === vorher + 1, "täglicher Lauf: am selben Tag nicht doppelt");
+}
+
 console.log(fails ? `\n${fails} Prüfung(en) fehlgeschlagen.` : "\nAlle Prüfungen bestanden.");
 process.exit(fails ? 1 : 0);
