@@ -81,7 +81,7 @@ await p.evaluate(() => {
   s.innerHTML = `<div style="font:500 17px/1 'Helvetica Neue',Arial,sans-serif;color:#fff;letter-spacing:.02em;margin-bottom:18px">Smart<span style="color:#A78BFA">Formular</span></div>
 <div style="font:400 44px/1.08 'EB Garamond',Georgia,serif;color:#fff;margin-bottom:14px">E-Rechnung lite</div>
 <div style="font:400 24px/1.3 'EB Garamond',Georgia,serif;color:#C4B5FD;margin-bottom:28px">E-Rechnungen verstehen und bezahlen</div>
-<div style="color:#9C94B8;margin-bottom:6px">XRechnung · ZUGFeRD · GiroCode</div><div style="color:#9C94B8;margin-bottom:34px">Kostenlos, im Browser, ohne Upload</div>
+<div style="color:#9C94B8;margin-bottom:6px">XRechnung · ZUGFeRD · GiroCode</div><div style="color:#9C94B8;margin-bottom:34px">Kostenlos testen bis 31.12.2026 · im Browser, ohne Upload</div>
 <div style="font-size:20px;color:#fff">robin.vision/werkzeuge/e-rechnung-pruefen</div>`;
   document.body.appendChild(s);
   document.getElementById("rv-untertitel").style.display = "none";
