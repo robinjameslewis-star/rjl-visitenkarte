@@ -13,8 +13,8 @@ const lesen = p => readFileSync(root + p, "utf8");
 const html = lesen("index.html");
 
 console.log("Startseite: Kopfdaten");
-// Kernzeile seit 21.11.2026 (Robin: „Vorschlag 2“) in Titel, og:title und sichtbar unter der Wortmarke
-check(html.includes("<title>robin.vision – Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</title>") && html.includes('<meta property="og:title" content="robin.vision – Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.">') && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision und der Kernzeile");
+// Titel wie vor dem 21.11.2026 (Robin: „robin.vision - werkzeuge und workshops bleibt“)
+check(html.includes("<title>robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien</title>") && html.includes('<meta property="og:title" content="robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien">') && /og:site_name" content="robin\.vision"/.test(html), "Titel mit Marke robin.vision, nennt Werkzeuge und Workshops");
 check(/<link rel="canonical" href="https:\/\/robin\.vision\/">/.test(html), "canonical");
 check(["de", "en", "x-default"].every(l => html.includes(`hreflang="${l}"`)), "hreflang de, en, x-default");
 check(/property="og:title"/.test(html) && /property="og:image" content="https:\/\/robin\.vision\/assets\/teilen\.jpg"/.test(html) && existsSync(root + "assets/teilen.jpg"), "Open Graph mit Bild zum Teilen, Bild vorhanden");
@@ -27,7 +27,7 @@ const pos = id => html.indexOf(`id="${id}"`);
 // Option B (Robin, 23.10.2026): Workshops direkt nach den Werkzeugen, Hinweis für Anbieter ganz unten
 check(pos("werkzeuge") > 0 && pos("werkzeuge") < pos("workshops") && pos("workshops") < pos("blog") && pos("blog") < pos("newsletter") && pos("newsletter") < pos("ueber-mich") && pos("ueber-mich") < pos("kontakt") && pos("kontakt") < pos("nachricht") && pos("nachricht") < pos("anbieter"),
   "Reihenfolge: Werkzeuge, Workshops, Impulse, Newsletter, Über mich, Termin, Nachricht, Hinweis für Anbieter");
-check(!html.includes('class="claim"') && html.includes('<span class="slogan" data-i18n="slogan">Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</span>') && pos("angebot") > 0 && pos("angebot") < pos("werkzeuge") && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Kernzeile, Werkzeugen und Workshops über der Falz, Ziele je Sprache; vier Säulen vor den Werkzeugen");
+check(!html.includes('class="claim"') && html.includes('<p class="kernzeile" data-i18n="kernzeile">Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</p>') && !html.includes('class="saeulen"') && /class="cta-primary"[^>]*data-href-en="werkzeuge\/en\/"/.test(html) && /class="cta-secondary"[^>]*data-href-en="workshops\/en\/"/.test(html), "Einstieg mit Kernzeile, Werkzeugen und Workshops über der Falz, Ziele je Sprache; keine Kacheln (Robin, 21.11.2026)");
 const booking = (html.match(/<div class="booking"[\s\S]*?<\/div>\n\n  <\/section>/) || [""])[0];
 check(/id="consent-banner"/.test(booking), "Kalender-Hinweis steht im Termin-Abschnitt an der Stelle des Kalenders");
 check(!/\.consent-banner \{[^}]*position: fixed/.test(html) && !/padding-bottom: var\(--consent-height/.test(html), "Kalender-Hinweis klebt nicht mehr am unteren Rand");

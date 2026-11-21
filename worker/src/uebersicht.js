@@ -14,7 +14,7 @@
 // (tools/entwuerfe/werkzeuge-2026-10-18/). Welle 2 der Textprüfung (Robin, 23.10.2026): „Werkzeuge“ im Seitentitel,
 // Partnerkarte „Ihre Lösung auf robin.vision“ (nur im abgeschalteten Vergleich). Seit 21.11.2026 (neues Konzept, Robin: „offen gemischt“)
 // steht unter der Einleitung der Satz zur Offenheit (offen): eigene und empfohlene Lösungen, eigene als solche gekennzeichnet
-// („Anzeige · robin.vision“).
+// („Vorgeschlagen · robin.vision“, Robin 21.11.2026).
 import { rahmen, UEBERSICHT_PFAD } from "./werkzeug.js";
 import { PARTNER, VORGESCHLAGEN, EIGENE, LOGO_BREITE, ROBIN_VISION, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, anbieterAdresse, wortmarke } from "./partner.js";
 import { newsletterKasten } from "./kasten.js";
@@ -266,7 +266,8 @@ ${p.bereich ? chips([p.bereich[lang] || p.bereich.de]) : ""}
   // Ohne Platzhalter neben vorgestellten Lösungen (Robin, 16.11.2026: „mach mal das partner werden neben kanzleikern auf der werkzeuge
   // seite weg“). Das Formular „Software vorschlagen“ weiter unten bleibt.
   return { vorgeschlagen: VORGESCHLAGEN.map(p => karte(p, vorschlagKennzeichen(lang, p.anbieter, "wz-kennz"))),
-    eigene: EIGENE.map(p => karte(p, kennz(p.anbieter))), partner: PARTNER.map(p => karte(p, kennz(p.anbieter))) };
+    // Eigene Lösungen (SmartFormular) seit 21.11.2026 „Vorgeschlagen · robin.vision“ (Robin), nicht mehr „Anzeige“
+    eigene: EIGENE.map(p => karte(p, vorschlagKennzeichen(lang, p.anbieter, "wz-kennz"))), partner: PARTNER.map(p => karte(p, kennz(p.anbieter))) };
 }
 
 // Zufällige Reihenfolge bei jedem Laden (Robin, 19.11.2026: „die Reihenfolge der Anzeige der Karten soll bei jedem reload wechseln. Also ganz

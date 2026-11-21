@@ -12,7 +12,7 @@
 // alle veröffentlichten Impulse der Sprache, die den Namen der Lösung nennen, automatisch (auch beim Veröffentlichen über die Redaktion,
 // blog.js buildBlog), dazu Beiträge auf anderen Kanälen aus links des Anbieters: [{ url, datum, kanal: "LinkedIn", titel: { de, en } }].
 // Eigene Lösungen (Robin, 20.11.2026: SmartFormular „wie jede andere ki lösung“; partner.js, EIGENE): dieselbe Seite, Kennzeichen
-// „Anzeige · robin.vision“, Wortmarke statt Bilddatei, dazu die Verweise auf die eigenen Werkzeuge (Sprungmarken #produkte, #fibu-lite,
+// seit 21.11.2026 „Vorgeschlagen · robin.vision“ (Robin), Wortmarke statt Bilddatei, dazu die Verweise auf die eigenen Werkzeuge (Sprungmarken #produkte, #fibu-lite,
 // #e-rechnung, #abschluss, #beta – Ziele der Verweise von den Werkzeugseiten, aus Gochs Linkliste und der alten Marken der Übersicht).
 import { rahmen, WERKZEUGE, ALTE_ADRESSEN } from "./werkzeug.js";
 import { PARTNER, VORGESCHLAGEN, EIGENE, LOGO_BREITE, kennzeichen, vorschlagKennzeichen, anzeigeHref, kostenlosText, wortmarke, loesungUrl, KENNZ_CSS } from "./partner.js";
@@ -45,12 +45,13 @@ export function anbieterPruefen(liste = ANBIETER) {
 const T = {
   de: { beitraege: "Beiträge", impuls: "Impuls", werkzeuge: "Werkzeuge", zurueck: "← Werkzeuge", zumAnbieter: "Zur Website des Anbieters", aufnahmen: "Aufnahmen", werkzeugeTitel: "Werkzeuge",
     aufnahmeHinweis: "Eigene Aufnahme von robin.vision mit Testdaten", vom: "vom",
-    art: { vorgeschlagen: "Vorgeschlagen: robin.vision stellt diese Lösung unbezahlt vor. Verträge schließen Sie direkt mit dem Anbieter.",
+    // Eigene Lösung (Robin, 21.11.2026): Kennzeichen „Vorgeschlagen · robin.vision“, Hinweis ohne „unbezahlt vorgestellt“
+    art: { eigen: "Vorgeschlagen: robin.vision entwickelt diese Lösung selbst.", vorgeschlagen: "Vorgeschlagen: robin.vision stellt diese Lösung unbezahlt vor. Verträge schließen Sie direkt mit dem Anbieter.",
       anzeige: "Anzeige: Verträge schließen Sie direkt mit dem Anbieter." },
     beschr: (p, b) => `${p.name} auf robin.vision: ${b}. ${p.text.de}` },
   en: { beitraege: "Posts", impuls: "Insight", werkzeuge: "Tools", zurueck: "← Tools", zumAnbieter: "To the provider's website", aufnahmen: "Recordings", werkzeugeTitel: "Tools",
     aufnahmeHinweis: "Recording by robin.vision with test data", vom: "of",
-    art: { vorgeschlagen: "Suggested: robin.vision presents this solution unpaid. Contracts are made directly with the provider.",
+    art: { eigen: "Suggested: robin.vision develops this solution itself.", vorgeschlagen: "Suggested: robin.vision presents this solution unpaid. Contracts are made directly with the provider.",
       anzeige: "Ad: Contracts are made directly with the provider." },
     beschr: (p, b) => `${p.name} on robin.vision: ${b}. ${p.text.en || p.text.de}` },
 };
@@ -86,7 +87,7 @@ export function anbieterSeite(p, lang, posts = []) {
   const up = lang === "en" ? "../../../" : "../../";
   const bereich = p.bereich ? (p.bereich[lang] || p.bereich.de) : "";
   const text = (p.text && (p.text[lang] || p.text.de)) || "";
-  const kennz = p.art !== "vorgeschlagen" ? kennzeichen(lang, anzeigeHref(lang, up), p.anbieter, "kennz") : vorschlagKennzeichen(lang, p.anbieter, "kennz");
+  const kennz = p.art === "anzeige" ? kennzeichen(lang, anzeigeHref(lang, up), p.anbieter, "kennz") : vorschlagKennzeichen(lang, p.anbieter, "kennz");
   const logo = p.wortmarke ? `<span class="an-logo an-wortmarke" aria-hidden="true">${wortmarke(p)}</span>`
     : p.logo ? `<span class="an-logo" aria-hidden="true"><img src="${esc(up + p.logo)}" alt="" width="${p.logoBreite || LOGO_BREITE}"></span>` : "";
   const url = loesungUrl(p, lang);

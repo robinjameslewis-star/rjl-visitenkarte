@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>robin.vision – Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</title>
+<title>robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien</title>
 <meta name="description" content="Werkzeuge fürs Rechnungswesen: E-Rechnungen kostenlos prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln – kostenlos testen bis 31.12.2026. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.">
 <link rel="canonical" href="https://robin.vision/">
 <link rel="alternate" hreflang="de" href="https://robin.vision/">
@@ -13,7 +13,7 @@
 <link rel="alternate" type="application/rss+xml" title="robin.vision – Food for Thought" href="https://robin.vision/blog/en/feed.xml">
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
-<meta property="og:title" content="robin.vision – Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.">
+<meta property="og:title" content="robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien">
 <meta property="og:description" content="Werkzeuge fürs Rechnungswesen: E-Rechnungen kostenlos prüfen und bezahlen, Kontoauszüge zu Buchungsstapeln – kostenlos testen bis 31.12.2026. Workshops zur KI-Kompetenz mit Unterweisung nach EU AI Act. Jeden Freitag ein Impuls.">
 <meta property="og:url" content="https://robin.vision/">
 <meta property="og:image" content="https://robin.vision/assets/teilen.jpg">
@@ -100,9 +100,9 @@
   .name .punkt { color: var(--copper); }
   /* Leitsatz direkt unter der Wortmarke (Robin, 04.11.2026) */
   .name .slogan { display: block; margin-top: .3em; font-size: max(14px, .46em); line-height: 1.25; letter-spacing: .01em; color: var(--ink-soft); }
-  /* Seit 21.11.2026 steht hier die Kernzeile (Robin: „Vorschlag 2“) statt „Prozesse effizient gestalten“; ein Satz, darum etwas Luft und eine Zeilenbreite */
-  .name .slogan { max-width: 30ch; line-height: 1.35; }
-  @media (max-width: 720px) { .name .slogan { margin-left: auto; margin-right: auto; } }
+  /* Kernzeile unter dem Leitsatz, ruhiger und kleiner (Robin, 21.11.2026: „nur nich ganz so prominent wie prozesse effizient gestalten“) */
+  .kernzeile { margin: 8px 0 0; max-width: 40ch; font-family: var(--serif); font-size: 15px; line-height: 1.4; letter-spacing: .01em; color: var(--ink-muted); opacity: .8; }
+  @media (max-width: 720px) { .kernzeile { margin: 4px auto 0; max-width: 36ch; font-size: 12px; line-height: 1.35; } }
   .intro { padding-bottom: 7%; /* Name, Zeile und Knöpfe enden auf Höhe des Vogelkörpers */ }
   .cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
   .cta a { display: inline-block; min-height: 44px; padding: 10px 16px; border-radius: 3px; font-size: 15px; line-height: 1.4; text-decoration: none; }
@@ -499,15 +499,6 @@
   .message .msg-status.ok { color: var(--green); }
   .message .msg-status.warn { color: var(--warning); }
   .message .hint { color: var(--ink-soft); font-size: 14px; margin: 0; max-width: 60ch; }
-  /* Vier Säulen unter der Kernzeile (Robin, 21.11.2026): ruhige Kacheln, jede ein Verweis auf ihre Seite */
-  .saeulen { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
-  .saeulen ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 760px; }
-  @media (max-width: 520px) { .saeulen ul { grid-template-columns: 1fr; gap: 10px; } }
-  .saeulen a { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 16px 18px 18px; border: 1px solid var(--line); border-top: 2px solid var(--copper); border-radius: 4px; background: rgba(255,255,255,.45); background: color-mix(in srgb, rgba(255,255,255,.45), #242D3B var(--nacht-prozent, 0%)); color: var(--ink); text-decoration: none; }
-  .saeulen a:hover { background: var(--hover); }
-  .saeulen a:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
-  .saeulen strong { font: 400 clamp(20px, 1.9vw, 23px)/1.2 var(--serif); color: var(--green); }
-  .saeulen span { font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
   footer .fuss-links { margin: 0 0 10px; } footer .fuss-links a { text-decoration: none; } footer .fuss-links a:hover { color: var(--ink-soft); text-decoration: underline; }
   /* Blog unter dem Kalender, gesetzt von der Redaktion (worker/src/blog.js) zwischen den Marken */
   .blog-teaser { max-width: var(--text); margin: 0 auto; padding: 0 6vw clamp(56px, 10vh, 120px); }
@@ -913,7 +904,8 @@
 <main>
   <section class="stage" aria-label="Robin James Lewis">
     <div class="intro">
-      <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a><span class="slogan" data-i18n="slogan">Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</span></h1>
+      <h1 class="name"><a id="name-link" href="./" title="Seite neu laden">robin<span class="punkt">.</span>vision</a><span class="slogan" data-i18n="slogan">Prozesse effizient gestalten</span></h1>
+      <p class="kernzeile" data-i18n="kernzeile">Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.</p>
       <p class="cta"><a class="cta-primary" href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="ctaTool">Werkzeuge ausprobieren</a><a class="cta-secondary" href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/"><span data-i18n="ctaWorkshops">Workshops für Ihr Team</span><small data-i18n="ctaWorkshopsZusatz">KI-Kompetenz · E-Rechnung</small></a></p>
     </div>
     <div class="perch">
@@ -996,17 +988,6 @@
   </section>
 
 
-  <!-- Vier Säulen unter der Kernzeile (Robin, 21.11.2026): eigene Lösungen, empfohlene Lösungen, Workshops, Ihre eigene Lösung -->
-  <section class="saeulen" id="angebot" aria-labelledby="saeulen-title">
-    <h2 class="visually-hidden" id="saeulen-title" data-i18n="saeulenTitel">Was robin.vision bietet</h2>
-    <ul>
-      <li><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/"><strong data-i18n="saeuleEigeneTitel">Eigene Lösungen</strong><span data-i18n="saeuleEigeneText">SmartFormular, dazu Kanzlei-Agenten in Entwicklung.</span></a></li>
-      <li><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/"><strong data-i18n="saeuleEmpfohlenTitel">Empfohlene Lösungen</strong><span data-i18n="saeuleEmpfohlenText">Lösungen anderer Anbieter, vorgestellt auf robin.vision.</span></a></li>
-      <li><a href="workshops/" data-href-de="workshops/" data-href-en="workshops/en/"><strong data-i18n="saeuleWorkshopsTitel">Workshops</strong><span data-i18n="saeuleWorkshopsText">KI-Kompetenz und E-Rechnung für Ihr Team.</span></a></li>
-      <li><a href="individuelle-loesung/" data-href-de="individuelle-loesung/" data-href-en="individuelle-loesung/en/"><strong data-i18n="saeuleLoesungTitel">Ihre eigene Lösung</strong><span data-i18n="saeuleLoesungText">Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, ich baue eine passende Lösung.</span></a></li>
-    </ul>
-  </section>
-
   <!-- Werkzeuge (Robin, 15.10.2026): Liste zwischen den Marken baut tools/werkzeug-uebernehmen.mjs aus worker/src/werkzeug.js -->
   <section class="blog-teaser" id="werkzeuge" aria-labelledby="werkzeug-title">
     <h2 id="werkzeug-title"><a href="werkzeuge/" data-href-de="werkzeuge/" data-href-en="werkzeuge/en/" data-i18n="toolsTitle">Werkzeuge</a></h2>
@@ -1037,7 +1018,7 @@
           <p class="wzs-fuss"><span class="wzs-bereich">KI-Skills</span><a href="werkzeuge/andreas-schoba/">Zum Produkt</a></p>
         </article>
         <article class="wzs-karte">
-          <p class="wzs-kennz"><a href="#anzeigen">Anzeige</a> · <span>robin.vision</span></p>
+          <p class="wzs-kennz">Vorgeschlagen · <span>robin.vision</span></p>
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>SmartFormular</h3>
           <p>Formulare, die mitarbeiten – für die Tage, an denen der Prozess hakt. E-Rechnung Start prüft E-Rechnungen kostenlos, Buchhaltung Start lässt sich bis 31.12.2026 kostenlos testen; Deklaration kommt als Beta.</p>
@@ -1070,7 +1051,7 @@
           <p class="wzs-fuss"><span class="wzs-bereich">AI skills</span><a href="werkzeuge/andreas-schoba/en/">To the product</a></p>
         </article>
         <article class="wzs-karte">
-          <p class="wzs-kennz"><a href="#anzeigen">Ad</a> · <span>robin.vision</span></p>
+          <p class="wzs-kennz">Suggested · <span>robin.vision</span></p>
           <div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>
           <h3>SmartFormular</h3>
           <p>Forms that work with you – for the days when the process stalls. E-Invoice Start checks e-invoices free of charge, Bookkeeping Start is free to try until 31 December 2026; Declaration is coming as a beta.</p>
@@ -1252,14 +1233,14 @@
     zeigen();
   })();
 </script>
-<script src="language.js?v=20261201" defer></script>
+<script src="language.js?v=20261202" defer></script>
 <script src="site.js?v=20261016b" defer></script>
-<script src="goch.js?v=20261201" defer></script>
+<script src="goch.js?v=20261202" defer></script>
 <script src="goch-audio.js?v=20261106" defer></script>
 <script src="goch-leben.js?v=20261112" defer></script>
 <script src="goch-stimme.js?v=20261120" defer></script>
 <script src="goch-zwitschern.js?v=20261111" defer></script>
-<script src="goch-gespraech.js?v=20261201" defer></script>
+<script src="goch-gespraech.js?v=20261202" defer></script>
 <script src="goch-blick.js?v=20261023" defer></script>
 <script src="contact.js?v=20260919" defer></script>
 <script src="newsletter.js?v=20261016" defer></script>

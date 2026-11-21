@@ -1,10 +1,13 @@
 // Seite „Individuelle Lösung“ (individuelle-loesung/, englisch individuelle-loesung/en/; Robin, 21.11.2026: Menü „Werkzeuge · Individuelle
 // Lösung (neu) · Workshops · Über mich“). Sie beschreiben ein Problem, ich baue eine geprüfte Lösung mit einer Änderungsrunde. Ohne Preise,
-// ohne Fristen und ohne Zahlung auf der Seite; „Sie erhalten vorab ein Angebot“. Kein eigenes Formular: Anfrage über die vorhandenen Wege
-// der Startseite (Nachricht an Gochs /contact, Termin, E-Mail), damit keine neue Datenverarbeitung entsteht. Text fest im Code (keine Redaktion); tools/individuelle-loesung-bauen.mjs schreibt beide Seiten.
+// ohne Fristen und ohne Zahlung auf der Seite; „Sie erhalten vorab ein Angebot“. Anfrageformular (Robin, 21.11.2026: „individuelle lösung mit
+// passendem formular, das lust auf die dienstleistung macht und nicht nur email anbieten“) nach dem Muster „Software vorschlagen“
+// (uebersicht.js): an Gochs /contact wie das Kontaktformular der Startseite (Datenschutz: Abschnitt Kontaktformular), Falle und
+// Ladezeitpunkt, art: "loesung" setzt im Worker den Betreff „Website · Individuelle Lösung: …“. Termin und E-Mail klein darunter. Text fest im Code (keine Redaktion); tools/individuelle-loesung-bauen.mjs schreibt beide Seiten.
 import { rahmen } from "./werkzeug.js";
 import { newsletterKasten } from "./kasten.js";
 import { SEITEN } from "./sitemap.js";
+import { KONTAKT_ENDPUNKT } from "./uebersicht.js";
 
 const SITE = "https://robin.vision/";
 export const LOESUNG = SEITEN.filter(s => s.id === "individuelle-loesung").map(s => ({ ...s, pfad: s.adresse + "index.html" }));
@@ -35,10 +38,22 @@ const TEXT = {
       "nichts, was täuschen soll, etwa Belege, Zeugnisse oder Bewertungen",
     ],
     vermerk: "Jede Lösung ist mit KI erstellt und von mir geprüft. Sie ist nicht amtlich und ersetzt keine Beratung. Bitte prüfen Sie sie vor der Verwendung.",
-    anfrageTitel: "Anfrage",
-    anfrage: "Beschreiben Sie Ihr Problem in einer Nachricht oder in einem kurzen Gespräch. Ich antworte persönlich per E-Mail.",
-    nachricht: "Nachricht schreiben", termin: "Termin vereinbaren",
-    anfrageHinweis: "Bitte schicken Sie mit der ersten Nachricht keine Unterlagen und keine Daten anderer Personen.",
+    anfrageTitel: "Erzählen Sie mir von Ihrer Aufgabe",
+    anfrage: "Was hält Sie im Büro immer wieder auf? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:",
+    ideen: ["Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht", "Ein Formular, das Angaben prüft, bevor sie ins System gehen", "Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht"],
+    felder: { name: "Name", email: "E-Mail-Adresse", firma: "Unternehmen oder Kanzlei", art: "Worum geht es?", budget: "Ihr Budget", text: "Was soll die Lösung tun?", optional: "(freiwillig)", waehlen: "Bitte wählen" },
+    artWerte: ["Dokumente und Formulare", "Daten und Tabellen", "Abläufe im Büro", "Gestaltung", "Etwas anderes"],
+    // Budget (Robin, 21.11.2026: „budget noch abfragen“): nur der Rahmen des Kunden, keine Angabe, was eine Lösung kostet
+    budgetWerte: ["bis 250 €", "250 bis 1.000 €", "1.000 bis 5.000 €", "mehr als 5.000 €", "Weiß ich noch nicht"],
+    platzhalter: "Zum Beispiel: Jeden Monat kommen Lieferscheine als PDF, und wir tippen die Positionen in Excel ab. Ich hätte gern eine Lösung, die das zusammenführt und die Summen prüft.",
+    textHinweis: "Bitte beschreiben Sie die Aufgabe, nicht die Inhalte: keine Mandanten- oder Gesundheitsdaten und keine echten personenbezogenen Daten mitschicken.",
+    senden: "Anfrage senden", sendet: "Wird gesendet …",
+    gesendet: "Danke, Ihre Anfrage ist angekommen. Ich melde mich persönlich mit einer Einschätzung.",
+    ungueltig: "Bitte Name, eine gültige E-Mail-Adresse und ein paar Sätze zur Aufgabe angeben.",
+    fehler: "Das Senden hat nicht geklappt. Schreiben Sie mir bitte direkt an robin@robin.vision.",
+    datenschutz: "Ihre Angaben gehen per E-Mail an mich und werden nur für die Antwort verwendet. Einzelheiten stehen unter Impressum · Datenschutz.",
+    betreff: "Individuelle Lösung: Anfrage über robin.vision",
+    lieber: "Lieber im Gespräch?", termin: "Termin vereinbaren",
     andere: "This page in English",
   },
   en: {
@@ -65,10 +80,21 @@ const TEXT = {
       "nothing intended to deceive, such as receipts, references or reviews",
     ],
     vermerk: "Every solution is created with AI and checked by me. It is not an official document and does not replace professional advice. Please check it before you use it.",
-    anfrageTitel: "Enquiry",
-    anfrage: "Describe your problem in a message or a short call. I reply personally by email.",
-    nachricht: "Write a message", termin: "Book an appointment",
-    anfrageHinweis: "Please do not send any documents or other people's data with your first message.",
+    anfrageTitel: "Tell me about your task",
+    anfrage: "What keeps holding you up at work? Describe it in a few sentences. This is the kind of thing it can become:",
+    ideen: ["A searchable overview from a stack of as-built plans", "A form that checks entries before they go into your system", "A template that turns your data into a finished report"],
+    felder: { name: "Name", email: "Email address", firma: "Company or firm", art: "What is it about?", budget: "Your budget", text: "What should the solution do?", optional: "(optional)", waehlen: "Please choose" },
+    artWerte: ["Documents and forms", "Data and spreadsheets", "Office processes", "Design", "Something else"],
+    budgetWerte: ["up to €250", "€250 to €1,000", "€1,000 to €5,000", "more than €5,000", "Not sure yet"],
+    platzhalter: "For example: every month we receive delivery notes as PDFs and type the items into Excel by hand. I'd like a solution that brings them together and checks the totals.",
+    textHinweis: "Please describe the task, not the contents: don't send client data, health data or any real personal data.",
+    senden: "Send enquiry", sendet: "Sending …",
+    gesendet: "Thank you, your enquiry has arrived. I'll get back to you personally with my assessment.",
+    ungueltig: "Please give your name, a valid email address and a few sentences about the task.",
+    fehler: "Sending did not work. Please email me directly at robin@robin.vision.",
+    datenschutz: "Your details are emailed to me and used only to reply. Details are under Legal notice · Privacy.",
+    betreff: "Individuelle Lösung: Anfrage über robin.vision (English)",
+    lieber: "Prefer to talk?", termin: "Book an appointment",
     andere: "Diese Seite auf Deutsch",
   },
 };
@@ -87,14 +113,53 @@ const CSS = `.loesung .beispiele { list-style: none; margin: 0 0 8px; padding: 0
 .grenzen { margin: 0 0 18px; padding-left: 1.2em; }
 .grenzen li { margin: 0 0 6px; text-align: left; }
 .vermerk { color: var(--ink-soft); font-size: 15px; }
-.wege { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 0 0 14px; padding: 0; list-style: none; }
-.wege li { margin: 0; max-width: none; }
-.wege .knopf { display: inline-block; padding: 11px 18px; border-radius: 3px; text-decoration: none; font-size: 15px; background: var(--green); color: var(--paper); border: 1px solid var(--green); }
-.wege .knopf:hover { background: #082d22; color: var(--paper); }
-.wege .zweit { background: transparent; color: var(--ink); border-color: var(--copper); }
-.wege .zweit:hover { background: rgba(184,114,79,.08); color: var(--ink); }
-.wege .mail { font-size: 15px; }
-.loesung .hinweis { color: var(--ink-muted); font-size: 13px; }`;
+.loesung .hinweis { color: var(--ink-muted); font-size: 13px; }
+.ideen { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 8px; }
+.ideen li { margin: 0; max-width: none; text-align: left; padding: 10px 14px; border-left: 2px solid var(--copper); background: rgba(255,255,255,.45); font: 400 18px/1.35 var(--serif); color: var(--green); }
+.lo-form { margin: 22px 0 10px; padding: 22px 24px 18px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.45); }
+.lo-form .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.lo-form label { display: block; font-size: 14px; color: var(--ink-soft); margin: 12px 0 4px; }
+.lo-form label span { color: var(--ink-muted); }
+.lo-form input, .lo-form select, .lo-form textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.7); color: var(--ink); }
+.lo-form textarea { min-height: 170px; resize: vertical; }
+.lo-form select { min-height: 44px; }
+.lo-form input:focus-visible, .lo-form select:focus-visible, .lo-form textarea:focus-visible { outline: 1px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
+.lo-form .feldhinweis { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+.lo-form button { margin-top: 18px; padding: 11px 20px; border: 1px solid var(--green); border-radius: 3px; background: var(--green); color: var(--paper); font: inherit; font-size: 15px; cursor: pointer; }
+.lo-form button:hover { background: #082d22; }
+.lo-form button:disabled { opacity: .6; cursor: default; }
+.lo-form .status { min-height: 1.4em; margin: 10px 0 0; font-size: 15px; }
+.lo-form .status.ok { color: var(--green); } .lo-form .status.warn { color: #A63D2F; }
+.lo-form .falle { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.lo-form .hinweis { margin: 8px 0 0; }
+.lo-weitere { font-size: 15px; color: var(--ink-soft); }
+@media (max-width: 600px) { .lo-form { padding: 18px 16px 14px; } .lo-form .reihe { grid-template-columns: 1fr; } .lo-form textarea { min-height: 210px; } }`;
+
+// Formular: prüft im Browser, sendet an Gochs /contact (wie das Kontaktformular der Startseite), meldet das Ergebnis im Statusfeld
+const SKRIPT = (lang, t) => `<script>
+(() => {
+  'use strict';
+  const form = document.getElementById('loesung-anfrage'); if (!form) return;
+  const status = document.getElementById('loesung-status'), knopf = document.getElementById('loesung-senden'), geladen = Date.now();
+  const T = ${JSON.stringify({ betreff: t.betreff, firma: t.felder.firma, art: t.felder.art, budget: t.felder.budget, sendet: t.sendet, gesendet: t.gesendet, ungueltig: t.ungueltig, fehler: t.fehler })};
+  const say = (text, art) => { status.textContent = text; status.className = 'status' + (art ? ' ' + art : ''); };
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const name = (d.name || '').trim(), email = (d.email || '').trim(), text = (d.text || '').trim();
+    if (name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email) || text.length < 20) { say(T.ungueltig, 'warn'); return; }
+    const message = [T.betreff, '', d.firma && d.firma.trim() ? T.firma + ': ' + d.firma.trim() : null, d.art ? T.art.replace(/\\?$/, '') + ': ' + d.art : null, d.budget ? T.budget + ': ' + d.budget : null, '', text].filter(x => x !== null).join('\\n').replace(/\\n{3,}/g, '\\n\\n').trim();
+    knopf.disabled = true; say(T.sendet);
+    try {
+      const r = await fetch(${JSON.stringify(KONTAKT_ENDPUNKT)}, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang: ${JSON.stringify(lang)}, art: 'loesung', name, email, phone: '', message, website: d.website || '', t: geladen }) });
+      const out = await r.json().catch(() => ({}));
+      if (r.ok && out.ok) { say(T.gesendet, 'ok'); form.reset(); } else say(out.error || T.fehler, 'warn');
+    } catch (_) { say(T.fehler, 'warn'); }
+    knopf.disabled = false;
+  });
+})();
+</script>`;
 
 export function loesungSeite(lang) {
   const t = TEXT[lang];
@@ -120,16 +185,28 @@ ${t.grenzen.map(g => `<li>${esc(g)}</li>`).join("\n")}
 </ul>
 <p class="vermerk frei">${esc(t.vermerk)}</p>
 <h2 id="anfrage">${esc(t.anfrageTitel)}</h2>
-<p>${esc(t.anfrage)}</p>
-<ul class="wege">
-<li><a class="knopf" href="${home}#nachricht">${esc(t.nachricht)}</a></li>
-<li><a class="knopf zweit" href="${home}#kontakt">${esc(t.termin)}</a></li>
-<li><a class="mail" href="mailto:robin@robin.vision">robin@robin.vision</a></li>
-</ul>
-<p class="hinweis">${esc(t.anfrageHinweis)}</p>
+<p class="frei">${esc(t.anfrage)}</p>
+<ul class="ideen">${t.ideen.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
+<form class="lo-form" id="loesung-anfrage" novalidate>
+<div class="reihe">
+<div><label for="l-name">${esc(t.felder.name)}</label><input type="text" id="l-name" name="name" maxlength="80" required autocomplete="name"></div>
+<div><label for="l-email">${esc(t.felder.email)}</label><input type="email" id="l-email" name="email" maxlength="120" required autocomplete="email"></div>
+<div><label for="l-firma">${esc(t.felder.firma)} <span>${esc(t.felder.optional)}</span></label><input type="text" id="l-firma" name="firma" maxlength="120" autocomplete="organization"></div>
+<div><label for="l-art">${esc(t.felder.art)} <span>${esc(t.felder.optional)}</span></label><select id="l-art" name="art"><option value="">${esc(t.felder.waehlen)}</option>${t.artWerte.map(w => `<option>${esc(w)}</option>`).join("")}</select></div>
+<div><label for="l-budget">${esc(t.felder.budget)} <span>${esc(t.felder.optional)}</span></label><select id="l-budget" name="budget"><option value="">${esc(t.felder.waehlen)}</option>${t.budgetWerte.map(w => `<option>${esc(w)}</option>`).join("")}</select></div>
+</div>
+<label for="l-text">${esc(t.felder.text)}</label><textarea id="l-text" name="text" maxlength="2500" required aria-describedby="l-text-hinweis" placeholder="${esc(t.platzhalter)}"></textarea>
+<p class="feldhinweis" id="l-text-hinweis">${esc(t.textHinweis)}</p>
+<div class="falle" aria-hidden="true"><label for="l-website">Website</label><input type="text" id="l-website" name="website" tabindex="-1" autocomplete="off"></div>
+<button type="submit" id="loesung-senden">${esc(t.senden)}</button>
+<p class="status" id="loesung-status" role="status" aria-live="polite"></p>
+<p class="meta hinweis">${esc(t.datenschutz)}</p>
+</form>
+<p class="lo-weitere">${esc(t.lieber)} <a href="${home}#kontakt">${esc(t.termin)}</a> · <a href="mailto:robin@robin.vision">robin@robin.vision</a></p>
 <p class="meta"><a href="${up}${LOESUNG.find(s => s.lang === andere).adresse}" lang="${andere}" hreflang="${andere}">${esc(t.andere)}</a></p>
 ${newsletterKasten(lang, up, "impuls")}
-</article>`;
+</article>
+${SKRIPT(lang, t)}`;
   return rahmen({ goch: "loesung", lang, up, titel: t.titel, seitentitel: t.seitentitel, beschr: t.beschr, canonical,
     alternates: [{ lang, href: canonical }, { lang: andere, href: url(andere) }], css: CSS, main, aktiv: "loesung" });
 }

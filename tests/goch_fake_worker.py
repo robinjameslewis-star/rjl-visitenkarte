@@ -296,7 +296,7 @@ class Handler(BaseHTTPRequestHandler):
             if body.get('website'): return self.reply({'ok': True})
             if len(body.get('name', '')) < 2 or '@' not in body.get('email', '') or len(body.get('message', '')) < 10:
                 return self.reply({'error': 'Bitte Name, eine gültige E-Mail-Adresse und eine Nachricht angeben.'}, 400)
-            CONTACT.append({k: body.get(k, '') for k in ('name', 'email', 'phone', 'message', 'lang')})
+            CONTACT.append({k: body.get(k, '') for k in ('name', 'email', 'phone', 'message', 'lang', 'art')})
             return self.reply({'ok': True})
         if self.path.startswith('/listen'):  # Spracheingabe: WAV prüfen, festen Text liefern
             data = self.rfile.read(int(self.headers.get('Content-Length', 0)))

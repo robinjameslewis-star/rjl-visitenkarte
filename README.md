@@ -654,9 +654,11 @@ Seitdem ist SmartFormular ein Eintrag wie Kanzleikern oder PrimeBalance: `EIGENE
 
 Robin, 21.11.2026: „passe die robin.vision website jetzt live an das aktuelle konzept an, nenne smatformular unter dem begriff Taxtech
 nicht mehr rechnungswesen“ (Konzept vom 21.11.2026).
-- **Kernzeile** unter der Wortmarke (`slogan` in `language.js`, statt „Prozesse effizient gestalten“), in `<title>`/`og:title` und `llms.txt`.
-- **Vier Säulen** als Kacheln direkt nach der Bühne (`section.saeulen`, Texte `saeule…` in `language.js`): Eigene Lösungen, Empfohlene
-  Lösungen, Workshops, Ihre eigene Lösung.
+- **Kernzeile** klein unter dem Leitsatz „Prozesse effizient gestalten“ (`kernzeile` in `language.js`, `.kernzeile` in `index.html`), dazu in
+  `llms.txt` und Gochs Profil. Titel bleibt „robin.vision – Werkzeuge und Workshops für Unternehmen und Kanzleien“.
+- **Nachtrag (Robin, 21.11.2026, nach PR 176):** keine Kacheln (Abschnitt `saeulen` entfernt), nach der Bühne direkt die Leiste der
+  Werkzeuge; keine Kanzlei-Agenten; SmartFormular trägt „Vorgeschlagen · robin.vision“, auf der Unterseite der Hinweis „Vorgeschlagen:
+  robin.vision entwickelt diese Lösung selbst.“ Kein Werkzeug trägt mehr das Kennzeichen „Anzeige“ (Impressum-Absatz unverändert).
 - **Menü** (`MENUE` in `worker/src/kopf.js`, Startseite von Hand): Werkzeuge · Individuelle Lösung · Workshops · Über mich. „Impulse“ steht
   nicht mehr im Menü, sondern in den Fußzeilen (Startseite: Marken `redaktion:blog-link`, die `updateHomepage` weiter beschreibt;
   Rahmen `werkzeug.js` und `blog.js`).
