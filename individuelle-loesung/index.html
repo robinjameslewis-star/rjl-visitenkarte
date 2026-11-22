@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Individuelle Lösung: eine KI-Lösung für Ihr Problem – robin.vision</title>
-<meta name="description" content="Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, ich baue eine passende Lösung: mit KI erstellt, von mir geprüft, mit einer Änderungsrunde. Sie erhalten vorab ein Angebot.">
+<title>Individuelle Lösung: von der kleinen Hilfe bis zum marktreifen Produkt – robin.vision</title>
+<meta name="description" content="Sie kommen mit einem Problem oder einer Idee, ich baue daraus die passende Lösung: von der kleinen Hilfe für einen Arbeitsschritt bis zum marktreifen Produkt mit eigener Marke und Website. Sie erhalten vorab ein Angebot.">
 <link rel="icon" href="../assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <link rel="canonical" href="https://robin.vision/individuelle-loesung/">
@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="robin.vision">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Individuelle Lösung">
-<meta property="og:description" content="Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, ich baue eine passende Lösung: mit KI erstellt, von mir geprüft, mit einer Änderungsrunde. Sie erhalten vorab ein Angebot.">
+<meta property="og:description" content="Sie kommen mit einem Problem oder einer Idee, ich baue daraus die passende Lösung: von der kleinen Hilfe für einen Arbeitsschritt bis zum marktreifen Produkt mit eigener Marke und Website. Sie erhalten vorab ein Angebot.">
 <meta property="og:locale" content="de_DE">
 <meta property="og:url" content="https://robin.vision/individuelle-loesung/">
 <meta name="twitter:card" content="summary">
@@ -158,6 +158,21 @@ article li { margin-bottom: 6px; }
 .schritte li::before { content: counter(schritt); grid-row: span 2; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--copper); border-radius: 50%; font: 400 18px/1 var(--serif); color: var(--copper); }
 .schritte strong { font: 500 19px/1.3 var(--serif); color: var(--ink); }
 .schritte span { color: var(--ink-soft); }
+.stufen-nav { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.stufen-nav li { margin: 0; max-width: none; }
+.stufen-nav a { display: inline-block; padding: 8px 12px; border: 1px solid var(--copper); border-radius: 3px; background: var(--surface); color: var(--ink); font: 400 15px/1.2 var(--sans); text-decoration: none; }
+.stufen-nav a span { color: var(--copper); margin-right: 4px; }
+.stufe { margin-top: 34px; padding-top: 6px; border-top: 2px solid var(--copper); }
+.stufe-marke { margin: 12px 0 0; font: 500 13px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--copper); }
+.stufe > h2 { margin-top: 4px; }
+.bausteine { list-style: none; counter-reset: baustein; margin: 0 0 14px; padding: 0; }
+.bausteine li { counter-increment: baustein; position: relative; padding: 14px 0 14px 36px; border-top: 1px solid var(--line); max-width: none; text-align: left; margin: 0; }
+.bausteine li:last-child { border-bottom: 1px solid var(--line); }
+.bausteine li::before { content: counter(baustein); position: absolute; left: 0; top: 15px; font: 400 19px/1.3 var(--serif); color: var(--copper); }
+.bausteine strong { font: 500 18px/1.3 var(--serif); color: var(--ink); margin-right: 8px; }
+.bausteine .ab { display: inline-block; vertical-align: 2px; padding: 2px 8px; border: 1px solid var(--copper); border-radius: 3px; font: 400 12px/1.3 var(--sans); color: var(--ink); background: var(--surface); white-space: nowrap; }
+.bausteine p { margin: 4px 0 0; color: var(--ink-soft); max-width: none; }
+.eigentum { padding: 10px 14px; border-left: 3px solid var(--copper); background: var(--surface); color: var(--ink); font: 400 18px/1.4 var(--serif); }
 .grenzen { margin: 0 0 18px; padding-left: 1.2em; }
 .grenzen li { margin: 0 0 6px; text-align: left; }
 .vermerk { color: var(--ink-soft); font-size: 15px; }
@@ -199,36 +214,60 @@ article li { margin-bottom: 6px; }
 <main>
 <article class="loesung">
 <h1>Individuelle Lösung</h1>
-<p class="untertitel">Für ein Problem aus Ihrem Arbeitsalltag, das keine fertige Software löst.</p>
-<h2 id="was">Was es ist</h2>
-<p>Sie beschreiben mir ein Problem aus Ihrem Arbeitsalltag. Ich baue eine passende Lösung, mit KI erstellt und von mir geprüft, bevor Sie sie bekommen. Eine Änderungsrunde ist dabei. Das reicht von einer kleinen Hilfe für einen Arbeitsschritt bis zur marktreifen Anwendung mit moderner Bedienoberfläche für Ihre Kunden oder Ihr Team.</p>
+<p class="untertitel">Sie kommen mit einem Problem oder einer Idee. Ich baue daraus die passende Lösung, von der kleinen Hilfe für einen Arbeitsschritt bis zum marktreifen Produkt.</p>
+<ol class="stufen-nav"><li><a href="#kleine-loesung"><span>Stufe 1</span> Kleine Lösung</a></li><li><a href="#marktreifes-produkt"><span>Stufe 2</span> Marktreifes Produkt</a></li></ol>
+<section class="stufe" id="kleine-loesung" aria-labelledby="kleine-loesung-titel">
+<p class="stufe-marke">Stufe 1</p>
+<h2 id="kleine-loesung-titel">Kleine Lösung</h2>
+<h3 id="was">Was es ist</h3>
+<p>Sie beschreiben mir ein Problem aus Ihrem Arbeitsalltag. Ich baue eine passende Lösung, mit KI erstellt und von mir geprüft, bevor Sie sie bekommen. Eine Änderungsrunde ist dabei.</p>
 <p class="beispiele-label">Zum Beispiel:</p>
 <ul class="beispiele"><li>Skizzen als saubere Pläne</li><li>Tabellen zusammenführen und prüfen</li><li>Vorlagen und Formulare bauen</li><li>Unterlagen ordnen und gestalten</li></ul>
-<h2 id="ablauf">So läuft es ab</h2>
+<h3 id="ablauf">So läuft es ab</h3>
 <ol class="schritte">
 <li><strong>Sie beschreiben das Problem</strong><span>Was Sie brauchen, wofür und in welcher Form. Schicken Sie zunächst nur die Beschreibung, noch keine Unterlagen.</span></li>
 <li><strong>Sie erhalten vorab ein Angebot</strong><span>Ich prüfe, ob und wie ich die Aufgabe lösen kann, und frage nach, wenn etwas offen ist. Dann erhalten Sie ein Angebot.</span></li>
 <li><strong>Sie bekommen die geprüfte Lösung</strong><span>Nach Ihrer Zusage erstelle ich die Lösung mit KI und prüfe sie selbst. Sie erhalten das Ergebnis und eine Änderungsrunde.</span></li>
 </ol>
-<h2 id="fuer-wen">Für wen</h2>
+<h3 id="fuer-wen">Für wen</h3>
 <p>Für kleine Unternehmen, Selbstständige und Privatpersonen mit einem einmaligen Problem rund um Dokumente, Daten oder Gestaltung. Auch Kanzleien können anfragen, solange es nicht um Daten ihrer Mandanten geht.</p>
+</section>
+<section class="stufe" id="marktreifes-produkt" aria-labelledby="marktreifes-produkt-titel">
+<p class="stufe-marke">Stufe 2</p>
+<h2 id="marktreifes-produkt-titel">Marktreifes Produkt</h2>
+<p>Für den freien Markt oder für Ihr Team und Unternehmen: Aus Ihrer Idee oder Ihrem Problem wird ein eigenes Produkt mit allem, was dazugehört.</p>
+<h3 id="bausteine">Die Bausteine</h3>
+<ol class="bausteine">
+<li><strong>Idee zum Konzept</strong><p>Wir schärfen Ihre Idee oder Ihr Problem zu einem Steckbrief und Konzept mit gerechneten Kosten und ehrlichen Risiken.</p></li>
+<li><strong>Name und Marke</strong><p>Sie bekommen Namensvorschläge mit Domain- und Registerrecherche sowie eine eigene Gestaltung mit Farben, Bildwelt und, auf Wunsch, einer eigenen Figur.</p></li>
+<li><strong>Website</strong><p>Ihre Website in Deutsch und Englisch mit Seitentiefe, Rechtsseiten, Kontaktformular, Terminbuchung und Newsletter, geprüft am Handy.</p></li>
+<li><strong>Persönlicher Assistent</strong><p>Eine Figur auf der Website beantwortet Fragen zu Ihrem Angebot, auf Wunsch mit Stimme, mit festen Kostengrenzen.</p></li>
+<li><strong>Zahlung</strong><span class="ab">ab Januar 2027</span><p>Kunden zahlen direkt auf Ihrer Seite über Stripe, mit Bestätigung per E-Mail.</p></li>
+<li><strong>Kunden- oder Mitarbeiterportal</strong><span class="ab">ab Januar 2027</span><p>Ihre Kunden oder Ihr Team melden sich per E-Mail-Link an und sehen Bestellungen, Rechnungen und Dateien.</p></li>
+<li><strong>Buchhaltung</strong><span class="ab">ab Januar 2027</span><p>Jede Zahlung wird zur Rechnung, und Ihr Steuerberater bekommt den Monat als Export.</p></li>
+<li><strong>Sichtbar werden</strong><p>Suchmaschinen finden die Seite technisch sauber, dazu gibt es ein Startpaket für Newsletter und LinkedIn.</p></li>
+</ol>
+<p class="eigentum">Alles gehört von Anfang an Ihnen: eigene Domain, eigene Konten, übergabefähig.</p>
+<p>So sind schon eigene Marken mit eigener Website entstanden. Auch hier beginnt es mit Ihrer Beschreibung, und Sie erhalten vorab ein Angebot.</p>
+</section>
 <h2 id="grenzen">Was ich nicht mache</h2>
 <ul class="grenzen">
 <li>keine Steuer- oder Rechtsberatung und nichts, wofür es eine besondere Erlaubnis braucht</li>
 <li>keine Mandantendaten von Kanzleien und keine Gesundheitsdaten</li>
 <li>keine amtlichen Unterlagen, Bauvorlagen, Statik, Gutachten oder Wertermittlungen</li>
 <li>nichts, was täuschen soll, etwa Belege, Zeugnisse oder Bewertungen</li>
+<li>keine Steuerberatung im Baustein Buchhaltung: Er erstellt Rechnungen und den Export für Ihren Steuerberater</li>
 </ul>
 <p class="vermerk frei">Jede Lösung ist mit KI erstellt und von mir geprüft. Sie ist nicht amtlich und ersetzt keine Beratung. Bitte prüfen Sie sie vor der Verwendung.</p>
 <h2 id="anfrage">Erzählen Sie mir von Ihrer Aufgabe</h2>
-<p class="frei">Was hält Sie im Büro immer wieder auf? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:</p>
+<p class="frei">Was hält Sie im Büro immer wieder auf, oder welche Idee möchten Sie auf den Markt bringen? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:</p>
 <ul class="ideen"><li>Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht</li><li>Ein Formular, das Angaben prüft, bevor sie ins System gehen</li><li>Eine Auftragsannahme, die prüft, ob alles da ist, den Auftrag an die richtige Stelle gibt und dort die Bearbeitung vorbereitet</li><li>Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht</li></ul>
 <form class="lo-form" id="loesung-anfrage" novalidate>
 <div class="reihe">
 <div><label for="l-name">Name</label><input type="text" id="l-name" name="name" maxlength="80" required autocomplete="name"></div>
 <div><label for="l-email">E-Mail-Adresse</label><input type="email" id="l-email" name="email" maxlength="120" required autocomplete="email"></div>
 <div><label for="l-firma">Unternehmen oder Kanzlei <span>(freiwillig)</span></label><input type="text" id="l-firma" name="firma" maxlength="120" autocomplete="organization"></div>
-<div><label for="l-art">Worum geht es? <span>(freiwillig)</span></label><select id="l-art" name="art"><option value="">Bitte wählen</option><option>Dokumente und Formulare</option><option>Daten und Tabellen</option><option>Abläufe im Büro</option><option>Gestaltung</option><option>Etwas anderes</option></select></div>
+<div><label for="l-art">Worum geht es? <span>(freiwillig)</span></label><select id="l-art" name="art"><option value="">Bitte wählen</option><option>Marktreifes Produkt</option><option>Dokumente und Formulare</option><option>Daten und Tabellen</option><option>Abläufe im Büro</option><option>Gestaltung</option><option>Etwas anderes</option></select></div>
 <div><label for="l-budget">Ihr Budget <span>(freiwillig)</span></label><select id="l-budget" name="budget"><option value="">Bitte wählen</option><option>bis 250 €</option><option>250 bis 1.000 €</option><option>1.000 bis 5.000 €</option><option>mehr als 5.000 €</option><option>Weiß ich noch nicht</option></select></div>
 </div>
 <label for="l-text">Was soll die Lösung tun?</label><textarea id="l-text" name="text" maxlength="2500" required aria-describedby="l-text-hinweis" placeholder="Zum Beispiel: Jeden Monat kommen Lieferscheine als PDF, und wir tippen die Positionen in Excel ab. Ich hätte gern eine Lösung, die das zusammenführt und die Summen prüft."></textarea>

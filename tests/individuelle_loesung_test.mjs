@@ -27,6 +27,24 @@ for (const s of LOESUNG) {
     && /Mandanten|client data/.test(formular) && main.includes('href="mailto:robin@robin.vision"') && main.includes(`href="${up}${s.lang === "en" ? "?lang=en" : ""}#kontakt"`), `${s.pfad}: Anfrageformular (Name, E-Mail, Firma, Art, Budget, Aufgabe, Falle), Hinweis zu Daten, Termin und E-Mail darunter`);
   check(html.includes('"https://goch.robin.vision/contact"') && html.includes("art: 'loesung'") && html.includes("t: geladen"), `${s.pfad}: sendet an Gochs /contact mit Art „loesung“ und Ladezeitpunkt`);
   check(html.includes('data-gruss="') && /<div class="goch-kopf"/.test(html), `${s.pfad}: Goch mit Gruß für die Seite`);
+  // Zwei Stufen (Robin, 22.11.2026: „Zwei Stufen jetzt“): Einleitung nennt beide Wege, Stufe 1 kleine Lösung, Stufe 2 marktreifes Produkt mit acht Bausteinen
+  const de = s.lang === "de";
+  check(main.includes(de ? '<p class="untertitel">Sie kommen mit einem Problem oder einer Idee. Ich baue daraus die passende Lösung, von der kleinen Hilfe für einen Arbeitsschritt bis zum marktreifen Produkt.</p>'
+    : '<p class="untertitel">You come to me with a problem or an idea. I turn it into the solution that fits, from a small helper for one step of your work to a market-ready product.</p>'), `${s.pfad}: Einleitung nennt Problem und Idee, kleine Hilfe und marktreifes Produkt`);
+  const stufe1 = (main.match(/<section class="stufe" id="kleine-loesung"[\s\S]*?<\/section>/) || [""])[0], stufe2 = (main.match(/<section class="stufe" id="marktreifes-produkt"[\s\S]*?<\/section>/) || [""])[0];
+  check(stufe1.includes(de ? ">Kleine Lösung</h2>" : ">Small solution</h2>") && stufe1.includes('<ol class="schritte">') && stufe1.includes('<ul class="beispiele">') && main.indexOf(stufe1) < main.indexOf(stufe2)
+    && !/marktreif|market-ready/.test(stufe1), `${s.pfad}: Stufe 1 „Kleine Lösung“ mit Beispielen und Ablauf, ohne Dopplung zu Stufe 2`);
+  check(stufe2.includes(de ? ">Marktreifes Produkt</h2>" : ">Market-ready product</h2>") && (de ? /freien Markt[^<]*Team und Unternehmen/ : /open market[^<]*team and business/).test(stufe2), `${s.pfad}: Stufe 2 „Marktreifes Produkt“ für den freien Markt oder Team und Unternehmen`);
+  const bausteine = [...((stufe2.match(/<ol class="bausteine">([\s\S]*?)<\/ol>/) || ["", ""])[1]).matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => m[1]);
+  const ab = de ? '<span class="ab">ab Januar 2027</span>' : '<span class="ab">from January 2027</span>';
+  check(bausteine.length === 8 && bausteine.every((b, i) => b.includes(ab) === [4, 5, 6].includes(i)) && (stufe2.match(/2027/g) || []).length === 3, `${s.pfad}: acht Bausteine, „${de ? "ab" : "from"} Januar 2027“ genau an 5, 6 und 7`);
+  check(!/€|EUR\b|Euro\b/i.test(stufe2) && !/\d/.test(stufe2.replace(/<p class="stufe-marke">[^<]*<\/p>/, "").replace(/<[^>]*>/g, "").replace(/(Januar|January) 2027/g, "")), `${s.pfad}: Stufe 2 ohne Preise und ohne andere Zahlen`);
+  check(de ? bausteine[0].includes("Wir schärfen Ihre Idee oder Ihr Problem zu einem Steckbrief und Konzept mit gerechneten Kosten und ehrlichen Risiken.") && bausteine[6].includes("Jede Zahlung wird zur Rechnung, und Ihr Steuerberater bekommt den Monat als Export.")
+    : bausteine[6].includes("your tax adviser receives the month as an export"), `${s.pfad}: Bausteine im Wortlaut der Leistungsbeschreibung`);
+  check(stufe2.includes(de ? "Alles gehört von Anfang an Ihnen: eigene Domain, eigene Konten, übergabefähig." : "Everything belongs to you from the start: your own domain, your own accounts, ready to hand over."), `${s.pfad}: alles gehört dem Kunden`);
+  check((main.match(/<ul class="grenzen">[\s\S]*?<\/ul>/) || [""])[0].includes(de ? "keine Steuerberatung im Baustein Buchhaltung" : "no tax advice in the accounting module"), `${s.pfad}: Grenzen: Buchhaltung ist keine Steuerberatung`);
+  const art = [...((main.match(/<select id="l-art"[\s\S]*?<\/select>/) || [""])[0]).matchAll(/<option>([^<]*)<\/option>/g)].map(m => m[1]);
+  check(art[0] === (de ? "Marktreifes Produkt" : "Market-ready product") && art.length === 6, `${s.pfad}: Feld „Worum geht es?“ mit „Marktreifes Produkt“ vorn`, art);
 }
 const sitemap = lesen("sitemap.xml");
 check(sitemap.includes("<loc>https://robin.vision/individuelle-loesung/</loc>") && sitemap.includes("<loc>https://robin.vision/individuelle-loesung/en/</loc>"), "sitemap.xml kennt beide Fassungen");
@@ -54,6 +72,7 @@ check(ideen("de").length === 4 && ideen("de").every((t, i) => abschnitt.includes
 check(abschnitt.includes('data-href-en="individuelle-loesung/en/" data-i18n="loesungTitle">Individuelle Lösung</a></h2>') && sprache.includes("loesungTitle: 'Custom solution'")
   && abschnitt.includes('<a class="cta-primary" href="individuelle-loesung/#anfrage" data-href-de="individuelle-loesung/#anfrage" data-href-en="individuelle-loesung/en/#anfrage" data-i18n="loesungKnopf">Aufgabe beschreiben</a>')
   && LOESUNG.every(s => lesen(s.pfad).includes('id="anfrage"')) && /Sie erhalten vorab ein Angebot\./.test(abschnitt) && sprache.includes("You receive a quote first."), "Abschnitt: Überschrift, Angebot vorab, Knopf „Aufgabe beschreiben“ zum Formular (#anfrage), DE und EN");
+check(/Es gibt zwei Stufen: die kleine Lösung[^<]*das marktreife Produkt/.test(abschnitt) && sprache.includes("There are two stages: a small solution"), "Abschnitt: zweiter Satz nennt beide Stufen, DE und EN");
 const loesungEn = ["loesungTitle", "loesungLead", "loesungBeispiele", "loesungIdee1", "loesungIdee2", "loesungIdee3", "loesungIdee4", "loesungKnopf"].map(k => (sprache.match(new RegExp(`${k}: '([^']*)'`, "g")) || []).join(" ")).join(" ");
 check(!/€|EUR|Euro|\d/.test(abschnitt.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, "") + loesungEn.replace(/loesung\w+/g, "")), "Abschnitt: keine Preise, keine Fristen, DE und EN");
 
@@ -78,6 +97,7 @@ check(/<h2 id="robin-vision">Was robin.vision ist<\/h2>/.test(lesen("ueber-mich/
 check(!/UG|Gesellschaft|GmbH/.test((lesen("ueber-mich/index.html").match(/<h2 id="robin-vision">[\s\S]*?<\/p>/) || [""])[0]), "Über mich: keine Gesellschaft im Absatz");
 const profil = lesen("worker/profile.md").replace(/\s+/g, " "), links = lesen("worker/links.md");
 check(profil.includes(KERN.de) && /Individuelle Lösung/.test(profil) && /TaxTech/.test(profil) && !/nicht als „eigenes Produkt“/.test(profil), "Gochs Profil: Kernzeile, Individuelle Lösung, TaxTech, offen gemischt");
+check(/zwei Stufen/.test(profil) && /Marktreifes Produkt/.test(profil) && /Zahlung, Portal und Buchhaltung gibt es erst ab Januar 2027/.test(profil) && /Preise und Lieferzeiten nennst du für keine der beiden Stufen/.test(profil), "Gochs Profil: zwei Stufen, Bausteine 5–7 ab Januar 2027, keine Preise");
 check(/^\| individuelle-loesung \|[^\n]*https:\/\/robin\.vision\/individuelle-loesung\/ https:\/\/robin\.vision\/individuelle-loesung\/en\/ \|$/m.test(links), "Gochs Linkliste: individuelle-loesung mit beiden Adressen");
 
 console.log("\nWorker: Betreff der Anfrage");

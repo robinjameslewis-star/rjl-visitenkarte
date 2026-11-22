@@ -17,7 +17,7 @@ Die Werkzeuge laufen im Browser; Rechnungen und Kontoauszüge werden nicht hochg
 ## Weitere Seiten
 
 - [Impulse](https://robin.vision/blog/): Wöchentliche Beiträge zu Rechnungswesen, Verwaltung und KI im Alltag.
-- [Individuelle Lösung](https://robin.vision/individuelle-loesung/): Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, Robin baut eine passende Lösung, mit KI erstellt und von ihm geprüft, mit einer Änderungsrunde; vorab ein Angebot. Keine Steuer- oder Rechtsberatung. Englisch: [Custom solution](https://robin.vision/individuelle-loesung/en/).
+- [Individuelle Lösung](https://robin.vision/individuelle-loesung/): Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, Robin baut eine passende Lösung, mit KI erstellt und von ihm geprüft, mit einer Änderungsrunde; vorab ein Angebot. Zwei Stufen: kleine Lösung oder marktreifes Produkt (Konzept, Name und Marke, Website, persönlicher Assistent, Sichtbarkeit; Zahlung, Kunden- oder Mitarbeiterportal und Buchhaltung mit Export für den Steuerberater ab Januar 2027), alles gehört dem Kunden. Keine Steuer- oder Rechtsberatung. Englisch: [Custom solution](https://robin.vision/individuelle-loesung/en/).
 - [Workshops](https://robin.vision/workshops/): KI-Kompetenz für Teams mit Unterweisung nach EU AI Act.
 - [Über mich](https://robin.vision/ueber-mich/): Werdegang von Robin James Lewis.
 - [Sitemap](https://robin.vision/sitemap.xml)
