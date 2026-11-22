@@ -21,25 +21,30 @@
   const ZIELE = ['werkzeuge', 'workshops', 'ueber-mich', 'blog', 'newsletter', 'nachricht', 'grundsaetze'];
   const t = k => window.SiteLanguage.t(k);
   const stelle = ziel => $(ziel === 'grundsaetze' ? 'grundsaetze-' + (window.SiteLanguage.current === 'en' ? 'en' : 'de') : ziel);
-  // ---------- Übergang großes ↔ kleines Gesprächsfenster (Robin, 22.11.2026: „Das muss flüssiger werden“) ----------
-  // Großes Fenster und Leiste sind dasselbe Element: Verlauf, angefangener Text, Mikrofon und Fokus bleiben beim Wechsel. Vorher
-  // wurde nur umgeschaltet – das Fenster sprang in einem Bild an seinen neuen Platz. Jetzt wird seine Lage vor dem Wechsel gemessen,
-  // danach gleitet es in 260 ms aus der alten Lage in die neue (nur transform und opacity, nie unsichtbar, kein zweites Fenster).
-  // Läge es dabei über dem kleinen Goch oder seinem Ast, nur kurz einblenden. Bei reduzierter Bewegung: Wechsel ohne Bewegung.
+  // ---------- Großes und kleines Gesprächsfenster (Robin, 22.11.2026) ----------
+  // „Wenn einmal in das kleine Fenster gewechselt wurde, durch Scrollen oder durch Aktivieren des Gesprächsmodus, soll es im kleinen
+  // Fenster bleiben, bis man durch Klick auf das Fenster wieder in das große wechselt … auch beim großen Goch.“ – „vor allem auf dem
+  // iPhone nimmt das große Fenster sonst zu viel Platz ein … es soll aus dem Weg sein, wenn jemand gerade nicht damit arbeitet.“
+  //   - Handy: Das Gespräch öffnet als kleines Fenster; groß nur durch Tippen darauf. Klein wird es durch Scrollen, den Knopf
+  //     „Verkleinern“ oder das Einschalten von Stimme oder Mikrofon – nie, solange im Textfeld geschrieben wird.
+  //   - Tablet und Rechner: Start wie bisher groß bei Goch; klein durch Scrollen, Knopf oder Gesprächsmodus; groß nur durch Klick.
+  //   - Klein bleibt klein, auch wieder oben beim großen Goch. Gochs Flug bleibt, wie er ist.
+  // Großes Fenster und Leiste sind dasselbe Element: Verlauf, angefangener Text, Mikrofon und Fokus bleiben. Beim Wechsel gleitet es
+  // in 260 ms aus der alten Lage in die neue (nur transform und opacity, nie unsichtbar, kein zweites Fenster). Führte der Weg über
+  // den sitzenden kleinen Goch oder seinen Ast, nur kurz einblenden. Bei reduzierter Bewegung: Wechsel ohne Bewegung.
   let wandel = null;
   const lageVorher = () => panel.hidden ? null : panel.getBoundingClientRect();
   const schneidet = (a, c) => a.width && c.width && a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
   function wandeln(vor, gross) {
-    if (gross) { const log = $('goch-log'); if (log) { log.style.scrollBehavior = 'auto'; log.scrollTop = log.scrollHeight; log.style.scrollBehavior = ''; } } // groß: wieder beim neuesten Satz, ohne Nachscrollen
+    if (gross) { const log = $('goch-log'); if (log) { log.style.scrollBehavior = 'auto'; log.scrollTop = log.scrollHeight; log.style.scrollBehavior = ''; } } // groß: beim neuesten Satz
     if (wandel) { wandel.cancel(); wandel = null; }
     if (!vor || panel.hidden || ruhig.matches || ohneGoch || !panel.animate) return; // ohneGoch: „Platz machen“, die Leiste wird oben zur Pille
     const nach = panel.getBoundingClientRect();
     if (!nach.width || !vor.width) return;
     const dx = vor.left + vor.width / 2 - nach.left - nach.width / 2, dy = vor.top + vor.height / 2 - nach.top - nach.height / 2;
     if (Math.abs(dx) < 2 && Math.abs(dy) < 2 && Math.abs(vor.width - nach.width) < 2 && Math.abs(vor.height - nach.height) < 2) return;
-    let s = Math.min(1.3, Math.max(.7, Math.sqrt(vor.width * vor.height / (nach.width * nach.height))));
+    const s = Math.min(1.3, Math.max(.7, Math.sqrt(vor.width * vor.height / (nach.width * nach.height))));
     let von = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${s.toFixed(3)})`;
-    // Der Weg (Anfang und Zwischenstände) darf nicht über den sitzenden kleinen Goch oder seinen Ast führen
     const hindernisse = getComputedStyle(mini).display !== 'none' ? [...mini.querySelectorAll('.goch-mini-tier, .goch-mini-ast')].map(e => e.getBoundingClientRect()) : [];
     const zwischen = k => { const f = s + (1 - s) * k, w = nach.width * f, h = nach.height * f, cx = nach.left + nach.width / 2 + dx * (1 - k), cy = nach.top + nach.height / 2 + dy * (1 - k);
       return { left: cx - w / 2, right: cx + w / 2, top: cy - h / 2, bottom: cy + h / 2, width: w, height: h }; };
@@ -151,8 +156,7 @@
     // Hin: Er hebt vom Bühnen-Ast ab und fliegt (gespiegelt) nach rechts hinaus bis zu dem Punkt, an dem der gewohnte Anflug
     // des kleinen Goch beginnt – von dort landet er genau wie auf den Unterseiten: von rechts oben, vorwärts (miniFlug).
     // Zurück: vom kleinen Ast nach links hinauf zur Bühne – das ist schon vorwärts.
-    // Rückweg 1000 ms statt 1500 ms (22.11.2026): Solange er fliegt, wartet das Gesprächsfenster als Leiste
-    const dauer = hin ? 800 : 1000, start = performance.now(), gross = scene.querySelector('.bird-rest');
+    const dauer = hin ? 800 : 1500, start = performance.now(), gross = scene.querySelector('.bird-rest');
     tier.classList.add('fliegt'); mini.dataset.flug = hin ? 'an' : 'ab';
     let xAlt = null, rechts = hin;
     const schritt = now => {
@@ -197,7 +201,7 @@
   new MutationObserver(miniPruefen).observe(mini, { attributes: true, attributeFilter: ['hidden', 'class'] });
   new MutationObserver(miniPruefen).observe(html, { attributes: true, attributeFilter: ['class'] });
   // ---------- Breite Bildschirme: mitlaufendes Blatt ----------
-  let breit = '', sichtbar = 1; // breit: '' | 'blatt' | 'zeile'; sichtbar: Anteil des großen Goch im Fenster
+  let breit = '', sichtbar = 1, zurueckDa = false; // breit: '' | 'blatt' | 'zeile'; sichtbar: Anteil des großen Goch im Fenster
   function breitSetzen(neu) {
     if (neu === breit) return;
     const vor = lageVorher();
@@ -212,12 +216,13 @@
   }
   // Wer gerade im Fenster schreibt, behält es: Dann läuft es als Fenster mit, bis das Textfeld verlassen ist
   const schreibt = () => { const a = document.activeElement; return !!a && panel.contains(a) && /^(TEXTAREA|INPUT)$/.test(a.tagName); };
-  // gelandet: Der kleine Goch ist eben selbst zur Bühne zurückgeflogen (Übergabe) – dann fliegt der große nicht noch einmal an
-  // (bis 22.11.2026 verschwand er nach der Landung und kam ein zweites Mal von rechts, der Ast neben dem Fenster war so lange leer)
-  function breitPruefen(gelandet) {
+  function breitPruefen() {
     if (schmal.matches || panel.hidden) { breitSetzen(''); return; }
     if (!breit && (sichtbar < .1 || fort)) breitSetzen(schreibt() ? 'blatt' : 'zeile'); // Goch ist aus dem Bild: Leiste (Robin, 12.11.2026), kein mitlaufendes Fenster
-    else if (breit && sichtbar > .5 && !fort) { breitSetzen(''); if (!gabeZurueck && gelandet !== true) grossAn(); } // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an
+    // Goch ist wieder da: Das Blatt hängt wieder an seinem Ast, er fliegt an. Die Leiste bleibt Leiste (22.11.2026); sein Anflug
+    // bleibt, wie er war – einmal je Rückkehr (gemerkt in zurueckDa, bis er wieder aus dem Bild ist)
+    else if (breit && sichtbar > .5 && !fort && !zurueckDa) { zurueckDa = true; if (breit === 'blatt') breitSetzen(''); if (!gabeZurueck) grossAn(); }
+    if (sichtbar < .1 || fort) zurueckDa = false;
   }
   // Der kleine Goch sitzt über dem Blatt: dessen Höhe als --goch-blatt-h
   const hoehe = () => { if (breit || lage !== 'aus') html.style.setProperty('--goch-blatt-h', panel.offsetHeight + 'px'); else html.style.removeProperty('--goch-blatt-h'); };
@@ -268,7 +273,8 @@
   }
   function aufklappen(fokus) {
     if (panel.hidden) return;
-    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') breitSetzen('blatt');
+    // Rechner: Ist Goch zu sehen, hängt das Fenster wieder an seinem Ast, sonst läuft es als Blatt unten rechts mit
+    if (schmal.matches) { klein = false; pruefen(); } else if (breit === 'zeile') breitSetzen(sichtbar > .5 && !fort ? '' : 'blatt');
     scrollStart = scrollY;
     const feld = $('goch-input');
     if (fokus && feld && feld.offsetParent) feld.focus({ preventScroll: true }); // im selben Tipp, sonst öffnet iOS die Tastatur nicht
@@ -316,13 +322,8 @@
     const a = document.activeElement;
     if (a && panel.contains(a) && /^(TEXTAREA|INPUT)$/.test(a.tagName)) { scrollStart = scrollY; return; }
     if (!schmal.matches) { if (breit === 'blatt' && Math.abs(scrollY - scrollStart) >= 40) breitSetzen('zeile'); return; } // aufgeklapptes Fenster am Rechner
-    // Startseite (22.11.2026): Großer Goch und großes Fenster gehören zusammen, kleiner Goch und Leiste auch. Das Fenster wird erst
-    // zur Leiste, wenn Goch auf den kleinen Ast fliegt (Übergabe, gabePruefen) – vorher stand die Leiste schon nach 40 px neben
-    // einem leeren Platz, während der große noch auf der Bühne saß. Zurück wird sie mit seiner Landung auf der Bühne wieder das
-    // Fenster (fensterGross). Kommt keine Übergabe zustande, gilt wie bisher: 40 px, oder sobald die Bühne aus dem Bild ist.
-    const wartet = !!werkzeugKopf && !fort && grossImBild();
-    if (lage === 'aus' && !frage && Math.abs(scrollY - scrollStart) >= 40 && !wartet) { vomScrollen = true; einklappen(); }
-    else if (lage === 'unterwegs' && vomScrollen && !stimmeAn() && scrollY <= 8 && !fort && !gabeZurueck) { vomScrollen = false; klein = false; pruefen(); scrollStart = scrollY; }
+    // Zurück ganz oben bleibt die Leiste (22.11.2026): groß nur durch Tippen auf sie
+    if (lage === 'aus' && !frage && Math.abs(scrollY - scrollStart) >= 40) { vomScrollen = true; einklappen(); }
   }, { passive: true });
   new MutationObserver(() => { scrollStart = scrollY; vomScrollen = false; eigen(); }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   function zeigen(ziel) {
@@ -344,7 +345,18 @@
       return a;
     },
   };
-  window.addEventListener('goch-modus', e => { modus = e.detail; leisteStand(); pruefen(); if (ohneGoch) zweigPruefen(); });
+  window.addEventListener('goch-modus', e => {
+    const vorher = stimmeAn();
+    modus = e.detail; leisteStand();
+    // Gesprächsmodus eingeschaltet (Stimme oder Mikrofon): Das Fenster wird klein (Robin, 22.11.2026)
+    if (!vorher && stimmeAn() && !panel.hidden) { if (schmal.matches) klein = true; else if (breit !== 'zeile') breitSetzen('zeile'); }
+    pruefen(); if (ohneGoch) zweigPruefen();
+  });
+  // Knopf „Verkleinern“ im großen Fenster (neben dem Schließen)
+  const verkleinern = $('goch-verkleinern');
+  if (verkleinern) verkleinern.addEventListener('click', e => { e.stopPropagation(); if (schmal.matches) { if (lage === 'fokus') freigeben(); else einklappen(); } else breitSetzen('zeile'); });
+  // Handy: Das Gespräch öffnet als kleines Fenster (auch beim großen Goch oben); das große Fenster gibt es durch Tippen darauf
+  new MutationObserver(() => { if (!panel.hidden && schmal.matches) { klein = true; pruefen(); } }).observe(panel, { attributes: true, attributeFilter: ['hidden'] });
   // Im Gesprächsmodus führt die Seite von selbst hin, während Goch spricht
   window.addEventListener('goch-antwort', e => { const z = e.detail && e.detail.zeigen; if (lage !== 'aus' && ZIELE.includes(z)) zeigen(z); });
   schmal.addEventListener('change', () => { pruefen(); breitPruefen(); });
@@ -533,31 +545,23 @@
     if (!werkzeugKopf || gabeZurueck || mini.dataset.flug) return;
     const vh = innerHeight, oben = werkzeugKopf.getBoundingClientRect().top, s = scene.getBoundingClientRect();
     const sicht = Math.max(0, Math.min(vh, s.bottom) - Math.max(0, s.top)) / Math.max(1, s.height);
-    // Am Handy sitzt der große Goch oben in der Bühne und war schon aus dem Bild, bevor die Überschrift kam: Das große Fenster stand
-    // dann ohne ihn da, und der Flug begann außerhalb des Bildes (22.11.2026). Die Übergabe beginnt deshalb spätestens, wenn sein
-    // Kopf den oberen Rand erreicht; zurück erst, wenn er wieder ein Stück unter dem Rand säße (Abstand gegen Hin und Her).
-    const vogelOben = schmal.matches ? scene.querySelector('.bird-rest').getBoundingClientRect().top : Infinity;
     if (!fort) {
       // Am Rechner steht die Überschrift schon beim Laden im Bild: Er fliegt erst, wenn der Besucher ein Stück gescrollt hat
       // Hängt am Rechner gerade das Gesprächsfenster an Goch, bleibt er, bis die Bühne aus dem Bild ist – sonst würde schon
       // ein kleines Scrollen zum unteren Rand des Fensters das Gespräch zur Leiste machen
       const amAst = !panel.hidden && !schmal.matches && !breit && sicht >= .1;
-      // Am Handy wird das offene Fenster mit der Übergabe zur Leiste – nicht, solange darin geschrieben wird (die Tastatur bliebe
-      // sonst nicht stehen) oder die Einwilligung für die Stimme offen ist
-      const fensterHaelt = schmal.matches && !panel.hidden && lage === 'aus' && (schreibt() || frage);
       // oder die Bühne ist fast aus dem Bild (21.11.2026: mit der längeren Kernzeile kam die Überschrift am Handy zu spät, der kleine Goch
       // der Leiste flog schon an, während unten noch ein Streifen des großen zu sehen war)
-      if (!amAst && !fensterHaelt && (oben < vh * .7 || sicht < .15 || vogelOben < 0) && scrollY > vh * .12 && scene.dataset.chat === 'on' && scene.dataset.state === 'rest' && lage !== 'fokus' && !platz && !ohneGoch) {
+      if (!amAst && (oben < vh * .7 || sicht < .15) && scrollY > vh * .12 && scene.dataset.chat === 'on' && scene.dataset.state === 'rest' && lage !== 'fokus' && !platz && !ohneGoch) {
         miniLaden(); gabeHin = true; fortSetzen(true);
         if (!panel.hidden && !schmal.matches) breitPruefen(); // offenes Gespräch am Rechner: Leiste
-        if (!panel.hidden && schmal.matches && lage === 'aus') { vomScrollen = true; einklappen(); } // am Handy: im selben Bild zur Leiste
         miniPruefen();
       }
     } else if (platz || ohneGoch) { fortSetzen(false); }
-    else if (sicht > .5 && (oben > vh * .78 || scrollY < vh * .05) && (vogelOben > vh * .1 || scrollY < vh * .05)) {
+    else if (sicht > .5 && (oben > vh * .78 || scrollY < vh * .05)) {
       wortAus();
       // Er sitzt gerade nicht (noch im Anflug) oder die Bewegung ist reduziert: ohne Flug hinauf; sonst fliegt er oben wieder an
-      if (!miniDa || ruhig.matches) { const flug = !miniDa && !ruhig.matches, warBreit = !!breit; fortSetzen(false); mini.classList.add('goch-mini-weg'); fensterGross(); miniSicht(); begleiterBald(); breitPruefen(true); if (flug && (panel.hidden || warBreit)) grossAn(); return; }
+      if (!miniDa || ruhig.matches) { const flug = !miniDa && !ruhig.matches; fortSetzen(false); mini.classList.add('goch-mini-weg'); miniSicht(); begleiterBald(); breitPruefen(); if (flug && panel.hidden) grossAn(); return; }
       gabeZurueck = true; boden = getComputedStyle(mini).bottom; mini.style.bottom = boden; mini.classList.add('fliegt-ab');
       let erledigt = false;
       const oben = () => {
@@ -566,15 +570,11 @@
         // im selben Bild: kleiner weg, großer wieder da
         miniDa = false; gabeZurueck = false; mini.classList.remove('fliegt-ab'); mini.style.bottom = '';
         fortSetzen(false); mini.classList.add('goch-mini-weg'); rueckkehr = false;
-        fensterGross(); begleiterPruefen(); breitPruefen(true);
+        begleiterPruefen(); breitPruefen();
       };
       gabeFlug(false, oben);
       setTimeout(() => { if (!erledigt) { flugAus(); oben(); } }, 2600); // Sicherung: Der Rückweg endet in jedem Fall (verborgener Tab, abgebrochener Flug)
     }
-  }
-  // Goch sitzt wieder auf der Bühne: Hat das Scrollen das Fenster am Handy zur Leiste gemacht, wird sie im selben Bild wieder das Fenster
-  function fensterGross() {
-    if (schmal.matches && !panel.hidden && lage === 'unterwegs' && vomScrollen && !stimmeAn() && !ohneGoch && !frage) { vomScrollen = false; klein = false; pruefen(); scrollStart = scrollY; }
   }
   function begleiterPruefen() {
     begleiterWartet = false;

@@ -39,10 +39,14 @@ async function seiteAuf() {
   await p.goto(seite + q);
   await p.waitForFunction(() => window.GochStimme && window.GochZeigen && document.getElementById("scene").dataset.state === "rest", null, { timeout: 40000 });
   await p.locator("#scene").click({ position: { x: 150, y: 90 } }); await p.waitForTimeout(500);
+  await gross(p); // seit 22.11.2026 öffnet das Gespräch am Handy klein; ein Tipp darauf macht es groß
   return { p, ctx };
 }
 const stand = p => p.evaluate(() => ({ lage: (document.documentElement.className.match(/goch-\w+/g) || []).filter(k => k !== "goch-fort").join(" "), zustand: document.getElementById("goch-mikro").dataset.zustand, an: document.getElementById("goch-mikro-an").getAttribute("aria-pressed"), blasen: document.querySelectorAll(".goch-bubble").length, letzte: [...document.querySelectorAll(".goch-bubble")].pop().textContent.slice(0, 60) }));
 async function frage(p) { const n = await listen(); await p.evaluate(() => { __sprich = true; }); await p.waitForTimeout(1500); await p.evaluate(() => { __sprich = false; }); await p.waitForTimeout(5200); return (await listen()) - n; } // 5,2 s: im Strom drei Abschnitte (KI-Hinweis, erster Satz, Rest) statt zwei (20.11.2026)
+// Tipp auf die Fläche des kleinen Fensters (nicht auf Knöpfe): großes Fenster bzw. mit Stimme der große Goch (Gesprächsmodus)
+async function gross(p) { if (await p.evaluate(() => document.documentElement.classList.contains("goch-unterwegs"))) { await p.locator("#goch-log").click({ position: { x: 20, y: 8 } }); await p.waitForTimeout(600); } }
+// Seit 22.11.2026 macht das Einschalten von „Goch hört“ das Fenster klein; den großen Goch holt ein Tipp darauf
 async function hoertAn(p) { await p.locator("#goch-mikro-an").click(); await p.waitForTimeout(400); await p.locator("#goch-stimme-allow").click(); await p.waitForTimeout(1500); }
 
 await modus("hoeren=ok&stimme=ok");
@@ -50,8 +54,9 @@ for (const art of ["gross", "kapsel", "mit Stimme"]) {
   console.log("„Goch hört“, " + art);
   const { p, ctx } = await seiteAuf();
   await hoertAn(p);
+  if (art !== "kapsel") await gross(p);
   if (art === "mit Stimme") { await p.locator("#goch-laut").click(); await p.waitForTimeout(600); }
-  if (art === "kapsel") { await p.locator("#goch-zur-seite").click(); await p.evaluate(() => scrollTo(0, 900)); await p.waitForTimeout(2500); }
+  if (art === "kapsel") { await p.evaluate(() => scrollTo(0, 900)); await p.waitForTimeout(2500); }
   let s = await stand(p);
   check(s.zustand === "hoert" && s.an === "true" && s.lage === (art === "kapsel" ? "goch-unterwegs" : "goch-fokus"), "Goch hört zu", s);
   const gesendet = await frage(p); s = await stand(p);
@@ -66,7 +71,8 @@ for (const art of ["gross", "kapsel"]) {
   console.log("Grenze der Spracheingabe erreicht, " + art);
   const { p, ctx } = await seiteAuf();
   await hoertAn(p);
-  if (art === "kapsel") { await p.locator("#goch-zur-seite").click(); await p.evaluate(() => scrollTo(0, 900)); await p.waitForTimeout(2500); }
+  if (art !== "kapsel") await gross(p);
+  if (art === "kapsel") { await p.evaluate(() => scrollTo(0, 900)); await p.waitForTimeout(2500); }
   await modus("hoeren=grenze");
   await frage(p); const s = await stand(p);
   await modus("hoeren=ok");
@@ -79,7 +85,8 @@ for (const art of ["gross", "kapsel"]) {
   console.log("Nie zwei Gochs zugleich");
   const { p, ctx } = await seiteAuf();
   await p.locator("#goch-laut").click(); await p.waitForTimeout(400); await p.locator("#goch-stimme-allow").click(); await p.waitForTimeout(1200);
-  await p.locator("#goch-zur-seite").click(); await p.evaluate(() => scrollTo(0, 900));
+  if (await p.locator("#goch-zur-seite").isVisible()) await p.locator("#goch-zur-seite").click(); // seit 22.11.2026 ist das Fenster nach dem Einschalten schon klein
+  await p.evaluate(() => scrollTo(0, 900));
   await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug; }, null, { timeout: 8000 });
   check(true, "unten sitzt der kleine Goch");
   // je gezeichnetem Bild messen (requestAnimationFrame läuft nach den Scroll-Ereignissen, kurz vor dem Zeichnen)

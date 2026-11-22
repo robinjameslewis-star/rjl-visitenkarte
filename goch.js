@@ -204,7 +204,8 @@
     if (!opened) { opened = true; bubble('goch', document.body.dataset.gochGruss || t('gochGreeting')); }
     if (choice && !choice.allowed) bubble('goch', t('gochDeniedNote'));
     setAvailability();
-    if (still !== true) (form.hidden ? closeButton : input).focus();
+    // Handy: Das Gespräch öffnet als kleines Fenster (goch-gespraech.js) – kein Fokus ins Textfeld, sonst ginge die Tastatur auf und gleich wieder zu
+    if (still !== true) (form.hidden || narrow.matches ? closeButton : input).focus();
     merken();
   }
   function close(still) { // still: „Platz machen“ – ohne Fokus auf Goch, sonst spränge die Seite zu ihm
