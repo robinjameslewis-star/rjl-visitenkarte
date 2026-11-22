@@ -40,6 +40,20 @@ check(start.includes(`<title>robin.vision – Werkzeuge und Workshops für Unter
 check(!/saeule/.test(start + sprache) && !/Kanzlei-Agent|agents for accounting firms/.test(start + sprache + lesen("worker/profile.md") + lesen("llms.txt")), "keine Kacheln, keine Kanzlei-Agenten (Robin, 21.11.2026)");
 const abschnitte = [...start.matchAll(/\n  <section class="([^"]+)"(?: id="([^"]*)")?/g)].map(m => m[2] || m[1]);
 check(abschnitte[0] === "stage" && abschnitte[1] === "werkzeuge", "nach der Bühne direkt die Leiste der Werkzeuge", abschnitte.slice(0, 3));
+// Individuelle Lösung auf der Startseite (Robin, 22.11.2026: „Individuelle lösung ist noch nicht auf der startseite“, „Beides“)
+check(abschnitte.join(" ") === "stage werkzeuge workshops workshop-e-rechnung individuelle-loesung blog newsletter ueber-mich contact nachricht anbieter", "Abschnitte: Individuelle Lösung nach den Workshops, sonst Reihenfolge wie vorher", abschnitte);
+const kopfKnoepfe = (start.match(/<p class="cta"><a class="cta-primary" href="werkzeuge\/"[\s\S]*?<\/p>/) || [""])[0];
+check((kopfKnoepfe.match(/<a /g) || []).length === 3 && kopfKnoepfe.includes('<a class="cta-secondary cta-loesung" href="individuelle-loesung/" data-href-de="individuelle-loesung/" data-href-en="individuelle-loesung/en/"><span data-i18n="ctaLoesung">Ihre eigene Lösung</span><small data-i18n="ctaLoesungZusatz">Aufgabe schildern · Angebot</small></a></p>')
+  && sprache.includes("ctaLoesung: 'Ihre eigene Lösung', ctaLoesungZusatz: 'Aufgabe schildern · Angebot'") && sprache.includes("ctaLoesung: 'Your own solution', ctaLoesungZusatz: 'Describe your task · quote'"), "Kopf: dritter Knopf „Ihre eigene Lösung“ nach den beiden Knöpfen, DE und EN");
+const abschnitt = (start.match(/<section class="blog-teaser loesung-start" id="individuelle-loesung"[\s\S]*?<\/section>/) || [""])[0];
+const ideen = l => [...(loesungSeite(l).match(/<ul class="ideen">([\s\S]*?)<\/ul>/) || ["", ""])[1].matchAll(/<li>([^<]*)<\/li>/g)].map(m => m[1].replace(/&#39;/g, "'"));
+check(ideen("de").length === 4 && ideen("de").every((t, i) => abschnitt.includes(`<li data-i18n="loesungIdee${i + 1}">${t}</li>`) && sprache.includes(`loesungIdee${i + 1}: '${t}'`))
+  && ideen("en").length === 4 && ideen("en").every((t, i) => sprache.includes(`loesungIdee${i + 1}: '${t}'`)), "Abschnitt: die vier Beispiele wörtlich aus individuelle_loesung.js (ideen), DE und EN");
+check(abschnitt.includes('data-href-en="individuelle-loesung/en/" data-i18n="loesungTitle">Individuelle Lösung</a></h2>') && sprache.includes("loesungTitle: 'Custom solution'")
+  && abschnitt.includes('<a class="cta-primary" href="individuelle-loesung/#anfrage" data-href-de="individuelle-loesung/#anfrage" data-href-en="individuelle-loesung/en/#anfrage" data-i18n="loesungKnopf">Aufgabe beschreiben</a>')
+  && LOESUNG.every(s => lesen(s.pfad).includes('id="anfrage"')) && /Sie erhalten vorab ein Angebot\./.test(abschnitt) && sprache.includes("You receive a quote first."), "Abschnitt: Überschrift, Angebot vorab, Knopf „Aufgabe beschreiben“ zum Formular (#anfrage), DE und EN");
+const loesungEn = ["loesungTitle", "loesungLead", "loesungBeispiele", "loesungIdee1", "loesungIdee2", "loesungIdee3", "loesungIdee4", "loesungKnopf"].map(k => (sprache.match(new RegExp(`${k}: '([^']*)'`, "g")) || []).join(" ")).join(" ");
+check(!/€|EUR|Euro|\d/.test(abschnitt.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, "") + loesungEn.replace(/loesung\w+/g, "")), "Abschnitt: keine Preise, keine Fristen, DE und EN");
 
 console.log("\nSmartFormular als TaxTech");
 const sf = EIGENE.find(p => p.id === "smartformular");
