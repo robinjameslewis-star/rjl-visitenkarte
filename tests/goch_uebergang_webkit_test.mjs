@@ -10,6 +10,7 @@
 //   Voraussetzungen wie goch_webkit_test.mjs.  node tests/goch_uebergang_webkit_test.mjs http://127.0.0.1:8788/ http://127.0.0.1:8787
 import { createRequire } from "node:module";
 import { stumm } from "./stumm.mjs";
+import { readFileSync } from "node:fs";
 const [seite = "http://127.0.0.1:8788/", attrappe = "http://127.0.0.1:8787"] = process.argv.slice(2);
 let webkit, devices;
 try { ({ webkit, devices } = createRequire((process.env.PLAYWRIGHT || process.cwd()) + "/")("playwright-core")); }
@@ -17,6 +18,10 @@ catch (_) { console.log("playwright-core nicht gefunden (PLAYWRIGHT=/pfad setzen
 let fails = 0;
 const check = (ok, label, info) => { console.log((ok ? "  ok   " : "  FAIL ") + label + (info !== undefined ? " (" + (typeof info === "string" ? info : JSON.stringify(info)) + ")" : "")); if (!ok) fails++; };
 const q = "?goch=" + encodeURIComponent(attrappe + "/chat") + "&stimme=an&zwitschertakt=60000&zeit=2026-11-11T12:00";
+// Liefert der Prüfserver denselben Stand wie dieser Ordner? (22.11.2026: Ein Server aus einer älteren Arbeitskopie ließ den Test rot
+// werden, obwohl die Seite stimmte.) Sonst klar abbrechen statt Fehler zu melden, die nicht zu dieser Seite gehören.
+{ const hier = readFileSync(new URL("../index.html", import.meta.url), "utf8"), dort = await (await fetch(seite + "index.html")).text();
+  if (hier !== dort) { console.log("  FAIL Der Prüfserver unter " + seite + " liefert eine andere index.html als dieser Ordner – Server im Ordner dieses Tests starten."); process.exit(1); } }
 await fetch(attrappe + "/_modus?hoeren=ok&stimme=ok");
 const b = stumm(await webkit.launch());
 const GERAETE = {
@@ -80,7 +85,7 @@ for (const [name, opt] of Object.entries(GERAETE)) for (const ruhig of [false, t
       const knoepfe = [...document.querySelectorAll(".intro .cta a, .intro .cta button")].filter(k => k.getBoundingClientRect().width);
       const vogel = document.querySelector("#scene .bird-rest").getBoundingClientRect(), ueber = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
       return { knoepfe: knoepfe.length, verdeckt: knoepfe.filter(k => ueber(g, k.getBoundingClientRect())).length, vogel: ueber(g, vogel), hinweis: hr.width > 0 ? hin.textContent : "" }; });
-    check(frei.knoepfe >= 2 && frei.verdeckt === 0 && !frei.vogel, "das kleine Fenster verdeckt weder Goch noch die Knöpfe der Bühne", frei);
+    check(frei.knoepfe >= 3 && frei.verdeckt === 0 && !frei.vogel, "das kleine Fenster verdeckt weder Goch noch die Knöpfe der Bühne", frei);
     check(/schreiben/i.test(frei.hinweis), "das kleine Fenster zeigt „Hier mit Goch schreiben“", frei.hinweis);
     await antippen(p); s = await umschalten(p);
     check(s.form === "gross" && s.fokus === "goch-input", "ein Tipp darauf öffnet das große Fenster, das Eingabefeld hat den Fokus", { form: s.form, fokus: s.fokus });
