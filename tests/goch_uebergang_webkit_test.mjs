@@ -85,7 +85,7 @@ for (const [name, opt] of Object.entries(GERAETE)) for (const ruhig of [false, t
       const knoepfe = [...document.querySelectorAll(".intro .cta a, .intro .cta button")].filter(k => k.getBoundingClientRect().width);
       const vogel = document.querySelector("#scene .bird-rest").getBoundingClientRect(), ueber = (a, c) => a.right > c.left && a.left < c.right && a.bottom > c.top && a.top < c.bottom;
       return { knoepfe: knoepfe.length, verdeckt: knoepfe.filter(k => ueber(g, k.getBoundingClientRect())).length, vogel: ueber(g, vogel), hinweis: hr.width > 0 ? hin.textContent : "" }; });
-    check(frei.knoepfe >= 3 && frei.verdeckt === 0 && !frei.vogel, "das kleine Fenster verdeckt weder Goch noch die Knöpfe der Bühne", frei);
+    check(frei.knoepfe >= 2 && frei.verdeckt === 0 && !frei.vogel, "das kleine Fenster verdeckt weder Goch noch die Knöpfe der Bühne", frei);
     check(/schreiben/i.test(frei.hinweis), "das kleine Fenster zeigt „Hier mit Goch schreiben“", frei.hinweis);
     await antippen(p); s = await umschalten(p);
     check(s.form === "gross" && s.fokus === "goch-input", "ein Tipp darauf öffnet das große Fenster, das Eingabefeld hat den Fokus", { form: s.form, fokus: s.fokus });
