@@ -33,7 +33,7 @@ const TEXT = {
     produkt: "Für den freien Markt oder für Ihr Team und Unternehmen: Aus Ihrer Idee oder Ihrem Problem wird ein eigenes Produkt mit allem, was dazugehört.",
     bausteineTitel: "Die Bausteine",
     ab2027: "ab Januar 2027",
-    // Leistungsbeschreibung der Skill-Sitzung (22.11.2026) wörtlich; Bausteine 5–7 tragen „ab Januar 2027“, bis sie bewiesen sind
+    // Leistungsbeschreibung der Skill-Sitzung (22.11.2026) wörtlich. Bausteine 5–7 (drittes Feld true) trugen bis 22.11.2026 „ab Januar 2027“; Robin: „mach das mal weg … sowie die ab januar 2027 batches“
     bausteine: [
       ["Idee zum Konzept", "Wir schärfen Ihre Idee oder Ihr Problem zu einem Steckbrief und Konzept mit gerechneten Kosten und ehrlichen Risiken."],
       ["Name und Marke", "Sie bekommen Namensvorschläge mit Domain- und Registerrecherche sowie eine eigene Gestaltung mit Farben, Bildwelt und, auf Wunsch, einer eigenen Figur."],
@@ -60,7 +60,7 @@ const TEXT = {
     ],
     vermerk: "Jede Lösung ist mit KI erstellt und von mir geprüft. Sie ist nicht amtlich und ersetzt keine Beratung. Bitte prüfen Sie sie vor der Verwendung.",
     anfrageTitel: "Erzählen Sie mir von Ihrer Aufgabe",
-    anfrage: "Was hält Sie im Büro immer wieder auf, oder welche Idee möchten Sie auf den Markt bringen? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:",
+    anfrage: "Was hält Sie im Büro immer wieder auf, oder welche Idee möchten Sie auf den Markt bringen? Beschreiben Sie es in ein paar Sätzen.",
     ideen: ["Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht", "Ein Formular, das Angaben prüft, bevor sie ins System gehen", "Eine Auftragsannahme, die prüft, ob alles da ist, den Auftrag an die richtige Stelle gibt und dort die Bearbeitung vorbereitet", "Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht"],
     felder: { name: "Name", email: "E-Mail-Adresse", firma: "Unternehmen oder Kanzlei", art: "Worum geht es?", budget: "Ihr Budget", text: "Was soll die Lösung tun?", optional: "(freiwillig)", waehlen: "Bitte wählen" },
     artWerte: ["Marktreifes Produkt", "Dokumente und Formulare", "Daten und Tabellen", "Abläufe im Büro", "Gestaltung", "Etwas anderes"],
@@ -121,7 +121,7 @@ const TEXT = {
     ],
     vermerk: "Every solution is created with AI and checked by me. It is not an official document and does not replace professional advice. Please check it before you use it.",
     anfrageTitel: "Tell me about your task",
-    anfrage: "What keeps holding you up at work, or which idea would you like to bring to market? Describe it in a few sentences. This is the kind of thing it can become:",
+    anfrage: "What keeps holding you up at work, or which idea would you like to bring to market? Describe it in a few sentences.",
     ideen: ["A searchable overview from a stack of as-built plans", "A form that checks entries before they go into your system", "An order intake that checks everything is there, passes the job to the right person and prepares the work for them", "A template that turns your data into a finished report"],
     felder: { name: "Name", email: "Email address", firma: "Company or firm", art: "What is it about?", budget: "Your budget", text: "What should the solution do?", optional: "(optional)", waehlen: "Please choose" },
     artWerte: ["Market-ready product", "Documents and forms", "Data and spreadsheets", "Office processes", "Design", "Something else"],
@@ -247,7 +247,7 @@ ${t.ablauf.map(([titel, text]) => `<li><strong>${esc(titel)}</strong><span>${esc
 <p>${esc(t.produkt)}</p>
 <h3 id="bausteine">${esc(t.bausteineTitel)}</h3>
 <ol class="bausteine">
-${t.bausteine.map(([titel, text, ab]) => `<li><strong>${esc(titel)}</strong>${ab ? `<span class="ab">${esc(t.ab2027)}</span>` : ""}<p>${esc(text)}</p></li>`).join("\n")}
+${t.bausteine.map(([titel, text, ab]) => `<li><strong>${esc(titel)}</strong><p>${esc(text)}</p></li>`).join("\n")}
 </ol>
 <p class="eigentum">${esc(t.eigentum)}</p>
 <p>${esc(t.herkunft)} ${esc(t.produktAngebot)}</p>
@@ -259,7 +259,6 @@ ${t.grenzen.map(g => `<li>${esc(g)}</li>`).join("\n")}
 <p class="vermerk frei">${esc(t.vermerk)}</p>
 <h2 id="anfrage">${esc(t.anfrageTitel)}</h2>
 <p class="frei">${esc(t.anfrage)}</p>
-<ul class="ideen">${t.ideen.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
 <form class="lo-form" id="loesung-anfrage" novalidate>
 <div class="reihe">
 <div><label for="l-name">${esc(t.felder.name)}</label><input type="text" id="l-name" name="name" maxlength="80" required autocomplete="name"></div>
