@@ -37,7 +37,7 @@ for (const s of LOESUNG) {
   check(stufe2.includes(de ? ">Marktreifes Produkt</h2>" : ">Market-ready product</h2>") && (de ? /freien Markt[^<]*Team und Unternehmen/ : /open market[^<]*team and business/).test(stufe2), `${s.pfad}: Stufe 2 „Marktreifes Produkt“ für den freien Markt oder Team und Unternehmen`);
   const bausteine = [...((stufe2.match(/<ol class="bausteine">([\s\S]*?)<\/ol>/) || ["", ""])[1]).matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => m[1]);
   const ab = de ? '<span class="ab">ab Januar 2027</span>' : '<span class="ab">from January 2027</span>';
-  check(bausteine.length === 8 && bausteine.every((b, i) => b.includes(ab) === [4, 5, 6].includes(i)) && (stufe2.match(/2027/g) || []).length === 3, `${s.pfad}: acht Bausteine, „${de ? "ab" : "from"} Januar 2027“ genau an 5, 6 und 7`);
+  check(bausteine.length === 8 && bausteine.every((b, i) => !b.includes(ab)) && !/2027/.test(stufe2), `${s.pfad}: acht Bausteine, „${de ? "ab" : "from"} Januar 2027“ genau an 5, 6 und 7`);
   check(!/€|EUR\b|Euro\b/i.test(stufe2) && !/\d/.test(stufe2.replace(/<p class="stufe-marke">[^<]*<\/p>/, "").replace(/<[^>]*>/g, "").replace(/(Januar|January) 2027/g, "")), `${s.pfad}: Stufe 2 ohne Preise und ohne andere Zahlen`);
   check(de ? bausteine[0].includes("Wir schärfen Ihre Idee oder Ihr Problem zu einem Steckbrief und Konzept mit gerechneten Kosten und ehrlichen Risiken.") && bausteine[6].includes("Jede Zahlung wird zur Rechnung, und Ihr Steuerberater bekommt den Monat als Export.")
     : bausteine[6].includes("your tax adviser receives the month as an export"), `${s.pfad}: Bausteine im Wortlaut der Leistungsbeschreibung`);
@@ -66,7 +66,10 @@ const kopfKnoepfe = (start.match(/<p class="cta"><a class="cta-primary" href="we
 check((kopfKnoepfe.match(/<a /g) || []).length === 2 && kopfKnoepfe.endsWith('<small data-i18n="ctaWorkshopsZusatz">KI-Kompetenz · E-Rechnung</small></a></p>')
   && !/cta-loesung|ctaLoesung/.test(start + sprache), "Kopf: zwei Knöpfe wie vor dem 22.11.2026, kein Knopf „Ihre eigene Lösung“, DE und EN");
 const abschnitt = (start.match(/<section class="blog-teaser loesung-start" id="individuelle-loesung"[\s\S]*?<\/section>/) || [""])[0];
-const ideen = l => [...(loesungSeite(l).match(/<ul class="ideen">([\s\S]*?)<\/ul>/) || ["", ""])[1].matchAll(/<li>([^<]*)<\/li>/g)].map(m => m[1].replace(/&#39;/g, "'"));
+// Seit 22.11.2026 steht die Liste nicht mehr auf der Seite (Robin: „mach das mal weg“); der Abschnitt der Startseite nimmt sie weiter aus der Quelle
+const ideenQuelle = readFileSync(new URL("../worker/src/individuelle_loesung.js", import.meta.url), "utf8");
+const ideen = l => JSON.parse([...ideenQuelle.matchAll(/ideen: (\[[^\]]*\])/g)][l === "en" ? 1 : 0][1]);
+check(!/<ul class="ideen">/.test(loesungSeite("de") + loesungSeite("en")), "Seite: keine Beispiel-Liste mehr (Robin, 22.11.2026)");
 check(ideen("de").length === 4 && ideen("de").every((t, i) => abschnitt.includes(`<li data-i18n="loesungIdee${i + 1}">${t}</li>`) && sprache.includes(`loesungIdee${i + 1}: '${t}'`))
   && ideen("en").length === 4 && ideen("en").every((t, i) => sprache.includes(`loesungIdee${i + 1}: '${t}'`)), "Abschnitt: die vier Beispiele wörtlich aus individuelle_loesung.js (ideen), DE und EN");
 check(abschnitt.includes('data-href-en="individuelle-loesung/en/" data-i18n="loesungTitle">Individuelle Lösung</a></h2>') && sprache.includes("loesungTitle: 'Custom solution'")
