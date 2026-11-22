@@ -56,7 +56,7 @@
       // Individuelle Lösung (Robin, 22.11.2026): dritter Knopf oben und Abschnitt nach den Workshops; Beispiele wörtlich aus worker/src/individuelle_loesung.js (ideen)
       ctaLoesung: 'Ihre eigene Lösung', ctaLoesungZusatz: 'Aufgabe schildern · Angebot',
       loesungTitle: 'Individuelle Lösung', loesungKnopf: 'Aufgabe beschreiben', loesungBeispiele: 'Zum Beispiel:',
-      loesungLead: 'Sie beschreiben eine Aufgabe aus Ihrem Arbeitsalltag, ich baue die passende Lösung, mit KI erstellt und von mir geprüft. Sie erhalten vorab ein Angebot.',
+      loesungLead: 'Sie beschreiben eine Aufgabe aus Ihrem Arbeitsalltag, ich baue die passende Lösung, mit KI erstellt und von mir geprüft. Sie erhalten vorab ein Angebot. Von der kleinen Hilfe bis zur marktreifen Anwendung mit moderner Bedienoberfläche für Ihre Kunden oder Ihr Team.',
       loesungIdee1: 'Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht', loesungIdee2: 'Ein Formular, das Angaben prüft, bevor sie ins System gehen',
       loesungIdee3: 'Eine Auftragsannahme, die prüft, ob alles da ist, den Auftrag an die richtige Stelle gibt und dort die Bearbeitung vorbereitet', loesungIdee4: 'Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
@@ -199,7 +199,7 @@
       ctaTool: 'Try the tools', ctaWorkshops: 'Workshops for your team', ctaWorkshopsZusatz: 'AI literacy · e-invoicing',
       ctaLoesung: 'Your own solution', ctaLoesungZusatz: 'Describe your task · quote',
       loesungTitle: 'Custom solution', loesungKnopf: 'Describe your task', loesungBeispiele: 'For example:',
-      loesungLead: 'You describe a task from your working day, and I build the solution that fits, created with AI and checked by me. You receive a quote first.',
+      loesungLead: 'You describe a task from your working day, and I build the solution that fits, created with AI and checked by me. You receive a quote first. From a small helper to a market-ready application with a modern interface for your customers or your team.',
       loesungIdee1: 'A searchable overview from a stack of as-built plans', loesungIdee2: 'A form that checks entries before they go into your system',
       loesungIdee3: 'An order intake that checks everything is there, passes the job to the right person and prepares the work for them', loesungIdee4: 'A template that turns your data into a finished report',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
