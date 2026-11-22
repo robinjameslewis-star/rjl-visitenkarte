@@ -41,10 +41,12 @@ check(!/saeule/.test(start + sprache) && !/Kanzlei-Agent|agents for accounting f
 const abschnitte = [...start.matchAll(/\n  <section class="([^"]+)"(?: id="([^"]*)")?/g)].map(m => m[2] || m[1]);
 check(abschnitte[0] === "stage" && abschnitte[1] === "werkzeuge", "nach der Bühne direkt die Leiste der Werkzeuge", abschnitte.slice(0, 3));
 // Individuelle Lösung auf der Startseite (Robin, 22.11.2026: „Individuelle lösung ist noch nicht auf der startseite“, „Beides“)
-check(abschnitte.join(" ") === "stage werkzeuge workshops workshop-e-rechnung individuelle-loesung blog newsletter ueber-mich contact nachricht anbieter", "Abschnitte: Individuelle Lösung nach den Workshops, sonst Reihenfolge wie vorher", abschnitte);
+// seit 22.11.2026 (Robin: „Individuelle lösun auf der startseite ganz unten kein knopf auf der startseite“): letzter Abschnitt vor dem Fuß, kein Knopf im Kopf
+check(abschnitte.join(" ") === "stage werkzeuge workshops workshop-e-rechnung blog newsletter ueber-mich contact nachricht anbieter individuelle-loesung", "Abschnitte: Individuelle Lösung ganz unten vor dem Fuß, sonst Reihenfolge wie vorher", abschnitte);
+check(start.indexOf('id="individuelle-loesung"') > start.indexOf('id="anbieter"') && !/<section/.test(start.slice(start.indexOf('id="individuelle-loesung"'), start.indexOf("</main>"))), "Abschnitt: letzter Abschnitt im <main>");
 const kopfKnoepfe = (start.match(/<p class="cta"><a class="cta-primary" href="werkzeuge\/"[\s\S]*?<\/p>/) || [""])[0];
-check((kopfKnoepfe.match(/<a /g) || []).length === 3 && kopfKnoepfe.includes('<a class="cta-secondary cta-loesung" href="individuelle-loesung/" data-href-de="individuelle-loesung/" data-href-en="individuelle-loesung/en/"><span data-i18n="ctaLoesung">Ihre eigene Lösung</span><small data-i18n="ctaLoesungZusatz">Aufgabe schildern · Angebot</small></a></p>')
-  && sprache.includes("ctaLoesung: 'Ihre eigene Lösung', ctaLoesungZusatz: 'Aufgabe schildern · Angebot'") && sprache.includes("ctaLoesung: 'Your own solution', ctaLoesungZusatz: 'Describe your task · quote'"), "Kopf: dritter Knopf „Ihre eigene Lösung“ nach den beiden Knöpfen, DE und EN");
+check((kopfKnoepfe.match(/<a /g) || []).length === 2 && kopfKnoepfe.endsWith('<small data-i18n="ctaWorkshopsZusatz">KI-Kompetenz · E-Rechnung</small></a></p>')
+  && !/cta-loesung|ctaLoesung/.test(start + sprache), "Kopf: zwei Knöpfe wie vor dem 22.11.2026, kein Knopf „Ihre eigene Lösung“, DE und EN");
 const abschnitt = (start.match(/<section class="blog-teaser loesung-start" id="individuelle-loesung"[\s\S]*?<\/section>/) || [""])[0];
 const ideen = l => [...(loesungSeite(l).match(/<ul class="ideen">([\s\S]*?)<\/ul>/) || ["", ""])[1].matchAll(/<li>([^<]*)<\/li>/g)].map(m => m[1].replace(/&#39;/g, "'"));
 check(ideen("de").length === 4 && ideen("de").every((t, i) => abschnitt.includes(`<li data-i18n="loesungIdee${i + 1}">${t}</li>`) && sprache.includes(`loesungIdee${i + 1}: '${t}'`))

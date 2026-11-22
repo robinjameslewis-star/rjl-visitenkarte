@@ -53,8 +53,7 @@
       // Über der Falz und „Über mich“ (Robin, 16.10.2026); seit 21.11.2026 darunter kleiner die Kernzeile (Robin: „Vorschlag 2“, „nur nich ganz so prominent“)
       slogan: 'Prozesse effizient gestalten', kernzeile: 'Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.',
       ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshops für Ihr Team', ctaWorkshopsZusatz: 'KI-Kompetenz · E-Rechnung',
-      // Individuelle Lösung (Robin, 22.11.2026): dritter Knopf oben und Abschnitt nach den Workshops; Beispiele wörtlich aus worker/src/individuelle_loesung.js (ideen)
-      ctaLoesung: 'Ihre eigene Lösung', ctaLoesungZusatz: 'Aufgabe schildern · Angebot',
+      // Individuelle Lösung (Robin, 22.11.2026): Abschnitt ganz unten auf der Startseite, kein Knopf im Kopf; Beispiele wörtlich aus worker/src/individuelle_loesung.js (ideen)
       loesungTitle: 'Individuelle Lösung', loesungKnopf: 'Aufgabe beschreiben', loesungBeispiele: 'Zum Beispiel:',
       loesungLead: 'Sie beschreiben eine Aufgabe aus Ihrem Arbeitsalltag, ich baue die passende Lösung, mit KI erstellt und von mir geprüft. Sie erhalten vorab ein Angebot. Von der kleinen Hilfe bis zur marktreifen Anwendung mit moderner Bedienoberfläche für Ihre Kunden oder Ihr Team.',
       loesungIdee1: 'Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht', loesungIdee2: 'Ein Formular, das Angaben prüft, bevor sie ins System gehen',
@@ -197,7 +196,6 @@
       title: 'robin.vision – Tools and workshops for businesses and accounting firms',
       slogan: 'Streamlining processes', kernzeile: 'I build and find AI solutions for accounting firms and businesses – and show you how to work with them.',
       ctaTool: 'Try the tools', ctaWorkshops: 'Workshops for your team', ctaWorkshopsZusatz: 'AI literacy · e-invoicing',
-      ctaLoesung: 'Your own solution', ctaLoesungZusatz: 'Describe your task · quote',
       loesungTitle: 'Custom solution', loesungKnopf: 'Describe your task', loesungBeispiele: 'For example:',
       loesungLead: 'You describe a task from your working day, and I build the solution that fits, created with AI and checked by me. You receive a quote first. From a small helper to a market-ready application with a modern interface for your customers or your team.',
       loesungIdee1: 'A searchable overview from a stack of as-built plans', loesungIdee2: 'A form that checks entries before they go into your system',

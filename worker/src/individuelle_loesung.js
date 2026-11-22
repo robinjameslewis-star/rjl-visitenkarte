@@ -101,8 +101,10 @@ const TEXT = {
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// Beispiel-Kästen (Robin, 22.11.2026: „die umrandungen mit mehr kontrast. dieses grau wirkt nicht gut“): Kupferrand, Fläche --surface statt grauem Weiß-Schleier (nachts dunkel, deckt die Landschaft ab), Schrift in Textfarbe, Tag und Nacht;
+// das Formular darunter hatte denselben grauen Füllton: Fläche --surface, Felder --paper (nachts dunkel, Schrift hell)
 const CSS = `.loesung .beispiele { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.loesung .beispiele li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.45); color: var(--ink); }
+.loesung .beispiele li { margin: 0; max-width: none; text-align: left; font: 400 14px/1.2 var(--sans); padding: 8px 12px; border: 1px solid var(--copper); border-radius: 3px; background: var(--surface); color: var(--ink); }
 .loesung .beispiele-label { margin: 0 0 8px; color: var(--ink-soft); font-size: 15px; }
 .schritte { list-style: none; counter-reset: schritt; margin: 0 0 10px; padding: 0; }
 .schritte li { counter-increment: schritt; display: grid; grid-template-columns: 44px 1fr; gap: 4px 14px; padding: 18px 0; border-top: 1px solid var(--line); max-width: none; text-align: left; }
@@ -115,12 +117,12 @@ const CSS = `.loesung .beispiele { list-style: none; margin: 0 0 8px; padding: 0
 .vermerk { color: var(--ink-soft); font-size: 15px; }
 .loesung .hinweis { color: var(--ink-muted); font-size: 13px; }
 .ideen { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 8px; }
-.ideen li { margin: 0; max-width: none; text-align: left; padding: 10px 14px; border-left: 2px solid var(--copper); background: rgba(255,255,255,.45); font: 400 18px/1.35 var(--serif); color: var(--green); }
-.lo-form { margin: 22px 0 10px; padding: 22px 24px 18px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: rgba(255,255,255,.45); }
+.ideen li { margin: 0; max-width: none; text-align: left; padding: 10px 14px; border: 1px solid var(--copper); border-left-width: 3px; border-radius: 3px; background: var(--surface); font: 400 18px/1.35 var(--serif); color: var(--ink); }
+.lo-form { margin: 22px 0 10px; padding: 22px 24px 18px; border: 1px solid var(--line); border-left: 2px solid var(--copper); border-radius: 3px; background: var(--surface); }
 .lo-form .reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 .lo-form label { display: block; font-size: 14px; color: var(--ink-soft); margin: 12px 0 4px; }
 .lo-form label span { color: var(--ink-muted); }
-.lo-form input, .lo-form select, .lo-form textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 3px; background: rgba(255,255,255,.7); color: var(--ink); }
+.lo-form input, .lo-form select, .lo-form textarea { width: 100%; font: inherit; font-size: 16px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); }
 .lo-form textarea { min-height: 170px; resize: vertical; }
 .lo-form select { min-height: 44px; }
 .lo-form input:focus-visible, .lo-form select:focus-visible, .lo-form textarea:focus-visible { outline: 1px solid var(--copper); outline-offset: 1px; border-color: var(--copper); }
