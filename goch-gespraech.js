@@ -32,7 +32,7 @@
   function wandeln(vor, gross) {
     if (gross) { const log = $('goch-log'); if (log) { log.style.scrollBehavior = 'auto'; log.scrollTop = log.scrollHeight; log.style.scrollBehavior = ''; } } // groß: wieder beim neuesten Satz, ohne Nachscrollen
     if (wandel) { wandel.cancel(); wandel = null; }
-    if (!vor || panel.hidden || ruhig.matches || !panel.animate) return;
+    if (!vor || panel.hidden || ruhig.matches || ohneGoch || !panel.animate) return; // ohneGoch: „Platz machen“, die Leiste wird oben zur Pille
     const nach = panel.getBoundingClientRect();
     if (!nach.width || !vor.width) return;
     const dx = vor.left + vor.width / 2 - nach.left - nach.width / 2, dy = vor.top + vor.height / 2 - nach.top - nach.height / 2;

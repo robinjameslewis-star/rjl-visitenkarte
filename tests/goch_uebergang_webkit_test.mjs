@@ -100,6 +100,18 @@ for (const [name, opt] of Object.entries(GERAETE)) for (const ruhig of [false, t
   await p.waitForTimeout(1500);
   s = await stand(p);
   check(s.u.wechsel <= 1, "Zittern um die Grenze (±20 px) schaltet nicht hin und her", { grenze, wechsel: s.u.wechsel });
+  // Wer im Fenster schreibt, behält es (Handy): Fokus im Textfeld, über die Übergabe hinaus scrollen – Fenster, Fokus und Text bleiben
+  if (name.startsWith("iPhone") && !ruhig) {
+    await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort") && !/goch-unterwegs/.test(document.documentElement.className), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(800);
+    await p.locator("#goch-input").focus(); await p.waitForTimeout(200);
+    await rollen(p, grenze + 160); await p.waitForTimeout(900);
+    s = await stand(p);
+    const fokus = await p.evaluate(() => document.activeElement && document.activeElement.id);
+    check(s.form === "gross" && fokus === "goch-input" && s.wert === "angefangen", "beim Schreiben bleibt das Fenster groß, Fokus und Text bleiben", { form: s.form, fokus, wert: s.wert });
+    await p.evaluate(() => document.activeElement.blur()); await rollen(p, grenze + 260); await p.waitForTimeout(1500);
+    s = await stand(p);
+    check(s.form === "klein" && s.fort, "nach dem Schreiben folgt beim Weiterscrollen die Übergabe", { form: s.form, fort: s.fort });
+  }
   check(fehler.length === 0, "keine Skriptfehler", fehler);
   await ctx.close();
 }
