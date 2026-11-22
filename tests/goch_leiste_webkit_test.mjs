@@ -97,7 +97,8 @@ for (const breit of [false, true]) for (const art of ["Text", "Goch spricht", "G
   s = await stand(p);
   check(klein(s), "beim Weiterscrollen wird es wieder zur Leiste", s.lage);
   if (!breit) { // zurück beim großen Goch: wieder das Fenster
-    await rollen(p, 0); await p.waitForTimeout(900); s = await stand(p);
+    // seit 22.11.2026 wird die Leiste erst mit Gochs Landung auf der Bühne wieder das Fenster (großer Goch und großes Fenster gehören zusammen)
+    await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(600); s = await stand(p);
     check(!klein(s) && !s.zu, "zurück ganz oben beim großen Goch ist es wieder das Fenster", s.lage);
     await rollen(p, 700); await p.waitForTimeout(900);
   } else { await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(600); s = await stand(p); check(!klein(s) && !s.zu && !/angeheftet/.test(s.lage), "zurück beim großen Goch hängt das Fenster wieder an seinem Ast", s.lage); await rollen(p, 900); await p.waitForTimeout(1200); }

@@ -199,7 +199,8 @@ for (const breit of [false, true]) {
   // eine Stelle suchen, an der sein Platz frei ist
   let sitzt = false;
   for (let i = 0; i < 30 && !sitzt; i++) {
-    sitzt = await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("fliegt-ab"); }, null, { timeout: 2600 }).then(() => true, () => false);
+    // „frei“ heißt auch: nicht durchlässig (.durch) – liegt ein Verweis unter ihm, geht der Tipp zur Seite (22.11.2026: Der Test klickte sonst auf den durchlässigen Goch über einem Text mit Verweis und lief in die Zeitgrenze)
+    sitzt = await p.waitForFunction(() => { const m = document.getElementById("goch-mini"); return getComputedStyle(m).display === "block" && !m.dataset.flug && !m.classList.contains("fliegt-ab") && !m.classList.contains("durch"); }, null, { timeout: 2600 }).then(() => true, () => false);
     if (!sitzt) await p.evaluate(() => scrollBy(0, 70));
   }
   check(sitzt, "ist sein Platz wieder frei, kommt er zurück");
