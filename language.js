@@ -53,6 +53,12 @@
       // Über der Falz und „Über mich“ (Robin, 16.10.2026); seit 21.11.2026 darunter kleiner die Kernzeile (Robin: „Vorschlag 2“, „nur nich ganz so prominent“)
       slogan: 'Prozesse effizient gestalten', kernzeile: 'Ich baue und finde KI-Lösungen für Kanzleien und Unternehmen – und zeige, wie man damit arbeitet.',
       ctaTool: 'Werkzeuge ausprobieren', ctaWorkshops: 'Workshops für Ihr Team', ctaWorkshopsZusatz: 'KI-Kompetenz · E-Rechnung',
+      // Individuelle Lösung (Robin, 22.11.2026): dritter Knopf oben und Abschnitt nach den Workshops; Beispiele wörtlich aus worker/src/individuelle_loesung.js (ideen)
+      ctaLoesung: 'Ihre eigene Lösung', ctaLoesungZusatz: 'Aufgabe schildern · Angebot',
+      loesungTitle: 'Individuelle Lösung', loesungKnopf: 'Aufgabe beschreiben', loesungBeispiele: 'Zum Beispiel:',
+      loesungLead: 'Sie beschreiben eine Aufgabe aus Ihrem Arbeitsalltag, ich baue die passende Lösung, mit KI erstellt und von mir geprüft. Sie erhalten vorab ein Angebot.',
+      loesungIdee1: 'Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht', loesungIdee2: 'Ein Formular, das Angaben prüft, bevor sie ins System gehen',
+      loesungIdee3: 'Eine Auftragsannahme, die prüft, ob alles da ist, den Auftrag an die richtige Stelle gibt und dort die Bearbeitung vorbereitet', loesungIdee4: 'Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht',
       aboutTitle: 'Über mich', aboutMore: 'Mehr über mich', navAbout: 'Über mich',
       // Workshops (Robin, 17.10.2026): KI-Workshop mit Unterweisung nach EU AI Act
       navWorkshops: 'Workshops', workshopsTitle: 'Workshop KI-Kompetenz', workshopsMore: 'Mehr zum Workshop', workshopsAnfrage: 'Workshop anfragen',
@@ -191,6 +197,11 @@
       title: 'robin.vision – Tools and workshops for businesses and accounting firms',
       slogan: 'Streamlining processes', kernzeile: 'I build and find AI solutions for accounting firms and businesses – and show you how to work with them.',
       ctaTool: 'Try the tools', ctaWorkshops: 'Workshops for your team', ctaWorkshopsZusatz: 'AI literacy · e-invoicing',
+      ctaLoesung: 'Your own solution', ctaLoesungZusatz: 'Describe your task · quote',
+      loesungTitle: 'Custom solution', loesungKnopf: 'Describe your task', loesungBeispiele: 'For example:',
+      loesungLead: 'You describe a task from your working day, and I build the solution that fits, created with AI and checked by me. You receive a quote first.',
+      loesungIdee1: 'A searchable overview from a stack of as-built plans', loesungIdee2: 'A form that checks entries before they go into your system',
+      loesungIdee3: 'An order intake that checks everything is there, passes the job to the right person and prepares the work for them', loesungIdee4: 'A template that turns your data into a finished report',
       aboutTitle: 'About me', aboutMore: 'More about me', navAbout: 'About',
       // Workshops (Robin, 17.10.2026): AI literacy workshop with EU AI Act training
       navWorkshops: 'Workshops', workshopsTitle: 'AI literacy workshop', workshopsMore: 'More about the workshop', workshopsAnfrage: 'Enquire about a workshop',
