@@ -15,11 +15,12 @@ const url = lang => SITE + LOESUNG.find(s => s.lang === lang).adresse;
 
 const TEXT = {
   de: {
-    titel: "Individuelle Lösung", seitentitel: "Individuelle Lösung: eine KI-Lösung für Ihr Problem – robin.vision",
-    beschr: "Sie beschreiben ein Problem aus Ihrem Arbeitsalltag, ich baue eine passende Lösung: mit KI erstellt, von mir geprüft, mit einer Änderungsrunde. Sie erhalten vorab ein Angebot.",
-    untertitel: "Für ein Problem aus Ihrem Arbeitsalltag, das keine fertige Software löst.",
+    titel: "Individuelle Lösung", seitentitel: "Individuelle Lösung: von der kleinen Hilfe bis zum marktreifen Produkt – robin.vision",
+    beschr: "Sie kommen mit einem Problem oder einer Idee, ich baue daraus die passende Lösung: von der kleinen Hilfe für einen Arbeitsschritt bis zum marktreifen Produkt mit eigener Marke und Website. Sie erhalten vorab ein Angebot.",
+    untertitel: "Sie kommen mit einem Problem oder einer Idee. Ich baue daraus die passende Lösung, von der kleinen Hilfe für einen Arbeitsschritt bis zum marktreifen Produkt.",
+    stufe: "Stufe", stufen: [["kleine-loesung", "Kleine Lösung"], ["marktreifes-produkt", "Marktreifes Produkt"]],
     wasTitel: "Was es ist",
-    was: "Sie beschreiben mir ein Problem aus Ihrem Arbeitsalltag. Ich baue eine passende Lösung, mit KI erstellt und von mir geprüft, bevor Sie sie bekommen. Eine Änderungsrunde ist dabei. Das reicht von einer kleinen Hilfe für einen Arbeitsschritt bis zur marktreifen Anwendung mit moderner Bedienoberfläche für Ihre Kunden oder Ihr Team.",
+    was: "Sie beschreiben mir ein Problem aus Ihrem Arbeitsalltag. Ich baue eine passende Lösung, mit KI erstellt und von mir geprüft, bevor Sie sie bekommen. Eine Änderungsrunde ist dabei.",
     beispieleLabel: "Zum Beispiel:",
     beispiele: ["Skizzen als saubere Pläne", "Tabellen zusammenführen und prüfen", "Vorlagen und Formulare bauen", "Unterlagen ordnen und gestalten"],
     ablaufTitel: "So läuft es ab",
@@ -28,6 +29,25 @@ const TEXT = {
       ["Sie erhalten vorab ein Angebot", "Ich prüfe, ob und wie ich die Aufgabe lösen kann, und frage nach, wenn etwas offen ist. Dann erhalten Sie ein Angebot."],
       ["Sie bekommen die geprüfte Lösung", "Nach Ihrer Zusage erstelle ich die Lösung mit KI und prüfe sie selbst. Sie erhalten das Ergebnis und eine Änderungsrunde."],
     ],
+    produktTitel: "Marktreifes Produkt",
+    produkt: "Für den freien Markt oder für Ihr Team und Unternehmen: Aus Ihrer Idee oder Ihrem Problem wird ein eigenes Produkt mit allem, was dazugehört.",
+    bausteineTitel: "Die Bausteine",
+    ab2027: "ab Januar 2027",
+    // Leistungsbeschreibung der Skill-Sitzung (22.11.2026) wörtlich; Bausteine 5–7 tragen „ab Januar 2027“, bis sie bewiesen sind
+    bausteine: [
+      ["Idee zum Konzept", "Wir schärfen Ihre Idee oder Ihr Problem zu einem Steckbrief und Konzept mit gerechneten Kosten und ehrlichen Risiken."],
+      ["Name und Marke", "Sie bekommen Namensvorschläge mit Domain- und Registerrecherche sowie eine eigene Gestaltung mit Farben, Bildwelt und, auf Wunsch, einer eigenen Figur."],
+      ["Website", "Ihre Website in Deutsch und Englisch mit Seitentiefe, Rechtsseiten, Kontaktformular, Terminbuchung und Newsletter, geprüft am Handy."],
+      ["Persönlicher Assistent", "Eine Figur auf der Website beantwortet Fragen zu Ihrem Angebot, auf Wunsch mit Stimme, mit festen Kostengrenzen."],
+      ["Zahlung", "Kunden zahlen direkt auf Ihrer Seite über Stripe, mit Bestätigung per E-Mail.", true],
+      ["Kunden- oder Mitarbeiterportal", "Ihre Kunden oder Ihr Team melden sich per E-Mail-Link an und sehen Bestellungen, Rechnungen und Dateien.", true],
+      ["Buchhaltung", "Jede Zahlung wird zur Rechnung, und Ihr Steuerberater bekommt den Monat als Export.", true],
+      ["Sichtbar werden", "Suchmaschinen finden die Seite technisch sauber, dazu gibt es ein Startpaket für Newsletter und LinkedIn."],
+    ],
+    eigentum: "Alles gehört von Anfang an Ihnen: eigene Domain, eigene Konten, übergabefähig.",
+    // belegt: eigene Marken SmartFormular (smartformular.ai, live seit 20.11.2026) und Webhain (webhain.com, live seit 22.11.2026), Betriebsjournal im Vault
+    herkunft: "So sind schon eigene Marken mit eigener Website entstanden.",
+    produktAngebot: "Auch hier beginnt es mit Ihrer Beschreibung, und Sie erhalten vorab ein Angebot.",
     fuerTitel: "Für wen",
     fuer: "Für kleine Unternehmen, Selbstständige und Privatpersonen mit einem einmaligen Problem rund um Dokumente, Daten oder Gestaltung. Auch Kanzleien können anfragen, solange es nicht um Daten ihrer Mandanten geht.",
     grenzenTitel: "Was ich nicht mache",
@@ -36,13 +56,14 @@ const TEXT = {
       "keine Mandantendaten von Kanzleien und keine Gesundheitsdaten",
       "keine amtlichen Unterlagen, Bauvorlagen, Statik, Gutachten oder Wertermittlungen",
       "nichts, was täuschen soll, etwa Belege, Zeugnisse oder Bewertungen",
+      "keine Steuerberatung im Baustein Buchhaltung: Er erstellt Rechnungen und den Export für Ihren Steuerberater",
     ],
     vermerk: "Jede Lösung ist mit KI erstellt und von mir geprüft. Sie ist nicht amtlich und ersetzt keine Beratung. Bitte prüfen Sie sie vor der Verwendung.",
     anfrageTitel: "Erzählen Sie mir von Ihrer Aufgabe",
-    anfrage: "Was hält Sie im Büro immer wieder auf? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:",
+    anfrage: "Was hält Sie im Büro immer wieder auf, oder welche Idee möchten Sie auf den Markt bringen? Beschreiben Sie es in ein paar Sätzen. So etwas kann daraus werden:",
     ideen: ["Aus einem Stapel Bestandspläne eine durchsuchbare Übersicht", "Ein Formular, das Angaben prüft, bevor sie ins System gehen", "Eine Auftragsannahme, die prüft, ob alles da ist, den Auftrag an die richtige Stelle gibt und dort die Bearbeitung vorbereitet", "Eine Vorlage, die aus Ihren Daten einen fertigen Bericht macht"],
     felder: { name: "Name", email: "E-Mail-Adresse", firma: "Unternehmen oder Kanzlei", art: "Worum geht es?", budget: "Ihr Budget", text: "Was soll die Lösung tun?", optional: "(freiwillig)", waehlen: "Bitte wählen" },
-    artWerte: ["Dokumente und Formulare", "Daten und Tabellen", "Abläufe im Büro", "Gestaltung", "Etwas anderes"],
+    artWerte: ["Marktreifes Produkt", "Dokumente und Formulare", "Daten und Tabellen", "Abläufe im Büro", "Gestaltung", "Etwas anderes"],
     // Budget (Robin, 21.11.2026: „budget noch abfragen“): nur der Rahmen des Kunden, keine Angabe, was eine Lösung kostet
     budgetWerte: ["bis 250 €", "250 bis 1.000 €", "1.000 bis 5.000 €", "mehr als 5.000 €", "Weiß ich noch nicht"],
     platzhalter: "Zum Beispiel: Jeden Monat kommen Lieferscheine als PDF, und wir tippen die Positionen in Excel ab. Ich hätte gern eine Lösung, die das zusammenführt und die Summen prüft.",
@@ -57,11 +78,12 @@ const TEXT = {
     andere: "This page in English",
   },
   en: {
-    titel: "Custom solution", seitentitel: "Custom solution: an AI solution for your problem – robin.vision",
-    beschr: "You describe a problem from your working day, and I build a solution that fits: created with AI, checked by me, with one round of changes. You receive a quote first.",
-    untertitel: "For a problem from your working day that no off-the-shelf software solves.",
+    titel: "Custom solution", seitentitel: "Custom solution: from a small helper to a market-ready product – robin.vision",
+    beschr: "You come to me with a problem or an idea, and I turn it into the solution that fits: from a small helper for one step of your work to a market-ready product with its own brand and website. You receive a quote first.",
+    untertitel: "You come to me with a problem or an idea. I turn it into the solution that fits, from a small helper for one step of your work to a market-ready product.",
+    stufe: "Stage", stufen: [["kleine-loesung", "Small solution"], ["marktreifes-produkt", "Market-ready product"]],
     wasTitel: "What it is",
-    was: "You describe a problem from your working day. I build a solution that fits, created with AI and checked by me before you receive it. One round of changes is included. It can be anything from a small helper for one step to a market-ready application with a modern interface for your customers or your team.",
+    was: "You describe a problem from your working day. I build a solution that fits, created with AI and checked by me before you receive it. One round of changes is included.",
     beispieleLabel: "For example:",
     beispiele: ["Clean drawings from sketches", "Merging and checking spreadsheets", "Building templates and forms", "Organising and designing documents"],
     ablaufTitel: "How it works",
@@ -70,6 +92,23 @@ const TEXT = {
       ["You receive a quote first", "I check whether and how I can solve the task and ask if anything is unclear. Then you receive a quote."],
       ["You get the checked solution", "Once you accept, I create the solution with AI and check it myself. You receive the result and one round of changes."],
     ],
+    produktTitel: "Market-ready product",
+    produkt: "For the open market or for your team and business: your idea or problem becomes a product of its own, with everything that goes with it.",
+    bausteineTitel: "The building blocks",
+    ab2027: "from January 2027",
+    bausteine: [
+      ["Idea to concept", "Together we sharpen your idea or problem into a brief and a concept, with costs worked out and risks stated honestly."],
+      ["Name and brand", "You receive name suggestions with domain and trade mark searches, and a design of your own with colours, imagery and, if you wish, a character of your own."],
+      ["Website", "Your website in German and English with real depth, legal pages, contact form, appointment booking and newsletter, checked on a phone."],
+      ["Personal assistant", "A character on your website answers questions about what you offer, with a voice if you wish, and with fixed cost limits."],
+      ["Payment", "Customers pay directly on your site via Stripe, with confirmation by email.", true],
+      ["Customer or staff portal", "Your customers or your team sign in with an email link and see orders, invoices and files.", true],
+      ["Accounting", "Every payment becomes an invoice, and your tax adviser receives the month as an export.", true],
+      ["Getting found", "Search engines find your site because it is technically sound, and there is a starter pack for your newsletter and LinkedIn."],
+    ],
+    eigentum: "Everything belongs to you from the start: your own domain, your own accounts, ready to hand over.",
+    herkunft: "This is how my own brands, each with its own website, came about.",
+    produktAngebot: "Here too, it starts with your description, and you receive a quote first.",
     fuerTitel: "Who it is for",
     fuer: "For small businesses, the self-employed and private individuals with a one-off problem involving documents, data or design. Accounting firms are welcome to ask too, as long as no client data is involved.",
     grenzenTitel: "What I don't do",
@@ -78,13 +117,14 @@ const TEXT = {
       "no client data from accounting firms and no health data",
       "no official documents, planning applications, structural calculations, expert reports or valuations",
       "nothing intended to deceive, such as receipts, references or reviews",
+      "no tax advice in the accounting module: it creates invoices and the export for your tax adviser",
     ],
     vermerk: "Every solution is created with AI and checked by me. It is not an official document and does not replace professional advice. Please check it before you use it.",
     anfrageTitel: "Tell me about your task",
-    anfrage: "What keeps holding you up at work? Describe it in a few sentences. This is the kind of thing it can become:",
+    anfrage: "What keeps holding you up at work, or which idea would you like to bring to market? Describe it in a few sentences. This is the kind of thing it can become:",
     ideen: ["A searchable overview from a stack of as-built plans", "A form that checks entries before they go into your system", "An order intake that checks everything is there, passes the job to the right person and prepares the work for them", "A template that turns your data into a finished report"],
     felder: { name: "Name", email: "Email address", firma: "Company or firm", art: "What is it about?", budget: "Your budget", text: "What should the solution do?", optional: "(optional)", waehlen: "Please choose" },
-    artWerte: ["Documents and forms", "Data and spreadsheets", "Office processes", "Design", "Something else"],
+    artWerte: ["Market-ready product", "Documents and forms", "Data and spreadsheets", "Office processes", "Design", "Something else"],
     budgetWerte: ["up to €250", "€250 to €1,000", "€1,000 to €5,000", "more than €5,000", "Not sure yet"],
     platzhalter: "For example: every month we receive delivery notes as PDFs and type the items into Excel by hand. I'd like a solution that brings them together and checks the totals.",
     textHinweis: "Please describe the task, not the contents: don't send client data, health data or any real personal data.",
@@ -112,6 +152,21 @@ const CSS = `.loesung .beispiele { list-style: none; margin: 0 0 8px; padding: 0
 .schritte li::before { content: counter(schritt); grid-row: span 2; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--copper); border-radius: 50%; font: 400 18px/1 var(--serif); color: var(--copper); }
 .schritte strong { font: 500 19px/1.3 var(--serif); color: var(--ink); }
 .schritte span { color: var(--ink-soft); }
+.stufen-nav { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.stufen-nav li { margin: 0; max-width: none; }
+.stufen-nav a { display: inline-block; padding: 8px 12px; border: 1px solid var(--copper); border-radius: 3px; background: var(--surface); color: var(--ink); font: 400 15px/1.2 var(--sans); text-decoration: none; }
+.stufen-nav a span { color: var(--copper); margin-right: 4px; }
+.stufe { margin-top: 34px; padding-top: 6px; border-top: 2px solid var(--copper); }
+.stufe-marke { margin: 12px 0 0; font: 500 13px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--copper); }
+.stufe > h2 { margin-top: 4px; }
+.bausteine { list-style: none; counter-reset: baustein; margin: 0 0 14px; padding: 0; }
+.bausteine li { counter-increment: baustein; position: relative; padding: 14px 0 14px 36px; border-top: 1px solid var(--line); max-width: none; text-align: left; margin: 0; }
+.bausteine li:last-child { border-bottom: 1px solid var(--line); }
+.bausteine li::before { content: counter(baustein); position: absolute; left: 0; top: 15px; font: 400 19px/1.3 var(--serif); color: var(--copper); }
+.bausteine strong { font: 500 18px/1.3 var(--serif); color: var(--ink); margin-right: 8px; }
+.bausteine .ab { display: inline-block; vertical-align: 2px; padding: 2px 8px; border: 1px solid var(--copper); border-radius: 3px; font: 400 12px/1.3 var(--sans); color: var(--ink); background: var(--surface); white-space: nowrap; }
+.bausteine p { margin: 4px 0 0; color: var(--ink-soft); max-width: none; }
+.eigentum { padding: 10px 14px; border-left: 3px solid var(--copper); background: var(--surface); color: var(--ink); font: 400 18px/1.4 var(--serif); }
 .grenzen { margin: 0 0 18px; padding-left: 1.2em; }
 .grenzen li { margin: 0 0 6px; text-align: left; }
 .vermerk { color: var(--ink-soft); font-size: 15px; }
@@ -171,16 +226,32 @@ export function loesungSeite(lang) {
   const main = `<article class="loesung">
 <h1>${esc(t.titel)}</h1>
 <p class="untertitel">${esc(t.untertitel)}</p>
-<h2 id="was">${esc(t.wasTitel)}</h2>
+<ol class="stufen-nav">${t.stufen.map(([id, name], i) => `<li><a href="#${id}"><span>${esc(t.stufe)} ${i + 1}</span> ${esc(name)}</a></li>`).join("")}</ol>
+<section class="stufe" id="${t.stufen[0][0]}" aria-labelledby="${t.stufen[0][0]}-titel">
+<p class="stufe-marke">${esc(t.stufe)} 1</p>
+<h2 id="${t.stufen[0][0]}-titel">${esc(t.stufen[0][1])}</h2>
+<h3 id="was">${esc(t.wasTitel)}</h3>
 <p>${esc(t.was)}</p>
 <p class="beispiele-label">${esc(t.beispieleLabel)}</p>
 <ul class="beispiele">${t.beispiele.map(b => `<li>${esc(b)}</li>`).join("")}</ul>
-<h2 id="ablauf">${esc(t.ablaufTitel)}</h2>
+<h3 id="ablauf">${esc(t.ablaufTitel)}</h3>
 <ol class="schritte">
 ${t.ablauf.map(([titel, text]) => `<li><strong>${esc(titel)}</strong><span>${esc(text)}</span></li>`).join("\n")}
 </ol>
-<h2 id="fuer-wen">${esc(t.fuerTitel)}</h2>
+<h3 id="fuer-wen">${esc(t.fuerTitel)}</h3>
 <p>${esc(t.fuer)}</p>
+</section>
+<section class="stufe" id="${t.stufen[1][0]}" aria-labelledby="${t.stufen[1][0]}-titel">
+<p class="stufe-marke">${esc(t.stufe)} 2</p>
+<h2 id="${t.stufen[1][0]}-titel">${esc(t.produktTitel)}</h2>
+<p>${esc(t.produkt)}</p>
+<h3 id="bausteine">${esc(t.bausteineTitel)}</h3>
+<ol class="bausteine">
+${t.bausteine.map(([titel, text, ab]) => `<li><strong>${esc(titel)}</strong>${ab ? `<span class="ab">${esc(t.ab2027)}</span>` : ""}<p>${esc(text)}</p></li>`).join("\n")}
+</ol>
+<p class="eigentum">${esc(t.eigentum)}</p>
+<p>${esc(t.herkunft)} ${esc(t.produktAngebot)}</p>
+</section>
 <h2 id="grenzen">${esc(t.grenzenTitel)}</h2>
 <ul class="grenzen">
 ${t.grenzen.map(g => `<li>${esc(g)}</li>`).join("\n")}
