@@ -40,6 +40,8 @@ async function auf(breit, mehr = "") {
   await p.goto(seite + q + mehr);
   await p.waitForFunction(() => window.GochStimme && window.GochZeigen && window.Goch && document.getElementById("scene").dataset.state === "rest", null, { timeout: 40000 });
   await p.evaluate(() => window.Goch.oeffnen()); await p.waitForTimeout(500);
+  // seit 22.11.2026 öffnet das Gespräch am Handy klein; ein Tipp auf die Fläche macht es groß
+  if (!breit) { await p.locator("#goch-log").click({ position: { x: 20, y: 8 } }); await p.waitForTimeout(500); await p.evaluate(() => document.activeElement && document.activeElement.blur()); }
   return { p, ctx };
 }
 const stand = p => p.evaluate(() => { const g = document.getElementById("goch"), r = g.getBoundingClientRect(), k = id => { const e = document.getElementById(id), q = e.getBoundingClientRect(); return { w: Math.round(q.width), h: Math.round(q.height), an: e.getAttribute("aria-pressed"), name: e.getAttribute("aria-label") }; };
@@ -56,7 +58,9 @@ for (const breit of [false, true]) for (const art of ["Text", "Goch spricht", "G
   const { p, ctx } = await auf(breit);
   if (art !== "Text") { await p.locator(art === "Goch hört" ? "#goch-mikro-an" : "#goch-laut").click(); await p.waitForTimeout(400); await p.locator("#goch-stimme-allow").click(); await p.waitForTimeout(1300); }
   let s = await stand(p);
-  check(!s.zu && !klein(s), "das Gespräch ist als Fenster offen", s.lage);
+  // seit 22.11.2026 macht das Einschalten von Stimme oder Mikrofon das Fenster klein
+  if (art === "Text") check(!s.zu && !klein(s), "das Gespräch ist als Fenster offen", s.lage);
+  else check(!s.zu && klein(s), "mit „" + art + "“ wird das Fenster klein (Gesprächsmodus)", s.lage);
   // schrumpfen beim Scrollen
   if (!breit && art !== "Text") { // Vollbild mit Stimme: Ein Wisch neben dem Blatt gibt die Seite frei
     await p.evaluate(() => document.getElementById("goch-papier").dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true }))); await p.waitForTimeout(300);
@@ -97,10 +101,11 @@ for (const breit of [false, true]) for (const art of ["Text", "Goch spricht", "G
   s = await stand(p);
   check(klein(s), "beim Weiterscrollen wird es wieder zur Leiste", s.lage);
   if (!breit) { // zurück beim großen Goch: wieder das Fenster
-    await rollen(p, 0); await p.waitForTimeout(900); s = await stand(p);
-    check(!klein(s) && !s.zu, "zurück ganz oben beim großen Goch ist es wieder das Fenster", s.lage);
+    // nach Gochs Rückflug zur Bühne messen
+    await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(600); s = await stand(p);
+    check(klein(s) && !s.zu, "zurück ganz oben beim großen Goch bleibt es die Leiste (Robin, 22.11.2026: klein bleibt klein)", s.lage);
     await rollen(p, 700); await p.waitForTimeout(900);
-  } else { await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(600); s = await stand(p); check(!klein(s) && !s.zu && !/angeheftet/.test(s.lage), "zurück beim großen Goch hängt das Fenster wieder an seinem Ast", s.lage); await rollen(p, 900); await p.waitForTimeout(1200); }
+  } else { await rollen(p, 0); await p.waitForFunction(() => !document.documentElement.classList.contains("goch-fort"), null, { timeout: 6000 }).catch(() => {}); await p.waitForTimeout(600); s = await stand(p); check(klein(s) && !s.zu, "zurück beim großen Goch bleibt es die Leiste (Robin, 22.11.2026: klein bleibt klein)", s.lage); await rollen(p, 900); await p.waitForTimeout(1200); }
   await p.locator("#goch-close").click(); await p.waitForTimeout(500);
   s = await stand(p);
   check(s.zu && !klein(s), "X schließt das Gespräch", s.lage);
