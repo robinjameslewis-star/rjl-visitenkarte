@@ -60,8 +60,8 @@ const abschnitte = [...start.matchAll(/\n  <section class="([^"]+)"(?: id="([^"]
 check(abschnitte[0] === "stage" && abschnitte[1] === "werkzeuge", "nach der Bühne direkt die Leiste der Werkzeuge", abschnitte.slice(0, 3));
 // Individuelle Lösung auf der Startseite (Robin, 22.11.2026: „Individuelle lösung ist noch nicht auf der startseite“, „Beides“)
 // seit 22.11.2026 (Robin: „Individuelle lösun auf der startseite ganz unten kein knopf auf der startseite“): letzter Abschnitt vor dem Fuß, kein Knopf im Kopf
-check(abschnitte.join(" ") === "stage werkzeuge workshops workshop-e-rechnung blog newsletter ueber-mich contact nachricht anbieter individuelle-loesung", "Abschnitte: Individuelle Lösung ganz unten vor dem Fuß, sonst Reihenfolge wie vorher", abschnitte);
-check(start.indexOf('id="individuelle-loesung"') > start.indexOf('id="anbieter"') && !/<section/.test(start.slice(start.indexOf('id="individuelle-loesung"'), start.indexOf("</main>"))), "Abschnitt: letzter Abschnitt im <main>");
+check(abschnitte.join(" ") === "stage werkzeuge workshops workshop-e-rechnung individuelle-loesung blog newsletter ueber-mich contact nachricht anbieter", "Abschnitte: Individuelle Lösung vor den Impulsen (Robin, 22.11.2026), sonst Reihenfolge wie vorher", abschnitte);
+check(start.indexOf('id="individuelle-loesung"') > start.indexOf('id="workshop-e-rechnung"') && start.indexOf('id="individuelle-loesung"') < start.indexOf('id="blog"'), "Abschnitt: zwischen Workshop E-Rechnung und Impulse (Robin, 22.11.2026: „den block auf der startseite vor impulse setzen“)");
 const kopfKnoepfe = (start.match(/<p class="cta"><a class="cta-primary" href="werkzeuge\/"[\s\S]*?<\/p>/) || [""])[0];
 check((kopfKnoepfe.match(/<a /g) || []).length === 2 && kopfKnoepfe.endsWith('<small data-i18n="ctaWorkshopsZusatz">KI-Kompetenz · E-Rechnung</small></a></p>')
   && !/cta-loesung|ctaLoesung/.test(start + sprache), "Kopf: zwei Knöpfe wie vor dem 22.11.2026, kein Knopf „Ihre eigene Lösung“, DE und EN");
