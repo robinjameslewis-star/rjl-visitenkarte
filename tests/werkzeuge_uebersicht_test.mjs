@@ -141,6 +141,11 @@ for (const lang of ["de", "en"]) {
   check(sfKarte.length === 1 && sfKarte[0].includes(`<p class="wzs-kennz">${lang === "en" ? "Suggested" : "Vorgeschlagen"} · <span>robin.vision</span></p>`) && sfKarte[0].includes('<div class="wzs-logo wzs-logo-sf" aria-hidden="true">Smart<span>Formular</span></div>') && sfKarte[0].includes("<h3>SmartFormular</h3>")
     && sfKarte[0].includes(`<a href="${sf}">${lang === "en" ? "To the product" : "Zum Produkt"}</a>`) && !s.includes("smartformular.ai") && !/Kostenlos testen|Free trial|Prüfen kostenlos|Free to check/.test(s), `${lang}: SmartFormular mit genau einer Karte „Vorgeschlagen · robin.vision“ (Robin, 21.11.2026), die auf die Unterseite führt (Robin, 20.11.2026; F62 Variante a)`);
   check(anzahl(s, /wzs-kennz/g) === E + V + P && !/Produkt von robin\.vision|product by robin\.vision|Partnerangebot|Partner offer/i.test(s) && !s.includes(t.platz) && !s.includes("wzs-platzhalter") && !s.includes("#partner"), `${lang}: jede Karte mit Kennzeichen, keine Anbieterkarte im Slider`);
+  // Hinweis zum alten Namen (Robin, 27.11.2026): wer den Buchungsstapel-Generator sucht, landet bei Buchhaltung Start
+  check(sfKarte.length === 1 && sfKarte[0].includes(lang === "en"
+    ? '<p class="wzs-hinweis">Looking for the Booking Batch Generator? It is now called <a href="werkzeuge/smartformular/en/#fibu-lite">Bookkeeping Start</a>.</p>'
+    : '<p class="wzs-hinweis">Sie suchen den Buchungsstapel-Generator? Er heißt jetzt <a href="werkzeuge/smartformular/#fibu-lite">Buchhaltung Start</a>.</p>'),
+    `${lang}: SmartFormular-Karte mit Hinweis auf den Buchungsstapel-Generator (Robin, 27.11.2026)`);
   // Variante b (F62): FiBu lite und E-Rechnung lite behalten eigene Karten mit „Kostenlos“ – ein Schalter in slider.js
   const b = slider(lang, { werkzeuge: true });
   check(anzahl(b, /<article class="wzs-karte/g) === E + V + P + 2 && anzahl(b, /<i( class="an")?><\/i>/g) === E + V + P + 2 && anzahl(b, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free trial until 31 Dec 2026" : "Kostenlos testen bis 31.12.2026"}</p>`, "g")) === 1 && anzahl(b, new RegExp(`<p class="wzs-kennz">${lang === "en" ? "Free to check" : "Prüfen kostenlos"}</p>`, "g")) === 1
