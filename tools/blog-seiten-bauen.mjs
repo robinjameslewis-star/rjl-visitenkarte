@@ -12,7 +12,11 @@ const settings = parseSettings(readFileSync(SETTINGS_PATH, "utf8"));
 const posts = readdirSync(POSTS_DIR).filter(n => n.endsWith(".md")).map(n => parsePost(readFileSync(join(POSTS_DIR, n), "utf8"), n.slice(0, -3)));
 const eintraege = readdirSync("blog");
 // Werkzeuge mit Datum ihrer Fassung (für lastmod in sitemap.xml)
-const felder = Object.fromEntries(WERKZEUGE.map(w => { try { return [w.id, werkzeugFelder(readFileSync(werkzeugPfad(w.id), "utf8"))]; } catch { return [w.id, null]; } }));
+// Umgezogene Werkzeuge (smartformular.ai, 20.11.2026): Felder des Archivs aus tools/umzug-felder.json, wie in tests/newsletter_feed_test.mjs.
+// Ohne sie fehlen die Meldungen zu alten Fassungen in newsletter/feed.xml, der Feed-Test schlägt fehl (Impuls 27.11.2026), und das
+// Datum der Werkzeug-Übersicht in sitemap.xml wäre bei jedem Bau der heutige Tag.
+const UMZUG_FELDER = JSON.parse(readFileSync("tools/umzug-felder.json", "utf8")).felder;
+const felder = Object.fromEntries(WERKZEUGE.map(w => { if (w.umgezogen && UMZUG_FELDER[w.id]) return [w.id, UMZUG_FELDER[w.id]]; try { return [w.id, werkzeugFelder(readFileSync(werkzeugPfad(w.id), "utf8"))]; } catch { return [w.id, null]; } }));
 const werkzeuge = WERKZEUGE.map(w => ({ ...w, datum: (felder[w.id] && felder[w.id].datei || {}).datum }));
 const { changes } = buildBlog({
   settings, posts, homepage: readFileSync("index.html", "utf8"), siteUrl: SITE_URL, images: readdirSync(IMAGES_DIR), werkzeuge, werkzeugFelder: felder,
