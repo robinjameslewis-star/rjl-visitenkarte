@@ -20,11 +20,21 @@ const TEXT = {
 // werkzeuge mit frei) behalten daneben ihre eigenen Karten mit „Kostenlos“, bis sie umziehen. Danach neu bauen (tools/werkzeug-uebernehmen.mjs).
 export const EIGENE_WERKZEUGE_IM_SLIDER = false;
 
-const karte = ({ kennz = "", logo, name, text, bereich, href, link, sponsored = false, extern = false }) => `        <article class="wzs-karte">
+// Hinweis unter dem Text einer Karte (Robin, 27.11.2026: „Es muss ein Hinweis zum Buchungsstapel Generator auf die Startseite von
+// robin.vision bei smartformular“): wer den alten Namen sucht, findet das Werkzeug unter seinem neuen Namen. Der Verweis bleibt wie jede Karte auf robin.vision (Unterseite, Robin 19.11.2026), von dort geht es nach smartformular.ai.
+// Nur hier für die Startseite, nicht in partner.js, damit Goch und der Worker unverändert bleiben.
+export const HINWEIS = {
+  smartformular: {
+    de: { vor: "Sie suchen den Buchungsstapel-Generator? Er heißt jetzt ", link: "Buchhaltung Start", href: "werkzeuge/smartformular/#fibu-lite", nach: "." },
+    en: { vor: "Looking for the Booking Batch Generator? It is now called ", link: "Bookkeeping Start", href: "werkzeuge/smartformular/en/#fibu-lite", nach: "." },
+  },
+};
+
+const karte = ({ kennz = "", logo, name, text, hinweis, bereich, href, link, sponsored = false, extern = false }) => `        <article class="wzs-karte">
           ${kennz ? kennz + "\n          " : ""}${logo}
           <h3>${esc(name)}</h3>
           <p>${esc(text)}</p>
-          <p class="wzs-fuss"><span class="wzs-bereich">${esc(bereich)}</span><a href="${esc(href)}"${sponsored ? ' rel="sponsored noopener" target="_blank"' : extern ? ' rel="noopener" target="_blank"' : ""}>${esc(link)}</a></p>
+${hinweis ? `          <p class="wzs-hinweis">${esc(hinweis.vor)}<a href="${esc(hinweis.href)}">${esc(hinweis.link)}</a>${esc(hinweis.nach)}</p>\n` : ""}          <p class="wzs-fuss"><span class="wzs-bereich">${esc(bereich)}</span><a href="${esc(href)}"${sponsored ? ' rel="sponsored noopener" target="_blank"' : extern ? ' rel="noopener" target="_blank"' : ""}>${esc(link)}</a></p>
         </article>`;
 
 // Slider einer Sprache
@@ -35,7 +45,7 @@ export function slider(lang, { werkzeuge = EIGENE_WERKZEUGE_IM_SLIDER } = {}) {
     : p.logo ? `<div class="wzs-logo wzs-logo-bild" aria-hidden="true"><img src="${esc(p.logo)}" alt="" width="${Math.round((p.logoBreite || LOGO_BREITE) * SLIDER_FAKTOR)}"></div>`
     : `<div class="wzs-logo" aria-hidden="true">${esc(p.name)}</div>`;
   // Eine Karte je Lösung, alle gleich gebaut; nur das Kennzeichen unterscheidet sich
-  const loesung = (p, kennzeichnung) => karte({ kennz: kennzeichnung, logo: logo(p), name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "",
+  const loesung = (p, kennzeichnung) => karte({ kennz: kennzeichnung, logo: logo(p), name: p.name, text: (p.text && (p.text[lang] || p.text.de)) || "", hinweis: HINWEIS[p.id] && HINWEIS[p.id][lang],
     bereich: p.bereich ? (p.bereich[lang] || p.bereich.de) : "", href: p.seite ? `werkzeuge/${p.seite}/` : anbieterAdresse(p.id, lang), link: t.zumProdukt });
   // Eigene Lösungen (SmartFormular): seit 21.11.2026 „Vorgeschlagen · robin.vision“ (Robin); auf Wunsch dazu die kostenlosen Werkzeuge mit „Kostenlos“ (Robin, 23.10.2026)
   const eigene = EIGENE.flatMap(p => [loesung(p, vorschlagKennzeichen(lang, p.anbieter, "wzs-kennz")), ...(werkzeuge ? ((p.werkzeuge && p.werkzeuge[lang]) || []).filter(w => w.frei)
