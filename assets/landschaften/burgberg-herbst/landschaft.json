@@ -47,12 +47,12 @@
     },
     "fruehling": {
       "ferne": {
-        "avif": false,
-        "bytes": 89080
+        "avif": true,
+        "bytes": 111924
       },
       "krone": {
-        "avif": false,
-        "bytes": 103940
+        "avif": true,
+        "bytes": 93556
       },
       "mitte": {
         "avif": false,
@@ -69,12 +69,12 @@
     },
     "sommer": {
       "ferne": {
-        "avif": false,
-        "bytes": 88156
+        "avif": true,
+        "bytes": 113364
       },
       "krone": {
-        "avif": false,
-        "bytes": 96812
+        "avif": true,
+        "bytes": 99082
       },
       "mitte": {
         "avif": false,
