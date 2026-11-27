@@ -157,14 +157,15 @@
   const SET_DIR = 'assets/landschaften/', SEASONS = ['herbst','winter','fruehling','sommer'];
   const LAYERS = { ferne: { sizes: [1400, 800], budget: 150000 }, krone: { sizes: [1000, 560], budget: 120000 },
     mitte: { sizes: [1400, 900], budget: 200000 }, hang: { sizes: [1400, 900], budget: 200000 }, grund: { sizes: [1400, 900], budget: 200000 } };
-  const PARTICLES = { blaetter: 'leaf', schnee: 'snow', blueten: 'petal', keine: '' };
+  // Sommer: Schmetterlinge (Robin, 27.11.2026: „Schmetterlinge“); sie fliegen nur, wenn der Satz gemalte Falter nennt (falter: Anzahl der Bilder falter-<n>.webp).
+  const PARTICLES = { blaetter: 'leaf', schnee: 'snow', blueten: 'petal', falter: 'butterfly', keine: '' };
   const DEFAULT_SET = { name: '', ebenen: {},
-    blaetter: { herbst: 'blaetter', winter: 'schnee', fruehling: 'blueten', sommer: 'keine' },
+    blaetter: { herbst: 'blaetter', winter: 'schnee', fruehling: 'blueten', sommer: 'falter' }, falter: 0,
     himmel: { nacht: ['#172137','#242C38','#242C38'], daemmerung: ['#4E6378','#D4B8A0','#D99B69'],
       tief: ['#CFDEE2','#F2DDC1','#E5B282'], tag: ['#E2ECEC','#F6EEDF','#F6EEDF'] } };
   const isColor = c => typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c);
   function normalizeSet(raw) {
-    const r = raw && typeof raw === 'object' ? raw : {}, set = { name: String(r.name || '').slice(0, 80), ebenen: {}, blaetter: {}, himmel: {} };
+    const r = raw && typeof raw === 'object' ? raw : {}, set = { name: String(r.name || '').slice(0, 80), ebenen: {}, blaetter: {}, himmel: {}, falter: Math.max(0, Math.min(5, Math.floor(Number(r.falter) || 0))) };
     SEASONS.forEach(season => {
       const e = r.ebenen && r.ebenen[season];
       Object.keys(LAYERS).forEach(layer => { if (e && e[layer]) set.ebenen[season] = { ...set.ebenen[season], [layer]: { avif: !!e[layer].avif, bytes: Number(e[layer].bytes) || 0 } }; });
@@ -370,7 +371,7 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       // Kronenbreite wie auf einem Fenster, das am Astende endet – höchstens 1,15 Szenenbreiten, damit sie den Vogel nicht überwächst.
       crown.style.width=inset>0?Math.max(300,Math.min(1.15*s.width,box.width*.4+(document.documentElement.clientWidth-2*inset-box.width)*.15))+'px':'';
       const c=crown.getBoundingClientRect();
-      particles.querySelectorAll('.landscape-particle').forEach((leaf,i) => {
+      particles.querySelectorAll('.landscape-particle:not(.butterfly)').forEach((leaf,i) => {
         const x=c.left-box.left+c.width*(.18+(i%5)*.13);
         leaf.style.left=x+'px'; leaf.style.top=c.top-box.top+c.height*(.22+(i%3)*.12)+'px';
         leaf.style.setProperty('--drift',-Math.min(box.width*.55,x)+'px');
@@ -419,7 +420,15 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
       particles.replaceChildren();
       // Blätterart je Jahreszeit aus dem Satz; Blätter fallen nur aus einer vorhandenen Krone, Schnee und Blüten immer.
       const kind=api.PARTICLES[set.blaetter[FILE[state.current]]]||'';
-      if (kind && (kind!=='leaf'||layer(state.current,'krone')||preview[FILE[state.current]+'krone'])) for(let i=0;i<10;i++) {
+      // Schmetterlinge: drei Falter gaukeln frei durch die Bühne statt zu fallen; die Flügel schlagen per CSS (falter-schlag).
+      if (kind==='butterfly') for(let i=0;i<Math.min(3,set.falter*3);i++) {
+        const f=document.createElement('div'); f.className='landscape-particle butterfly';
+        f.innerHTML=`<img src="${SETS+slug}/falter-${i%set.falter}.webp" alt="" width="26" height="26" decoding="async">`;
+        const dx=(random()<.5?-1:1)*(90+random()*120);
+        f.style.cssText=`left:${(dx<0?55:12)+random()*30}%;top:${12+random()*40}%;--dx:${dx.toFixed(0)}px;--dy:${(18+random()*28).toFixed(0)}px;--duration:${(15+random()*7).toFixed(1)}s;--delay:${(-random()*20).toFixed(1)}s;--schlag:${(.26+random()*.1).toFixed(2)}s`;
+        particles.append(f);
+      }
+      else if (kind && (kind!=='leaf'||layer(state.current,'krone')||preview[FILE[state.current]+'krone'])) for(let i=0;i<10;i++) {
         const leaf=document.createElement(kind==='snow'?'span':'div'); leaf.className='landscape-particle '+kind;
         if(kind!=='snow') leaf.innerHTML=`<svg viewBox="0 0 20 30"><use href="#${kind==='leaf'?'leaf-'+i%3:'petal'}"/></svg>`;
         leaf.style.setProperty('--duration',9+random()*6+'s'); leaf.style.setProperty('--delay',-random()*15+'s');
@@ -474,8 +483,10 @@ if (typeof window !== 'undefined' && window.RJLLandscape) window.RJLLandscape.in
     const art=api.PARTICLES[set.blaetter[FILE[state.current]]]||'';
     if (talLaub && talLaub.dataset.art!==art) {
       talLaub.dataset.art=art; talLaub.replaceChildren();
-      const zahl=art==='snow'?12:art==='petal'?6:art?4:0;
-      for (let i=0;i<zahl;i++) { const b=document.createElement('i'); b.className='tal-laub '+art; b.style.cssText=`left:${art==='snow'?6+i*7:art==='petal'?30+i*10:48+i*9}%;--d:${9+(i%5)*2.3}s;--w:${(i*1.3).toFixed(1)}s`; talLaub.append(b); }
+      const zahl=art==='butterfly'?Math.min(2,set.falter*2):art==='snow'?12:art==='petal'?6:art?4:0;
+      for (let i=0;i<zahl;i++) { const b=document.createElement('i'); b.className='tal-laub '+art; b.style.cssText=`left:${art==='butterfly'?10+i*45:art==='snow'?6+i*7:art==='petal'?30+i*10:48+i*9}%;--d:${art==='butterfly'?19+i*4:9+(i%5)*2.3}s;--w:${(i*1.3).toFixed(1)}s`;
+        if (art==='butterfly') b.innerHTML=`<img src="${SETS+slug}/falter-${(i+1)%set.falter}.webp" alt="" width="22" height="22" decoding="async">`;
+        talLaub.append(b); }
     }
     talDraw();
   }
