@@ -11,16 +11,16 @@
         "bytes": 114608
       },
       "mitte": {
-        "avif": false,
-        "bytes": 163808
+        "avif": true,
+        "bytes": 194766
       },
       "hang": {
-        "avif": false,
-        "bytes": 184920
+        "avif": true,
+        "bytes": 191416
       },
       "grund": {
-        "avif": false,
-        "bytes": 150888
+        "avif": true,
+        "bytes": 196514
       }
     },
     "winter": {
