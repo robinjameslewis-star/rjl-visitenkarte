@@ -101,7 +101,7 @@
   /* Leitsatz direkt unter der Wortmarke (Robin, 04.11.2026) */
   .name .slogan { display: block; margin-top: .3em; font-size: max(14px, .46em); line-height: 1.25; letter-spacing: .01em; color: var(--ink-soft); }
   /* Kernzeile unter dem Leitsatz, ruhiger und kleiner (Robin, 21.11.2026: „nur nich ganz so prominent wie prozesse effizient gestalten“) */
-  .kernzeile { margin: 8px 0 0; max-width: 40ch; font-family: var(--serif); font-size: 15px; line-height: 1.4; letter-spacing: .01em; color: var(--ink-muted); opacity: .8; }
+  .kernzeile { margin: 8px 0 0; max-width: 40ch; font-family: var(--serif); font-size: 15px; line-height: 1.4; letter-spacing: .01em; font-weight: 500; color: var(--ink-soft); text-shadow: 0 0 1px rgba(246,240,228,1), 0 0 3px rgba(246,240,228,.95), 0 0 10px rgba(246,240,228,.9); }
   @media (max-width: 720px) { .kernzeile { margin: 4px auto 0; max-width: 36ch; font-size: 12px; line-height: 1.35; } }
   .intro { padding-bottom: 7%; /* Name, Zeile und Knöpfe enden auf Höhe des Vogelkörpers */ }
   .cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
@@ -669,6 +669,8 @@
   /* Einstieg mit Landschaft (Welle 2, 24.10.2026): Die Wortmarke steht fest, der Block darunter wächst nach oben. Damit Zeile und
      Name frei bleiben: Knöpfe auf dem Rechner in einer Reihe, auf Tablets die Wortmarke im Fluss (dort überdeckte sie Zeile und
      Namen schon vorher), auf breiten Bildschirmen wachsen Rand und Abstand nicht weiter. Einstiegszeile höchstens 5 Zeilen. */
+  /* Kernzeile etwas höher, damit sie nicht im Burgberg untergeht (Robin, 28.11.2026) */
+  @media (min-width: 721px) { .landscape-on .kernzeile { margin-bottom: 52px; } }
   @media (min-width: 721px) { .landscape-on .intro .cta { flex-wrap: nowrap; } .landscape-on .intro .cta a { white-space: nowrap; } }
   @media (min-width: 721px) and (max-width: 1023px) { .landscape-on .name { position: static; width: auto; } .landscape-on .intro .cta { flex-wrap: wrap; } }
   @media (min-width: 1600px) { .stage { padding-left: 86px; padding-right: 86px; column-gap: 58px; } .landscape-on .name { left: 86px; } }
