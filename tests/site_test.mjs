@@ -63,6 +63,8 @@ const landscapeApi = createRequire(import.meta.url)(root + "landscape.js");
 const TAL = ["mitte", "hang", "grund"];
 check(TAL.every(e => landscapeApi.LAYERS[e] && String(landscapeApi.LAYERS[e].sizes) === "1400,900" && landscapeApi.LAYERS[e].budget === 200000), "landscape.js kennt die Talebenen mitte, hang, grund (1400/900, 200 KB)");
 check(landscapeApi.normalizeSet({ ebenen: { herbst: { hang: { bytes: 5 }, fremd: { bytes: 5 } } } }).ebenen.herbst.hang.bytes === 5 && !landscapeApi.normalizeSet({ ebenen: { herbst: { fremd: { bytes: 5 } } } }).ebenen.herbst, "normalizeSet behält Talebenen und verwirft Unbekanntes");
+{ const n = landscapeApi.normalizeSet({ ...landscapeApi.normalizeSet({ falter: 3, blaetter: { sommer: "falter" } }), name: "x", blaetter: { sommer: "falter" } });
+  check(n.falter === 3 && n.blaetter.sommer === "falter" && landscapeApi.PARTICLES.falter === "butterfly" && landscapeApi.normalizeSet({ falter: 99 }).falter === 5, "Schmetterlinge überstehen das Speichern in der Redaktion"); }
 const talFehlt = [];
 for (const jahr of ["herbst", "winter"]) for (const e of TAL) {
   if (!(setJson.ebenen[jahr] || {})[e]) talFehlt.push(`${e}-${jahr}: kein Eintrag`);

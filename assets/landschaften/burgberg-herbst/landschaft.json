@@ -94,7 +94,7 @@
     "herbst": "blaetter",
     "winter": "schnee",
     "fruehling": "blueten",
-    "sommer": "keine"
+    "sommer": "falter"
   },
   "himmel": {
     "nacht": [
@@ -117,5 +117,6 @@
       "#F6EEDF",
       "#F6EEDF"
     ]
-  }
+  },
+  "falter": 3
 }

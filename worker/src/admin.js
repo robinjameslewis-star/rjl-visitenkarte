@@ -878,7 +878,7 @@ export const PAGE = `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <div class="box lbox" data-layer="hang" style="margin:0"><h3>Hang</h3><p class="note">Näher: einzelne Bäume werden erkennbar.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
 <div class="box lbox" data-layer="grund" style="margin:0"><h3>Talgrund</h3><p class="note">Ganz unten: Wiese, Bach, Dorf, große Bäume vorn.</p><p class="note lstate" style="margin-top:6px"></p><label>Bild wählen (PNG auf Weiß)</label><input type="file" class="lfile" accept="image/png,image/jpeg,image/webp"><div class="bar"><button class="quiet lremove" hidden>Ebene entfernen</button></div></div>
 </div>
-<label for="lkind">Was in dieser Jahreszeit fällt</label><select id="lkind" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="blaetter">Blätter (aus der Krone – nur wenn es eine gibt)</option><option value="schnee">Schnee</option><option value="blueten">Blüten</option><option value="keine">Nichts</option></select>
+<label for="lkind">Was in dieser Jahreszeit fällt</label><select id="lkind" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff"><option value="blaetter">Blätter (aus der Krone – nur wenn es eine gibt)</option><option value="schnee">Schnee</option><option value="blueten">Blüten</option><option value="falter">Schmetterlinge (nur wenn Falterbilder im Satz liegen)</option><option value="keine">Nichts</option></select>
 <h3 style="font:600 14px/1.3 Georgia,serif;margin:18px 0 2px">Himmelsfarben</h3><p class="note" style="margin:0 0 6px">Der Himmel bleibt gerechnet – Sonne, Mond, Sterne und die Uhrzeit des Besuchers. Hier nur seine Farben je Zustand: oben, unten, Glühen um die Sonne.</p>
 <table id="lsky" style="width:auto"><tbody></tbody></table>
 <div class="bar" style="margin-top:6px"><button class="quiet" id="lskyreset" style="padding:4px 11px;font-size:13px">Standardfarben</button></div>
@@ -1013,7 +1013,7 @@ api('passkeys').then(d=>d&&renderKeys(d.passkeys)).catch(()=>{});
 let L=null,LE=null,LTimer=null;
 const LSEASONS=[['herbst','Herbst'],['winter','Winter'],['fruehling','Frühling'],['sommer','Sommer']];
 const LSKY=[['tag','Tag'],['tief','Tiefe Sonne'],['daemmerung','Dämmerung'],['nacht','Nacht']];
-const LKINDS={blaetter:'Blätter',schnee:'Schnee',blueten:'Blüten',keine:'nichts'};
+const LKINDS={blaetter:'Blätter',schnee:'Schnee',blueten:'Blüten',falter:'Schmetterlinge',keine:'nichts'};
 const LLAYERS={ferne:'Ferne',krone:'Krone',mitte:'Höhenzüge',hang:'Hang',grund:'Talgrund'},LTAL=['mitte','hang','grund'];
 const lcopy=o=>JSON.parse(JSON.stringify(o));
 function lslug(s){return String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);}
